@@ -8,7 +8,7 @@
 | Artifact path | `docs/superpowers/programs/odoo19-enterprise/governance/wave-0-readiness-assessment.md` |
 | Artifact owner | Program delivery lead |
 | Required reviewers | Program engineering lead, architecture lead, business sponsor |
-| Artifact status | Ready readiness baseline |
+| Artifact status | Ready |
 | Review cadence | Reconfirm at the end of Wave 0 and again before any Wave 1 child spec is approved for build planning |
 | Last updated | 2026-10-04 |
 
@@ -55,15 +55,26 @@ Track whether the Wave 0 governance, technical platform, production readiness, r
 
 | Readiness item | Minimum approver role | Decision date | Evidence reference |
 | --- | --- | --- | --- |
-| Governance baseline | Program delivery lead | 2026-10-04 | Approved Wave 0 spec plus `governance/review-gates.md` |
-| Technical platform baseline | Program engineering lead | 2026-10-04 | `foundation/repository-and-addon-baseline.md` and `foundation/environment-and-delivery-baseline.md` |
-| Production readiness baseline | Architecture lead | 2026-10-04 | `foundation/production-readiness-baseline.md` |
-| KPI/reporting baseline | Business sponsor | 2026-10-04 | `reporting/kpi-reporting-baseline.md` and `reporting/role-based-dashboard-blueprint.md` |
-| Wave 1 handoff | Program delivery lead | 2026-10-04 | `governance/wave-1-handoff-baseline.md` plus linked Wave 0 artifact pack |
+| Governance baseline | Program delivery lead | 2026-10-04 | Approved Wave 0 spec `docs/superpowers/specs/2026-10-04-odoo19-enterprise-wave-0-foundation-governance-design.md`, `governance/review-gates.md`, and `backlog/domain-spec-index.md` |
+| Technical platform baseline | Program engineering lead | 2026-10-04 | `foundation/repository-and-addon-baseline.md`, `foundation/environment-and-delivery-baseline.md`, package verification `python tools/program_blueprint/check_program_workspace.py -> Program workspace is complete.` |
+| Production readiness baseline | Architecture lead | 2026-10-04 | `foundation/production-readiness-baseline.md`, package verification `git diff --check` clean, and final package commit `6fb6daea59810ef8069243187ee4a168e9af632b` |
+| KPI/reporting baseline | Business sponsor | 2026-10-04 | `reporting/kpi-reporting-baseline.md`, `reporting/role-based-dashboard-blueprint.md`, and clean content scan `[]` across the Wave 0 artifact set |
+| Wave 1 handoff | Program delivery lead | 2026-10-04 | `governance/wave-1-handoff-baseline.md`, `README.md` Wave 0 artifact pack links, and `program-manifest.yaml` as the canonical package index |
+
+## Package Verification Record
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| Validator tests | Pass | `python -m pytest tools/program_blueprint/tests/test_check_program_workspace.py -q` -> `7 passed` |
+| Workspace validator | Pass | `python tools/program_blueprint/check_program_workspace.py` -> `Program workspace is complete.` |
+| Placeholder scan | Pass | Scan across the Wave 0 artifact set -> `[]` |
+| Diff hygiene | Pass | `git diff --check` -> no output |
+| Final package commit | Recorded | `6fb6daea59810ef8069243187ee4a168e9af632b` `docs(program): finalize Wave 0 readiness package` |
 
 ## Review Notes
 
 - Update the status column only after the relevant artifacts are committed and the named reviewers have confirmed the baseline is usable.
 - Update the minimum approval traceability table at the same time the readiness status changes so later reviewers can see approver, decision date, and the evidence source in one pass.
 - Use `docs/superpowers/programs/odoo19-enterprise/program-manifest.yaml` as the first cross-check when a reviewer needs to confirm the required Wave 0 artifact package is complete.
+- Use the package verification record in this document when a later reviewer needs the exact local command evidence that supported the Wave 0 closeout decision.
 - If any baseline remains incomplete, Wave 1 may continue only for discovery or drafting activity that does not assume approval of the missing foundation policy.
