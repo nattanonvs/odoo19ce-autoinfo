@@ -8,7 +8,7 @@
 | Artifact path | `docs/superpowers/programs/odoo19-enterprise/governance/wave-1-handoff-baseline.md` |
 | Artifact owner | Program delivery lead |
 | Required reviewers | Program engineering lead, architecture lead, domain owner representatives |
-| Artifact status | Draft handoff baseline |
+| Artifact status | Active baseline |
 | Review cadence | Reconfirm before each Wave 1 child spec enters detailed planning and when the Wave 0 package changes materially |
 | Last updated | 2026-10-04 |
 
@@ -72,11 +72,17 @@ Define the minimum package that Wave 1 receives from Wave 0 so domain teams can 
 
 | Handoff element | Minimum approver role | Decision date | Evidence reference |
 | --- | --- | --- | --- |
-| Wave 0 baseline accepted for Wave 1 use | Program delivery lead | Record when approved | Approved Wave 0 spec, linked artifact pack, and `program-manifest.yaml` |
-| Discovery baseline accepted for planning use | Program discovery lead | Record when confirmed | `discovery/current-state-inventory.md` and `discovery/access-readiness-checklist.md` |
-| Platform baseline accepted | Program engineering lead | Record when approved | Repository, environment, and production baseline artifacts |
-| Reporting baseline accepted | Business sponsor | Record when approved | KPI baseline and dashboard blueprint |
-| Handoff package released to domain teams | Program delivery lead | Record when handed off | This handoff document, `program-manifest.yaml`, and referenced Wave 0 artifacts |
+| Wave 0 baseline accepted for Wave 1 use | Program delivery lead | 2026-10-04 | Approved Wave 0 spec `docs/superpowers/specs/2026-10-04-odoo19-enterprise-wave-0-foundation-governance-design.md`, linked artifact pack in `README.md`, and `program-manifest.yaml` |
+| Discovery baseline accepted for planning use | Program discovery lead | 2026-10-04 | `discovery/current-state-inventory.md` and `discovery/access-readiness-checklist.md` as the active discovery references for Wave 1 planning |
+| Platform baseline accepted | Program engineering lead | 2026-10-04 | `foundation/repository-and-addon-baseline.md`, `foundation/environment-and-delivery-baseline.md`, and `foundation/production-readiness-baseline.md` |
+| Reporting baseline accepted | Business sponsor | 2026-10-04 | `reporting/kpi-reporting-baseline.md` and `reporting/role-based-dashboard-blueprint.md` |
+| Handoff package released for Wave 1 planning use | Program delivery lead | 2026-10-04 | This handoff document, `governance/wave-0-readiness-assessment.md`, `program-manifest.yaml`, and the referenced Wave 0 artifact pack |
+
+## Release Note
+
+- Wave 0 packaged the baseline artifacts for Wave 1 planning use on 2026-10-04.
+- This release note means the package is reviewable and citable by domain teams; it does not mean the known unknowns in this document are closed.
+- Any Wave 1 team that finds a missing approval, discovery gap, or policy conflict must raise an explicit exception instead of silently overriding the handoff package.
 
 ## Entry Questions For Wave 1 Teams
 
