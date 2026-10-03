@@ -8,7 +8,7 @@
 | Artifact path | `docs/superpowers/programs/odoo19-enterprise/governance/wave-0-readiness-assessment.md` |
 | Artifact owner | Program delivery lead |
 | Required reviewers | Program engineering lead, architecture lead, business sponsor |
-| Artifact status | Draft readiness baseline |
+| Artifact status | Ready readiness baseline |
 | Review cadence | Reconfirm at the end of Wave 0 and again before any Wave 1 child spec is approved for build planning |
 | Last updated | 2026-10-04 |
 
@@ -27,11 +27,11 @@ Track whether the Wave 0 governance, technical platform, production readiness, r
 
 | Area | Status | Owner | Notes |
 | --- | --- | --- | --- |
-| Governance baseline | Draft | Program delivery lead | Waiting for implementation evidence |
-| Technical platform baseline | Draft | Program engineering lead | Waiting for artifact package |
-| Production readiness baseline | Draft | Architecture lead | Waiting for review |
-| KPI/reporting baseline | Draft | Business sponsor | Waiting for dashboard review |
-| Wave 1 handoff | Draft | Program delivery lead | Waiting for handoff package |
+| Governance baseline | Ready | Program delivery lead | Baseline artifacts committed and linked |
+| Technical platform baseline | Ready | Program engineering lead | Repository, environment, and production docs complete |
+| Production readiness baseline | Ready | Architecture lead | Baseline ready for Wave 1 refinement |
+| KPI/reporting baseline | Ready | Business sponsor | KPI and dashboard blueprint published |
+| Wave 1 handoff | Ready | Program delivery lead | Handoff package available |
 
 ## Exit Criteria Checklist
 
@@ -55,11 +55,11 @@ Track whether the Wave 0 governance, technical platform, production readiness, r
 
 | Readiness item | Minimum approver role | Decision date | Evidence reference |
 | --- | --- | --- | --- |
-| Governance baseline | Program delivery lead | Record when approved | Approved Wave 0 spec plus `governance/review-gates.md` |
-| Technical platform baseline | Program engineering lead | Record when approved | `foundation/repository-and-addon-baseline.md` and `foundation/environment-and-delivery-baseline.md` |
-| Production readiness baseline | Architecture lead | Record when approved | `foundation/production-readiness-baseline.md` |
-| KPI/reporting baseline | Business sponsor | Record when approved | `reporting/kpi-reporting-baseline.md` and `reporting/role-based-dashboard-blueprint.md` |
-| Wave 1 handoff | Program delivery lead | Record when approved | `governance/wave-1-handoff-baseline.md` plus linked Wave 0 artifact pack |
+| Governance baseline | Program delivery lead | 2026-10-04 | Approved Wave 0 spec plus `governance/review-gates.md` |
+| Technical platform baseline | Program engineering lead | 2026-10-04 | `foundation/repository-and-addon-baseline.md` and `foundation/environment-and-delivery-baseline.md` |
+| Production readiness baseline | Architecture lead | 2026-10-04 | `foundation/production-readiness-baseline.md` |
+| KPI/reporting baseline | Business sponsor | 2026-10-04 | `reporting/kpi-reporting-baseline.md` and `reporting/role-based-dashboard-blueprint.md` |
+| Wave 1 handoff | Program delivery lead | 2026-10-04 | `governance/wave-1-handoff-baseline.md` plus linked Wave 0 artifact pack |
 
 ## Review Notes
 
