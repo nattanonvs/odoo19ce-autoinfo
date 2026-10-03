@@ -1,7 +1,7 @@
 # Odoo 19 CE Wave 0: Foundation, Technical Platform, and KPI Baseline
 
 วันที่: 2026-10-04
-สถานะ: รอผู้ใช้ทบทวน
+สถานะ: อนุมัติแล้ว
 รหัสสเปก: W0-FOUNDATION
 ผู้อ่านหลัก: ทีมเทคนิค + เจ้าของ/ผู้อนุมัติ
 อ้างอิงหลัก:
