@@ -29,3 +29,13 @@ This directory contains the executable planning workspace for the company-wide O
 3. Approve domain wave sequencing
 4. Write child specs per wave
 5. Generate implementation plans per child spec
+
+## Wave 0 Artifact Pack
+
+- `foundation/repository-and-addon-baseline.md`
+- `foundation/environment-and-delivery-baseline.md`
+- `foundation/production-readiness-baseline.md`
+- `reporting/kpi-reporting-baseline.md`
+- `reporting/role-based-dashboard-blueprint.md`
+- `governance/wave-0-readiness-assessment.md`
+- `governance/wave-1-handoff-baseline.md`
