@@ -66,6 +66,8 @@ Threshold definition is mandatory for every baseline report. A report is not rev
 
 Use this minimum template whenever a new KPI report is proposed:
 
+The template is incomplete unless the report owner states a quality cue that tells readers whether the numbers are complete, delayed, estimated, or unavailable.
+
 | Field | Example prompt |
 | --- | --- |
 | Report name | What is the report called? |
@@ -74,6 +76,7 @@ Use this minimum template whenever a new KPI report is proposed:
 | Trigger or cadence | When is it reviewed? |
 | Data source | Which model or source artifact feeds it? |
 | Threshold definition (required) | What counts as good, warning, or bad, and where are the exact business boundaries? |
+| Quality cue (required) | How should the reader interpret the trust level of this output: complete, delayed, estimated, or unavailable? |
 | Drill-down path | How far can the user inspect detail? |
 | Owner | Who keeps the report definition correct? |
 

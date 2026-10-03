@@ -33,6 +33,15 @@ Define the minimum role-based dashboard structure for Wave 0 so later domain wav
 | Business unit comparison | Show relative performance across units or domains. | Sales versus service versus logistics comparison |
 | Decision support | Present the next action or question to review. | Open exceptions requiring sponsor decision, follow-up queue |
 
+### Owner Dashboard Low-Fidelity First Screen Mock
+
+- Header: reporting period, selected business unit scope, and data freshness cue
+- Top summary row: revenue trend, gross margin health, overdue exposure, and backlog posture
+- Alert row: top 3 red or yellow issues requiring sponsor attention
+- Trend row: 30/60/90 day business trend with brief variance note
+- Comparison row: business-unit comparison with one-click drill-down into top exception detail
+- Decision row: sponsor review queue with named owner and next decision needed
+
 ## Management Dashboard
 
 | Zone | Intent | Example content |
@@ -43,6 +52,15 @@ Define the minimum role-based dashboard structure for Wave 0 so later domain wav
 | SLA and timeliness | Show timeliness and risk of future misses. | Approaching deadlines, missed SLA count, delay distribution |
 | Manager action zone | Focus the manager on assignable follow-up work. | Escalation list, owner assignment, unresolved team issues |
 
+### Management Dashboard Low-Fidelity First Screen Mock
+
+- Header: team or domain scope, current operating period, and freshness cue
+- Summary row: throughput, SLA attainment, collections or conversion, and workload pressure
+- Pipeline row: incoming demand, aging pipeline, and queue movement
+- Exception row: top bottlenecks, overdue approvals, and repeated failure patterns
+- Timeliness row: near-breach items and trend in missed targets
+- Action row: manager escalation list with assignee, due date, and expected next step
+
 ## Operational Lead Dashboard
 
 | Zone | Intent | Example content |
@@ -52,6 +70,15 @@ Define the minimum role-based dashboard structure for Wave 0 so later domain wav
 | Near deadline zone | Prevent avoidable lateness. | Items nearing SLA breach, aging queue segments |
 | Execution health | Show whether the team is keeping pace. | Queue inflow versus throughput, completion rate, work-in-progress |
 | Operational actions | Allow immediate follow-up. | Assign, re-prioritize, escalate, or request missing data |
+
+### Operational Lead Dashboard Low-Fidelity First Screen Mock
+
+- Header: queue scope, current shift or day, and data freshness cue
+- Priority row: today's highest-priority work items and urgent blockers
+- Pending row: stuck workflows, failed validations, and missing-data cases
+- Deadline row: near-SLA-breach items sorted by urgency
+- Health row: inflow versus throughput, work-in-progress, and completion pace
+- Action row: immediate actions for assign, re-prioritize, escalate, or request missing information
 
 ## Shared Dashboard Rules
 
