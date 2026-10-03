@@ -21,3 +21,11 @@ This directory contains the executable planning workspace for the company-wide O
 2. Standard Odoo and OCA options are evaluated before custom build.
 3. No direct Odoo core modifications are allowed.
 4. Every artifact in this workspace must be reviewable and versioned.
+
+## Execution Order
+
+1. Complete discovery pack with evidence from Odoo 15 CE
+2. Confirm engineering and governance rules
+3. Approve domain wave sequencing
+4. Write child specs per wave
+5. Generate implementation plans per child spec
