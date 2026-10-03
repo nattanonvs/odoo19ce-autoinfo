@@ -24,6 +24,14 @@
 - [ ] Wave 4 - Logistics extensions
 - [ ] Wave 5 - HR and operational enablement
 
+## Wave 0
+
+| Item | Status | Primary artifact |
+| --- | --- | --- |
+| Foundation and governance baseline | Approved | `docs/superpowers/specs/2026-10-04-odoo19-enterprise-wave-0-foundation-governance-design.md` |
+| Implementation pack | In progress | `docs/superpowers/plans/2026-10-04-odoo19-enterprise-wave-0-foundation-governance-implementation-plan.md` |
+| Handoff to Wave 1 | Draft | `docs/superpowers/programs/odoo19-enterprise/governance/wave-1-handoff-baseline.md` |
+
 ## Child Spec Register
 
 | Wave | Child spec ID | Canonical child spec title | Child spec path placeholder | Status | Owner | Reviewer | Approvers | Dependencies | Discovery evidence | Gate readiness |
