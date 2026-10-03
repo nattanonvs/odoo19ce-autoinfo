@@ -7,7 +7,7 @@
 | Program | Odoo 19 CE Enterprise Program |
 | Artifact | Domain wave backlog control matrix |
 | Artifact status | Active baseline |
-| Baseline source | `docs/superpowers/plans/2026-10-04-odoo19-ce-enterprise-blueprint-master-plan.md` Task 5 |
+| Baseline source | `docs/superpowers/specs/2026-10-04-odoo19-ce-enterprise-blueprint-design.md` |
 | Owner | Program lead |
 | Reviewer | Technical supervisor |
 | Approvers | Business owner; Technical supervisor |
