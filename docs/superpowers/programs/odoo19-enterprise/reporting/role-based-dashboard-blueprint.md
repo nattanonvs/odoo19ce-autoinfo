@@ -28,6 +28,7 @@ Define the minimum role-based dashboard structure for Wave 0 so later domain wav
 | --- | --- | --- |
 | Executive summary | Show the shortest business status view first. | Revenue trend, margin health, cash exposure, backlog posture |
 | Risk and alert zone | Surface the few issues that justify executive attention now. | Critical overdue exposure, control breaches, major delivery risk |
+| Drill-down entry | Provide a controlled path from executive summary or alert signals into exception detail without forcing the owner into daily operational triage. | Top exceptions by business unit, overdue exposure detail, margin variance detail |
 | Trend zone | Show whether performance is improving or degrading. | 30/60/90 day trend lines, comparative period change |
 | Business unit comparison | Show relative performance across units or domains. | Sales versus service versus logistics comparison |
 | Decision support | Present the next action or question to review. | Open exceptions requiring sponsor decision, follow-up queue |
