@@ -32,10 +32,10 @@ This directory contains the executable planning workspace for the company-wide O
 
 ## Wave 0 Artifact Pack
 
-- `foundation/repository-and-addon-baseline.md`
-- `foundation/environment-and-delivery-baseline.md`
-- `foundation/production-readiness-baseline.md`
-- `reporting/kpi-reporting-baseline.md`
-- `reporting/role-based-dashboard-blueprint.md`
-- `governance/wave-0-readiness-assessment.md`
-- `governance/wave-1-handoff-baseline.md`
+- [foundation/repository-and-addon-baseline.md](foundation/repository-and-addon-baseline.md)
+- [foundation/environment-and-delivery-baseline.md](foundation/environment-and-delivery-baseline.md)
+- [foundation/production-readiness-baseline.md](foundation/production-readiness-baseline.md)
+- [reporting/kpi-reporting-baseline.md](reporting/kpi-reporting-baseline.md)
+- [reporting/role-based-dashboard-blueprint.md](reporting/role-based-dashboard-blueprint.md)
+- [governance/wave-0-readiness-assessment.md](governance/wave-0-readiness-assessment.md)
+- [governance/wave-1-handoff-baseline.md](governance/wave-1-handoff-baseline.md)
