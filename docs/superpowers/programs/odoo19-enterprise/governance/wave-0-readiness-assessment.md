@@ -21,6 +21,7 @@ Track whether the Wave 0 governance, technical platform, production readiness, r
 - Applies to Wave 0 baseline artifacts only.
 - Applies to readiness decisions for governance, technical platform, reporting, and Wave 1 handoff packaging.
 - Does not replace later gate evidence for domain design, implementation, migration rehearsal, or production go-live.
+- Uses `docs/superpowers/programs/odoo19-enterprise/program-manifest.yaml` as the canonical pointer to the required Wave 0 artifact set that must remain present in the program workspace.
 
 ## Readiness Areas
 
@@ -44,11 +45,11 @@ Track whether the Wave 0 governance, technical platform, production readiness, r
 
 | Area | Minimum evidence cue |
 | --- | --- |
-| Governance baseline | Approved Wave 0 spec status plus linked governance artifacts in the program workspace |
-| Technical platform baseline | Repository, environment, and production baseline documents committed and visible in the manifest package |
+| Governance baseline | Approved Wave 0 spec status plus linked governance artifacts in the program workspace and tracked in `program-manifest.yaml` |
+| Technical platform baseline | Repository, environment, and production baseline documents committed and visible in the package tracked by `docs/superpowers/programs/odoo19-enterprise/program-manifest.yaml` |
 | Production readiness baseline | Production baseline states ownership, backup, restore, monitoring, and rollback expectations clearly enough for Wave 1 to inherit without redefining platform policy |
 | KPI/reporting baseline | KPI baseline and dashboard blueprint published with named audience and decision use |
-| Wave 1 handoff | Handoff document links the Wave 0 package and names what Wave 1 must still define |
+| Wave 1 handoff | Handoff document links the Wave 0 package, points to `program-manifest.yaml`, and names what Wave 1 must still define |
 
 ## Minimum Approval Traceability
 
@@ -64,4 +65,5 @@ Track whether the Wave 0 governance, technical platform, production readiness, r
 
 - Update the status column only after the relevant artifacts are committed and the named reviewers have confirmed the baseline is usable.
 - Update the minimum approval traceability table at the same time the readiness status changes so later reviewers can see approver, decision date, and the evidence source in one pass.
+- Use `docs/superpowers/programs/odoo19-enterprise/program-manifest.yaml` as the first cross-check when a reviewer needs to confirm the required Wave 0 artifact package is complete.
 - If any baseline remains incomplete, Wave 1 may continue only for discovery or drafting activity that does not assume approval of the missing foundation policy.
