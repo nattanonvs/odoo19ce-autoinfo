@@ -67,3 +67,24 @@ def test_find_missing_paths_rejects_absolute_required_paths(tmp_path: Path) -> N
 def test_find_missing_paths_rejects_parent_traversal(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="repo root"):
         find_missing_paths(tmp_path, ["../outside.md"])
+
+
+def test_program_manifest_tracks_wave0_foundation_artifacts() -> None:
+    repo_root = Path(__file__).resolve().parents[3]
+    manifest_path = (
+        repo_root / "docs/superpowers/programs/odoo19-enterprise/program-manifest.yaml"
+    )
+
+    data = load_manifest(manifest_path)
+
+    expected_paths = [
+        "docs/superpowers/programs/odoo19-enterprise/foundation/repository-and-addon-baseline.md",
+        "docs/superpowers/programs/odoo19-enterprise/foundation/environment-and-delivery-baseline.md",
+        "docs/superpowers/programs/odoo19-enterprise/foundation/production-readiness-baseline.md",
+        "docs/superpowers/programs/odoo19-enterprise/reporting/kpi-reporting-baseline.md",
+        "docs/superpowers/programs/odoo19-enterprise/reporting/role-based-dashboard-blueprint.md",
+        "docs/superpowers/programs/odoo19-enterprise/governance/wave-0-readiness-assessment.md",
+        "docs/superpowers/programs/odoo19-enterprise/governance/wave-1-handoff-baseline.md",
+    ]
+
+    assert all(path in data["required_paths"] for path in expected_paths)
