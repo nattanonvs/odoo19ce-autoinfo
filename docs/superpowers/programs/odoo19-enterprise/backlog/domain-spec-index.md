@@ -85,3 +85,9 @@
 - Do not mark a child spec ready unless its evidence, reviewer input, and approvers are recorded.
 - Keep wave naming, child-spec IDs, and path placeholders synchronized with `domain-wave-matrix.md`.
 - Promote a child spec to `Ready for plan` only after business and technical review are both complete.
+
+## Review Checkpoints
+
+- Business owner approval required before a child spec is marked ready
+- Technical supervisor approval required before an implementation plan is written
+- Owner-reporting impact must be confirmed before build starts
