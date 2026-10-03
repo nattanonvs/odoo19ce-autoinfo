@@ -1,22 +1,85 @@
 # Repository and Addon Baseline
 
+## Document Metadata
+
+| Field | Value |
+| --- | --- |
+| Program | Odoo 19 CE Enterprise |
+| Artifact path | `docs/superpowers/programs/odoo19-enterprise/foundation/repository-and-addon-baseline.md` |
+| Artifact owner | Program engineering lead |
+| Required reviewers | Architecture lead, delivery lead, security reviewer |
+| Artifact status | Active baseline |
+| Review cadence | Reconfirm before each domain build starts and whenever repository structure or addon boundaries change |
+| Last updated | 2026-10-04 |
+
 ## Purpose
-- กำหนดว่าของแต่ละประเภทต้องอยู่ตรงไหน
-- กันการปนกันระหว่าง docs, addons, deployment, tests, migrations
+
+Define where delivery artifacts belong, how addon boundaries are evaluated, and which controls must be satisfied before a repository or module change can pass review.
+
+## Scope
+
+- Applies to program documentation, custom addons, selected OCA addons, approved third-party dependencies, deployment assets, migration utilities, and automation artifacts produced for this program.
+- Applies from Wave 0 foundation through each domain implementation and production cutover preparation.
+- Works together with `docs/superpowers/programs/odoo19-enterprise/foundation/engineering-standards.md` and `docs/superpowers/programs/odoo19-enterprise/governance/review-gates.md`; this document does not waive any rule defined there.
 
 ## Repository Layout Rules
-- `docs/` เก็บ specs, plans, governance, reporting artifacts
-- `custom_addons/` เก็บ company-specific addons
-- `third_party/oca/` เก็บ OCA addons ที่เลือกใช้
-- `deployment/` เก็บ config, compose, service, release notes
-- `tests/` หรือ test paths ตาม addon สำหรับ automation
+
+| Path or area | Intended contents | Control rule |
+| --- | --- | --- |
+| `docs/` | Specs, plans, governance, reporting, discovery, and review evidence | Documentation must remain reviewable, versioned, and linked from the relevant program artifact. |
+| `custom_addons/` | Company-specific addons approved after standard and OCA evaluation | Every addon must map to an approved domain scope and satisfy install, upgrade, and uninstall safety. |
+| `third_party/oca/` | OCA addons selected for reuse | Keep source provenance visible and document selection rationale before adoption. |
+| `deployment/` | Runtime configuration, compose files, services, runbooks, release notes | Runtime settings must not embed live secrets and must support rollback planning. |
+| `tests/` or addon-local test paths | Automated tests, fixtures, and verification helpers | Test evidence must be traceable to the domain or baseline under review. |
 
 ## Addon Boundary Rules
-- หนึ่ง addon มีหน้าที่หลักหนึ่งเรื่อง
-- dependency ต้องประกาศใน manifest เท่านั้น
-- ห้าม hidden coupling
-- ต้อง install, upgrade, uninstall ได้
 
-## Naming Rules
-- addon ใช้ prefix เดียวกันตาม program
-- model, field, security group, data xml id ต้องสื่อความหมายและ trace กลับ spec ได้
+- One addon owns one primary responsibility and one bounded business capability.
+- Dependencies must be declared in the addon manifest and justified in review notes when they add non-obvious coupling.
+- Hidden coupling is not allowed; integrations must be discoverable through explicit dependencies, service interfaces, or documented extension points.
+- Every addon must be safe to install, upgrade, and uninstall in an isolated environment before it can pass Gate 4 review.
+- Addons that only exist to bypass a poor boundary are not acceptable; the scope must be split or redesigned instead.
+
+## Addon Admission Controls
+
+| Decision question | Pass condition | Escalate or fail when |
+| --- | --- | --- |
+| Should this be a new addon? | The scope is a distinct business capability, cannot be absorbed cleanly into an approved existing addon, and has its own manifest-level lifecycle. | The change is only a minor extension of an existing bounded addon or exists only because ownership is unclear. |
+| Should the program use OCA instead of custom code? | Standard Odoo and OCA options were evaluated first and either selected or rejected with written rationale. | No evaluation record exists or the team jumps directly to custom implementation. |
+| Is the addon boundary acceptable? | Responsibilities, data ownership, and interfaces can be explained without reading unrelated modules. | The addon mixes multiple domains, depends on undocumented side effects, or requires coordinated deployment with unrelated modules. |
+| Is the addon ready for build approval? | Naming, dependencies, install/uninstall safety, and traceability back to the approved spec are all evidenced. | Any one of those controls is missing, implicit, or contradictory. |
+
+## Naming and Traceability Rules
+
+- Addon names must use the program-approved prefix and stay consistent with the owning domain or capability.
+- Model names, fields, security groups, menu items, scheduled actions, and XML IDs must be descriptive enough to trace back to an approved spec, data contract, or governance note.
+- Cross-addon extension points must use names that reveal the dependency direction rather than obscure internal behavior.
+- If a reviewer cannot identify the owning domain from the addon name and manifest, the naming contract is not satisfied.
+
+## Control Block: Repository Change Decisions
+
+- Add a new top-level directory only when an existing approved area cannot own the artifact without mixing responsibilities; the change requires architecture lead sign-off.
+- Place new operational assets under `deployment/` when they affect runtime behavior, rollback, backup, monitoring, or service orchestration.
+- Place migration-only helpers with the migration package or clearly named utility path, never inside unrelated business addons.
+- Reject changes that scatter a single delivery concern across multiple top-level locations without a documented rationale.
+
+## Evidence Required For Review Gates
+
+| Gate or review area | Minimum evidence from this baseline |
+| --- | --- |
+| Gate 2: Blueprint Approved | Repository layout and addon policy acknowledged as the active structural baseline. |
+| Gate 3: Domain Spec Approved | Domain spec identifies whether the scope maps to a new addon, existing addon, or OCA selection. |
+| Gate 4: Build Approved | Addon manifest review, dependency rationale, boundary explanation, and install/upgrade/uninstall evidence. |
+| Exception review | Written waiver showing which boundary rule is affected, why no safer structure exists, mitigation, owner, and expiry date. |
+
+## Exception Path
+
+- Structural exceptions are allowed only for temporary transition cases with a dated remediation plan.
+- Exceptions cannot waive explicit dependency declarations, traceability, or install/uninstall safety.
+- Every approved exception must name the affected repository area or addon, the risk owner, the cleanup trigger, and the gate where the exception will be re-evaluated.
+
+## Review Cadence
+
+- Review this baseline whenever a new domain introduces a custom addon, OCA selection, or repository structure change.
+- Reconfirm applicability during Gate 3 and Gate 4 discussions for each domain slice.
+- Update this document when a recurring structure or dependency decision becomes program policy.
