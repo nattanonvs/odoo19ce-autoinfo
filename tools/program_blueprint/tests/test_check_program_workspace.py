@@ -25,6 +25,22 @@ def test_find_missing_paths_reports_absent_files(tmp_path: Path) -> None:
     assert missing == ["docs/b.md"]
 
 
+def test_load_manifest_supports_comments_and_blank_lines(tmp_path: Path) -> None:
+    manifest = tmp_path / "program-manifest.yaml"
+    manifest.write_text(
+        "# Program workspace manifest\n"
+        "\n"
+        "required_paths:\n"
+        "  - docs/a.md\n"
+        "  - docs/b.md\n",
+        encoding="utf-8",
+    )
+
+    data = load_manifest(manifest)
+
+    assert data["required_paths"] == ["docs/a.md", "docs/b.md"]
+
+
 def test_load_manifest_rejects_non_mapping_root(tmp_path: Path) -> None:
     manifest = tmp_path / "program-manifest.yaml"
     manifest.write_text("- docs/a.md\n", encoding="utf-8")

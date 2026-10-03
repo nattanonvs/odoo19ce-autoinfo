@@ -1,8 +1,14 @@
 # Odoo 19 CE Enterprise Blueprint
 
 Date: 2026-10-04
-Status: Draft for user review
+Status: User-approved blueprint baseline
 Scope: Enterprise-wide greenfield rebuild using Odoo 15 CE as a study/reference system
+
+## Approval Traceability
+
+- Original drafting milestone: the blueprint was first issued on 2026-10-04 as `Draft for user review`.
+- Approval record: the user approved the blueprint/master-plan direction on 2026-10-04, and follow-on program packaging proceeded from that approval.
+- Traceability note: this section preserves the original draft state in history while updating the active status line to reflect the approved baseline now governing program artifacts.
 
 ## 1. Purpose
 

@@ -3,17 +3,57 @@ from __future__ import annotations
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Iterable
 
-import yaml
-
 
 def load_manifest(path: Path) -> dict:
-    data = yaml.safe_load(path.read_text(encoding="utf-8"))
-    if data is None:
-        data = {}
-    if not isinstance(data, dict):
-        raise ValueError(
-            f"Manifest {path} must contain a mapping at the YAML root."
-        )
+    data: dict[str, object] = {}
+    current_list_key: str | None = None
+    manifest_lines = path.read_text(encoding="utf-8").splitlines()
+    for lineno, raw_line in enumerate(manifest_lines, start=1):
+        stripped = raw_line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+
+        indented = raw_line.lstrip()
+        indent = len(raw_line) - len(indented)
+
+        if indented.startswith("- "):
+            if current_list_key is None or indent == 0:
+                raise ValueError(
+                    f"Manifest {path} must contain a mapping at the YAML root."
+                )
+            list_value = data.setdefault(current_list_key, [])
+            if not isinstance(list_value, list):
+                raise ValueError(
+                    f"Manifest {path} line {lineno} has an invalid list item."
+                )
+            item = indented[2:].strip()
+            if not item:
+                raise ValueError(
+                    f"Manifest {path} line {lineno} contains an empty list item."
+                )
+            list_value.append(item)
+            continue
+
+        if indent != 0:
+            raise ValueError(
+                f"Manifest {path} line {lineno} has unsupported indentation."
+            )
+
+        key, separator, remainder = stripped.partition(":")
+        if not separator or not key.strip():
+            raise ValueError(
+                f"Manifest {path} line {lineno} is not valid manifest syntax."
+            )
+
+        key = key.strip()
+        remainder = remainder.strip()
+        if remainder:
+            data[key] = remainder
+            current_list_key = None
+        else:
+            data[key] = []
+            current_list_key = key
+
     required_paths = data.get("required_paths", [])
     if not isinstance(required_paths, list) or any(
         not isinstance(rel_path, str) for rel_path in required_paths

@@ -36,8 +36,8 @@ Capture the minimum evidence required from Odoo 15 CE before redesign decisions 
 | Area | Status | Notes |
 | --- | --- | --- |
 | System Facts | Partial | Admin and Developer Mode access are known; version and company scope still need cited evidence. |
-| Custom Landscape | Partial | Prior technical scan identified `AUTO-INFO` and `DTR`; inventory still needs full evidence-backed export. |
-| Domain Inventory | Partial | Several hotspot domains are known, but company-wide domain coverage is not complete. |
+| Custom Landscape | Partial with Gate 1 equivalent attached | Prior technical scan identified `AUTO-INFO`, `DTR`, and named hotspot domains; the concrete interim custom map below is reviewable now, while full exports are still pending attachment. |
+| Domain Inventory | Partial | Several hotspot domains are now named in the Gate 1 equivalent map below, but company-wide domain coverage is not complete. |
 | Reports and Owner Information Needs | Open | Owner-facing KPI and alert inventory still needs direct evidence capture. |
 | Data Conditions | Open | Data quality and archival decisions still need database-level evidence. |
 | Integrations and Security-Risk Hotspots | Open | Explicit interface, credential, and privileged-automation review is still pending. |
@@ -77,12 +77,25 @@ Capture the minimum evidence required from Odoo 15 CE before redesign decisions 
   - Export addon/module inventory grouped by namespace, including repository or filesystem location.
   - Extract the menu-to-action-to-model map from Odoo Technical menus so domain owners can trace UI entry points to custom models.
   - Record every automated action, server action, and scheduled action with trigger, scope, and execution user.
+- Gate 1 custom map equivalent:
+
+| Discovery slice | Current status | Confirmed scope/evidence wording | Evidence basis already known | Follow-up still required before build planning closes discovery |
+| --- | --- | --- | --- | --- |
+| `AUTO-INFO` namespace | `Confirmed namespace / partial inventory` | Prior discovery confirms `AUTO-INFO` as a legacy custom namespace with custom models and UI entry points already observed; this is sufficient to treat it as in-scope custom landscape, but not yet sufficient to claim a complete module export. | Admin and Technical-menu discovery passes; prior custom-model and UI-entry-point mapping noted in discovery summaries. | Attach module/export list, repository paths, and exact menu-action-model references. |
+| `DTR` namespace | `Confirmed namespace / partial inventory` | Prior discovery confirms `DTR` as a legacy custom namespace with business-unit extensions and custom models; scope is known, but the namespace inventory is still incomplete. | Admin and Technical-menu discovery passes; prior summaries explicitly identify `DTR` as a major customization source. | Attach addon inventory, code/repository paths, and automation usage by domain. |
+| Sales Services / Claims / Warranty / Service Card / Product Return | `Confirmed hotspot domain / partial map` | Prior discovery confirms Sales Services as one of the most complex custom domains, with Claims, Warranty, Service Card, and Product Return flows already identified as follow-on design scope. | Technical-menu scan and prior domain summaries naming Sales Services and related after-sales flows. | Capture menu tree, model list, approvals, reports, and automation points. |
+| Advance / Cheque / Money In Analysis | `Confirmed hotspot domain / partial map` | Prior discovery confirms finance-control customization around Advance and Cheque, with Money In Analysis named as a follow-on wave; this is enough to classify Finance Controls as a custom hotspot pending detailed export. | Prior domain summaries and wave planning artifacts naming Advance, Cheque, and Money In Analysis. | Attach workflow evidence, model-level inventory, reconciliation reports, and privileged action review. |
+| Stock Requests / Transportation / logistics extensions | `Confirmed hotspot domain / partial map` | Prior discovery confirms Transportation and related logistics extensions as custom hotspots, including links to Purchase/Inventory-adjacent behavior; this is a real custom area, not a hypothetical placeholder. | Prior domain summaries identifying Transportation, logistics extensions, and custom transport scope. | Capture source modules, operational flows, external touchpoints, and approval boundaries. |
+| Employees / Attendances / Time Off | `Known operational domain / evidence still shallow` | Prior discovery confirms active use of Attendances and HR operational data; this domain is in scope for discovery, but the custom-versus-standard boundary remains less clear than the finance and service hotspots above. | Prior product scan, Attendances access confirmation, and wave planning artifacts. | Distinguish standard behavior from custom overlays and capture security/access-risk evidence. |
+| Menu-to-action-to-model traceability | `Partial evidence` | The discovery process has already used Technical menus to trace UI entry points to models, so Gate 1 can review this as an evidence-backed method already exercised, but the program package still lacks the exported trace matrix. | Prior discovery notes explicitly state Technical-menu scanning was used to map UI entry points and custom models. | Attach export or table of menus, actions, models, and owning domains. |
+| Automated / server / scheduled actions | `Known risk area / explicit inventory pending` | Prior discovery confirms the environment uses server actions and automated actions; therefore automation risk is known and in scope, but the executable inventory is not yet attached. | Prior discovery notes explicitly mention server actions and automated actions in use. | Attach the full automation inventory with trigger, user, target model, and side-effect notes. |
 - Known findings:
   - Prior discovery identified extensive customization under the `AUTO-INFO` and `DTR` namespaces.
   - Technical-menu scanning has already been used to map custom models and UI entry points.
+  - The table above is the current Gate 1 custom-map equivalent: it is concrete enough for review, but it does not replace the need for later evidence exports.
 - Open questions/blockers:
-  - The full namespace inventory has not yet been attached as evidence.
-  - Privileged actions and cron jobs still need explicit risk review for financial, HR, and integration side effects.
+  - The full namespace inventory has not yet been attached as exported evidence.
+  - Privileged actions and cron jobs still need explicit risk review for financial, HR, and integration side effects before discovery can claim full completeness.
 
 ### Domain Inventory
 - Finance
