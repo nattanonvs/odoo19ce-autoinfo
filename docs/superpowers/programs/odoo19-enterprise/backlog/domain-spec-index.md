@@ -9,7 +9,8 @@
 | Artifact status | Active baseline |
 | Baseline source | `docs/superpowers/plans/2026-10-04-odoo19-ce-enterprise-blueprint-master-plan.md` Task 5 |
 | Owner | Program lead |
-| Reviewers | Business owner; Technical supervisor |
+| Reviewer | Technical supervisor |
+| Approvers | Business owner; Technical supervisor |
 | Last updated | 2026-10-04 |
 | Review cadence | Update whenever a child spec is created, approved, or resequenced |
 | Validator expectation | Keep this file present at the manifest path |
@@ -27,7 +28,7 @@
 
 | Wave | Child spec ID | Canonical child spec title | Child spec path placeholder | Status | Owner | Reviewer | Approvers | Dependencies | Discovery evidence | Gate readiness |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Wave 0 | W0-FOUNDATION | Foundation platform and governance baseline | `docs/superpowers/specs/YYYY-MM-DD-odoo19-enterprise-wave-0-foundation-governance.md` | Not started | Program lead | Technical supervisor | Business owner; Technical supervisor | Discovery pack; engineering standards; review gates | `discovery/current-state-inventory.md`; `discovery/access-readiness-checklist.md`; `foundation/engineering-standards.md`; `governance/review-gates.md` | Ready when the foundation child spec is approved and execution order is agreed |
+| Wave 0 | W0-FOUNDATION | Foundation platform and governance baseline | `docs/superpowers/specs/YYYY-MM-DD-odoo19-enterprise-wave-0-foundation-governance.md` | Baseline defined | Program lead | Technical supervisor | Business owner; Technical supervisor | Discovery pack; engineering standards; review gates | `discovery/current-state-inventory.md`; `discovery/access-readiness-checklist.md`; `foundation/engineering-standards.md`; `governance/review-gates.md` | Ready when the foundation child spec is approved and execution order is agreed |
 | Wave 1 | W1-COMMERCIAL-CORE | Commercial and financial core | `docs/superpowers/specs/YYYY-MM-DD-odoo19-enterprise-wave-1-commercial-financial-core.md` | Not started | Commercial domain lead | Technical supervisor | Business owner; Technical supervisor | Wave 0 approved | Discovery evidence for contacts, sales, purchase, inventory, and accounting | Ready when commercial scope, reporting KPIs, and migration assumptions are approved |
 | Wave 2 | W2-FINANCE-CONTROLS | Custom finance controls | `docs/superpowers/specs/YYYY-MM-DD-odoo19-enterprise-wave-2-custom-finance-controls.md` | Not started | Finance controls lead | Technical supervisor | Business owner; Technical supervisor | Wave 1 approved or explicitly decoupled | Discovery evidence for advance, cheque, and money-in workflows | Ready when custom control rationale, dependencies, and approvals are complete |
 | Wave 3 | W3-AFTER-SALES | Sales Services and after-sales | `docs/superpowers/specs/YYYY-MM-DD-odoo19-enterprise-wave-3-sales-services-after-sales.md` | Not started | Service operations lead | Technical supervisor | Business owner; Technical supervisor | Wave 1 customer baseline | Discovery evidence for sales services, claims, warranty, service card, and returns | Ready when service flows, owner-reporting impact, and training implications are approved |
@@ -46,7 +47,7 @@
 - Training impact
 - Child spec ID and wave reference
 - Canonical child spec path and traceability back to `domain-wave-matrix.md`
-- Owner, reviewer, and current status
+- Owner, technical reviewer, approvers, and current status
 - Discovery evidence references and source locations
 - Dependency map, predecessor waves, and known blockers
 - Approvers, approval dates, and approval notes
@@ -62,7 +63,7 @@
 - Wave: <Wave 0-5>
 - Status: <Not started | In discovery | Draft | In review | Approved | Ready for plan>
 - Owner: <role or named owner>
-- Reviewer: <role or named reviewer>
+- Reviewer: <technical reviewer role or named reviewer>
 - Approvers: <business owner>; <technical supervisor>
 - Canonical path: <docs/superpowers/specs/...>
 - Source backlog row: `backlog/domain-wave-matrix.md`
@@ -81,6 +82,6 @@
 
 ## Control Rules
 
-- Do not mark a child spec ready unless its evidence and approvers are recorded.
+- Do not mark a child spec ready unless its evidence, reviewer input, and approvers are recorded.
 - Keep wave naming, child-spec IDs, and path placeholders synchronized with `domain-wave-matrix.md`.
 - Promote a child spec to `Ready for plan` only after business and technical review are both complete.
