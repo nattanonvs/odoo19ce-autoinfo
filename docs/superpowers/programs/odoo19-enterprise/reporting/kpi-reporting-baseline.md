@@ -40,6 +40,8 @@ Define the minimum KPI and reporting contract for Wave 0 so owner, manager, and 
 
 ## Reporting Contract
 
+Threshold definition is mandatory for every baseline report. A report is not review-ready unless its status boundaries are explicitly defined.
+
 | Contract field | Minimum requirement |
 | --- | --- |
 | Business question | State the decision question the report answers. |
@@ -47,6 +49,7 @@ Define the minimum KPI and reporting contract for Wave 0 so owner, manager, and 
 | Decision supported | State what decision, escalation, or follow-up the user can take from the report. |
 | Source data | Identify the originating model, dataset, or discovery assumption used for the report. |
 | Refresh cadence | Define how often the report should update or be reviewed. |
+| Threshold definition | Define the threshold or status logic required to classify the output, including red/yellow/green or equivalent business boundaries. |
 | Drill-down depth | Define the deepest level each audience is allowed to inspect. |
 | Quality cue | State how the user knows the information is complete, delayed, estimated, or unavailable. |
 
@@ -70,17 +73,17 @@ Use this minimum template whenever a new KPI report is proposed:
 | Consumer | Who uses it first? |
 | Trigger or cadence | When is it reviewed? |
 | Data source | Which model or source artifact feeds it? |
-| Threshold or expectation | What counts as good, warning, or bad? |
+| Threshold definition (required) | What counts as good, warning, or bad, and where are the exact business boundaries? |
 | Drill-down path | How far can the user inspect detail? |
 | Owner | Who keeps the report definition correct? |
 
 ## Signal and Alert Model
 
-| Signal type | Purpose | Typical owner | Expected response |
-| --- | --- | --- | --- |
-| Health signals | Show whether a business area is stable or drifting. | Owner or manager | Review trend and decide whether intervention is needed. |
-| Control alerts | Show policy, compliance, or approval exceptions that need oversight. | Manager or control owner | Investigate cause, assign action, and confirm containment. |
-| Operational alerts | Show work items at risk of delay, failure, or queue congestion. | Operational lead | Reprioritize work, unblock documents, or escalate capacity issues. |
+| Signal type | Purpose | Trigger condition | Typical owner | Escalation path | Expected response |
+| --- | --- | --- | --- | --- | --- |
+| Health signals | Show whether a business area is stable or drifting. | Fires when a KPI crosses its warning or critical threshold, or when negative trend movement persists across the defined review window. | Owner or manager | Escalate from report owner to named business owner, then to sponsor review if the condition remains unresolved through the agreed review cycle. | Review trend, confirm root cause, and decide whether intervention is needed. |
+| Control alerts | Show policy, compliance, or approval exceptions that need oversight. | Fires when a policy breach, approval breach, or control exception exceeds allowed tolerance. | Manager or control owner | Escalate from control owner to functional manager, then to executive sponsor or risk authority when the breach is critical, repeated, or unresolved. | Investigate cause, assign action, and confirm containment. |
+| Operational alerts | Show work items at risk of delay, failure, or queue congestion. | Fires when queue age, SLA risk, blocked status, or validation failure passes the configured operating threshold. | Operational lead | Escalate from queue owner to team lead, then to functional manager if recovery does not happen within the expected response window. | Reprioritize work, unblock documents, or escalate capacity issues. |
 
 ## Severity Ownership
 
@@ -97,6 +100,7 @@ Use this minimum template whenever a new KPI report is proposed:
 - Mark discovery-dependent metrics as provisional until the domain spec confirms source fields and business logic.
 - Remove duplicate measures that restate the same issue at multiple levels without adding a new decision.
 - Review alert fatigue risk whenever more than a few exceptions can fire at the same time for one audience.
+- Do not approve an alert baseline entry unless trigger condition, threshold definition, and escalation path are all explicitly documented.
 
 ## Deferred Topics
 
