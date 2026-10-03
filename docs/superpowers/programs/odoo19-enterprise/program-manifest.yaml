@@ -3,6 +3,13 @@ required_paths:
   - docs/superpowers/programs/odoo19-enterprise/discovery/current-state-inventory.md
   - docs/superpowers/programs/odoo19-enterprise/discovery/access-readiness-checklist.md
   - docs/superpowers/programs/odoo19-enterprise/foundation/engineering-standards.md
+  - docs/superpowers/programs/odoo19-enterprise/foundation/repository-and-addon-baseline.md
+  - docs/superpowers/programs/odoo19-enterprise/foundation/environment-and-delivery-baseline.md
+  - docs/superpowers/programs/odoo19-enterprise/foundation/production-readiness-baseline.md
   - docs/superpowers/programs/odoo19-enterprise/governance/review-gates.md
+  - docs/superpowers/programs/odoo19-enterprise/governance/wave-0-readiness-assessment.md
+  - docs/superpowers/programs/odoo19-enterprise/governance/wave-1-handoff-baseline.md
+  - docs/superpowers/programs/odoo19-enterprise/reporting/kpi-reporting-baseline.md
+  - docs/superpowers/programs/odoo19-enterprise/reporting/role-based-dashboard-blueprint.md
   - docs/superpowers/programs/odoo19-enterprise/backlog/domain-wave-matrix.md
   - docs/superpowers/programs/odoo19-enterprise/backlog/domain-spec-index.md
