@@ -1,0 +1,8 @@
+required_paths:
+  - docs/superpowers/programs/odoo19-enterprise/README.md
+  - docs/superpowers/programs/odoo19-enterprise/discovery/current-state-inventory.md
+  - docs/superpowers/programs/odoo19-enterprise/discovery/access-readiness-checklist.md
+  - docs/superpowers/programs/odoo19-enterprise/foundation/engineering-standards.md
+  - docs/superpowers/programs/odoo19-enterprise/governance/review-gates.md
+  - docs/superpowers/programs/odoo19-enterprise/backlog/domain-wave-matrix.md
+  - docs/superpowers/programs/odoo19-enterprise/backlog/domain-spec-index.md
