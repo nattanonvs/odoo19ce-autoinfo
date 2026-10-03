@@ -70,12 +70,12 @@ Define the minimum engineering contract for every addon, extension, and delivery
 | Upgrade note | Short note describing migration assumptions, data-impact considerations, and any required upgrade follow-up. |
 | Security review | Review note covering access rights, record rules, privileged actions, secrets exposure risk, and unsafe side effects. |
 
-## Pass / Fail Rules
+## Decision Outcomes
 
 - `Pass`: all applicable core rules, code rules, and required checks are satisfied with reviewable evidence.
-- `Conditional pass`: only allowed when the delivery lead and the designated reviewer approve a dated action item with a bounded deadline; conditional pass cannot override missing security review or direct core modification.
-- `Fail`: any core rule is violated, required evidence is missing, or a required check fails without an approved waiver.
-- `Blocked`: evidence cannot be collected yet because access, tooling, or reviewer availability is missing; blocked items cannot move through the build gate.
+- `Conditional pass`: only allowed when every applicable core rule has affirmative evidence, every non-waivable required check is complete, and the remaining gap is a bounded follow-up item with owner, due date, and reviewer approval; conditional pass cannot be used for direct core modification, failed tests, missing security review, missing install/uninstall safety evidence, or a still-pending waiver request.
+- `Fail`: any core rule is violated, any non-waivable required check fails or lacks evidence, or a waiver is used outside its approved scope.
+- `Blocked`: evidence, access, tooling, or required reviewers are unavailable, so the item cannot proceed to the next gate decision.
 
 ## Traceability Requirements
 
@@ -89,6 +89,20 @@ Define the minimum engineering contract for every addon, extension, and delivery
 - Every exception request must identify the rule or check affected, business reason, scope, risk, mitigation, owner, expiry date, and rollback or cleanup expectation.
 - Waivers for direct Odoo core modification are not permitted by this program contract.
 - A waiver is valid only after written approval from the program engineering lead plus the relevant functional reviewer, and it must be referenced during gate review.
+
+## Waiver Scope Mapping
+
+| Rule or check | Waiver scope |
+| --- | --- |
+| No direct Odoo core modifications | Not waivable. Evidence must show no direct core patching or override of Odoo core files. |
+| OCA first, custom second | The evaluation step is not waivable. Evidence must show standard and OCA options were considered before approving a custom outcome. |
+| One bounded responsibility per addon | Narrow temporary waiver allowed only for a time-bounded transition case with explicit split or remediation plan; the waiver applies only to the named addon scope. |
+| Install, upgrade, and uninstall safety required | Not waivable for build readiness. Evidence must show the delivery is operationally safe. |
+| Lint | Not waivable for build readiness. |
+| Tests | Not waivable for build readiness. |
+| Module dependency review | Scope may be conditionally accepted only when the dependency analysis exists and the remaining follow-up is documentation detail, not missing review. |
+| Upgrade note | Scope may be conditionally accepted only when the upgrade impact is recorded and the remaining follow-up is bounded editorial refinement. |
+| Security review | Not waivable for build readiness. |
 
 ## Review Cadence
 

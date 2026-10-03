@@ -18,10 +18,10 @@ Define the minimum evidence, decision rules, and approval outcomes required to m
 
 ## Decision Outcomes
 
-- `Pass`: all gate criteria are satisfied and evidence is attached.
-- `Conditional pass`: only allowed when open actions are documented with owner and due date; cannot be used to bypass mandatory security review, failed tests, or direct core modification.
-- `Fail`: required evidence is missing, a listed criterion fails, or the gate depends on an unapproved exception.
-- `Waived`: used only when an approved exception explicitly covers the affected criterion and the waiver record is cited in the gate package.
+- `Pass`: all applicable core rules, code rules, and required checks are satisfied with reviewable evidence.
+- `Conditional pass`: only allowed when every applicable core rule has affirmative evidence, every non-waivable required check is complete, and the remaining gap is a bounded follow-up item with owner, due date, and reviewer approval; conditional pass cannot be used for direct core modification, failed tests, missing security review, missing install/uninstall safety evidence, or a still-pending waiver request.
+- `Fail`: any core rule is violated, any non-waivable required check fails or lacks evidence, or a waiver is used outside its approved scope.
+- `Blocked`: evidence, access, tooling, or required reviewers are unavailable, so the item cannot proceed to the next gate decision.
 
 ## Evidence and Traceability Rules
 
@@ -85,6 +85,9 @@ Define the minimum evidence, decision rules, and approval outcomes required to m
 
 ### Gate 4 Required Checks From Engineering Standards
 
+- No direct Odoo core modifications evidenced.
+- OCA-first evaluation evidenced before any custom outcome.
+- One bounded responsibility per addon evidenced.
 - Code reviewed with readable names, focused methods, and explicit security model confirmed.
 - Lint passed.
 - Tests passed.
@@ -97,6 +100,9 @@ Define the minimum evidence, decision rules, and approval outcomes required to m
 
 | Required check | Minimum evidence |
 | --- | --- |
+| No direct Odoo core modifications | Repository diff, review note, or implementation summary showing no direct patching of Odoo core files. |
+| OCA-first evaluation | Evaluation record or review note showing standard and OCA options were checked before approving custom implementation. |
+| One bounded responsibility per addon | Domain design note, manifest review, or reviewer confirmation that the addon scope remains single-responsibility, or a cited temporary waiver with remediation plan. |
 | Code reviewed | Pull request review, review notes, or equivalent approval showing code quality expectations were checked. |
 | Lint | CI job or captured local command output linked to the delivery package. |
 | Tests | Automated test results for critical business logic and any bounded manual verification notes. |
@@ -107,9 +113,9 @@ Define the minimum evidence, decision rules, and approval outcomes required to m
 
 ### Gate 4 Pass / Fail Rules
 
-- `Pass` requires every applicable required check from `engineering-standards.md` to be complete and reviewable.
-- `Conditional pass` may cover minor non-blocking follow-up items only when lint, tests, dependency review, upgrade note, security review, code review, and install/uninstall checks are already complete.
-- `Fail` applies when any required check fails, evidence is missing, or the work violates a core engineering rule.
+- `Pass` requires affirmative evidence for the core rules on no direct core modification, OCA-first evaluation, one bounded responsibility per addon, and install/uninstall safety, plus every applicable required check from `engineering-standards.md`.
+- `Conditional pass` is limited to the same meaning defined in `engineering-standards.md`: all core-rule evidence must already be affirmative, all non-waivable required checks must already be complete, and only a bounded follow-up item may remain.
+- `Fail` applies when any required check fails, any mandatory core-rule evidence is missing, or a cited waiver does not match the named rule or check.
 
 ## Gate 5: Parallel Run Approved
 - Process reconciliation passed
@@ -129,9 +135,9 @@ Define the minimum evidence, decision rules, and approval outcomes required to m
 
 ## Waiver and Exception Path
 
-- A gate may reference a waiver only when the waiver is approved, time-bounded, and linked directly in the gate package.
-- Waivers cannot legitimize direct Odoo core modification or skip mandatory security review for build approval.
-- Any waived criterion must name the risk owner, mitigation, expiry date, and the gate at which the exception will be re-evaluated.
+- A gate may reference a waiver only when the waiver is approved, time-bounded, linked directly in the gate package, and mapped to the exact named rule or check it affects.
+- Waivers cannot legitimize direct Odoo core modification, remove the need to document OCA-first evaluation, or skip mandatory security review, tests, lint, or install/uninstall safety for build approval.
+- Any waived criterion must name the risk owner, mitigation, expiry date, remediation expectation, and the gate at which the exception will be re-evaluated.
 
 ## Review Cadence
 
