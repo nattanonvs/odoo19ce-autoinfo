@@ -7,7 +7,7 @@
 | Program | Odoo 19 CE Enterprise Program |
 | Artifact | Child-spec control index |
 | Artifact status | Active baseline |
-| Baseline source | `docs/superpowers/plans/2026-10-04-odoo19-ce-enterprise-blueprint-master-plan.md` Task 5 |
+| Baseline source | `docs/superpowers/specs/2026-10-04-odoo19-ce-enterprise-blueprint-design.md` |
 | Owner | Program lead |
 | Reviewer | Technical supervisor |
 | Approvers | Business owner; Technical supervisor |
@@ -17,7 +17,7 @@
 
 ## Required Child Specs
 
-- [ ] Wave 0 - Foundation platform and governance baseline
+- [ ] Wave 0 - Foundation platform, governance, and KPI/reporting baseline
 - [ ] Wave 1 - Commercial and financial core
 - [ ] Wave 2 - Custom finance controls
 - [ ] Wave 3 - Sales Services and after-sales
@@ -28,7 +28,7 @@
 
 | Wave | Child spec ID | Canonical child spec title | Child spec path placeholder | Status | Owner | Reviewer | Approvers | Dependencies | Discovery evidence | Gate readiness |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Wave 0 | W0-FOUNDATION | Foundation platform and governance baseline | `docs/superpowers/specs/YYYY-MM-DD-odoo19-enterprise-wave-0-foundation-governance.md` | Baseline defined | Program lead | Technical supervisor | Business owner; Technical supervisor | Discovery pack; engineering standards; review gates | `discovery/current-state-inventory.md`; `discovery/access-readiness-checklist.md`; `foundation/engineering-standards.md`; `governance/review-gates.md` | Ready when the foundation child spec is approved and execution order is agreed |
+| Wave 0 | W0-FOUNDATION | Foundation platform, governance, and KPI/reporting baseline | `docs/superpowers/specs/YYYY-MM-DD-odoo19-enterprise-wave-0-foundation-governance.md` | Baseline defined | Program lead | Technical supervisor | Business owner; Technical supervisor | Discovery pack; engineering standards; review gates | `discovery/current-state-inventory.md`; `discovery/access-readiness-checklist.md`; `foundation/engineering-standards.md`; `governance/review-gates.md` | Ready when the foundation child spec is approved and execution order is agreed |
 | Wave 1 | W1-COMMERCIAL-CORE | Commercial and financial core | `docs/superpowers/specs/YYYY-MM-DD-odoo19-enterprise-wave-1-commercial-financial-core.md` | Not started | Commercial domain lead | Technical supervisor | Business owner; Technical supervisor | Wave 0 approved | Discovery evidence for contacts, sales, purchase, inventory, and accounting | Ready when commercial scope, reporting KPIs, and migration assumptions are approved |
 | Wave 2 | W2-FINANCE-CONTROLS | Custom finance controls | `docs/superpowers/specs/YYYY-MM-DD-odoo19-enterprise-wave-2-custom-finance-controls.md` | Not started | Finance controls lead | Technical supervisor | Business owner; Technical supervisor | Wave 1 approved or explicitly decoupled | Discovery evidence for advance, cheque, and money-in workflows | Ready when custom control rationale, dependencies, and approvals are complete |
 | Wave 3 | W3-AFTER-SALES | Sales Services and after-sales | `docs/superpowers/specs/YYYY-MM-DD-odoo19-enterprise-wave-3-sales-services-after-sales.md` | Not started | Service operations lead | Technical supervisor | Business owner; Technical supervisor | Wave 1 customer baseline | Discovery evidence for sales services, claims, warranty, service card, and returns | Ready when service flows, owner-reporting impact, and training implications are approved |
