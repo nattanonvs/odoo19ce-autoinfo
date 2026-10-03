@@ -21,10 +21,12 @@ Define the minimum package that Wave 1 receives from Wave 0 so domain teams can 
 - Applies to the transition from Wave 0 foundation work into Wave 1 domain-specific design.
 - Applies to baseline artifacts, review rules, and expected downstream responsibilities.
 - Does not define business transaction detail, field mapping detail, implementation logic, or final dashboard construction.
+- Uses `docs/superpowers/programs/odoo19-enterprise/program-manifest.yaml` as the canonical package index for the Wave 0 artifacts handed forward into Wave 1.
 
 ## What Wave 1 Receives
 
 - Approved Wave 0 child spec
+- Program manifest pointer in `docs/superpowers/programs/odoo19-enterprise/program-manifest.yaml`
 - Discovery baseline from `discovery/current-state-inventory.md` and `discovery/access-readiness-checklist.md`
 - Engineering standards
 - Review gates
@@ -50,6 +52,7 @@ Define the minimum package that Wave 1 receives from Wave 0 so domain teams can 
 ## Handoff Rules
 
 - Every Wave 1 child spec must cite the approved Wave 0 spec and relevant baseline artifacts instead of redefining them locally.
+- Every Wave 1 child spec should use `docs/superpowers/programs/odoo19-enterprise/program-manifest.yaml` as the first lookup for the required Wave 0 artifact package before following deeper links.
 - Every Wave 1 child spec must cite the active discovery baseline and call out where discovery evidence is still partial, blocked, or open.
 - If a Wave 1 domain needs to deviate from Wave 0 policy, the deviation must be raised as an explicit exception or spec decision record rather than hidden in implementation detail.
 - Wave 1 planning must inherit the production readiness baseline as the default platform policy for ownership, backup, restore, monitoring, and rollback expectations.
@@ -69,11 +72,11 @@ Define the minimum package that Wave 1 receives from Wave 0 so domain teams can 
 
 | Handoff element | Minimum approver role | Decision date | Evidence reference |
 | --- | --- | --- | --- |
-| Wave 0 baseline accepted for Wave 1 use | Program delivery lead | Record when approved | Approved Wave 0 spec and linked artifact pack |
+| Wave 0 baseline accepted for Wave 1 use | Program delivery lead | Record when approved | Approved Wave 0 spec, linked artifact pack, and `program-manifest.yaml` |
 | Discovery baseline accepted for planning use | Program discovery lead | Record when confirmed | `discovery/current-state-inventory.md` and `discovery/access-readiness-checklist.md` |
 | Platform baseline accepted | Program engineering lead | Record when approved | Repository, environment, and production baseline artifacts |
 | Reporting baseline accepted | Business sponsor | Record when approved | KPI baseline and dashboard blueprint |
-| Handoff package released to domain teams | Program delivery lead | Record when handed off | This handoff document plus referenced Wave 0 artifacts |
+| Handoff package released to domain teams | Program delivery lead | Record when handed off | This handoff document, `program-manifest.yaml`, and referenced Wave 0 artifacts |
 
 ## Entry Questions For Wave 1 Teams
 
