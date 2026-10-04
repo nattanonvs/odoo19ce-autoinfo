@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_order_form_inherit_od19_oca_bridge" model="ir.ui.view">
+        <field name="name">sale.order.form.od19.oca.bridge</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='od19_contract_id']" position="after">
+                <field name="od19_requires_tier_validation"/>
+                <field name="od19_invoice_plan_mode"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
