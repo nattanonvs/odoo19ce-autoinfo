@@ -7,18 +7,11 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='client_order_ref']" position="after">
                 <separator string="OCA Bridge (Required Now)"/>
-                <field name="od19_delivery_state_bridge_ready" readonly="1"/>
                 <field name="delivery_status" readonly="1"/>
-                <field name="od19_revision_bridge_ready" readonly="1"/>
                 <field name="current_revision_id" readonly="1"/>
-                <field name="od19_exception_bridge_ready" readonly="1"/>
                 <field name="main_exception_id" readonly="1"/>
                 <field name="exceptions_summary" readonly="1"/>
-                <field name="od19_blanket_bridge_ready" readonly="1"/>
                 <field name="blanket_order_id" readonly="1"/>
-                <separator string="OCA Bridge (Deferred Integration Points)"/>
-                <field name="od19_requires_tier_validation"/>
-                <field name="od19_invoice_plan_mode"/>
             </xpath>
         </field>
     </record>
