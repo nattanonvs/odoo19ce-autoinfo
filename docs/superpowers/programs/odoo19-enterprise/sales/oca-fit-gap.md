@@ -4,11 +4,12 @@
 | Module | Source | Decision | Why |
 | --- | --- | --- | --- |
 | `base_user_role` | OCA/server-backend | Adopt | ใช้แยกบทบาท Sales / Billing / Manager ให้ชัด |
-| `sale_tier_validation` | OCA/sale-workflow | Adopt | ใช้ approval หลายชั้นแทน custom approval flow |
-| `sale_order_revision` | OCA/sale-workflow | Adopt | เก็บ revision history ของ quotation / order |
-| `sale_delivery_status` | OCA/sale-workflow | Adopt | ใช้สถานะส่งมอบระหว่างทางก่อนถึง billing readiness |
-| `sale_invoice_plan` | OCA/sale-workflow | Adopt via bridge | เปิดใช้เฉพาะดีลที่ตั้ง `od19_invoice_plan_mode = schedule` |
-| `sale_blanket_order` | OCA/sale-workflow | Adopt via bridge | ใช้เป็นฐานเอกสารเชิงพาณิชย์ของ contract-based sale โดยให้ custom contract model คุม policy |
+| `sale_tier_validation` | OCA/sale-workflow + OCA/server-ux | Deferred | รอ confirm 19.0 baseline และ `base_tier_validation` |
+| `sale_order_revision` | OCA/sale-workflow + OCA/server-ux | Adopt | ใช้ revision history ของ quotation / order โดยต้องมี `base_revision` |
+| `sale_delivery_state` | OCA/sale-workflow | Adopt | ใช้สถานะส่งมอบระหว่างทางก่อนถึง billing readiness |
+| `sale_invoice_plan` | OCA/sale-workflow | Deferred | รอ confirm 19.0 baseline |
+| `sale_exception` | OCA/sale-workflow + OCA/server-tools | Adopt via bridge | ใช้ exception / approval rule โดยต้องมี `base_exception` |
+| `sale_blanket_order` | OCA/sale-blanket | Adopt via bridge | ใช้เป็นฐานเอกสารเชิงพาณิชย์ของ contract-based sale |
 
 ## Custom Layers Still Needed
 - `od19_sales_project_context` สำหรับผู้รับเหมา เจ้าของโครงการ และโครงการ
