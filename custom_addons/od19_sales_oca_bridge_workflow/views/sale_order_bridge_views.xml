@@ -6,6 +6,11 @@
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='od19_contract_id']" position="after">
+                <separator string="OCA Baseline (Required Now)"/>
+                <field name="od19_enable_revision"/>
+                <field name="od19_use_exception_rules"/>
+                <field name="od19_use_blanket_order"/>
+                <separator string="OCA Integrations (Deferred)"/>
                 <field name="od19_requires_tier_validation"/>
                 <field name="od19_invoice_plan_mode"/>
             </xpath>
