@@ -1,7 +1,7 @@
 # Odoo 19 Wave 1 OCA Dependency Baseline
 
 วันที่: 2026-10-04
-สถานะ: Draft for user review
+สถานะ: Approved baseline
 รหัสสเปก: W1-OCA-BASELINE
 ผู้อ่านหลัก: ทีมเทคนิค + ผู้ตัดสินใจด้านสถาปัตยกรรม
 อ้างอิงหลัก:

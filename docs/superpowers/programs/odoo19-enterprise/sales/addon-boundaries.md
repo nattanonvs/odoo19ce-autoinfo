@@ -16,8 +16,9 @@
 - ให้ report SQL views สำหรับ repeat business และ project revenue
 
 ## `od19_sales_oca_bridge_workflow`
-- wire กับ `sale_tier_validation`
 - wire กับ `sale_order_revision`
-- wire กับ `sale_delivery_status`
-- wire กับ `sale_invoice_plan`
+- wire กับ `sale_delivery_state`
+- wire กับ `sale_exception` family ที่พึ่ง `base_exception`
 - wire กับ `sale_blanket_order`
+- เตรียม optional integration point สำหรับ `sale_tier_validation` หลังยืนยัน 19.0 baseline และ `base_tier_validation`
+- เตรียม optional integration point สำหรับ `sale_invoice_plan` หลังยืนยัน 19.0 baseline
