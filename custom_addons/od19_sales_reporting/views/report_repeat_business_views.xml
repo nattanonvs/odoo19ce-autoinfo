@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_od19_sales_repeat_business_report_tree" model="ir.ui.view">
+        <field name="name">od19.sales.repeat.business.report.tree</field>
+        <field name="model">od19.sales.repeat.business.report</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="commercial_customer_id"/>
+                <field name="project_owner_id"/>
+                <field name="project_count"/>
+                <field name="sale_order_count"/>
+            </list>
+        </field>
+    </record>
+</odoo>
