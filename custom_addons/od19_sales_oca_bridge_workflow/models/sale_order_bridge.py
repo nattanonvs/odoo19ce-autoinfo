@@ -4,6 +4,12 @@ from odoo import api, fields, models
 class SaleOrder(models.Model):
     _inherit = "sale.order"
 
+    od19_delivery_state_bridge_ready = fields.Boolean(
+        string="Required-Now: Delivery State Bridge Ready",
+        compute="_compute_od19_required_now_bridge_state",
+        readonly=True,
+        help="Indicates that the required-now delivery-state bridge is active through OCA delivery status capabilities on sale orders.",
+    )
     od19_revision_bridge_ready = fields.Boolean(
         string="Required-Now: Revision Bridge Ready",
         compute="_compute_od19_required_now_bridge_state",
@@ -39,6 +45,11 @@ class SaleOrder(models.Model):
         order_model = self.env["sale.order"]
         order_class = type(order_model)
         return {
+            "delivery": (
+                "delivery_status" in order_model._fields
+                and "force_delivery_state" in order_model._fields
+                and hasattr(order_class, "action_force_delivery_state")
+            ),
             "revision": (
                 "current_revision_id" in order_model._fields
                 and "old_revision_ids" in order_model._fields
@@ -56,6 +67,7 @@ class SaleOrder(models.Model):
     def _compute_od19_required_now_bridge_state(self):
         capabilities = self._od19_required_now_bridge_capabilities()
         for order in self:
+            order.od19_delivery_state_bridge_ready = capabilities["delivery"]
             order.od19_revision_bridge_ready = capabilities["revision"]
             order.od19_exception_bridge_ready = capabilities["exception"]
             order.od19_blanket_bridge_ready = capabilities["blanket"]
