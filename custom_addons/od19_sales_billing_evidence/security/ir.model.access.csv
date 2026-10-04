@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_od19_billing_evidence_type_user,access.od19.billing.evidence.type.user,model_od19_billing_evidence_type,base.group_user,1,1,1,0
+access_od19_billing_evidence_user,access.od19.billing.evidence.user,model_od19_billing_evidence,base.group_user,1,1,1,0

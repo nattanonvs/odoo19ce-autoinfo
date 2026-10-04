@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_od19_billing_evidence_type_tree" model="ir.ui.view">
+        <field name="name">od19.billing.evidence.type.tree</field>
+        <field name="model">od19.billing.evidence.type</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="trigger_kind"/>
+                <field name="required_for_billing"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_od19_billing_evidence_tree" model="ir.ui.view">
+        <field name="name">od19.billing.evidence.tree</field>
+        <field name="model">od19.billing.evidence</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="sale_order_id"/>
+                <field name="evidence_type_id"/>
+                <field name="is_verified"/>
+                <field name="attachment_count"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_od19_billing_evidence" model="ir.actions.act_window">
+        <field name="name">Billing Evidence</field>
+        <field name="res_model">od19.billing.evidence</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>
