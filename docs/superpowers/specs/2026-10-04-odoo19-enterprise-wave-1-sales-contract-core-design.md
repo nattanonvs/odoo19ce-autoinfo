@@ -1,13 +1,19 @@
 # Odoo 19 CE Wave 1: Sales Contract Core
 
 วันที่: 2026-10-04
-สถานะ: Draft for user review
+สถานะ: User-approved Wave 1 baseline
 รหัสสเปก: W1-SALES-CONTRACT
 ผู้อ่านหลัก: ฝ่ายขาย + ผู้จัดการฝ่ายขาย + ฝ่ายปฏิบัติการ + ฝ่ายวางบิล + เจ้าของ/ผู้บริหาร + ทีมเทคนิค
 อ้างอิงหลัก:
 - `docs/superpowers/specs/2026-10-04-odoo19-ce-enterprise-blueprint-design.md`
 - `docs/superpowers/specs/2026-10-04-odoo19-enterprise-wave-0-foundation-governance-design.md`
 - `Odoo15Backup/odoo15_oca_mapping.xlsx`
+
+## Approval Traceability
+
+- Draft baseline was completed on 2026-10-04.
+- User approved the Wave 1 Sales Contract Core scope on 2026-10-04 before implementation planning.
+- This implementation plan is the first execution artifact derived from that approved baseline.
 
 ## 1. สรุปสั้น ๆ
 
