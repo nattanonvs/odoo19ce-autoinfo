@@ -105,15 +105,20 @@ addons,odoo/addons,custom_addons,third_party/oca/server-backend,third_party/oca/
 ```md
 # Sales OCA Fit-Gap
 
-## Candidate Modules
-| Module | Source | Decision | Why |
+## Required Now Baseline
+| Module | Source | Adoption Mode | Why |
 | --- | --- | --- | --- |
-| `base_user_role` | OCA/server-backend | Adopt | ใช้แยกบทบาท Sales / Billing / Manager ให้ชัด |
-| `sale_tier_validation` | OCA/sale-workflow | Adopt | ใช้ approval หลายชั้นแทน custom approval flow |
-| `sale_order_revision` | OCA/sale-workflow | Adopt | เก็บ revision history ของ quotation / order |
-| `sale_delivery_status` | OCA/sale-workflow | Adopt | ใช้สถานะส่งมอบระหว่างทางก่อนถึง billing readiness |
-| `sale_invoice_plan` | OCA/sale-workflow | Adopt via bridge | เปิดใช้เฉพาะดีลที่ตั้ง `od19_invoice_plan_mode = schedule` |
-| `sale_blanket_order` | OCA/sale-workflow | Adopt via bridge | ใช้เป็นฐานเอกสารเชิงพาณิชย์ของ contract-based sale โดยให้ custom contract model คุม policy |
+| `base_user_role` | OCA/server-backend | Required now | ใช้แยกบทบาท Sales / Billing / Manager ให้ชัด |
+| `sale_order_revision` | OCA/sale-workflow + OCA/server-ux | Required now | เก็บ revision history ของ quotation / order โดยต้องมี `base_revision` |
+| `sale_delivery_state` | OCA/sale-workflow | Required now | ใช้สถานะส่งมอบระหว่างทางก่อนถึง billing readiness |
+| `sale_exception` | OCA/sale-workflow + OCA/server-tools | Required now via bridge | ใช้ exception / approval rule โดยต้องมี `base_exception` |
+| `sale_blanket_order` | OCA/sale-blanket | Required now via bridge | ใช้เป็นฐานเอกสารเชิงพาณิชย์ของ contract-based sale โดยให้ custom contract model คุม policy |
+
+## Deferred Pending Confirmation
+| Module | Source | Current Decision | Why Deferred |
+| --- | --- | --- | --- |
+| `sale_tier_validation` | OCA/sale-workflow + OCA/server-ux | Deferred pending 19.0 confirmation | รอ confirm 19.0 baseline และ `base_tier_validation` |
+| `sale_invoice_plan` | OCA/sale-workflow | Deferred pending 19.0 confirmation | รอ confirm 19.0 baseline |
 
 ## Custom Layers Still Needed
 - `od19_sales_project_context` สำหรับผู้รับเหมา เจ้าของโครงการ และโครงการ
@@ -151,11 +156,12 @@ addons,odoo/addons,custom_addons,third_party/oca/server-backend,third_party/oca/
 - ให้ report SQL views สำหรับ repeat business และ project revenue
 
 ## `od19_sales_oca_bridge_workflow`
-- wire กับ `sale_tier_validation`
 - wire กับ `sale_order_revision`
-- wire กับ `sale_delivery_status`
-- wire กับ `sale_invoice_plan`
+- wire กับ `sale_delivery_state`
+- wire กับ `sale_exception` family ที่พึ่ง `base_exception`
 - wire กับ `sale_blanket_order`
+- เตรียม optional integration point สำหรับ `sale_tier_validation` หลังยืนยัน 19.0 baseline และ `base_tier_validation`
+- เตรียม optional integration point สำหรับ `sale_invoice_plan` หลังยืนยัน 19.0 baseline
 ```
 
 - [ ] **Step 3: เพิ่ม README ของ custom addon namespace**
@@ -840,7 +846,7 @@ git commit -m "feat(sales): add repeat-business and project revenue reports"
 - Create: `custom_addons/od19_sales_oca_bridge_workflow/tests/test_oca_bridge.py`
 - Modify: `docs/superpowers/specs/2026-10-04-odoo19-enterprise-wave-1-sales-contract-core-design.md`
 
-- [ ] **Step 1: เขียน failing integration test สำหรับ bridge addon**
+- [ ] **Step 1: เขียน failing integration test สำหรับ approved OCA bridge**
 
 สร้าง `custom_addons/od19_sales_oca_bridge_workflow/tests/test_oca_bridge.py`:
 
@@ -849,10 +855,10 @@ from odoo.tests.common import TransactionCase
 
 
 class TestOcaBridge(TransactionCase):
-    def test_sale_order_has_bridge_fields(self):
+    def test_sale_order_has_approved_bridge_fields(self):
         order = self.env["sale.order"]
-        self.assertIn("od19_requires_tier_validation", order._fields)
-        self.assertIn("od19_invoice_plan_mode", order._fields)
+        self.assertIn("od19_exception_blocked", order._fields)
+        self.assertIn("od19_delivery_state_snapshot", order._fields)
 ```
 
 - [ ] **Step 2: รัน test ให้ล้มก่อน**
@@ -869,7 +875,7 @@ Expected:
 KeyError หรือ field not found บน sale.order
 ```
 
-- [ ] **Step 3: สร้าง bridge addon ที่ไม่ผูก core กับ OCA โดยตรง**
+- [ ] **Step 3: สร้าง bridge addon ที่ผูกเฉพาะ approved baseline และเว้น deferred integration ไว้ก่อน**
 
 สร้าง `custom_addons/od19_sales_oca_bridge_workflow/__manifest__.py`:
 
@@ -883,10 +889,11 @@ KeyError หรือ field not found บน sale.order
         "od19_sales_billing_evidence",
         "od19_sales_reporting",
         "base_user_role",
-        "sale_tier_validation",
+        "base_revision",
         "sale_order_revision",
-        "sale_delivery_status",
-        "sale_invoice_plan",
+        "sale_delivery_state",
+        "base_exception",
+        "sale_exception",
         "sale_blanket_order",
     ],
     "data": ["views/sale_order_bridge_views.xml"],
@@ -904,10 +911,13 @@ from odoo import fields, models
 class SaleOrder(models.Model):
     _inherit = "sale.order"
 
-    od19_requires_tier_validation = fields.Boolean(default=False)
-    od19_invoice_plan_mode = fields.Selection(
-        [("none", "None"), ("event", "Event-based"), ("schedule", "Scheduled")],
-        default="none",
+    od19_exception_blocked = fields.Boolean(
+        string="Blocked by OCA Exception",
+        readonly=True,
+    )
+    od19_delivery_state_snapshot = fields.Char(
+        string="Delivery State Snapshot",
+        readonly=True,
     )
 ```
 
@@ -936,7 +946,7 @@ Run:
 
 ```bash
 python odoo-bin -d test_w1_sales_full --test-enable -i sale,mail,od19_sales_project_context,od19_sales_contract_core,od19_sales_billing_evidence,od19_sales_reporting --stop-after-init --addons-path=addons,odoo/addons,custom_addons,third_party/oca/server-backend,third_party/oca/sale-workflow
-python odoo-bin -d test_w1_sales_bridge --test-enable -i sale,mail,base_user_role,sale_tier_validation,sale_order_revision,sale_delivery_status,sale_invoice_plan,sale_blanket_order,od19_sales_project_context,od19_sales_contract_core,od19_sales_billing_evidence,od19_sales_reporting,od19_sales_oca_bridge_workflow --stop-after-init --addons-path=addons,odoo/addons,custom_addons,third_party/oca/server-backend,third_party/oca/sale-workflow
+python odoo-bin -d test_w1_sales_bridge --test-enable -i sale,mail,base_user_role,base_revision,sale_order_revision,sale_delivery_state,base_exception,sale_exception,sale_blanket_order,od19_sales_project_context,od19_sales_contract_core,od19_sales_billing_evidence,od19_sales_reporting,od19_sales_oca_bridge_workflow --stop-after-init --addons-path=addons,odoo/addons,custom_addons,third_party/oca/server-backend,third_party/oca/server-ux,third_party/oca/server-tools,third_party/oca/sale-workflow,third_party/oca/sale-blanket
 git diff --check
 ```
 
