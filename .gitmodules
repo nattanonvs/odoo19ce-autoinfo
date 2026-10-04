@@ -1,0 +1,20 @@
+[submodule "third_party/oca/sale-workflow"]
+	path = third_party/oca/sale-workflow
+	url = https://github.com/OCA/sale-workflow.git
+	branch = 19.0
+[submodule "third_party/oca/server-backend"]
+	path = third_party/oca/server-backend
+	url = https://github.com/OCA/server-backend.git
+	branch = 19.0
+[submodule "third_party/oca/server-ux"]
+	path = third_party/oca/server-ux
+	url = https://github.com/OCA/server-ux.git
+	branch = 19.0
+[submodule "third_party/oca/server-tools"]
+	path = third_party/oca/server-tools
+	url = https://github.com/OCA/server-tools.git
+	branch = 19.0
+[submodule "third_party/oca/sale-blanket"]
+	path = third_party/oca/sale-blanket
+	url = https://github.com/OCA/sale-blanket.git
+	branch = 19.0
