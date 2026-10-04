@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** เติม OCA repositories และ dependencies ที่ขาดสำหรับ Wave 1 baseline, อัปเดต fit-gap ให้ตรงกับของจริง, และขยาย `od19_sales_oca_bridge_workflow` ให้ bridge กับ OCA modules ที่พร้อมใช้งานจริงโดยไม่แก้ Odoo core
+**Goal:** เติม OCA repositories และ dependencies ที่ขาดสำหรับ Wave 1 baseline, formalize OCA repos ที่ branch ปัจจุบันใช้งานจริงให้เป็น submodule แบบสมบูรณ์, อัปเดต fit-gap ให้ตรงกับของจริง, และขยาย `od19_sales_oca_bridge_workflow` ให้ bridge กับ OCA modules ที่พร้อมใช้งานจริงโดยไม่แก้ Odoo core
 
-**Architecture:** ใช้แนวทาง `OCA-first, custom-second` แบบ conservative โดยเติมเฉพาะ OCA baseline ที่ยืนยัน source และ dependency chain ได้จริงในรอบนี้ ได้แก่ `server-ux`, `server-tools`, และ `sale-blanket` แล้วค่อยเชื่อมผ่าน `od19_sales_oca_bridge_workflow` แบบ TDD เป็นชั้น optional integration แยกจาก sales core เดิม เพื่อไม่ให้ core addons ถูกบังคับด้วย dependency ที่ยังไม่พร้อม เช่น `sale_invoice_plan` และ `sale_tier_validation`
+**Architecture:** ใช้แนวทาง `OCA-first, custom-second` แบบ conservative โดย formalize OCA repos ที่ branch ใช้งานจริงอยู่แล้ว (`sale-workflow`, `server-backend`) ร่วมกับการเติม baseline ที่ยืนยัน source และ dependency chain ได้จริงในรอบนี้ (`server-ux`, `server-tools`, `sale-blanket`) ให้เป็น submodule ที่มี `.gitmodules` และ branch mapping ชัดเจนก่อน แล้วค่อยเชื่อมผ่าน `od19_sales_oca_bridge_workflow` แบบ TDD เป็นชั้น optional integration แยกจาก sales core เดิม เพื่อไม่ให้ core addons ถูกบังคับด้วย dependency ที่ยังไม่พร้อม เช่น `sale_invoice_plan` และ `sale_tier_validation`
 
 **Tech Stack:** Git worktree, Odoo 19 CE, Python, XML, Markdown, OCA `server-backend`, `server-ux`, `server-tools`, `sale-workflow`, `sale-blanket`, PostgreSQL, Odoo test framework
 
@@ -16,6 +16,7 @@
 - `third_party/oca/server-ux/`
 - `third_party/oca/server-tools/`
 - `third_party/oca/sale-blanket/`
+- `.gitmodules`
 
 **Modify**
 - `docs/superpowers/programs/odoo19-enterprise/sales/oca-fit-gap.md`
@@ -40,42 +41,28 @@
 - ใช้ config `c:\odoo-dev\odoo19\odoo.conf`
 - ต้องไม่แก้ Odoo core และไม่แก้ addon OCA ตรง ๆ ถ้ายังไม่จำเป็น
 
-### Task 1: เติม OCA Repositories ที่ baseline ต้องใช้จริง
+### Task 1: Formalize OCA repositories ที่ branch ใช้งานจริง
 
 **Files:**
+- Modify: `.gitmodules`
+- Reuse/track: `third_party/oca/sale-workflow/`
+- Reuse/track: `third_party/oca/server-backend/`
 - Create: `third_party/oca/server-ux/`
 - Create: `third_party/oca/server-tools/`
 - Create: `third_party/oca/sale-blanket/`
 
-- [ ] **Step 1: ตรวจว่ารายการ repo ปลายทางยังไม่มีอยู่จริง**
+- [ ] **Step 1: ตรวจรายการ OCA repos ที่ branch ใช้อยู่จริงและสภาพ submodule ปัจจุบัน**
 
 Run:
 
 ```bash
-git -C third_party/oca rev-parse --is-inside-work-tree
+git ls-tree HEAD third_party/oca/sale-workflow third_party/oca/server-backend third_party/oca/server-ux third_party/oca/server-tools third_party/oca/sale-blanket
+git submodule status
 ```
 
-Run:
+Expected: พบว่า branch ใช้ `sale-workflow`, `server-backend`, `server-ux`, `server-tools`, `sale-blanket` อยู่จริงใน `third_party/oca` แต่ `git submodule status` ยัง fail หรือยังไม่มี `.gitmodules` ครบ
 
-```bash
-if exist third_party\\oca\\server-ux (exit 1) else (exit 0)
-```
-
-Run:
-
-```bash
-if exist third_party\\oca\\server-tools (exit 1) else (exit 0)
-```
-
-Run:
-
-```bash
-if exist third_party\\oca\\sale-blanket (exit 1) else (exit 0)
-```
-
-Expected: `server-ux`, `server-tools`, และ `sale-blanket` ยังไม่อยู่ใน workspace
-
-- [ ] **Step 2: clone OCA repos ที่ต้องใช้**
+- [ ] **Step 2: clone OCA repos ที่ยังขาดจาก baseline**
 
 Run:
 
@@ -87,22 +74,50 @@ git clone --branch 19.0 https://github.com/OCA/sale-blanket.git third_party/oca/
 
 Expected: ทั้ง 3 repo ถูก clone สำเร็จลงใน `third_party/oca`
 
-- [ ] **Step 3: ตรวจว่าโมดูลเป้าหมายมีอยู่จริง**
+- [ ] **Step 3: formalize submodule mapping สำหรับ repos ที่ branch ใช้งานจริง**
+
+เขียน `.gitmodules` ให้ครบสำหรับ:
+
+```ini
+[submodule "third_party/oca/sale-workflow"]
+	path = third_party/oca/sale-workflow
+	url = https://github.com/OCA/sale-workflow.git
+	branch = 19.0
+[submodule "third_party/oca/server-backend"]
+	path = third_party/oca/server-backend
+	url = https://github.com/OCA/server-backend.git
+	branch = 19.0
+[submodule "third_party/oca/server-ux"]
+	path = third_party/oca/server-ux
+	url = https://github.com/OCA/server-ux.git
+	branch = 19.0
+[submodule "third_party/oca/server-tools"]
+	path = third_party/oca/server-tools
+	url = https://github.com/OCA/server-tools.git
+	branch = 19.0
+[submodule "third_party/oca/sale-blanket"]
+	path = third_party/oca/sale-blanket
+	url = https://github.com/OCA/sale-blanket.git
+	branch = 19.0
+```
+
+- [ ] **Step 4: ตรวจว่าโมดูลเป้าหมายและ submodule status ใช้งานได้จริง**
 
 Run:
 
 ```bash
+git submodule status
 dir third_party\oca\server-ux\base_revision
 dir third_party\oca\server-tools\base_exception
 dir third_party\oca\sale-blanket\sale_blanket_order
 ```
 
-Expected: พบโฟลเดอร์ `base_revision`, `base_exception`, และ `sale_blanket_order`
+Expected: `git submodule status` ใช้งานได้โดยเห็น mapping ครบทั้ง 5 repos และพบโฟลเดอร์ `base_revision`, `base_exception`, และ `sale_blanket_order`
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
-git add third_party/oca
+git add .gitmodules third_party/oca
 git commit -m "chore(sales): add OCA dependency repositories for Wave 1 baseline"
 ```
 
