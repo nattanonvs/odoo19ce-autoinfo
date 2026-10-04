@@ -6,11 +6,14 @@
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='od19_contract_id']" position="after">
-                <separator string="OCA Baseline (Required Now)"/>
-                <field name="od19_enable_revision"/>
-                <field name="od19_use_exception_rules"/>
-                <field name="od19_use_blanket_order"/>
-                <separator string="OCA Integrations (Deferred)"/>
+                <separator string="OCA Bridge (Required Now)"/>
+                <field name="od19_revision_bridge_ready" readonly="1"/>
+                <field name="current_revision_id" readonly="1"/>
+                <field name="od19_exception_bridge_ready" readonly="1"/>
+                <field name="ignore_exception"/>
+                <field name="od19_blanket_bridge_ready" readonly="1"/>
+                <field name="blanket_order_id" readonly="1"/>
+                <separator string="OCA Bridge (Deferred Integration Points)"/>
                 <field name="od19_requires_tier_validation"/>
                 <field name="od19_invoice_plan_mode"/>
             </xpath>
