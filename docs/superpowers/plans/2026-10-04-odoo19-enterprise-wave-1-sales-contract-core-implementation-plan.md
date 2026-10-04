@@ -6,7 +6,7 @@
 
 **Architecture:** ใช้แนวทาง `OCA-first, custom-second` โดยแยก implementation เป็น 5 addon ชัดเจน: project context, contract core, billing evidence, reporting และ OCA workflow bridge เพื่อให้ติดตั้ง/ถอนออกได้อย่างปลอดภัยและไม่เกิด hidden coupling ข้ามโดเมน แกนข้อมูลสำคัญทั้งหมดจะผูกผ่าน `sale.order`, `res.partner`, `project context`, `master contract`, `contract activity` และ `billing evidence` พร้อม test ทีละชั้นตั้งแต่ model จนถึง end-to-end reporting
 
-**Tech Stack:** Odoo 19 CE, Python, XML, CSV security, PostgreSQL, Odoo test framework, pytest-style assertions in Odoo tests, Git, Markdown, OCA `sale-workflow` and `server-backend`
+**Tech Stack:** Odoo 19 CE, Python, XML, CSV security, PostgreSQL, Odoo test framework, pytest-style assertions in Odoo tests, Git, Markdown, OCA `server-backend`, `server-ux`, `server-tools`, `sale-workflow`, and `sale-blanket`
 
 ---
 
@@ -82,13 +82,16 @@ Wave 1 สเปกนี้กว้าง แต่ยังอยู่ใน
 
 ```bash
 git clone --branch 19.0 https://github.com/OCA/server-backend.git third_party/oca/server-backend
+git clone --branch 19.0 https://github.com/OCA/server-ux.git third_party/oca/server-ux
+git clone --branch 19.0 https://github.com/OCA/server-tools.git third_party/oca/server-tools
 git clone --branch 19.0 https://github.com/OCA/sale-workflow.git third_party/oca/sale-workflow
+git clone --branch 19.0 https://github.com/OCA/sale-blanket.git third_party/oca/sale-blanket
 ```
 
 และใช้ `addons-path` แบบนี้ในทุกคำสั่งทดสอบ:
 
 ```bash
-addons,odoo/addons,custom_addons,third_party/oca/server-backend,third_party/oca/sale-workflow
+addons,odoo/addons,custom_addons,third_party/oca/server-backend,third_party/oca/server-ux,third_party/oca/server-tools,third_party/oca/sale-workflow,third_party/oca/sale-blanket
 ```
 
 ### Task 1: ล็อก OCA Fit-Gap และ Addon Boundaries
@@ -125,7 +128,7 @@ addons,odoo/addons,custom_addons,third_party/oca/server-backend,third_party/oca/
 - `od19_sales_contract_core` สำหรับ master contract, amendment, activity, policy
 - `od19_sales_billing_evidence` สำหรับ evidence, attachment rules, billing readiness
 - `od19_sales_reporting` สำหรับ repeat-business และ project revenue views
-- `od19_sales_oca_bridge_workflow` สำหรับ wiring กับ OCA modules แบบ optional
+- `od19_sales_oca_bridge_workflow` สำหรับ wiring กับ OCA modules ในกลุ่ม required-now และ integration point ของกลุ่ม deferred
 
 ## Rejected for Wave 1
 - custom approval engine ใหม่ทั้งหมด
@@ -274,7 +277,7 @@ class TestProjectContext(TransactionCase):
 Run:
 
 ```bash
-python odoo-bin -d test_w1_sales_context --test-enable -i sale,od19_sales_project_context --stop-after-init --addons-path=addons,odoo/addons,custom_addons,third_party/oca/server-backend,third_party/oca/sale-workflow --test-tags od19_sales_project_context
+python odoo-bin -d test_w1_sales_context --test-enable -i sale,od19_sales_project_context --stop-after-init --addons-path=addons,odoo/addons,custom_addons,third_party/oca/server-backend,third_party/oca/server-ux,third_party/oca/server-tools,third_party/oca/sale-workflow,third_party/oca/sale-blanket --test-tags od19_sales_project_context
 ```
 
 Expected:
@@ -357,7 +360,7 @@ access_od19_sales_project_user,access.od19.sales.project.user,model_od19_sales_p
 Run:
 
 ```bash
-python odoo-bin -d test_w1_sales_context --test-enable -i sale,od19_sales_project_context --stop-after-init --addons-path=addons,odoo/addons,custom_addons,third_party/oca/server-backend,third_party/oca/sale-workflow --test-tags od19_sales_project_context
+python odoo-bin -d test_w1_sales_context --test-enable -i sale,od19_sales_project_context --stop-after-init --addons-path=addons,odoo/addons,custom_addons,third_party/oca/server-backend,third_party/oca/server-ux,third_party/oca/server-tools,third_party/oca/sale-workflow,third_party/oca/sale-blanket --test-tags od19_sales_project_context
 ```
 
 Expected:
@@ -439,7 +442,7 @@ class TestContractPolicy(TransactionCase):
 Run:
 
 ```bash
-python odoo-bin -d test_w1_sales_contract --test-enable -i sale,od19_sales_project_context,od19_sales_contract_core --stop-after-init --addons-path=addons,odoo/addons,custom_addons,third_party/oca/server-backend,third_party/oca/sale-workflow --test-tags od19_sales_contract_core
+python odoo-bin -d test_w1_sales_contract --test-enable -i sale,od19_sales_project_context,od19_sales_contract_core --stop-after-init --addons-path=addons,odoo/addons,custom_addons,third_party/oca/server-backend,third_party/oca/server-ux,third_party/oca/server-tools,third_party/oca/sale-workflow,third_party/oca/sale-blanket --test-tags od19_sales_contract_core
 ```
 
 Expected:
@@ -531,7 +534,7 @@ class Od19SalesContractAmendment(models.Model):
 Run:
 
 ```bash
-python odoo-bin -d test_w1_sales_contract --test-enable -i sale,od19_sales_project_context,od19_sales_contract_core --stop-after-init --addons-path=addons,odoo/addons,custom_addons,third_party/oca/server-backend,third_party/oca/sale-workflow --test-tags od19_sales_contract_core
+python odoo-bin -d test_w1_sales_contract --test-enable -i sale,od19_sales_project_context,od19_sales_contract_core --stop-after-init --addons-path=addons,odoo/addons,custom_addons,third_party/oca/server-backend,third_party/oca/server-ux,third_party/oca/server-tools,third_party/oca/sale-workflow,third_party/oca/sale-blanket --test-tags od19_sales_contract_core
 ```
 
 Expected:
@@ -611,7 +614,7 @@ class TestBillingReadiness(TransactionCase):
 Run:
 
 ```bash
-python odoo-bin -d test_w1_sales_billing --test-enable -i sale,od19_sales_project_context,od19_sales_contract_core,od19_sales_billing_evidence --stop-after-init --addons-path=addons,odoo/addons,custom_addons,third_party/oca/server-backend,third_party/oca/sale-workflow --test-tags od19_sales_billing_evidence
+python odoo-bin -d test_w1_sales_billing --test-enable -i sale,od19_sales_project_context,od19_sales_contract_core,od19_sales_billing_evidence --stop-after-init --addons-path=addons,odoo/addons,custom_addons,third_party/oca/server-backend,third_party/oca/server-ux,third_party/oca/server-tools,third_party/oca/sale-workflow,third_party/oca/sale-blanket --test-tags od19_sales_billing_evidence
 ```
 
 Expected:
@@ -676,7 +679,7 @@ class SaleOrder(models.Model):
 Run:
 
 ```bash
-python odoo-bin -d test_w1_sales_billing --test-enable -i sale,od19_sales_project_context,od19_sales_contract_core,od19_sales_billing_evidence --stop-after-init --addons-path=addons,odoo/addons,custom_addons,third_party/oca/server-backend,third_party/oca/sale-workflow --test-tags od19_sales_billing_evidence
+python odoo-bin -d test_w1_sales_billing --test-enable -i sale,od19_sales_project_context,od19_sales_contract_core,od19_sales_billing_evidence --stop-after-init --addons-path=addons,odoo/addons,custom_addons,third_party/oca/server-backend,third_party/oca/server-ux,third_party/oca/server-tools,third_party/oca/sale-workflow,third_party/oca/sale-blanket --test-tags od19_sales_billing_evidence
 ```
 
 Expected:
@@ -730,7 +733,7 @@ class TestSalesReporting(TransactionCase):
 Run:
 
 ```bash
-python odoo-bin -d test_w1_sales_reporting --test-enable -i sale,od19_sales_project_context,od19_sales_contract_core,od19_sales_billing_evidence,od19_sales_reporting --stop-after-init --addons-path=addons,odoo/addons,custom_addons,third_party/oca/server-backend,third_party/oca/sale-workflow --test-tags od19_sales_reporting
+python odoo-bin -d test_w1_sales_reporting --test-enable -i sale,od19_sales_project_context,od19_sales_contract_core,od19_sales_billing_evidence,od19_sales_reporting --stop-after-init --addons-path=addons,odoo/addons,custom_addons,third_party/oca/server-backend,third_party/oca/server-ux,third_party/oca/server-tools,third_party/oca/sale-workflow,third_party/oca/sale-blanket --test-tags od19_sales_reporting
 ```
 
 Expected:
@@ -818,7 +821,7 @@ class ReportSalesRepeatBusiness(models.Model):
 Run:
 
 ```bash
-python odoo-bin -d test_w1_sales_reporting --test-enable -i sale,od19_sales_project_context,od19_sales_contract_core,od19_sales_billing_evidence,od19_sales_reporting --stop-after-init --addons-path=addons,odoo/addons,custom_addons,third_party/oca/server-backend,third_party/oca/sale-workflow --test-tags od19_sales_reporting
+python odoo-bin -d test_w1_sales_reporting --test-enable -i sale,od19_sales_project_context,od19_sales_contract_core,od19_sales_billing_evidence,od19_sales_reporting --stop-after-init --addons-path=addons,odoo/addons,custom_addons,third_party/oca/server-backend,third_party/oca/server-ux,third_party/oca/server-tools,third_party/oca/sale-workflow,third_party/oca/sale-blanket --test-tags od19_sales_reporting
 ```
 
 Expected:
@@ -866,7 +869,7 @@ class TestOcaBridge(TransactionCase):
 Run:
 
 ```bash
-python odoo-bin -d test_w1_sales_bridge --test-enable -i sale,od19_sales_project_context,od19_sales_contract_core,od19_sales_billing_evidence,od19_sales_reporting,od19_sales_oca_bridge_workflow --stop-after-init --addons-path=addons,odoo/addons,custom_addons,third_party/oca/server-backend,third_party/oca/sale-workflow --test-tags od19_sales_oca_bridge_workflow
+python odoo-bin -d test_w1_sales_bridge --test-enable -i sale,od19_sales_project_context,od19_sales_contract_core,od19_sales_billing_evidence,od19_sales_reporting,od19_sales_oca_bridge_workflow --stop-after-init --addons-path=addons,odoo/addons,custom_addons,third_party/oca/server-backend,third_party/oca/server-ux,third_party/oca/server-tools,third_party/oca/sale-workflow,third_party/oca/sale-blanket --test-tags od19_sales_oca_bridge_workflow
 ```
 
 Expected:
@@ -945,7 +948,7 @@ class SaleOrder(models.Model):
 Run:
 
 ```bash
-python odoo-bin -d test_w1_sales_full --test-enable -i sale,mail,od19_sales_project_context,od19_sales_contract_core,od19_sales_billing_evidence,od19_sales_reporting --stop-after-init --addons-path=addons,odoo/addons,custom_addons,third_party/oca/server-backend,third_party/oca/sale-workflow
+python odoo-bin -d test_w1_sales_full --test-enable -i sale,mail,od19_sales_project_context,od19_sales_contract_core,od19_sales_billing_evidence,od19_sales_reporting --stop-after-init --addons-path=addons,odoo/addons,custom_addons,third_party/oca/server-backend,third_party/oca/server-ux,third_party/oca/server-tools,third_party/oca/sale-workflow,third_party/oca/sale-blanket
 python odoo-bin -d test_w1_sales_bridge --test-enable -i sale,mail,base_user_role,base_revision,sale_order_revision,sale_delivery_state,base_exception,sale_exception,sale_blanket_order,od19_sales_project_context,od19_sales_contract_core,od19_sales_billing_evidence,od19_sales_reporting,od19_sales_oca_bridge_workflow --stop-after-init --addons-path=addons,odoo/addons,custom_addons,third_party/oca/server-backend,third_party/oca/server-ux,third_party/oca/server-tools,third_party/oca/sale-workflow,third_party/oca/sale-blanket
 git diff --check
 ```
