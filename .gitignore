@@ -51,3 +51,53 @@ package.json
 /man/
 /share/
 /src/
+
+# ============================================================
+# AUTO-INFO Odoo 19 CE Project - Custom Exclusions
+# ============================================================
+
+# Python virtual environments
+venv/
+venv19/
+venv*/
+.env
+.venv/
+
+# Project backups & reference data
+Odoo15Backup/
+*.bak
+*.backup
+
+# Data files (Excel, CSV, PDFs with sensitive data)
+*.xlsx
+*.xls
+*.csv
+*.pdf
+!docs/**/*.xlsx
+!docs/**/*.xls
+!docs/**/*.csv
+
+# IDE / Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Odoo local data
+data_dir/
+sessions/
+attachments/
+backups/
+odoo_local.conf
+*.pid
+*.sock
