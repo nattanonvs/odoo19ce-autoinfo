@@ -20,7 +20,7 @@
 - `od19_sales_contract_core` สำหรับ master contract, amendment, activity, policy
 - `od19_sales_billing_evidence` สำหรับ evidence, attachment rules, billing readiness
 - `od19_sales_reporting` สำหรับ repeat-business และ project revenue views
-- `od19_sales_oca_bridge_workflow` สำหรับ wiring กับ OCA modules แบบ optional
+- `od19_sales_oca_bridge_workflow` สำหรับ wiring กับ OCA modules ในกลุ่ม required-now และ deferred ที่ต้องแยก integration ให้ชัด
 
 ## Rejected for Wave 1
 - custom approval engine ใหม่ทั้งหมด
