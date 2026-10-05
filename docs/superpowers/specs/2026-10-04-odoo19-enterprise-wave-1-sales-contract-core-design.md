@@ -8,6 +8,7 @@
 - `docs/superpowers/specs/2026-10-04-odoo19-ce-enterprise-blueprint-design.md`
 - `docs/superpowers/specs/2026-10-04-odoo19-enterprise-wave-0-foundation-governance-design.md`
 - `Odoo15Backup/odoo15_oca_mapping.xlsx`
+- `docs/superpowers/programs/odoo19-enterprise/sales/oca-installation-recommendations.md`
 
 ## Approval Traceability
 
@@ -699,7 +700,53 @@ child spec นี้ยึดสมมติฐานที่ได้จาก
 - รายงาน owner/manager ชุดแรกจะมีอะไรบ้าง
 - test หลักที่ต้องมีเพื่อคุมความเสี่ยงของโดเมนนี้คืออะไร
 
-## 14. Definition of Done ระดับสเปก
+## 14. คำแนะนำการติดตั้ง OCA ตาม Wave
+
+เพื่อไม่ให้การเลือก OCA กระจัดกระจายหรือดึง complexity ข้ามโดเมนเร็วเกินไป ให้ใช้คำแนะนำเชิง wave ดังนี้:
+
+### 14.1 Wave 1: ติดตั้งเป็น baseline ของ Sales Contract Core
+
+- `base_user_role`
+- `sale_blanket_order`
+- `base_revision`
+- `sale_order_revision`
+- `sale_delivery_state`
+- `base_exception`
+- `sale_exception`
+
+เหตุผลคือกลุ่มนี้ช่วยตอบ requirement ของ `Blanket/Contract Instrument`, `Sale Revision`, `Delivery Status`, `Exception Rule`, และ `Role Governance` โดยตรง และยังไม่ดึง accounting/stock detail เข้ามาปนแกนหลักมากเกินไป
+
+### 14.2 Wave 2: ติดตั้งเมื่อแกน Sales Contract Core นิ่งแล้ว
+
+- `sale_order_line_price_source`
+- `sale_invoice_to_partner`
+- `sale_invoice_blocking`
+
+กลุ่มนี้เหมาะกับการ harden เรื่อง `pricing traceability`, `buyer/payer separation`, และ `invoice governance` หลังจากทีมใช้งานแกนสัญญาและหลักฐานวางบิลได้เสถียรแล้ว
+
+### 14.3 Wave 3: พิจารณาเมื่อ policy และ workflow ภายในนิ่งพอ
+
+- `sale_order_type`
+- `sale_invoice_frequency`
+- `sale_substate`
+- `sale_cancel_reason`
+
+กลุ่มนี้มีคุณค่า แต่กระทบ policy และ workflow กว้างขึ้น จึงควรรอให้ระบบแกนกลางนิ่งก่อน
+
+### 14.4 กลุ่ม Deferred และ Not-now
+
+- `sale_tier_validation`
+- `sale_invoice_plan`
+- `sale_advance_payment`
+- `sale_manual_delivery`
+- `sale_stock_delivery_state`
+- `sale_automatic_workflow`
+
+กลุ่มนี้ยังไม่ควรนับเป็น baseline ของ Wave 1 เพราะบางตัว dependency ยังไม่ confirm ชัดบน 19.0 และบางตัวดึง accounting/stock workflow เข้ามาเร็วเกินไป
+
+รายละเอียดเชิงตารางทั้งมุม business, มุมเทคนิค และ shortlist สำหรับติดตั้งจริง ให้อ้างอิงที่ `docs/superpowers/programs/odoo19-enterprise/sales/oca-installation-recommendations.md`
+
+## 15. Definition of Done ระดับสเปก
 
 จะถือว่า child spec นี้พร้อมส่งต่อไปขั้นทำแผน เมื่ออย่างน้อยเงื่อนไขต่อไปนี้ครบ:
 
