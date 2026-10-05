@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_od19_sales_contract_tree" model="ir.ui.view">
+        <field name="name">od19.sales.contract.tree</field>
+        <field name="model">od19.sales.contract</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="od19_project_id"/>
+                <field name="limit_amount"/>
+                <field name="consumed_amount"/>
+                <field name="over_limit_policy"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_od19_sales_contract_form" model="ir.ui.view">
+        <field name="name">od19.sales.contract.form</field>
+        <field name="model">od19.sales.contract</field>
+        <field name="arch" type="xml">
+            <form string="Sales Contract">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="partner_id"/>
+                        <field name="od19_project_id"/>
+                        <field name="limit_amount"/>
+                        <field name="consumed_amount" readonly="1"/>
+                        <field name="over_limit_policy"/>
+                    </group>
+                    <notebook>
+                        <page string="Activities">
+                            <field name="contract_activity_ids">
+                                <list editable="bottom">
+                                    <field name="name"/>
+                                    <field name="amount_to_consume"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Amendments">
+                            <field name="amendment_ids">
+                                <list editable="bottom">
+                                    <field name="name"/>
+                                    <field name="added_limit_amount"/>
+                                    <field name="note"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_od19_sales_contract" model="ir.actions.act_window">
+        <field name="name">Sales Contracts</field>
+        <field name="res_model">od19.sales.contract</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem
+        id="menu_od19_sales_contract"
+        name="Sales Contracts"
+        parent="sale.sale_menu_root"
+        action="action_od19_sales_contract"
+        sequence="91"
+    />
+</odoo>

@@ -1,0 +1,15 @@
+{
+    "name": "OD19 Sales OCA Workflow Bridge",
+    "version": "19.0.1.0.0",
+    "depends": [
+        "sale_delivery_state",
+        "base_revision",
+        "sale_order_revision",
+        "base_exception",
+        "sale_exception",
+        "sale_blanket_order",
+    ],
+    "data": ["views/sale_order_bridge_views.xml"],
+    "installable": True,
+    "license": "LGPL-3",
+}

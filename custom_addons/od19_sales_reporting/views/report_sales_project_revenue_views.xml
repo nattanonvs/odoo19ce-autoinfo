@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_od19_sales_project_revenue_report_tree" model="ir.ui.view">
+        <field name="name">od19.sales.project.revenue.report.tree</field>
+        <field name="model">od19.sales.project.revenue.report</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="project_id"/>
+                <field name="commercial_customer_id"/>
+                <field name="project_owner_id"/>
+                <field name="order_count"/>
+                <field name="amount_untaxed"/>
+            </list>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_od19_sales_project_revenue_report_user,access.od19.sales.project.revenue.report.user,model_od19_sales_project_revenue_report,base.group_user,1,0,0,0
+access_od19_sales_repeat_business_report_user,access.od19.sales.repeat.business.report.user,model_od19_sales_repeat_business_report,base.group_user,1,0,0,0
