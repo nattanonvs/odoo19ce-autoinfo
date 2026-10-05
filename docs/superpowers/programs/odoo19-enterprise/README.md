@@ -22,6 +22,56 @@ This directory contains the executable planning workspace for the company-wide O
 3. No direct Odoo core modifications are allowed.
 4. Every artifact in this workspace must be reviewable and versioned.
 
+## OCA Submodule Setup
+
+This project stores approved OCA dependencies as Git submodules under `third_party/oca/`.
+If a machine has cloned the repository but has not initialized submodules yet, Odoo will not be able to find modules such as `sale-workflow`, `sale-blanket`, `server-backend`, `server-tools`, or `server-ux`.
+
+### When this is required
+
+Run submodule initialization before:
+
+- running Odoo with custom addons that depend on OCA modules
+- executing tests for `od19_sales_oca_bridge_workflow`
+- validating Wave 1 Sales OCA baseline on a new machine or fresh clone
+
+### Quick guide
+
+1. Clone the main repository as usual.
+2. From the repository root, run:
+
+```bash
+git submodule update --init --recursive
+```
+
+3. Verify that submodules are checked out:
+
+```bash
+git submodule status
+```
+
+4. Then run Odoo or tests normally.
+
+### What the command does
+
+- `init` registers submodules configured in `.gitmodules` for the current clone
+- `update` checks out each submodule at the exact commit pinned by the main repository
+- `recursive` applies the same process to nested submodules if they exist
+
+### Practical note for this program
+
+For the current Sales wave, this step is mandatory before using or testing:
+
+- `base_user_role`
+- `base_revision`
+- `sale_order_revision`
+- `base_exception`
+- `sale_exception`
+- `sale_blanket_order`
+- `sale_delivery_state`
+
+Reference: `docs/superpowers/programs/odoo19-enterprise/sales/oca-installation-recommendations.md`
+
 ## Execution Order
 
 1. Complete discovery pack with evidence from Odoo 15 CE

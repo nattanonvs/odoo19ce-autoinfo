@@ -28,6 +28,22 @@
 3. ถ้าเป็นโมดูลที่มี dependency พร้อมและช่วยลด custom ที่เราต้องเขียน ควรพิจารณาก่อน
 4. ถ้าเป็นโมดูลที่แตะ policy กว้างมากหรือดึง workflow ข้าม bounded context มากเกินไป ให้เลื่อนไป wave ถัดไป
 
+## 2.1 ข้อกำหนดก่อนใช้งาน OCA Baseline
+
+ก่อนรัน Odoo, ติดตั้ง addon ฝั่ง bridge, หรือ execute test ที่พึ่ง OCA modules ต้อง initialize Git submodules ก่อนเสมอ:
+
+```bash
+git submodule update --init --recursive
+```
+
+เหตุผลคือ repo นี้เก็บ OCA dependencies ในรูปแบบ submodule ใต้ `third_party/oca/` ไม่ได้ copy source code เข้ามาไว้ตรง ๆ
+ถ้ายังไม่ทำขั้นตอนนี้ Odoo จะมองเห็นเพียง path อ้างอิง แต่จะยังไม่พบ source code ของโมดูลจริง
+
+คู่มือสั้นสำหรับการเตรียมเครื่องใหม่ให้อ้างอิงที่:
+
+- `README.md`
+- `docs/superpowers/programs/odoo19-enterprise/README.md`
+
 ## 3. แบบที่ 1: ตารางสำหรับตัดสินใจเชิงธุรกิจ
 
 | โมดูล | คำแนะนำ | คุณค่าทางธุรกิจ | wave ที่เหมาะ |

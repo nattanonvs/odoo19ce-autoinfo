@@ -31,6 +31,18 @@ To learn the software, we recommend the [Odoo eLearning](https://www.odoo.com/sl
 or [Scale-up, the business game](https://www.odoo.com/page/scale-up-business-game).
 Developers can start with [the developer tutorials](https://www.odoo.com/documentation/master/developer/howtos.html).
 
+## Project-specific note
+
+This repository uses Git submodules for third-party OCA dependencies under `third_party/oca/`.
+
+Before running Odoo, installing the Sales OCA bridge, or executing tests that depend on OCA modules, initialize submodules first:
+
+```bash
+git submodule update --init --recursive
+```
+
+Without this step, addon paths such as `third_party/oca/sale-workflow` may exist only as empty references and Odoo will not be able to load the required OCA modules.
+
 ## Security
 
 If you believe you have found a security issue, check our [Responsible Disclosure page](https://www.odoo.com/security-report)
