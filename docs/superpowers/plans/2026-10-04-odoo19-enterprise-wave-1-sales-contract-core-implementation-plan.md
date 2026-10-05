@@ -71,10 +71,13 @@
 - `addons/sale/`
 - `Odoo15Backup/odoo15_oca_mapping.xlsx`
 - `docs/superpowers/specs/2026-10-04-odoo19-ce-enterprise-blueprint-design.md`
+- `docs/superpowers/programs/odoo19-enterprise/sales/oca-installation-recommendations.md`
 
 ## Scope Note
 
 Wave 1 สเปกนี้กว้าง แต่ยังอยู่ใน bounded context เดียวคือ `Sales Commercial Core` แผนนี้จะแยก implementation เป็นหลาย addon เพื่อให้ deploy ได้ปลอดภัยและ review ได้ง่าย โดย intentionally ยังไม่ลงลึก `service execution`, `stock execution`, และ `accounting posting` ตาม deferred scope ของสเปก
+
+การเลือก OCA เพิ่มเติมนอก baseline ของแผนนี้ ให้ยึดตาม `docs/superpowers/programs/odoo19-enterprise/sales/oca-installation-recommendations.md` เพื่อคุมไม่ให้ดึงโมดูลที่แตะ accounting/stock/detail เร็วเกิน wave ที่เหมาะ
 
 ## Precondition
 
