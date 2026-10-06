@@ -4,14 +4,27 @@ from odoo.tests.common import TransactionCase
 class TestBillingReadiness(TransactionCase):
     def setUp(self):
         super().setUp()
-        self.contractor = self.env["res.partner"].create({"name": "Contractor B"})
-        self.owner = self.env["res.partner"].create({"name": "Owner B"})
+        self.customer = self.env["res.partner"].create(
+            {
+                "name": "Customer B",
+                "is_company": True,
+                "email": "customer-b@example.com",
+                "od19_is_commercial_customer": True,
+            }
+        )
+        self.owner = self.env["res.partner"].create(
+            {
+                "name": "Owner B",
+                "is_company": True,
+                "od19_is_project_owner": True,
+            }
+        )
         self.project = self.env["od19.sales.project"].create(
             {"name": "Convention Center", "project_owner_id": self.owner.id}
         )
         self.order = self.env["sale.order"].create(
             {
-                "partner_id": self.contractor.id,
+                "partner_id": self.customer.id,
                 "od19_sale_mode": "one_time",
                 "od19_project_id": self.project.id,
                 "od19_project_owner_id": self.owner.id,

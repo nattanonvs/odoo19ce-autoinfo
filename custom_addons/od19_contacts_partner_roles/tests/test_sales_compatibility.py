@@ -20,6 +20,34 @@ class TestSalesCompatibility(TransactionCase):
         view_data = model.get_view(view_id=view.id, view_type=view_type)
         return etree.fromstring(view_data["arch"])
 
+    def _make_role_ready_customer(self, name="Role Ready Customer"):
+        return self.env["res.partner"].create(
+            {
+                "name": name,
+                "is_company": True,
+                "email": f"{name.lower().replace(' ', '.')}@example.com",
+                "od19_is_commercial_customer": True,
+            }
+        )
+
+    def _make_role_ready_owner(self, name="Role Ready Owner"):
+        return self.env["res.partner"].create(
+            {
+                "name": name,
+                "is_company": True,
+                "od19_is_project_owner": True,
+            }
+        )
+
+    def _make_role_ready_contractor(self, name="Role Ready Contractor"):
+        return self.env["res.partner"].create(
+            {
+                "name": name,
+                "is_company": True,
+                "od19_is_contractor": True,
+            }
+        )
+
     def test_project_form_references_partner_role_domains(self):
         arch = self._get_arch(self.project_model, self.project_form_view, "form")
 
@@ -55,28 +83,9 @@ class TestSalesCompatibility(TransactionCase):
             )
 
     def test_sales_flow_accepts_role_ready_partners(self):
-        commercial_customer = self.env["res.partner"].create(
-            {
-                "name": "Role Ready Customer",
-                "is_company": True,
-                "email": "customer@example.com",
-                "od19_is_commercial_customer": True,
-            }
-        )
-        project_owner = self.env["res.partner"].create(
-            {
-                "name": "Role Ready Owner",
-                "is_company": True,
-                "od19_is_project_owner": True,
-            }
-        )
-        contractor = self.env["res.partner"].create(
-            {
-                "name": "Role Ready Contractor",
-                "is_company": True,
-                "od19_is_contractor": True,
-            }
-        )
+        commercial_customer = self._make_role_ready_customer()
+        project_owner = self._make_role_ready_owner()
+        contractor = self._make_role_ready_contractor()
 
         project = self.project_model.create(
             {
@@ -99,3 +108,106 @@ class TestSalesCompatibility(TransactionCase):
         self.assertEqual(order.partner_id, commercial_customer)
         self.assertEqual(order.od19_project_id, project)
         self.assertEqual(order.od19_project_owner_id, project_owner)
+
+    def test_backfill_marks_only_referenced_sales_partners(self):
+        from odoo.addons.od19_contacts_partner_roles.hooks import (
+            backfill_sales_partner_roles,
+        )
+
+        commercial_customer = self._make_role_ready_customer("Legacy Customer")
+        project_owner = self._make_role_ready_owner("Legacy Owner")
+        contractor = self._make_role_ready_contractor("Legacy Contractor")
+        untouched_partner = self.env["res.partner"].create(
+            {
+                "name": "Untouched Partner",
+                "is_company": True,
+                "email": "untouched@example.com",
+            }
+        )
+
+        project = self.project_model.create(
+            {
+                "name": "Legacy Compatibility Project",
+                "project_owner_id": project_owner.id,
+                "contractor_ids": [(6, 0, contractor.ids)],
+            }
+        )
+        self.sale_order_model.create(
+            {
+                "partner_id": commercial_customer.id,
+                "od19_sale_mode": "one_time",
+                "od19_project_id": project.id,
+                "od19_project_owner_id": project_owner.id,
+            }
+        )
+
+        self.env.cr.execute(
+            """
+            UPDATE res_partner
+               SET od19_is_commercial_customer = FALSE,
+                   od19_is_project_owner = FALSE,
+                   od19_is_contractor = FALSE
+             WHERE id IN %s
+            """,
+            [tuple((commercial_customer + project_owner + contractor).ids)],
+        )
+        self.env["res.partner"].invalidate_model(
+            [
+                "od19_is_commercial_customer",
+                "od19_is_project_owner",
+                "od19_is_contractor",
+            ]
+        )
+
+        self.assertFalse(commercial_customer.od19_is_commercial_customer)
+        self.assertFalse(project_owner.od19_is_project_owner)
+        self.assertFalse(contractor.od19_is_contractor)
+        self.assertFalse(untouched_partner.od19_is_commercial_customer)
+        self.assertFalse(untouched_partner.od19_is_project_owner)
+        self.assertFalse(untouched_partner.od19_is_contractor)
+
+        backfill_sales_partner_roles(self.env)
+
+        self.assertTrue(commercial_customer.od19_is_commercial_customer)
+        self.assertTrue(project_owner.od19_is_project_owner)
+        self.assertTrue(contractor.od19_is_contractor)
+        self.assertFalse(untouched_partner.od19_is_commercial_customer)
+        self.assertFalse(untouched_partner.od19_is_project_owner)
+        self.assertFalse(untouched_partner.od19_is_contractor)
+
+    def test_backfill_marks_sale_order_project_owner_reference(self):
+        from odoo.addons.od19_contacts_partner_roles.hooks import (
+            backfill_sales_partner_roles,
+        )
+
+        commercial_customer = self._make_role_ready_customer("Legacy SO Customer")
+        project_owner = self._make_role_ready_owner("Legacy SO Owner")
+        project = self.project_model.create(
+            {
+                "name": "Legacy SO Project",
+                "project_owner_id": project_owner.id,
+            }
+        )
+        self.sale_order_model.create(
+            {
+                "partner_id": commercial_customer.id,
+                "od19_sale_mode": "one_time",
+                "od19_project_id": project.id,
+                "od19_project_owner_id": project_owner.id,
+            }
+        )
+
+        self.env.cr.execute(
+            """
+            UPDATE res_partner
+               SET od19_is_project_owner = FALSE
+             WHERE id = %s
+            """,
+            [project_owner.id],
+        )
+        self.env["res.partner"].invalidate_model(["od19_is_project_owner"])
+        self.assertFalse(project_owner.od19_is_project_owner)
+
+        backfill_sales_partner_roles(self.env)
+
+        self.assertTrue(project_owner.od19_is_project_owner)
