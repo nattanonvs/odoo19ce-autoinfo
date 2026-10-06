@@ -6,7 +6,13 @@ class TestContractPolicy(TransactionCase):
     def setUp(self):
         super().setUp()
         self.contractor = self.env["res.partner"].create({"name": "Contractor A"})
-        self.owner = self.env["res.partner"].create({"name": "Owner A"})
+        self.owner = self.env["res.partner"].create(
+            {
+                "name": "Owner A",
+                "is_company": True,
+                "od19_is_project_owner": True,
+            }
+        )
         self.project = self.env["od19.sales.project"].create(
             {"name": "Metro Line", "project_owner_id": self.owner.id}
         )
