@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_form_od19_roles" model="ir.ui.view">
+        <field name="name">res.partner.form.od19.roles</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form/sheet/group" position="after">
+                <group string="Partner Roles" name="od19_partner_roles">
+                    <group>
+                        <field name="od19_is_commercial_customer"/>
+                        <field name="od19_is_project_owner"/>
+                        <field name="od19_is_contractor"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_res_partner_filter_od19_roles" model="ir.ui.view">
+        <field name="name">res.partner.search.od19.roles</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search/filter[@name='type_company']" position="after">
+                <filter
+                    string="Commercial Customers"
+                    name="od19_commercial_customers"
+                    domain="[('od19_is_commercial_customer', '=', True)]"
+                />
+                <filter
+                    string="Project Owners"
+                    name="od19_project_owners"
+                    domain="[('od19_is_project_owner', '=', True)]"
+                />
+                <filter
+                    string="Contractors"
+                    name="od19_contractors"
+                    domain="[('od19_is_contractor', '=', True)]"
+                />
+            </xpath>
+        </field>
+    </record>
+</odoo>
