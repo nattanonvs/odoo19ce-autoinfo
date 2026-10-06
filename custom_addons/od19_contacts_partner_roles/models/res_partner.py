@@ -19,7 +19,7 @@ class ResPartner(models.Model):
         "email",
         "phone",
         "mobile",
-        "company_type",
+        "is_company",
     )
     def _check_od19_partner_roles(self):
         for partner in self:
@@ -30,8 +30,8 @@ class ResPartner(models.Model):
                     "Commercial customers must have at least one contact channel."
                 )
 
-            if partner.od19_is_project_owner and partner.company_type != "company":
+            if partner.od19_is_project_owner and not partner.is_company:
                 raise ValidationError("Project owners must be companies.")
 
-            if partner.od19_is_contractor and partner.company_type != "company":
+            if partner.od19_is_contractor and not partner.is_company:
                 raise ValidationError("Contractors must be companies.")
