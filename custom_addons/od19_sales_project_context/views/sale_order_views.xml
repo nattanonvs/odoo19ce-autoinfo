@@ -5,10 +5,16 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="domain">[('od19_is_commercial_customer', '=', True)]</attribute>
+            </xpath>
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="od19_sale_mode"/>
                 <field name="od19_project_id"/>
-                <field name="od19_project_owner_id"/>
+                <field
+                    name="od19_project_owner_id"
+                    domain="[('od19_is_project_owner', '=', True)]"
+                />
             </xpath>
         </field>
     </record>
