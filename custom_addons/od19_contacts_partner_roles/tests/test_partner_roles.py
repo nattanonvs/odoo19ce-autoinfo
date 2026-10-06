@@ -13,6 +13,19 @@ class TestPartnerRoles(TransactionCase):
                 }
             )
 
+    def test_commercial_customer_rejects_whitespace_only_contact_channel(self):
+        with self.assertRaises(ValidationError):
+            self.env["res.partner"].create(
+                {
+                    "name": "Whitespace Customer",
+                    "company_type": "company",
+                    "email": "   ",
+                    "phone": "\t",
+                    "mobile": "  ",
+                    "od19_is_commercial_customer": True,
+                }
+            )
+
     def test_multiple_roles_are_allowed_when_constraints_are_met(self):
         partner = self.env["res.partner"].create(
             {
@@ -28,6 +41,25 @@ class TestPartnerRoles(TransactionCase):
         self.assertTrue(partner.od19_is_commercial_customer)
         self.assertTrue(partner.od19_is_project_owner)
         self.assertTrue(partner.od19_is_contractor)
+
+    def test_commercial_customer_write_rejects_whitespace_only_contact_channel(self):
+        partner = self.env["res.partner"].create(
+            {
+                "name": "Updatable Customer",
+                "company_type": "company",
+                "email": "customer@example.com",
+                "od19_is_commercial_customer": True,
+            }
+        )
+
+        with self.assertRaises(ValidationError):
+            partner.write(
+                {
+                    "email": " ",
+                    "phone": "\t",
+                    "mobile": "\n",
+                }
+            )
 
     def test_project_owner_must_be_company(self):
         with self.assertRaises(ValidationError):
