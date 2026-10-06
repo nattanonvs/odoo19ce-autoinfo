@@ -1060,12 +1060,14 @@ Update `docs/superpowers/programs/odoo19-enterprise/backlog/domain-spec-index.md
 - [ ] **Step 2: Run focused purchase test matrix**
 
 Use explicit file-based selectors so the matrix does not depend on module-level auto-discovery.
+Use a fresh throwaway database name for every verification run so partial installs or prior test state cannot affect discovery results.
+If you must reuse a database name, drop the old test database first before rerunning.
 This exact selector combination is validated in this worktree and loads the module's semantics, approval, and integration tests.
 
 Run:
 
 ```bash
-..\..\venv19\Scripts\python.exe .\odoo-bin -c ..\..\odoo.conf --addons-path "C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\addons,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\odoo\addons,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\custom_addons,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\sale-blanket,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\sale-workflow,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\server-backend,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\server-tools,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\server-ux" -d test_w1_purchase_matrix --test-enable -i purchase,purchase_requisition,purchase_stock,od19_contacts_partner_roles,od19_sales_project_context,od19_purchase_procurement_core --stop-after-init --test-tags /od19_purchase_procurement_core/tests/test_procurement_line_semantics.py,/od19_purchase_procurement_core/tests/test_procurement_approval.py,/od19_purchase_procurement_core/tests/test_procurement_integration.py
+..\..\venv19\Scripts\python.exe .\odoo-bin -c ..\..\odoo.conf --addons-path "C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\addons,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\odoo\addons,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\custom_addons,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\sale-blanket,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\sale-workflow,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\server-backend,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\server-tools,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\server-ux" -d test_w1_purchase_matrix_<fresh_suffix> --test-enable -i purchase,purchase_requisition,purchase_stock,od19_contacts_partner_roles,od19_sales_project_context,od19_purchase_procurement_core --stop-after-init --test-tags /od19_purchase_procurement_core/tests/test_procurement_line_semantics.py,/od19_purchase_procurement_core/tests/test_procurement_approval.py,/od19_purchase_procurement_core/tests/test_procurement_integration.py
 ```
 
 Expected:
@@ -1076,7 +1078,7 @@ Expected:
 
 - [ ] **Step 3: Run wider Wave 1 compatibility suite**
 
-Known note: this suite currently surfaces upstream failures in `odoo/addons/base/tests/test_http_case.py`; treat those as a non-purchase-specific blocker unless purchase-module evidence shows otherwise.
+Known note: this suite currently surfaces non-purchase failures from the wider multi-addon test stack, including upstream `base` tests and other addon-level regressions that can appear before purchase-specific coverage is reached. Treat those as a shared environment blocker unless purchase-module evidence shows otherwise.
 
 Run:
 
