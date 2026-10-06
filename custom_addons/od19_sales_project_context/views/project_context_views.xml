@@ -20,8 +20,15 @@
                 <sheet>
                     <group>
                         <field name="name"/>
-                        <field name="project_owner_id"/>
-                        <field name="contractor_ids" widget="many2many_tags"/>
+                        <field
+                            name="project_owner_id"
+                            domain="[('od19_is_project_owner', '=', True)]"
+                        />
+                        <field
+                            name="contractor_ids"
+                            widget="many2many_tags"
+                            domain="[('od19_is_contractor', '=', True)]"
+                        />
                         <field name="active"/>
                     </group>
                 </sheet>
