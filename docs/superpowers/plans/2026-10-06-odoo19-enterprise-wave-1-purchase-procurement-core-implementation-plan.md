@@ -1060,6 +1060,7 @@ Update `docs/superpowers/programs/odoo19-enterprise/backlog/domain-spec-index.md
 - [ ] **Step 2: Run focused purchase test matrix**
 
 Use explicit file-based selectors so the matrix does not depend on module-level auto-discovery.
+This exact selector combination is validated in this worktree and loads the module's semantics, approval, and integration tests.
 
 Run:
 
@@ -1070,10 +1071,12 @@ Run:
 Expected:
 
 ```text
-All od19_purchase_procurement_core tests pass and the addon installs with purchase, requisition, stock, contacts, and sales context modules
+0 failed, 0 error(s) of 17 tests
 ```
 
 - [ ] **Step 3: Run wider Wave 1 compatibility suite**
+
+Known note: this suite currently surfaces upstream failures in `odoo/addons/base/tests/test_http_case.py`; treat those as a non-purchase-specific blocker unless purchase-module evidence shows otherwise.
 
 Run:
 

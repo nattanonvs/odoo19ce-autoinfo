@@ -3,7 +3,7 @@
 ## Control Metadata
 - Child spec ID: W1-PURCHASE-PROCUREMENT
 - Wave: Wave 1
-- Status: Draft
+- Status: Approved
 - Owner: Procurement domain lead
 - Reviewer: Technical supervisor
 - Approvers: Business owner; Technical supervisor
@@ -11,6 +11,11 @@
 - Source backlog row: `docs/superpowers/programs/odoo19-enterprise/backlog/domain-wave-matrix.md`
 - Date: 2026-10-06
 - Primary readers: ฝ่ายจัดซื้อ, ฝ่ายขาย, ฝ่ายคลัง, ฝ่ายบัญชี, ผู้อนุมัติ, ผู้บริหาร, ทีมเทคนิค
+
+## Approval Traceability
+- Draft baseline was completed on 2026-10-06.
+- User approved the Wave 1 Purchase Procurement Core scope on 2026-10-06 before implementation closure.
+- Follow-on implementation commits and control-document updates should treat this spec as the approved purchase baseline within Wave 1.
 
 ## Discovery Evidence
 - Current-state references:
