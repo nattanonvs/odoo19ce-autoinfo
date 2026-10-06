@@ -73,6 +73,14 @@ class TestProcurementApproval(TransactionCase):
         )
         return order
 
+    def _create_confirmed_order(self):
+        order = self._create_order()
+        order.action_od19_submit_for_approval()
+        order.with_user(self.purchase_manager).action_od19_approve()
+        order.button_confirm()
+        self.assertEqual(order.state, "purchase")
+        return order
+
     def _create_requisition(self):
         return self.env["purchase.requisition"].create(
             {
@@ -171,3 +179,31 @@ class TestProcurementApproval(TransactionCase):
         finally:
             company.po_double_validation = original_validation
             company.po_double_validation_amount = original_threshold
+
+    def test_unlock_confirmed_order_blocks_material_header_edit(self):
+        order = self._create_confirmed_order()
+        order.button_unlock()
+        self.assertFalse(order.locked)
+        with self.assertRaises(UserError):
+            order.write({"partner_id": self.other_vendor.id})
+
+    def test_unlock_confirmed_order_blocks_line_write_create_and_unlink(self):
+        order = self._create_confirmed_order()
+        order.button_unlock()
+        line = order.order_line[:1]
+        with self.assertRaises(UserError):
+            line.write({"price_unit": 140})
+        with self.assertRaises(UserError):
+            self.env["purchase.order.line"].create(
+                {
+                    "order_id": order.id,
+                    "name": self.product.display_name,
+                    "product_id": self.product.id,
+                    "product_qty": 1,
+                    "price_unit": 80,
+                    "date_planned": "2026-10-06 00:00:00",
+                    "product_uom_id": self.product.uom_id.id,
+                }
+            )
+        with self.assertRaises(UserError):
+            line.unlink()
