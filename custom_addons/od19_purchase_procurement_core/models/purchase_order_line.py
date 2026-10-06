@@ -5,6 +5,20 @@ from odoo.exceptions import ValidationError
 class PurchaseOrderLine(models.Model):
     _inherit = "purchase.order.line"
 
+    _OD19_MATERIAL_FIELDS = {
+        "date_planned",
+        "discount",
+        "name",
+        "od19_procurement_purpose",
+        "od19_project_id",
+        "price_unit",
+        "product_id",
+        "product_qty",
+        "product_uom_id",
+        "sale_line_id",
+        "taxes_id",
+    }
+
     od19_procurement_purpose = fields.Selection(
         [
             ("internal", "Internal"),
@@ -46,3 +60,35 @@ class PurchaseOrderLine(models.Model):
                 raise ValidationError(
                     "Project-linked procurement lines must reference a project."
                 )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        lines = super().create(vals_list)
+        if not self.env.context.get("od19_skip_approval_invalidation"):
+            lines.order_id._od19_reset_approval_if_needed()
+        return lines
+
+    def write(self, vals):
+        reset_candidates = (
+            self.order_id
+            if (
+                not self.env.context.get("od19_skip_approval_invalidation")
+                and bool(self._OD19_MATERIAL_FIELDS.intersection(vals))
+            )
+            else self.env["purchase.order"]
+        )
+        result = super().write(vals)
+        if reset_candidates:
+            reset_candidates._od19_reset_approval_if_needed()
+        return result
+
+    def unlink(self):
+        reset_candidates = (
+            self.order_id
+            if not self.env.context.get("od19_skip_approval_invalidation")
+            else self.env["purchase.order"]
+        )
+        result = super().unlink()
+        if reset_candidates:
+            reset_candidates._od19_reset_approval_if_needed()
+        return result
