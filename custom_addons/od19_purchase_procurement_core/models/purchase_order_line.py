@@ -20,11 +20,22 @@ class PurchaseOrderLine(models.Model):
             ("service", "Service"),
         ],
         string="Item Kind",
-        default="product",
-        required=True,
+        compute="_compute_od19_item_kind",
+        store=True,
+        readonly=True,
+        precompute=True,
     )
     od19_project_id = fields.Many2one("od19.sales.project", string="Project")
-    od19_sale_order_id = fields.Many2one("sale.order", string="Sale Order")
+
+    @api.depends("display_type", "product_id", "product_id.type")
+    def _compute_od19_item_kind(self):
+        for line in self:
+            if line.display_type or not line.product_id:
+                line.od19_item_kind = False
+            elif line.product_id.type == "service":
+                line.od19_item_kind = "service"
+            else:
+                line.od19_item_kind = "product"
 
     @api.constrains("od19_procurement_purpose", "od19_project_id")
     def _check_project_reference(self):

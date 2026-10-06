@@ -46,6 +46,7 @@ class TestProcurementLineSemantics(TransactionCase):
             {
                 "name": "Purchase Product",
                 "purchase_ok": True,
+                "sale_ok": True,
                 "type": "consu",
             }
         )
@@ -53,7 +54,36 @@ class TestProcurementLineSemantics(TransactionCase):
             {
                 "name": "Purchase Service",
                 "purchase_ok": True,
+                "sale_ok": True,
                 "type": "service",
+            }
+        )
+        self.sale_line = self.env["sale.order.line"].create(
+            {
+                "order_id": self.sale_order.id,
+                "product_id": self.service.id,
+                "name": self.service.display_name,
+                "product_uom_qty": 1,
+                "price_unit": 500,
+                "tax_ids": False,
+            }
+        )
+        self.requisition = self.env["purchase.requisition"].create(
+            {
+                "vendor_id": self.vendor.id,
+                "requisition_type": "blanket_order",
+                "line_ids": [
+                    (
+                        0,
+                        0,
+                        {
+                            "product_id": self.product.id,
+                            "product_qty": 1,
+                            "product_uom_id": self.product.uom_id.id,
+                            "price_unit": 100,
+                        },
+                    )
+                ],
             }
         )
 
@@ -74,6 +104,7 @@ class TestProcurementLineSemantics(TransactionCase):
         )
         self.assertEqual(line.od19_procurement_purpose, "internal")
         self.assertFalse(line.od19_project_id)
+        self.assertEqual(line.od19_item_kind, "product")
 
     def test_project_line_requires_project_reference(self):
         order = self.env["purchase.order"].create({"partner_id": self.vendor.id})
@@ -92,7 +123,7 @@ class TestProcurementLineSemantics(TransactionCase):
                 }
             )
 
-    def test_project_line_accepts_project_and_sale_reference(self):
+    def test_project_line_accepts_project_and_standard_sale_line_reference(self):
         order = self.env["purchase.order"].create({"partner_id": self.vendor.id})
         line = self.env["purchase.order.line"].create(
             {
@@ -104,10 +135,44 @@ class TestProcurementLineSemantics(TransactionCase):
                 "date_planned": "2026-10-06 00:00:00",
                 "product_uom_id": self.service.uom_id.id,
                 "od19_procurement_purpose": "project",
-                "od19_item_kind": "service",
                 "od19_project_id": self.project.id,
-                "od19_sale_order_id": self.sale_order.id,
+                "sale_line_id": self.sale_line.id,
             }
         )
         self.assertEqual(line.od19_project_id, self.project)
-        self.assertEqual(line.od19_sale_order_id, self.sale_order)
+        self.assertEqual(line.sale_line_id, self.sale_line)
+        self.assertEqual(line.sale_order_id, self.sale_order)
+        self.assertEqual(line.od19_item_kind, "service")
+
+    def test_item_kind_is_derived_from_product_type(self):
+        order = self.env["purchase.order"].create({"partner_id": self.vendor.id})
+        line = self.env["purchase.order.line"].create(
+            {
+                "order_id": order.id,
+                "name": self.service.display_name,
+                "product_id": self.service.id,
+                "product_qty": 1,
+                "price_unit": 500,
+                "date_planned": "2026-10-06 00:00:00",
+                "product_uom_id": self.service.uom_id.id,
+                "od19_procurement_purpose": "project",
+                "od19_project_id": self.project.id,
+            }
+        )
+        self.assertEqual(line.od19_item_kind, "service")
+        line.product_id = self.product
+        self.assertEqual(line.od19_item_kind, "product")
+
+    def test_entry_mode_defaults_to_direct_without_requisition(self):
+        order = self.env["purchase.order"].create({"partner_id": self.vendor.id})
+        self.assertEqual(order.od19_entry_mode, "direct")
+
+    def test_entry_mode_becomes_requisition_when_po_has_requisition(self):
+        order = self.env["purchase.order"].create(
+            {
+                "partner_id": self.vendor.id,
+                "requisition_id": self.requisition.id,
+            }
+        )
+        self.assertEqual(order.requisition_id, self.requisition)
+        self.assertEqual(order.od19_entry_mode, "requisition")

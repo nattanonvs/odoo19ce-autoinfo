@@ -6,6 +6,7 @@
         "purchase",
         "purchase_requisition",
         "purchase_stock",
+        "sale_purchase",
         "od19_contacts_partner_roles",
         "od19_sales_project_context",
     ],

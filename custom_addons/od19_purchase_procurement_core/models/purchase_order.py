@@ -1,4 +1,4 @@
-from odoo import fields, models
+from odoo import api, fields, models
 
 
 class PurchaseOrder(models.Model):
@@ -10,7 +10,15 @@ class PurchaseOrder(models.Model):
             ("direct", "Direct Purchase Order"),
         ],
         string="Entry Mode",
-        default="direct",
-        required=True,
-        tracking=True,
+        compute="_compute_od19_entry_mode",
+        store=True,
+        readonly=True,
+        precompute=True,
     )
+
+    @api.depends("requisition_id")
+    def _compute_od19_entry_mode(self):
+        for order in self:
+            order.od19_entry_mode = (
+                "requisition" if order.requisition_id else "direct"
+            )
