@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="purchase_requisition_form_od19_procurement_core" model="ir.ui.view">
+        <field name="name">purchase.requisition.form.od19.procurement.core</field>
+        <field name="model">purchase.requisition</field>
+        <field name="inherit_id" ref="purchase_requisition.view_purchase_requisition_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='vendor_id']" position="after">
+                <field name="od19_entry_mode"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
