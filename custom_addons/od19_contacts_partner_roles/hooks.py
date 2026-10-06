@@ -23,16 +23,18 @@ def _collect_sales_partner_role_ids(env):
     }
 
 
-def _backfill_partner_flag(env, role_field, partner_ids):
+def _backfill_partner_flag(env, role_field, partner_ids, companies_only=False):
     if not partner_ids:
         return
 
+    company_clause = " AND is_company = TRUE" if companies_only else ""
     env.cr.execute(
         f"""
         UPDATE res_partner
            SET {role_field} = TRUE
          WHERE id IN %s
            AND COALESCE({role_field}, FALSE) = FALSE
+           {company_clause}
         """,
         [tuple(partner_ids)],
     )
@@ -45,7 +47,14 @@ def backfill_sales_partner_roles(env):
     role_ids = _collect_sales_partner_role_ids(env)
 
     for role_kind, role_field in ROLE_FIELD_BY_KIND.items():
-        _backfill_partner_flag(env, role_field, role_ids[role_kind])
+        # Legacy sales references may still point at person contacts, but
+        # owner/contractor semantics stay company-only.
+        _backfill_partner_flag(
+            env,
+            role_field,
+            role_ids[role_kind],
+            companies_only=role_kind in {"project_owner", "contractor"},
+        )
 
     env["res.partner"].invalidate_model(list(ROLE_FIELD_BY_KIND.values()))
 

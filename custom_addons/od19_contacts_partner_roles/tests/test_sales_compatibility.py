@@ -49,6 +49,14 @@ class TestSalesCompatibility(TransactionCase):
             }
         )
 
+    def _make_person_partner(self, name):
+        return self.env["res.partner"].create(
+            {
+                "name": name,
+                "company_type": "person",
+            }
+        )
+
     def test_backfill_is_noop_without_sales_models(self):
         class DummyPartnerModel:
             def __init__(self):
@@ -300,3 +308,98 @@ class TestSalesCompatibility(TransactionCase):
 
         self.assertEqual(first_state, (True, True, True))
         self.assertEqual(second_state, first_state)
+
+    def test_backfill_does_not_mark_person_as_project_owner(self):
+        company_owner = self._make_role_ready_owner("Company Owner")
+        person_owner = self._make_person_partner("Person Owner")
+        customer = self._make_role_ready_customer("Project Owner Customer")
+        project = self.project_model.create(
+            {
+                "name": "Person Owner Project",
+                "project_owner_id": company_owner.id,
+            }
+        )
+        order = self.sale_order_model.create(
+            {
+                "partner_id": customer.id,
+                "od19_sale_mode": "one_time",
+                "od19_project_id": project.id,
+                "od19_project_owner_id": company_owner.id,
+            }
+        )
+
+        self.env.cr.execute(
+            """
+            UPDATE od19_sales_project
+               SET project_owner_id = %s
+             WHERE id = %s
+            """,
+            [person_owner.id, project.id],
+        )
+        self.env.cr.execute(
+            """
+            UPDATE sale_order
+               SET od19_project_owner_id = %s
+             WHERE id = %s
+            """,
+            [person_owner.id, order.id],
+        )
+        self.env.cr.execute(
+            """
+            UPDATE res_partner
+               SET od19_is_project_owner = FALSE
+             WHERE id IN %s
+            """,
+            [tuple((company_owner + person_owner).ids)],
+        )
+        self.env["od19.sales.project"].invalidate_model(["project_owner_id"])
+        self.env["sale.order"].invalidate_model(["od19_project_owner_id"])
+        self.env["res.partner"].invalidate_model(["od19_is_project_owner"])
+
+        hooks.backfill_sales_partner_roles(self.env)
+
+        self.assertFalse(person_owner.od19_is_project_owner)
+        self.assertFalse(company_owner.od19_is_project_owner)
+
+    def test_backfill_does_not_mark_person_as_contractor(self):
+        contractor_company = self._make_role_ready_contractor("Company Contractor")
+        person_contractor = self._make_person_partner("Person Contractor")
+        owner = self._make_role_ready_owner("Contractor Owner")
+        project = self.project_model.create(
+            {
+                "name": "Person Contractor Project",
+                "project_owner_id": owner.id,
+                "contractor_ids": [(6, 0, contractor_company.ids)],
+            }
+        )
+
+        self.env.cr.execute(
+            """
+            DELETE FROM od19_sales_project_res_partner_rel
+             WHERE od19_sales_project_id = %s
+            """,
+            [project.id],
+        )
+        self.env.cr.execute(
+            """
+            INSERT INTO od19_sales_project_res_partner_rel
+                (od19_sales_project_id, res_partner_id)
+            VALUES (%s, %s)
+            """,
+            [project.id, person_contractor.id],
+        )
+        self.env.cr.execute(
+            """
+            UPDATE res_partner
+               SET od19_is_contractor = FALSE
+             WHERE id IN %s
+            """,
+            [tuple((contractor_company + person_contractor).ids)],
+        )
+        self.env["od19.sales.project"].invalidate_model(["contractor_ids"])
+        self.env["res.partner"].invalidate_model(["od19_is_contractor"])
+
+        hooks.backfill_sales_partner_roles(self.env)
+
+        self.assertFalse(person_contractor.od19_is_contractor)
+        self.assertFalse(contractor_company.od19_is_contractor)
