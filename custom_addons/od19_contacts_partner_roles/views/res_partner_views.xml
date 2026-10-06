@@ -5,13 +5,11 @@
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//form/sheet/group" position="after">
+            <xpath expr="//page[@name='sales_purchases']/group[@name='container_row_2']/group[@name='misc']" position="after">
                 <group string="Partner Roles" name="od19_partner_roles">
-                    <group>
-                        <field name="od19_is_commercial_customer"/>
-                        <field name="od19_is_project_owner"/>
-                        <field name="od19_is_contractor"/>
-                    </group>
+                    <field name="od19_is_commercial_customer"/>
+                    <field name="od19_is_project_owner" invisible="not is_company"/>
+                    <field name="od19_is_contractor" invisible="not is_company"/>
                 </group>
             </xpath>
         </field>
