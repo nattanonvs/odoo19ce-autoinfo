@@ -13,17 +13,21 @@ class TestPartnerRoles(TransactionCase):
                 }
             )
 
-    def test_commercial_customer_with_email_is_allowed(self):
+    def test_multiple_roles_are_allowed_when_constraints_are_met(self):
         partner = self.env["res.partner"].create(
             {
-                "name": "Reachable Customer",
-                "company_type": "company",
-                "email": "customer@example.com",
+                "name": "Integrated Partner",
+                "is_company": True,
+                "mobile": "0812345678",
                 "od19_is_commercial_customer": True,
+                "od19_is_project_owner": True,
+                "od19_is_contractor": True,
             }
         )
 
         self.assertTrue(partner.od19_is_commercial_customer)
+        self.assertTrue(partner.od19_is_project_owner)
+        self.assertTrue(partner.od19_is_contractor)
 
     def test_project_owner_must_be_company(self):
         with self.assertRaises(ValidationError):
