@@ -12,6 +12,12 @@ class ResPartner(models.Model):
     od19_is_project_owner = fields.Boolean(string="Project Owner")
     od19_is_contractor = fields.Boolean(string="Contractor")
 
+    @staticmethod
+    def _od19_normalize_contact_value(value):
+        if not value:
+            return ""
+        return value.strip()
+
     @api.constrains(
         "od19_is_commercial_customer",
         "od19_is_project_owner",
@@ -23,9 +29,12 @@ class ResPartner(models.Model):
     )
     def _check_od19_partner_roles(self):
         for partner in self:
-            if partner.od19_is_commercial_customer and not (
-                partner.email or partner.phone or partner.mobile
-            ):
+            contact_channels = (
+                self._od19_normalize_contact_value(partner.email),
+                self._od19_normalize_contact_value(partner.phone),
+                self._od19_normalize_contact_value(partner.mobile),
+            )
+            if partner.od19_is_commercial_customer and not any(contact_channels):
                 raise ValidationError(
                     "Commercial customers must have at least one contact channel."
                 )
