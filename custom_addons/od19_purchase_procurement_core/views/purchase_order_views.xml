@@ -10,6 +10,14 @@
                 <field name="od19_approval_state" readonly="1"/>
                 <field name="od19_budget_warning_count" readonly="1"/>
             </xpath>
+            <xpath expr="//field[@name='order_line']" position="before">
+                <group invisible="od19_budget_warning_count == 0">
+                    <field name="od19_budget_warning_summary"
+                           readonly="1"
+                           nolabel="1"
+                           widget="text"/>
+                </group>
+            </xpath>
             <xpath expr="//header" position="inside">
                 <button name="action_od19_submit_for_approval"
                         type="object"
