@@ -82,3 +82,6 @@ class TestProcurementIntegration(TransactionCase):
         )
         self.assertTrue(line.od19_budget_warning)
         self.assertIn("budget reference", line.od19_budget_warning_message.lower())
+        self.assertEqual(order.od19_budget_warning_count, 1)
+        self.assertIn(line.name, order.od19_budget_warning_summary)
+        self.assertIn("budget reference", order.od19_budget_warning_summary.lower())

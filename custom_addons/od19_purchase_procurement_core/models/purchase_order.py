@@ -55,12 +55,32 @@ class PurchaseOrder(models.Model):
         string="Budget Warning Count",
         compute="_compute_od19_budget_warning_count",
     )
+    od19_budget_warning_summary = fields.Text(
+        string="Budget Warning Summary",
+        compute="_compute_od19_budget_warning_summary",
+    )
 
     @api.depends("order_line.od19_budget_warning")
     def _compute_od19_budget_warning_count(self):
         for order in self:
             order.od19_budget_warning_count = len(
                 order.order_line.filtered("od19_budget_warning")
+            )
+
+    @api.depends(
+        "order_line.name",
+        "order_line.od19_budget_warning",
+        "order_line.od19_budget_warning_message",
+    )
+    def _compute_od19_budget_warning_summary(self):
+        for order in self:
+            warning_lines = order.order_line.filtered("od19_budget_warning")
+            if not warning_lines:
+                order.od19_budget_warning_summary = False
+                continue
+            order.od19_budget_warning_summary = "\n".join(
+                f"- {line.name}: {line.od19_budget_warning_message}"
+                for line in warning_lines
             )
 
     def _od19_ensure_no_post_confirm_material_edit(self):
