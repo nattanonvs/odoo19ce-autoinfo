@@ -1,5 +1,6 @@
 from lxml import etree
 
+from odoo.addons.od19_contacts_partner_roles import hooks
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
@@ -47,6 +48,30 @@ class TestSalesCompatibility(TransactionCase):
                 "od19_is_contractor": True,
             }
         )
+
+    def test_backfill_is_noop_without_sales_models(self):
+        class DummyPartnerModel:
+            def __init__(self):
+                self.invalidated_fields = None
+
+            def invalidate_model(self, fields):
+                self.invalidated_fields = fields
+
+        class DummyEnv:
+            def __init__(self):
+                self.registry = {"res.partner": object()}
+                self.partner_model = DummyPartnerModel()
+
+            def __getitem__(self, model_name):
+                if model_name != "res.partner":
+                    raise KeyError(model_name)
+                return self.partner_model
+
+        dummy_env = DummyEnv()
+
+        hooks.backfill_sales_partner_roles(dummy_env)
+
+        self.assertIsNone(dummy_env.partner_model.invalidated_fields)
 
     def test_project_form_references_partner_role_domains(self):
         arch = self._get_arch(self.project_model, self.project_form_view, "form")
@@ -176,10 +201,6 @@ class TestSalesCompatibility(TransactionCase):
         self.assertFalse(untouched_partner.od19_is_contractor)
 
     def test_backfill_marks_sale_order_project_owner_reference(self):
-        from odoo.addons.od19_contacts_partner_roles.hooks import (
-            backfill_sales_partner_roles,
-        )
-
         commercial_customer = self._make_role_ready_customer("Legacy SO Customer")
         project_owner = self._make_role_ready_owner("Legacy SO Owner")
         project = self.project_model.create(
@@ -208,6 +229,74 @@ class TestSalesCompatibility(TransactionCase):
         self.env["res.partner"].invalidate_model(["od19_is_project_owner"])
         self.assertFalse(project_owner.od19_is_project_owner)
 
-        backfill_sales_partner_roles(self.env)
+        hooks.backfill_sales_partner_roles(self.env)
 
         self.assertTrue(project_owner.od19_is_project_owner)
+
+    def test_model_upgrade_hook_reuses_backfill_helper(self):
+        original = hooks.backfill_sales_partner_roles
+        calls = []
+
+        def tracked_backfill(env):
+            calls.append(env)
+            return original(env)
+
+        hooks.backfill_sales_partner_roles = tracked_backfill
+        try:
+            result = self.env["res.partner"]._run_od19_sales_partner_role_backfill()
+        finally:
+            hooks.backfill_sales_partner_roles = original
+
+        self.assertIsNone(result)
+        self.assertEqual(calls, [self.env])
+
+    def test_model_upgrade_hook_backfill_is_idempotent(self):
+        commercial_customer = self._make_role_ready_customer("Upgrade Customer")
+        project_owner = self._make_role_ready_owner("Upgrade Owner")
+        contractor = self._make_role_ready_contractor("Upgrade Contractor")
+        project = self.project_model.create(
+            {
+                "name": "Upgrade Project",
+                "project_owner_id": project_owner.id,
+                "contractor_ids": [(6, 0, contractor.ids)],
+            }
+        )
+        self.sale_order_model.create(
+            {
+                "partner_id": commercial_customer.id,
+                "od19_sale_mode": "one_time",
+                "od19_project_id": project.id,
+                "od19_project_owner_id": project_owner.id,
+            }
+        )
+
+        self.env["res.partner"]._run_od19_sales_partner_role_backfill()
+        self.env["res.partner"].invalidate_model(
+            [
+                "od19_is_commercial_customer",
+                "od19_is_project_owner",
+                "od19_is_contractor",
+            ]
+        )
+        first_state = (
+            commercial_customer.od19_is_commercial_customer,
+            project_owner.od19_is_project_owner,
+            contractor.od19_is_contractor,
+        )
+
+        self.env["res.partner"]._run_od19_sales_partner_role_backfill()
+        self.env["res.partner"].invalidate_model(
+            [
+                "od19_is_commercial_customer",
+                "od19_is_project_owner",
+                "od19_is_contractor",
+            ]
+        )
+        second_state = (
+            commercial_customer.od19_is_commercial_customer,
+            project_owner.od19_is_project_owner,
+            contractor.od19_is_contractor,
+        )
+
+        self.assertEqual(first_state, (True, True, True))
+        self.assertEqual(second_state, first_state)

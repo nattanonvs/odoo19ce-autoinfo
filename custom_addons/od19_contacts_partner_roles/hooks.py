@@ -5,6 +5,10 @@ ROLE_FIELD_BY_KIND = {
 }
 
 
+def _has_sales_role_sources(env):
+    return "sale.order" in env.registry and "od19.sales.project" in env.registry
+
+
 def _collect_sales_partner_role_ids(env):
     project_model = env["od19.sales.project"].sudo()
     sale_order_model = env["sale.order"].sudo()
@@ -35,6 +39,9 @@ def _backfill_partner_flag(env, role_field, partner_ids):
 
 
 def backfill_sales_partner_roles(env):
+    if not _has_sales_role_sources(env):
+        return
+
     role_ids = _collect_sales_partner_role_ids(env)
 
     for role_kind, role_field in ROLE_FIELD_BY_KIND.items():

@@ -1,6 +1,8 @@
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 
+from .. import hooks
+
 
 class ResPartner(models.Model):
     _inherit = "res.partner"
@@ -44,3 +46,11 @@ class ResPartner(models.Model):
 
             if partner.od19_is_contractor and not partner.is_company:
                 raise ValidationError("Contractors must be companies.")
+
+    def _run_od19_sales_partner_role_backfill(self):
+        hooks.backfill_sales_partner_roles(self.env)
+
+    def _register_hook(self):
+        result = super()._register_hook()
+        self._run_od19_sales_partner_role_backfill()
+        return result
