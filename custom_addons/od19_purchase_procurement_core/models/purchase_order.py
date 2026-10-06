@@ -52,6 +52,16 @@ class PurchaseOrder(models.Model):
         copy=False,
     )
 
+    def _od19_ensure_no_post_confirm_material_edit(self):
+        blocked_orders = self.filtered(lambda order: order.state == "purchase" and not order.locked)
+        if blocked_orders:
+            raise UserError(
+                _(
+                    "Confirmed purchase orders cannot be materially edited after unlock. "
+                    "Create a change through a new procurement review flow instead."
+                )
+            )
+
     def _od19_reset_approval_if_needed(self):
         reset_candidates = self.filtered(
             lambda order: order.od19_approval_state == "approved"
@@ -95,6 +105,8 @@ class PurchaseOrder(models.Model):
             and bool(self._OD19_MATERIAL_FIELDS.intersection(vals))
         )
         reset_candidates = self if needs_invalidation else self.browse()
+        if reset_candidates:
+            reset_candidates._od19_ensure_no_post_confirm_material_edit()
         result = super().write(vals)
         if reset_candidates:
             reset_candidates._od19_reset_approval_if_needed()

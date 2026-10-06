@@ -63,6 +63,10 @@ class PurchaseOrderLine(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        if not self.env.context.get("od19_skip_approval_invalidation"):
+            order_ids = [vals.get("order_id") for vals in vals_list if vals.get("order_id")]
+            if order_ids:
+                self.env["purchase.order"].browse(order_ids)._od19_ensure_no_post_confirm_material_edit()
         lines = super().create(vals_list)
         if not self.env.context.get("od19_skip_approval_invalidation"):
             lines.order_id._od19_reset_approval_if_needed()
@@ -77,6 +81,8 @@ class PurchaseOrderLine(models.Model):
             )
             else self.env["purchase.order"]
         )
+        if reset_candidates:
+            reset_candidates._od19_ensure_no_post_confirm_material_edit()
         result = super().write(vals)
         if reset_candidates:
             reset_candidates._od19_reset_approval_if_needed()
@@ -88,6 +94,8 @@ class PurchaseOrderLine(models.Model):
             if not self.env.context.get("od19_skip_approval_invalidation")
             else self.env["purchase.order"]
         )
+        if reset_candidates:
+            reset_candidates._od19_ensure_no_post_confirm_material_edit()
         result = super().unlink()
         if reset_candidates:
             reset_candidates._od19_reset_approval_if_needed()
