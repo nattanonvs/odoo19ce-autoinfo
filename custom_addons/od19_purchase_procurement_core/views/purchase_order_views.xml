@@ -17,6 +17,7 @@
                 <button name="action_od19_approve"
                         type="object"
                         string="Approve"
+                        groups="purchase.group_purchase_manager"
                         invisible="od19_approval_state != 'submitted'"/>
             </xpath>
             <xpath expr="//field[@name='order_line']/list/field[@name='product_qty']" position="after">
