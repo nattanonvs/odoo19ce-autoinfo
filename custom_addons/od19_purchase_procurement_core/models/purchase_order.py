@@ -51,6 +51,17 @@ class PurchaseOrder(models.Model):
         tracking=True,
         copy=False,
     )
+    od19_budget_warning_count = fields.Integer(
+        string="Budget Warning Count",
+        compute="_compute_od19_budget_warning_count",
+    )
+
+    @api.depends("order_line.od19_budget_warning")
+    def _compute_od19_budget_warning_count(self):
+        for order in self:
+            order.od19_budget_warning_count = len(
+                order.order_line.filtered("od19_budget_warning")
+            )
 
     def _od19_ensure_no_post_confirm_material_edit(self):
         blocked_orders = self.filtered(lambda order: order.state == "purchase" and not order.locked)

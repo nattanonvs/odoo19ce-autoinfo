@@ -9,6 +9,7 @@ class PurchaseOrderLine(models.Model):
         "date_planned",
         "discount",
         "name",
+        "od19_budget_reference",
         "od19_procurement_purpose",
         "od19_project_id",
         "price_unit",
@@ -40,6 +41,22 @@ class PurchaseOrderLine(models.Model):
         precompute=True,
     )
     od19_project_id = fields.Many2one("od19.sales.project", string="Project")
+    od19_budget_reference = fields.Char(string="Budget Reference")
+    od19_budget_warning = fields.Boolean(
+        string="Budget Warning",
+        compute="_compute_od19_budget_warning",
+        store=True,
+    )
+    od19_budget_warning_message = fields.Char(
+        string="Budget Warning Message",
+        compute="_compute_od19_budget_warning",
+        store=True,
+    )
+    od19_requires_service_acceptance = fields.Boolean(
+        string="Requires Service Acceptance",
+        compute="_compute_od19_requires_service_acceptance",
+        store=True,
+    )
 
     @api.depends("display_type", "product_id", "product_id.type")
     def _compute_od19_item_kind(self):
@@ -50,6 +67,31 @@ class PurchaseOrderLine(models.Model):
                 line.od19_item_kind = "service"
             else:
                 line.od19_item_kind = "product"
+
+    @api.depends("od19_item_kind", "display_type")
+    def _compute_od19_requires_service_acceptance(self):
+        for line in self:
+            line.od19_requires_service_acceptance = (
+                not line.display_type and line.od19_item_kind == "service"
+            )
+
+    @api.depends("od19_procurement_purpose", "od19_budget_reference", "display_type")
+    def _compute_od19_budget_warning(self):
+        for line in self:
+            if line.display_type:
+                line.od19_budget_warning = False
+                line.od19_budget_warning_message = False
+            elif (
+                line.od19_procurement_purpose == "project"
+                and not line.od19_budget_reference
+            ):
+                line.od19_budget_warning = True
+                line.od19_budget_warning_message = (
+                    "Project-linked procurement lines should carry a budget reference."
+                )
+            else:
+                line.od19_budget_warning = False
+                line.od19_budget_warning_message = False
 
     @api.constrains("od19_procurement_purpose", "od19_project_id")
     def _check_project_reference(self):
