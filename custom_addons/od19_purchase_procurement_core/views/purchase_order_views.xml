@@ -10,9 +10,10 @@
             </xpath>
             <xpath expr="//field[@name='order_line']/list/field[@name='product_qty']" position="after">
                 <field name="od19_procurement_purpose"/>
-                <field name="od19_item_kind"/>
+                <field name="od19_item_kind" readonly="1"/>
                 <field name="od19_project_id"/>
-                <field name="od19_sale_order_id"/>
+                <field name="sale_line_id" optional="hide"/>
+                <field name="sale_order_id" readonly="1" optional="hide"/>
             </xpath>
         </field>
     </record>
