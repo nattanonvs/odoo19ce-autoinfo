@@ -8,6 +8,7 @@
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="od19_entry_mode"/>
                 <field name="od19_approval_state" readonly="1"/>
+                <field name="od19_budget_warning_count" readonly="1"/>
             </xpath>
             <xpath expr="//header" position="inside">
                 <button name="action_od19_submit_for_approval"
@@ -26,6 +27,9 @@
                 <field name="od19_project_id"/>
                 <field name="sale_line_id" optional="hide"/>
                 <field name="sale_order_id" readonly="1" optional="hide"/>
+                <field name="od19_budget_reference"/>
+                <field name="od19_budget_warning" readonly="1"/>
+                <field name="od19_requires_service_acceptance" readonly="1"/>
             </xpath>
         </field>
     </record>
