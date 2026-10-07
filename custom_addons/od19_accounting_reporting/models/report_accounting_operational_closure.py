@@ -18,14 +18,21 @@ class ReportAccountingOperationalClosure(models.Model):
                 "state",
                 "amount_total",
                 "od19_billing_readiness_state",
-                "od19_invoice_closure_state",
             ]
         )
+        self.env["sale.order.line"].flush_model(
+            [
+                "order_id",
+                "display_type",
+            ]
+        )
+        self.env["account.move.line"].flush_model(["move_id", "price_total"])
         self.env["account.move"].flush_model(
             [
                 "company_id",
                 "state",
-                "amount_residual",
+                "amount_residual_signed",
+                "move_type",
                 "od19_operational_flow",
             ]
         )
@@ -36,11 +43,42 @@ class ReportAccountingOperationalClosure(models.Model):
         self.env.cr.execute(
             f"""
             CREATE OR REPLACE VIEW {self._table} AS (
-                WITH company_scope AS (
-                    SELECT DISTINCT so.company_id
+                WITH order_backlog AS (
+                    SELECT
+                        so.id AS order_id,
+                        so.company_id,
+                        GREATEST(
+                            so.amount_total - COALESCE(
+                                SUM(
+                                    CASE
+                                        WHEN sol.display_type IS NULL
+                                            AND am.state = 'posted'
+                                            AND am.move_type = 'out_invoice'
+                                        THEN aml.price_total
+                                        ELSE 0.0
+                                    END
+                                ),
+                                0.0
+                            ),
+                            0.0
+                        ) AS amount_to_invoice
                     FROM sale_order so
+                    JOIN sale_order_line sol
+                        ON sol.order_id = so.id
+                    LEFT JOIN sale_order_line_invoice_rel solir
+                        ON solir.order_line_id = sol.id
+                    LEFT JOIN account_move_line aml
+                        ON aml.id = solir.invoice_line_id
+                    LEFT JOIN account_move am
+                        ON am.id = aml.move_id
                     WHERE so.state IN ('sale', 'done')
-                        AND so.od19_invoice_closure_state = 'ready_to_invoice'
+                        AND so.od19_billing_readiness_state = 'ready'
+                    GROUP BY so.id, so.company_id, so.amount_total
+                ),
+                company_scope AS (
+                    SELECT DISTINCT so.company_id
+                    FROM order_backlog so
+                    WHERE so.amount_to_invoice != 0
 
                     UNION
 
@@ -48,35 +86,34 @@ class ReportAccountingOperationalClosure(models.Model):
                     FROM account_move am
                     WHERE am.state = 'posted'
                         AND am.od19_operational_flow IN ('customer', 'vendor')
-                        AND am.amount_residual != 0
+                        AND am.amount_residual_signed != 0
                 ),
                 backlog AS (
                     SELECT
-                        so.company_id,
-                        COALESCE(SUM(so.amount_total), 0.0) AS billable_backlog
-                    FROM sale_order so
-                    WHERE so.state IN ('sale', 'done')
-                        AND so.od19_invoice_closure_state = 'ready_to_invoice'
-                    GROUP BY so.company_id
+                        order_backlog.company_id,
+                        COALESCE(SUM(order_backlog.amount_to_invoice), 0.0) AS billable_backlog
+                    FROM order_backlog
+                    WHERE order_backlog.amount_to_invoice != 0
+                    GROUP BY order_backlog.company_id
                 ),
                 receivable AS (
                     SELECT
                         am.company_id,
-                        COALESCE(SUM(am.amount_residual), 0.0) AS open_receivable
+                        COALESCE(SUM(am.amount_residual_signed), 0.0) AS open_receivable
                     FROM account_move am
                     WHERE am.state = 'posted'
                         AND am.od19_operational_flow = 'customer'
-                        AND am.amount_residual != 0
+                        AND am.amount_residual_signed != 0
                     GROUP BY am.company_id
                 ),
                 payable AS (
                     SELECT
                         am.company_id,
-                        COALESCE(SUM(am.amount_residual), 0.0) AS open_payable
+                        COALESCE(SUM(am.amount_residual_signed), 0.0) AS open_payable
                     FROM account_move am
                     WHERE am.state = 'posted'
                         AND am.od19_operational_flow = 'vendor'
-                        AND am.amount_residual != 0
+                        AND am.amount_residual_signed != 0
                     GROUP BY am.company_id
                 )
                 SELECT
