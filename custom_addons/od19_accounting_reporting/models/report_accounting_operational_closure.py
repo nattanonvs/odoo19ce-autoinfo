@@ -39,7 +39,7 @@ class ReportAccountingOperationalClosure(models.Model):
                 WITH company_scope AS (
                     SELECT DISTINCT so.company_id
                     FROM sale_order so
-                    WHERE so.state != 'cancel'
+                    WHERE so.state IN ('sale', 'done')
                         AND so.od19_invoice_closure_state = 'ready_to_invoice'
 
                     UNION
@@ -55,7 +55,7 @@ class ReportAccountingOperationalClosure(models.Model):
                         so.company_id,
                         COALESCE(SUM(so.amount_total), 0.0) AS billable_backlog
                     FROM sale_order so
-                    WHERE so.state != 'cancel'
+                    WHERE so.state IN ('sale', 'done')
                         AND so.od19_invoice_closure_state = 'ready_to_invoice'
                     GROUP BY so.company_id
                 ),

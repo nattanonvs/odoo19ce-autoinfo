@@ -141,6 +141,57 @@ class TestAccountingReporting(AccountTestInvoicingCommon):
         sale_order.action_confirm()
         return sale_order
 
+    def _create_billable_quotation(self, *, state="draft", company=None):
+        company = company or self.env.company
+        allowed_company_ids = [company.id]
+        quotation = (
+            self.env["sale.order"]
+            .with_company(company)
+            .with_context(allowed_company_ids=allowed_company_ids)
+            .sudo()
+            .create(
+                {
+                    "partner_id": self.customer.id,
+                    "od19_sale_mode": "one_time",
+                    "od19_project_id": self.project.id,
+                    "od19_project_owner_id": self.owner.id,
+                }
+            )
+        )
+        (
+            self.env["sale.order.line"]
+            .with_company(company)
+            .with_context(allowed_company_ids=allowed_company_ids)
+            .sudo()
+            .create(
+                {
+                    "order_id": quotation.id,
+                    "product_id": self.product.id,
+                    "name": self.product.display_name,
+                    "product_uom_qty": 1.0,
+                    "product_uom_id": self.product.uom_id.id,
+                    "price_unit": 120.0,
+                }
+            )
+        )
+        (
+            self.env["od19.billing.evidence"]
+            .with_company(company)
+            .with_context(allowed_company_ids=allowed_company_ids)
+            .sudo()
+            .create(
+                {
+                    "name": f"BILLABLE-{state.upper()}",
+                    "sale_order_id": quotation.id,
+                    "evidence_type_id": self.evidence_type.id,
+                    "is_verified": True,
+                }
+            )
+        )
+        if state == "sent":
+            quotation.action_quotation_sent()
+        return quotation
+
     def _create_posted_invoice_for_order(self, order):
         invoice = order._create_invoices()
         invoice.action_post()
@@ -184,6 +235,28 @@ class TestAccountingReporting(AccountTestInvoicingCommon):
         self.assertEqual(
             after["open_payable"] - before["open_payable"],
             vendor_bill.amount_residual,
+        )
+
+    def test_company_report_excludes_draft_and_sent_quotations_from_backlog(self):
+        before = self._metric_snapshot()
+
+        draft_quotation = self._create_billable_quotation(state="draft")
+        sent_quotation = self._create_billable_quotation(state="sent")
+        ready_order = self._create_ready_sale_order()
+
+        draft_quotation = self._fresh_sale_order(draft_quotation)
+        sent_quotation = self._fresh_sale_order(sent_quotation)
+        ready_order = self._fresh_sale_order(ready_order)
+        after = self._metric_snapshot()
+
+        self.assertEqual(draft_quotation.state, "draft")
+        self.assertEqual(sent_quotation.state, "sent")
+        self.assertEqual(draft_quotation.od19_billing_readiness_state, "ready")
+        self.assertEqual(sent_quotation.od19_billing_readiness_state, "ready")
+        self.assertEqual(ready_order.state, "sale")
+        self.assertEqual(
+            after["billable_backlog"] - before["billable_backlog"],
+            ready_order.amount_total,
         )
 
     def test_company_report_visibility_is_limited_to_allowed_companies(self):

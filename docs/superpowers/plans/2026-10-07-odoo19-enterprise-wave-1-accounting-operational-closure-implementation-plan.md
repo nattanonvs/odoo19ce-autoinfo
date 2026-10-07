@@ -881,7 +881,7 @@ class TestAccountingReporting(AccountTestInvoicingCommon):
 Run:
 
 ```bash
-..\..\venv19\Scripts\python.exe .\odoo-bin -c ..\..\odoo.conf --addons-path "C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\addons,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\odoo\addons,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\custom_addons,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\third_party\oca\sale-blanket,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\third_party\oca\sale-workflow,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\third_party\oca\server-backend,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\third_party\oca\server-tools,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\third_party\oca\server-ux" -d test_w1_accounting_reporting --test-enable -i account,sale_management,purchase,od19_sales_billing_evidence,od19_accounting_operational_closure,od19_accounting_reporting --stop-after-init --test-tags /od19_accounting_reporting/tests/test_accounting_reporting.py
+..\..\venv19\Scripts\python.exe .\odoo-bin -c ..\..\odoo.conf --addons-path "C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\addons,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\odoo\addons,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\custom_addons,C:\odoo-dev\odoo19\third_party\oca\sale-blanket,C:\odoo-dev\odoo19\third_party\oca\sale-workflow,C:\odoo-dev\odoo19\third_party\oca\server-backend,C:\odoo-dev\odoo19\third_party\oca\server-tools,C:\odoo-dev\odoo19\third_party\oca\server-ux" -d test_w1_accounting_reporting_red --test-enable -i account,sale_management,purchase,purchase_stock,od19_sales_project_context,od19_sales_billing_evidence,od19_purchase_procurement_core,od19_accounting_operational_closure,od19_accounting_reporting --stop-after-init --test-tags /od19_accounting_reporting/tests/test_accounting_reporting.py
 ```
 
 Expected:
@@ -1055,16 +1055,18 @@ from . import test_accounting_reporting
 
 - [ ] **Step 4: Run focused tests**
 
+`custom_addons/od19_accounting_reporting/tests/test_accounting_reporting.py` is a `post_install` suite. In this worktree, the stable execution path is `--stop-after-init` plus the file-based `--test-tags` selector below and the OCA addon paths from the main workspace.
+
 Run:
 
 ```bash
-..\..\venv19\Scripts\python.exe .\odoo-bin -c ..\..\odoo.conf --addons-path "C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\addons,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\odoo\addons,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\custom_addons,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\third_party\oca\sale-blanket,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\third_party\oca\sale-workflow,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\third_party\oca\server-backend,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\third_party\oca\server-tools,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\third_party\oca\server-ux" -d test_w1_accounting_reporting --test-enable -i account,sale_management,purchase,purchase_stock,od19_sales_billing_evidence,od19_purchase_procurement_core,od19_inventory_execution_control,od19_accounting_operational_closure,od19_accounting_reporting --stop-after-init --test-tags /od19_accounting_reporting/tests/test_accounting_reporting.py,/od19_accounting_operational_closure/tests/test_ar_closure.py,/od19_accounting_operational_closure/tests/test_ap_closure.py,/od19_accounting_operational_closure/tests/test_cash_reconciliation.py
+..\..\venv19\Scripts\python.exe .\odoo-bin -c ..\..\odoo.conf --addons-path "C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\addons,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\odoo\addons,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\custom_addons,C:\odoo-dev\odoo19\third_party\oca\sale-blanket,C:\odoo-dev\odoo19\third_party\oca\sale-workflow,C:\odoo-dev\odoo19\third_party\oca\server-backend,C:\odoo-dev\odoo19\third_party\oca\server-tools,C:\odoo-dev\odoo19\third_party\oca\server-ux" -d test_w1_accounting_reporting_regression --test-enable -i account,sale_management,purchase,purchase_stock,od19_sales_project_context,od19_sales_billing_evidence,od19_purchase_procurement_core,od19_accounting_operational_closure,od19_accounting_reporting --stop-after-init --test-tags /od19_accounting_reporting/tests/test_accounting_reporting.py,/od19_accounting_operational_closure/tests/test_ar_closure.py,/od19_accounting_operational_closure/tests/test_ap_closure.py,/od19_accounting_operational_closure/tests/test_cash_reconciliation.py
 ```
 
 Expected:
 
 ```text
-0 failed, 0 error(s)
+0 failed, 0 error(s) for the reporting focused suite and the accounting operational-closure regression selection
 ```
 
 - [ ] **Step 5: Run diff check and update control docs**
