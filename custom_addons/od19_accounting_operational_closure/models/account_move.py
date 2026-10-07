@@ -56,7 +56,7 @@ class AccountMove(models.Model):
         for move in self:
             if move.state != "posted":
                 move.od19_operational_closure_state = "draft"
-            elif move.payment_state == "paid":
+            elif move.payment_state in ("paid", "reversed"):
                 move.od19_operational_closure_state = "paid"
             elif move.payment_state in ("partial", "in_payment"):
                 move.od19_operational_closure_state = "partially_paid"

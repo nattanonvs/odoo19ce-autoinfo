@@ -89,6 +89,38 @@ class TestAccountingCashReconciliation(AccountTestInvoicingCommon):
         self.assertEqual(bill.payment_state, "partial")
         self.assertEqual(bill.od19_operational_closure_state, "partially_paid")
 
+    def test_reversed_invoice_is_treated_as_operationally_closed(self):
+        invoice = self._create_invoice(
+            move_type="out_invoice",
+            partner_id=self.partner_a,
+            post=True,
+            invoice_line_ids=[
+                self._prepare_invoice_line(product_id=self.product_a, price_unit=150.0)
+            ],
+        )
+
+        self._reverse_invoice(invoice, is_modify=True, post=True)
+
+        invoice = self._fresh_move(invoice)
+        self.assertEqual(invoice.payment_state, "reversed")
+        self.assertEqual(invoice.od19_operational_closure_state, "paid")
+
+    def test_blocked_invoice_stays_open_in_operational_closure(self):
+        invoice = self._create_invoice(
+            move_type="out_invoice",
+            partner_id=self.partner_a,
+            post=True,
+            invoice_line_ids=[
+                self._prepare_invoice_line(product_id=self.product_a, price_unit=180.0)
+            ],
+        )
+
+        invoice.action_toggle_block_payment()
+
+        invoice = self._fresh_move(invoice)
+        self.assertEqual(invoice.payment_state, "blocked")
+        self.assertEqual(invoice.od19_operational_closure_state, "posted")
+
     def test_operational_flow_classifies_journal_entries_as_other(self):
         move = self._fresh_move(self._create_misc_entry(ref="MISC-FLOW-001"))
         self.assertEqual(move.od19_operational_flow, "other")
@@ -119,13 +151,16 @@ class TestAccountingCashReconciliation(AccountTestInvoicingCommon):
     def test_account_move_form_places_operational_fields_once(self):
         arch = self._get_move_form_arch()
         flow_fields = arch.xpath(
-            "//field[@name='payment_state']/following-sibling::field[@name='od19_operational_flow']"
+            "//group[@id='header_right_group']"
+            "/div[@name='due_date']/following-sibling::field[@name='od19_operational_flow']"
         )
         closure_fields = arch.xpath(
-            "//field[@name='payment_state']/following-sibling::field[@name='od19_operational_closure_state']"
+            "//group[@id='header_right_group']"
+            "/div[@name='due_date']/following-sibling::field[@name='od19_operational_closure_state']"
         )
         source_fields = arch.xpath(
-            "//field[@name='payment_state']/following-sibling::field[@name='od19_source_document']"
+            "//group[@id='header_right_group']"
+            "/div[@name='due_date']/following-sibling::field[@name='od19_source_document']"
         )
         self.assertEqual(len(flow_fields), 1)
         self.assertEqual(len(closure_fields), 1)
