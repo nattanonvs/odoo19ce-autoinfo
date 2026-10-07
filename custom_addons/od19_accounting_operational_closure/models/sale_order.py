@@ -34,7 +34,7 @@ class SaleOrder(models.Model):
         "od19_billing_readiness_state",
         "order_line.invoice_lines.move_id.move_type",
         "order_line.invoice_lines.move_id.state",
-        "order_line.invoice_lines.move_id.payment_state",
+        "order_line.invoice_lines.move_id.od19_operational_closure_state",
     )
     def _compute_od19_invoice_closure_state(self):
         for order in self:
@@ -44,10 +44,13 @@ class SaleOrder(models.Model):
                 order.od19_invoice_closure_state = "waiting_readiness"
             elif not posted_invoices:
                 order.od19_invoice_closure_state = "ready_to_invoice"
-            elif all(move.payment_state == "paid" for move in posted_invoices):
+            elif all(
+                move.od19_operational_closure_state == "paid"
+                for move in posted_invoices
+            ):
                 order.od19_invoice_closure_state = "paid"
             elif any(
-                move.payment_state in ("partial", "in_payment", "paid")
+                move.od19_operational_closure_state in ("partially_paid", "paid")
                 for move in posted_invoices
             ):
                 order.od19_invoice_closure_state = "partially_paid"

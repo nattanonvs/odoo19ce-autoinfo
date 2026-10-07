@@ -49,6 +49,14 @@ class TestAccountingAPClosure(TransactionCase):
         order.invalidate_recordset(["state", "od19_vendor_bill_closure_state"])
         return self._fresh_purchase_order(order)
 
+    def _register_payment(self, move, **kwargs):
+        return (
+            self.env["account.payment.register"]
+            .with_context(active_model="account.move", active_ids=move.ids)
+            .create({"group_payment": True, **kwargs})
+            ._create_payments()
+        )
+
     def _create_po(self, product, *, confirm=True):
         order = self.env["purchase.order"].create({"partner_id": self.vendor.id})
         self.env["purchase.order.line"].create(
@@ -119,6 +127,22 @@ class TestAccountingAPClosure(TransactionCase):
         duplicate = order.copy()
         self.assertFalse(duplicate.order_line.od19_service_accepted)
         self.assertEqual(duplicate.od19_vendor_bill_closure_state, "waiting_commitment")
+
+    def test_purchase_order_partial_blocked_bill_stays_partially_paid(self):
+        self.product.purchase_method = "purchase"
+        order = self._create_po(self.product)
+        bill = self.env["account.move"].browse(order.action_create_invoice()["res_id"])
+        bill.invoice_date = "2026-10-07"
+        bill.action_post()
+
+        self._register_payment(bill, amount=bill.amount_total / 2)
+        bill.action_toggle_block_payment()
+
+        order = self._fresh_purchase_order(order)
+        bill = bill.browse(bill.id)
+        self.assertEqual(bill.payment_state, "blocked")
+        self.assertEqual(bill.od19_operational_closure_state, "partially_paid")
+        self.assertEqual(order.od19_vendor_bill_closure_state, "partially_paid")
 
     def test_purchase_order_form_places_ap_closure_fields_once(self):
         arch = self._get_purchase_form_arch()

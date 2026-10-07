@@ -114,6 +114,20 @@ class TestAccountingARClosure(AccountTestInvoicingCommon):
         self.assertEqual(order.od19_customer_invoice_count, 1)
         self.assertEqual(order.od19_invoice_closure_state, "invoiced")
 
+    def test_sale_order_partial_blocked_invoice_stays_partially_paid(self):
+        order = self._create_ready_sale_order()
+        invoice = order._create_invoices()
+        invoice.action_post()
+
+        self._register_payment(invoice, amount=invoice.amount_total / 2)
+        invoice.action_toggle_block_payment()
+
+        order = self._fresh_sale_order(order)
+        invoice = invoice.browse(invoice.id)
+        self.assertEqual(invoice.payment_state, "blocked")
+        self.assertEqual(invoice.od19_operational_closure_state, "partially_paid")
+        self.assertEqual(order.od19_invoice_closure_state, "partially_paid")
+
     def test_sale_order_form_places_closure_fields_once(self):
         arch = self._get_sale_form_arch()
         closure_state_fields = arch.xpath(

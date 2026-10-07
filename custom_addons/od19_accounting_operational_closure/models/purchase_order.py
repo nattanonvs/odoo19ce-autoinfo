@@ -23,7 +23,7 @@ class PurchaseOrder(models.Model):
         "state",
         "invoice_ids.move_type",
         "invoice_ids.state",
-        "invoice_ids.payment_state",
+        "invoice_ids.od19_operational_closure_state",
         "order_line.od19_service_acceptance_required",
         "order_line.od19_service_accepted",
     )
@@ -43,10 +43,13 @@ class PurchaseOrder(models.Model):
                 order.od19_vendor_bill_closure_state = "waiting_service_acceptance"
             elif not bills:
                 order.od19_vendor_bill_closure_state = "ready_to_bill"
-            elif all(move.payment_state == "paid" for move in bills):
+            elif all(
+                move.od19_operational_closure_state == "paid"
+                for move in bills
+            ):
                 order.od19_vendor_bill_closure_state = "paid"
             elif any(
-                move.payment_state in ("partial", "in_payment", "paid")
+                move.od19_operational_closure_state in ("partially_paid", "paid")
                 for move in bills
             ):
                 order.od19_vendor_bill_closure_state = "partially_paid"
