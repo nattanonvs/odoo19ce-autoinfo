@@ -32,7 +32,7 @@
 | Sales | Approved and implemented, with customer risk gate design in review | `custom_addons/od19_sales_project_context/`, `custom_addons/od19_sales_contract_core/`, `custom_addons/od19_sales_billing_evidence/`, `custom_addons/od19_sales_reporting/`, `custom_addons/od19_sales_oca_bridge_workflow/`, [2026-10-07-odoo19-enterprise-wave-1-customer-risk-credit-gate-design.md](../../../specs/2026-10-07-odoo19-enterprise-wave-1-customer-risk-credit-gate-design.md) | Approve and implement the Wave 1 customer risk gate without reopening deep finance controls that are intentionally deferred to Wave 2 |
 | Purchase | Approved and implemented | `custom_addons/od19_purchase_procurement_core/` | Keep stable and verify handoff into Inventory and Accounting |
 | Inventory | Implemented in delivery branch; pending mainline merge and verification | `custom_addons/od19_inventory_execution_control/`, `custom_addons/od19_inventory_audit_count/`, `custom_addons/od19_inventory_reporting/` in `codex/wave1-inventory-execution` | Merge, verify, and harden lot/serial plus adjustment governance |
-| Accounting | Not yet approved as a Wave 1 child spec baseline | Wave register, master-plan backlog decisions, and the split defined in [2026-10-07-odoo19-enterprise-wave-1-customer-risk-credit-gate-design.md](../../../specs/2026-10-07-odoo19-enterprise-wave-1-customer-risk-credit-gate-design.md) | Complete the Wave 1 accounting boundary while keeping deep credit controls, limits, overdue holds, and approval tiers in Wave 2 |
+| Accounting | In review as an operational-closure baseline | [2026-10-07-odoo19-enterprise-wave-1-accounting-operational-closure-design.md](../../../specs/2026-10-07-odoo19-enterprise-wave-1-accounting-operational-closure-design.md), master-plan backlog decisions, and the split defined in [2026-10-07-odoo19-enterprise-wave-1-customer-risk-credit-gate-design.md](../../../specs/2026-10-07-odoo19-enterprise-wave-1-customer-risk-credit-gate-design.md) | Approve the Wave 1 accounting closure baseline and keep deep finance controls, credit limits, overdue holds, and approval tiers in Wave 2 |
 
 ## Wave 0
 
@@ -57,6 +57,7 @@
 
 - Wave 1 remains the active closure target and should not be declared complete before Accounting is approved and Inventory is merged/verified on the mainline workspace.
 - Wave 1 should absorb only the customer risk gate baseline needed to stop blacklist sales and unapproved credit sales; it should not become the home of full finance-led credit control.
+- Wave 1 Accounting should close AR, AP, payment, reconciliation, and essential posting/tax mapping as an operational baseline without absorbing Wave 2 control depth.
 - Wave 2 should absorb finance controls and legacy reports only when they extend owner decision quality without re-opening Wave 1 boundaries.
 - Wave 2 should take over deep credit-control behavior such as credit limits, overdue holds, approval tiers, and exception governance after the Wave 1 customer risk gate stabilizes.
 - Wave 3 should own service-linked returns, warranty-linked stock behavior, and after-sales process complexity rather than pushing that logic back into Inventory.
