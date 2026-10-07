@@ -9,6 +9,7 @@
     ],
     "data": [
         "security/ir.model.access.csv",
+        "security/accounting_reporting_security.xml",
         "views/report_accounting_operational_closure_views.xml",
     ],
     "installable": True,

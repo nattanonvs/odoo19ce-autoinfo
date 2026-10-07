@@ -39,9 +39,8 @@ class ReportAccountingOperationalClosure(models.Model):
                 WITH company_scope AS (
                     SELECT DISTINCT so.company_id
                     FROM sale_order so
-                    WHERE so.od19_billing_readiness_state = 'ready'
-                        AND so.state != 'cancel'
-                        AND COALESCE(so.od19_invoice_closure_state, '') != 'paid'
+                    WHERE so.state != 'cancel'
+                        AND so.od19_invoice_closure_state = 'ready_to_invoice'
 
                     UNION
 
@@ -56,9 +55,8 @@ class ReportAccountingOperationalClosure(models.Model):
                         so.company_id,
                         COALESCE(SUM(so.amount_total), 0.0) AS billable_backlog
                     FROM sale_order so
-                    WHERE so.od19_billing_readiness_state = 'ready'
-                        AND so.state != 'cancel'
-                        AND COALESCE(so.od19_invoice_closure_state, '') != 'paid'
+                    WHERE so.state != 'cancel'
+                        AND so.od19_invoice_closure_state = 'ready_to_invoice'
                     GROUP BY so.company_id
                 ),
                 receivable AS (
