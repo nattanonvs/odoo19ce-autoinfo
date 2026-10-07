@@ -54,12 +54,14 @@
 ### Wave 1 Focus
 - Close the commercial core on top of the approved Contacts, Sales, Purchase, and Inventory baselines.
 - Treat Inventory as implemented baseline work in the delivery branch, but do not mark the wave complete until merge, verification, and Accounting baseline closure are done.
+- Add the customer risk gate baseline so `Blacklist` customers are blocked from both `Quotation` and `Sales Order`, and `Credit Pending` customers remain cash-only until Accounting approval is complete.
 - Keep Wave 1 limited to commercial-core truth, readiness, and owner-facing KPIs.
 - Do not pull advanced finance controls, after-sales process logic, or logistics extensions forward unless a documented dependency forces it.
 
 ### Wave 2 Focus
 - Extend from the stable Wave 1 commercial core into finance-specific controls.
 - Prioritize Advance, Cheque, and Money In Analysis together with reporting that directly improves owner decision-making.
+- Absorb deep credit controls such as credit limits, overdue holds, exception approvals, and finance-led exposure reporting after the Wave 1 customer risk gate is stable.
 - Rebuild only the finance and inventory reports that still carry decision value from the Odoo 15 legacy system.
 
 ### Wave 3 Focus
