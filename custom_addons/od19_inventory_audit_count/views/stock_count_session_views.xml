@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_od19_stock_count_session_list" model="ir.ui.view">
+        <field name="name">od19.stock.count.session.list</field>
+        <field name="model">od19.stock.count.session</field>
+        <field name="arch" type="xml">
+            <list string="Count Sessions">
+                <field name="name"/>
+                <field name="location_id"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+</odoo>

@@ -540,6 +540,87 @@ git add docs/superpowers/programs/odoo19-enterprise/README.md docs/superpowers/p
 git commit -m "docs: add enterprise program handoff notes"
 ```
 
+## Wave Planning Update After Inventory Baseline
+
+This section records the fit-gap decision after the Wave 1 Inventory baseline was implemented in the dedicated worktree and reviewed against the legacy Odoo 15 inventory landscape. Its purpose is to make the next-wave backlog explicit inside the master plan instead of leaving the decision spread across conversations.
+
+### Current Planning Position
+
+- Wave 1 Inventory baseline is considered implemented at the addon level through `od19_inventory_execution_control`, `od19_inventory_audit_count`, and `od19_inventory_reporting`.
+- The Inventory baseline now covers movement execution truth, count variance visibility, and first-line owner reporting.
+- Wave 1 is not yet considered complete at the program level because Accounting evidence and the Wave 1 Accounting child spec are still required.
+- Legacy Odoo 15 inventory features are not migrated wholesale. They are screened using `Keep`, `Refactor`, `Replace`, and `Retire`.
+
+### Legacy Inventory to New Coverage
+
+| Legacy inventory capability | New coverage in Odoo 19 | Decision | Target wave |
+| --- | --- | --- | --- |
+| `dtr_stock` movement foundation | Covered by `od19_inventory_execution_control` on top of standard `stock`, `purchase_stock`, and `sale_stock` | Keep movement truth, refactor into bounded addons | Wave 1 |
+| Receipt, delivery, internal transfer | Covered by computed `flow class` and `execution state` on `stock.picking` | Keep | Wave 1 |
+| Return to vendor and customer return baseline | Covered by return classification and return-focused tests | Keep | Wave 1 |
+| Reference document traceability | Covered by `od19_reference_document` on `stock.move` | Keep | Wave 1 |
+| Lot / serial tracking baseline | Covered only at first level through tracking-required semantics on product templates | Refactor into policy-based governance | Wave 1 |
+| Duplicate lot / serial controls from legacy stock customizations | Not yet covered at legacy depth | Refactor, do not migrate directly | Wave 1 |
+| Full audit counting | Covered at first level by `od19_inventory_audit_count` session and variance models | Keep and harden | Wave 1 |
+| Stock adjustment discipline | Variance exists but full review / approval / adjustment governance is still incomplete | Replace legacy ad-hoc adjustment patterns with controlled adjustment workflow | Wave 1 |
+| Inventory accuracy reporting | Covered at first level by `od19_inventory_reporting` | Keep | Wave 1 |
+| Movement backlog reporting | Covered at first level by `od19_inventory_reporting` | Keep | Wave 1 |
+| Inventory overview screens from legacy system | Not reproduced one-to-one | Replace with KPI-oriented views on canonical models | Wave 1 |
+| Monthly stock, aging, dead stock, FIFO as-of reports | Not yet covered in the new baseline | Refactor and rebuild only reports with owner value | Wave 2 |
+| `dtr_goods_issue` dedicated issue document | No direct replacement yet | Replace with standard movement plus reason/evidence first; add wrapper only if still justified | Wave 4 |
+| Split picking custom convenience | No direct replacement yet | Retire unless standard Odoo proves insufficient | Wave 4 |
+| Inventory tier approval spread across legacy operations | No direct replacement yet | Replace with approval only for material variance and adjustment events | Wave 1 |
+| Stock requests and transportation-linked warehouse flows | Out of scope for Wave 1 Inventory baseline | Refactor into logistics extension scope | Wave 4 |
+| Service-linked returns, warranty-linked stock, repair stock effects | Out of scope for Wave 1 Inventory baseline | Refactor into after-sales scope | Wave 3 |
+| Jasper-heavy inventory report catalog | Not migrated | Retire direct migration; rebuild only decision-useful outputs | Wave 2 |
+
+### Remaining Work by Wave
+
+#### Wave 1 - Close Commercial Core
+
+- Merge `od19_inventory_execution_control`, `od19_inventory_audit_count`, and `od19_inventory_reporting` into `19.0`.
+- Verify install, upgrade, uninstall, and regression behavior after merge on the main branch.
+- Fix the test environment so inventory addon tests can run cleanly in the target workspace.
+- Harden lot/serial policy into explicit business rules by product or product group.
+- Add review and approval semantics for material count variance and approved stock adjustments.
+- Finalize the Wave 1 Accounting child spec and confirm the boundary between inventory truth and accounting posting.
+- Define Wave 1 accounting baseline for valuation handoff, bill/invoice readiness, returns consequence, and essential account/tax mapping.
+- Add owner-facing commercial core KPIs that combine Sales, Purchase, Inventory, and Accounting baseline signals.
+- Update the program control documents so Wave 1 readiness clearly depends only on Accounting completion after Inventory baseline approval.
+
+#### Wave 2 - Finance Controls and Reporting Expansion
+
+- Design and implement Advance controls.
+- Design and implement Cheque controls.
+- Design and implement Money In Analysis.
+- Rebuild only the inventory and finance reports from Odoo 15 that still provide direct owner value, such as aging, dead stock, monthly stock, and related decision reports.
+- Expand management reporting by connecting commercial, inventory, and finance signals into clearer owner dashboards.
+
+#### Wave 3 - After-Sales and Service Return Domain
+
+- Design and implement Sales Services.
+- Design and implement Claims.
+- Design and implement Warranty.
+- Design and implement Service Card.
+- Design and implement Product Return in the after-sales context.
+- Move service-linked return scenarios, warranty-linked stock effects, and repair-related stock implications out of Inventory core and into the after-sales domain.
+
+#### Wave 4 - Logistics Extensions and Non-Standard Warehouse Flows
+
+- Design and implement Stock Requests.
+- Design and implement Transportation.
+- Design and implement Logistics extensions.
+- Decide whether `Goods Issue` remains a real business process after the new Inventory baseline is in production use.
+- If `Goods Issue` remains necessary, rebuild it as a logistics or warehouse UX layer on top of standard movement truth rather than copying the legacy model directly.
+- Revisit advanced warehouse convenience features, such as split-picking behavior, only if standard Odoo plus redesigned process is proven insufficient.
+
+### Planning Rules After Inventory Review
+
+- Do not treat legacy inventory breadth as a requirement to migrate every legacy customization.
+- Promote only those legacy behaviors that improve stock truth, auditability, owner value, or cross-domain clarity.
+- Keep Wave 1 focused on commercial-core closure. Do not pull finance controls, after-sales, or logistics extensions forward unless a documented dependency forces it.
+- If a legacy feature is mostly UI convenience, report duplication, or workaround behavior from Odoo 15, default to retire or redesign instead of migrate.
+
 ## Coverage Notes
 
 This master plan covers the approved blueprint by turning it into executable program infrastructure:
