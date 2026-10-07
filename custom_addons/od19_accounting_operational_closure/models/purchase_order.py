@@ -37,7 +37,7 @@ class PurchaseOrder(models.Model):
                 lambda line: line.od19_service_acceptance_required
                 and not line.od19_service_accepted
             )
-            if order.state != "purchase":
+            if not order._od19_is_committed_for_service_acceptance():
                 order.od19_vendor_bill_closure_state = "waiting_commitment"
             elif waiting_service:
                 order.od19_vendor_bill_closure_state = "waiting_service_acceptance"
@@ -52,3 +52,7 @@ class PurchaseOrder(models.Model):
                 order.od19_vendor_bill_closure_state = "partially_paid"
             else:
                 order.od19_vendor_bill_closure_state = "billed"
+
+    def _od19_is_committed_for_service_acceptance(self):
+        self.ensure_one()
+        return self.state in ("purchase", "done")

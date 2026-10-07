@@ -1,6 +1,7 @@
 from lxml import etree
 
 from odoo import api
+from odoo.exceptions import UserError
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
@@ -40,7 +41,15 @@ class TestAccountingAPClosure(TransactionCase):
         )
         return etree.fromstring(view_data["arch"])
 
-    def _create_po(self, product):
+    def _force_order_state(self, order, state):
+        self.env.cr.execute(
+            "UPDATE purchase_order SET state = %s WHERE id = %s",
+            (state, order.id),
+        )
+        order.invalidate_recordset(["state", "od19_vendor_bill_closure_state"])
+        return self._fresh_purchase_order(order)
+
+    def _create_po(self, product, *, confirm=True):
         order = self.env["purchase.order"].create({"partner_id": self.vendor.id})
         self.env["purchase.order.line"].create(
             {
@@ -53,9 +62,10 @@ class TestAccountingAPClosure(TransactionCase):
                 "product_uom_id": product.uom_id.id,
             }
         )
-        order.action_od19_submit_for_approval()
-        order.with_user(self.admin_user).action_od19_approve()
-        order.button_confirm()
+        if confirm:
+            order.action_od19_submit_for_approval()
+            order.with_user(self.admin_user).action_od19_approve()
+            order.button_confirm()
         return order
 
     def test_service_po_waits_for_acceptance_before_vendor_bill(self):
@@ -68,9 +78,47 @@ class TestAccountingAPClosure(TransactionCase):
         order = self._fresh_purchase_order(order)
         self.assertEqual(order.od19_vendor_bill_closure_state, "ready_to_bill")
 
+    def test_done_service_po_still_waits_for_acceptance(self):
+        order = self._create_po(self.service)
+        order = self._force_order_state(order, "done")
+        self.assertEqual(order.od19_vendor_bill_closure_state, "waiting_service_acceptance")
+
     def test_product_po_is_ready_to_bill_without_service_acceptance(self):
         order = self._fresh_purchase_order(self._create_po(self.product))
         self.assertEqual(order.od19_vendor_bill_closure_state, "ready_to_bill")
+
+    def test_done_product_po_stays_ready_to_bill(self):
+        order = self._create_po(self.product)
+        order = self._force_order_state(order, "done")
+        self.assertEqual(order.od19_vendor_bill_closure_state, "ready_to_bill")
+
+    def test_service_acceptance_requires_committed_po(self):
+        order = self._create_po(self.service, confirm=False)
+        with self.assertRaises(UserError):
+            order.order_line.action_od19_accept_service()
+
+    def test_direct_write_of_service_accepted_is_rejected(self):
+        order = self._create_po(self.service)
+        with self.assertRaises(UserError):
+            order.order_line.write({"od19_service_accepted": True})
+
+    def test_material_change_requires_fresh_service_acceptance(self):
+        order = self._create_po(self.service)
+        line = order.order_line
+        line.action_od19_accept_service()
+        line.with_context(od19_skip_approval_invalidation=True).write(
+            {"name": "Changed Service Scope"}
+        )
+        order = self._fresh_purchase_order(order)
+        self.assertFalse(order.order_line.od19_service_accepted)
+        self.assertEqual(order.od19_vendor_bill_closure_state, "waiting_service_acceptance")
+
+    def test_service_acceptance_is_not_copied_to_duplicate_order(self):
+        order = self._create_po(self.service)
+        order.order_line.action_od19_accept_service()
+        duplicate = order.copy()
+        self.assertFalse(duplicate.order_line.od19_service_accepted)
+        self.assertEqual(duplicate.od19_vendor_bill_closure_state, "waiting_commitment")
 
     def test_purchase_order_form_places_ap_closure_fields_once(self):
         arch = self._get_purchase_form_arch()
@@ -91,3 +139,4 @@ class TestAccountingAPClosure(TransactionCase):
         self.assertEqual(len(acceptance_required_fields), 1)
         self.assertEqual(len(acceptance_state_fields), 1)
         self.assertEqual(len(accept_buttons), 1)
+        self.assertEqual(acceptance_state_fields[0].get("readonly"), "1")

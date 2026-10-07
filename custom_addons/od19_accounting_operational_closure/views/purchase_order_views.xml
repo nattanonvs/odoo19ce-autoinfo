@@ -10,7 +10,7 @@
             </xpath>
             <xpath expr="//field[@name='order_line']/list/field[@name='product_qty']" position="after">
                 <field name="od19_service_acceptance_required" readonly="1" optional="show"/>
-                <field name="od19_service_accepted" optional="show"/>
+                <field name="od19_service_accepted" readonly="1" optional="show"/>
                 <button
                     name="action_od19_accept_service"
                     type="object"
