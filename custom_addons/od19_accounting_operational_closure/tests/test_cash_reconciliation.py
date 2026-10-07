@@ -121,6 +121,25 @@ class TestAccountingCashReconciliation(AccountTestInvoicingCommon):
         self.assertEqual(invoice.payment_state, "blocked")
         self.assertEqual(invoice.od19_operational_closure_state, "posted")
 
+    def test_blocked_after_partial_payment_stays_partially_paid(self):
+        invoice = self._create_invoice(
+            move_type="out_invoice",
+            partner_id=self.partner_a,
+            post=True,
+            invoice_line_ids=[
+                self._prepare_invoice_line(product_id=self.product_a, price_unit=220.0)
+            ],
+        )
+
+        self._register_payment(invoice, amount=invoice.amount_total / 2)
+        invoice.action_toggle_block_payment()
+
+        invoice = self._fresh_move(invoice)
+        self.assertEqual(invoice.payment_state, "blocked")
+        self.assertTrue(invoice.amount_residual)
+        self.assertLess(invoice.amount_residual, invoice.amount_total)
+        self.assertEqual(invoice.od19_operational_closure_state, "partially_paid")
+
     def test_operational_flow_classifies_journal_entries_as_other(self):
         move = self._fresh_move(self._create_misc_entry(ref="MISC-FLOW-001"))
         self.assertEqual(move.od19_operational_flow, "other")

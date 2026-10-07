@@ -51,14 +51,24 @@ class AccountMove(models.Model):
         for move in self:
             move.od19_source_document = move._od19_get_source_document()
 
-    @api.depends("state", "payment_state")
+    @api.depends("state", "payment_state", "amount_total", "amount_residual", "currency_id")
     def _compute_od19_operational_closure_state(self):
         for move in self:
+            currency = move.currency_id or move.company_id.currency_id
+            residual_is_zero = currency.is_zero(move.amount_residual)
+            total_is_zero = currency.is_zero(move.amount_total)
+            has_partial_residual = (
+                not residual_is_zero
+                and not total_is_zero
+                and abs(move.amount_residual) < abs(move.amount_total)
+            )
             if move.state != "posted":
                 move.od19_operational_closure_state = "draft"
             elif move.payment_state in ("paid", "reversed"):
                 move.od19_operational_closure_state = "paid"
-            elif move.payment_state in ("partial", "in_payment"):
+            elif move.payment_state in ("partial", "in_payment") or (
+                move.payment_state == "blocked" and has_partial_residual
+            ):
                 move.od19_operational_closure_state = "partially_paid"
             else:
                 move.od19_operational_closure_state = "posted"
