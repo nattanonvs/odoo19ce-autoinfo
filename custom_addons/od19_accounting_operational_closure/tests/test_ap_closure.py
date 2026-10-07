@@ -1,0 +1,93 @@
+from lxml import etree
+
+from odoo import api
+from odoo.tests import tagged
+from odoo.tests.common import TransactionCase
+
+
+@tagged("post_install", "-at_install")
+class TestAccountingAPClosure(TransactionCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.vendor = cls.env["res.partner"].create(
+            {"name": "AP Closure Vendor", "company_type": "company"}
+        )
+        cls.service = cls.env["product.product"].create(
+            {
+                "name": "Accepted Service",
+                "type": "service",
+                "purchase_ok": True,
+            }
+        )
+        cls.product = cls.env["product.product"].create(
+            {
+                "name": "Receipt Product",
+                "type": "consu",
+                "purchase_ok": True,
+            }
+        )
+        cls.purchase_form_view = cls.env.ref("purchase.purchase_order_form")
+        cls.admin_user = cls.env.ref("base.user_admin")
+
+    def _fresh_purchase_order(self, order):
+        fresh_env = api.Environment(self.env.cr, self.env.uid, dict(self.env.context))
+        return fresh_env["purchase.order"].browse(order.id)
+
+    def _get_purchase_form_arch(self):
+        view_data = self.env["purchase.order"].get_view(
+            view_id=self.purchase_form_view.id, view_type="form"
+        )
+        return etree.fromstring(view_data["arch"])
+
+    def _create_po(self, product):
+        order = self.env["purchase.order"].create({"partner_id": self.vendor.id})
+        self.env["purchase.order.line"].create(
+            {
+                "order_id": order.id,
+                "name": product.display_name,
+                "product_id": product.id,
+                "product_qty": 1.0,
+                "price_unit": 500.0,
+                "date_planned": "2026-10-07 00:00:00",
+                "product_uom_id": product.uom_id.id,
+            }
+        )
+        order.action_od19_submit_for_approval()
+        order.with_user(self.admin_user).action_od19_approve()
+        order.button_confirm()
+        return order
+
+    def test_service_po_waits_for_acceptance_before_vendor_bill(self):
+        order = self._fresh_purchase_order(self._create_po(self.service))
+        self.assertEqual(order.od19_vendor_bill_closure_state, "waiting_service_acceptance")
+
+    def test_service_po_moves_to_ready_to_bill_after_acceptance(self):
+        order = self._create_po(self.service)
+        order.order_line.action_od19_accept_service()
+        order = self._fresh_purchase_order(order)
+        self.assertEqual(order.od19_vendor_bill_closure_state, "ready_to_bill")
+
+    def test_product_po_is_ready_to_bill_without_service_acceptance(self):
+        order = self._fresh_purchase_order(self._create_po(self.product))
+        self.assertEqual(order.od19_vendor_bill_closure_state, "ready_to_bill")
+
+    def test_purchase_order_form_places_ap_closure_fields_once(self):
+        arch = self._get_purchase_form_arch()
+        closure_state_fields = arch.xpath(
+            "//field[@name='invoice_status']/following-sibling::field[@name='od19_vendor_bill_closure_state']"
+        )
+        acceptance_required_fields = arch.xpath(
+            "//field[@name='order_line']"
+            "//field[@name='od19_service_acceptance_required']"
+        )
+        acceptance_state_fields = arch.xpath(
+            "//field[@name='order_line']//field[@name='od19_service_accepted']"
+        )
+        accept_buttons = arch.xpath(
+            "//field[@name='order_line']//button[@name='action_od19_accept_service']"
+        )
+        self.assertEqual(len(closure_state_fields), 1)
+        self.assertEqual(len(acceptance_required_fields), 1)
+        self.assertEqual(len(acceptance_state_fields), 1)
+        self.assertEqual(len(accept_buttons), 1)
