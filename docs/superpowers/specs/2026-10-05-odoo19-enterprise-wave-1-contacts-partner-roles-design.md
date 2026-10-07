@@ -3,13 +3,13 @@
 ## Control Metadata
 - Child spec ID: W1-CONTACTS-PARTNER-ROLES
 - Wave: Wave 1
-- Status: Draft
+- Status: Approved
 - Owner: Commercial domain lead
 - Reviewer: Technical supervisor
 - Approvers: Business owner; Technical supervisor
 - Canonical path: `docs/superpowers/specs/2026-10-05-odoo19-enterprise-wave-1-contacts-partner-roles-design.md`
 - Source backlog row: `docs/superpowers/programs/odoo19-enterprise/backlog/domain-wave-matrix.md`
-- Date: 2026-10-05
+- Date: 2026-10-06
 - Primary readers: ฝ่ายขาย, ผู้ดูแลข้อมูลคู่ค้า, ผู้จัดการฝ่ายขาย, ทีมเทคนิค
 
 ## Discovery Evidence
@@ -21,9 +21,9 @@
   - `custom_addons/od19_sales_reporting/`
   - `Odoo15Backup/odoo15_oca_mapping.xlsx`
 - Evidence coverage gaps:
-  - ยังไม่มี inventory ของ partner data quality จากระบบเดิมแบบครบถ้วน
-  - ยังไม่มีข้อสรุปสุดท้ายเรื่องการใช้ company/contact hierarchy ในทุกแผนก
-  - ยังไม่มีกติกา dedup และ merge records เชิงปฏิบัติการสำหรับ migration
+  - inventory ของ partner data quality จากระบบเดิมยังไม่ครบถ้วนในระดับ profiling เชิงลึก และให้ไปปิดใน migration workstream
+  - ยืนยัน baseline แล้วว่าใช้ `company master + child contacts` ตาม parent/child มาตรฐานของ Odoo เป็นหลัก
+  - ยืนยัน baseline แล้วว่า dedup ใช้แบบ `warn and steward decision` โดยห้าม auto-merge ใน Wave 1
 
 ## Delivery Controls
 - Dependencies:
@@ -153,6 +153,16 @@ Partner หนึ่งรายสามารถมีได้มากกว
 
 child spec นี้จะไม่ขยาย field แบบเกินความจำเป็นของ Wave 1 และจะเน้น field ที่ช่วยยกระดับคุณภาพข้อมูลสำหรับงานขายและงานข้ามทีมเท่านั้น
 
+### 6.4 Company / Contact Hierarchy Baseline
+
+สำหรับ Wave 1 ให้ใช้นโยบาย `บริษัทหลัก + ผู้ติดต่อย่อย` เป็น baseline กลางของทุกทีม โดยมีหลักการดังนี้:
+
+- partner ที่เป็นองค์กรให้เก็บเป็น company record หลัก
+- บุคคลที่เป็นผู้ติดต่อให้เก็บเป็น child contact ใต้ company record ถ้าบุคคลนั้นสังกัดองค์กรชัดเจน
+- บทบาทเชิงธุรกิจระดับ `Project Owner` และ `Contractor` ให้ยึดกับ company record เป็นหลัก ไม่ยึดกับ child contact
+- child contact สามารถมีข้อมูลติดต่อ, ตำแหน่ง, และหมายเหตุเชิงปฏิบัติการได้ แต่ไม่ควรกลายเป็น master เชิงสัญญาแทน company record
+- กรณีที่ยังหาบริษัทแม่ไม่เจอในช่วง migration ให้สร้างเป็น partner ชั่วคราวได้ แต่ต้องถูกจัดเข้า data-cleansing queue เพื่อผูก hierarchy ภายหลัง
+
 ## 7. Validation Model
 
 validation ต้องมีเป้าหมายเพื่อเพิ่มคุณภาพข้อมูลโดยไม่ทำให้ข้อมูลเดิมเปิดใช้ไม่ได้ทั้งหมดทันที
@@ -165,6 +175,13 @@ validation ต้องมีเป้าหมายเพื่อเพิ่
 - partner ที่ inactive ไม่ควรถูกเลือกใช้งานใหม่ใน flow หลัก ถ้าไม่มีเหตุผลพิเศษ
 
 child spec นี้เน้น validation แบบ `basic guardrails` ไม่ใช่ `strict data policing`
+
+ระดับความเข้มของ validation สำหรับ Wave 1 ให้ใช้แบบ `บังคับเฉพาะ role สำคัญ`:
+
+- `Commercial Customer` ต้องมีอย่างน้อยหนึ่งช่องทางติดต่อหลักที่ใช้งานได้ เช่น email, phone, หรือ mobile
+- `Project Owner` และ `Contractor` ต้องเป็น company partner และพร้อมถูกอ้างอิงใน flow ขาย
+- partner ทั่วไปที่ยังไม่ได้ถูกใช้ใน role สำคัญ ไม่บังคับครบทุก field ในรอบนี้ แต่ควรถูกติดตามผ่าน data-quality backlog
+- การ block ต้องเกิดเฉพาะตอน partner ถูกใช้งานเชิงธุรกิจสำคัญหรือถูก mark role สำคัญ ไม่ใช่ block การเก็บข้อมูลดิบทุกกรณี
 
 ## 8. User Experience และ Searchability
 
@@ -238,6 +255,16 @@ Wave 1 - Contacts ไม่ได้สร้าง owner dashboard ใหม่
 - ข้อมูล role ของคู่ค้าอาจต้องอาศัย mapping rule ในภายหลัง
 - migration detail และ cleansing plan ละเอียด ให้ไปอยู่ใน implementation plan หรือ migration workstream แยก
 
+### 12.1 Dedup / Merge Baseline
+
+baseline ของ Wave 1 สำหรับข้อมูลซ้ำของคู่ค้าให้ใช้แนว `warn and steward decision`:
+
+- ระบบควรช่วยเตือน duplicate candidate จากข้อมูลหลัก เช่น ชื่อบริษัท, เลขทะเบียน/เลขผู้เสียภาษี, email, phone เมื่อมีหลักฐานพอ
+- Wave 1 ห้าม merge records อัตโนมัติ
+- ผู้ดูแลข้อมูลหรือ data steward เป็นผู้ตัดสินใจว่าจะ merge, link, หรือปล่อยไว้ชั่วคราว
+- duplicate candidate ที่ยังไม่ถูกตัดสินใจให้ถูกเก็บเป็นงานใน data-cleansing queue แยกจาก transaction flow หลัก
+- policy นี้มีเป้าหมายเพื่อป้องกันการรวม partner ผิดรายระหว่าง migration และระหว่างการใช้งานจริงช่วงต้น
+
 ## 13. Training Impact
 
 ผู้ใช้ที่เกี่ยวข้องต้องเข้าใจอย่างน้อย:
@@ -257,10 +284,10 @@ Wave 1 - Contacts ไม่ได้สร้าง owner dashboard ใหม่
 
 ## 15. Known Unknowns
 
-- จะใช้ boolean flags ทั้งหมด หรือควรเผื่อ model extension บางส่วนสำหรับ future waves
-- ต้องการกติกาข้อมูลบังคับขั้นต่ำแยกตาม role ละเอียดแค่ไหน
-- ต้องรองรับ company/contact hierarchy ระดับใดในแต่ละทีม
-- migration rule จากข้อมูล partner เดิมควรแยกเป็น phase ย่อยหรือรวมกับ implementation plan
+- ถ้า future waves มี role ซับซ้อนกว่านี้ อาจต้องยกระดับจาก boolean flags ไปเป็น role engine ที่ยืดหยุ่นกว่า
+- field-level profiling ของข้อมูลเดิมจาก Odoo 15 ยังต้องทำเพิ่มก่อน migration จริง
+- duplicate cluster และ orphan contacts จากข้อมูลเดิมยังต้องถูกสำรวจเชิงข้อมูลก่อน cutover
+- migration rule สำหรับการผูก child contacts กับ company records ยังต้องถูกเขียนเป็น runbook แยก
 
 ## 16. Gate Readiness Summary
 
@@ -287,6 +314,16 @@ Wave 1 - Contacts ไม่ได้สร้าง owner dashboard ใหม่
 - implementation plan ถูกเขียนและอนุมัติ
 - ตกลงขอบเขต addon ของ Contacts ชัดเจน
 - รู้แน่ชัดว่าจะไม่พ่วง Purchase, Inventory, และ Accounting logic เข้ามาในรอบนี้
+
+### 16.4 Current Checkpoint
+
+เอกสารฉบับนี้ถูกปิด known unknowns ระดับ Wave 1 แล้วในประเด็นต่อไปนี้:
+
+- canonical model ใช้ `res.partner`
+- hierarchy baseline ใช้ `company master + child contacts`
+- dedup baseline ใช้ `warn and steward decision`
+- data quality baseline ใช้ `strict only for critical roles`
+- implementation scope คงอยู่ใน Contacts และ compatibility กับ Sales
 
 ## 17. คำตัดสินของ Child Spec นี้
 

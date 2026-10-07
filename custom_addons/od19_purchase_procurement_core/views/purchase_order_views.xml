@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="purchase_order_form_od19_procurement_core" model="ir.ui.view">
+        <field name="name">purchase.order.form.od19.procurement.core</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="od19_entry_mode"/>
+                <field name="od19_approval_state" readonly="1"/>
+                <field name="od19_budget_warning_count" readonly="1"/>
+            </xpath>
+            <xpath expr="//field[@name='order_line']" position="before">
+                <group invisible="od19_budget_warning_count == 0">
+                    <field name="od19_budget_warning_summary"
+                           readonly="1"
+                           nolabel="1"
+                           widget="text"/>
+                </group>
+            </xpath>
+            <xpath expr="//header" position="inside">
+                <button name="action_od19_submit_for_approval"
+                        type="object"
+                        string="Submit for Approval"
+                        invisible="od19_approval_state != 'draft'"/>
+                <button name="action_od19_approve"
+                        type="object"
+                        string="Approve"
+                        groups="purchase.group_purchase_manager"
+                        invisible="od19_approval_state != 'submitted'"/>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list/field[@name='product_qty']" position="after">
+                <field name="od19_procurement_purpose"/>
+                <field name="od19_item_kind" readonly="1"/>
+                <field name="od19_project_id"/>
+                <field name="sale_line_id" optional="hide"/>
+                <field name="sale_order_id" readonly="1" optional="hide"/>
+                <field name="od19_budget_reference"/>
+                <field name="od19_budget_warning" readonly="1"/>
+                <field name="od19_requires_service_acceptance" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
