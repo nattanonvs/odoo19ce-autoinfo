@@ -55,6 +55,7 @@
 - Close the commercial core on top of the approved Contacts, Sales, Purchase, and Inventory baselines.
 - Treat Inventory as implemented baseline work in the delivery branch, but do not mark the wave complete until merge, verification, and Accounting baseline closure are done.
 - Add the customer risk gate baseline so `Blacklist` customers are blocked from both `Quotation` and `Sales Order`, and `Credit Pending` customers remain cash-only until Accounting approval is complete.
+- Close Accounting as an operational-closure baseline that covers AR, AP, payment, reconciliation, and essential posting/tax mapping without pulling deep finance controls forward from Wave 2.
 - Keep Wave 1 limited to commercial-core truth, readiness, and owner-facing KPIs.
 - Do not pull advanced finance controls, after-sales process logic, or logistics extensions forward unless a documented dependency forces it.
 
