@@ -22,39 +22,41 @@ class SaleOrder(models.Model):
         compute="_compute_od19_customer_invoice_count",
     )
 
-    @api.depends("invoice_ids", "invoice_ids.move_type", "invoice_ids.state")
+    @api.depends(
+        "order_line.invoice_lines.move_id.move_type",
+        "order_line.invoice_lines.move_id.state",
+    )
     def _compute_od19_customer_invoice_count(self):
         for order in self:
-            order.od19_customer_invoice_count = len(
-                order.invoice_ids.filtered(
-                    lambda move: move.move_type in ("out_invoice", "out_refund")
-                    and move.state != "cancel"
-                )
-            )
+            order.od19_customer_invoice_count = len(order._od19_customer_invoice_moves())
 
     @api.depends(
         "od19_billing_readiness_state",
-        "invoice_ids",
-        "invoice_ids.move_type",
-        "invoice_ids.state",
-        "invoice_ids.payment_state",
+        "order_line.invoice_lines.move_id.move_type",
+        "order_line.invoice_lines.move_id.state",
+        "order_line.invoice_lines.move_id.payment_state",
     )
     def _compute_od19_invoice_closure_state(self):
         for order in self:
-            invoices = order.invoice_ids.filtered(
-                lambda move: move.move_type in ("out_invoice", "out_refund")
-                and move.state != "cancel"
-            )
+            invoices = order._od19_customer_invoice_moves()
+            posted_invoices = invoices.filtered(lambda move: move.state == "posted")
             if order.od19_billing_readiness_state != "ready":
                 order.od19_invoice_closure_state = "waiting_readiness"
-            elif not invoices:
+            elif not posted_invoices:
                 order.od19_invoice_closure_state = "ready_to_invoice"
-            elif all(move.payment_state == "paid" for move in invoices):
+            elif all(move.payment_state == "paid" for move in posted_invoices):
                 order.od19_invoice_closure_state = "paid"
             elif any(
                 move.payment_state in ("partial", "in_payment", "paid")
-                for move in invoices
+                for move in posted_invoices
             ):
                 order.od19_invoice_closure_state = "partially_paid"
             else:
                 order.od19_invoice_closure_state = "invoiced"
+
+    def _od19_customer_invoice_moves(self):
+        self.ensure_one()
+        return self.order_line.invoice_lines.move_id.filtered(
+            lambda move: move.move_type in ("out_invoice", "out_refund")
+            and move.state != "cancel"
+        )

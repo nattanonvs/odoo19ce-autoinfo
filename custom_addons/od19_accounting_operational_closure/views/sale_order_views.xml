@@ -5,7 +5,10 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='invoice_status']" position="after">
+            <xpath
+                expr="//group[@name='sale_info']/field[@name='invoice_status'][@groups='!base.group_no_one']"
+                position="after"
+            >
                 <field name="od19_invoice_closure_state" readonly="1"/>
                 <field name="od19_customer_invoice_count" readonly="1"/>
             </xpath>
