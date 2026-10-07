@@ -8,6 +8,14 @@
 
 **Tech Stack:** Odoo 19 CE, Python, XML, PostgreSQL, Odoo test framework, Git, Markdown
 
+## Discovery Evidence
+
+- Approved Wave 1 Purchase spec: `docs/superpowers/specs/2026-10-06-odoo19-enterprise-wave-1-purchase-procurement-core-design.md`
+- Odoo 15 production reference source code: `C:\odoo-dev\odoo19\Odoo15Backup\odoo`
+- Odoo 15 reference mapping file: `C:\odoo-dev\odoo19\Odoo15Backup\odoo15_oca_mapping.xlsx`
+- Current Odoo 19 standard modules used as implementation baseline: `addons/purchase`, `addons/purchase_requisition`, `addons/purchase_stock`, `addons/sale_purchase`
+- Existing Wave 1 custom baselines used for integration context: `custom_addons/od19_contacts_partner_roles`, `custom_addons/od19_sales_project_context`
+
 ---
 
 ## File Structure
