@@ -8,6 +8,14 @@
 
 **Tech Stack:** Git worktree, Odoo 19 CE, Python, XML, Markdown, OCA `server-backend`, `server-ux`, `server-tools`, `sale-workflow`, `sale-blanket`, PostgreSQL, Odoo test framework
 
+## Discovery Evidence
+
+- Approved OCA dependency baseline spec: `docs/superpowers/specs/2026-10-04-odoo19-wave1-oca-dependency-baseline-design.md`
+- Odoo 15 production reference source code: `C:\odoo-dev\odoo19\Odoo15Backup\odoo`
+- Odoo 15 reference mapping file: `C:\odoo-dev\odoo19\Odoo15Backup\odoo15_oca_mapping.xlsx`
+- Current OCA workspace target: `third_party/oca/`
+- Existing Wave 1 bridge addon context: `custom_addons/od19_sales_oca_bridge_workflow/`
+
 ---
 
 ## File Structure

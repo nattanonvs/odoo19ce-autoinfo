@@ -8,6 +8,14 @@
 
 **Tech Stack:** Odoo 19 CE, Python, XML, CSV security, PostgreSQL, Odoo test framework, pytest-style assertions in Odoo tests, Git, Markdown, OCA `server-backend`, `server-ux`, `server-tools`, `sale-workflow`, and `sale-blanket`
 
+## Discovery Evidence
+
+- Approved Wave 1 Sales spec: `docs/superpowers/specs/2026-10-04-odoo19-enterprise-wave-1-sales-contract-core-design.md`
+- Odoo 15 production reference source code: `C:\odoo-dev\odoo19\Odoo15Backup\odoo`
+- Odoo 15 reference mapping file: `C:\odoo-dev\odoo19\Odoo15Backup\odoo15_oca_mapping.xlsx`
+- Sales OCA recommendations: `docs/superpowers/programs/odoo19-enterprise/sales/oca-installation-recommendations.md`
+- Existing Odoo 19 baseline context: `custom_addons/`, `third_party/oca/`, และ `docs/superpowers/programs/odoo19-enterprise/sales/`
+
 ---
 
 ## File Structure

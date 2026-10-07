@@ -8,6 +8,14 @@
 
 **Tech Stack:** Markdown, Python 3, pytest, Git, existing `tools/program_blueprint/check_program_workspace.py`
 
+## Discovery Evidence
+
+- Approved Wave 0 spec: `docs/superpowers/specs/2026-10-04-odoo19-enterprise-wave-0-foundation-governance-design.md`
+- Odoo 15 production reference source code: `C:\odoo-dev\odoo19\Odoo15Backup\odoo`
+- Odoo 15 reference mapping file: `C:\odoo-dev\odoo19\Odoo15Backup\odoo15_oca_mapping.xlsx`
+- Current-state discovery artifact: `docs/superpowers/programs/odoo19-enterprise/discovery/current-state-inventory.md`
+- Program control artifacts baseline: `docs/superpowers/programs/odoo19-enterprise/foundation/` และ `docs/superpowers/programs/odoo19-enterprise/governance/`
+
 ---
 
 ## File Structure

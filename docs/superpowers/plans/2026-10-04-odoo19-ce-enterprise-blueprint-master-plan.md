@@ -8,6 +8,14 @@
 
 **Tech Stack:** Markdown, YAML, Python 3, pytest, git, Odoo 19 CE repository docs structure
 
+## Discovery Evidence
+
+- Approved blueprint spec: `docs/superpowers/specs/2026-10-04-odoo19-ce-enterprise-blueprint-design.md`
+- Odoo 15 production reference source code: `C:\odoo-dev\odoo19\Odoo15Backup\odoo`
+- Odoo 15 reference mapping file: `C:\odoo-dev\odoo19\Odoo15Backup\odoo15_oca_mapping.xlsx`
+- Current-state discovery artifact: `docs/superpowers/programs/odoo19-enterprise/discovery/current-state-inventory.md`
+- Program workspace baseline target: `docs/superpowers/programs/odoo19-enterprise/`
+
 ---
 
 ## Scope Guard
