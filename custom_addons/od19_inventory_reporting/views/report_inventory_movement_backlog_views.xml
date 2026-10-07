@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_od19_inventory_movement_backlog_list" model="ir.ui.view">
+        <field name="name">od19.report.inventory.movement.backlog.list</field>
+        <field name="model">od19.report.inventory.movement.backlog</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0">
+                <field name="picking_id"/>
+                <field name="flow_class"/>
+                <field name="execution_state"/>
+                <field name="reference_document"/>
+            </list>
+        </field>
+    </record>
+</odoo>
