@@ -1,6 +1,6 @@
 ﻿# Wave 1 Accounting Operational Closure Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** ส่งมอบ accounting baseline สำหรับ Wave 1 ที่ปิดเส้นทาง `AR + AP + Payment + Reconciliation` ได้จริง โดยเชื่อมกับ Sales, Purchase, และ Inventory อย่างชัดเจนโดยไม่แก้ Odoo core
 
@@ -82,6 +82,14 @@ git submodule update --init --recursive
 
 เหตุผลที่ต้อง override `--addons-path` คือ `odoo.conf` หลักของ repo ชี้กลับไปยัง `custom_addons` ของ main workspace ไม่ใช่ของ worktree และ OCA dependency paths ที่ใช้จริงต้องมาจาก `C:\odoo-dev\odoo19\third_party\oca\...`
 
+## Execution Status
+
+- [x] Task 1 delivered at HEAD: addon `od19_accounting_operational_closure` ครอบคลุม AR closure baseline และ sale-order readiness handoff แล้ว
+- [x] Task 2 delivered at HEAD: AP closure baseline และ service acceptance handoff สำหรับ PO line/vendor bill พร้อมใช้งานแล้ว
+- [x] Task 3 delivered at HEAD: account move operational-closure state และ payment/reconciliation baseline ทำงานแล้ว
+- [x] Task 4 delivered at HEAD: addon `od19_accounting_reporting` ส่งมอบ company-level KPI report ครบ 8 metric rows แล้ว
+- [x] Closeout update on 2026-10-09: KPI semantics ของ `overdue_receivable` และ `due_payable` ถูก harden ให้ยึด `amount_residual_signed` + due-date criteria เป็น truth แม้ `payment_state` จะเป็น `partial`, `in_payment`, หรือ `blocked` ตราบใดที่ exposure ยังเหลืออยู่
+
 ### Task 1: สร้าง addon `od19_accounting_operational_closure` และ AR closure baseline
 
 **Files:**
@@ -93,7 +101,7 @@ git submodule update --init --recursive
 - Create: `custom_addons/od19_accounting_operational_closure/tests/__init__.py`
 - Create: `custom_addons/od19_accounting_operational_closure/tests/test_ar_closure.py`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `custom_addons/od19_accounting_operational_closure/tests/test_ar_closure.py`:
 
@@ -173,7 +181,7 @@ class TestAccountingARClosure(AccountTestInvoicingCommon):
         self.assertEqual(order.od19_invoice_closure_state, "invoiced")
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run:
 
@@ -187,7 +195,7 @@ Expected:
 unknown field errors or module import errors because od19_accounting_operational_closure does not exist yet
 ```
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Create `custom_addons/od19_accounting_operational_closure/__init__.py`:
 
@@ -311,7 +319,7 @@ Create `custom_addons/od19_accounting_operational_closure/tests/__init__.py`:
 from . import test_ar_closure
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run:
 
@@ -325,7 +333,7 @@ Expected:
 0 failed, 0 error(s)
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add custom_addons/od19_accounting_operational_closure
@@ -343,7 +351,7 @@ git commit -m "feat(accounting): add ar operational closure baseline"
 - Create: `custom_addons/od19_accounting_operational_closure/views/purchase_order_views.xml`
 - Create: `custom_addons/od19_accounting_operational_closure/tests/test_ap_closure.py`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `custom_addons/od19_accounting_operational_closure/tests/test_ap_closure.py`:
 
@@ -399,7 +407,7 @@ class TestAccountingAPClosure(TransactionCase):
         self.assertEqual(order.od19_vendor_bill_closure_state, "ready_to_bill")
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run:
 
@@ -413,7 +421,7 @@ Expected:
 unknown field or missing method errors for od19_vendor_bill_closure_state and action_od19_accept_service
 ```
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Update `custom_addons/od19_accounting_operational_closure/__manifest__.py`:
 
@@ -556,7 +564,7 @@ Create `custom_addons/od19_accounting_operational_closure/views/purchase_order_v
 </odoo>
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run:
 
@@ -570,7 +578,7 @@ Expected:
 0 failed, 0 error(s)
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add custom_addons/od19_accounting_operational_closure
@@ -587,7 +595,7 @@ git commit -m "feat(accounting): add ap closure baseline"
 - Create: `custom_addons/od19_accounting_operational_closure/views/account_move_views.xml`
 - Create: `custom_addons/od19_accounting_operational_closure/tests/test_cash_reconciliation.py`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `custom_addons/od19_accounting_operational_closure/tests/test_cash_reconciliation.py`:
 
@@ -630,7 +638,7 @@ class TestAccountingCashReconciliation(AccountTestInvoicingCommon):
         self.assertEqual(bill.od19_operational_closure_state, "partially_paid")
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run:
 
@@ -644,7 +652,7 @@ Expected:
 unknown field errors for od19_operational_closure_state
 ```
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Update `custom_addons/od19_accounting_operational_closure/__manifest__.py`:
 
@@ -760,7 +768,7 @@ Create `custom_addons/od19_accounting_operational_closure/views/account_move_vie
 </odoo>
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run:
 
@@ -774,7 +782,7 @@ Expected:
 0 failed, 0 error(s)
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add custom_addons/od19_accounting_operational_closure
@@ -795,7 +803,7 @@ git commit -m "feat(accounting): add payment and reconciliation baseline"
 - Modify: `docs/superpowers/programs/odoo19-enterprise/backlog/domain-wave-matrix.md`
 - Modify: `docs/superpowers/programs/odoo19-enterprise/backlog/domain-spec-index.md`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `custom_addons/od19_accounting_reporting/tests/test_accounting_reporting.py`:
 
@@ -876,7 +884,7 @@ class TestAccountingReporting(AccountTestInvoicingCommon):
         self.assertTrue(bill.amount_residual > 0)
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run:
 
@@ -890,7 +898,7 @@ Expected:
 model not found or missing view/access errors because od19_accounting_reporting does not exist yet
 ```
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Create `custom_addons/od19_accounting_reporting/__init__.py`:
 
@@ -1053,11 +1061,11 @@ Create `custom_addons/od19_accounting_reporting/tests/__init__.py`:
 from . import test_accounting_reporting
 ```
 
-- [ ] **Step 4: Run focused tests**
+- [x] **Step 4: Run focused and regression tests**
 
 `custom_addons/od19_accounting_reporting/tests/test_accounting_reporting.py` is a `post_install` suite. In this worktree, the stable execution path is `--stop-after-init` plus a class-qualified `--test-tags` selector and the OCA addon paths from the main workspace. A file-only selector can return `0 tests` here, so keep the class suffix in the command.
 
-Run:
+Run focused reporting validation:
 
 ```bash
 ..\..\venv19\Scripts\python.exe .\odoo-bin -c ..\..\odoo.conf --addons-path "C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\addons,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\odoo\addons,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\custom_addons,C:\odoo-dev\odoo19\third_party\oca\sale-blanket,C:\odoo-dev\odoo19\third_party\oca\sale-workflow,C:\odoo-dev\odoo19\third_party\oca\server-backend,C:\odoo-dev\odoo19\third_party\oca\server-tools,C:\odoo-dev\odoo19\third_party\oca\server-ux" -d test_w1_accounting_reporting_focused --test-enable -i account,sale_management,purchase,purchase_stock,od19_sales_project_context,od19_sales_billing_evidence,od19_purchase_procurement_core,od19_accounting_operational_closure,od19_accounting_reporting --stop-after-init --test-tags /od19_accounting_reporting/tests/test_accounting_reporting.py:TestAccountingReporting
@@ -1069,19 +1077,27 @@ Expected:
 0 failed, 0 error(s) for the reporting focused suite, with the reporting post-tests executed from the class-qualified selector
 ```
 
-Run regression:
+Run the relevant closure suites:
 
 ```bash
-..\..\venv19\Scripts\python.exe .\odoo-bin -c ..\..\odoo.conf --addons-path "C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\addons,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\odoo\addons,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\custom_addons,C:\odoo-dev\odoo19\third_party\oca\sale-blanket,C:\odoo-dev\odoo19\third_party\oca\sale-workflow,C:\odoo-dev\odoo19\third_party\oca\server-backend,C:\odoo-dev\odoo19\third_party\oca\server-tools,C:\odoo-dev\odoo19\third_party\oca\server-ux" -d test_w1_accounting_reporting_regression --test-enable -i account,sale_management,purchase,purchase_stock,od19_sales_project_context,od19_sales_billing_evidence,od19_purchase_procurement_core,od19_accounting_operational_closure,od19_accounting_reporting --stop-after-init --test-tags /od19_accounting_reporting/tests/test_accounting_reporting.py:TestAccountingReporting,/od19_accounting_operational_closure/tests/test_ar_closure.py,/od19_accounting_operational_closure/tests/test_ap_closure.py,/od19_accounting_operational_closure/tests/test_cash_reconciliation.py
+..\..\venv19\Scripts\python.exe .\odoo-bin -c ..\..\odoo.conf --addons-path "C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\addons,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\odoo\addons,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\custom_addons,C:\odoo-dev\odoo19\third_party\oca\sale-blanket,C:\odoo-dev\odoo19\third_party\oca\sale-workflow,C:\odoo-dev\odoo19\third_party\oca\server-backend,C:\odoo-dev\odoo19\third_party\oca\server-tools,C:\odoo-dev\odoo19\third_party\oca\server-ux" -d test_w1_accounting_ar_closeout --test-enable -i account,sale_management,od19_sales_billing_evidence,od19_accounting_operational_closure --stop-after-init --test-tags /od19_accounting_operational_closure/tests/test_ar_closure.py:TestAccountingARClosure
+..\..\venv19\Scripts\python.exe .\odoo-bin -c ..\..\odoo.conf --addons-path "C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\addons,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\odoo\addons,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\custom_addons,C:\odoo-dev\odoo19\third_party\oca\sale-blanket,C:\odoo-dev\odoo19\third_party\oca\sale-workflow,C:\odoo-dev\odoo19\third_party\oca\server-backend,C:\odoo-dev\odoo19\third_party\oca\server-tools,C:\odoo-dev\odoo19\third_party\oca\server-ux" -d test_w1_accounting_ap_closeout --test-enable -i account,purchase,purchase_stock,od19_purchase_procurement_core,od19_accounting_operational_closure --stop-after-init --test-tags /od19_accounting_operational_closure/tests/test_ap_closure.py:TestAccountingAPClosure
+..\..\venv19\Scripts\python.exe .\odoo-bin -c ..\..\odoo.conf --addons-path "C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\addons,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\odoo\addons,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\custom_addons,C:\odoo-dev\odoo19\third_party\oca\sale-blanket,C:\odoo-dev\odoo19\third_party\oca\sale-workflow,C:\odoo-dev\odoo19\third_party\oca\server-backend,C:\odoo-dev\odoo19\third_party\oca\server-tools,C:\odoo-dev\odoo19\third_party\oca\server-ux" -d test_w1_accounting_cash_closeout --test-enable -i account,od19_accounting_operational_closure --stop-after-init --test-tags /od19_accounting_operational_closure/tests/test_cash_reconciliation.py:TestAccountingCashReconciliation
+```
+
+Run the combined regression selector:
+
+```bash
+..\..\venv19\Scripts\python.exe .\odoo-bin -c ..\..\odoo.conf --addons-path "C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\addons,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\odoo\addons,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\custom_addons,C:\odoo-dev\odoo19\third_party\oca\sale-blanket,C:\odoo-dev\odoo19\third_party\oca\sale-workflow,C:\odoo-dev\odoo19\third_party\oca\server-backend,C:\odoo-dev\odoo19\third_party\oca\server-tools,C:\odoo-dev\odoo19\third_party\oca\server-ux" -d test_w1_accounting_reporting_regression --test-enable -i account,sale_management,purchase,purchase_stock,od19_sales_project_context,od19_sales_billing_evidence,od19_purchase_procurement_core,od19_accounting_operational_closure,od19_accounting_reporting --stop-after-init --test-tags /od19_accounting_reporting/tests/test_accounting_reporting.py:TestAccountingReporting,/od19_accounting_operational_closure/tests/test_ar_closure.py:TestAccountingARClosure,/od19_accounting_operational_closure/tests/test_ap_closure.py:TestAccountingAPClosure,/od19_accounting_operational_closure/tests/test_cash_reconciliation.py:TestAccountingCashReconciliation
 ```
 
 Expected:
 
 ```text
-0 failed, 0 error(s) for the reporting focused suite and the accounting operational-closure regression selection
+0 failed, 0 error(s) for the focused reporting suite, the three closure suites, and the combined regression selection
 ```
 
-- [ ] **Step 5: Run diff check and update control docs**
+- [x] **Step 5: Run diff check and refresh this implementation plan**
 
 Run:
 
@@ -1089,15 +1105,13 @@ Run:
 git diff --check
 ```
 
-Update `docs/superpowers/programs/odoo19-enterprise/backlog/domain-wave-matrix.md` so Wave 1 focus mentions that Accounting is now implemented as the operational-closure baseline with 8 company-level KPI metric rows (`billable_backlog`, `open_receivable`, `overdue_receivable`, `open_payable`, `due_payable`, `cash_application_status`, `unreconciled_customer_items`, `unreconciled_vendor_items`) and only final verification remains before Wave 1 closure.
+Refresh `docs/superpowers/plans/2026-10-07-odoo19-enterprise-wave-1-accounting-operational-closure-implementation-plan.md` so it stays truthful to current HEAD delivery: completed checklists are marked done, stale future-tense wording is removed where the implementation is already present, and the executable validation commands above are preserved as the worktree-safe closeout matrix.
 
-Update `docs/superpowers/programs/odoo19-enterprise/backlog/domain-spec-index.md` so the Accounting row changes from `In review` to `Approved and implemented` only if the code and focused matrix above pass in the worktree.
-
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
-git add custom_addons/od19_accounting_operational_closure custom_addons/od19_accounting_reporting docs/superpowers/programs/odoo19-enterprise/backlog/domain-wave-matrix.md docs/superpowers/programs/odoo19-enterprise/backlog/domain-spec-index.md
-git commit -m "feat(accounting): add operational closure reporting baseline"
+git add custom_addons/od19_accounting_reporting/models/report_accounting_operational_closure.py custom_addons/od19_accounting_reporting/tests/test_accounting_reporting.py docs/superpowers/plans/2026-10-07-odoo19-enterprise-wave-1-accounting-operational-closure-implementation-plan.md
+git commit -m "fix(accounting): close out operational closure reporting"
 ```
 
 ## Review Checklist
@@ -1107,12 +1121,8 @@ git commit -m "feat(accounting): add operational closure reporting baseline"
 - `Type consistency`: ชื่อ field และ model ใช้ชุดเดียวกันตลอดแผน เช่น `od19_invoice_closure_state`, `od19_vendor_bill_closure_state`, และ `od19_operational_closure_state`
 - `Boundary discipline`: แผนนี้ยังไม่รวม credit limits, overdue hold, cheque controls เชิงลึก, หรือ approval tiers ซึ่งเป็นขอบเขตของ Wave 2
 
-## Execution Handoff
+## Execution Status Evidence
 
-Plan complete and saved to `docs/superpowers/plans/2026-10-07-odoo19-enterprise-wave-1-accounting-operational-closure-implementation-plan.md`. Two execution options:
+This document remains the implementation plan for Wave 1 Accounting Operational Closure, and at current HEAD in this worktree the planned scope is delivered. The active closeout evidence is the executable validation matrix above: focused reporting coverage, the three operational-closure suites, the combined regression selector, and `git diff --check`.
 
-**1. Subagent-Driven (recommended)** - I dispatch a fresh subagent per task, review between tasks, fast iteration
-
-**2. Inline Execution** - Execute tasks in this session using executing-plans, batch execution with checkpoints
-
-**Which approach?**
+Use class-qualified `--test-tags` selectors in this worktree. File-only selectors can return `0 tests` for `post_install` suites here, so the class suffix is part of the documented execution contract.

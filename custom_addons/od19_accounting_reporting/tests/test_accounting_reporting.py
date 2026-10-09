@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from odoo import api
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 from odoo.tests import tagged
@@ -106,6 +108,28 @@ class TestAccountingReporting(AccountTestInvoicingCommon):
                 allowed_company_ids=allowed_company_ids,
             )
         }
+
+    def _metric_map_without_payment_state_flush(
+        self,
+        *,
+        company=None,
+        user=None,
+        allowed_company_ids=None,
+    ):
+        account_move_model = type(self.env["account.move"])
+        original_flush_model = account_move_model.flush_model
+
+        def patched_flush_model(model, fnames=None):
+            if fnames:
+                fnames = [fname for fname in fnames if fname != "payment_state"]
+            return original_flush_model(model, fnames)
+
+        with patch.object(account_move_model, "flush_model", patched_flush_model):
+            return self._metric_map(
+                company=company,
+                user=user,
+                allowed_company_ids=allowed_company_ids,
+            )
 
     def _metric_amount(self, metric_key, *, company=None, user=None, allowed_company_ids=None):
         row = self._metric_map(
@@ -228,6 +252,19 @@ class TestAccountingReporting(AccountTestInvoicingCommon):
         invoice = order._create_invoices()
         invoice.action_post()
         return invoice
+
+    def _force_payment_state(self, move, payment_state):
+        self.env.cr.execute(
+            "UPDATE account_move SET payment_state = %s WHERE id = %s",
+            [payment_state, move.id],
+        )
+
+    def _stored_payment_state(self, move):
+        self.env.cr.execute(
+            "SELECT payment_state FROM account_move WHERE id = %s",
+            [move.id],
+        )
+        return self.env.cr.fetchone()[0]
 
     def _create_partially_invoiced_order(self):
         order = self._create_ready_sale_order(quantity=2.0)
@@ -410,12 +447,136 @@ class TestAccountingReporting(AccountTestInvoicingCommon):
         self.assertTrue(self.KPI_KEYS.issubset(set(report)))
         self.assertEqual(report["billable_backlog"].total_amount, ready_order.amount_to_invoice)
         self.assertEqual(report["open_receivable"].total_amount, overdue_invoice.amount_residual_signed + cash_application_invoice.amount_residual_signed)
-        self.assertEqual(report["overdue_receivable"].total_amount, overdue_invoice.amount_residual_signed)
+        self.assertEqual(
+            report["overdue_receivable"].total_amount,
+            overdue_invoice.amount_residual_signed
+            + cash_application_invoice.amount_residual_signed,
+        )
         self.assertEqual(report["open_payable"].total_amount, due_bill.amount_residual_signed)
         self.assertEqual(report["due_payable"].total_amount, due_bill.amount_residual_signed)
         self.assertEqual(report["cash_application_status"].item_count, 1)
         self.assertGreater(report["unreconciled_customer_items"].item_count, 0)
         self.assertGreater(report["unreconciled_vendor_items"].item_count, 0)
+
+    def test_overdue_receivable_includes_residual_exposure_for_partial_in_payment_and_blocked(self):
+        before_amount = self._metric_amount("overdue_receivable")
+        before_count = self._metric_count("overdue_receivable")
+
+        partial_invoice = self._create_invoice(
+            move_type="out_invoice",
+            partner_id=self.customer,
+            post=True,
+            invoice_date="2026-10-01",
+            date="2026-10-01",
+            invoice_date_due="2026-10-06",
+            invoice_line_ids=[
+                self._prepare_invoice_line(product_id=self.product, price_unit=120.0)
+            ],
+        )
+        self._register_payment(partial_invoice, amount=partial_invoice.amount_total / 2)
+
+        in_payment_invoice = self._create_invoice(
+            move_type="out_invoice",
+            partner_id=self.customer,
+            post=True,
+            invoice_date="2026-10-01",
+            date="2026-10-01",
+            invoice_date_due="2026-10-06",
+            invoice_line_ids=[
+                self._prepare_invoice_line(product_id=self.product, price_unit=150.0)
+            ],
+        )
+        self._force_payment_state(in_payment_invoice, "in_payment")
+
+        blocked_invoice = self._create_invoice(
+            move_type="out_invoice",
+            partner_id=self.customer,
+            post=True,
+            invoice_date="2026-10-01",
+            date="2026-10-01",
+            invoice_date_due="2026-10-06",
+            invoice_line_ids=[
+                self._prepare_invoice_line(product_id=self.product, price_unit=180.0)
+            ],
+        )
+        self._register_payment(blocked_invoice, amount=blocked_invoice.amount_total / 2)
+        blocked_invoice.action_toggle_block_payment()
+
+        report = self._metric_map_without_payment_state_flush()
+
+        self.assertEqual(partial_invoice.payment_state, "partial")
+        self.assertEqual(self._stored_payment_state(in_payment_invoice), "in_payment")
+        self.assertEqual(blocked_invoice.payment_state, "blocked")
+        self.assertEqual(
+            report["overdue_receivable"].total_amount - before_amount,
+            partial_invoice.amount_residual_signed
+            + in_payment_invoice.amount_residual_signed
+            + blocked_invoice.amount_residual_signed,
+        )
+        self.assertEqual(
+            report["overdue_receivable"].item_count - before_count,
+            3,
+        )
+
+    def test_due_payable_includes_residual_exposure_for_partial_in_payment_and_blocked(self):
+        before_amount = self._metric_amount("due_payable")
+        before_count = self._metric_count("due_payable")
+
+        partial_bill = self._create_invoice(
+            move_type="in_invoice",
+            partner_id=self.partner_a,
+            post=True,
+            invoice_date="2026-10-07",
+            date="2026-10-07",
+            invoice_date_due="2026-10-07",
+            invoice_line_ids=[
+                self._prepare_invoice_line(product_id=self.product_a, price_unit=80.0)
+            ],
+        )
+        self._register_payment(partial_bill, amount=partial_bill.amount_total / 2)
+
+        in_payment_bill = self._create_invoice(
+            move_type="in_invoice",
+            partner_id=self.partner_a,
+            post=True,
+            invoice_date="2026-10-07",
+            date="2026-10-07",
+            invoice_date_due="2026-10-07",
+            invoice_line_ids=[
+                self._prepare_invoice_line(product_id=self.product_a, price_unit=90.0)
+            ],
+        )
+        self._force_payment_state(in_payment_bill, "in_payment")
+
+        blocked_bill = self._create_invoice(
+            move_type="in_invoice",
+            partner_id=self.partner_a,
+            post=True,
+            invoice_date="2026-10-07",
+            date="2026-10-07",
+            invoice_date_due="2026-10-07",
+            invoice_line_ids=[
+                self._prepare_invoice_line(product_id=self.product_a, price_unit=100.0)
+            ],
+        )
+        self._register_payment(blocked_bill, amount=blocked_bill.amount_total / 2)
+        blocked_bill.action_toggle_block_payment()
+
+        report = self._metric_map_without_payment_state_flush()
+
+        self.assertEqual(partial_bill.payment_state, "partial")
+        self.assertEqual(self._stored_payment_state(in_payment_bill), "in_payment")
+        self.assertEqual(blocked_bill.payment_state, "blocked")
+        self.assertEqual(
+            report["due_payable"].total_amount - before_amount,
+            partial_bill.amount_residual_signed
+            + in_payment_bill.amount_residual_signed
+            + blocked_bill.amount_residual_signed,
+        )
+        self.assertEqual(
+            report["due_payable"].item_count - before_count,
+            3,
+        )
 
     def test_company_report_visibility_is_limited_to_allowed_companies(self):
         self._create_ready_sale_order()

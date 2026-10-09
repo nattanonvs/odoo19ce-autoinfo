@@ -141,7 +141,6 @@ class ReportAccountingOperationalClosure(models.Model):
                         AND ms.amount_residual_signed != 0
                         AND ms.invoice_date_due IS NOT NULL
                         AND ms.invoice_date_due < CURRENT_DATE
-                        AND ms.payment_state = 'not_paid'
                     GROUP BY ms.company_id
                 ),
                 open_payable_metric AS (
@@ -166,7 +165,6 @@ class ReportAccountingOperationalClosure(models.Model):
                         AND ms.amount_residual_signed != 0
                         AND ms.invoice_date_due IS NOT NULL
                         AND ms.invoice_date_due <= CURRENT_DATE
-                        AND ms.payment_state = 'not_paid'
                     GROUP BY ms.company_id
                 ),
                 cash_application_metric AS (
