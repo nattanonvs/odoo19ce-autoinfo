@@ -57,6 +57,21 @@ class TestAccountingAPClosure(TransactionCase):
             ._create_payments()
         )
 
+    def _receive_full_order(self, order):
+        picking = order.picking_ids[:1]
+        self.assertTrue(picking)
+        picking.move_ids.write({"picked": True})
+        result = picking.button_validate()
+        self.assertFalse(
+            isinstance(result, dict),
+            "Expected receipt validation without immediate wizard flow.",
+        )
+        order.invalidate_recordset(
+            ["receipt_status", "od19_vendor_bill_closure_state"]
+        )
+        order.order_line.invalidate_recordset(["qty_received"])
+        return self._fresh_purchase_order(order)
+
     def _create_po(self, product, *, confirm=True, quantity=1.0, price_unit=500.0):
         order = self.env["purchase.order"].create({"partner_id": self.vendor.id})
         self.env["purchase.order.line"].create(
@@ -91,13 +106,17 @@ class TestAccountingAPClosure(TransactionCase):
         order = self._force_order_state(order, "done")
         self.assertEqual(order.od19_vendor_bill_closure_state, "waiting_service_acceptance")
 
-    def test_product_po_is_ready_to_bill_without_service_acceptance(self):
+    def test_product_po_is_not_ready_to_bill_before_receipt(self):
         order = self._fresh_purchase_order(self._create_po(self.product))
-        self.assertEqual(order.od19_vendor_bill_closure_state, "ready_to_bill")
+        self.assertEqual(order.receipt_status, "pending")
+        self.assertEqual(order.order_line.qty_received, 0.0)
+        self.assertEqual(order.od19_vendor_bill_closure_state, "waiting_commitment")
 
-    def test_done_product_po_stays_ready_to_bill(self):
+    def test_product_po_moves_to_ready_to_bill_after_receipt(self):
         order = self._create_po(self.product)
-        order = self._force_order_state(order, "done")
+        order = self._receive_full_order(order)
+        self.assertEqual(order.receipt_status, "full")
+        self.assertEqual(order.order_line.qty_received, order.order_line.product_qty)
         self.assertEqual(order.od19_vendor_bill_closure_state, "ready_to_bill")
 
     def test_service_acceptance_requires_committed_po(self):
