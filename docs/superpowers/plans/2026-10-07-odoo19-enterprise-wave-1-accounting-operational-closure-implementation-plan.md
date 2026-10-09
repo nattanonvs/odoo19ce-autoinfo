@@ -1,6 +1,6 @@
 # Wave 1 Accounting Operational Closure Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** ส่งมอบ accounting baseline สำหรับ Wave 1 ที่ปิดเส้นทาง `AR + AP + Payment + Reconciliation` ได้จริง โดยเชื่อมกับ Sales, Purchase, และ Inventory อย่างชัดเจนโดยไม่แก้ Odoo core
 
@@ -74,13 +74,13 @@
 git submodule update --init --recursive
 ```
 
-ใช้คำสั่ง Odoo จาก worktree โดย override `--addons-path` ให้ชี้เข้า worktree นั้นโดยตรง:
+ใช้คำสั่ง Odoo จาก worktree โดย override `--addons-path` ให้ชี้เข้า worktree นั้นโดยตรง และใช้งาน OCA paths จาก main workspace หาก worktree ยัง init submodule ไม่ครบ:
 
 ```bash
-..\..\venv19\Scripts\python.exe .\odoo-bin -c ..\..\odoo.conf --addons-path "C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\addons,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\odoo\addons,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\custom_addons,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\third_party\oca\sale-blanket,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\third_party\oca\sale-workflow,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\third_party\oca\server-backend,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\third_party\oca\server-tools,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\third_party\oca\server-ux"
+..\..\venv19\Scripts\python.exe .\odoo-bin -c ..\..\odoo.conf --addons-path "C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\addons,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\odoo\addons,C:\odoo-dev\odoo19\.worktrees\wave1-accounting-operational-closure\custom_addons,C:\odoo-dev\odoo19\third_party\oca\sale-blanket,C:\odoo-dev\odoo19\third_party\oca\sale-workflow,C:\odoo-dev\odoo19\third_party\oca\server-backend,C:\odoo-dev\odoo19\third_party\oca\server-tools,C:\odoo-dev\odoo19\third_party\oca\server-ux"
 ```
 
-เหตุผลที่ต้อง override `--addons-path` คือ `odoo.conf` หลักของ repo ชี้กลับไปยัง `custom_addons` ของ main workspace ไม่ใช่ของ worktree
+เหตุผลที่ต้อง override `--addons-path` คือ `odoo.conf` หลักของ repo ชี้กลับไปยัง `custom_addons` ของ main workspace ไม่ใช่ของ worktree และในสภาพแวดล้อมนี้การ `git submodule update --init --recursive` ภายใน accounting worktree อาจถูกบล็อกด้วยสิทธิ์ของ `.git/config`
 
 ### Task 1: สร้าง addon `od19_accounting_operational_closure` และ AR closure baseline
 
@@ -1095,8 +1095,8 @@ git commit -m "feat(accounting): add operational closure reporting baseline"
 
 ## Execution Status
 
-- Working closeout snapshot: project history records Task 1 (AR closure baseline) และ Task 2 (AP closure baseline) ว่าถูก implement และ review แล้วใน accounting worktree
-- Remaining tasks in this plan stay open because there is no merged proof here yet for the full reporting/final verification closeout
+- Working closeout snapshot: project history records Task 1 (AR closure baseline), Task 2 (AP closure baseline), และ Task 3/4 delivery-branch closeout work ว่าถูก implement และ review แล้วใน accounting worktree
+- Remaining tasks in this plan stay open because there is still no mainline-merged proof here for the full accounting branch closeout
 - Preserve this document as the current accounting working baseline; do not reset it back to a blank unchecked state when carrying forward the remaining work
 
 ## Execution Handoff
