@@ -7,15 +7,17 @@
 | Program | Odoo 19 CE Enterprise |
 | Artifact path | `docs/superpowers/programs/odoo19-enterprise/discovery/current-state-inventory.md` |
 | Artifact owner | Program discovery lead |
-| Artifact status | In progress |
-| Review status | Pending discovery review |
+| Artifact status | Active discovery baseline |
+| Review status | Usable for Wave 1 planning with open evidence gaps |
 | Evidence completeness | Partial |
 | Source system | Odoo 15 CE |
-| Last updated | 2026-10-04 |
+| Last updated | 2026-10-09 |
 
 ## Objective
 
 Capture the minimum evidence required from Odoo 15 CE before redesign decisions are locked in.
+
+This artifact is the active current-state baseline for Wave 1 planning. It is citable for discovery-driven design work, but it remains incomplete wherever sections still say `Partial`, `Open`, `Blocked`, or `Not Started`.
 
 ## How To Use This Artifact
 

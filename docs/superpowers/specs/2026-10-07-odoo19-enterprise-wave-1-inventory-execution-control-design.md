@@ -3,11 +3,13 @@
 ## Control Metadata
 - Child spec ID: W1-INVENTORY-EXECUTION-CONTROL
 - Wave: Wave 1
-- Status: In review
+- Status: Approved design baseline
 - Owner: Inventory and warehouse domain lead
 - Reviewer: Technical supervisor
 - Approvers: Business owner; Technical supervisor
+- Target edition: Odoo 19 Community Edition (CE)
 - Canonical path: `docs/superpowers/specs/2026-10-07-odoo19-enterprise-wave-1-inventory-execution-control-design.md`
+- Historical filename note: the filename/path still contains `enterprise` for continuity with earlier planning artifacts; the approved product target is Odoo 19 CE, not Odoo Enterprise.
 - Source backlog row: `docs/superpowers/programs/odoo19-enterprise/backlog/domain-wave-matrix.md`
 - Date: 2026-10-07
 - Primary readers: ฝ่ายคลัง, ฝ่ายขาย, ฝ่ายจัดซื้อ, ฝ่ายบัญชี, ผู้อนุมัติ, ผู้บริหาร, ทีมเทคนิค
@@ -41,7 +43,7 @@
 - Gate readiness:
   - Spec-ready: ขอบเขต movement, returns, counting, traceability, และ boundary ระหว่างโดเมนถูกนิยามชัด
   - Plan-ready: addon boundaries, reporting baseline, security model, และ migration assumptions ถูกอธิบายชัดพอให้แตกงานได้
-  - Build-ready: ผู้ใช้ review child spec นี้แล้ว และไม่มีความกำกวมเรื่อง movement ownership, counting controls, และ handoff ไป Accounting
+  - Build-ready: ผู้ใช้อนุมัติ child spec นี้แล้วในระดับ design baseline และไม่มีความกำกวมเรื่อง movement ownership, counting controls, และ handoff ไป Accounting
 
 ## 1. สรุปสั้น ๆ
 

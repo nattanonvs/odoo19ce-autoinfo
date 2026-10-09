@@ -10,7 +10,7 @@
 | Required reviewers | Business sponsor, delivery lead, architecture lead |
 | Artifact status | Active baseline |
 | Review cadence | Reconfirm before each domain spec approval, before KPI scope expansion, and after major reporting feedback from business users |
-| Last updated | 2026-10-04 |
+| Last updated | 2026-10-09 |
 
 ## Purpose
 
@@ -21,6 +21,7 @@ Define the minimum KPI and reporting contract for Wave 0 so owner, manager, and 
 - Applies to KPI definitions, reporting intent, signal design, and dashboard-facing information contracts used by the Odoo 19 CE Enterprise program.
 - Applies to role-based reporting planned during Wave 0 and refined during later domain waves.
 - Does not define final data models, ETL design, or finished dashboard implementation inside Odoo.
+- Defines the baseline contract for later dashboard design; it does not imply that every KPI, report, or dashboard view is already implemented.
 
 ## KPI Layers
 
@@ -40,7 +41,7 @@ Define the minimum KPI and reporting contract for Wave 0 so owner, manager, and 
 
 ## Reporting Contract
 
-Threshold definition is mandatory for every baseline report. A report is not review-ready unless its status boundaries are explicitly defined.
+Threshold definition is mandatory for every baseline report. A report is not review-ready unless its status boundaries are explicitly defined, and dashboard views should inherit those same status rules instead of inventing a different color model.
 
 | Contract field | Minimum requirement |
 | --- | --- |
@@ -49,7 +50,7 @@ Threshold definition is mandatory for every baseline report. A report is not rev
 | Decision supported | State what decision, escalation, or follow-up the user can take from the report. |
 | Source data | Identify the originating model, dataset, or discovery assumption used for the report. |
 | Refresh cadence | Define how often the report should update or be reviewed. |
-| Threshold definition | Define the threshold or status logic required to classify the output, including red/yellow/green or equivalent business boundaries. |
+| Threshold definition | Define the threshold or status logic required to classify the output, including red/yellow/green and a grey or equivalent unavailable state when data is incomplete, delayed, or intentionally withheld. |
 | Drill-down depth | Define the deepest level each audience is allowed to inspect. |
 | Quality cue | State how the user knows the information is complete, delayed, estimated, or unavailable. |
 
@@ -104,6 +105,7 @@ The template is incomplete unless the report owner states a quality cue that tel
 - Remove duplicate measures that restate the same issue at multiple levels without adding a new decision.
 - Review alert fatigue risk whenever more than a few exceptions can fire at the same time for one audience.
 - Do not approve an alert baseline entry unless trigger condition, threshold definition, and escalation path are all explicitly documented.
+- Do not label a KPI, report, or dashboard view as implemented unless the source logic, refresh path, and user-facing surface already exist in the target environment.
 
 ## Deferred Topics
 

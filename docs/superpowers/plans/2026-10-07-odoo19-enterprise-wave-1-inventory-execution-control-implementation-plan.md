@@ -65,19 +65,19 @@
 
 ## Precondition
 
-ก่อนเริ่มทุก task:
+ก่อนเริ่มทุก task ให้ยึด execution context เดียวตลอดรอบงาน โดยแนะนำ dedicated worktree `C:\odoo-dev\odoo19\.worktrees\wave1-inventory-execution-control`
 
 ```bash
 git submodule update --init --recursive
 ```
 
-และใช้คำสั่ง Odoo จาก root repo:
+ถ้ารันจาก root repo หลัง merge ให้ใช้คำสั่ง Odoo แบบนี้:
 
 ```bash
 .\venv19\Scripts\python.exe .\odoo-bin -c .\odoo.conf
 ```
 
-ถ้ารันใน worktree ให้คัดลอก `odoo.conf` หรือ override `--addons-path` ให้ครอบคลุม `addons`, `odoo\addons`, `custom_addons`, และ OCA folders เหมือน repo หลัก
+ถ้ารันใน worktree ให้ override `--addons-path` ให้ครอบคลุม `addons`, `odoo\addons`, `custom_addons`, และ OCA folders ของ worktree นั้นโดยตรง; ไม่ต้อง `git clone` OCA repos เพิ่มนอก submodule baseline ของ repo
 
 ### Task 1: สร้าง addon `od19_inventory_execution_control` สำหรับ movement truth
 
@@ -988,6 +988,12 @@ git commit -m "feat(inventory): add wave 1 execution and audit baseline"
 - `Spec coverage`: แผนครอบคลุม movement core, returns, lot/serial by need, audit counting, reporting baseline, control docs, และ boundary กับ Purchase/Sales/Accounting
 - `Placeholder scan`: ไม่มี `TODO`, `TBD`, หรือ step ที่สั่งกว้างโดยไม่ระบุไฟล์ โค้ด หรือคำสั่งรัน
 - `Type consistency`: ใช้ชื่อ `od19_flow_class`, `od19_execution_state`, `od19_reference_document`, `od19_tracking_required`, `od19_tracking_required_reason`, `od19.stock.count.session`, `od19.stock.count.line`, `system_qty`, และ `variance_qty` คงที่ตลอดแผน
+
+## Execution Status
+
+- Archived closeout: project history records the Wave 1 Inventory baseline as merged into `19.0`
+- Reference snapshot: `project_memory.md` records merge commit `0e40ba5b2`, follow-up security file closeout `3f29289fa`, and 21 focused tests
+- Treat unchecked boxes as historical planning artifacts unless Inventory scope is explicitly reopened
 
 ## Execution Handoff
 

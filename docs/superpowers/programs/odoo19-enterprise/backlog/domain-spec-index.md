@@ -11,7 +11,7 @@
 | Owner | Program lead |
 | Reviewer | Technical supervisor |
 | Approvers | Business owner; Technical supervisor |
-| Last updated | 2026-10-07 |
+| Last updated | 2026-10-09 |
 | Review cadence | Update whenever a child spec is created, approved, or resequenced |
 | Validator expectation | Keep this file present at the manifest path |
 
@@ -39,15 +39,17 @@
 | Item | Status | Primary artifact |
 | --- | --- | --- |
 | Foundation and governance baseline | Approved | [2026-10-04-odoo19-enterprise-wave-0-foundation-governance-design.md](../../../specs/2026-10-04-odoo19-enterprise-wave-0-foundation-governance-design.md) |
-| Implementation pack | In progress | [2026-10-04-odoo19-enterprise-wave-0-foundation-governance-implementation-plan.md](../../../plans/2026-10-04-odoo19-enterprise-wave-0-foundation-governance-implementation-plan.md) |
-| Handoff to Wave 1 | Draft | [wave-1-handoff-baseline.md](../governance/wave-1-handoff-baseline.md) |
+| Implementation pack | Released baseline package | [2026-10-04-odoo19-enterprise-wave-0-foundation-governance-implementation-plan.md](../../../plans/2026-10-04-odoo19-enterprise-wave-0-foundation-governance-implementation-plan.md) |
+| Handoff to Wave 1 | Active baseline | [wave-1-handoff-baseline.md](../governance/wave-1-handoff-baseline.md) |
+
+Wave 0 is packaged and citable for Wave 1 planning, but the linked discovery artifacts remain active partial baselines rather than completed evidence packs.
 
 ## Child Spec Register
 
 | Wave | Child spec ID | Canonical child spec title | Child spec path placeholder | Status | Owner | Reviewer | Approvers | Dependencies | Discovery evidence | Gate readiness |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Wave 0 | W0-FOUNDATION | Foundation platform, governance, and KPI/reporting baseline | [2026-10-04-odoo19-enterprise-wave-0-foundation-governance-design.md](../../../specs/2026-10-04-odoo19-enterprise-wave-0-foundation-governance-design.md) | Approved | Program lead | Technical supervisor | Business owner; Technical supervisor | Discovery pack; engineering standards; review gates | [current-state-inventory.md](../discovery/current-state-inventory.md); [access-readiness-checklist.md](../discovery/access-readiness-checklist.md); [engineering-standards.md](../foundation/engineering-standards.md); [review-gates.md](../governance/review-gates.md) | Ready when the foundation child spec is approved and execution order is agreed |
-| Wave 1 | W1-COMMERCIAL-CORE | Commercial and financial core | `docs/superpowers/specs/YYYY-MM-DD-odoo19-enterprise-wave-1-commercial-financial-core.md` | In discovery | Commercial domain lead | Technical supervisor | Business owner; Technical supervisor | Wave 0 approved; Wave 1 Sales baseline approved; Wave 1 Contacts baseline approved; Wave 1 Purchase baseline approved; Wave 1 Inventory baseline implemented in delivery branch and pending mainline merge/verification; Accounting child spec still required | Discovery evidence exists for sales, contacts, purchase, and inventory; accounting evidence still incomplete | Ready when Inventory baseline is merged and verified, the Accounting child spec is approved, Wave 1 owner KPIs are confirmed, and migration assumptions for the commercial core are accepted |
+| Wave 1 | W1-COMMERCIAL-CORE | Commercial and financial core | `docs/superpowers/specs/YYYY-MM-DD-odoo19-enterprise-wave-1-commercial-financial-core.md` | In discovery | Commercial domain lead | Technical supervisor | Business owner; Technical supervisor | Wave 0 baseline package released; Wave 1 Sales baseline approved; Wave 1 Contacts baseline approved; Wave 1 Purchase baseline approved; Wave 1 Inventory baseline implemented in delivery branch and pending mainline merge/verification; Accounting child spec still required | Discovery baselines are active for sales, contacts, purchase, and inventory, but access, integration, data-quality, and accounting evidence remain partial | Ready when Inventory baseline is merged and verified, the Accounting child spec is approved, Wave 1 owner KPIs are confirmed, and migration assumptions for the commercial core are accepted |
 | Wave 2 | W2-FINANCE-CONTROLS | Custom finance controls | `docs/superpowers/specs/YYYY-MM-DD-odoo19-enterprise-wave-2-custom-finance-controls.md` | Not started | Finance controls lead | Technical supervisor | Business owner; Technical supervisor | Wave 1 approved or explicitly decoupled; confirmed Wave 2 scope for Advance, Cheque, and Money In Analysis | Discovery evidence for advance, cheque, money-in, and high-value legacy finance reports | Ready when custom control rationale, reporting scope, dependencies, and approvals are complete |
 | Wave 3 | W3-AFTER-SALES | Sales Services and after-sales | `docs/superpowers/specs/YYYY-MM-DD-odoo19-enterprise-wave-3-sales-services-after-sales.md` | Not started | Service operations lead | Technical supervisor | Business owner; Technical supervisor | Wave 1 customer/project/product baseline; confirmed separation of service returns from Inventory core | Discovery evidence for sales services, claims, warranty, service card, and service-linked returns | Ready when service flows, stock implications, owner-reporting impact, and training implications are approved |
 | Wave 4 | W4-LOGISTICS-EXT | Logistics extensions | `docs/superpowers/specs/YYYY-MM-DD-odoo19-enterprise-wave-4-logistics-extensions.md` | Not started | Logistics lead | Technical supervisor | Business owner; Technical supervisor | Wave 1 inventory baseline; decision on legacy `Goods Issue`; Wave 3 dependencies as applicable | Discovery evidence for stock requests, transportation, logistics extensions, and non-standard warehouse flows | Ready when logistics dependencies, non-standard warehouse flow decisions, approval model, and rollout sequencing are approved |
@@ -56,6 +58,7 @@
 ## Wave Sequencing Notes
 
 - Wave 1 remains the active closure target and should not be declared complete before Accounting is approved and Inventory is merged/verified on the mainline workspace.
+- Wave 0 is already released as the planning baseline package for Wave 1, but that does not convert the discovery artifacts into complete evidence; keep open discovery gaps visible until they are actually closed.
 - Wave 1 should absorb only the customer risk gate baseline needed to stop blacklist sales and unapproved credit sales; it should not become the home of full finance-led credit control.
 - Wave 1 Accounting should close AR, AP, payment, reconciliation, and essential posting/tax mapping as an operational baseline without absorbing Wave 2 control depth.
 - Wave 2 should absorb finance controls and legacy reports only when they extend owner decision quality without re-opening Wave 1 boundaries.

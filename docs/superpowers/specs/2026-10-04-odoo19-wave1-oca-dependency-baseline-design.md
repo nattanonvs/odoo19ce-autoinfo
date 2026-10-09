@@ -1,9 +1,11 @@
-# Odoo 19 Wave 1 OCA Dependency Baseline
+# Odoo 19 CE Wave 1 OCA Dependency Baseline
 
 วันที่: 2026-10-04
 สถานะ: Approved baseline
 รหัสสเปก: W1-OCA-BASELINE
 ผู้อ่านหลัก: ทีมเทคนิค + ผู้ตัดสินใจด้านสถาปัตยกรรม
+Target edition: Odoo 19 Community Edition (CE)
+Traceability note: filename/path และบาง program paths ยังใช้คำว่า `enterprise` เพื่อความต่อเนื่องของเอกสารเดิม แต่ baseline ที่อนุมัติแล้วของโครงการนี้คือ Odoo 19 CE
 อ้างอิงหลัก:
 - `docs/superpowers/programs/odoo19-enterprise/sales/oca-fit-gap.md`
 - `docs/superpowers/specs/2026-10-04-odoo19-enterprise-wave-1-sales-contract-core-design.md`

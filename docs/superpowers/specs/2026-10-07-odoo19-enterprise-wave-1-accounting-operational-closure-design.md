@@ -3,11 +3,13 @@
 ## Control Metadata
 - Child spec ID: W1-ACCOUNTING-OP-CLOSURE
 - Wave: Wave 1
-- Status: In review
+- Status: Approved design baseline
 - Owner: Accounting domain lead
 - Reviewer: Technical supervisor
 - Approvers: Business owner; Technical supervisor
+- Target edition: Odoo 19 Community Edition (CE)
 - Canonical path: `docs/superpowers/specs/2026-10-07-odoo19-enterprise-wave-1-accounting-operational-closure-design.md`
+- Historical filename note: the filename/path still contains `enterprise` for continuity with earlier planning artifacts; the approved product target is Odoo 19 CE, not Odoo Enterprise.
 - Source backlog row: `docs/superpowers/programs/odoo19-enterprise/backlog/domain-wave-matrix.md`
 - Date: 2026-10-07
 - Primary readers: ฝ่ายบัญชี, ฝ่ายขาย, ฝ่ายจัดซื้อ, ฝ่ายคลัง, ผู้บริหาร, ผู้อนุมัติ, ทีมเทคนิค
@@ -50,7 +52,7 @@
 - Gate readiness:
   - Spec-ready: นิยาม AR, AP, cash, reconciliation, posting baseline, และ owner KPIs ชัดโดยไม่ปน deep finance controls
   - Plan-ready: ขอบเขต addon/model/report/security/integration points ชัด และรู้ว่าอะไรอยู่ใน Wave 1 หรือ defer ไป Wave 2
-  - Build-ready: ผู้ใช้ review child spec นี้แล้ว และยืนยันว่า accounting baseline นี้เพียงพอสำหรับปิด commercial core ของ Wave 1
+  - Build-ready: ผู้ใช้อนุมัติ child spec นี้แล้วในระดับ design baseline และยืนยันว่า accounting baseline นี้เพียงพอสำหรับปิด commercial core ของ Wave 1
 
 ## 1. สรุปสั้น ๆ
 

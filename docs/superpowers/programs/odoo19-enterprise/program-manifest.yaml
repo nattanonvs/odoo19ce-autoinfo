@@ -13,3 +13,6 @@ required_paths:
   - docs/superpowers/programs/odoo19-enterprise/reporting/role-based-dashboard-blueprint.md
   - docs/superpowers/programs/odoo19-enterprise/backlog/domain-wave-matrix.md
   - docs/superpowers/programs/odoo19-enterprise/backlog/domain-spec-index.md
+  - docs/superpowers/programs/odoo19-enterprise/sales/addon-boundaries.md
+  - docs/superpowers/programs/odoo19-enterprise/sales/oca-fit-gap.md
+  - docs/superpowers/programs/odoo19-enterprise/sales/oca-installation-recommendations.md

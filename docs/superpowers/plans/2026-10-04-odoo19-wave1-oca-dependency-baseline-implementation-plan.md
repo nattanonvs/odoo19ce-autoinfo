@@ -47,6 +47,7 @@
 - ใช้งานใน worktree `c:\odoo-dev\odoo19\.worktrees\wave1-sales-contract-core`
 - ใช้ Python จาก `c:\odoo-dev\odoo19\venv19\Scripts\python.exe`
 - ใช้ config `c:\odoo-dev\odoo19\odoo.conf`
+- sync OCA submodules ก่อนเริ่มทุก task ด้วย `git submodule update --init --recursive`
 - ต้องไม่แก้ Odoo core และไม่แก้ addon OCA ตรง ๆ ถ้ายังไม่จำเป็น
 
 ### Task 1: Formalize OCA repositories ที่ branch ใช้งานจริง
@@ -68,19 +69,20 @@ git ls-tree HEAD third_party/oca/sale-workflow third_party/oca/server-backend th
 git submodule status
 ```
 
-Expected: พบว่า branch ใช้ `sale-workflow`, `server-backend`, `server-ux`, `server-tools`, `sale-blanket` อยู่จริงใน `third_party/oca` แต่ `git submodule status` ยัง fail หรือยังไม่มี `.gitmodules` ครบ
+Expected: ยืนยันได้ว่า branch ใช้ `sale-workflow`, `server-backend`, `server-ux`, `server-tools`, `sale-blanket` อยู่จริงใน `third_party/oca` และเห็นชัดว่าถ้ายังมี gap ใน `.gitmodules` หรือสถานะ submodule ต้อง formalize ให้ตรงกับ baseline นี้
 
-- [ ] **Step 2: clone OCA repos ที่ยังขาดจาก baseline**
+- [ ] **Step 2: เพิ่ม OCA repos ที่ยังขาดเข้า baseline ด้วย submodule**
 
 Run:
 
 ```bash
-git clone --branch 19.0 https://github.com/OCA/server-ux.git third_party/oca/server-ux
-git clone --branch 19.0 https://github.com/OCA/server-tools.git third_party/oca/server-tools
-git clone --branch 19.0 https://github.com/OCA/sale-blanket.git third_party/oca/sale-blanket
+git submodule add -b 19.0 https://github.com/OCA/server-ux.git third_party/oca/server-ux
+git submodule add -b 19.0 https://github.com/OCA/server-tools.git third_party/oca/server-tools
+git submodule add -b 19.0 https://github.com/OCA/sale-blanket.git third_party/oca/sale-blanket
+git submodule update --init --recursive
 ```
 
-Expected: ทั้ง 3 repo ถูก clone สำเร็จลงใน `third_party/oca`
+Expected: ทั้ง 3 repo ถูก register และ checkout เป็น submodule ภายใต้ `third_party/oca`
 
 - [ ] **Step 3: formalize submodule mapping สำหรับ repos ที่ branch ใช้งานจริง**
 

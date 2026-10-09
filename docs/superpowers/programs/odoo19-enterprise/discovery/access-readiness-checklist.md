@@ -7,10 +7,10 @@
 | Program | Odoo 19 CE Enterprise |
 | Artifact path | `docs/superpowers/programs/odoo19-enterprise/discovery/access-readiness-checklist.md` |
 | Artifact owner | Program discovery lead |
-| Artifact status | In progress |
+| Artifact status | Active discovery baseline |
 | Overall readiness | Partial |
-| Review status | Pending evidence completion |
-| Last updated | 2026-10-04 |
+| Review status | Usable for Wave 1 planning with open evidence gaps |
+| Last updated | 2026-10-09 |
 
 ## Readiness State Legend
 
@@ -25,6 +25,8 @@
 - Each line item should capture the approver or provider, date confirmed, environment scope, and a link or reference to the evidence.
 - When access is constrained, record the limitation explicitly, such as read-only, time-boxed, sanitized-only, or business-hours-only.
 - If a requirement is blocked, capture the blocking owner and next action so program review can escalate quickly.
+
+This checklist is the active access-readiness baseline for Wave 1 planning. `Partial`, `Blocked`, and `Not Started` items are still open work and must not be restated elsewhere as fully complete.
 
 ## Readiness Summary
 

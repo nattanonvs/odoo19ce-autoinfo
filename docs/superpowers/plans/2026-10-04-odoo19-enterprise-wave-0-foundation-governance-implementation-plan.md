@@ -617,3 +617,9 @@ git commit -m "docs(program): finalize Wave 0 readiness package"
 - Type consistency:
   - ใช้ชื่อไฟล์เดียวกันทั้งแผน ได้แก่ `repository-and-addon-baseline.md`, `environment-and-delivery-baseline.md`, `production-readiness-baseline.md`, `kpi-reporting-baseline.md`, `role-based-dashboard-blueprint.md`, `wave-0-readiness-assessment.md`, `wave-1-handoff-baseline.md`
 
+## Execution Status
+
+- Archived closeout: project history records the Wave 0 foundation package as merged into `19.0`
+- Reference snapshot: `project_memory.md` tracks this closeout at commit `dd2f5cdc`
+- Treat unchecked boxes in this file as historical planning state unless Wave 0 governance artifacts are explicitly reopened
+

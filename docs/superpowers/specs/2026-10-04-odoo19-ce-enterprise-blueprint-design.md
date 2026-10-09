@@ -1,8 +1,14 @@
-# Odoo 19 CE Enterprise Blueprint
+# Odoo 19 CE Blueprint
 
 Date: 2026-10-04
 Status: User-approved blueprint baseline
-Scope: Enterprise-wide greenfield rebuild using Odoo 15 CE as a study/reference system
+Scope: Company-wide greenfield rebuild using Odoo 15 CE as a study/reference system
+
+## Control Metadata
+
+- Active product target: Odoo 19 Community Edition (CE)
+- Historical filename note: the filename/path still contains `enterprise` for continuity with earlier planning artifacts; the approved product target is Odoo 19 CE, not Odoo Enterprise.
+- Canonical path: `docs/superpowers/specs/2026-10-04-odoo19-ce-enterprise-blueprint-design.md`
 
 ## Approval Traceability
 
@@ -14,7 +20,7 @@ Scope: Enterprise-wide greenfield rebuild using Odoo 15 CE as a study/reference 
 
 This blueprint defines how the company should design and build a new Odoo 19 Community Edition platform without carrying forward the technical debt and structural weaknesses of the current Odoo 15 CE implementation.
 
-The new platform is not a version-to-version migration project. It is an enterprise redesign and engineering governance program with these goals:
+The new platform is not a version-to-version migration project. It is a company-wide redesign and engineering governance program with these goals:
 
 - Make future upgrades easier.
 - Make maintenance easier.
@@ -57,7 +63,7 @@ The new platform must follow these non-negotiable principles:
 
 ## 4. Target Architecture
 
-The platform should be designed as a greenfield enterprise platform with six layers:
+The platform should be designed as a greenfield company platform with six layers:
 
 ### 4.1 Odoo Core CE Layer
 
@@ -286,7 +292,7 @@ The new platform is not complete unless it improves decision quality, not just d
 The program should be split into the following workstreams:
 
 1. Discovery and legacy intelligence
-2. Enterprise blueprint and governance
+2. CE blueprint and governance
 3. Data and reporting strategy
 4. Foundation platform
 5. Domain redesign
@@ -349,7 +355,7 @@ Recommended sequence:
 
 ## 14. Recommended Domain Waves
 
-Because the scope is enterprise-wide, delivery should still be phased.
+Because the scope is company-wide, delivery should still be phased.
 
 ### Wave 0
 
@@ -471,7 +477,7 @@ The program is successful only when all of the following are true:
 
 ### Operational Success
 
-- Enterprise-wide flows work in the new system
+- Company-wide flows work in the new system
 - Workarounds are reduced
 - Controls are clearer and stronger than before
 
@@ -518,7 +524,7 @@ The program must stop and re-evaluate if any of the following happen:
 
 The blueprint should eventually produce:
 
-- Enterprise blueprint
+- CE blueprint
 - Domain specs
 - Engineering standards
 - Governance model

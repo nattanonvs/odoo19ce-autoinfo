@@ -3,11 +3,13 @@
 ## Control Metadata
 - Child spec ID: W1-CUSTOMER-RISK-CREDIT-GATE
 - Wave: Wave 1
-- Status: In review
+- Status: Approved design baseline
 - Owner: Commercial domain lead
 - Reviewer: Technical supervisor
 - Approvers: Business owner; Technical supervisor
+- Target edition: Odoo 19 Community Edition (CE)
 - Canonical path: `docs/superpowers/specs/2026-10-07-odoo19-enterprise-wave-1-customer-risk-credit-gate-design.md`
+- Historical filename note: the filename/path still contains `enterprise` for continuity with earlier planning artifacts; the approved product target is Odoo 19 CE, not Odoo Enterprise.
 - Source backlog row: `docs/superpowers/programs/odoo19-enterprise/backlog/domain-wave-matrix.md`
 - Date: 2026-10-07
 - Primary readers: ฝ่ายขาย, ผู้จัดการฝ่ายขาย, ฝ่ายบัญชี, ผู้อนุมัติ, ผู้บริหาร, ทีมเทคนิค
@@ -44,7 +46,7 @@
 - Gate readiness:
   - Spec-ready: นิยามสถานะลูกค้า, จุด block, owner ของเครดิต, และการ split ระหว่าง Wave 1 กับ Wave 2 ชัดเจน
   - Plan-ready: รู้ขอบเขต model, security, workflow, document handling, และ validation rules โดยไม่ปน deep finance logic
-  - Build-ready: ผู้ใช้ review child spec นี้แล้ว และยืนยันว่า policy การขายสำหรับ `Blacklist` และ `Credit Pending` ถูกต้องตามการใช้งานจริง
+  - Build-ready: ผู้ใช้อนุมัติ child spec นี้แล้วในระดับ design baseline และยืนยันว่า policy การขายสำหรับ `Blacklist` และ `Credit Pending` ถูกต้องตามการใช้งานจริง
 
 ## 1. สรุปสั้น ๆ
 

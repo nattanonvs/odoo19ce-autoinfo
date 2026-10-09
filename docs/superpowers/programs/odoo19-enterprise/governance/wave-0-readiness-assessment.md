@@ -10,11 +10,13 @@
 | Required reviewers | Program engineering lead, architecture lead, business sponsor |
 | Artifact status | Ready |
 | Review cadence | Reconfirm at the end of Wave 0 and again before any Wave 1 child spec is approved for build planning |
-| Last updated | 2026-10-04 |
+| Last updated | 2026-10-09 |
 
 ## Purpose
 
 Track whether the Wave 0 governance, technical platform, production readiness, reporting, and handoff artifacts are complete enough to let Wave 1 start from an approved baseline instead of reopening foundation decisions.
+
+This readiness assessment confirms the Wave 0 package is usable as a planning baseline. It does not claim that the discovery artifacts are fully complete; those documents remain the source of truth for open evidence gaps.
 
 ## Scope
 
@@ -31,7 +33,7 @@ Track whether the Wave 0 governance, technical platform, production readiness, r
 | Technical platform baseline | Ready | Program engineering lead | Repository, environment, and production docs complete |
 | Production readiness baseline | Ready | Architecture lead | Baseline ready for Wave 1 refinement |
 | KPI/reporting baseline | Ready | Business sponsor | KPI and dashboard blueprint published |
-| Wave 1 handoff | Ready | Program delivery lead | Handoff package available |
+| Wave 1 handoff | Ready | Program delivery lead | Handoff package available for planning use; discovery gaps remain tracked separately in the active discovery baselines |
 
 ## Exit Criteria Checklist
 
@@ -49,7 +51,7 @@ Track whether the Wave 0 governance, technical platform, production readiness, r
 | Technical platform baseline | Repository, environment, and production baseline documents committed and visible in the package tracked by `docs/superpowers/programs/odoo19-enterprise/program-manifest.yaml` |
 | Production readiness baseline | Production baseline states ownership, backup, restore, monitoring, and rollback expectations clearly enough for Wave 1 to inherit without redefining platform policy |
 | KPI/reporting baseline | KPI baseline and dashboard blueprint published with named audience and decision use |
-| Wave 1 handoff | Handoff document links the Wave 0 package, points to `program-manifest.yaml`, and names what Wave 1 must still define |
+| Wave 1 handoff | Handoff document links the Wave 0 package, points to `program-manifest.yaml`, names what Wave 1 must still define, and does not overstate incomplete discovery evidence as closed |
 
 ## Minimum Approval Traceability
 
@@ -77,4 +79,5 @@ Track whether the Wave 0 governance, technical platform, production readiness, r
 - Update the minimum approval traceability table at the same time the readiness status changes so later reviewers can see approver, decision date, and the evidence source in one pass.
 - Use `docs/superpowers/programs/odoo19-enterprise/program-manifest.yaml` as the first cross-check when a reviewer needs to confirm the required Wave 0 artifact package is complete.
 - Use the package verification record in this document when a later reviewer needs the exact local command evidence that supported the Wave 0 closeout decision.
+- Treat `Ready` in this document as "ready for Wave 1 planning use", not "all downstream discovery evidence is complete".
 - If any baseline remains incomplete, Wave 1 may continue only for discovery or drafting activity that does not assume approval of the missing foundation policy.

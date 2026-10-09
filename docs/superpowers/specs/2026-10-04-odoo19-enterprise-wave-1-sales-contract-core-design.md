@@ -4,6 +4,8 @@
 สถานะ: User-approved Wave 1 baseline
 รหัสสเปก: W1-SALES-CONTRACT
 ผู้อ่านหลัก: ฝ่ายขาย + ผู้จัดการฝ่ายขาย + ฝ่ายปฏิบัติการ + ฝ่ายวางบิล + เจ้าของ/ผู้บริหาร + ทีมเทคนิค
+Target edition: Odoo 19 Community Edition (CE)
+Traceability note: filename/path และบาง program paths ยังใช้คำว่า `enterprise` เพื่อความต่อเนื่องของเอกสารเดิม แต่ baseline ที่อนุมัติแล้วของโครงการนี้คือ Odoo 19 CE
 อ้างอิงหลัก:
 - `docs/superpowers/specs/2026-10-04-odoo19-ce-enterprise-blueprint-design.md`
 - `docs/superpowers/specs/2026-10-04-odoo19-enterprise-wave-0-foundation-governance-design.md`
@@ -42,7 +44,7 @@ Child spec นี้มีเป้าหมายเพื่อกำหนด
 - รูปแบบการทำงานของ Sales ว่ามีทั้ง `One-time Sales` และ `Contract-based Sales`
 - โครงสร้างของสัญญาหลักและรายการย่อยภายใต้สัญญา
 - โครงสร้างบทบาทของลูกค้าในดีล เช่น ผู้รับเหมาที่จ้างเรา เจ้าของโครงการ และโครงการที่อ้างอิง
-- เครื่องมือทางการค้าที่ใช้คุมการขาย เช่น `Blanket/Contract Instrument`, revision, invoice plan
+- เครื่องมือทางการค้าที่ใช้คุมการขาย เช่น `Blanket/Contract Instrument`, revision, delivery status, และ billing trigger policy
 - วิธีควบคุมวงเงินและนโยบายรายสัญญา
 - วิธีเชื่อม "กิจกรรมจริง" ไปสู่ "สิทธิในการวางบิล"
 - วิธีใช้สถานะส่งมอบและไฟล์แนบเป็นหลักฐานทางธุรกิจ
@@ -62,7 +64,6 @@ Child spec นี้มีเป้าหมายเพื่อกำหนด
 - การอนุมัติและเปิดใช้ `Master Contract`
 - การเก็บ revision หรือ version history ของเอกสารขายที่สำคัญ
 - การตั้งค่านโยบายรายสัญญา เช่น รูปแบบวงเงิน กติกาเกินวงเงิน และรูปแบบรอบบิล
-- การใช้ `Invoice Plan` ในกรณีที่ต้องกำหนดรอบการออกบิลล่วงหน้า
 - การสร้างรายการย่อยเมื่อมีการซื้อสินค้า หรือเรียกบริการจริงภายใต้สัญญา
 - การติดตาม `Delivery Status` หรือสถานะส่งมอบเพื่อใช้ดูความพร้อมก่อนวางบิล
 - การแนบไฟล์สัญญา เอกสารยืนยัน และหลักฐานประกอบที่มีผลต่อการอนุมัติหรือการวางบิล
@@ -325,15 +326,17 @@ Child spec นี้มีเป้าหมายเพื่อกำหนด
 
 ถ้าเป็นรวมรอบ ต้องกำหนดรอบอ้างอิงได้ เช่น รายสัปดาห์ รายเดือน หรือรอบเฉพาะที่ตกลงกับลูกค้า
 
-### 6.6 Invoice Plan Policy
+### 6.6 Deferred Billing Plan Consideration
 
-ในบางกรณีธุรกิจอาจไม่ได้รอเพียงเอกสารส่งมอบหรือใบจบงานแบบครั้งต่อครั้ง แต่ต้องมีแผนการออกบิลล่วงหน้า
+Wave 1 baseline ของก้อนนี้ยังไม่รวม `invoice plan` เป็นแกนหลักของ Sales Contract Core
 
-ดังนั้น implementation plan ต้องประเมินให้ชัดว่า:
+เหตุผลคือ:
 
-- ใช้ `sale_invoice_plan` หรือความสามารถมาตรฐาน/OCA ได้หรือไม่
-- ใช้กับงานแบบใด
-- จะอยู่ร่วมกับ billing trigger แบบกิจกรรมจริงอย่างไรโดยไม่ทำให้กติกาสับสน
+- baseline ปัจจุบันยึด `billing trigger จากกิจกรรมจริง` เป็นแกนก่อน
+- `sale_invoice_plan` ยังไม่ถูกยืนยันเป็น 19.0 baseline ที่พร้อม adopt ใน workspace ปัจจุบัน
+- การดึง milestone/billing-plan logic เข้ามาเร็วเกินไปจะทำให้ขอบเขต Wave 1 ปนกับกติกาบัญชีและรอบบิลมากเกินจำเป็น
+
+ถ้าธุรกิจต้องการความสามารถนี้ในภายหลัง ให้ประเมินเป็น deferred scope หลังจากแกน `billing trigger`, `delivery status`, และ `billing cycle` ของ Wave 1 นิ่งแล้ว
 
 ### 6.7 Billing Trigger Policy
 
@@ -643,8 +646,6 @@ Child spec นี้มีเป้าหมายเพื่อกำหนด
   มุมมองสถานะระหว่างทางก่อนถึงจุดวางบิล
 - `Billing Readiness`
   สถานะความพร้อมวางบิล
-- `Invoice Plan Reference`
-  โครงสร้างอ้างอิงกรณีมีแผนการออกบิล
 - `Billing Batch/Cycle Reference`
   ตัวอ้างอิงกรณีรวมหลายรายการเข้ารอบบิลเดียวกัน
 
@@ -681,6 +682,8 @@ child spec นี้ยึดสมมติฐานที่ได้จาก
   การจัดรอบบิล ข้อยกเว้นรอบบิล และคิวงานวางบิลเชิงลึก
 - `Accounting Posting Detail`
   การลงบัญชี การ map ภาษี และการ reconcile
+- `Billing Plan / Milestone Invoicing`
+  แนวทาง invoice plan หรือ milestone billing ให้ประเมินเป็น deferred scope หลัง Wave 1 core นิ่ง
 - `Customer-specific Document Layout`
   รูปแบบเอกสารรายลูกค้าหรือรายประเภทธุรกิจแบบละเอียด
 - `Legacy Mapping Detail`
@@ -691,7 +694,8 @@ child spec นี้ยึดสมมติฐานที่ได้จาก
 เมื่อสเปกนี้ได้รับอนุมัติ implementation plan ของก้อนนี้ต้องตอบให้ชัดอย่างน้อยว่า:
 
 - จะใช้ Odoo standard หรือ OCA ตรงไหนก่อน
-- จะประเมิน OCA ที่เกี่ยวข้อง เช่น `sale_tier_validation`, `sale_order_revision`, `sale_blanket_order`, `sale_delivery_status`, `base_user_role`, `sale_invoice_plan` อย่างไร
+- จะประเมิน OCA baseline ที่เกี่ยวข้อง เช่น `sale_order_revision`, `sale_blanket_order`, `sale_delivery_state`, `base_user_role`, `base_exception`, และ `sale_exception` อย่างไร
+- จะบันทึก `sale_tier_validation` และ `sale_invoice_plan` เป็น deferred candidates สำหรับ wave ถัดไปอย่างไร
 - ส่วนใดจำเป็นต้อง custom จริง
 - bounded context ของ addon จะถูกแบ่งอย่างไร
 - approval logic จะถูกทำให้ traceable อย่างไร

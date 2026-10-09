@@ -89,14 +89,11 @@ Wave 1 สเปกนี้กว้าง แต่ยังอยู่ใน
 
 ## Precondition
 
-ก่อนเริ่ม Task 2 ให้เตรียม addon path สำหรับ local dev/test ดังนี้:
+ก่อนเริ่ม Task 2 ให้ทำงานจาก root ของ dedicated worktree เช่น `c:\odoo-dev\odoo19\.worktrees\wave1-sales-contract-core` และ sync OCA submodules ของ Odoo 19 CE baseline ให้ครบก่อน:
 
 ```bash
-git clone --branch 19.0 https://github.com/OCA/server-backend.git third_party/oca/server-backend
-git clone --branch 19.0 https://github.com/OCA/server-ux.git third_party/oca/server-ux
-git clone --branch 19.0 https://github.com/OCA/server-tools.git third_party/oca/server-tools
-git clone --branch 19.0 https://github.com/OCA/sale-workflow.git third_party/oca/sale-workflow
-git clone --branch 19.0 https://github.com/OCA/sale-blanket.git third_party/oca/sale-blanket
+git submodule update --init --recursive
+git submodule status
 ```
 
 และใช้ `addons-path` แบบนี้ในทุกคำสั่งทดสอบ:
@@ -104,6 +101,8 @@ git clone --branch 19.0 https://github.com/OCA/sale-blanket.git third_party/oca/
 ```bash
 addons,odoo/addons,custom_addons,third_party/oca/server-backend,third_party/oca/server-ux,third_party/oca/server-tools,third_party/oca/sale-workflow,third_party/oca/sale-blanket
 ```
+
+ทุกคำสั่งในแผนนี้ assume ว่ารันจาก worktree ข้างต้นบน baseline แบบ submodule; ไม่ต้อง `git clone` OCA repos แยกนอก flow ของ repository นี้
 
 ### Task 1: ล็อก OCA Fit-Gap และ Addon Boundaries
 
@@ -984,6 +983,12 @@ git commit -m "feat(sales): bridge Wave 1 sales core with OCA workflow modules"
 - `Spec coverage`: แผนนี้ครอบคลุม one-time sales, contract-based sales, customer role model, project context, attachment evidence, billing readiness, repeat business, project revenue และ OCA-first integration
 - `Placeholder scan`: ไม่มี `TODO`, `TBD`, หรือคำสั่งกว้าง ๆ ที่ไม่บอกไฟล์/คำสั่ง
 - `Type consistency`: ใช้ prefix `od19_` เดียวกันใน field และ model ใหม่ทั้งหมด เพื่อลดความเสี่ยงชื่อชนกัน
+
+## Execution Status
+
+- Archived closeout: project history records the Wave 1 Sales baseline and related OCA recommendations as merged into `19.0`
+- Reference snapshot: `project_memory.md` tracks this closeout at commit `8771223a`
+- Treat unchecked boxes in this file as historical planning artifacts unless Sales scope is explicitly reopened in a fresh worktree
 
 ## Execution Handoff
 

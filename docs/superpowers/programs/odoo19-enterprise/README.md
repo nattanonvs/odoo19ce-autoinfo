@@ -2,6 +2,8 @@
 
 This directory contains the executable planning workspace for the company-wide Odoo 19 CE rebuild program.
 
+The target source of truth is Odoo 19 CE. Historical file or folder names may still contain older wording where renaming would add churn without improving control.
+
 ## Purpose
 
 - Keep all program-level artifacts in one place
@@ -14,6 +16,8 @@ This directory contains the executable planning workspace for the company-wide O
 - `foundation/` - engineering and platform rules
 - `governance/` - gates, decision records, operating model
 - `backlog/` - wave sequencing and domain spec index
+- `reporting/` - KPI contracts and dashboard blueprint baseline
+- `sales/` - active sales governance and OCA alignment references
 
 ## Working Rules
 
@@ -89,3 +93,11 @@ Reference: `docs/superpowers/programs/odoo19-enterprise/sales/oca-installation-r
 - [reporting/role-based-dashboard-blueprint.md](reporting/role-based-dashboard-blueprint.md)
 - [governance/wave-0-readiness-assessment.md](governance/wave-0-readiness-assessment.md)
 - [governance/wave-1-handoff-baseline.md](governance/wave-1-handoff-baseline.md)
+
+## Additional Governed Areas
+
+- [backlog/domain-wave-matrix.md](backlog/domain-wave-matrix.md)
+- [backlog/domain-spec-index.md](backlog/domain-spec-index.md)
+- [sales/addon-boundaries.md](sales/addon-boundaries.md)
+- [sales/oca-fit-gap.md](sales/oca-fit-gap.md)
+- [sales/oca-installation-recommendations.md](sales/oca-installation-recommendations.md)

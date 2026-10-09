@@ -4,6 +4,8 @@
 สถานะ: อนุมัติแล้ว
 รหัสสเปก: W0-FOUNDATION
 ผู้อ่านหลัก: ทีมเทคนิค + เจ้าของ/ผู้อนุมัติ
+Target edition: Odoo 19 Community Edition (CE)
+Traceability note: filename/path และบาง program paths ยังใช้คำว่า `enterprise` เพื่อความต่อเนื่องของเอกสารเดิม แต่ baseline ที่อนุมัติแล้วของโครงการนี้คือ Odoo 19 CE
 อ้างอิงหลัก:
 - `docs/superpowers/specs/2026-10-04-odoo19-ce-enterprise-blueprint-design.md`
 - `docs/superpowers/programs/odoo19-enterprise/backlog/domain-wave-matrix.md`

@@ -49,7 +49,7 @@
 
 ## Precondition
 
-ก่อนเริ่มทุก task จาก worktree นี้:
+ก่อนเริ่มทุก task จาก dedicated worktree `C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core`:
 
 ```bash
 git submodule update --init --recursive
@@ -58,7 +58,7 @@ git submodule update --init --recursive
 และใช้คำสั่ง Odoo จาก worktree ดังนี้:
 
 ```bash
-..\..\venv19\Scripts\python.exe .\odoo-bin -c ..\..\odoo.conf --addons-path "C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\addons,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\odoo\addons,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\custom_addons,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\sale-blanket,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\sale-workflow,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\server-backend,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\server-tools,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\server-ux"
+..\..\venv19\Scripts\python.exe .\odoo-bin -c ..\..\odoo.conf --addons-path "C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\addons,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\odoo\addons,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\custom_addons,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\sale-blanket,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\sale-workflow,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\server-backend,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\server-tools,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\server-ux"
 ```
 
 เหตุผลที่ต้อง override `--addons-path` คือ `odoo.conf` หลักยังชี้ไปที่ `custom_addons` ของ repo หลัก ไม่ใช่ของ worktree นี้
@@ -198,7 +198,7 @@ Use the file-based `--test-tags` selector below. This is the stable discovery pa
 Run:
 
 ```bash
-..\..\venv19\Scripts\python.exe .\odoo-bin -c ..\..\odoo.conf --addons-path "C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\addons,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\odoo\addons,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\custom_addons,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\sale-blanket,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\sale-workflow,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\server-backend,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\server-tools,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\server-ux" -d test_w1_purchase_line --test-enable -i purchase,purchase_requisition,purchase_stock,od19_contacts_partner_roles,od19_sales_project_context,od19_purchase_procurement_core --stop-after-init --test-tags /od19_purchase_procurement_core/tests/test_procurement_line_semantics.py
+..\..\venv19\Scripts\python.exe .\odoo-bin -c ..\..\odoo.conf --addons-path "C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\addons,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\odoo\addons,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\custom_addons,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\sale-blanket,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\sale-workflow,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\server-backend,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\server-tools,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\server-ux" -d test_w1_purchase_line --test-enable -i purchase,purchase_requisition,purchase_stock,od19_contacts_partner_roles,od19_sales_project_context,od19_purchase_procurement_core --stop-after-init --test-tags /od19_purchase_procurement_core/tests/test_procurement_line_semantics.py
 ```
 
 Expected:
@@ -406,7 +406,7 @@ Use the same file-based selector below for deterministic discovery in this workt
 Run:
 
 ```bash
-..\..\venv19\Scripts\python.exe .\odoo-bin -c ..\..\odoo.conf --addons-path "C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\addons,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\odoo\addons,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\custom_addons,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\sale-blanket,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\sale-workflow,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\server-backend,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\server-tools,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\server-ux" -d test_w1_purchase_line --test-enable -i purchase,purchase_requisition,purchase_stock,od19_contacts_partner_roles,od19_sales_project_context,od19_purchase_procurement_core --stop-after-init --test-tags /od19_purchase_procurement_core/tests/test_procurement_line_semantics.py
+..\..\venv19\Scripts\python.exe .\odoo-bin -c ..\..\odoo.conf --addons-path "C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\addons,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\odoo\addons,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\custom_addons,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\sale-blanket,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\sale-workflow,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\server-backend,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\server-tools,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\server-ux" -d test_w1_purchase_line --test-enable -i purchase,purchase_requisition,purchase_stock,od19_contacts_partner_roles,od19_sales_project_context,od19_purchase_procurement_core --stop-after-init --test-tags /od19_purchase_procurement_core/tests/test_procurement_line_semantics.py
 ```
 
 Expected:
@@ -516,7 +516,7 @@ class TestProcurementApproval(TransactionCase):
 Run:
 
 ```bash
-..\..\venv19\Scripts\python.exe .\odoo-bin -c ..\..\odoo.conf --addons-path "C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\addons,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\odoo\addons,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\custom_addons,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\sale-blanket,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\sale-workflow,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\server-backend,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\server-tools,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\server-ux" -d test_w1_purchase_approval --test-enable -i purchase,purchase_requisition,purchase_stock,od19_contacts_partner_roles,od19_sales_project_context,od19_purchase_procurement_core --stop-after-init --test-tags /od19_purchase_procurement_core/tests/test_procurement_approval.py
+..\..\venv19\Scripts\python.exe .\odoo-bin -c ..\..\odoo.conf --addons-path "C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\addons,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\odoo\addons,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\custom_addons,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\sale-blanket,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\sale-workflow,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\server-backend,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\server-tools,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\server-ux" -d test_w1_purchase_approval --test-enable -i purchase,purchase_requisition,purchase_stock,od19_contacts_partner_roles,od19_sales_project_context,od19_purchase_procurement_core --stop-after-init --test-tags /od19_purchase_procurement_core/tests/test_procurement_approval.py
 ```
 
 Expected:
@@ -695,7 +695,7 @@ Update `custom_addons/od19_purchase_procurement_core/views/purchase_requisition_
 Run:
 
 ```bash
-..\..\venv19\Scripts\python.exe .\odoo-bin -c ..\..\odoo.conf --addons-path "C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\addons,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\odoo\addons,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\custom_addons,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\sale-blanket,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\sale-workflow,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\server-backend,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\server-tools,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\server-ux" -d test_w1_purchase_approval --test-enable -i purchase,purchase_requisition,purchase_stock,od19_contacts_partner_roles,od19_sales_project_context,od19_purchase_procurement_core --stop-after-init --test-tags /od19_purchase_procurement_core/tests/test_procurement_approval.py
+..\..\venv19\Scripts\python.exe .\odoo-bin -c ..\..\odoo.conf --addons-path "C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\addons,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\odoo\addons,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\custom_addons,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\sale-blanket,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\sale-workflow,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\server-backend,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\server-tools,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\server-ux" -d test_w1_purchase_approval --test-enable -i purchase,purchase_requisition,purchase_stock,od19_contacts_partner_roles,od19_sales_project_context,od19_purchase_procurement_core --stop-after-init --test-tags /od19_purchase_procurement_core/tests/test_procurement_approval.py
 ```
 
 Expected:
@@ -815,7 +815,7 @@ class TestProcurementIntegration(TransactionCase):
 Run:
 
 ```bash
-..\..\venv19\Scripts\python.exe .\odoo-bin -c ..\..\odoo.conf --addons-path "C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\addons,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\odoo\addons,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\custom_addons,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\sale-blanket,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\sale-workflow,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\server-backend,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\server-tools,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\server-ux" -d test_w1_purchase_integration --test-enable -i purchase,purchase_requisition,purchase_stock,od19_contacts_partner_roles,od19_sales_project_context,od19_purchase_procurement_core --stop-after-init --test-tags /od19_purchase_procurement_core/tests/test_procurement_integration.py
+..\..\venv19\Scripts\python.exe .\odoo-bin -c ..\..\odoo.conf --addons-path "C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\addons,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\odoo\addons,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\custom_addons,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\sale-blanket,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\sale-workflow,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\server-backend,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\server-tools,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\server-ux" -d test_w1_purchase_integration --test-enable -i purchase,purchase_requisition,purchase_stock,od19_contacts_partner_roles,od19_sales_project_context,od19_purchase_procurement_core --stop-after-init --test-tags /od19_purchase_procurement_core/tests/test_procurement_integration.py
 ```
 
 Expected:
@@ -1028,7 +1028,7 @@ Update `custom_addons/od19_purchase_procurement_core/views/purchase_order_views.
 Run:
 
 ```bash
-..\..\venv19\Scripts\python.exe .\odoo-bin -c ..\..\odoo.conf --addons-path "C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\addons,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\odoo\addons,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\custom_addons,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\sale-blanket,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\sale-workflow,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\server-backend,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\server-tools,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\server-ux" -d test_w1_purchase_integration --test-enable -i purchase,purchase_requisition,purchase_stock,od19_contacts_partner_roles,od19_sales_project_context,od19_purchase_procurement_core --stop-after-init --test-tags /od19_purchase_procurement_core/tests/test_procurement_integration.py
+..\..\venv19\Scripts\python.exe .\odoo-bin -c ..\..\odoo.conf --addons-path "C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\addons,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\odoo\addons,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\custom_addons,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\sale-blanket,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\sale-workflow,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\server-backend,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\server-tools,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\server-ux" -d test_w1_purchase_integration --test-enable -i purchase,purchase_requisition,purchase_stock,od19_contacts_partner_roles,od19_sales_project_context,od19_purchase_procurement_core --stop-after-init --test-tags /od19_purchase_procurement_core/tests/test_procurement_integration.py
 ```
 
 Expected:
@@ -1074,8 +1074,9 @@ This exact selector combination is validated in this worktree and loads the modu
 
 Run:
 
-```bash
-..\..\venv19\Scripts\python.exe .\odoo-bin -c ..\..\odoo.conf --addons-path "C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\addons,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\odoo\addons,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\custom_addons,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\sale-blanket,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\sale-workflow,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\server-backend,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\server-tools,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\server-ux" -d test_w1_purchase_matrix_<fresh_suffix> --test-enable -i purchase,purchase_requisition,purchase_stock,od19_contacts_partner_roles,od19_sales_project_context,od19_purchase_procurement_core --stop-after-init --test-tags /od19_purchase_procurement_core/tests/test_procurement_line_semantics.py,/od19_purchase_procurement_core/tests/test_procurement_approval.py,/od19_purchase_procurement_core/tests/test_procurement_integration.py
+```powershell
+$dbName = "test_w1_purchase_matrix_{0}" -f (Get-Date -Format "yyyyMMddHHmmss")
+..\..\venv19\Scripts\python.exe .\odoo-bin -c ..\..\odoo.conf --addons-path "C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\addons,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\odoo\addons,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\custom_addons,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\sale-blanket,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\sale-workflow,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\server-backend,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\server-tools,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\server-ux" -d $dbName --test-enable -i purchase,purchase_requisition,purchase_stock,od19_contacts_partner_roles,od19_sales_project_context,od19_purchase_procurement_core --stop-after-init --test-tags /od19_purchase_procurement_core/tests/test_procurement_line_semantics.py,/od19_purchase_procurement_core/tests/test_procurement_approval.py,/od19_purchase_procurement_core/tests/test_procurement_integration.py
 ```
 
 Expected:
@@ -1086,18 +1087,18 @@ Expected:
 
 - [ ] **Step 3: Run wider Wave 1 compatibility suite**
 
-Known note: this suite currently surfaces non-purchase failures from the wider multi-addon test stack, including upstream `base` tests and other addon-level regressions that can appear before purchase-specific coverage is reached. Treat those as a shared environment blocker unless purchase-module evidence shows otherwise.
+Interpretation rule: step นี้นับว่าเขียวได้ก็ต่อเมื่อ wider suite จบโดยไม่มี failure เท่านั้น หากเจอ failure จาก addon อื่นหรือ test ระดับ environment ให้บันทึกเป็น shared blocker และปล่อย step นี้ค้างไว้ ห้ามสรุปว่า pass
 
 Run:
 
 ```bash
-..\..\venv19\Scripts\python.exe .\odoo-bin -c ..\..\odoo.conf --addons-path "C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\addons,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\odoo\addons,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\custom_addons,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\sale-blanket,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\sale-workflow,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\server-backend,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\server-tools,C:\odoo-dev\odoo19\.worktrees\wave1-contacts-closeout\third_party\oca\server-ux" -d test_w1_purchase_full --test-enable -i purchase,purchase_requisition,purchase_stock,od19_contacts_partner_roles,od19_sales_project_context,od19_sales_contract_core,od19_sales_billing_evidence,od19_sales_reporting,od19_sales_oca_bridge_workflow,od19_purchase_procurement_core,base_user_role,base_revision,sale_order_revision,sale_delivery_state,base_exception,sale_exception,sale_blanket_order --stop-after-init
+..\..\venv19\Scripts\python.exe .\odoo-bin -c ..\..\odoo.conf --addons-path "C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\addons,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\odoo\addons,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\custom_addons,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\sale-blanket,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\sale-workflow,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\server-backend,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\server-tools,C:\odoo-dev\odoo19\.worktrees\wave1-purchase-procurement-core\third_party\oca\server-ux" -d test_w1_purchase_full --test-enable -i purchase,purchase_requisition,purchase_stock,od19_contacts_partner_roles,od19_sales_project_context,od19_sales_contract_core,od19_sales_billing_evidence,od19_sales_reporting,od19_sales_oca_bridge_workflow,od19_purchase_procurement_core,base_user_role,base_revision,sale_order_revision,sale_delivery_state,base_exception,sale_exception,sale_blanket_order --stop-after-init
 ```
 
 Expected:
 
 ```text
-Purchase addon installs successfully with the existing Wave 1 Sales and Contacts stack and no regression failures appear in the targeted matrix
+Purchase addon installs successfully with the existing Wave 1 Sales and Contacts stack and the wider compatibility suite exits without failures
 ```
 
 - [ ] **Step 4: Run diff hygiene check**
@@ -1126,6 +1127,12 @@ git commit -m "feat(purchase): add wave 1 procurement core"
 - `Spec coverage`: แผนครอบคลุม procurement core, entry documents, approval ทุกใบ, line-level project link, product/service split, budget warning, และ compatibility กับ Sales/Contacts
 - `Placeholder scan`: ไม่มี `TODO`, `TBD`, หรือคำสั่งกว้าง ๆ ที่ไม่ระบุไฟล์, โค้ด, หรือคำสั่งรัน
 - `Type consistency`: ใช้ชื่อ `od19_entry_mode`, `od19_approval_state`, `od19_procurement_purpose`, `od19_item_kind`, `od19_project_id`, `od19_sale_order_id`, `od19_budget_reference`, `od19_budget_warning`, และ `od19_requires_service_acceptance` คงที่ตลอดแผน
+
+## Execution Status
+
+- Archived closeout: project history records Wave 1 Purchase implementation completed and merged into `19.0`
+- Reference snapshot: `project_memory.md` tracks the closeout at commit `b1f117635` with 17 focused tests recorded
+- Treat remaining unchecked boxes as historical planning state unless Purchase scope is reopened in a new worktree
 
 ## Execution Handoff
 
