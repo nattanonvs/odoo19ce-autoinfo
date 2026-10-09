@@ -4,14 +4,14 @@
 
 | Field | Value |
 | --- | --- |
-| Program | Odoo 19 CE Enterprise Program |
+| Program | Odoo 19 CE Program |
 | Artifact | Child-spec control index |
 | Artifact status | Active baseline |
 | Baseline source | [2026-10-04-odoo19-ce-enterprise-blueprint-design.md](../../../specs/2026-10-04-odoo19-ce-enterprise-blueprint-design.md) |
 | Owner | Program lead |
 | Reviewer | Technical supervisor |
 | Approvers | Business owner; Technical supervisor |
-| Last updated | 2026-10-07 |
+| Last updated | 2026-10-09 |
 | Review cadence | Update whenever a child spec is created, approved, or resequenced |
 | Validator expectation | Keep this file present at the manifest path |
 
@@ -29,25 +29,27 @@
 | Domain | Current baseline status | Primary evidence | Remaining gap before Wave 1 closure |
 | --- | --- | --- | --- |
 | Contacts | Approved and implemented | `custom_addons/od19_contacts_partner_roles/` | No major design gap; keep regression-free while closing Accounting |
-| Sales | Approved and implemented, with customer risk gate design in review | `custom_addons/od19_sales_project_context/`, `custom_addons/od19_sales_contract_core/`, `custom_addons/od19_sales_billing_evidence/`, `custom_addons/od19_sales_reporting/`, `custom_addons/od19_sales_oca_bridge_workflow/`, [2026-10-07-odoo19-enterprise-wave-1-customer-risk-credit-gate-design.md](../../../specs/2026-10-07-odoo19-enterprise-wave-1-customer-risk-credit-gate-design.md) | Approve and implement the Wave 1 customer risk gate without reopening deep finance controls that are intentionally deferred to Wave 2 |
+| Sales | Approved and implemented, with customer risk gate design approved | `custom_addons/od19_sales_project_context/`, `custom_addons/od19_sales_contract_core/`, `custom_addons/od19_sales_billing_evidence/`, `custom_addons/od19_sales_reporting/`, `custom_addons/od19_sales_oca_bridge_workflow/`, [2026-10-07-odoo19-enterprise-wave-1-customer-risk-credit-gate-design.md](../../../specs/2026-10-07-odoo19-enterprise-wave-1-customer-risk-credit-gate-design.md) | Implement the approved Wave 1 customer risk gate without reopening deep finance controls that are intentionally deferred to Wave 2 |
 | Purchase | Approved and implemented | `custom_addons/od19_purchase_procurement_core/` | Keep stable and verify handoff into Inventory and Accounting |
-| Inventory | Implemented in delivery branch; pending mainline merge and verification | `custom_addons/od19_inventory_execution_control/`, `custom_addons/od19_inventory_audit_count/`, `custom_addons/od19_inventory_reporting/` in `codex/wave1-inventory-execution` | Merge, verify, and harden lot/serial plus adjustment governance |
-| Accounting | Approved and implemented in the delivery branch, with final integration and wave-close verification still pending | [2026-10-07-odoo19-enterprise-wave-1-accounting-operational-closure-design.md](../../../specs/2026-10-07-odoo19-enterprise-wave-1-accounting-operational-closure-design.md), `custom_addons/od19_accounting_operational_closure/`, `custom_addons/od19_accounting_reporting/`, `/od19_accounting_operational_closure/tests/test_ar_closure.py`, `/od19_accounting_operational_closure/tests/test_ap_closure.py`, `/od19_accounting_operational_closure/tests/test_cash_reconciliation.py`, and `/od19_accounting_reporting/tests/test_accounting_reporting.py:TestAccountingReporting` | Complete final cross-domain verification and broader Wave 1 closeout without pulling deep finance controls, credit limits, overdue holds, or approval tiers forward from Wave 2; keep the 8 KPI company rows and main-workspace OCA-path test commands stable |
+| Inventory | Approved and implemented | `custom_addons/od19_inventory_execution_control/`, `custom_addons/od19_inventory_audit_count/`, `custom_addons/od19_inventory_reporting/` | Keep stable and harden lot/serial plus adjustment governance without reopening Wave 1 scope |
+| Accounting | Approved design baseline; implementation active in delivery branch | [2026-10-07-odoo19-enterprise-wave-1-accounting-operational-closure-design.md](../../../specs/2026-10-07-odoo19-enterprise-wave-1-accounting-operational-closure-design.md), [2026-10-07-odoo19-enterprise-wave-1-accounting-operational-closure-implementation-plan.md](../../../plans/2026-10-07-odoo19-enterprise-wave-1-accounting-operational-closure-implementation-plan.md), master-plan backlog decisions, and the split defined in [2026-10-07-odoo19-enterprise-wave-1-customer-risk-credit-gate-design.md](../../../specs/2026-10-07-odoo19-enterprise-wave-1-customer-risk-credit-gate-design.md) | Merge and verify the Wave 1 accounting operational-closure implementation while keeping deep finance controls, credit limits, overdue holds, and approval tiers in Wave 2 |
 
 ## Wave 0
 
 | Item | Status | Primary artifact |
 | --- | --- | --- |
 | Foundation and governance baseline | Approved | [2026-10-04-odoo19-enterprise-wave-0-foundation-governance-design.md](../../../specs/2026-10-04-odoo19-enterprise-wave-0-foundation-governance-design.md) |
-| Implementation pack | In progress | [2026-10-04-odoo19-enterprise-wave-0-foundation-governance-implementation-plan.md](../../../plans/2026-10-04-odoo19-enterprise-wave-0-foundation-governance-implementation-plan.md) |
-| Handoff to Wave 1 | Draft | [wave-1-handoff-baseline.md](../governance/wave-1-handoff-baseline.md) |
+| Implementation pack | Released baseline package | [2026-10-04-odoo19-enterprise-wave-0-foundation-governance-implementation-plan.md](../../../plans/2026-10-04-odoo19-enterprise-wave-0-foundation-governance-implementation-plan.md) |
+| Handoff to Wave 1 | Active baseline | [wave-1-handoff-baseline.md](../governance/wave-1-handoff-baseline.md) |
+
+Wave 0 is packaged and citable for Wave 1 planning, but the linked discovery artifacts remain active partial baselines rather than completed evidence packs.
 
 ## Child Spec Register
 
 | Wave | Child spec ID | Canonical child spec title | Child spec path placeholder | Status | Owner | Reviewer | Approvers | Dependencies | Discovery evidence | Gate readiness |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Wave 0 | W0-FOUNDATION | Foundation platform, governance, and KPI/reporting baseline | [2026-10-04-odoo19-enterprise-wave-0-foundation-governance-design.md](../../../specs/2026-10-04-odoo19-enterprise-wave-0-foundation-governance-design.md) | Approved | Program lead | Technical supervisor | Business owner; Technical supervisor | Discovery pack; engineering standards; review gates | [current-state-inventory.md](../discovery/current-state-inventory.md); [access-readiness-checklist.md](../discovery/access-readiness-checklist.md); [engineering-standards.md](../foundation/engineering-standards.md); [review-gates.md](../governance/review-gates.md) | Ready when the foundation child spec is approved and execution order is agreed |
-| Wave 1 | W1-COMMERCIAL-CORE | Commercial and financial core | `docs/superpowers/specs/YYYY-MM-DD-odoo19-enterprise-wave-1-commercial-financial-core.md` | In implementation review | Commercial domain lead | Technical supervisor | Business owner; Technical supervisor | Wave 0 approved; Wave 1 Sales baseline approved; Wave 1 Contacts baseline approved; Wave 1 Purchase baseline approved; Wave 1 Inventory baseline implemented in delivery branch and pending mainline merge/verification; Accounting operational-closure and reporting baseline implemented in delivery branch and pending final wave verification | Discovery evidence exists for sales, contacts, purchase, and inventory; accounting implementation evidence now exists from focused tests using main-workspace OCA addon paths, including the class-qualified reporting selector that validates the 8 KPI company rows, plus addon regression tests in the delivery branch | Ready when Inventory baseline is merged and verified, the Accounting delivery-branch baseline clears final cross-domain verification, Wave 1 owner KPIs are confirmed, and migration assumptions for the commercial core are accepted |
+| Wave 1 | W1-COMMERCIAL-CORE | Commercial and financial core | `docs/superpowers/specs/YYYY-MM-DD-odoo19-enterprise-wave-1-commercial-financial-core.md` | In execution | Commercial domain lead | Technical supervisor | Business owner; Technical supervisor | Wave 0 baseline package released; Wave 1 Sales baseline approved; Wave 1 Contacts baseline approved; Wave 1 Purchase baseline approved; Wave 1 Inventory baseline approved and merged on mainline; Wave 1 Accounting child spec approved and implementation active in delivery branch | Discovery baselines remain partial for access, integration, and data-quality evidence, while implementation evidence is active for the commercial core | Ready when Accounting implementation is merged and verified, Wave 1 owner KPIs are confirmed, and migration assumptions for the commercial core are accepted |
 | Wave 2 | W2-FINANCE-CONTROLS | Custom finance controls | `docs/superpowers/specs/YYYY-MM-DD-odoo19-enterprise-wave-2-custom-finance-controls.md` | Not started | Finance controls lead | Technical supervisor | Business owner; Technical supervisor | Wave 1 approved or explicitly decoupled; confirmed Wave 2 scope for Advance, Cheque, and Money In Analysis | Discovery evidence for advance, cheque, money-in, and high-value legacy finance reports | Ready when custom control rationale, reporting scope, dependencies, and approvals are complete |
 | Wave 3 | W3-AFTER-SALES | Sales Services and after-sales | `docs/superpowers/specs/YYYY-MM-DD-odoo19-enterprise-wave-3-sales-services-after-sales.md` | Not started | Service operations lead | Technical supervisor | Business owner; Technical supervisor | Wave 1 customer/project/product baseline; confirmed separation of service returns from Inventory core | Discovery evidence for sales services, claims, warranty, service card, and service-linked returns | Ready when service flows, stock implications, owner-reporting impact, and training implications are approved |
 | Wave 4 | W4-LOGISTICS-EXT | Logistics extensions | `docs/superpowers/specs/YYYY-MM-DD-odoo19-enterprise-wave-4-logistics-extensions.md` | Not started | Logistics lead | Technical supervisor | Business owner; Technical supervisor | Wave 1 inventory baseline; decision on legacy `Goods Issue`; Wave 3 dependencies as applicable | Discovery evidence for stock requests, transportation, logistics extensions, and non-standard warehouse flows | Ready when logistics dependencies, non-standard warehouse flow decisions, approval model, and rollout sequencing are approved |
@@ -55,7 +57,8 @@
 
 ## Wave Sequencing Notes
 
-- Wave 1 remains the active closure target and should not be declared complete before the implemented Accounting delivery-branch baseline and Inventory baseline both clear final verification on the mainline workspace.
+- Wave 1 remains the active closure target and should not be declared complete before Accounting implementation is merged/verified on the mainline workspace.
+- Wave 0 is already released as the planning baseline package for Wave 1, but that does not convert the discovery artifacts into complete evidence; keep open discovery gaps visible until they are actually closed.
 - Wave 1 should absorb only the customer risk gate baseline needed to stop blacklist sales and unapproved credit sales; it should not become the home of full finance-led credit control.
 - Wave 1 Accounting should close AR, AP, payment, reconciliation, and essential posting/tax mapping as an operational baseline without absorbing Wave 2 control depth.
 - Wave 2 should absorb finance controls and legacy reports only when they extend owner decision quality without re-opening Wave 1 boundaries.

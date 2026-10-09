@@ -1,6 +1,7 @@
 {
     "name": "OD19 Accounting Operational Closure",
     "version": "19.0.1.0.0",
+    "author": "TRAE",
     "depends": [
         "account",
         "sale_management",

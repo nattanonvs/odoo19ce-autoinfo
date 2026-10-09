@@ -119,6 +119,34 @@ class TestAccountingAPClosure(TransactionCase):
         self.assertEqual(order.order_line.qty_received, order.order_line.product_qty)
         self.assertEqual(order.od19_vendor_bill_closure_state, "ready_to_bill")
 
+    def test_product_po_with_bill_before_receipt_stays_waiting_commitment(self):
+        self.product.purchase_method = "purchase"
+        order = self._fresh_purchase_order(self._create_po(self.product))
+        self.assertEqual(order.receipt_status, "pending")
+        self.assertEqual(order.order_line.qty_received, 0.0)
+        self.assertEqual(order.od19_vendor_bill_closure_state, "waiting_commitment")
+
+        bill = self.env["account.move"].browse(order.action_create_invoice()["res_id"])
+        bill.invoice_date = "2026-10-07"
+        bill.action_post()
+
+        order = self._fresh_purchase_order(order)
+        bill = bill.browse(bill.id)
+        self.assertEqual(bill.od19_operational_closure_state, "posted")
+        self.assertEqual(order.od19_vendor_bill_closure_state, "waiting_commitment")
+
+        self._register_payment(bill, amount=bill.amount_total / 2)
+        order = self._fresh_purchase_order(order)
+        bill = bill.browse(bill.id)
+        self.assertEqual(bill.od19_operational_closure_state, "partially_paid")
+        self.assertEqual(order.od19_vendor_bill_closure_state, "waiting_commitment")
+
+        self._register_payment(bill, amount=bill.amount_residual)
+        order = self._fresh_purchase_order(order)
+        bill = bill.browse(bill.id)
+        self.assertEqual(bill.od19_operational_closure_state, "paid")
+        self.assertEqual(order.od19_vendor_bill_closure_state, "waiting_commitment")
+
     def test_service_acceptance_requires_committed_po(self):
         order = self._create_po(self.service, confirm=False)
         with self.assertRaises(UserError):
@@ -150,6 +178,7 @@ class TestAccountingAPClosure(TransactionCase):
     def test_purchase_order_partial_blocked_bill_stays_partially_paid(self):
         self.product.purchase_method = "purchase"
         order = self._create_po(self.product)
+        order = self._receive_full_order(order)
         bill = self.env["account.move"].browse(order.action_create_invoice()["res_id"])
         bill.invoice_date = "2026-10-07"
         bill.action_post()
@@ -166,6 +195,7 @@ class TestAccountingAPClosure(TransactionCase):
     def test_paid_bill_does_not_close_order_with_remaining_bill_work(self):
         self.product.purchase_method = "purchase"
         order = self._create_po(self.product, quantity=2.0)
+        order = self._receive_full_order(order)
         bill = self.env["account.move"].browse(order.action_create_invoice()["res_id"])
         bill.invoice_line_ids.quantity = 1.0
         bill.invoice_date = "2026-10-07"

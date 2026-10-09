@@ -42,18 +42,18 @@ class PurchaseOrder(models.Model):
                 lambda line: line.od19_service_acceptance_required
                 and not line.od19_service_accepted
             )
+            waiting_receipt_truth = (
+                order._od19_has_inventory_receipt_lines()
+                and not order._od19_has_inventory_receipt_truth()
+            )
             if not order._od19_is_committed_for_service_acceptance():
                 order.od19_vendor_bill_closure_state = "waiting_commitment"
             elif waiting_service:
                 order.od19_vendor_bill_closure_state = "waiting_service_acceptance"
+            elif waiting_receipt_truth:
+                order.od19_vendor_bill_closure_state = "waiting_commitment"
             elif not bills:
-                if (
-                    order._od19_has_inventory_receipt_lines()
-                    and not order._od19_has_inventory_receipt_truth()
-                ):
-                    order.od19_vendor_bill_closure_state = "waiting_commitment"
-                else:
-                    order.od19_vendor_bill_closure_state = "ready_to_bill"
+                order.od19_vendor_bill_closure_state = "ready_to_bill"
             elif all(
                 move.od19_operational_closure_state == "paid"
                 for move in bills
