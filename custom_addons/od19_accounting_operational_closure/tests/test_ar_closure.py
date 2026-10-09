@@ -60,7 +60,7 @@ class TestAccountingARClosure(AccountTestInvoicingCommon):
         )
         return etree.fromstring(view_data["arch"])
 
-    def _create_ready_sale_order(self):
+    def _create_ready_sale_order(self, *, quantity=1.0, price_unit=100.0):
         sale_order_model = self.env["sale.order"].sudo()
         sale_order_line_model = self.env["sale.order.line"].sudo()
         billing_evidence_model = self.env["od19.billing.evidence"].sudo()
@@ -77,9 +77,9 @@ class TestAccountingARClosure(AccountTestInvoicingCommon):
                 "order_id": order.id,
                 "product_id": self.product.id,
                 "name": self.product.display_name,
-                "product_uom_qty": 1.0,
+                "product_uom_qty": quantity,
                 "product_uom_id": self.product.uom_id.id,
-                "price_unit": 100.0,
+                "price_unit": price_unit,
             }
         )
         billing_evidence_model.create(
@@ -126,6 +126,21 @@ class TestAccountingARClosure(AccountTestInvoicingCommon):
         invoice = invoice.browse(invoice.id)
         self.assertEqual(invoice.payment_state, "blocked")
         self.assertEqual(invoice.od19_operational_closure_state, "partially_paid")
+        self.assertEqual(order.od19_invoice_closure_state, "partially_paid")
+
+    def test_paid_invoice_does_not_close_order_with_remaining_invoice_work(self):
+        order = self._create_ready_sale_order(quantity=2.0)
+        invoice = order._create_invoices()
+        invoice.invoice_line_ids.quantity = 1.0
+        invoice.action_post()
+
+        self._register_payment(invoice, amount=invoice.amount_total)
+
+        order = self._fresh_sale_order(order)
+        invoice = invoice.browse(invoice.id)
+        self.assertEqual(invoice.payment_state, "paid")
+        self.assertEqual(order.invoice_status, "to invoice")
+        self.assertEqual(order.amount_to_invoice, 115.0)
         self.assertEqual(order.od19_invoice_closure_state, "partially_paid")
 
     def test_sale_order_form_places_closure_fields_once(self):

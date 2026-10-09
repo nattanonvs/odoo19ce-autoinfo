@@ -57,15 +57,15 @@ class TestAccountingAPClosure(TransactionCase):
             ._create_payments()
         )
 
-    def _create_po(self, product, *, confirm=True):
+    def _create_po(self, product, *, confirm=True, quantity=1.0, price_unit=500.0):
         order = self.env["purchase.order"].create({"partner_id": self.vendor.id})
         self.env["purchase.order.line"].create(
             {
                 "order_id": order.id,
                 "name": product.display_name,
                 "product_id": product.id,
-                "product_qty": 1.0,
-                "price_unit": 500.0,
+                "product_qty": quantity,
+                "price_unit": price_unit,
                 "date_planned": "2026-10-07 00:00:00",
                 "product_uom_id": product.uom_id.id,
             }
@@ -142,6 +142,23 @@ class TestAccountingAPClosure(TransactionCase):
         bill = bill.browse(bill.id)
         self.assertEqual(bill.payment_state, "blocked")
         self.assertEqual(bill.od19_operational_closure_state, "partially_paid")
+        self.assertEqual(order.od19_vendor_bill_closure_state, "partially_paid")
+
+    def test_paid_bill_does_not_close_order_with_remaining_bill_work(self):
+        self.product.purchase_method = "purchase"
+        order = self._create_po(self.product, quantity=2.0)
+        bill = self.env["account.move"].browse(order.action_create_invoice()["res_id"])
+        bill.invoice_line_ids.quantity = 1.0
+        bill.invoice_date = "2026-10-07"
+        bill.action_post()
+
+        self._register_payment(bill, amount=bill.amount_total)
+
+        order = self._fresh_purchase_order(order)
+        bill = bill.browse(bill.id)
+        self.assertEqual(bill.payment_state, "paid")
+        self.assertEqual(order.invoice_status, "to invoice")
+        self.assertEqual(order.amount_total, 1150.0)
         self.assertEqual(order.od19_vendor_bill_closure_state, "partially_paid")
 
     def test_purchase_order_form_places_ap_closure_fields_once(self):

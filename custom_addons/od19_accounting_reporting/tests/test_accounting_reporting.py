@@ -5,6 +5,17 @@ from odoo.tests import tagged
 
 @tagged("post_install", "-at_install")
 class TestAccountingReporting(AccountTestInvoicingCommon):
+    KPI_KEYS = {
+        "billable_backlog",
+        "open_receivable",
+        "overdue_receivable",
+        "open_payable",
+        "due_payable",
+        "cash_application_status",
+        "unreconciled_customer_items",
+        "unreconciled_vendor_items",
+    }
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -77,20 +88,40 @@ class TestAccountingReporting(AccountTestInvoicingCommon):
         fresh_env = api.Environment(self.env.cr, self.env.uid, dict(self.env.context))
         return fresh_env["sale.order"].browse(order.id)
 
-    def _metric_snapshot(self, *, company=None, user=None, allowed_company_ids=None):
+    def _metric_rows(self, *, company=None, user=None, allowed_company_ids=None):
         company = company or self.env.company
-        report_row = self._fresh_report(
+        return self._fresh_report(
             user=user,
             allowed_company_ids=allowed_company_ids,
         ).search(
             [("company_id", "=", company.id)],
-            limit=1,
         )
+
+    def _metric_map(self, *, company=None, user=None, allowed_company_ids=None):
         return {
-            "billable_backlog": report_row.billable_backlog,
-            "open_receivable": report_row.open_receivable,
-            "open_payable": report_row.open_payable,
+            row.metric_key: row
+            for row in self._metric_rows(
+                company=company,
+                user=user,
+                allowed_company_ids=allowed_company_ids,
+            )
         }
+
+    def _metric_amount(self, metric_key, *, company=None, user=None, allowed_company_ids=None):
+        row = self._metric_map(
+            company=company,
+            user=user,
+            allowed_company_ids=allowed_company_ids,
+        )[metric_key]
+        return row.total_amount
+
+    def _metric_count(self, metric_key, *, company=None, user=None, allowed_company_ids=None):
+        row = self._metric_map(
+            company=company,
+            user=user,
+            allowed_company_ids=allowed_company_ids,
+        )[metric_key]
+        return row.item_count
 
     def _create_ready_sale_order(self, *, company=None, quantity=1.0, price_unit=120.0):
         company = company or self.env.company
@@ -206,7 +237,7 @@ class TestAccountingReporting(AccountTestInvoicingCommon):
         return order, invoice
 
     def test_company_report_excludes_invoiced_and_partially_paid_orders_from_backlog(self):
-        before = self._metric_snapshot()
+        before = self._metric_amount("billable_backlog")
 
         ready_order = self._create_ready_sale_order()
         invoiced_order = self._create_ready_sale_order()
@@ -227,26 +258,26 @@ class TestAccountingReporting(AccountTestInvoicingCommon):
         invoiced_order = self._fresh_sale_order(invoiced_order)
         partial_order = self._fresh_sale_order(partial_order)
         partial_invoice = partial_invoice.browse(partial_invoice.id)
-        after = self._metric_snapshot()
+        after = self._metric_map()
 
         self.assertEqual(ready_order.od19_invoice_closure_state, "ready_to_invoice")
         self.assertEqual(invoiced_order.od19_invoice_closure_state, "invoiced")
         self.assertEqual(partial_order.od19_invoice_closure_state, "partially_paid")
         self.assertEqual(
-            after["billable_backlog"] - before["billable_backlog"],
+            after["billable_backlog"].total_amount - before,
             ready_order.amount_to_invoice,
         )
         self.assertEqual(
-            after["open_receivable"] - before["open_receivable"],
+            after["open_receivable"].total_amount,
             invoiced_invoice.amount_residual_signed + partial_invoice.amount_residual_signed,
         )
         self.assertEqual(
-            after["open_payable"] - before["open_payable"],
+            after["open_payable"].total_amount,
             vendor_bill.amount_residual_signed,
         )
 
     def test_company_report_excludes_draft_and_sent_quotations_from_backlog(self):
-        before = self._metric_snapshot()
+        before = self._metric_amount("billable_backlog")
 
         draft_quotation = self._create_billable_quotation(state="draft")
         sent_quotation = self._create_billable_quotation(state="sent")
@@ -255,7 +286,7 @@ class TestAccountingReporting(AccountTestInvoicingCommon):
         draft_quotation = self._fresh_sale_order(draft_quotation)
         sent_quotation = self._fresh_sale_order(sent_quotation)
         ready_order = self._fresh_sale_order(ready_order)
-        after = self._metric_snapshot()
+        after = self._metric_amount("billable_backlog")
 
         self.assertEqual(draft_quotation.state, "draft")
         self.assertEqual(sent_quotation.state, "sent")
@@ -263,18 +294,18 @@ class TestAccountingReporting(AccountTestInvoicingCommon):
         self.assertEqual(sent_quotation.od19_billing_readiness_state, "ready")
         self.assertEqual(ready_order.state, "sale")
         self.assertEqual(
-            after["billable_backlog"] - before["billable_backlog"],
+            after - before,
             ready_order.amount_to_invoice,
         )
 
     def test_company_report_uses_remaining_amount_to_invoice_for_partial_invoicing(self):
-        before = self._metric_snapshot()
+        before = self._metric_amount("billable_backlog")
 
         partial_order, partial_invoice = self._create_partially_invoiced_order()
 
         partial_order = self._fresh_sale_order(partial_order)
         partial_invoice = partial_invoice.browse(partial_invoice.id)
-        after = self._metric_snapshot()
+        after = self._metric_amount("billable_backlog")
 
         self.assertEqual(partial_order.state, "sale")
         self.assertEqual(partial_order.od19_billing_readiness_state, "ready")
@@ -283,16 +314,17 @@ class TestAccountingReporting(AccountTestInvoicingCommon):
         self.assertEqual(partial_order.amount_to_invoice, 138.0)
         self.assertEqual(partial_invoice.amount_total, 138.0)
         self.assertEqual(
-            after["billable_backlog"] - before["billable_backlog"],
+            after - before,
             partial_order.amount_to_invoice,
         )
         self.assertNotEqual(
-            after["billable_backlog"] - before["billable_backlog"],
+            after - before,
             partial_order.amount_total,
         )
 
     def test_company_report_uses_signed_company_residual_amounts(self):
-        before = self._metric_snapshot()
+        before_receivable = self._metric_amount("open_receivable")
+        before_payable = self._metric_amount("open_payable")
 
         customer_invoice = self._create_invoice(
             move_type="out_invoice",
@@ -313,7 +345,7 @@ class TestAccountingReporting(AccountTestInvoicingCommon):
             ],
         )
 
-        after = self._metric_snapshot()
+        report = self._metric_map()
 
         self.assertNotEqual(
             customer_invoice.amount_residual,
@@ -324,34 +356,83 @@ class TestAccountingReporting(AccountTestInvoicingCommon):
             vendor_bill.amount_residual_signed,
         )
         self.assertEqual(
-            after["open_receivable"] - before["open_receivable"],
+            report["open_receivable"].total_amount - before_receivable,
             customer_invoice.amount_residual_signed,
         )
         self.assertEqual(
-            after["open_payable"] - before["open_payable"],
+            report["open_payable"].total_amount - before_payable,
             vendor_bill.amount_residual_signed,
         )
+
+    def test_company_report_exposes_required_owner_facing_kpis(self):
+        ready_order = self._create_ready_sale_order()
+        overdue_invoice = self._create_invoice(
+            move_type="out_invoice",
+            partner_id=self.customer,
+            post=True,
+            invoice_date="2026-10-01",
+            date="2026-10-01",
+            invoice_date_due="2026-10-06",
+            invoice_line_ids=[
+                self._prepare_invoice_line(product_id=self.product, price_unit=210.0)
+            ],
+        )
+        due_bill = self._create_invoice(
+            move_type="in_invoice",
+            partner_id=self.partner_a,
+            post=True,
+            invoice_date="2026-10-07",
+            date="2026-10-07",
+            invoice_date_due="2026-10-07",
+            invoice_line_ids=[
+                self._prepare_invoice_line(product_id=self.product_a, price_unit=80.0)
+            ],
+        )
+        cash_application_invoice = self._create_invoice(
+            move_type="out_invoice",
+            partner_id=self.customer,
+            post=True,
+            invoice_date="2026-10-07",
+            date="2026-10-07",
+            invoice_date_due="2026-10-07",
+            invoice_line_ids=[
+                self._prepare_invoice_line(product_id=self.product, price_unit=50.0)
+            ],
+        )
+        self._register_payment(
+            cash_application_invoice,
+            amount=cash_application_invoice.amount_total / 2,
+        )
+
+        ready_order = self._fresh_sale_order(ready_order)
+        report = self._metric_map()
+
+        self.assertTrue(self.KPI_KEYS.issubset(set(report)))
+        self.assertEqual(report["billable_backlog"].total_amount, ready_order.amount_to_invoice)
+        self.assertEqual(report["open_receivable"].total_amount, overdue_invoice.amount_residual_signed + cash_application_invoice.amount_residual_signed)
+        self.assertEqual(report["overdue_receivable"].total_amount, overdue_invoice.amount_residual_signed)
+        self.assertEqual(report["open_payable"].total_amount, due_bill.amount_residual_signed)
+        self.assertEqual(report["due_payable"].total_amount, due_bill.amount_residual_signed)
+        self.assertEqual(report["cash_application_status"].item_count, 1)
+        self.assertGreater(report["unreconciled_customer_items"].item_count, 0)
+        self.assertGreater(report["unreconciled_vendor_items"].item_count, 0)
 
     def test_company_report_visibility_is_limited_to_allowed_companies(self):
         self._create_ready_sale_order()
         self._create_ready_sale_order(company=self.company_2)
 
-        visible_rows = self._fresh_report(
+        visible_rows = self._metric_rows(
             user=self.account_user,
             allowed_company_ids=self.account_user.company_ids.ids,
-        ).search([])
+        )
 
-        self.assertEqual(visible_rows.company_id, self.env.company)
+        self.assertTrue(visible_rows)
+        self.assertEqual(set(visible_rows.mapped("metric_key")), self.KPI_KEYS)
         self.assertNotIn(self.company_2, visible_rows.mapped("company_id"))
-        self.assertEqual(
-            self._metric_snapshot(
+        self.assertFalse(
+            self._metric_rows(
                 company=self.company_2,
                 user=self.account_user,
                 allowed_company_ids=self.account_user.company_ids.ids,
-            ),
-            {
-                "billable_backlog": 0.0,
-                "open_receivable": 0.0,
-                "open_payable": 0.0,
-            },
+            )
         )

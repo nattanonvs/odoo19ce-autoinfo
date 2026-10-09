@@ -32,6 +32,7 @@ class SaleOrder(models.Model):
 
     @api.depends(
         "od19_billing_readiness_state",
+        "invoice_status",
         "order_line.invoice_lines.move_id.move_type",
         "order_line.invoice_lines.move_id.state",
         "order_line.invoice_lines.move_id.od19_operational_closure_state",
@@ -47,7 +48,7 @@ class SaleOrder(models.Model):
             elif all(
                 move.od19_operational_closure_state == "paid"
                 for move in posted_invoices
-            ):
+            ) and order.invoice_status == "invoiced":
                 order.od19_invoice_closure_state = "paid"
             elif any(
                 move.od19_operational_closure_state in ("partially_paid", "paid")

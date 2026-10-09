@@ -21,6 +21,7 @@ class PurchaseOrder(models.Model):
 
     @api.depends(
         "state",
+        "invoice_status",
         "invoice_ids.move_type",
         "invoice_ids.state",
         "invoice_ids.od19_operational_closure_state",
@@ -46,7 +47,7 @@ class PurchaseOrder(models.Model):
             elif all(
                 move.od19_operational_closure_state == "paid"
                 for move in bills
-            ):
+            ) and order.invoice_status == "invoiced":
                 order.od19_vendor_bill_closure_state = "paid"
             elif any(
                 move.od19_operational_closure_state in ("partially_paid", "paid")

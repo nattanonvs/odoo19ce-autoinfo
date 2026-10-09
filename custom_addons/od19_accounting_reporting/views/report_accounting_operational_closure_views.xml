@@ -5,10 +5,11 @@
         <field name="model">od19.report.accounting.operational.closure</field>
         <field name="arch" type="xml">
             <list create="0" edit="0" delete="0">
+                <field name="metric_label"/>
+                <field name="metric_key" optional="hide"/>
                 <field name="company_id"/>
-                <field name="billable_backlog"/>
-                <field name="open_receivable"/>
-                <field name="open_payable"/>
+                <field name="item_count"/>
+                <field name="total_amount"/>
             </list>
         </field>
     </record>
