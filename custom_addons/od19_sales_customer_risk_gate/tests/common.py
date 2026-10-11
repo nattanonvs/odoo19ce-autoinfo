@@ -8,7 +8,9 @@ class CreditGateCommon(TransactionCase):
         cls.term_immediate = cls.env.ref("account.account_payment_term_immediate")
         cls.term_30 = cls.env.ref("account.account_payment_term_30days")
         cls.sales_user = new_test_user(
-            cls.env, login="od19_gate_sales", groups="sales_team.group_sale_salesman"
+            cls.env,
+            login="od19_gate_sales",
+            groups="sales_team.group_sale_salesman,base.group_partner_manager",
         )
         cls.reviewer = new_test_user(
             cls.env,
