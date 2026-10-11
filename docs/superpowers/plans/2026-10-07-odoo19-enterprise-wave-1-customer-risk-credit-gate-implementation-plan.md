@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Status:** Draft — รออนุมัติก่อน build
+**Status:** Approved 2026-10-11 (plan เดิม, วงเงินเครดิตคงไว้ Wave 2)
 
 **Goal:** ส่งมอบ commercial guardrail สำหรับ Wave 1 ที่ (1) block ลูกค้า Blacklist ตั้งแต่ระดับ Quotation, (2) บังคับให้ลูกค้าที่ยังไม่ผ่านเครดิตขายได้เฉพาะ payment term แบบ non-credit, (3) แยก ownership ให้ Sales ขอเครดิตได้แต่ Accounting เท่านั้นที่อนุมัติ/ปฏิเสธ/แก้ Blacklist ได้ และ (4) มี KPI ขั้นต่ำสำหรับผู้บริหาร โดยไม่แก้ Odoo core
 
