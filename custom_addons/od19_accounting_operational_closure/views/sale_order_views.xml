@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_sale_order_form_od19_accounting_closure" model="ir.ui.view">
+        <field name="name">sale.order.form.od19.accounting.closure</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath
+                expr="//group[@name='sale_info']/field[@name='invoice_status'][@groups='!base.group_no_one']"
+                position="after"
+            >
+                <field name="od19_invoice_closure_state" readonly="1"/>
+                <field name="od19_customer_invoice_count" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
