@@ -7,9 +7,11 @@
     "depends": ["sale_management", "account", "mail"],
     "data": [
         "security/od19_credit_gate_security.xml",
+        "security/ir.model.access.csv",
         "views/account_payment_term_views.xml",
         "views/res_partner_views.xml",
         "views/sale_order_views.xml",
+        "views/od19_credit_gate_report_views.xml",
     ],
     "installable": True,
     "application": False,

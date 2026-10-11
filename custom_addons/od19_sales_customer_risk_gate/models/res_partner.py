@@ -1,7 +1,6 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
 
-
 class ResPartner(models.Model):
     _inherit = "res.partner"
 
@@ -180,3 +179,32 @@ class ResPartner(models.Model):
             commercial = partner.commercial_partner_id
             commercial.sudo().write({"od19_blacklist_status": "normal"})
         return True
+
+    @api.model
+    def od19_credit_gate_kpis(self):
+        partners = self.env["res.partner"].search([])
+        pending = partners.filtered(lambda p: p.od19_credit_request_state == "pending")
+        rejected = partners.filtered(
+            lambda p: p.od19_credit_request_state == "rejected"
+        )
+        events = self.env["od19.credit.gate.event"].search([])
+        now = fields.Datetime.now()
+        avg_age = 0.0
+        if pending and any(p.od19_credit_request_date for p in pending):
+            ages = [
+                (now - p.od19_credit_request_date).total_seconds() / 86400.0
+                for p in pending
+                if p.od19_credit_request_date
+            ]
+            avg_age = sum(ages) / len(ages) if ages else 0.0
+        return {
+            "pending_count": len(pending),
+            "pending_avg_age_days": avg_age,
+            "rejected_count": len(rejected),
+            "blocked_blacklist_count": len(
+                events.filtered(lambda e: e.reason_code == "blacklist")
+            ),
+            "blocked_credit_count": len(
+                events.filtered(lambda e: e.reason_code == "credit")
+            ),
+        }

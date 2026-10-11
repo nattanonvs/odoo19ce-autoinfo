@@ -1,7 +1,8 @@
 import logging
 
-from odoo import _, api, fields, models
+from odoo import SUPERUSER_ID, _, api, fields, models
 from odoo.exceptions import UserError
+from odoo.tools import config
 
 _logger = logging.getLogger(__name__)
 
@@ -70,20 +71,45 @@ class SaleOrder(models.Model):
             )
         return (None, None)
 
-    def _od19_log_gate_event(self, reason_code, stage):
-        self.ensure_one()
+    def _od19_log_gate_event(self, partner, reason_code, stage, order_ref=False):
+        order_ref = order_ref or (self.display_name if self else "")
+        if config["test_enable"]:
+            self.env["od19.credit.gate.event"].sudo().create(
+                {
+                    "partner_id": partner.id,
+                    "reason_code": reason_code,
+                    "stage": stage,
+                    "order_ref": order_ref,
+                }
+            )
+            return
+        env = api.Environment(self.env.registry.cursor(), SUPERUSER_ID, {})
+        try:
+            env["od19.credit.gate.event"].create(
+                {
+                    "partner_id": partner.id,
+                    "reason_code": reason_code,
+                    "stage": stage,
+                    "order_ref": order_ref,
+                }
+            )
+            env.cr.commit()
+        finally:
+            env.cr.close()
         _logger.info(
             "od19 credit gate blocked [stage=%s reason=%s] order=%s partner=%s",
             stage,
             reason_code,
-            self.display_name,
-            self.partner_id.display_name,
+            order_ref,
+            partner.display_name,
         )
 
     def _od19_raise_if_blocked(self, stage):
         reason_code, message = self._od19_check_customer_gate(stage)
         if reason_code:
-            self._od19_log_gate_event(reason_code, stage)
+            self._od19_log_gate_event(
+                self.partner_id.commercial_partner_id, reason_code, stage
+            )
             raise UserError(message)
 
     @api.model_create_multi
