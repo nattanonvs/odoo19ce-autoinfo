@@ -54,7 +54,7 @@
 ### Wave 1 Focus
 - Close the commercial core on top of the approved Contacts, Sales, Purchase, Inventory, and approved Accounting design baselines.
 - Treat Inventory as an implemented and merged baseline, but do not mark the wave complete until Accounting implementation is merged, verified, and the owner KPI closeout is confirmed on the mainline workspace.
-- Add the customer risk gate baseline so `Blacklist` customers are blocked from both `Quotation` and `Sales Order`, and `Credit Pending` customers remain cash-only until Accounting approval is complete.
+- Add the customer risk gate baseline so `Blacklist` customers are blocked from both `Quotation` and `Sales Order`, and `Credit Pending` customers remain cash-only until Accounting approval is complete. (Implemented and verified 2026-10-11.)
 - Close Accounting as an operational-closure baseline that covers AR, AP, payment, reconciliation, and essential posting/tax mapping without pulling deep finance controls forward from Wave 2.
 - Keep Wave 1 limited to commercial-core truth, readiness, and owner-facing KPIs.
 - Do not pull advanced finance controls, after-sales process logic, or logistics extensions forward unless a documented dependency forces it.
