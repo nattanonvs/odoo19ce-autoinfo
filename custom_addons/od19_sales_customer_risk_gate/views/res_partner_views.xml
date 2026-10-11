@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_form_od19_credit_gate" model="ir.ui.view">
+        <field name="name">res.partner.form.od19.credit.gate</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form/sheet" position="inside">
+                <widget name="web_ribbon"
+                        title="Blacklisted"
+                        bg_color="text-bg-danger"
+                        invisible="od19_blacklist_status != 'blacklisted'"/>
+            </xpath>
+
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_od19_request_credit"
+                        type="object"
+                        string="Request Credit"
+                        class="btn-primary"
+                        invisible="od19_credit_request_state in ('pending', 'approved')"/>
+                <button name="action_od19_approve_credit"
+                        type="object"
+                        string="Approve Credit"
+                        class="btn-success"
+                        groups="od19_sales_customer_risk_gate.group_od19_credit_reviewer"
+                        invisible="od19_credit_request_state != 'pending'"/>
+                <button name="action_od19_reject_credit"
+                        type="object"
+                        string="Reject Credit"
+                        class="btn-danger"
+                        groups="od19_sales_customer_risk_gate.group_od19_credit_reviewer"
+                        invisible="od19_credit_request_state != 'pending'"/>
+                <button name="action_od19_set_blacklist"
+                        type="object"
+                        string="Blacklist"
+                        class="btn-danger"
+                        groups="od19_sales_customer_risk_gate.group_od19_credit_reviewer"
+                        invisible="od19_blacklist_status == 'blacklisted'"/>
+                <button name="action_od19_clear_blacklist"
+                        type="object"
+                        string="Clear Blacklist"
+                        class="btn-secondary"
+                        groups="od19_sales_customer_risk_gate.group_od19_credit_reviewer"
+                        invisible="od19_blacklist_status != 'blacklisted'"/>
+            </xpath>
+
+            <xpath expr="//page[@name='internal_notes']" position="before">
+                <page string="Credit &amp; Risk" name="od19_credit_risk">
+                    <group>
+                        <group string="Credit">
+                            <field name="od19_credit_request_state"/>
+                            <field name="od19_credit_sale_allowed"/>
+                            <field name="od19_credit_requested_by"/>
+                            <field name="od19_credit_request_date"/>
+                            <field name="od19_credit_review_owner_id"/>
+                            <field name="od19_credit_review_date"/>
+                            <field name="od19_credit_review_note"
+                                   groups="od19_sales_customer_risk_gate.group_od19_credit_reviewer"/>
+                        </group>
+                        <group string="Blacklist">
+                            <field name="od19_blacklist_status"
+                                   groups="od19_sales_customer_risk_gate.group_od19_credit_reviewer"/>
+                            <field name="od19_blacklist_reason"
+                                   groups="od19_sales_customer_risk_gate.group_od19_credit_reviewer"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>
