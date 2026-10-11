@@ -9,6 +9,7 @@
         "security/od19_credit_gate_security.xml",
         "views/account_payment_term_views.xml",
         "views/res_partner_views.xml",
+        "views/sale_order_views.xml",
     ],
     "installable": True,
     "application": False,

@@ -19,10 +19,20 @@ class CreditGateCommon(TransactionCase):
             "od19_sales_customer_risk_gate.group_od19_credit_reviewer",
         )
         cls.customer = cls.env["res.partner"].create(
-            {"name": "Gate Customer", "company_type": "company"}
+            {
+                "name": "Gate Customer",
+                "company_type": "company",
+                "email": "gate.customer@example.com",
+                "od19_is_commercial_customer": True,
+            }
         )
         cls.contact = cls.env["res.partner"].create(
-            {"name": "Gate Contact", "parent_id": cls.customer.id}
+            {
+                "name": "Gate Contact",
+                "parent_id": cls.customer.id,
+                "email": "gate.contact@example.com",
+                "od19_is_commercial_customer": True,
+            }
         )
         cls.product = cls.env["product.product"].create(
             {"name": "Gate Service", "type": "service", "list_price": 100.0}
