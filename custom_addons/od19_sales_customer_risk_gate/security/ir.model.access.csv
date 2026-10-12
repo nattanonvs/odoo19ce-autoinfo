@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_od19_credit_gate_event_user,od19.credit.gate.event.user,model_od19_credit_gate_event,sales_team.group_sale_salesman,1,0,0,0
+access_od19_credit_gate_event_manager,od19.credit.gate.event.manager,model_od19_credit_gate_event,sales_team.group_sale_manager,1,0,0,0
+access_od19_credit_gate_event_reviewer,od19.credit.gate.event.reviewer,model_od19_credit_gate_event,group_od19_credit_reviewer,1,0,0,0
+access_od19_credit_gate_event_account,od19.credit.gate.event.account,model_od19_credit_gate_event,account.group_account_manager,1,0,0,0
