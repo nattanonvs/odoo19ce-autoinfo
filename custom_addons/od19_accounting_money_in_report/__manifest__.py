@@ -1,0 +1,24 @@
+{
+    "name": "OD19 Accounting Money In Report",
+    "version": "19.0.1.0.0",
+    "category": "Accounting/Reporting",
+    "summary": "Snapshot-based money in analysis for invoice-based and cash-invoice-based reporting",
+    "author": "TRAE",
+    "license": "LGPL-3",
+    "depends": [
+        "account",
+        "sale_management",
+        "project",
+        "mail",
+    ],
+    "data": [
+        "security/ir.model.access.csv",
+        "security/money_in_report_security.xml",
+        "views/money_in_report_wizard_views.xml",
+        "views/money_in_report_run_views.xml",
+        "views/money_in_report_line_views.xml",
+        "views/money_in_report_menu.xml",
+    ],
+    "installable": True,
+    "application": False,
+}

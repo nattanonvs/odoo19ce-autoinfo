@@ -1,0 +1,29 @@
+<odoo>
+    <menuitem
+        id="menu_od19_money_in_report_root"
+        name="Money In Analysis"
+        parent="account.menu_finance_reports"
+        sequence="210"
+    />
+    <menuitem
+        id="menu_od19_money_in_report_generate"
+        name="Generate Report"
+        parent="menu_od19_money_in_report_root"
+        action="action_od19_money_in_report_wizard"
+        sequence="10"
+    />
+    <menuitem
+        id="menu_od19_money_in_report_runs"
+        name="Report Runs"
+        parent="menu_od19_money_in_report_root"
+        action="action_od19_money_in_report_runs"
+        sequence="20"
+    />
+    <menuitem
+        id="menu_od19_money_in_report_lines"
+        name="Analysis Lines"
+        parent="menu_od19_money_in_report_root"
+        action="action_od19_money_in_report_lines"
+        sequence="30"
+    />
+</odoo>

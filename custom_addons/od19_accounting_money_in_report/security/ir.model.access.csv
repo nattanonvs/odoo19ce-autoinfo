@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_od19_money_in_report_wizard_user,access.od19.money.in.report.wizard,model_od19_money_in_report_wizard,base.group_user,1,1,1,1
+access_od19_money_in_report_run_user,access.od19.money.in.report.run,model_od19_money_in_report_run,base.group_user,1,1,1,1
+access_od19_money_in_report_line_user,access.od19.money.in.report.line,model_od19_money_in_report_line,base.group_user,1,1,1,1

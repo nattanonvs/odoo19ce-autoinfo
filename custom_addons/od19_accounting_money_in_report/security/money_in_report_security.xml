@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="od19_money_in_report_run_company_rule" model="ir.rule">
+        <field name="name">OD19 Money In Report Run Multi Company</field>
+        <field name="model_id" ref="model_od19_money_in_report_run"/>
+        <field name="global" eval="True"/>
+        <field name="active" eval="False"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="od19_money_in_report_line_company_rule" model="ir.rule">
+        <field name="name">OD19 Money In Report Line Multi Company</field>
+        <field name="model_id" ref="model_od19_money_in_report_line"/>
+        <field name="global" eval="True"/>
+        <field name="active" eval="False"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+</odoo>

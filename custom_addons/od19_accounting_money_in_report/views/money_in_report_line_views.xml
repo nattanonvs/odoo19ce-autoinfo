@@ -1,0 +1,169 @@
+<odoo>
+    <record id="view_od19_money_in_report_line_list" model="ir.ui.view">
+        <field name="name">od19.money.in.report.line.list</field>
+        <field name="model">od19.money.in.report.line</field>
+        <field name="arch" type="xml">
+            <list string="Money In Analysis Lines">
+                <field name="run_id" optional="show"/>
+                <field name="invoice_date"/>
+                <field name="payment_date" optional="show"/>
+                <field name="reconcile_date" optional="show"/>
+                <field name="stamp_date" optional="show"/>
+                <field name="partner_id"/>
+                <field name="salesperson_id" optional="show"/>
+                <field name="project_id" optional="show"/>
+                <field name="project_job_type" optional="show"/>
+                <field name="project_type_name" optional="show"/>
+                <field name="product_categ_id" optional="show"/>
+                <field name="product_id" optional="show"/>
+                <field name="customer_reference" optional="show"/>
+                <field name="recognized_amount" sum="Recognized Amount"/>
+                <field name="paid_amount" sum="Paid Amount" optional="show"/>
+                <field name="refund_amount" sum="Refund Amount" optional="show"/>
+                <field name="net_cash_amount" sum="Net Cash Amount" optional="show"/>
+                <field name="sale_order_amount" sum="Sale Order Amount" optional="show"/>
+                <field name="recognized_cost" sum="Recognized Cost" optional="show"/>
+                <field name="recognized_profit" sum="Recognized Profit"/>
+                <field name="recognized_margin_pct" optional="show"/>
+                <field name="cycle_days" optional="show"/>
+                <field name="missing_start_date" optional="show"/>
+                <field name="is_invoice_bridged_dimension" optional="hide"/>
+                <field name="phase" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_od19_money_in_report_line_pivot" model="ir.ui.view">
+        <field name="name">od19.money.in.report.line.pivot</field>
+        <field name="model">od19.money.in.report.line</field>
+        <field name="arch" type="xml">
+            <pivot string="Money In Analysis">
+                <field name="partner_id" type="row"/>
+                <field name="salesperson_id" type="row"/>
+                <field name="project_job_type" type="row"/>
+                <field name="project_type_name" type="row"/>
+                <field name="product_categ_id" type="row"/>
+                <field name="invoice_date" type="col" interval="month"/>
+                <field name="payment_date" type="col" interval="month"/>
+                <field name="recognized_amount" type="measure"/>
+                <field name="paid_amount" type="measure"/>
+                <field name="refund_amount" type="measure"/>
+                <field name="net_cash_amount" type="measure"/>
+                <field name="sale_order_amount" type="measure"/>
+                <field name="recognized_cost" type="measure"/>
+                <field name="recognized_profit" type="measure"/>
+                <field name="cycle_days" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_od19_money_in_report_line_graph" model="ir.ui.view">
+        <field name="name">od19.money.in.report.line.graph</field>
+        <field name="model">od19.money.in.report.line</field>
+        <field name="arch" type="xml">
+            <graph string="Money In Analysis" type="bar" stacked="True">
+                <field name="partner_id"/>
+                <field name="recognized_amount" type="measure"/>
+                <field name="net_cash_amount" type="measure"/>
+                <field name="recognized_profit" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_od19_money_in_report_line_search" model="ir.ui.view">
+        <field name="name">od19.money.in.report.line.search</field>
+        <field name="model">od19.money.in.report.line</field>
+        <field name="arch" type="xml">
+            <search string="Search Money In Analysis">
+                <field name="partner_id"/>
+                <field name="salesperson_id"/>
+                <field name="project_job_type"/>
+                <field name="product_categ_id"/>
+                <field name="customer_reference"/>
+                <field name="payment_date"/>
+                <field name="reconcile_date"/>
+                <field name="run_id"/>
+                <filter
+                    name="top_customers"
+                    string="Top Customers"
+                    domain="[]"
+                    context="{'group_by': 'partner_id'}"
+                />
+                <filter
+                    name="by_project_type"
+                    string="By Project Type"
+                    domain="[]"
+                    context="{'group_by': 'project_job_type'}"
+                />
+                <filter
+                    name="by_product_category"
+                    string="By Product Category"
+                    domain="[]"
+                    context="{'group_by': 'product_categ_id'}"
+                />
+                <filter
+                    name="by_salesperson"
+                    string="By Salesperson"
+                    domain="[]"
+                    context="{'group_by': 'salesperson_id'}"
+                />
+                <filter name="slowest_cycle" string="Slowest Cycle" domain="[('cycle_days', '&gt;', 30)]"/>
+                <filter
+                    name="missing_start_date"
+                    string="Missing Start Date"
+                    domain="[('missing_start_date', '=', True)]"
+                />
+                <separator/>
+                <filter
+                    name="phase1_only"
+                    string="Phase 1"
+                    domain="[('phase', '=', 'phase1_invoice_based')]"
+                />
+                <filter
+                    name="phase2_only"
+                    string="Phase 2A"
+                    domain="[('phase', '=', 'phase2_cash_invoice_based')]"
+                />
+                <filter
+                    name="preliminary_profit"
+                    string="Preliminary Profit"
+                    domain="[('is_preliminary_profit', '=', True)]"
+                />
+                <filter
+                    name="profit_available"
+                    string="Profit Available"
+                    domain="[('profit_preliminary_available', '=', True)]"
+                />
+                <filter
+                    name="bridged_only"
+                    string="Invoice-Bridged"
+                    domain="[('is_invoice_bridged_dimension', '=', True)]"
+                />
+                <group>
+                    <filter name="group_by_partner_id" string="Customer" domain="[]" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_by_salesperson_id" string="Salesperson" domain="[]" context="{'group_by': 'salesperson_id'}"/>
+                    <filter name="group_by_project_job_type" string="Project Type" domain="[]" context="{'group_by': 'project_job_type'}"/>
+                    <filter name="group_by_product_categ_id" string="Category" domain="[]" context="{'group_by': 'product_categ_id'}"/>
+                    <filter name="group_by_invoice_date_month" string="Month" domain="[]" context="{'group_by': 'invoice_date:month'}"/>
+                    <filter name="group_by_payment_date_month" string="Payment Month" domain="[]" context="{'group_by': 'payment_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_od19_money_in_report_lines" model="ir.actions.act_window">
+        <field name="name">Money In Analysis Lines</field>
+        <field name="res_model">od19.money.in.report.line</field>
+        <field name="view_mode">list,pivot,graph</field>
+        <field name="search_view_id" ref="view_od19_money_in_report_line_search"/>
+        <field name="context">{'search_default_phase1_only': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Generate a report run first, then analyze the snapshot in list, pivot, or graph views.
+            </p>
+            <p>
+                Phase 2A uses cash events at invoice level. Product, category, and project detail remain invoice-bridged.
+            </p>
+        </field>
+    </record>
+</odoo>

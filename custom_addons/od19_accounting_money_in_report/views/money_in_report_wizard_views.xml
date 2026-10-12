@@ -1,0 +1,66 @@
+<odoo>
+    <record id="view_od19_money_in_report_wizard_form" model="ir.ui.view">
+        <field name="name">od19.money.in.report.wizard.form</field>
+        <field name="model">od19.money.in.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Generate Money In Report">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                            <field name="company_id"/>
+                            <field name="phase"/>
+                        </group>
+                        <group>
+                            <field name="job_type_values"/>
+                            <field name="partner_ids" widget="many2many_tags"/>
+                            <field name="salesperson_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="project_ids" widget="many2many_tags"/>
+                        <field name="product_categ_ids" widget="many2many_tags"/>
+                    </group>
+                    <div class="alert alert-info" role="alert">
+                        Leave Customers, Salespersons, Projects, and Product Categories blank to include all records in the current company.
+                    </div>
+                    <group string="Preview Counts" col="3">
+                        <field name="invoice_candidate_count" readonly="1"/>
+                        <field name="matching_invoice_count" readonly="1"/>
+                        <field name="matching_line_count" readonly="1"/>
+                    </group>
+                    <div class="alert alert-info" role="alert" invisible="phase != 'phase1_invoice_based'">
+                        Invoices Found = posted customer invoices in the selected date range and company. Invoices With Matching Lines and Preview Analysis Lines also apply the current filters.
+                    </div>
+                    <div class="alert alert-info" role="alert" invisible="phase != 'phase2_cash_invoice_based'">
+                        Invoices Found = invoices with real cash events in the selected payment date range. Matching counts also apply the current filters and invoice-bridged dimensions.
+                    </div>
+                    <div class="alert alert-warning" role="alert" invisible="phase != 'phase1_invoice_based'">
+                        Phase 1 uses invoice-based recognition. Profit stays preliminary and timing uses stamp date as a proxy when available.
+                    </div>
+                    <div class="alert alert-warning" role="alert" invisible="phase != 'phase2_cash_invoice_based'">
+                        Phase 2A uses cash-based payment events at invoice level. Product, category, and project detail stay invoice-bridged.
+                    </div>
+                </sheet>
+                <footer>
+                    <button
+                        name="action_generate_report"
+                        type="object"
+                        string="Generate Report"
+                        class="btn-primary"
+                    />
+                    <button string="Cancel" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_od19_money_in_report_wizard" model="ir.actions.act_window">
+        <field name="name">Generate Money In Report</field>
+        <field name="res_model">od19.money.in.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_od19_money_in_report_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+</odoo>
