@@ -95,6 +95,7 @@ desktop.ini
 logs/
 
 # Odoo local data
+data/
 data_dir/
 sessions/
 attachments/
