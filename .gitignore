@@ -93,6 +93,11 @@ desktop.ini
 # Logs
 *.log
 logs/
+install_log.txt
+upgrade_log.txt
+
+# Vendored Python libraries (large, environment-specific)
+pylibs/
 
 # Odoo local data
 data/
