@@ -9,6 +9,7 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='partner_id']" position="after">
                     <field name="department_id"/>
+                    <field name="od19_purchase_type"/>
                 </xpath>
             </field>
         </record>
@@ -20,6 +21,7 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='partner_id']" position="after">
                     <field name="department_id" optional="hide"/>
+                    <field name="od19_purchase_type" optional="hide"/>
                 </xpath>
             </field>
         </record>
