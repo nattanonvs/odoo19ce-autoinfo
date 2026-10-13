@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="qc_inspection_view_list" model="ir.ui.view">
+        <field name="name">od19.qc.inspection.list</field>
+        <field name="model">od19.qc.inspection</field>
+        <field name="arch" type="xml">
+            <list string="QC Inspections">
+                <field name="name"/>
+                <field name="inspection_date"/>
+                <field name="inspection_type"/>
+                <field name="partner_id"/>
+                <field name="product_id"/>
+                <field name="picking_id" optional="hide"/>
+                <field name="qty_tested"/>
+                <field name="qty_accepted"/>
+                <field name="result" widget="badge"
+                       decoration-success="result == 'pass'"
+                       decoration-danger="result == 'fail'"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state == 'in_progress'"
+                       decoration-success="state == 'passed'"
+                       decoration-danger="state in ('failed', 'cancelled')"/>
+                <field name="inspector_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="qc_inspection_view_form" model="ir.ui.view">
+        <field name="name">od19.qc.inspection.form</field>
+        <field name="model">od19.qc.inspection</field>
+        <field name="arch" type="xml">
+            <form string="QC Inspection">
+                <header>
+                    <button name="action_start" string="Start" type="object"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_pass" string="Pass" type="object"
+                            class="btn-primary" invisible="state not in ('draft', 'in_progress')"/>
+                    <button name="action_fail" string="Fail" type="object"
+                            invisible="state not in ('draft', 'in_progress')"/>
+                    <button name="action_cancel" string="Cancel" type="object"
+                            invisible="state in ('passed', 'failed', 'cancelled')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,in_progress,passed"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="inspection_type"/>
+                            <field name="inspection_date"/>
+                            <field name="inspector_id"/>
+                        </group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="picking_id"/>
+                            <field name="product_id"/>
+                            <field name="lot_id"/>
+                        </group>
+                    </group>
+                    <group string="Quantities">
+                        <field name="qty_tested"/>
+                        <field name="qty_accepted"/>
+                        <field name="qty_rejected" readonly="1"/>
+                    </group>
+                    <group string="Inspection Lines">
+                        <field name="line_ids">
+                            <list editable="bottom">
+                                <field name="parameter" required="1"/>
+                                <field name="expected_value"/>
+                                <field name="actual_value"/>
+                                <field name="result" widget="badge"
+                                       decoration-success="result == 'pass'"
+                                       decoration-danger="result == 'fail'"/>
+                                <field name="notes"/>
+                            </list>
+                        </field>
+                    </group>
+                    <group>
+                        <field name="result" widget="badge"
+                               decoration-success="result == 'pass'"
+                               decoration-danger="result == 'fail'"/>
+                        <field name="notes"/>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="qc_inspection_view_search" model="ir.ui.view">
+        <field name="name">od19.qc.inspection.search</field>
+        <field name="model">od19.qc.inspection</field>
+        <field name="arch" type="xml">
+            <search string="QC Inspections">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="product_id"/>
+                <field name="inspection_type"/>
+                <field name="state"/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="In Progress" name="in_progress" domain="[('state', '=', 'in_progress')]"/>
+                <filter string="Passed" name="passed" domain="[('state', '=', 'passed')]"/>
+                <filter string="Failed" name="failed" domain="[('state', '=', 'failed')]"/>
+                <group>
+                    <filter string="Type" name="type" context="{'group_by': 'inspection_type'}"/>
+                    <filter string="Product" name="product" context="{'group_by': 'product_id'}"/>
+                    <filter string="Status" name="status" context="{'group_by': 'state'}"/>
+                    <filter string="Inspector" name="inspector" context="{'group_by': 'inspector_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="qc_inspection_action" model="ir.actions.act_window">
+        <field name="name">QC Inspections</field>
+        <field name="res_model">od19.qc.inspection</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="qc_inspection_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create a QC inspection</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_qc_inspection" name="QC Inspections"
+              parent="stock.menu_stock_inventory_control" action="qc_inspection_action" sequence="60"/>
+</odoo>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="stock_picking_form_view_qc" model="ir.ui.view">
+        <field name="name">stock.picking.form.qc</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_qc_inspections" type="object"
+                        class="oe_stat_button" icon="fa-clipboard-check">
+                    <field name="qc_inspection_count" widget="statinfo" string="QC"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+</odoo>
