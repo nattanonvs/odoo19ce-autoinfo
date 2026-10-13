@@ -18,15 +18,17 @@
              </t>
     ============================================================ -->
     <template id="iso_footer">
-        <!-- Full-width flex row: code on left, code+rev+date on right.
-             Renders at the bottom of the wkhtmltopdf page footer. -->
-        <div style="display: flex; justify-content: space-between; width: 100%; font-size: 9px; color: #333;">
+        <!-- Full-width row: code on left, code+rev+date on right.
+             Renders at the bottom of the wkhtmltopdf page footer.
+             Uses float (not flexbox) because wkhtmltopdf's old WebKit
+             engine does not reliably support justify-content: space-between. -->
+        <div style="width: 100%; overflow: hidden; font-size: 9px; color: #333;">
             <!-- Left: document code -->
-            <span>
+            <span style="float: left;">
                 <t t-out="iso_code or (iso_document and iso_document.code) or ''"/>
             </span>
             <!-- Right: code + revision + effective date -->
-            <span>
+            <span style="float: right;">
                 <t t-out="iso_code or (iso_document and iso_document.code) or ''"/>
                 <t t-if="iso_revision or (iso_document and iso_document.revision)">
                     &#160;&#160;Rev.<t t-out="iso_revision or (iso_document and iso_document.revision) or '00'"/>
@@ -55,23 +57,25 @@
          Reads ISO document from report_action and renders both
          bottom corners. Used by external_layout_footer.xml.
 
-         NOTE: We use a flexbox row (not position:absolute) because
-         Odoo extracts the footer div node and passes it to
-         wkhtmltopdf as the page footer. Inside that footer document,
-         position:absolute is relative to the short footer body, not
-         the full page, so absolute positioning gets clipped. A full-
-         width flex row at the end of the footer content renders at the
-         bottom of every page correctly.
+         NOTE: We use float (not position:absolute or flexbox) because:
+         - Odoo extracts the footer div node and passes it to
+           wkhtmltopdf as the page footer. Inside that footer document,
+           position:absolute is relative to the short footer body, not
+           the full page, so absolute positioning gets clipped.
+         - wkhtmltopdf's old WebKit engine does not reliably support
+           justify-content: space-between on flex containers, so both
+           spans would stack on the left. float:left / float:right
+           works correctly across all layouts.
     ============================================================ -->
     <template id="iso_footer_corner">
         <t t-if="report_action and report_action.od19_iso_show_footer and report_action.od19_iso_document_id">
-            <div style="display: flex; justify-content: space-between; width: 100%; font-size: 9px; color: #333; margin-top: 2px;">
+            <div style="width: 100%; overflow: hidden; font-size: 9px; color: #333; margin-top: 2px;">
                 <!-- Bottom-left corner: document code -->
-                <span>
+                <span style="float: left;">
                     <t t-out="report_action.od19_iso_document_id.code"/>
                 </span>
                 <!-- Bottom-right corner: code + revision + effective date -->
-                <span>
+                <span style="float: right;">
                     <t t-out="report_action.od19_iso_document_id.code"/>
                     <t t-if="report_action.od19_iso_document_id.revision">
                         &#160;&#160;Rev.<t t-out="report_action.od19_iso_document_id.revision"/>

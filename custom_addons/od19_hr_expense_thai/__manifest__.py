@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'HR Expense Thai Localization',
+    'author': 'OD19',
     'version': '19.0.1.0.0',
     'category': 'Human Resources/Expenses',
     'summary': 'Thai HR expense extensions: cash reimbursement, multi-tier approval',

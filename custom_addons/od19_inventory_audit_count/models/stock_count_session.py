@@ -19,7 +19,6 @@ class StockCountSession(models.Model):
         ],
         required=True,
         default="scheduled",
-        tracking=True,
     )
     line_ids = fields.One2many("od19.stock.count.line", "session_id")
     variance_count = fields.Integer(

@@ -1,5 +1,6 @@
 {
     "name": "OD19 Sales Contract Core",
+    "author": "OD19",
     "version": "19.0.1.0.0",
     "depends": ["sale_management", "mail", "od19_sales_project_context"],
     "data": [

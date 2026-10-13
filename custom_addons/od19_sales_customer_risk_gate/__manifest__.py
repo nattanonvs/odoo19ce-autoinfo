@@ -1,5 +1,6 @@
 {
     "name": "OD19 Sales Customer Risk and Credit Gate",
+    "author": "OD19",
     "summary": "Block blacklisted customers and unapproved credit sales; accounting-owned credit approval",
     "version": "19.0.1.0.0",
     "category": "Sales/Sales",

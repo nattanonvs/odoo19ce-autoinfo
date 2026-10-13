@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Quality Control Inspection',
+    'author': 'OD19',
     'version': '19.0.1.0.0',
     'category': 'Inventory/Quality',
     'summary': 'QC inspections for incoming and outgoing products',

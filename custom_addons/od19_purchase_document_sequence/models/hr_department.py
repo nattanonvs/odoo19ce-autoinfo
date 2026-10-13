@@ -5,7 +5,7 @@ class HrDepartment(models.Model):
     _inherit = "hr.department"
 
     od19_dept_code = fields.Char(
-        string="Department Code",
+        string="OD19 Dept Code",
         size=10,
         help="Short code used in document numbering (e.g. B for BA, T for TA, I for IA, F for FA, D for F/DES).",
     )

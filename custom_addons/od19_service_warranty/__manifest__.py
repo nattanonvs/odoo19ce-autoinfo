@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Service Warranty & Claims',
+    'author': 'OD19',
     'version': '19.0.1.0.0',
     'category': 'Services/After-Sales',
     'summary': 'Warranty management and RMA/claims on top of repair',

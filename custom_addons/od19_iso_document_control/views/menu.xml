@@ -19,6 +19,12 @@
               action="action_iso_document"
               sequence="10"/>
 
+    <!-- Management submenu (shared by other ISO modules) -->
+    <menuitem id="menu_iso_management"
+              name="การจัดการ ISO"
+              parent="menu_iso_root"
+              sequence="50"/>
+
     <!-- Configuration submenu -->
     <menuitem id="menu_iso_configuration"
               name="ตั้งค่า"

@@ -13,6 +13,7 @@ TICKET_STATE = [
 
 
 class HelpdeskTicket(models.Model):
+    _name = "helpdesk.ticket"
     _inherit = ["helpdesk.ticket", "tier.validation"]
 
     _state_field = "state"

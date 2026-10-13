@@ -11,12 +11,12 @@ class ResCompany(models.Model):
         help="Short tagline shown on the website homepage hero section.",
     )
     od19_website_primary_color = fields.Char(
-        string="Primary Color",
+        string="Website Primary Color",
         default="#9E2424",
         help="Primary brand color used across the website (hex).",
     )
     od19_website_secondary_color = fields.Char(
-        string="Secondary Color",
+        string="Website Secondary Color",
         default="#f39200",
         help="Secondary / accent brand color used across the website (hex).",
     )

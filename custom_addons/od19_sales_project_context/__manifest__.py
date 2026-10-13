@@ -1,5 +1,6 @@
 {
     "name": "OD19 Sales Project Context",
+    "author": "OD19",
     "version": "19.0.1.0.0",
     "depends": [
         "sale_management",

@@ -1,5 +1,6 @@
 {
     "name": "OD19 Project & Analytic Accounting",
+    "author": "OD19",
     "version": "19.0.1.0.0",
     "category": "Services/Project",
     "summary": "Extend standard project.project with Job Number, Job Type, Department, Owner, Contractors, and auto analytic account",

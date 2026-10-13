@@ -50,6 +50,11 @@ and from the Help icon on each relevant screen.
         'od19_iso_management_review',
         'od19_iso_supplier_quality',
         'od19_knowledge_enhanced',
+        'od19_product_return',
+        'od19_notification_multi_channel',
+        'od19_accounting_money_in_report',
+        'od19_thai_tax_reports',
+        'od19_inventory_execution_control',
     ],
     'assets': {
         'web.assets_backend': [
@@ -78,6 +83,11 @@ and from the Help icon on each relevant screen.
             'od19_user_guide_tours/static/src/tours/iso_management_review_tour.js',
             'od19_user_guide_tours/static/src/tours/iso_supplier_quality_tour.js',
             'od19_user_guide_tours/static/src/tours/knowledge_tour.js',
+            'od19_user_guide_tours/static/src/tours/product_return_tour.js',
+            'od19_user_guide_tours/static/src/tours/notification_tour.js',
+            'od19_user_guide_tours/static/src/tours/money_in_report_tour.js',
+            'od19_user_guide_tours/static/src/tours/thai_tax_reports_tour.js',
+            'od19_user_guide_tours/static/src/tours/valuation_by_lot_tour.js',
         ],
     },
     'installable': True,

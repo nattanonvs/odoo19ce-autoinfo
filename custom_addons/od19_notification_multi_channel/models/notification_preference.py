@@ -37,13 +37,10 @@ class NotificationPreference(models.Model):
         required=True,
     )
 
-    _sql_constraints = [
-        (
-            "user_event_uniq",
-            "unique(user_id, event)",
-            "Only one preference per event per user.",
-        ),
-    ]
+    _user_event_uniq = models.Constraint(
+        "unique(user_id, event)",
+        "Only one preference per event per user.",
+    )
 
     @api.model
     def get_channels(self, user_id, event="default"):

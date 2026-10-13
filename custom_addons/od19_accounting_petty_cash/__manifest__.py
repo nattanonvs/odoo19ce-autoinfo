@@ -1,5 +1,6 @@
 {
     "name": "OD19 Accounting - Petty Cash",
+    "author": "OD19",
     "version": "19.0.1.0.0",
     "category": "Accounting/Payments",
     "summary": "Petty cash fund management with expense and replenishment tracking",

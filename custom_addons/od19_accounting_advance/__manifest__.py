@@ -1,5 +1,6 @@
 {
     "name": "OD19 Accounting - Advance Payment",
+    "author": "OD19",
     "version": "19.0.1.0.0",
     "category": "Accounting/Payments",
     "summary": "Customer and supplier advance payment tracking",

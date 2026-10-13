@@ -13,7 +13,7 @@ class SaleOrder(models.Model):
     )
     od19_project_id = fields.Many2one(
         "project.project",
-        string="Project",
+        string="OD19 Project",
         tracking=True,
     )
     od19_project_owner_id = fields.Many2one(

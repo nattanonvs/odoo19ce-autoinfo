@@ -42,13 +42,10 @@ class ProjectProject(models.Model):
         domain="[('od19_is_contractor', '=', True)]",
     )
 
-    _sql_constraints = [
-        (
-            "job_no_unique",
-            "unique(job_no)",
-            "Job Number must be unique.",
-        ),
-    ]
+    _job_no_unique = models.Constraint(
+        "unique(job_no)",
+        "Job Number must be unique.",
+    )
 
     @api.constrains("job_no")
     def _check_job_no_uniqueness(self):

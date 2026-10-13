@@ -70,7 +70,6 @@ class NotificationQueue(models.Model):
         default="pending",
         required=True,
         index=True,
-        tracking=True,
     )
     retry_count = fields.Integer(
         string="Retry Count",

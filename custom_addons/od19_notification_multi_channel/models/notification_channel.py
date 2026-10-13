@@ -20,13 +20,10 @@ class NotificationChannel(models.Model):
     sequence = fields.Integer(string="Sequence", default=10)
     active = fields.Boolean(default=True)
 
-    _sql_constraints = [
-        (
-            "channel_type_uniq",
-            "unique(channel_type)",
-            "Channel type must be unique.",
-        ),
-    ]
+    _channel_type_uniq = models.Constraint(
+        "unique(channel_type)",
+        "Channel type must be unique.",
+    )
 
     @api.model_create_multi
     def create(self, vals_list):

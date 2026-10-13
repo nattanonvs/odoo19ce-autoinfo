@@ -21,7 +21,7 @@
                             </group>
                         </group>
                         <group string="Stamp Data Source">
-                            <div class="alert alert-info">
+                            <div class="alert alert-info" role="alert">
                                 <ul>
                                     <li><strong>SIGN</strong> = the user who confirmed this order</li>
                                     <li><strong>DATE</strong> = Stamp Date (above)</li>
@@ -30,7 +30,7 @@
                                     <li><strong>CODE</strong> = Stamp Code (above)</li>
                                 </ul>
                             </div>
-                            <div class="alert alert-warning">
+                            <div class="alert alert-warning" role="alert">
                                 The red <strong>CONFIRMED</strong> stamp box appears on the
                                 printed quotation only when this order is confirmed
                                 <em>and</em> Stamp Date is filled in. Use the

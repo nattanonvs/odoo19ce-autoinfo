@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Stock Valuation Adjustment',
+    'author': 'OD19',
     'version': '19.0.1.0.0',
     'category': 'Inventory/Stock Valuation',
     'summary': 'Adjust inventory valuation with audit trail',

@@ -1,6 +1,6 @@
 # Gap Analysis: Odoo 15 (custom15_autoinfo) → Odoo 19 (od19_*)
 
-**วันที่วิเคราะห์:** 2026-10-13
+**วันที่วิเคราะห์:** 2026-10-13 (อัปเดตใหม่: 2026-10-14)
 **วิธีการ:** ตรวจสอบ source code ของทุกโมดูลใน `custom15_autoinfo` แล้วเทียบกับโมดูล `od19_*` ใน Odoo 19 (ตรวจลึกถึงระดับ model file ไม่ใช่แค่ manifest)
 
 **คำอธิบายสัญลักษณ์:**
@@ -10,7 +10,127 @@
 
 ---
 
-## สรุปภาพรวม
+## 🔄 อัปเดตการประเมินใหม่ (2026-10-14)
+
+### โมดูลใหม่ที่เพิ่มมาตั้งแต่ครั้งก่อน
+
+| โมดูลใหม่ | คำอธิบาย | ครอบคลุม gap ที่เคยขาด |
+|-----------|----------|------------------------|
+| `od19_quotation_document_sequence` | Quotation sequence แยกตามแผนก + revision (R01/R02) | ✅ Sequence Quotation แยกตามแผนก |
+| `od19_project_document_sequence` | Job No. auto-sequence by dept + project type (J/SV/PM/S) | ✅ Job No. auto-sequence, ✅ dept Many2one |
+| `od19_purchase_document_sequence` | PR/PO sequence แยกตามแผนก | ✅ PR/PO sequence แยกตามแผนก |
+| `od19_accounting_document_sequence` | Accounting sequences (voucher, billing, WHT, VAT, etc.) | 🟡 บางส่วน |
+| `od19_partner_document_sequence` | Partner document sequences | - |
+| `od19_partner_thai_fields` | Thai-specific partner fields (tax name, branch code, etc.) | - |
+| `od19_accounting_payment_fee` | Payment fee (bank charges) on payments | ✅ Payment fee |
+| `od19_service_warranty` | Warranty management and RMA/claims | 🟡 Warranty (แต่เป็น RMA ไม่ใช่ report master) |
+| `od19_asset_loan` | Asset/tool loan management + calibration tracking | - |
+| `od19_sales_confirm_stamp` | Red CONFIRMED stamp on printed quotations | - |
+| `od19_thai_localization_base` | Sarabun font + Buddhist Era flag | - |
+| `od19_iso_*` (8 โมดูล) | ISO 9001/14001 management modules | - |
+| `od19_accounting_analytic_require` | Analytic account requirement | - |
+| `od19_accounting_payment_voucher_reports` | Payment voucher reports | - |
+| `od19_helpdesk_extension` | Helpdesk extension | - |
+| `od19_product_return` | Product return management | - |
+| `od19_service_card` | Service card management | - |
+| `od19_user_guide_tours` | User guide tours | - |
+| `od19_website` | Website module | - |
+
+### OCA modules ที่มีอยู่แล้วใน third_party (สามารถใช้ได้)
+
+| OCA Module | ครอบคลุม gap ที่เคยขาด |
+|------------|------------------------|
+| `l10n_th_amount_to_text` | ✅ convert_num_th (แปลงตัวเลขเป็นข้อความไทย) |
+| `l10n_th_base_sequence` | 🟡 มี Buddhist Era year แต่ไม่ได้ skip date constraint |
+| `auditlog` (server-tools) | ✅ Track deleted records |
+| `report_xlsx` (reporting-engine) | ✅ OCA base XLSX report engine |
+| `account_asset_management` | 🟡 Base asset management แต่ไม่มี disposal workflow |
+
+### สรุปภาพรวมใหม่ (หลังอัปเดต)
+
+| โดเมน | จำนวนโมดูล OD15 | ครบถ้วน | บางส่วน | ยังไม่มี | เปลี่ยนแปลง |
+|--------|-----------------|---------|---------|----------|-------------|
+| Sales | 5 | 1 | 2 | 2 | +1 ครบ (sequence) |
+| Purchase | 3 | 1 | 1 | 1 | +1 ครบ (sequence) |
+| Accounting | 8 | 3 | 2 | 3 | +2 ครบ (fee, convert_num) |
+| Project | 5 | 1 | 1 | 3 | +1 ครบ (job no) |
+| HR/Expense/Fleet | 4 | 0 | 1 | 3 | ไม่เปลี่ยน |
+| Stock/Inventory | 4 | 1 | 2 | 1 | ไม่เปลี่ยน |
+| Reports/Misc | 9 | 3 | 2 | 4 | +2 ครบ (auditlog, xlsx) |
+| **รวม** | **38** | **10** | **11** | **17** | **+7 ครบ** |
+
+### ฟีเจอร์ที่เคยขาด แต่ตอนนี้มีแล้ว (10 รายการ)
+
+1. ✅ **Sequence Quotation แยกตามแผนก** → `od19_quotation_document_sequence`
+2. ✅ **Job No. auto-sequence by dept/job_type** → `od19_project_document_sequence`
+3. ✅ **PR/PO sequence แยกตามแผนก** → `od19_purchase_document_sequence`
+4. ✅ **Payment fee** → `od19_accounting_payment_fee`
+5. ✅ **convert_num_th (แปลงตัวเลขเป็นข้อความไทย)** → OCA `l10n_th_amount_to_text`
+6. ✅ **Track deleted records** → OCA `auditlog`
+7. ✅ **OCA base XLSX report engine** → OCA `report_xlsx`
+8. ✅ **Money In Report** → `od19_accounting_money_in_report`
+9. ✅ **Delivery reason flags** → `od19_delivery_label`
+10. ✅ **Purchase Procurement Core** → `od19_purchase_procurement_core`
+
+### ฟีเจอร์ที่ยังขาดสำคัญที่สุด (High Priority - ยังไม่มี)
+
+#### Sales
+- ❌ 7 master report models (price, delivery, payment product/engineering, validity, warranty, credit)
+- ❌ Wizard เปลี่ยนวันที่จัดส่งทั้งเอกสาร
+- ❌ Wizard "Get Sale Order Lines" บน invoice
+- ❌ Downpayment invoice linking (origin_second/po_origin)
+
+#### Purchase
+- ❌ Trade Discount Wizard
+- ❌ 5 master report models (warranty, delivery_to, term, shipment, weight)
+- ❌ PR line pricing (price_unit, discount, taxes)
+- ❌ Analytic จาก project บน PR/PO
+- ❌ vendor_ref / your_ref บน PR
+
+#### Accounting
+- ❌ Asset Disposal Workflow (cancel draft moves, revert, linked docs, safe cron)
+- ❌ WHT PDF Print (4 แบบ: ภงด.1, ภงด.3, ภงด.53, ภงด.53 ทริส)
+- ❌ WHT base computed จาก selected invoices + wht.type model
+- ❌ Cancel Reason Wizard บน invoice
+- ❌ Payer/Payee บน prepayment
+- ❌ Create vendor bill from PO wizard
+- ❌ BOT URL config
+- ❌ Prepayment actual due date (+30 days)
+
+#### Project
+- ❌ Project Risk Report (SQL view + risk score)
+- ❌ Hierarchical Project Type model
+- ❌ Task deadline email notification cron
+- ❌ No backward stage change
+- ❌ Job Assignment Document fields
+- ❌ SO/PO linking จาก project
+
+#### HR/Expense/Fleet
+- ❌ Department head as auto approver
+- ❌ Cash tracking state (expense) + return/reset wizards
+- ❌ XLSX expense reports
+- ❌ Delegate approvals
+- ❌ WHT for expense payment
+- ❌ Insurance/Act expire date + email notification cron
+- ❌ Service done notification
+
+#### Stock/Inventory
+- ❌ FIFO valuation service + monthly stock report email cron
+- ❌ FIFO as-of wizard
+- ❌ BF revaluation
+- ❌ stock.picking.additional.line model
+- ❌ Signature chain auto-resolve (sale user → dept manager)
+
+#### Misc
+- ❌ Document Signing (sign)
+- ❌ logo_iso field
+- ❌ Skip date/sequence constraint (l10n_th_base_sequence มีแค่ BE year)
+- ❌ Runtime guard tool
+- ❌ Abstract service preserve sale_line_ids/purchase_line_id
+
+---
+
+## สรุปภาพรวม (เวอร์ชันเดิม 2026-10-13)
 
 | โดเมน | จำนวนโมดูล OD15 | ครบถ้วน | บางส่วน | ยังไม่มี |
 |--------|-----------------|---------|---------|----------|

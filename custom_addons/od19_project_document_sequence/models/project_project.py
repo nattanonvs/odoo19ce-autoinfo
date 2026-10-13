@@ -45,7 +45,7 @@ class ProjectProject(models.Model):
     )
     od19_department_id = fields.Many2one(
         comodel_name="hr.department",
-        string="Department",
+        string="OD19 Department",
         tracking=True,
         index=True,
     )
