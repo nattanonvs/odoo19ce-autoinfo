@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="warranty_claim_view_list" model="ir.ui.view">
+        <field name="name">od19.warranty.claim.list</field>
+        <field name="model">od19.warranty.claim</field>
+        <field name="arch" type="xml">
+            <list string="Warranty Claims">
+                <field name="name"/>
+                <field name="claim_date"/>
+                <field name="partner_id"/>
+                <field name="product_id"/>
+                <field name="lot_id"/>
+                <field name="claim_type"/>
+                <field name="under_warranty"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state in ('confirmed', 'in_progress')"
+                       decoration-success="state == 'done'"
+                       decoration-danger="state in ('rejected', 'cancelled')"/>
+                <field name="user_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="warranty_claim_view_form" model="ir.ui.view">
+        <field name="name">od19.warranty.claim.form</field>
+        <field name="model">od19.warranty.claim</field>
+        <field name="arch" type="xml">
+            <form string="Warranty Claim">
+                <header>
+                    <button name="action_confirm" string="Confirm" type="object"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_start" string="Start" type="object"
+                            invisible="state != 'confirmed'"/>
+                    <button name="action_done" string="Done" type="object"
+                            class="btn-primary" invisible="state != 'in_progress'"/>
+                    <button name="action_reject" string="Reject" type="object"
+                            invisible="state not in ('draft', 'confirmed', 'in_progress')"/>
+                    <button name="action_cancel" string="Cancel" type="object"
+                            invisible="state in ('done', 'rejected', 'cancelled')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,in_progress,done"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="claim_date"/>
+                            <field name="partner_id"/>
+                            <field name="claim_type"/>
+                        </group>
+                        <group>
+                            <field name="product_id"/>
+                            <field name="lot_id"/>
+                            <field name="under_warranty" readonly="1"/>
+                            <field name="user_id"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="description"/>
+                    </group>
+                    <group string="Repair">
+                        <field name="repair_order_id"/>
+                        <button name="action_create_repair_order" string="Create Repair Order"
+                                type="object" class="btn-secondary"
+                                invisible="repair_order_id or state in ('done', 'rejected', 'cancelled')"/>
+                    </group>
+                    <group string="Resolution" invisible="state not in ('done', 'rejected')">
+                        <field name="resolution"/>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="warranty_claim_view_search" model="ir.ui.view">
+        <field name="name">od19.warranty.claim.search</field>
+        <field name="model">od19.warranty.claim</field>
+        <field name="arch" type="xml">
+            <search string="Warranty Claims">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="product_id"/>
+                <field name="state"/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Confirmed" name="confirmed" domain="[('state', '=', 'confirmed')]"/>
+                <filter string="In Progress" name="in_progress" domain="[('state', '=', 'in_progress')]"/>
+                <filter string="Done" name="done" domain="[('state', '=', 'done')]"/>
+                <group>
+                    <filter string="Customer" name="partner" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Product" name="product" context="{'group_by': 'product_id'}"/>
+                    <filter string="Type" name="type" context="{'group_by': 'claim_type'}"/>
+                    <filter string="Status" name="status" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="warranty_claim_action" model="ir.actions.act_window">
+        <field name="name">Warranty Claims</field>
+        <field name="res_model">od19.warranty.claim</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="warranty_claim_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create a warranty claim</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_warranty_claim" name="Warranty Claims"
+              parent="repair.menu_repair_order" action="warranty_claim_action" sequence="10"/>
+</odoo>
