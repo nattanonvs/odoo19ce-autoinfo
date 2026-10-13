@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Sequence -->
+    <record id="sequence_od19_transport_order" model="ir.sequence">
+        <field name="name">Transport Order</field>
+        <field name="code">od19.transport.order</field>
+        <field name="prefix">TO/%(year)s/</field>
+        <field name="padding">5</field>
+    </record>
+
+    <!-- Transport Order List View -->
+    <record id="od19_transport_order_list" model="ir.ui.view">
+        <field name="name">od19.transport.order.list</field>
+        <field name="model">od19.transport.order</field>
+        <field name="arch" type="xml">
+            <list string="Transport Orders">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="vehicle_id"/>
+                <field name="driver_id"/>
+                <field name="route_id"/>
+                <field name="origin_location"/>
+                <field name="destination_location"/>
+                <field name="distance_km"/>
+                <field name="transport_cost"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state == 'confirmed'"
+                       decoration-primary="state == 'in_transit'"
+                       decoration-success="state == 'delivered'"
+                       decoration-danger="state == 'cancelled'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Transport Order Form View -->
+    <record id="od19_transport_order_form" model="ir.ui.view">
+        <field name="name">od19.transport.order.form</field>
+        <field name="model">od19.transport.order</field>
+        <field name="arch" type="xml">
+            <form string="Transport Order">
+                <header>
+                    <button name="action_confirm" string="Confirm" type="object"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_start_transit" string="Start Transit" type="object"
+                            class="btn-primary" invisible="state != 'confirmed'"/>
+                    <button name="action_deliver" string="Deliver" type="object"
+                            class="btn-primary" invisible="state != 'in_transit'"/>
+                    <button name="action_cancel" string="Cancel" type="object"
+                            invisible="state in ('delivered', 'cancelled')"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,confirmed,in_transit,delivered"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="date"/>
+                            <field name="vehicle_id"/>
+                            <field name="driver_id"/>
+                        </group>
+                        <group>
+                            <field name="route_id"/>
+                            <field name="origin_location"/>
+                            <field name="destination_location"/>
+                            <field name="distance_km"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="transport_cost"/>
+                            <field name="currency_id"/>
+                        </group>
+                        <group>
+                            <field name="departure_time" readonly="1"/>
+                            <field name="arrival_time" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Transfers">
+                            <field name="picking_ids">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="partner_id"/>
+                                    <field name="state"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes">
+                            <field name="notes"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Transport Order Search View -->
+    <record id="od19_transport_order_search" model="ir.ui.view">
+        <field name="name">od19.transport.order.search</field>
+        <field name="model">od19.transport.order</field>
+        <field name="arch" type="xml">
+            <search string="Transport Orders">
+                <field name="name"/>
+                <field name="vehicle_id"/>
+                <field name="driver_id"/>
+                <field name="route_id"/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Confirmed" name="confirmed" domain="[('state', '=', 'confirmed')]"/>
+                <filter string="In Transit" name="in_transit" domain="[('state', '=', 'in_transit')]"/>
+                <filter string="Delivered" name="delivered" domain="[('state', '=', 'delivered')]"/>
+                <separator/>
+                <filter string="Vehicle" name="vehicle" context="{'group_by': 'vehicle_id'}"/>
+                <filter string="Driver" name="driver" context="{'group_by': 'driver_id'}"/>
+                <filter string="State" name="state" context="{'group_by': 'state'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Transport Route List View -->
+    <record id="od19_transport_route_list" model="ir.ui.view">
+        <field name="name">od19.transport.route.list</field>
+        <field name="model">od19.transport.route</field>
+        <field name="arch" type="xml">
+            <list string="Transport Routes">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="origin"/>
+                <field name="destination"/>
+                <field name="distance_km"/>
+                <field name="estimated_hours"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Transport Route Form View -->
+    <record id="od19_transport_route_form" model="ir.ui.view">
+        <field name="name">od19.transport.route.form</field>
+        <field name="model">od19.transport.route</field>
+        <field name="arch" type="xml">
+            <form string="Transport Route">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="code"/>
+                        </group>
+                        <group>
+                            <field name="origin"/>
+                            <field name="destination"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="distance_km"/>
+                        </group>
+                        <group>
+                            <field name="estimated_hours"/>
+                        </group>
+                    </group>
+                    <field name="active" invisible="1"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Actions -->
+    <record id="action_od19_transport_order" model="ir.actions.act_window">
+        <field name="name">Transport Orders</field>
+        <field name="res_model">od19.transport.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="od19_transport_order_search"/>
+    </record>
+
+    <record id="action_od19_transport_route" model="ir.actions.act_window">
+        <field name="name">Transport Routes</field>
+        <field name="res_model">od19.transport.route</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Menu -->
+    <menuitem id="menu_od19_transportation" name="Transportation"
+              parent="stock.menu_stock_inventory_control" sequence="50"/>
+    <menuitem id="menu_od19_transport_order" name="Transport Orders"
+              parent="menu_od19_transportation"
+              action="action_od19_transport_order" sequence="10"/>
+    <menuitem id="menu_od19_transport_route" name="Transport Routes"
+              parent="menu_od19_transportation"
+              action="action_od19_transport_route" sequence="20"/>
+
+</odoo>
