@@ -26,7 +26,7 @@ class TestProcurementIntegration(TransactionCase):
                 "od19_is_project_owner": True,
             }
         )
-        self.project = self.env["od19.sales.project"].create(
+        self.project = self.env["project.project"].create(
             {
                 "name": "Integrated Project",
                 "project_owner_id": self.owner.id,

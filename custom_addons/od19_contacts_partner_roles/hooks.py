@@ -6,11 +6,11 @@ ROLE_FIELD_BY_KIND = {
 
 
 def _has_sales_role_sources(env):
-    return "sale.order" in env.registry and "od19.sales.project" in env.registry
+    return "sale.order" in env.registry and "project.project" in env.registry
 
 
 def _collect_sales_partner_role_ids(env):
-    project_model = env["od19.sales.project"].sudo()
+    project_model = env["project.project"].sudo()
     sale_order_model = env["sale.order"].sudo()
 
     return {

@@ -40,7 +40,7 @@ class PurchaseOrderLine(models.Model):
         readonly=True,
         precompute=True,
     )
-    od19_project_id = fields.Many2one("od19.sales.project", string="Project")
+    od19_project_id = fields.Many2one("project.project", string="Project")
     od19_budget_reference = fields.Char(string="Budget Reference")
     od19_budget_warning = fields.Boolean(
         string="Budget Warning",

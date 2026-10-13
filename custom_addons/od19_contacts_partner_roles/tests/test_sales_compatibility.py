@@ -10,11 +10,9 @@ class TestSalesCompatibility(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.project_model = cls.env["od19.sales.project"]
+        cls.project_model = cls.env["project.project"]
         cls.sale_order_model = cls.env["sale.order"]
-        cls.project_form_view = cls.env.ref(
-            "od19_sales_project_context.view_od19_sales_project_form"
-        )
+        cls.project_form_view = cls.env.ref("project.edit_project")
         cls.sale_order_form_view = cls.env.ref("sale.view_order_form")
 
     def _get_arch(self, model, view, view_type):
@@ -330,7 +328,7 @@ class TestSalesCompatibility(TransactionCase):
 
         self.env.cr.execute(
             """
-            UPDATE od19_sales_project
+            UPDATE project_project
                SET project_owner_id = %s
              WHERE id = %s
             """,
@@ -352,7 +350,7 @@ class TestSalesCompatibility(TransactionCase):
             """,
             [tuple((company_owner + person_owner).ids)],
         )
-        self.env["od19.sales.project"].invalidate_model(["project_owner_id"])
+        self.env["project.project"].invalidate_model(["project_owner_id"])
         self.env["sale.order"].invalidate_model(["od19_project_owner_id"])
         self.env["res.partner"].invalidate_model(["od19_is_project_owner"])
 
@@ -375,15 +373,15 @@ class TestSalesCompatibility(TransactionCase):
 
         self.env.cr.execute(
             """
-            DELETE FROM od19_sales_project_res_partner_rel
-             WHERE od19_sales_project_id = %s
+            DELETE FROM project_contractor_rel
+             WHERE project_id = %s
             """,
             [project.id],
         )
         self.env.cr.execute(
             """
-            INSERT INTO od19_sales_project_res_partner_rel
-                (od19_sales_project_id, res_partner_id)
+            INSERT INTO project_contractor_rel
+                (project_id, partner_id)
             VALUES (%s, %s)
             """,
             [project.id, person_contractor.id],
@@ -396,7 +394,7 @@ class TestSalesCompatibility(TransactionCase):
             """,
             [tuple((contractor_company + person_contractor).ids)],
         )
-        self.env["od19.sales.project"].invalidate_model(["contractor_ids"])
+        self.env["project.project"].invalidate_model(["contractor_ids"])
         self.env["res.partner"].invalidate_model(["od19_is_contractor"])
 
         hooks.backfill_sales_partner_roles(self.env)

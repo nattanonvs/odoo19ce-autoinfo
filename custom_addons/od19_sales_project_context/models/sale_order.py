@@ -11,24 +11,26 @@ class SaleOrder(models.Model):
         required=True,
         tracking=True,
     )
-    od19_project_id = fields.Many2one("od19.sales.project", tracking=True)
-    od19_project_owner_id = fields.Many2one("res.partner", tracking=True)
+    od19_project_id = fields.Many2one(
+        "project.project",
+        string="Project",
+        tracking=True,
+    )
+    od19_project_owner_id = fields.Many2one(
+        "res.partner",
+        string="Project Owner",
+        tracking=True,
+    )
 
-    @api.constrains("partner_id", "od19_project_owner_id")
-    def _check_partner_roles(self):
+    @api.onchange("od19_project_id")
+    def _onchange_od19_project_id(self):
         for order in self:
-            if order.partner_id and not order.partner_id.od19_is_commercial_customer:
-                raise ValidationError(
-                    "Customer must have the Commercial Customer role."
+            if order.od19_project_id:
+                order.od19_project_owner_id = (
+                    order.od19_project_id.project_owner_id
                 )
-
-            if (
-                order.od19_project_owner_id
-                and not order.od19_project_owner_id.od19_is_project_owner
-            ):
-                raise ValidationError(
-                    "Project owner on sale order must have the Project Owner role."
-                )
+            else:
+                order.od19_project_owner_id = False
 
     @api.constrains("od19_project_id", "od19_project_owner_id")
     def _check_project_owner_consistency(self):

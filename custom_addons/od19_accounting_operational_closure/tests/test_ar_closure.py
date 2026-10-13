@@ -27,7 +27,7 @@ class TestAccountingARClosure(AccountTestInvoicingCommon):
                 "od19_is_project_owner": True,
             }
         )
-        cls.project = cls.env["od19.sales.project"].create(
+        cls.project = cls.env["project.project"].create(
             {
                 "name": "AR Closure Project",
                 "project_owner_id": cls.owner.id,

@@ -66,7 +66,7 @@ class TestInventoryExecution(TransactionCase):
         return self.env["stock.move"].create(values)
 
     def _create_project(self):
-        return self.env["od19.sales.project"].create(
+        return self.env["project.project"].create(
             {
                 "name": "Inventory Execution Project",
                 "project_owner_id": self.owner.id,

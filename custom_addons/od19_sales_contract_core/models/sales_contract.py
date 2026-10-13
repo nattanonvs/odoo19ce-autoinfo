@@ -9,7 +9,7 @@ class Od19SalesContract(models.Model):
 
     name = fields.Char(required=True, tracking=True)
     partner_id = fields.Many2one("res.partner", required=True, tracking=True)
-    od19_project_id = fields.Many2one("od19.sales.project", required=True, tracking=True)
+    od19_project_id = fields.Many2one("project.project", required=True, tracking=True)
     limit_amount = fields.Float(required=True)
     consumed_amount = fields.Float(compute="_compute_consumed_amount", store=True)
     over_limit_policy = fields.Selection(

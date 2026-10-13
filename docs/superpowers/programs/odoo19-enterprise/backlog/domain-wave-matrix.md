@@ -11,7 +11,7 @@
 | Owner | Program lead |
 | Reviewer | Technical supervisor |
 | Approvers | Business owner; Technical supervisor |
-| Last updated | 2026-10-09 |
+| Last updated | 2026-10-13 |
 | Review cadence | Reconfirm before wave approval, resequencing, or child-spec sign-off |
 | Validator expectation | Keep this file present at the manifest path |
 
@@ -19,10 +19,13 @@
 - Foundation platform
 - Governance
 - KPI and reporting baseline
+- Thai Font & UI Localization (ฟอนต์ภาษาไทยและการรองรับภาษาไทยในทุกส่วนของระบบ)
+- Thai Localization Strategy (กลยุทธ์การพัฒนา localization ของไทย: ใช้ OCA เป็นฐาน, ลดโมดูลซ้ำซ้อน, QWeb First, ฟอนต์ใหม่, Odoo standard menu)
 
 ## Wave 1
 - Contacts
 - Sales
+- Project & Analytic Accounting
 - Purchase
 - Inventory
 - Accounting
@@ -31,6 +34,11 @@
 - Advance
 - Cheque
 - Money In Analysis
+- Withholding Tax (WHT)
+- Petty Cash
+- Fiscal Year & Year-End Closing
+- Fixed Assets
+- Jasper Reports Foundation
 
 ## Wave 3
 - Sales Services
@@ -38,21 +46,46 @@
 - Warranty
 - Service Card
 - Product Return
+- Quality Control
 
 ## Wave 4
 - Stock Requests
 - Transportation
 - Logistics extensions
+- Stock Valuation Adjustment
+- Landed Cost
 
 ## Wave 5
 - Employees
 - Attendances
 - Time Off
+- HR Expense
+- Fleet
 
 ## Wave Delivery Focus
 
+### Wave 0 Focus
+- Build the foundation platform, governance, and KPI/reporting baseline.
+- **Thai Font & UI Localization**: ระบบ Odoo 19 CE ต้องรองรับฟอนต์ภาษาไทยใน **ทุกส่วนของระบบ** โดยใช้ฟอนต์หลักมาตรฐานของบริษัท (1-2 ชุด) พร้อมสไตล์ Regular, Bold, Italic, Bold Italic:
+  - **Web UI (Backend/Frontend)**: ใช้ฟอนต์ Sarabun หรือ Noto Sans Thai เป็นค่าเริ่มต้น รองรับสไตล์ Regular, Bold, Italic, Bold Italic
+  - **QWeb Reports (รูปแบบ Odoo 19 Native)**: ใช้ฟอนต์เดียวกับ Web UI และ **ต้องติดตั้งฟอนต์บน server** เพื่อให้ PDF แสดงผลภาษาไทยได้ถูกต้อง
+  - **JasperReports (รูปแบบ Odoo 15 Legacy Compatible)**: ใช้ **ฟอนต์เดิมที่บริษัทใช้อยู่ใน Odoo 15** เพื่อให้รูปแบบเหมือนเดิม 100% และต้อง embed ฟอนต์ลงใน `.jasper` file หรือติดตั้งบน server ที่รัน jasperstarter
+  - **Email Templates**: ใช้ฟอนต์ web-safe ที่รองรับไทย (Sarabun, Tahoma, Arial Unicode MS) พร้อม fallback font stack
+  - **ไม่แนะนำ** ให้ผู้ใช้งานเปลี่ยนฟอนต์ได้ทุกสไตล์ เพราะจะทำให้ UI ไม่สอดคล้องและยากต่อการบำรุงรักษา
+- **Thai Localization Strategy (กลยุทธ์การพัฒนา localization ของไทย)**: ตัดสินใจ 2026-10-13 — แนวทางพัฒนา localization ของไทยเพื่อลดงานพัฒนาและง่ายต่อการอัปเกรดเวอร์ชัน:
+  - **หลักการ 1 — ใช้ OCA เป็นฐาน**: ไม่เขียนเองทั้งหมด ใช้ประโยชน์จาก OCA modules ที่มีแล้ว เช่น `l10n_th_account_tax` (WHT+VAT, มี v19.0), `base_tier_validation` (approval workflow), `currency_rate_update` (อัปเดตอัตราแลกเปลี่ยนอัตโนมัติ), `account_financial_report` (รายงานทางการเงิน)
+  - **หลักการ 2 — ลดจำนวนโมดูล**: รวมโมดูลเล็กๆ ที่ทำงานเกี่ยวข้องกันเข้าไปในโมดูลหลักของโดเมนนั้น (เช่น รวม `dtr_payment_filter`, `dtr_account_filter`, `dtr_inventory_filter` เข้ากับโมดูลหลัก) ไม่แยกเป็นโมดูลของตัวเอง
+  - **หลักการ 3 — QWeb First**: รายงานพิมพ์ใช้ QWeb Reports (Odoo Native) เป็นหลักสำหรับรูปแบบ Odoo 19 เก็บ JasperReports สำหรับรูปแบบ Odoo 15 Legacy เท่านั้น (ตาม Dual Report Format)
+  - **หลักการ 4 — ฟอนต์ใหม่ทันที**: ไม่ใช้ฟอนต์ "DB Ozone X" (ยุคเก่า) แล้ว เปลี่ยนเป็น **Sarabun** หรือ **Noto Sans Thai** ตั้งแต่ Wave 0
+  - **หลักการ 5 — Odoo Standard Menu**: ใช้เมนูมาตรฐานของ Odoo 19 ไม่สร้างเมนูแยกของตัวเองเหมือน DTR
+  - **หลักการ 6 — ลด Tier Validation แยก**: ไม่สร้างโมดูล tier_validation แยกทุกโดเมน (7 โมดูลใน DTR) ใช้ OCA `base_tier_validation` รวมเป็นหนึ่งเดียว แล้วแต่ละโดเมนแค่ configure validation rules
+  - **หลักการ 7 — รวมรายงาน**: รวมรายงานทั้งหมดเข้าโมดูล `od19_accounting_reporting` เดียว แยกตาม report action ภายใน ไม่แยกเป็นโมดูลรายงานหลายตัว
+  - **หลักการ 8 — รวม Cheque Reports**: ไม่แยก cheque report ต่อธนาคาร (KBank, Bangkok Bank, SCB) รวมเป็น Cheque Template เดียว ที่กำหนดธนาคาร/เลย์เอาต์ผ่าน configuration
+  - **หลักการ 9 — ลด dependency chain**: ลดการขึ้นอยู่ซ้อนกันของโมดูล (เช่น `dtr_accounting_form` → `dtr_cheque` → `dtr_advance` → `dtr_taxation`) ให้เหลือแค่ที่จำเป็น โดยใช้ inheritance และ hooks แทน
+
 ### Wave 1 Focus
 - Close the commercial core on top of the approved Contacts, Sales, Purchase, Inventory, and approved Accounting design baselines.
+- Add **Project & Analytic Accounting** as a Wave 1 domain: extend Odoo standard `project.project` (not a custom model) with Job Numbering (`job_no`), Job Type, Department, Project Owner, Contractor links, and auto-create `analytic_account_id` on project creation so Sales, Purchase, and Accounting can share a single project/analytic truth source. Bridge `od19_sales_project_context` to the standard project model.
 - Treat Inventory as an implemented and merged baseline, but do not mark the wave complete until Accounting implementation is merged, verified, and the owner KPI closeout is confirmed on the mainline workspace.
 - Add the customer risk gate baseline so `Blacklist` customers are blocked from both `Quotation` and `Sales Order`, and `Credit Pending` customers remain cash-only until Accounting approval is complete. (Implemented and verified 2026-10-11.)
 - Close Accounting as an operational-closure baseline that covers AR, AP, payment, reconciliation, and essential posting/tax mapping without pulling deep finance controls forward from Wave 2.
@@ -61,30 +94,67 @@
 
 ### Wave 2 Focus
 - Extend from the stable Wave 1 commercial core into finance-specific controls.
-- Prioritize Advance, Cheque, and Money In Analysis together with reporting that directly improves owner decision-making.
+- Prioritize Advance, Cheque, Money In Analysis, Withholding Tax (WHT), Petty Cash, Fiscal Year & Year-End Closing, Fixed Assets, and Jasper Reports Foundation together with reporting that directly improves owner decision-making.
 - Absorb deep credit controls such as credit limits, overdue holds, exception approvals, and finance-led exposure reporting after the Wave 1 customer risk gate is stable.
 - Rebuild only the finance and inventory reports that still carry decision value from the Odoo 15 legacy system.
+- **WHT**: ใช้ **OCA `l10n_th_account_tax` (v19.0)** เป็นฐานสำหรับ WHT (ภาษีหัก ณ ที่จ่าย) และ VAT — ไม่ต้องพัฒนาเอง โมดูลนี้รองรับ WHT บนบรรทัดใบแจ้งหนี้, คำนวณอัตโนมัติตอนจ่าย, Tax Invoice Number/Date, Undue VAT (VAT ตอนจ่าย), PIT (Personal Income Tax)
+- **Payment Preparation (Prepare Payment) — วิธีที่ 3 (ตัดสินใจ 2026-10-13)**: **ไม่สร้างโมเดล `account.payment.voucher` เอง** แต่ใช้ Odoo standard + OCA เป็นหลัก เพื่อลดงานพัฒนาและง่ายต่อการอัปเกรด:
+  - **ตั้งหนี้**: ใช้ Vendor Bill / Customer Invoice (Odoo standard) — ไม่ต้องพัฒนา
+  - **จัดกลุ่มใบแจ้งหนี้**: ใช้ Odoo standard `account.payment.register` (จัดกลุ่มได้ partner เดียวกัน ซึ่งเป็นกรณีส่วนใหญ่) — ไม่ต้องพัฒนา
+  - **WHT คำนวณอัตโนมัติ**: ใช้ OCA `l10n_th_account_tax` — ไม่ต้องพัฒนา
+  - **Tax Invoice**: ใช้ OCA `l10n_th_account_tax` (มี `tax_invoice_number`, `tax_invoice_date`) — ไม่ต้องพัฒนา
+  - **PND (PND3/PND53)**: ใช้ Odoo 19 standard `l10n_th` (มี CSV export สำหรับ RD) — ไม่ต้องพัฒนา
+  - **Custom ที่ต้องพัฒนาเพียงอย่างเดียว**:
+    1. รายงานใบสำคัญจ่าย (Payment Voucher) — QWeb report
+    2. รายงานใบสำคัญรับเงิน (Payment Receipt) — QWeb report
+    3. เลขที่เอกสารไทยสำหรับ payment (PV-2569-0001) — sequence field บน `account.payment`
+  - **Optional (ถ้าต้องการ)**:
+    - อนุมัติก่อนชำระ (Approval): ใช้ OCA `base_tier_validation` (~50 บรรทัด config)
+    - จัดกลุ่มหลาย partner: ใช้ OCA `account_payment_order` (~100 บรรทัดปรับให้เข้ากับไทย)
+    - WHT Certificate PDF: พัฒนา custom (~200 บรรทัด)
+  - **เหตุผล**: วิธีนี้พัฒนาน้อยที่สุด (~300 บรรทัด custom) และง่ายต่อการอัปเกรดที่สุด เพราะใช้ OCA + Odoo standard เป็นหลัก โค้ด custom น้อยมาก
+- **Petty Cash**: Build a dedicated petty cash workflow separate from HR Expense, with cash box management, replenishment, and reconciliation.
+- **Fiscal Year & Year-End**: Replace `om_fiscal_year` and `dtr_year_end` with Odoo 19 standard fiscal year + custom year-end closing entries.
+- **Fixed Assets**: Replace `om_account_asset` and `dtr_fixed_assets` with OCA `account_asset` (if 19.0 available) or custom asset management.
+- **Jasper Reports Foundation**: Establish JasperReports + jasperstarter infrastructure for all printable forms (invoice, quotation, PO, project, receipt).
+- **Dual Report Format Mandate**: เงื่อนไขนี้ใช้เฉพาะ **รายงานที่พิมพ์ออกมาจากระบบ (printable reports / printed forms)** เท่านั้น ไม่รวม KPI Dashboard หรือรายงานบนหน้าจอ ทุกรายงานพิมพ์ต้องมีทั้งรูปแบบ Odoo 19 CE Native (QWeb) และรูปแบบ Odoo 15 CE Legacy Compatible (JasperReports/JRXML) พร้อมกัน (ดูรายละเอียดใน `reporting/kpi-reporting-baseline.md` ส่วน Dual Report Format Requirement).
+
+- **โมดูลที่เสนอสำหรับ Thai Localization (แบ่งตาม Wave)**:
+  - **Wave 0**: `od19_thai_font_support` (ติดตั้งฟอนต์ Sarabun/Noto Sans Thai + CSS สำหรับ Web UI และ QWeb), `od19_thai_localization_base` (ฐานสำหรับ localization ของไทย: menu, term, config)
+  - **Wave 1**: `od19_partner_thai_fields` (ฟิลด์ไทยสำหรับ partner: เลขประจำตัวผู้เสียภาษี, สาขา, หมายเลขสำนักงานใหญ่), `od19_document_sequence` (เลขที่เอกสารไทย: INV, PO, SO, PV ตามปีงบประมาณ), `od19_thai_tax_reports` (VAT Register, WHT Register, PND export — ขยายจาก OCA `l10n_th_account_tax`), `od19_accounting_dncn` (Debit Note / Credit Note / Remaster Invoice), `od19_accounting_cheque` (เช็ค: รายการเช็ค, เงื่อนไข, รายงานพิมพ์เช็ครวมธนาคาร)
+  - **Wave 2**: `od19_accounting_reporting` (รายงานทางการเงินทั้งหมด: AR/AP Aging, Trial Balance, P&L, Balance Sheet — QWeb), `od19_accounting_payment_voucher_reports` (รายงานใบสำคัญจ่าย/ใบสำคัญรับเงิน — **reports only, ไม่สร้าง model ใหม่** ตาม Payment Preparation วิธีที่ 3)
+  - **หมายเหตุ**: `od19_accounting_wht` ที่มีอยู่แล้วจะถูกประเมินว่าจะใช้ OCA `l10n_th_account_tax` แทนที่หรือขยายต่อ — ตัดสินใจในช่วง Wave 2 design
+- **OCA Modules ที่จะใช้เป็นฐาน (ไม่พัฒนาเอง)**: `l10n_th` (มาตรฐาน Odoo: CoA, VAT 7%, WHT types, PND3/PND53 CSV, PromptPay QR, Tax Invoice PDF), `l10n_th_account_tax` (WHT บนบรรทัดใบแจ้งหนี้, auto-calc ตอนจ่าย, Tax Invoice Number/Date, Undue VAT, PIT), `base_tier_validation` (approval workflow รวมศูนย์เดียว), `account_financial_report` (รายงานทางการเงินมาตรฐาน)
 
 ### Wave 3 Focus
 - Build the after-sales operating model as its own bounded context.
 - Keep service returns, warranty-linked stock behavior, claims, and service-card flows out of Inventory core.
 - Use the stable customer, project, and product baseline from earlier waves.
+- **Quality Control**: Replace `dtr_qc` with OCA `quality_control_oca` or custom QC workflow for incoming/outgoing inspection.
+- **Digital Signature**: Evaluate OCA `sign_oca` for digital contract/approval signing.
 
 ### Wave 4 Focus
 - Build logistics extensions only after the Inventory baseline is stable in production-like use.
 - Re-evaluate legacy warehouse and issue flows, including `Goods Issue`, against the new standard movement baseline before approving any rebuild.
 - Default to redesign over direct migration for transportation and non-standard warehouse convenience logic.
+- **Stock Valuation Adjustment**: Replace `dtr_stock_valuation_adjustment` with Odoo 19 standard inventory value adjustments plus audit trail.
+- **Landed Cost**: Enable standard `stock_landed_costs` for shipping/import cost allocation.
+
+### Wave 5 Focus
+- Build HR and operational enablement on top of the Wave 0 governance baseline.
+- **HR Expense**: Replace `autoinfo_hr_expense`, `autoinfo_hr_expense_cash_tracking` with Odoo 19 standard `hr_expense` plus custom cash reimbursement and multi-tier approval.
+- **Fleet**: Replace `autoinfo_fleet` with Odoo 19 standard `fleet` module; integrate with accounting and HR where needed.
 
 ## Wave Control Register
 
 | Wave | Baseline scope | Child spec ID | Child spec path placeholder | Status | Owner | Reviewer | Approvers | Dependencies | Gate readiness cue |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Wave 0 | Foundation platform; Governance; KPI and reporting baseline | W0-FOUNDATION | `docs/superpowers/specs/YYYY-MM-DD-odoo19-enterprise-wave-0-foundation-governance.md` | Approved and packaged for Wave 1 planning | Program lead | Technical supervisor | Business owner; Technical supervisor | Discovery pack; Engineering standards; Review gates | Ready and released for Wave 1 planning use; discovery evidence remains partial where the linked discovery artifacts still say so |
-| Wave 1 | Contacts; Sales; Purchase; Inventory; Accounting | W1-COMMERCIAL-CORE | `docs/superpowers/specs/YYYY-MM-DD-odoo19-enterprise-wave-1-commercial-financial-core.md` | In execution | Commercial domain lead | Technical supervisor | Business owner; Technical supervisor | Wave 0 baseline package released; Wave 1 Sales baseline approved; Wave 1 Contacts baseline approved; Wave 1 Purchase baseline approved; Wave 1 Inventory baseline approved and merged on mainline; Wave 1 Accounting child spec approved and implementation active in delivery branch | Ready when Accounting implementation is merged and verified on the mainline workspace and the Wave 1 owner KPI set is confirmed against the established Sales, Contacts, Purchase, Inventory, and Accounting baseline |
-| Wave 2 | Advance; Cheque; Money In Analysis | W2-FINANCE-CONTROLS | `docs/superpowers/specs/YYYY-MM-DD-odoo19-enterprise-wave-2-custom-finance-controls.md` | Not started | Finance controls lead | Technical supervisor | Business owner; Technical supervisor | Wave 1 stable baseline; finance discovery evidence | Ready when finance control design and approvals are complete |
-| Wave 3 | Sales Services; Claims; Warranty; Service Card; Product Return | W3-AFTER-SALES | `docs/superpowers/specs/YYYY-MM-DD-odoo19-enterprise-wave-3-sales-services-after-sales.md` | Not started | Service operations lead | Technical supervisor | Business owner; Technical supervisor | Wave 1 customer/product baseline; service domain evidence; confirmed separation between inventory core and after-sales returns | Ready when after-sales process, service-linked stock implications, and KPI impacts are approved |
-| Wave 4 | Stock Requests; Transportation; Logistics extensions | W4-LOGISTICS-EXT | `docs/superpowers/specs/YYYY-MM-DD-odoo19-enterprise-wave-4-logistics-extensions.md` | Not started | Logistics lead | Technical supervisor | Business owner; Technical supervisor | Inventory baseline; transport workflow evidence; decision on whether legacy `Goods Issue` remains a real business process after Wave 1 | Ready when logistics extension scope, non-standard warehouse flow decisions, and rollout dependencies are approved |
-| Wave 5 | Employees; Attendances; Time Off | W5-HR-ENABLEMENT | `docs/superpowers/specs/YYYY-MM-DD-odoo19-enterprise-wave-5-hr-operational-enablement.md` | Not started | HR operations lead | Technical supervisor | Business owner; Technical supervisor | Wave 0 governance; people operations evidence | Ready when HR enablement scope, approvals, and rollout assumptions are complete |
+| Wave 1 | Contacts; Sales; Project &amp; Analytic Accounting; Purchase; Inventory; Accounting | W1-COMMERCIAL-CORE | `docs/superpowers/specs/YYYY-MM-DD-odoo19-enterprise-wave-1-commercial-financial-core.md` | In execution | Commercial domain lead | Technical supervisor | Business owner; Technical supervisor | Wave 0 baseline package released; Wave 1 Sales baseline approved; Wave 1 Contacts baseline approved; Wave 1 Project &amp; Analytic Accounting baseline pending (gap identified 2026-10-12); Wave 1 Purchase baseline approved; Wave 1 Inventory baseline approved and merged on mainline; Wave 1 Accounting child spec approved and implementation active in delivery branch | Ready when Project &amp; Analytic Accounting design is approved and implemented, Accounting implementation is merged and verified on the mainline workspace and the Wave 1 owner KPI set is confirmed against the established Sales, Contacts, Purchase, Inventory, and Accounting baseline |
+| Wave 2 | Advance; Cheque; Money In Analysis; Withholding Tax (WHT); Petty Cash; Fiscal Year &amp; Year-End Closing; Fixed Assets; Jasper Reports Foundation | W2-FINANCE-CONTROLS | `docs/superpowers/specs/YYYY-MM-DD-odoo19-enterprise-wave-2-custom-finance-controls.md` | Not started — scope expanded 2026-10-12 to include WHT, Petty Cash, Fiscal Year, Fixed Assets, Jasper Reports | Finance controls lead | Technical supervisor | Business owner; Technical supervisor | Wave 1 stable baseline; finance discovery evidence; OCA availability for account_asset | Ready when finance control design and approvals are complete; WHT/Petty Cash/Fiscal Year/Asset specs drafted |
+| Wave 3 | Sales Services; Claims; Warranty; Service Card; Product Return; Quality Control | W3-AFTER-SALES | `docs/superpowers/specs/YYYY-MM-DD-odoo19-enterprise-wave-3-sales-services-after-sales.md` | Not started — scope expanded 2026-10-12 to include Quality Control and Digital Signature evaluation | Service operations lead | Technical supervisor | Business owner; Technical supervisor | Wave 1 customer/product baseline; service domain evidence; confirmed separation between inventory core and after-sales returns | Ready when after-sales process, service-linked stock implications, KPI impacts, and QC/signature scope are approved |
+| Wave 4 | Stock Requests; Transportation; Logistics extensions; Stock Valuation Adjustment; Landed Cost | W4-LOGISTICS-EXT | `docs/superpowers/specs/YYYY-MM-DD-odoo19-enterprise-wave-4-logistics-extensions.md` | Not started — scope expanded 2026-10-12 to include Stock Valuation Adjustment and Landed Cost | Logistics lead | Technical supervisor | Business owner; Technical supervisor | Inventory baseline; transport workflow evidence; decision on whether legacy `Goods Issue` remains a real business process after Wave 1 | Ready when logistics extension scope, non-standard warehouse flow decisions, valuation adjustment, and rollout dependencies are approved |
+| Wave 5 | Employees; Attendances; Time Off; HR Expense; Fleet | W5-HR-ENABLEMENT | `docs/superpowers/specs/YYYY-MM-DD-odoo19-enterprise-wave-5-hr-operational-enablement.md` | Not started — scope expanded 2026-10-12 to include HR Expense and Fleet | HR operations lead | Technical supervisor | Business owner; Technical supervisor | Wave 0 governance; people operations evidence; standard hr_expense and fleet modules | Ready when HR enablement scope, expense/fleet integration, approvals, and rollout assumptions are complete |
 
 ## Reviewability Cues
 

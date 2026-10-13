@@ -41,7 +41,7 @@ class TestAccountingReporting(AccountTestInvoicingCommon):
                 "od19_is_project_owner": True,
             }
         )
-        cls.project = cls.env["od19.sales.project"].create(
+        cls.project = cls.env["project.project"].create(
             {
                 "name": "Reporting Project",
                 "project_owner_id": cls.owner.id,

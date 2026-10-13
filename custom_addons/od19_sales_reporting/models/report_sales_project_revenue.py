@@ -6,7 +6,7 @@ class ReportSalesProjectRevenue(models.Model):
     _description = "Sales Project Revenue Report"
     _auto = False
 
-    project_id = fields.Many2one("od19.sales.project", readonly=True)
+    project_id = fields.Many2one("project.project", readonly=True)
     commercial_customer_id = fields.Many2one("res.partner", readonly=True)
     project_owner_id = fields.Many2one("res.partner", readonly=True)
     order_count = fields.Integer(readonly=True)

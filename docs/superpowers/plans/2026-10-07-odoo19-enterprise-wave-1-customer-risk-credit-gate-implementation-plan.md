@@ -19,8 +19,8 @@
 
 - Approved spec: `docs/superpowers/specs/2026-10-07-odoo19-enterprise-wave-1-customer-risk-credit-gate-design.md`
 - Standard/OCA fit-gap (ทำแล้ว 2026-10-11):
-  - Odoo 19 CE ไม่มี credit limit/credit hold ใน CE; `res.partner` มีแค่ `sale_warn` (warning ไม่ใช่ gate) — ไม่พอสำหรับ hard block และไม่มี approval ownership
-  - OCA `credit-control` (`partner_financial_risk`, `sale_financial_risk`) **ไม่มีใน workspace** และเป็น credit-limit/exposure engine ซึ่ง spec ย้ายไป Wave 2 — ไม่นำมาใช้ใน Wave 1
+  - Odoo 19 CE มี `credit_limit` บน partner แต่เป็นเพียง warning บน SO (ไม่ block) และไม่มี blacklist/approval ownership — ไม่พอสำหรับ hard gate
+  - OCA `credit-control` branch 19.0 มี `account_financial_risk` (เดิมชื่อ `partner_financial_risk`), `sale_financial_risk`, `sale_financial_risk_info` แต่ยังไม่ได้ clone เข้า workspace; เป็น credit-limit/exposure engine (มี bypass สำหรับผู้มีสิทธิ์) ไม่มี blacklist/request-approve workflow — ตัดสินใจ 2026-10-11 ให้คงไว้ Wave 2
   - OCA `sale-workflow/sale_exception` + `server-tools/base_exception` ติดตั้งอยู่แล้วผ่าน `od19_sales_oca_bridge_workflow` แต่ออกแบบให้ "ignore exception" ได้ ซึ่งขัดกับ spec 6.8 (ห้าม exception แบบเปิดกว้าง) — ไม่ใช้เป็นกลไก gate
   - OCA `sale_order_approval_block` เป็น approval ระดับเอกสาร ไม่ใช่ระดับลูกค้า — ไม่ตรง
   - สรุป: custom addon บาง ๆ บน standard เป็นทางที่เหมาะสม

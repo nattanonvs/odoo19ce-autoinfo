@@ -13,7 +13,7 @@ class TestContractPolicy(TransactionCase):
                 "od19_is_project_owner": True,
             }
         )
-        self.project = self.env["od19.sales.project"].create(
+        self.project = self.env["project.project"].create(
             {"name": "Metro Line", "project_owner_id": self.owner.id}
         )
 

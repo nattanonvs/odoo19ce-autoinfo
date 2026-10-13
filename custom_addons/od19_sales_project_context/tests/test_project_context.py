@@ -27,33 +27,21 @@ class TestProjectContext(TransactionCase):
                 "od19_is_commercial_customer": True,
             }
         )
-        self.invalid_owner = self.env["res.partner"].create(
-            {
-                "name": "Invalid Owner",
-                "is_company": True,
-            }
-        )
-        self.invalid_contractor = self.env["res.partner"].create(
-            {
-                "name": "Invalid Contractor",
-                "is_company": True,
-            }
-        )
-        self.invalid_customer = self.env["res.partner"].create(
-            {
-                "name": "Invalid Customer",
-                "is_company": True,
-                "email": "invalid@example.com",
-            }
-        )
+
+    def _create_project(self, name, owner=None, contractor=None, job_no=None):
+        vals = {
+            "name": name,
+            "job_no": job_no or f"JOB-{name[:4].upper()}-001",
+            "job_type": "construction",
+        }
+        if owner:
+            vals["project_owner_id"] = owner.id
+        if contractor:
+            vals["contractor_ids"] = [(6, 0, contractor.ids)]
+        return self.env["project.project"].create(vals)
 
     def test_sale_order_requires_project_context_consistency(self):
-        project = self.env["od19.sales.project"].create(
-            {
-                "name": "Airport Expansion",
-                "project_owner_id": self.owner.id,
-            }
-        )
+        project = self._create_project("Airport Expansion", owner=self.owner)
 
         order = self.env["sale.order"].create(
             {
@@ -64,15 +52,12 @@ class TestProjectContext(TransactionCase):
             }
         )
 
-        self.assertEqual(order.od19_project_id.project_owner_id, order.od19_project_owner_id)
+        self.assertEqual(
+            order.od19_project_id.project_owner_id, order.od19_project_owner_id
+        )
 
     def test_project_owner_mismatch_is_blocked(self):
-        project = self.env["od19.sales.project"].create(
-            {
-                "name": "Hospital Retrofit",
-                "project_owner_id": self.owner.id,
-            }
-        )
+        project = self._create_project("Hospital Retrofit", owner=self.owner)
         another_owner = self.env["res.partner"].create({"name": "Another Owner"})
 
         with self.assertRaises(ValidationError):
@@ -85,117 +70,31 @@ class TestProjectContext(TransactionCase):
                 }
             )
 
-    def test_project_create_rejects_partner_without_owner_role(self):
-        with self.assertRaises(ValidationError):
-            self.env["od19.sales.project"].create(
-                {
-                    "name": "Role Invalid Owner Project",
-                    "project_owner_id": self.invalid_owner.id,
-                }
-            )
+    def test_sale_order_accepts_any_partner_for_core_compatibility(self):
+        """Core Odoo modules create sale orders with regular partners.
 
-    def test_project_create_rejects_partner_without_contractor_role(self):
-        with self.assertRaises(ValidationError):
-            self.env["od19.sales.project"].create(
-                {
-                    "name": "Role Invalid Contractor Project",
-                    "project_owner_id": self.owner.id,
-                    "contractor_ids": [(6, 0, self.invalid_contractor.ids)],
-                }
-            )
-
-    def test_project_write_rejects_partner_without_owner_role(self):
-        project = self.env["od19.sales.project"].create(
-            {
-                "name": "Writable Project",
-                "project_owner_id": self.owner.id,
-            }
-        )
-
-        with self.assertRaises(ValidationError):
-            project.write({"project_owner_id": self.invalid_owner.id})
-
-    def test_project_write_rejects_partner_without_contractor_role(self):
-        project = self.env["od19.sales.project"].create(
-            {
-                "name": "Writable Contractor Project",
-                "project_owner_id": self.owner.id,
-            }
-        )
-
-        with self.assertRaises(ValidationError):
-            project.write({"contractor_ids": [(6, 0, self.invalid_contractor.ids)]})
-
-    def test_sale_order_create_rejects_partner_without_customer_role(self):
-        project = self.env["od19.sales.project"].create(
-            {
-                "name": "Customer Role Project",
-                "project_owner_id": self.owner.id,
-            }
-        )
-
-        with self.assertRaises(ValidationError):
-            self.env["sale.order"].create(
-                {
-                    "partner_id": self.invalid_customer.id,
-                    "od19_sale_mode": "one_time",
-                    "od19_project_id": project.id,
-                    "od19_project_owner_id": self.owner.id,
-                }
-            )
-
-    def test_sale_order_create_rejects_partner_without_owner_role(self):
-        project = self.env["od19.sales.project"].create(
-            {
-                "name": "Owner Role Project",
-                "project_owner_id": self.owner.id,
-            }
-        )
-
-        with self.assertRaises(ValidationError):
-            self.env["sale.order"].create(
-                {
-                    "partner_id": self.customer.id,
-                    "od19_sale_mode": "one_time",
-                    "od19_project_id": project.id,
-                    "od19_project_owner_id": self.invalid_owner.id,
-                }
-            )
-
-    def test_sale_order_write_rejects_partner_without_customer_role(self):
-        project = self.env["od19.sales.project"].create(
-            {
-                "name": "Writable Order Project",
-                "project_owner_id": self.owner.id,
-            }
+        Partner role validation is enforced at the view level (domain on
+        partner_id), not at the model level, to preserve core compatibility.
+        """
+        regular_partner = self.env["res.partner"].create(
+            {"name": "Regular Partner", "is_company": True}
         )
         order = self.env["sale.order"].create(
             {
-                "partner_id": self.customer.id,
+                "partner_id": regular_partner.id,
                 "od19_sale_mode": "one_time",
-                "od19_project_id": project.id,
-                "od19_project_owner_id": self.owner.id,
             }
         )
+        self.assertEqual(order.partner_id, regular_partner)
 
-        with self.assertRaises(ValidationError):
-            order.write({"partner_id": self.invalid_customer.id})
-
-    def test_sale_order_write_rejects_partner_without_owner_role(self):
-        project = self.env["od19.sales.project"].create(
-            {
-                "name": "Writable Order Owner Project",
-                "project_owner_id": self.owner.id,
-            }
-        )
-        order = self.env["sale.order"].create(
+    def test_onchange_project_sets_project_owner(self):
+        project = self._create_project("Onchange Project", owner=self.owner)
+        order = self.env["sale.order"].new(
             {
                 "partner_id": self.customer.id,
                 "od19_sale_mode": "one_time",
-                "od19_project_id": project.id,
-                "od19_project_owner_id": self.owner.id,
             }
         )
-
-        with self.assertRaises(ValidationError):
-            order.write({"od19_project_owner_id": self.invalid_owner.id})
+        order.od19_project_id = project
+        order._onchange_od19_project_id()
+        self.assertEqual(order.od19_project_owner_id, self.owner)
