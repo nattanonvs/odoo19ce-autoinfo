@@ -14,11 +14,11 @@ COURSE_STATUS = [
 ]
 
 COMPETENCE_LEVEL = [
-    (1, "1 - เริ่มต้น"),
-    (2, "2 - พื้นฐาน"),
-    (3, "3 - ปานกลาง"),
-    (4, "4 - สูง"),
-    (5, "5 - เชี่ยวชาญ"),
+    ("1", "1 - เริ่มต้น"),
+    ("2", "2 - พื้นฐาน"),
+    ("3", "3 - ปานกลาง"),
+    ("4", "4 - สูง"),
+    ("5", "5 - เชี่ยวชาญ"),
 ]
 
 
@@ -163,7 +163,7 @@ class IsoEmployeeCompetence(models.Model):
     competence_id = fields.Many2one(
         "od19.iso.competence", string="ความสามารถ", required=True, ondelete="cascade", tracking=True,
     )
-    level = fields.Selection(COMPETENCE_LEVEL, string="ระดับ", required=True, default=1, tracking=True)
+    level = fields.Selection(COMPETENCE_LEVEL, string="ระดับ", required=True, default="1", tracking=True)
     valid_from = fields.Date(string="มีผลตั้งแต่", tracking=True)
     valid_to = fields.Date(string="หมดอายุ", tracking=True)
     source_course_id = fields.Many2one(
