@@ -18,3 +18,7 @@
 	path = third_party/oca/sale-blanket
 	url = https://github.com/OCA/sale-blanket.git
 	branch = 19.0
+[submodule "third_party/oca/l10n-thailand"]
+	path = third_party/oca/l10n-thailand
+	url = https://github.com/OCA/l10n-thailand.git
+	branch = 19.0
