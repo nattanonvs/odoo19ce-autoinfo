@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_account_cheque_book_list" model="ir.ui.view">
+        <field name="name">account.cheque.book.list</field>
+        <field name="model">account.cheque.book</field>
+        <field name="arch" type="xml">
+            <list string="Cheque Books">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="journal_id"/>
+                <field name="first_cheque_no"/>
+                <field name="last_cheque_no"/>
+                <field name="quantity"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-success="state in ('confirm', 'done')"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_account_cheque_book_form" model="ir.ui.view">
+        <field name="name">account.cheque.book.form</field>
+        <field name="model">account.cheque.book</field>
+        <field name="arch" type="xml">
+            <form string="Cheque Book">
+                <header>
+                    <button name="list_cheques" type="object" string="Generate Cheques"
+                            invisible="state != 'draft'"/>
+                    <button name="clear_cheques" type="object" string="Clear Cheques"
+                            invisible="state != 'draft'"/>
+                    <button name="action_confirm" type="object" string="Confirm"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_done" type="object" string="Done"
+                            invisible="state != 'confirm'"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="date"/>
+                            <field name="journal_id"/>
+                            <field name="company_id" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="first_cheque_no"/>
+                            <field name="quantity"/>
+                            <field name="last_cheque_no" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Cheque Leaves" name="cheques">
+                            <field name="cheque_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="state" widget="badge"/>
+                                    <field name="partner_id"/>
+                                    <field name="amount"/>
+                                    <field name="cheque_date"/>
+                                    <field name="due_date"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_account_cheque_book" model="ir.actions.act_window">
+        <field name="name">Cheque Books</field>
+        <field name="res_model">account.cheque.book</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_account_cheque_book"
+              name="Cheque Books"
+              parent="account.menu_finance_configuration"
+              action="action_account_cheque_book"
+              sequence="40"/>
+
+</odoo>

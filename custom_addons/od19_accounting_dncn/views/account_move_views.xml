@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Add DNCN fields to invoice form -->
+    <record id="view_move_form_dncn" model="ir.ui.view">
+        <field name="name">account.move.form.dncn</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='invoice_origin']" position="after">
+                <field name="dncn" readonly="1"/>
+                <field name="parent_id" readonly="1"
+                       invisible="not parent_id"/>
+                <field name="reason_id"/>
+                <field name="remark"/>
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="partner_tax_name"
+                       invisible="not partner_tax_name"/>
+                <field name="partner_branch_code"
+                       invisible="not partner_branch_code"/>
+            </xpath>
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_parent"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-link"
+                        invisible="not parent_id">
+                    <field name="parent_id" widget="statinfo"
+                           string="Parent Invoice"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add action buttons to invoice form header -->
+    <record id="view_move_form_dncn_buttons" model="ir.ui.view">
+        <field name="name">account.move.form.dncn.buttons</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_create_debit_note"
+                        type="object"
+                        string="Debit Note"
+                        class="btn-secondary"
+                        invisible="state != 'posted' or dncn"/>
+                <button name="action_create_credit_note"
+                        type="object"
+                        string="Credit Note"
+                        class="btn-secondary"
+                        invisible="state != 'posted' or dncn"/>
+                <button name="action_remaster_invoice"
+                        type="object"
+                        string="Remaster"
+                        class="btn-secondary"
+                        invisible="state != 'posted' or dncn"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

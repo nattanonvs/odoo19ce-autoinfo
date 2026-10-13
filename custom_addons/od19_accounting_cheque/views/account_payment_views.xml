@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_account_payment_form_cheque" model="ir.ui.view">
+        <field name="name">account.payment.form.cheque</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="cheque_paid_id"
+                       domain="[('cheque_type', '=', 'supplier'), ('state', '=', 'available')]"
+                       invisible="payment_type != 'outbound'"/>
+                <field name="pay_to" invisible="not cheque_paid_id"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
