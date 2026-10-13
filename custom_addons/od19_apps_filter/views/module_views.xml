@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Add filter to the base Apps search view -->
+    <record id="view_module_search_od19_filter" model="ir.ui.view">
+        <field name="name">ir.module.module.search.od19</field>
+        <field name="model">ir.module.module</field>
+        <field name="inherit_id" ref="base.view_module_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="/search" position="inside">
+                <filter string="OD19 Modules" name="od19_modules"
+                        domain="[('name', 'like', 'od19_')]"
+                        help="Show only custom OD19 modules"/>
+                <filter string="New Apps" name="new_apps"
+                        domain="[('state', 'in', ['uninstalled', 'to install'])]"
+                        help="Show modules not yet installed"/>
+                <filter string="New OD19 Apps" name="new_od19_apps"
+                        domain="[('name', 'like', 'od19_'), ('state', 'in', ['uninstalled', 'to install'])]"
+                        help="Show OD19 modules not yet installed"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Custom action: Apps filtered to OD19 modules only -->
+    <record id="action_od19_modules" model="ir.actions.act_window">
+        <field name="name">OD19 Modules</field>
+        <field name="res_model">ir.module.module</field>
+        <field name="view_mode">kanban,list</field>
+        <field name="domain">[('name', 'like', 'od19_')]</field>
+        <field name="context">{'search_default_od19_modules': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No OD19 modules found
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu item under Settings / Apps -->
+    <menuitem
+        id="menu_od19_modules"
+        name="OD19 Modules"
+        parent="base.menu_administration"
+        action="action_od19_modules"
+        sequence="99"
+    />
+
+</odoo>

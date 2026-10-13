@@ -22,3 +22,15 @@
 	path = third_party/oca/l10n-thailand
 	url = https://github.com/OCA/l10n-thailand.git
 	branch = 19.0
+[submodule "third_party/oca/helpdesk"]
+	path = third_party/oca/helpdesk
+	url = https://github.com/OCA/helpdesk.git
+	branch = 19.0
+[submodule "third_party/oca/account-financial-tools"]
+	path = third_party/oca/account-financial-tools
+	url = https://github.com/OCA/account-financial-tools.git
+	branch = 19.0
+[submodule "third_party/oca/tier-validation"]
+	path = third_party/oca/tier-validation
+	url = https://github.com/OCA/tier-validation.git
+	branch = 19.0
