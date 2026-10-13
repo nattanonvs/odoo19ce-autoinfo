@@ -62,5 +62,5 @@ class NotificationPreference(models.Model):
                 [("channel_type", "=", "odoo")],
                 limit=1,
             )
-            return default_odoo.channel_type if default_odoo else "odoo"
+            return [default_odoo.channel_type] if default_odoo else ["odoo"]
         return pref.channel_ids.mapped("channel_type")
