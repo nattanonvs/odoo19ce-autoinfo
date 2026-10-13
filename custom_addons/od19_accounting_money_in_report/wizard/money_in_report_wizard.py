@@ -89,7 +89,7 @@ class MoneyInReportWizard(models.TransientModel):
             help_message = _(
                 "No analysis lines were generated for this run.\n\n"
                 "Please check:\n"
-                "- Date range matches invoice_date (not x_stamp_date in Phase 1)\n"
+                "- Date range matches invoice_date (not stamp_date in Phase 1)\n"
                 "- Invoices are posted customer invoices\n"
                 "- Invoice lines contain products\n"
                 "- Filters (customer/salesperson/project/category/job type) are not too restrictive\n"

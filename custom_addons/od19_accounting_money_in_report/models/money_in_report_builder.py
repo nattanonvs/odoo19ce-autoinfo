@@ -159,7 +159,7 @@ class MoneyInReportBuilder(models.AbstractModel):
         project,
         salesperson,
     ):
-        stamp_date = self._get_optional_value(sale_order, "x_stamp_date") or False
+        stamp_date = self._get_optional_value(sale_order, "stamp_date") or False
         customer_reference = self._get_customer_reference(sale_order)
         sale_order_amount = self._convert_sale_order_amount_to_company_currency(
             report_run, sale_order
@@ -328,7 +328,7 @@ class MoneyInReportBuilder(models.AbstractModel):
         salesperson,
         event,
     ):
-        stamp_date = self._get_optional_value(sale_order, "x_stamp_date") or False
+        stamp_date = self._get_optional_value(sale_order, "stamp_date") or False
         project_type_name = self._resolve_project_type_name(project)
         product = invoice_line.product_id
         recognized_amount, recognized_cost, cost_preliminary_available = (

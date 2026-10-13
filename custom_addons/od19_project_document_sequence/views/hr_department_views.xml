@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_department_form_inherit_od19_project_seq" model="ir.ui.view">
+            <field name="name">hr.department.form.inherit.od19.project.seq</field>
+            <field name="model">hr.department</field>
+            <field name="inherit_id" ref="hr.view_department_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='po_sequence_id']/.." position="after">
+                    <group string="Project Sequences">
+                        <field name="project_job_sequence_id"/>
+                        <field name="project_server_sequence_id"/>
+                        <field name="project_pm_sequence_id"/>
+                        <field name="project_service_sequence_id"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

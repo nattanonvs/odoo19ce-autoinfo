@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- ===== QWeb template: quotation with red CONFIRMED stamp ===== -->
+        <template id="report_saleorder_stamp_document">
+            <t t-call="sale.report_saleorder_document">
+                <!-- Inject the CONFIRMED stamp box at the end of the document body.
+                     It is rendered only when the order is confirmed and stamp_date is set. -->
+                <t t-set="show_stamp"
+                   t-value="doc.state == 'sale' and doc.stamp_date"/>
+                <t t-if="show_stamp">
+                    <div class="text-end mt-4">
+                        <table class="table table-bordered od19-confirmed-stamp"
+                               style="border:2px solid #dc3545; width:320px; margin-left:auto; margin-right:0;">
+                            <tbody>
+                                <!-- Header: CONFIRMED -->
+                                <tr>
+                                    <td colspan="2"
+                                        style="border:1px solid #dc3545; text-align:center; padding:6px 8px;">
+                                        <strong style="color:#dc3545; font-size:18px; letter-spacing:2px;">
+                                            CONFIRMED
+                                        </strong>
+                                    </td>
+                                </tr>
+                                <!-- SIGN -->
+                                <tr>
+                                    <td style="border:1px solid #dc3545; color:#dc3545; font-weight:bold; width:120px; padding:4px 8px;">
+                                        SIGN
+                                    </td>
+                                    <td style="border:1px solid #dc3545; padding:4px 8px; min-height:22px;">
+                                        <span t-field="doc.confirmed_by_id.name"/>
+                                    </td>
+                                </tr>
+                                <!-- DATE -->
+                                <tr>
+                                    <td style="border:1px solid #dc3545; color:#dc3545; font-weight:bold; padding:4px 8px;">
+                                        DATE
+                                    </td>
+                                    <td style="border:1px solid #dc3545; padding:4px 8px;">
+                                        <span t-field="doc.stamp_date"
+                                              t-options='{"widget": "date"}'/>
+                                    </td>
+                                </tr>
+                                <!-- DELIVERY ON -->
+                                <tr>
+                                    <td style="border:1px solid #dc3545; color:#dc3545; font-weight:bold; padding:4px 8px;">
+                                        DELIVERY ON
+                                    </td>
+                                    <td style="border:1px solid #dc3545; padding:4px 8px;">
+                                        <span t-field="doc.commitment_date"
+                                              t-options='{"widget": "date"}'/>
+                                    </td>
+                                </tr>
+                                <!-- JOB -->
+                                <tr>
+                                    <td style="border:1px solid #dc3545; color:#dc3545; font-weight:bold; padding:4px 8px;">
+                                        JOB
+                                    </td>
+                                    <td style="border:1px solid #dc3545; padding:4px 8px;">
+                                        <t t-if="doc.od19_project_id">
+                                            <span t-field="doc.od19_project_id.job_no"/>
+                                        </t>
+                                    </td>
+                                </tr>
+                                <!-- CODE -->
+                                <tr>
+                                    <td style="border:1px solid #dc3545; color:#dc3545; font-weight:bold; padding:4px 8px;">
+                                        CODE
+                                    </td>
+                                    <td style="border:1px solid #dc3545; padding:4px 8px;">
+                                        <span t-field="doc.stamp_code"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </template>
+
+        <!-- Raw wrapper (iterates over multiple records) -->
+        <template id="report_saleorder_stamp">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="od19_sales_confirm_stamp.report_saleorder_stamp_document"
+                       t-lang="doc.partner_id.lang"/>
+                </t>
+            </t>
+        </template>
+
+        <!-- ===== Report action: Print Quotation (with Stamp) ===== -->
+        <record id="action_report_saleorder_stamp" model="ir.actions.report">
+            <field name="name">Quotation / Order (with Stamp)</field>
+            <field name="model">sale.order</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">od19_sales_confirm_stamp.report_saleorder_stamp</field>
+            <field name="report_file">od19_sales_confirm_stamp.report_saleorder_stamp</field>
+            <field name="print_report_name">
+                (object.name or 'Quotation') + ' (stamped)'
+            </field>
+            <field name="binding_model_id" ref="sale.model_sale_order"/>
+            <field name="binding_type">report</field>
+            <field name="attachment_use" eval="False"/>
+        </record>
+
+    </data>
+</odoo>

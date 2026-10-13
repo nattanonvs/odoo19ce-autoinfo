@@ -1,3 +1,5 @@
+import re
+
 from odoo import api, fields, models
 
 
@@ -19,9 +21,10 @@ class ProjectTask(models.Model):
         )
 
     def _generate_task_code(self):
-        """Generate task code: T + dept_code + initials + '-' + padded_number.
+        """Generate task code: T + dept_code + initials + padded_number.
 
-        Uses the project's department and salesperson for the prefix.
+        Sequence produces: T + <number>  e.g. T0001
+        Result:             T + <dept_code> + <initials> + <number>  e.g. TBANV0001
         """
         self.ensure_one()
         sequence = self._get_task_sequence()
@@ -41,16 +44,11 @@ class ProjectTask(models.Model):
             if self.project_id.od19_sale_person_id:
                 initials = self.project_id.od19_sale_person_id.od19_initials or ""
 
-        # Insert dept_code + initials after the 'T' prefix
+        # Insert dept_code + initials after the 'T' prefix (first char)
         return generated[:1] + dept_code + initials + generated[1:]
 
     @api.model_create_multi
     def create(self, vals_list):
-        for vals in vals_list:
-            if not vals.get("od19_task_code"):
-                # We need the project to get dept and salesperson
-                # So generate after create if project is set
-                pass
         records = super().create(vals_list)
         for record in records:
             if not record.od19_task_code and record.project_id:

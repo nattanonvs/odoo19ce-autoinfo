@@ -1,8 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Contact Us Page (uses Odoo built-in /contactus route) -->
+    <!-- ============================================================ -->
+    <!-- Contact Us Page – override the default Odoo contact page       -->
+    <!-- ============================================================ -->
     <template id="od19_contact_page" name="Contact Page" inherit_id="website.contactus" priority="20">
+
+        <!-- Replace the default "My Company" sidebar with Auto-Info details -->
+        <xpath expr="//div[hasclass('col-lg-4') and .//h5[text()='My Company']]" position="replace">
+            <div class="col-lg-4 offset-lg-1 mt-4 mt-lg-0">
+                <h5 style="color:var(--od19-primary);font-weight:700;">
+                    <i class="fa fa-building me-2"/>The Auto-Info Co., Ltd.
+                </h5>
+                <ul class="list-unstyled mb-0 ps-2">
+                    <li class="mb-2">
+                        <i class="fa fa-map-marker fa-fw me-2" style="color:var(--od19-secondary);"/>
+                        1359 Soi Ladprao 94 (Panjamitr), Ladprao Rd., Plubpla, Wangthonglang, Bangkok 10310
+                    </li>
+                    <li class="mb-2">
+                        <i class="fa fa-phone fa-fw me-2" style="color:var(--od19-secondary);"/>
+                        +66 2 934 5410-6
+                    </li>
+                    <li class="mb-2">
+                        <i class="fa fa-fax fa-fw me-2" style="color:var(--od19-secondary);"/>
+                        +66 2 934 5417
+                    </li>
+                    <li>
+                        <i class="fa fa-envelope fa-fw me-2" style="color:var(--od19-secondary);"/>
+                        sales@auto-info.co.th
+                    </li>
+                </ul>
+            </div>
+        </xpath>
+
+        <!-- Append our additional contact cards (Head Office, Engineering Center, Hours) -->
         <xpath expr="//div[@id='wrap']" position="inside">
             <section class="od19-section bg-light">
                 <div class="container">
@@ -40,6 +71,7 @@
                 </div>
             </section>
         </xpath>
+
     </template>
 
 </odoo>

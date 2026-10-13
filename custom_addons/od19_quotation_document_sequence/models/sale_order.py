@@ -53,24 +53,27 @@ class SaleOrder(models.Model):
         return res
 
     @api.model
-    def create(self, vals):
-        if vals.get("name", _("New")) == _("New"):
-            department_id = vals.get("department_id")
-            if department_id:
-                department = self.env["hr.department"].browse(department_id)
-                if department and department.quotation_sequence_id:
-                    seq_date = None
-                    if vals.get("date_order"):
-                        seq_date = fields.Datetime.context_timestamp(
-                            self, fields.Datetime.to_datetime(vals["date_order"])
+    def create(self, vals_list):
+        if isinstance(vals_list, dict):
+            vals_list = [vals_list]
+        for vals in vals_list:
+            if vals.get("name", _("New")) == _("New"):
+                department_id = vals.get("department_id")
+                if department_id:
+                    department = self.env["hr.department"].browse(department_id)
+                    if department and department.quotation_sequence_id:
+                        seq_date = None
+                        if vals.get("date_order"):
+                            seq_date = fields.Datetime.context_timestamp(
+                                self, fields.Datetime.to_datetime(vals["date_order"])
+                            )
+                        vals["name"] = (
+                            department.quotation_sequence_id.next_by_id(
+                                sequence_date=seq_date
+                            )
+                            or "/"
                         )
-                    vals["name"] = (
-                        department.quotation_sequence_id.next_by_id(
-                            sequence_date=seq_date
-                        )
-                        or "/"
-                    )
-        return super().create(vals)
+        return super().create(vals_list)
 
     def write(self, vals):
         res = super().write(vals)

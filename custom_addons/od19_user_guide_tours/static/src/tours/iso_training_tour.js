@@ -1,0 +1,116 @@
+import { _t } from "@web/core/l10n/translation";
+import { registry } from "@web/core/registry";
+import { stepUtils } from "@web_tour/tour_utils";
+import { markup } from "@odoo/owl";
+
+/**
+ * OD19 ISO Training & Competence Tour
+ *
+ * Walks the user through:
+ *  1. Creating a training course
+ *  2. Course workflow: Draft → Planned → In Progress → Completed
+ *  3. Managing competences and employee competence matrix
+ */
+registry.category("web_tour.tours").add("od19_iso_training_tour", {
+    url: "/odoo",
+    steps: () => [
+        ...stepUtils.goToAppSteps(
+            "od19_iso_document_control.menu_iso_root",
+            markup(_t("Let's manage <b>Training &amp; Competence</b> for ISO compliance."))
+        ),
+
+        {
+            trigger: ".o_menu_sections a:contains('การฝึกอบรมและความสามารถ')",
+            content: markup(_t("Open the <b>การฝึกอบรมและความสามารถ (Training &amp; Competence)</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".o_menu_sections a:contains('หลักสูตรการฝึกอบรม')",
+            content: markup(_t("Open <b>หลักสูตรการฝึกอบรม (Training Courses)</b>.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_button_add",
+            content: _t("Create a new training course."),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='name'] input",
+            content: _t("Enter the course name."),
+            run: "edit ISO 9001 Internal Auditor Training",
+        },
+        {
+            trigger: ".o_field_widget[name='date_start'] input",
+            content: _t("Set the start date."),
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='date_end'] input",
+            content: _t("Set the end date."),
+            run: "click",
+        },
+        ...stepUtils.saveForm(),
+
+        // --- Course Workflow ---
+        {
+            trigger: "button[name='action_plan']",
+            content: markup(_t("Click <b>วางแปรยัง</b> (Plan) to confirm the course schedule.")),
+            tooltipPosition: "left",
+            run: "click",
+        },
+        {
+            trigger: "button[name='action_start']",
+            content: markup(_t("Click <b>เริ่มจัดฝึก</b> (Start) when the training begins.")),
+            tooltipPosition: "left",
+            run: "click",
+        },
+        {
+            trigger: "button[name='action_complete']",
+            content: markup(_t("Click <b>จบหลักสูตร</b> (Complete) when the training is finished.")),
+            tooltipPosition: "left",
+            run: "click",
+        },
+        ...stepUtils.discardForm(),
+
+        // --- Competences ---
+        {
+            trigger: ".o_menu_sections a:contains('ความสามารถ/ทักษะ')",
+            content: markup(_t("Open <b>ความสามารถ/ทักษะ (Competences)</b> to define required skills.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_button_add",
+            content: _t("Create a new competence/skill."),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='name'] input",
+            content: _t("Enter the competence name."),
+            run: "edit Internal Auditing",
+        },
+        ...stepUtils.saveForm(),
+        ...stepUtils.discardForm(),
+
+        // --- Employee Competence Matrix ---
+        {
+            trigger: ".o_menu_sections a:contains('ตารางความสามารถพนักงาน')",
+            content: markup(_t("Open <b>ตารางความสามารถพนักงาน (Employee Competence Matrix)</b> to assign competences to employees.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+
+        {
+            trigger: ".o_list_renderer",
+            content: markup(_t(
+                "Training &amp; Competence complete! Course workflow: " +
+                "<b>Draft → Planned → In Progress → Completed</b>. " +
+                "Define competences, then assign them to employees via the competence matrix."
+            )),
+        },
+    ],
+});

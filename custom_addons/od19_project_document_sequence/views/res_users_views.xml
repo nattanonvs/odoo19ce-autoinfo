@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_users_form_inherit_od19_initials" model="ir.ui.view">
+            <field name="name">res.users.form.inherit.od19.initials</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='login']" position="after">
+                    <field name="od19_initials"/>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

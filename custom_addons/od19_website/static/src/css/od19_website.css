@@ -9,7 +9,60 @@
     --od19-dark: #1a2332;
     --od19-light: #f5f7fa;
     --od19-gray: #6c757d;
+    /* Override Bootstrap 5 primary to match Auto-Info brand */
+    --bs-primary: #0056b3;
+    --bs-primary-rgb: 0, 86, 179;
+    --bs-link-color: #0056b3;
+    --bs-link-hover-color: #003d80;
 }
+
+/* Override Bootstrap primary button colors */
+.btn-primary,
+.btn.btn-primary,
+button.btn-primary,
+a.btn-primary {
+    background-color: #0056b3 !important;
+    border-color: #0056b3 !important;
+}
+.btn-primary:hover,
+.btn.btn-primary:hover,
+button.btn-primary:hover,
+a.btn-primary:hover {
+    background-color: #003d80 !important;
+    border-color: #003570 !important;
+}
+.btn-primary:active,
+.btn-primary:focus {
+    background-color: #003570 !important;
+    border-color: #003d80 !important;
+}
+.btn-outline-primary,
+.btn.btn-outline-primary {
+    color: #0056b3 !important;
+    border-color: #0056b3 !important;
+    background-color: transparent !important;
+}
+.btn-outline-primary:hover,
+.btn.btn-outline-primary:hover {
+    color: #fff !important;
+    background-color: #0056b3 !important;
+    border-color: #0056b3 !important;
+}
+.text-primary { color: #0056b3 !important; }
+.bg-primary { background-color: #0056b3 !important; }
+.border-primary { border-color: #0056b3 !important; }
+
+/* Navbar brand color */
+.navbar-light .navbar-nav .nav-link.active,
+.navbar-light .navbar-nav .show > .nav-link {
+    color: #0056b3;
+}
+.navbar-light .navbar-nav .nav-link:hover,
+.navbar-light .navbar-nav .nav-link:focus {
+    color: #003d80;
+}
+a { color: #0056b3; }
+a:hover { color: #003d80; }
 
 /* ---------- Hero ---------- */
 .od19-hero {

@@ -1,5 +1,6 @@
+import re
+
 from odoo import api, fields, models
-from odoo.exceptions import ValidationError
 
 
 # Mapping of project type to (type_prefix, sequence field name on hr.department)
@@ -9,6 +10,21 @@ PROJECT_TYPE_SEQUENCE_MAP = {
     "pm": ("PM", "project_pm_sequence_id"),
     "service": ("S", "project_service_sequence_id"),
 }
+
+
+def _insert_initials_before_year(generated, initials):
+    """Insert sales initials right before the 2-digit year in a sequence value.
+
+    Sequence produces: <prefix><YY>-<number>  e.g. JB26-0001
+    Result:            <prefix><initials><YY>-<number>  e.g. JBNV26-0001
+    """
+    if not generated:
+        return generated
+    match = re.search(r'\d{2}', generated)
+    if match:
+        pos = match.start()
+        return generated[:pos] + initials + generated[pos:]
+    return generated
 
 
 class ProjectProject(models.Model):
@@ -61,11 +77,7 @@ class ProjectProject(models.Model):
         return getattr(self.od19_department_id, seq_field)
 
     def _generate_job_no(self, sequence=None, sale_person=None):
-        """Generate the job number by inserting sales initials into the sequence.
-
-        The sequence produces: type_prefix + dept_code + year + '-' + number
-        We insert the salesperson initials between dept_code and year.
-        """
+        """Generate the job number by inserting sales initials before the year."""
         self.ensure_one()
         sequence = sequence or self._get_project_sequence()
         if not sequence:
@@ -78,48 +90,42 @@ class ProjectProject(models.Model):
         if not generated:
             return False
 
-        type_prefix = PROJECT_TYPE_SEQUENCE_MAP.get(self.od19_project_type, ("", None))[0]
-        dept_code = self.od19_department_id.od19_dept_code or ""
         initials = ""
         if sale_person:
             initials = sale_person.od19_initials or ""
         elif self.od19_sale_person_id:
             initials = self.od19_sale_person_id.od19_initials or ""
 
-        # Insert initials after type_prefix + dept_code
-        split_pos = len(type_prefix) + len(dept_code)
-        return generated[:split_pos] + initials + generated[split_pos:]
+        return _insert_initials_before_year(generated, initials)
 
-    @api.model
-    def create(self, vals):
-        # Generate job number if not provided
-        if not vals.get("job_no"):
-            department_id = vals.get("od19_department_id")
-            project_type = vals.get("od19_project_type", "job")
-            if department_id and project_type in PROJECT_TYPE_SEQUENCE_MAP:
-                department = self.env["hr.department"].browse(department_id)
-                seq_field = PROJECT_TYPE_SEQUENCE_MAP[project_type][1]
-                sequence = getattr(department, seq_field)
-                if sequence:
-                    sale_person_id = vals.get("od19_sale_person_id")
-                    sale_person = (
-                        self.env["res.users"].browse(sale_person_id)
-                        if sale_person_id
-                        else False
-                    )
-                    type_prefix = PROJECT_TYPE_SEQUENCE_MAP[project_type][0]
-                    dept_code = department.od19_dept_code or ""
-                    initials = sale_person.od19_initials if sale_person else ""
-                    seq_date = None
-                    if vals.get("date_start"):
-                        seq_date = fields.Date.to_date(vals["date_start"])
-                    generated = sequence.next_by_id(sequence_date=seq_date)
-                    if generated:
-                        split_pos = len(type_prefix) + len(dept_code)
-                        vals["job_no"] = (
-                            generated[:split_pos] + initials + generated[split_pos:]
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            # Generate job number if not provided
+            if not vals.get("job_no"):
+                department_id = vals.get("od19_department_id")
+                project_type = vals.get("od19_project_type", "job")
+                if department_id and project_type in PROJECT_TYPE_SEQUENCE_MAP:
+                    department = self.env["hr.department"].browse(department_id)
+                    seq_field = PROJECT_TYPE_SEQUENCE_MAP[project_type][1]
+                    sequence = getattr(department, seq_field)
+                    if sequence:
+                        sale_person_id = vals.get("od19_sale_person_id")
+                        sale_person = (
+                            self.env["res.users"].browse(sale_person_id)
+                            if sale_person_id
+                            else False
                         )
-        return super().create(vals)
+                        initials = sale_person.od19_initials if sale_person else ""
+                        seq_date = None
+                        if vals.get("date_start"):
+                            seq_date = fields.Date.to_date(vals["date_start"])
+                        generated = sequence.next_by_id(sequence_date=seq_date)
+                        if generated:
+                            vals["job_no"] = _insert_initials_before_year(
+                                generated, initials
+                            )
+        return super().create(vals_list)
 
     def write(self, vals):
         res = super().write(vals)
@@ -135,14 +141,3 @@ class ProjectProject(models.Model):
                     if new_job_no:
                         rec.job_no = new_job_no
         return res
-
-    @api.constrains("job_no")
-    def _check_job_no_uniqueness(self):
-        for project in self:
-            if project.job_no:
-                duplicate = self.search(
-                    [("job_no", "=", project.job_no), ("id", "!=", project.id)],
-                    limit=1,
-                )
-                if duplicate:
-                    raise ValidationError("Job Number must be unique.")

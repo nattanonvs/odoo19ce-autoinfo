@@ -16,14 +16,14 @@
                         string="Create Revision"
                         type="object"
                         class="btn-secondary"
-                        attrs="{'invisible': [('state', 'not in', ('draft', 'sent'))]}"
+                        invisible="state not in ('draft', 'sent')"
                     />
                     <button
                         name="action_view_revisions"
                         string="Revisions"
                         type="object"
                         class="btn-secondary"
-                        attrs="{'invisible': [('revision_count', '=', 0)]}"
+                        invisible="revision_count == 0"
                     />
                 </xpath>
             </field>

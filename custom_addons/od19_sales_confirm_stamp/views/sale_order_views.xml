@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_sale_order_form_od19_stamp" model="ir.ui.view">
+            <field name="name">sale.order.form.od19.stamp</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='order_lines']" position="after">
+                    <page string="Stamp" name="od19_stamp_page">
+                        <group string="Confirmed Stamp">
+                            <group>
+                                <field name="stamp_date"/>
+                                <field name="stamp_code" placeholder="e.g. PMB26014 (MA)"/>
+                                <field name="commitment_date"/>
+                            </group>
+                            <group>
+                                <field name="confirmed_by_id" readonly="1"/>
+                                <field name="od19_project_id" readonly="1"/>
+                            </group>
+                        </group>
+                        <group string="Stamp Data Source">
+                            <div class="alert alert-info">
+                                <ul>
+                                    <li><strong>SIGN</strong> = the user who confirmed this order</li>
+                                    <li><strong>DATE</strong> = Stamp Date (above)</li>
+                                    <li><strong>DELIVERY ON</strong> = Commitment Date (above)</li>
+                                    <li><strong>JOB</strong> = linked Project's Job Number</li>
+                                    <li><strong>CODE</strong> = Stamp Code (above)</li>
+                                </ul>
+                            </div>
+                            <div class="alert alert-warning">
+                                The red <strong>CONFIRMED</strong> stamp box appears on the
+                                printed quotation only when this order is confirmed
+                                <em>and</em> Stamp Date is filled in. Use the
+                                <em>Print Quotation (with Stamp)</em> action to produce
+                                the stamped document.
+                            </div>
+                        </group>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

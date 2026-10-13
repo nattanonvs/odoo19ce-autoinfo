@@ -16,6 +16,7 @@ Task Code format: T + dept_code + sales_initials + sequence.
         "project",
         "hr",
         "od19_purchase_document_sequence",
+        "od19_project_analytic",
     ],
     "data": [
         "data/ir_sequence_data.xml",

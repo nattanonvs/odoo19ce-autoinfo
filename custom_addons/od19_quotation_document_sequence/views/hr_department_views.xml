@@ -7,7 +7,7 @@
             <field name="model">hr.department</field>
             <field name="inherit_id" ref="hr.view_department_form"/>
             <field name="arch" type="xml">
-                <xpath expr="//group[@string='Purchase']" position="inside">
+                <xpath expr="//field[@name='po_sequence_id']/.." position="inside">
                     <field name="quotation_sequence_id"/>
                 </xpath>
             </field>

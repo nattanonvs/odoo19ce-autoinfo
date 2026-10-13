@@ -15,6 +15,7 @@ Also supports quotation revision with /R01, /R02 suffix.
     "depends": [
         "sale_management",
         "hr",
+        "od19_purchase_document_sequence",
     ],
     "data": [
         "data/ir_sequence_data.xml",

@@ -30,7 +30,7 @@
         "data/website_pages.xml",
     ],
     "assets": {
-        "website.assets_frontend": [
+        "web.assets_frontend": [
             "od19_website/static/src/css/od19_website.css",
         ],
     },
