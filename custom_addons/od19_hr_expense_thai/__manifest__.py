@@ -1,0 +1,15 @@
+# -*- coding: utf-8 -*-
+{
+    'name': 'HR Expense Thai Localization',
+    'version': '19.0.1.0.0',
+    'category': 'Human Resources/Expenses',
+    'summary': 'Thai HR expense extensions: cash reimbursement, multi-tier approval',
+    'depends': ['hr_expense'],
+    'data': [
+        'security/ir.model.access.csv',
+        'views/hr_expense_views.xml',
+    ],
+    'installable': True,
+    'application': False,
+    'license': 'LGPL-3',
+}
