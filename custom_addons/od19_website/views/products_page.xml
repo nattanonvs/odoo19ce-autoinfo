@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Products Page -->
+    <template id="od19_products_page" name="Products Page">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                <section class="od19-hero" style="padding:50px 0;">
+                    <div class="container">
+                        <h1>Products</h1>
+                        <p class="lead mb-0">Best-in-Class automation products from leading global brands</p>
+                    </div>
+                </section>
+                <section class="od19-section">
+                    <div class="container">
+                        <div class="row g-4">
+                            <div class="col-md-4 col-sm-6">
+                                <div class="od19-product-card">
+                                    <div class="od19-product-img"><i class="fa fa-microchip"/></div>
+                                    <div class="od19-product-body">
+                                        <h4>Fusion 4 MSC-L</h4>
+                                        <p class="text-muted small">Advanced multi-stream controller for building automation.</p>
+                                        <a href="/contactus">Request Info <i class="fa fa-arrow-right"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-6">
+                                <div class="od19-product-card">
+                                    <div class="od19-product-img"><i class="fa fa-tachometer"/></div>
+                                    <div class="od19-product-body">
+                                        <h4>Symaro Sensors</h4>
+                                        <p class="text-muted small">High-precision sensors for HVAC and building control.</p>
+                                        <a href="/contactus">Request Info <i class="fa fa-arrow-right"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-6">
+                                <div class="od19-product-card">
+                                    <div class="od19-product-img"><i class="fa fa-tint"/></div>
+                                    <div class="od19-product-body">
+                                        <h4>Servo Gauge 854 ATG</h4>
+                                        <p class="text-muted small">Automatic tank gauging for terminal inventory.</p>
+                                        <a href="/contactus">Request Info <i class="fa fa-arrow-right"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-6">
+                                <div class="od19-product-card">
+                                    <div class="od19-product-img"><i class="fa fa-cogs"/></div>
+                                    <div class="od19-product-body">
+                                        <h4>Modicon M580</h4>
+                                        <p class="text-muted small">High-performance PLC for industrial automation.</p>
+                                        <a href="/contactus">Request Info <i class="fa fa-arrow-right"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center mt-5">
+                            <p class="text-muted">Looking for a specific product? Contact our sales team for the full catalog.</p>
+                            <a href="/contactus" class="btn btn-primary">Contact Sales</a>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </t>
+    </template>
+
+</odoo>

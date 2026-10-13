@@ -1,0 +1,280 @@
+/* ============================================================
+   Auto-Info Corporate Website — Branding & Layout
+   ============================================================ */
+
+:root {
+    --od19-primary: #0056b3;
+    --od19-primary-dark: #003d80;
+    --od19-secondary: #f39200;
+    --od19-dark: #1a2332;
+    --od19-light: #f5f7fa;
+    --od19-gray: #6c757d;
+}
+
+/* ---------- Hero ---------- */
+.od19-hero {
+    background: linear-gradient(135deg, var(--od19-primary-dark) 0%, var(--od19-primary) 100%);
+    color: #fff;
+    padding: 80px 0;
+    position: relative;
+    overflow: hidden;
+}
+.od19-hero::after {
+    content: "";
+    position: absolute;
+    right: -100px;
+    top: -100px;
+    width: 400px;
+    height: 400px;
+    background: rgba(243, 146, 0, 0.15);
+    border-radius: 50%;
+}
+.od19-hero h1 {
+    font-size: 2.8rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+.od19-hero p.lead {
+    font-size: 1.3rem;
+    opacity: 0.92;
+    margin-bottom: 2rem;
+}
+.od19-hero .btn-hero {
+    background: var(--od19-secondary);
+    border: none;
+    color: #fff;
+    padding: 12px 32px;
+    font-size: 1.05rem;
+    border-radius: 4px;
+    font-weight: 600;
+}
+.od19-hero .btn-hero:hover {
+    background: #d98200;
+    color: #fff;
+}
+
+/* ---------- Section generic ---------- */
+.od19-section {
+    padding: 70px 0;
+}
+.od19-section-title {
+    text-align: center;
+    margin-bottom: 50px;
+}
+.od19-section-title h2 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--od19-dark);
+    margin-bottom: 10px;
+}
+.od19-section-title .od19-divider {
+    width: 60px;
+    height: 4px;
+    background: var(--od19-secondary);
+    margin: 0 auto;
+    border-radius: 2px;
+}
+
+/* ---------- Service cards ---------- */
+.od19-service-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    padding: 35px 25px;
+    text-align: center;
+    height: 100%;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.od19-service-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+.od19-service-card .od19-icon {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 20px;
+    background: var(--od19-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.8rem;
+}
+.od19-service-card h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--od19-dark);
+    margin-bottom: 12px;
+}
+.od19-service-card p {
+    color: var(--od19-gray);
+    font-size: 0.95rem;
+}
+
+/* ---------- Product highlight ---------- */
+.od19-product-card {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: box-shadow 0.25s ease;
+}
+.od19-product-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+.od19-product-card .od19-product-img {
+    height: 180px;
+    background: var(--od19-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: var(--od19-primary);
+}
+.od19-product-card .od19-product-body {
+    padding: 18px;
+}
+.od19-product-card h4 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--od19-dark);
+    margin-bottom: 6px;
+}
+.od19-product-card a {
+    color: var(--od19-primary);
+    font-weight: 600;
+    font-size: 0.88rem;
+    text-decoration: none;
+}
+
+/* ---------- About / Stats ---------- */
+.od19-stats {
+    background: var(--od19-dark);
+    color: #fff;
+    padding: 60px 0;
+    text-align: center;
+}
+.od19-stats .od19-stat-number {
+    font-size: 2.6rem;
+    font-weight: 800;
+    color: var(--od19-secondary);
+}
+.od19-stats .od19-stat-label {
+    font-size: 0.95rem;
+    opacity: 0.85;
+}
+
+/* ---------- Contact ---------- */
+.od19-contact-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    padding: 30px;
+    height: 100%;
+}
+.od19-contact-card h4 {
+    color: var(--od19-primary);
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+.od19-contact-card p {
+    color: var(--od19-gray);
+    margin-bottom: 8px;
+}
+
+/* ---------- Footer ---------- */
+.od19-footer {
+    background: var(--od19-dark);
+    color: #c2c9d3;
+    padding: 50px 0 20px;
+}
+.od19-footer h5 {
+    color: #fff;
+    font-weight: 700;
+    margin-bottom: 18px;
+    font-size: 1rem;
+}
+.od19-footer a {
+    color: #c2c9d3;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+.od19-footer a:hover {
+    color: var(--od19-secondary);
+}
+.od19-footer-bottom {
+    border-top: 1px solid #2c3a4f;
+    margin-top: 30px;
+    padding-top: 18px;
+    font-size: 0.85rem;
+    text-align: center;
+}
+
+/* ---------- Employee Portal ---------- */
+.od19-portal-hero {
+    background: linear-gradient(135deg, #1a2332 0%, #0056b3 100%);
+    color: #fff;
+    padding: 40px 0;
+    margin-bottom: 30px;
+}
+.od19-portal-hero h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0;
+}
+.od19-portal-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    padding: 24px;
+    height: 100%;
+    transition: transform 0.2s ease;
+}
+.od19-portal-card:hover {
+    transform: translateY(-3px);
+}
+.od19-portal-card .od19-portal-icon {
+    width: 50px;
+    height: 50px;
+    background: var(--od19-primary);
+    color: #fff;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    margin-bottom: 14px;
+}
+.od19-portal-card h5 {
+    font-weight: 700;
+    color: var(--od19-dark);
+    margin-bottom: 8px;
+}
+.od19-portal-card p {
+    color: var(--od19-gray);
+    font-size: 0.9rem;
+    margin: 0;
+}
+.od19-portal-card a {
+    color: var(--od19-primary);
+    font-weight: 600;
+    font-size: 0.88rem;
+    text-decoration: none;
+}
+.od19-announcement-badge {
+    background: var(--od19-secondary);
+    color: #fff;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+/* ---------- Header tweaks ---------- */
+#top_header {
+    background: var(--od19-primary);
+}
+header#top .nav-link {
+    font-weight: 500;
+}

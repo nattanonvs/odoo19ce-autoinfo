@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Extend document.page list view -->
+    <record id="view_document_page_list_enhanced" model="ir.ui.view">
+        <field name="name">document.page.list.enhanced</field>
+        <field name="model">document.page</field>
+        <field name="inherit_id" ref="document_page.view_wiki_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='content_uid']" position="before">
+                <field name="category"/>
+                <field name="is_emergency" widget="boolean_toggle"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend document.page form view -->
+    <record id="view_document_page_form_enhanced" model="ir.ui.view">
+        <field name="name">document.page.form.enhanced</field>
+        <field name="model">document.page</field>
+        <field name="inherit_id" ref="document_page.view_wiki_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='info']//group[1]" position="inside">
+                <group string="Knowledge">
+                    <field name="category"/>
+                    <field name="is_emergency"/>
+                    <field name="keywords"/>
+                    <field name="ticket_id"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend document.page search view -->
+    <record id="view_document_page_search_enhanced" model="ir.ui.view">
+        <field name="name">document.page.search.enhanced</field>
+        <field name="model">document.page</field>
+        <field name="inherit_id" ref="document_page.view_wiki_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <field name="content_plain" string="Content"/>
+                <field name="keywords"/>
+                <field name="category"/>
+                <separator/>
+                <filter string="Emergency" name="filter_emergency"
+                        domain="[('is_emergency','=',True)]"/>
+                <filter string="Procedures" name="filter_procedure"
+                        domain="[('category','=','procedure')]"/>
+                <filter string="Troubleshooting" name="filter_troubleshooting"
+                        domain="[('category','=','troubleshooting')]"/>
+                <group name="group_by">
+                    <filter string="Category" name="group_category"
+                            context="{'group_by':'category'}"/>
+                    <filter string="Contributor" name="group_contributor"
+                            context="{'group_by':'content_uid'}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Knowledge Articles action (reuses document.page model) -->
+    <record id="knowledge_article_action" model="ir.actions.act_window">
+        <field name="name">Knowledge Articles</field>
+        <field name="res_model">document.page</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('type','=','content')]</field>
+        <field name="context">{'default_type': 'content'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first knowledge article
+            </p>
+        </field>
+    </record>
+
+</odoo>

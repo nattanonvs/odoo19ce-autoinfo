@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Extend purchase.request form view -->
+    <record id="view_purchase_request_form_od19" model="ir.ui.view">
+        <field name="name">purchase.request.form.od19</field>
+        <field name="model">purchase.request</field>
+        <field name="inherit_id" ref="purchase_request.view_purchase_request_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[1]" position="inside">
+                <group string="Thai Info (OD19)">
+                    <field name="od19_priority"/>
+                    <field name="od19_requested_department_id"/>
+                    <field name="od19_budget_year"/>
+                    <field name="od19_issue_id"/>
+                </group>
+            </xpath>
+            <xpath expr="//field[@name='description']" position="after">
+                <field name="od19_request_reason"
+                       placeholder="ระบุเหตุผลในการขอซื้อ (จำเป็นสำหรับ Urgent / Emergency)"/>
+                <field name="od19_justification_required" invisible="1"/>
+            </xpath>
+            <xpath expr="//field[@name='line_ids']//list" position="inside">
+                <field name="od19_justification" optional="hide"/>
+                <field name="od19_asset_id" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend purchase.request list view -->
+    <record id="view_purchase_request_tree_od19" model="ir.ui.view">
+        <field name="name">purchase.request.list.od19</field>
+        <field name="model">purchase.request</field>
+        <field name="inherit_id" ref="purchase_request.view_purchase_request_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='date_start']" position="after">
+                <field name="od19_priority" widget="badge"
+                       decoration-danger="od19_priority == 'emergency'"
+                       decoration-warning="od19_priority == 'urgent'"/>
+                <field name="od19_requested_department_id" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend purchase.request search view -->
+    <record id="view_purchase_request_search_od19" model="ir.ui.view">
+        <field name="name">purchase.request.search.od19</field>
+        <field name="model">purchase.request</field>
+        <field name="inherit_id" ref="purchase_request.view_purchase_request_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <field name="od19_priority"/>
+                <field name="od19_requested_department_id"/>
+                <field name="od19_budget_year"/>
+                <separator/>
+                <filter string="ด่วนพิเศษ / Emergency" name="filter_emergency"
+                        domain="[('od19_priority','=','emergency')]"/>
+                <filter string="ด่วน / Urgent" name="filter_urgent"
+                        domain="[('od19_priority','=','urgent')]"/>
+                <filter string="ปกติ / Normal" name="filter_normal"
+                        domain="[('od19_priority','=','normal')]"/>
+            </xpath>
+            <xpath expr="//group[last()]" position="inside">
+                <filter name="group_od19_priority" string="Priority" icon="fa-bolt"
+                        domain="[]" context="{'group_by':'od19_priority'}"/>
+                <filter name="group_od19_department" string="Department" icon="fa-building"
+                        domain="[]" context="{'group_by':'od19_requested_department_id'}"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

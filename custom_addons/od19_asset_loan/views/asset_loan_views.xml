@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Tree View -->
+    <record id="asset_loan_view_tree" model="ir.ui.view">
+        <field name="name">asset.loan.tree</field>
+        <field name="model">asset.loan</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="borrower_id"/>
+                <field name="loan_date"/>
+                <field name="expected_return_date"/>
+                <field name="actual_return_date"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-primary="state == 'borrowed'"
+                       decoration-success="state == 'returned'"
+                       decoration-danger="state in ('lost', 'cancelled')"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="asset_loan_view_form" model="ir.ui.view">
+        <field name="name">asset.loan.form</field>
+        <field name="model">asset.loan</field>
+        <field name="arch" type="xml">
+            <form string="Asset Loan">
+                <header>
+                    <button name="action_confirm" string="Confirm" type="object"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_return" string="Return" type="object"
+                            invisible="state != 'borrowed'"/>
+                    <button name="action_lost" string="Mark Lost" type="object"
+                            invisible="state != 'borrowed'"/>
+                    <button name="action_cancel" string="Cancel" type="object"
+                            invisible="state in ('returned', 'lost', 'cancelled')"/>
+                    <button name="action_draft" string="Reset to Draft" type="object"
+                            invisible="state != 'cancelled'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,borrowed,returned,lost"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box"/>
+                    <group>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="borrower_id"/>
+                            <field name="loan_date"/>
+                            <field name="expected_return_date"/>
+                            <field name="actual_return_date"/>
+                        </group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Equipment" name="equipment">
+                            <field name="line_ids">
+                                <list editable="bottom">
+                                    <field name="equipment_id"/>
+                                    <field name="quantity"/>
+                                    <field name="returned_quantity" readonly="1"/>
+                                    <field name="state" readonly="1"/>
+                                    <field name="note"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Purpose &amp; Notes" name="notes">
+                            <field name="purpose" placeholder="Purpose of the loan..."/>
+                            <field name="note" placeholder="Additional notes..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="asset_loan_view_search" model="ir.ui.view">
+        <field name="name">asset.loan.search</field>
+        <field name="model">asset.loan</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="borrower_id"/>
+                <field name="loan_date"/>
+                <filter string="Draft" name="filter_draft" domain="[('state','=','draft')]"/>
+                <filter string="Borrowed" name="filter_borrowed" domain="[('state','=','borrowed')]"/>
+                <filter string="Returned" name="filter_returned" domain="[('state','=','returned')]"/>
+                <filter string="Overdue" name="filter_overdue"
+                        domain="[('state','=','borrowed'), ('expected_return_date','&lt;', context_today())]"/>
+                <group name="group_by">
+                    <filter string="Borrower" name="group_borrower" context="{'group_by': 'borrower_id'}"/>
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Loan Date" name="group_loan_date" context="{'group_by': 'loan_date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Actions -->
+    <record id="asset_loan_action" model="ir.actions.act_window">
+        <field name="name">Asset Loans</field>
+        <field name="res_model">asset.loan</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new asset loan
+            </p>
+        </field>
+    </record>
+
+</odoo>

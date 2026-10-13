@@ -1,0 +1,110 @@
+import { _t } from "@web/core/l10n/translation";
+import { registry } from "@web/core/registry";
+import { stepUtils } from "@web_tour/tour_utils";
+import { markup } from "@odoo/owl";
+
+/**
+ * OD19 Sales Contract & Billing Tour
+ *
+ * Walks the user through:
+ *  1. Creating a Sales Contract (master contract with limit amount)
+ *  2. Setting the over-limit consumption policy
+ *  3. Creating a Sales Order under the contract
+ *  4. Attaching Billing Evidence (delivery / service report)
+ *  5. Checking billing readiness
+ */
+registry.category("web_tour.tours").add("od19_sales_contract_billing_tour", {
+    url: "/odoo",
+    steps: () => [
+        ...stepUtils.goToAppSteps(
+            "sale.sale_menu_root",
+            markup(_t("Let's explore the <b>Sales</b> module: Contracts, Orders, and Billing Evidence."))
+        ),
+        // --- Sales Contract ---
+        {
+            trigger: ".o_menu_sections a:contains('Sales Contracts')",
+            content: markup(_t("Open the <b>Sales Contracts</b> menu to create a master contract.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_button_add",
+            content: _t("Create a new Sales Contract."),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='name'] input",
+            content: _t("Enter the contract name (e.g. Project A Master Contract)."),
+            run: "edit Project A Master Contract",
+        },
+        {
+            trigger: ".o_field_widget[name='partner_id'] input",
+            content: _t("Select or create the commercial customer."),
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='od19_project_id'] input",
+            content: markup(_t(
+                "Link the contract to a <b>Project</b> (Job No). Each contract belongs to one project."
+            )),
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='limit_amount'] input",
+            content: markup(_t(
+                "Set the <b>Limit Amount</b> (the committed budget for this contract)."
+            )),
+            run: "edit 1000000",
+        },
+        {
+            trigger: ".o_field_widget[name='over_limit_policy'] select",
+            content: markup(_t(
+                "Choose the <b>Over-Limit Policy</b>: block, warn, or allow consumption beyond the limit."
+            )),
+            run: "click",
+        },
+        ...stepUtils.saveForm(),
+        {
+            trigger: "a.nav-link:contains('Activities')",
+            content: markup(_t(
+                "Use the <b>Activities</b> page to add consumption lines that reduce the available limit."
+            )),
+            run: "click",
+        },
+        ...stepUtils.discardForm(),
+
+        // --- Billing Evidence (accessed from Sales Order) ---
+        {
+            trigger: ".o_menu_sections a:contains('Orders')",
+            content: markup(_t("Open <b>Orders</b> to access Sales Orders.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_renderer .o_data_row:first",
+            content: markup(_t(
+                "Open a <b>Sales Order</b>. Billing Evidence is attached from the Sales Order form " +
+                "and tracks the <b>Billing Readiness State</b>."
+            )),
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='od19_billing_readiness_state']",
+            content: markup(_t(
+                "The <b>Billing Readiness State</b> shows whether the order is ready to invoice " +
+                "(Ordered → Worked → Evidenced → Ready to Bill → Billed). " +
+                "Attach delivery slips or service reports as evidence before invoicing."
+            )),
+        },
+        ...stepUtils.discardForm(),
+        {
+            trigger: ".o_list_renderer",
+            content: markup(_t(
+                "Great! You now know how to set up a <b>Master Contract</b> with a consumption limit and " +
+                "attach <b>Billing Evidence</b> before invoicing. The system tracks status from " +
+                "<b>Ordered → Worked → Evidenced → Ready to Bill → Billed</b>."
+            )),
+        },
+    ],
+});

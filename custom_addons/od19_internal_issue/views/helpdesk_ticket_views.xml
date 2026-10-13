@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Extend ticket form -->
+    <record id="helpdesk_ticket_view_form_inherit_internal" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.form.internal</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk_mgmt.ticket_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='category_id']" position="after">
+                <field name="visibility"/>
+                <field name="department_id"
+                       invisible="visibility != 'department'"/>
+                <field name="reported_by_id"/>
+                <field name="is_emergency"/>
+            </xpath>
+
+            <xpath expr="//notebook/page[@name='other_info']" position="after">
+                <page string="Internal" name="internal">
+                    <group>
+                        <group>
+                            <field name="visibility"/>
+                            <field name="department_id"/>
+                            <field name="reported_by_id"/>
+                            <field name="is_emergency"/>
+                            <field name="has_tier_validation"/>
+                        </group>
+                    </group>
+                    <field name="resolution" placeholder="Root cause and solution..."/>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend ticket list view -->
+    <record id="ticket_view_tree_inherit_internal" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.list.internal</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk_mgmt.ticket_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="visibility"/>
+                <field name="is_emergency" widget="boolean_toggle"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend ticket search view -->
+    <record id="helpdesk_ticket_view_search_inherit_internal" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.search.internal</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk_mgmt.helpdesk_ticket_view_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="visibility"/>
+                <field name="department_id"/>
+                <field name="reported_by_id"/>
+                <field name="is_emergency"/>
+            </xpath>
+            <xpath expr="//search/group[1]" position="inside">
+                <filter string="Emergency" name="filter_emergency"
+                        domain="[('is_emergency','=',True)]"/>
+                <filter string="Public" name="filter_public"
+                        domain="[('visibility','=','public')]"/>
+                <filter string="Department" name="filter_department"
+                        domain="[('visibility','=','department')]"/>
+                <filter string="Private" name="filter_private"
+                        domain="[('visibility','=','private')]"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

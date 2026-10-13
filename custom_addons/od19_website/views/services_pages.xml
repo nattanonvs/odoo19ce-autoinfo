@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Industrial Automation -->
+    <template id="od19_industrial_page" name="Industrial Automation Page">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                <section class="od19-hero" style="padding:50px 0;">
+                    <div class="container">
+                        <h1>Industrial Automation</h1>
+                        <p class="lead mb-0">System Migrations · SCADA · Preventive Maintenance · Service Contract</p>
+                    </div>
+                </section>
+                <section class="od19-section">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <h3 style="color:var(--od19-dark);font-weight:700;">Overview</h3>
+                                <p>
+                                    We are an Automation Solution Provider with System Migrations,
+                                    SCADA Centralized Information, Preventive Maintenance and
+                                    Service Contract Provider. Our industrial automation solutions
+                                    help manufacturers improve efficiency, reduce downtime, and
+                                    ensure consistent product quality.
+                                </p>
+                                <h4 style="color:var(--od19-primary);margin-top:24px;">Key Capabilities</h4>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><i class="fa fa-check-circle text-success me-2"/>PLC &amp; DCS System Design &amp; Migration</li>
+                                    <li class="mb-2"><i class="fa fa-check-circle text-success me-2"/>SCADA Centralized Information Systems</li>
+                                    <li class="mb-2"><i class="fa fa-check-circle text-success me-2"/>Preventive Maintenance Programs</li>
+                                    <li class="mb-2"><i class="fa fa-check-circle text-success me-2"/>Service &amp; Maintenance Contracts</li>
+                                    <li class="mb-2"><i class="fa fa-check-circle text-success me-2"/>HMI &amp; Visualization Systems</li>
+                                </ul>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="od19-contact-card">
+                                    <h4><i class="fa fa-info-circle me-2"/>Need a Quote?</h4>
+                                    <p>Contact our industrial automation team for a tailored solution.</p>
+                                    <a href="/contactus" class="btn btn-primary w-100">Contact Sales</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </t>
+    </template>
+
+    <!-- Building Automation -->
+    <template id="od19_building_page" name="Building Automation Page">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                <section class="od19-hero" style="padding:50px 0;">
+                    <div class="container">
+                        <h1>Building Automation</h1>
+                        <p class="lead mb-0">GMP &amp; CSV Compliant Building Automation Systems</p>
+                    </div>
+                </section>
+                <section class="od19-section">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <h3 style="color:var(--od19-dark);font-weight:700;">Market Leader in Life Science Automation</h3>
+                                <p>
+                                    We are the market leader in Thailand's life science business
+                                    for Building Automation Systems. We supply products, services,
+                                    and validation to ensure full compliance with Good Manufacturing
+                                    Practice (GMP) and Computer System Validation (CSV) regulations.
+                                </p>
+                                <h4 style="color:var(--od19-primary);margin-top:24px;">Compliance &amp; Validation</h4>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><i class="fa fa-check-circle text-success me-2"/>GMP Compliance</li>
+                                    <li class="mb-2"><i class="fa fa-check-circle text-success me-2"/>CSV (Computer System Validation)</li>
+                                    <li class="mb-2"><i class="fa fa-check-circle text-success me-2"/>HVAC &amp; Clean Room Control</li>
+                                    <li class="mb-2"><i class="fa fa-check-circle text-success me-2"/>Energy Management Systems</li>
+                                    <li class="mb-2"><i class="fa fa-check-circle text-success me-2"/>Environmental Monitoring</li>
+                                </ul>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="od19-contact-card">
+                                    <h4><i class="fa fa-flask me-2"/>Life Science Expertise</h4>
+                                    <p>Trusted by leading pharmaceutical and life science companies in Thailand.</p>
+                                    <a href="/contactus" class="btn btn-primary w-100">Contact Sales</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </t>
+    </template>
+
+    <!-- Terminal Automation -->
+    <template id="od19_terminal_page" name="Terminal Automation Page">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                <section class="od19-hero" style="padding:50px 0;">
+                    <div class="container">
+                        <h1>Terminal Automation</h1>
+                        <p class="lead mb-0">Tank Gauging · Loading System · Integrated Terminal System</p>
+                    </div>
+                </section>
+                <section class="od19-section">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <h3 style="color:var(--od19-dark);font-weight:700;">Integrated Terminal Solutions</h3>
+                                <p>
+                                    We provide Best-in-Class products for Tank gauging, Loading
+                                    system and integrated terminal system for even better operational
+                                    efficiency. Our terminal automation solutions cover the full
+                                    spectrum from inventory management to load-out automation.
+                                </p>
+                                <h4 style="color:var(--od19-primary);margin-top:24px;">Solutions</h4>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><i class="fa fa-check-circle text-success me-2"/>Automatic Tank Gauging (ATG)</li>
+                                    <li class="mb-2"><i class="fa fa-check-circle text-success me-2"/>Loading &amp; Unloading Systems</li>
+                                    <li class="mb-2"><i class="fa fa-check-circle text-success me-2"/>Terminal Management System (TMS)</li>
+                                    <li class="mb-2"><i class="fa fa-check-circle text-success me-2"/>Inventory Reconciliation</li>
+                                    <li class="mb-2"><i class="fa fa-check-circle text-success me-2"/>Safety &amp; Overfill Prevention</li>
+                                </ul>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="od19-contact-card">
+                                    <h4><i class="fa fa-tint me-2"/>Terminal Projects</h4>
+                                    <p>Talk to our terminal automation specialists today.</p>
+                                    <a href="/contactus" class="btn btn-primary w-100">Contact Sales</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </t>
+    </template>
+
+</odoo>

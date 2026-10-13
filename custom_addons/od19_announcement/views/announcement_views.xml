@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="announcement_view_list" model="ir.ui.view">
+        <field name="name">announcement.list</field>
+        <field name="model">announcement</field>
+        <field name="arch" type="xml">
+            <list string="Announcements">
+                <field name="name"/>
+                <field name="announcement_type"/>
+                <field name="target_type"/>
+                <field name="published"/>
+                <field name="expiry_date"/>
+                <field name="read_count"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="announcement_view_form" model="ir.ui.view">
+        <field name="name">announcement.form</field>
+        <field name="model">announcement</field>
+        <field name="arch" type="xml">
+            <form string="Announcement">
+                <header>
+                    <button name="action_publish" type="object"
+                            string="Publish" class="btn-primary"
+                            invisible="published"/>
+                    <button name="action_unpublish" type="object"
+                            string="Unpublish" invisible="not published"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Announcement title"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="announcement_type"/>
+                            <field name="target_type"/>
+                            <field name="department_id"
+                                   invisible="target_type != 'department'"/>
+                            <field name="role_id"
+                                   invisible="target_type != 'role'"/>
+                        </group>
+                        <group>
+                            <field name="published" widget="boolean_toggle"/>
+                            <field name="published_date" readonly="1"/>
+                            <field name="expiry_date"/>
+                            <field name="author_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Content" name="content">
+                            <field name="body" widget="html"/>
+                        </page>
+                        <page string="Read Receipts" name="receipts">
+                            <field name="read_count" string="Total reads"/>
+                            <field name="read_ids">
+                                <list>
+                                    <field name="user_id"/>
+                                    <field name="read_date"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="announcement_view_search" model="ir.ui.view">
+        <field name="name">announcement.search</field>
+        <field name="model">announcement</field>
+        <field name="arch" type="xml">
+            <search string="Announcements">
+                <field name="name"/>
+                <field name="body"/>
+                <separator/>
+                <filter string="Published" name="filter_published"
+                        domain="[('published','=',True)]"/>
+                <filter string="Mandatory" name="filter_mandatory"
+                        domain="[('announcement_type','=','mandatory')]"/>
+                <group name="group_by">
+                    <filter string="Type" name="group_type"
+                            context="{'group_by':'announcement_type'}"/>
+                    <filter string="Target" name="group_target"
+                            context="{'group_by':'target_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="announcement_action" model="ir.actions.act_window">
+        <field name="name">Announcements</field>
+        <field name="res_model">announcement</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

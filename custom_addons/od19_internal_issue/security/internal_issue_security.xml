@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!--
+        Visibility rule for helpdesk.ticket:
+        - public: everyone sees it
+        - department: only users from the same department
+        - private: only the reporter or the assignee
+    -->
+    <record id="internal_issue_visibility_rule" model="ir.rule">
+        <field name="name">Internal Issue: visibility control</field>
+        <field name="model_id" ref="helpdesk_mgmt.model_helpdesk_ticket"/>
+        <field name="domain_force">[
+            '|', '|',
+            ('visibility', '=', 'public'),
+            '&amp;',
+                ('visibility', '=', 'department'),
+                ('department_id', 'in', [user.employee_id.department_id.id, False]),
+            '&amp;',
+                ('visibility', '=', 'private'),
+                '|',
+                    ('reported_by_id', '=', user.id),
+                    ('user_id', '=', user.id)
+        ]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+</odoo>

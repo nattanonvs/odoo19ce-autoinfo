@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_asset_loan_root"
+              name="Asset Loan"
+              parent="maintenance.menu_maintenance_config"
+              sequence="10"/>
+
+    <menuitem id="menu_asset_loan"
+              name="Loans"
+              parent="menu_asset_loan_root"
+              action="asset_loan_action"
+              sequence="10"/>
+
+</odoo>

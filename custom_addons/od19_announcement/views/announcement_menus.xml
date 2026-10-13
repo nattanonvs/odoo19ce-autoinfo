@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem
+        id="announcement_main_menu"
+        name="Announcements"
+        sequence="75"
+        web_icon="od19_announcement,static/description/icon.png"
+    />
+
+    <menuitem
+        id="announcement_menu"
+        name="Announcements"
+        parent="announcement_main_menu"
+        action="announcement_action"
+        sequence="10"
+    />
+
+</odoo>

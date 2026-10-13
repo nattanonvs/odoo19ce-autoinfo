@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_purchase_order_form_od19_seq" model="ir.ui.view">
+            <field name="name">purchase.order.form.od19.seq</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='partner_id']" position="after">
+                    <field name="department_id"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_purchase_order_tree_od19_seq" model="ir.ui.view">
+            <field name="name">purchase.order.list.od19.seq</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='partner_id']" position="after">
+                    <field name="department_id" optional="hide"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_purchase_order_search_od19_seq" model="ir.ui.view">
+            <field name="name">purchase.order.search.od19.seq</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.view_purchase_order_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//search" position="inside">
+                    <field name="department_id"/>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

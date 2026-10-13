@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Allow the assigned approver to read the purchase request -->
+    <record id="purchase_request_assigned_approver_rule" model="ir.rule">
+        <field name="name">Purchase Request: Assigned Approver Read</field>
+        <field name="model_id" ref="purchase_request.model_purchase_request"/>
+        <field name="groups" eval="[(6,0,[ref('purchase_request.group_purchase_request_user')])]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+        <field name="domain_force">[('assigned_to','=',user.id)]</field>
+    </record>
+
+    <!-- Allow users to read purchase request lines assigned to them -->
+    <record id="purchase_request_line_assigned_approver_rule" model="ir.rule">
+        <field name="name">Purchase Request Line: Assigned Approver Read</field>
+        <field name="model_id" ref="purchase_request.model_purchase_request_line"/>
+        <field name="groups" eval="[(6,0,[ref('purchase_request.group_purchase_request_user')])]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+        <field name="domain_force">[('request_id.assigned_to','=',user.id)]</field>
+    </record>
+
+</odoo>

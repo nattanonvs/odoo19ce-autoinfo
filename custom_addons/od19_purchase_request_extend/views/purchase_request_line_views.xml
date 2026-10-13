@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Extend purchase.request.line form view (line details popup) -->
+    <record id="purchase_request_line_form_od19" model="ir.ui.view">
+        <field name="name">purchase.request.line.form.od19</field>
+        <field name="model">purchase.request.line</field>
+        <field name="inherit_id" ref="purchase_request.purchase_request_line_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='settings']" position="inside">
+                <field name="od19_asset_id" readonly="is_editable == False"/>
+            </xpath>
+            <xpath expr="//field[@name='specifications']" position="after">
+                <separator string="OD19 Line Justification"/>
+                <field name="od19_justification" nolabel="1"
+                       readonly="is_editable == False"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend purchase.request.line details form (used inside request form) -->
+    <record id="view_purchase_request_line_details_od19" model="ir.ui.view">
+        <field name="name">purchase.request.line.details.form.od19</field>
+        <field name="model">purchase.request.line</field>
+        <field name="inherit_id" ref="purchase_request.view_purchase_request_line_details"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='specifications']" position="after">
+                <group name="od19_line_extras">
+                    <field name="od19_asset_id" readonly="is_editable == False"/>
+                    <field name="od19_justification" readonly="is_editable == False"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

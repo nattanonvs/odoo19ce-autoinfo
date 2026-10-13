@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Contact Us Page (uses Odoo built-in /contactus route) -->
+    <template id="od19_contact_page" name="Contact Page" inherit_id="website.contactus" priority="20">
+        <xpath expr="//div[@id='wrap']" position="inside">
+            <section class="od19-section bg-light">
+                <div class="container">
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="od19-contact-card">
+                                <h4><i class="fa fa-building me-2"/>Head Office</h4>
+                                <p>1359 Soi Ladprao 94 (Panjamitr),<br/>
+                                   Ladprao Rd., Plubpla,<br/>
+                                   Wangthonglang, Bangkok 10310</p>
+                                <p><i class="fa fa-phone"/> +66 2 934 5410-6</p>
+                                <p><i class="fa fa-fax"/> +66 2 934 5417</p>
+                                <p><i class="fa fa-envelope"/> sales@auto-info.co.th</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="od19-contact-card">
+                                <h4><i class="fa fa-cogs me-2"/>Engineering Center</h4>
+                                <p>ZENTRO Port Lumlukka K8<br/>
+                                   36/8 Moo 13 Buengkhamphroi,<br/>
+                                   Lam Luk Ka, Pathumthani 12150</p>
+                                <p><i class="fa fa-phone"/> +66 2 934 5410-6</p>
+                                <p><i class="fa fa-envelope"/> sales@auto-info.co.th</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="od19-contact-card">
+                                <h4><i class="fa fa-clock-o me-2"/>Business Hours</h4>
+                                <p><strong>Monday – Friday</strong><br/>08:30 – 17:30</p>
+                                <p><strong>Saturday</strong><br/>08:30 – 12:00</p>
+                                <p><strong>Sunday &amp; Public Holiday</strong><br/>Closed</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </xpath>
+    </template>
+
+</odoo>

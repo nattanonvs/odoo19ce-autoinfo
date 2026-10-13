@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Report Action -->
+    <record id="action_report_asset_loan" model="ir.actions.report">
+        <field name="name">Asset Loan Slip</field>
+        <field name="model">asset.loan</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">od19_asset_loan.report_asset_loan_slip</field>
+        <field name="report_file">od19_asset_loan.report_asset_loan_slip</field>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- QWeb Template -->
+    <template id="report_asset_loan_slip">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2 style="text-align: center;">Asset Loan Slip</h2>
+                        <table style="width: 100%; margin-top: 20px;">
+                            <tr>
+                                <td><strong>Reference:</strong></td>
+                                <td><span t-field="o.name"/></td>
+                                <td><strong>Date:</strong></td>
+                                <td><span t-field="o.loan_date"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Borrower:</strong></td>
+                                <td><span t-field="o.borrower_id"/></td>
+                                <td><strong>Status:</strong></td>
+                                <td><span t-field="o.state"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Expected Return:</strong></td>
+                                <td><span t-field="o.expected_return_date"/></td>
+                                <td><strong>Actual Return:</strong></td>
+                                <td><span t-field="o.actual_return_date"/></td>
+                            </tr>
+                        </table>
+
+                        <h3 style="margin-top: 30px;">Equipment</h3>
+                        <table class="table table-sm" style="width: 100%;">
+                            <thead>
+                                <tr style="background-color: #f0f0f0;">
+                                    <th>Equipment</th>
+                                    <th>Quantity</th>
+                                    <th>Returned</th>
+                                    <th>Note</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="o.line_ids" t-as="line">
+                                    <td><span t-field="line.equipment_id"/></td>
+                                    <td><span t-field="line.quantity"/></td>
+                                    <td><span t-field="line.returned_quantity"/></td>
+                                    <td><span t-field="line.note"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <p t-if="o.purpose" style="margin-top: 20px;">
+                            <strong>Purpose:</strong> <span t-field="o.purpose"/>
+                        </p>
+
+                        <table style="width: 100%; margin-top: 60px;">
+                            <tr>
+                                <td style="text-align: center;">
+                                    <p>__________________________</p>
+                                    <p>Borrower Signature</p>
+                                </td>
+                                <td style="text-align: center;">
+                                    <p>__________________________</p>
+                                    <p>Approved By</p>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>

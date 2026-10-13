@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- Footer override: Auto-Info branded footer                    -->
+    <!-- ============================================================ -->
+    <template id="od19_footer" name="Auto-Info Footer" inherit_id="website.layout" priority="20">
+        <xpath expr="//div[@id='footer']" position="replace">
+            <footer class="od19-footer" t-if="not no_footer">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <h5>The Auto-Info Co., Ltd.</h5>
+                            <p style="font-size:0.9rem;">
+                                Total Integrated Automation Solutions in Industrial,
+                                Building and Terminal Automation.
+                            </p>
+                            <div>
+                                <a t-att-href="website.company_id.od19_website_facebook_url or '#'" class="me-2" aria-label="Facebook">
+                                    <i class="fa fa-facebook-square fa-lg"/>
+                                </a>
+                                <a t-att-href="website.company_id.od19_website_linkedin_url or '#'" class="me-2" aria-label="LinkedIn">
+                                    <i class="fa fa-linkedin-square fa-lg"/>
+                                </a>
+                                <a t-att-href="website.company_id.od19_website_youtube_url or '#'" aria-label="YouTube">
+                                    <i class="fa fa-youtube-play fa-lg"/>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-6 mb-4">
+                            <h5>Services</h5>
+                            <ul class="list-unstyled">
+                                <li><a href="/industrial-automation">Industrial Automation</a></li>
+                                <li><a href="/building-automation">Building Automation</a></li>
+                                <li><a href="/terminal-automation">Terminal Automation</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-lg-2 col-md-6 mb-4">
+                            <h5>Company</h5>
+                            <ul class="list-unstyled">
+                                <li><a href="/about-us">About Us</a></li>
+                                <li><a href="/products">Products</a></li>
+                                <li><a href="/blog">News &amp; Events</a></li>
+                                <li><a href="/contactus">Contact</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <h5>Head Office</h5>
+                            <p>
+                                1359 Soi Ladprao 94 (Panjamitr),<br/>
+                                Ladprao Rd., Plubpla, Wangthonglang,<br/>
+                                Bangkok 10310 Thailand
+                            </p>
+                            <p>
+                                <i class="fa fa-phone"/> +66 2 934 5410-6<br/>
+                                <i class="fa fa-fax"/> +66 2 934 5417<br/>
+                                <i class="fa fa-envelope"/> sales@auto-info.co.th
+                            </p>
+                        </div>
+                    </div>
+                    <div class="od19-footer-bottom">
+                        © <span t-esc="datetime.datetime.now().year"/> The Auto-Info Co., Ltd. All Rights Reserved.
+                    </div>
+                </div>
+            </footer>
+        </xpath>
+    </template>
+
+    <!-- ============================================================ -->
+    <!-- Add favicon / brand meta from company                         -->
+    <!-- ============================================================ -->
+    <template id="od19_layout_assets" name="Auto-Info Layout Assets" inherit_id="website.layout">
+        <xpath expr="//head" position="inside">
+            <link rel="icon" type="image/png" href="/od19_website/static/src/img/favicon.png"/>
+        </xpath>
+    </template>
+
+</odoo>

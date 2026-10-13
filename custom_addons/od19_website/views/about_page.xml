@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- About Us Page -->
+    <template id="od19_about_page" name="About Us Page">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                <section class="od19-hero" style="padding:50px 0;">
+                    <div class="container">
+                        <h1>About Us</h1>
+                        <p class="lead mb-0">The Auto-Info Co., Ltd. — Total Integrated Automation Solutions</p>
+                    </div>
+                </section>
+                <section class="od19-section">
+                    <div class="container">
+                        <div class="row align-items-center">
+                            <div class="col-lg-6">
+                                <h3 style="color:var(--od19-dark);font-weight:700;">Who We Are</h3>
+                                <p>
+                                    Auto-Info is dedicated to provide total integrated automation
+                                    solutions in the area of Industrial Automation (IA), Building
+                                    Automation (BA) and Terminal Automation (TA), etc.
+                                </p>
+                                <p>
+                                    Our offers include system design, project management, project
+                                    implementation, training program, services &amp; maintenance
+                                    contract, and product supplier.
+                                </p>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="od19-stats" style="border-radius:12px;">
+                                    <div class="row">
+                                        <div class="col-6 mb-4">
+                                            <div class="od19-stat-number">20+</div>
+                                            <div class="od19-stat-label">Years of Experience</div>
+                                        </div>
+                                        <div class="col-6 mb-4">
+                                            <div class="od19-stat-number">3</div>
+                                            <div class="od19-stat-label">Core Domains</div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="od19-stat-number">100%</div>
+                                            <div class="od19-stat-label">GMP &amp; CSV Ready</div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="od19-stat-number">500+</div>
+                                            <div class="od19-stat-label">Projects Delivered</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="od19-section bg-light">
+                    <div class="container">
+                        <div class="od19-section-title">
+                            <h2>Our Locations</h2>
+                            <div class="od19-divider"/>
+                        </div>
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="od19-contact-card">
+                                    <h4><i class="fa fa-building me-2"/>Head Office</h4>
+                                    <p><strong>The Auto-Info Co., Ltd.</strong></p>
+                                    <p>1359 Soi Ladprao 94 (Panjamitr), Ladprao Rd.,<br/>
+                                       Plubpla, Wangthonglang, Bangkok 10310 Thailand</p>
+                                    <p><i class="fa fa-phone"/> +66 2 934 5410-6</p>
+                                    <p><i class="fa fa-fax"/> +66 2 934 5417</p>
+                                    <p><i class="fa fa-envelope"/> sales@auto-info.co.th</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="od19-contact-card">
+                                    <h4><i class="fa fa-cogs me-2"/>Engineering Center</h4>
+                                    <p><strong>ZENTRO Port Lumlukka K8</strong></p>
+                                    <p>36/8 Moo 13 Buengkhamphroi Sub-District,<br/>
+                                       Lam Luk Ka District, Pathumthani 12150</p>
+                                    <p><i class="fa fa-phone"/> +66 2 934 5410-6</p>
+                                    <p><i class="fa fa-envelope"/> sales@auto-info.co.th</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </t>
+    </template>
+
+</odoo>

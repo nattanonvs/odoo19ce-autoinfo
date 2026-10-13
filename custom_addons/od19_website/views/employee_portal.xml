@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- Employee Portal Homepage                                      -->
+    <!-- ============================================================ -->
+    <template id="od19_employee_portal" name="Employee Portal">
+        <t t-call="website.layout">
+            <t t-set="no_footer" t-value="True"/>
+            <div id="wrap" class="oe_structure">
+
+                <!-- Welcome Hero -->
+                <section class="od19-portal-hero">
+                    <div class="container d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2>
+                                <i class="fa fa-user-circle me-2"/>
+                                สวัสดีค่ะ <span t-esc="user.name"/>
+                            </h2>
+                            <p class="mb-0" style="opacity:0.85;">
+                                ยินดีต้อนรับสู่ Employee Portal ของ The Auto-Info
+                            </p>
+                        </div>
+                        <div class="text-end">
+                            <small style="opacity:0.7;" t-esc="datetime.datetime.now().strftime('%A, %d %B %Y')"/>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="container">
+
+                    <!-- Announcements -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0" style="color:var(--od19-dark);font-weight:700;">
+                                        <i class="fa fa-bullhorn me-2" style="color:var(--od19-secondary);"/>
+                                        ประกาศล่าสุด (Latest Announcements)
+                                    </h5>
+                                    <a href="/web#action=od19_announcement.announcement_action"
+                                       class="btn btn-sm btn-outline-primary">ดูทั้งหมด</a>
+                                </div>
+                                <div class="card-body">
+                                    <t t-if="announcements">
+                                        <t t-foreach="announcements" t-as="ann">
+                                            <div class="mb-3 pb-3 border-bottom" t-if="not ann_last">
+                                                <div class="d-flex justify-content-between">
+                                                    <strong t-esc="ann.name"/>
+                                                    <span class="od19-announcement-badge"
+                                                          t-att-class="{
+                                                              'bg-warning text-dark': ann.announcement_type == 'warning',
+                                                              'bg-danger': ann.announcement_type == 'mandatory',
+                                                              'bg-primary': ann.announcement_type == 'info',
+                                                          }"
+                                                          t-esc="dict(info='Info', warning='Warning', mandatory='Mandatory').get(ann.announcement_type, ann.announcement_type)"/>
+                                                </div>
+                                                <small class="text-muted" t-esc="ann.published_date and ann.published_date.strftime('%d %b %Y') or ''"/>
+                                                <div class="mt-1" t-raw="ann.body"/>
+                                            </div>
+                                        </t>
+                                    </t>
+                                    <t t-else="">
+                                        <p class="text-muted mb-0">ไม่มีประกาศในขณะนี้</p>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Access -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 style="color:var(--od19-dark);font-weight:700;margin-bottom:20px;">
+                                <i class="fa fa-th-large me-2" style="color:var(--od19-primary);"/>
+                                เมนูด่วน (Quick Access)
+                            </h5>
+                        </div>
+                        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+                            <div class="od19-portal-card">
+                                <div class="od19-portal-icon"><i class="fa fa-ticket"/></div>
+                                <h5>แจ้งปัญหาภายใน</h5>
+                                <p>Internal Issue / Helpdesk</p>
+                                <a href="/web#action=helpdesk_mgmt.helpdesk_ticket_action">เปิดใช้งาน →</a>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+                            <div class="od19-portal-card">
+                                <div class="od19-portal-icon"><i class="fa fa-archive"/></div>
+                                <h5>ยืมอุปกรณ์</h5>
+                                <p>Asset &amp; Tool Loan</p>
+                                <a href="/web#action=od19_asset_loan.asset_loan_action">เปิดใช้งาน →</a>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+                            <div class="od19-portal-card">
+                                <div class="od19-portal-icon"><i class="fa fa-book"/></div>
+                                <h5>ฐานความรู้</h5>
+                                <p>Knowledge Base</p>
+                                <a href="/web#action=document_page.action_browse_all_content">เปิดใช้งาน →</a>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+                            <div class="od19-portal-card">
+                                <div class="od19-portal-icon"><i class="fa fa-bullhorn"/></div>
+                                <h5>ประกาศ</h5>
+                                <p>Announcements</p>
+                                <a href="/web#action=od19_announcement.announcement_action">เปิดใช้งาน →</a>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+                            <div class="od19-portal-card">
+                                <div class="od19-portal-icon"><i class="fa fa-money"/></div>
+                                <h5>ค่าใช้จ่าย</h5>
+                                <p>HR Expense</p>
+                                <a href="/web#action=hr_expense.hr_expense_actions_my_all">เปิดใช้งาน →</a>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+                            <div class="od19-portal-card">
+                                <div class="od19-portal-icon"><i class="fa fa-truck"/></div>
+                                <h5>จัดซื้อ</h5>
+                                <p>Purchase Requisition</p>
+                                <a href="/web#action=purchase.purchase_form_action">เปิดใช้งาน →</a>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+                            <div class="od19-portal-card">
+                                <div class="od19-portal-icon"><i class="fa fa-users"/></div>
+                                <h5>ฝ่ายบุคคล</h5>
+                                <p>Employee Directory</p>
+                                <a href="/web#action=hr.open_view_employee_list_my">เปิดใช้งาน →</a>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+                            <div class="od19-portal-card">
+                                <div class="od19-portal-icon"><i class="fa fa-bar-chart"/></div>
+                                <h5>แดชบอร์ด</h5>
+                                <p>My Dashboard</p>
+                                <a href="/web">เปิดใช้งาน →</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 style="color:var(--od19-dark);font-weight:700;margin-bottom:20px;">
+                                <i class="fa fa-bolt me-2" style="color:var(--od19-secondary);"/>
+                                ทำงานด่วน (Quick Actions)
+                            </h5>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a href="/web#action=helpdesk_mgmt.helpdesk_ticket_action"
+                               class="btn btn-primary btn-lg w-100 text-start" style="background:var(--od19-primary);border:none;">
+                                <i class="fa fa-plus-circle me-2"/>แจ้งปัญหาใหม่
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a href="/web#action=od19_asset_loan.asset_loan_action"
+                               class="btn btn-lg w-100 text-start" style="background:var(--od19-secondary);border:none;color:#fff;">
+                                <i class="fa fa-plus-circle me-2"/>ขอยืมอุปกรณ์
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

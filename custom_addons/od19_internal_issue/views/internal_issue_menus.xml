@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        helpdesk_mgmt already provides a Categories menu under
+        Configuration; we rely on it for internal issue categories.
+        No extra menus are needed — the module extends helpdesk views.
+    -->
+
+</odoo>

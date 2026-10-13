@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem
+        id="knowledge_main_menu"
+        name="Knowledge"
+        sequence="70"
+        web_icon="od19_knowledge_enhanced,static/description/icon.png"
+    />
+
+    <menuitem
+        id="knowledge_article_menu"
+        name="Articles"
+        parent="knowledge_main_menu"
+        action="knowledge_article_action"
+        sequence="10"
+    />
+
+</odoo>
