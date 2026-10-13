@@ -1,0 +1,56 @@
+/* ============================================================
+ * OD19 Thai Font Support - QWeb Reports (Odoo 19 Native PDF)
+ * Injected into web.report_assets_common and web.report_assets_pdf
+ * so all printable QWeb reports render Thai with Sarabun.
+ * The font files are bundled in this module and loaded via the
+ * fonts.css @font-face rules (also injected into the same bundles).
+ * ============================================================ */
+
+/* Override the Odoo default report font ($o-default-report-font: 'Lato') */
+html,
+body {
+    font-family: 'Sarabun', 'Noto Sans Thai', 'Tahoma',
+                 'Arial Unicode MS', sans-serif !important;
+}
+
+/* Report containers and structural elements */
+.o_body_html,
+.o_body_pdf,
+.container,
+.header,
+.footer,
+.page,
+article,
+section,
+table,
+thead,
+tbody,
+tfoot,
+tr,
+th,
+td,
+h1, h2, h3, h4, h5, h6,
+p,
+span,
+div,
+label,
+.o_company_address,
+.o_footer_content {
+    font-family: 'Sarabun', 'Noto Sans Thai', 'Tahoma',
+                 'Arial Unicode MS', sans-serif;
+}
+
+/* Keep numeric/monospace cells crisp */
+.o_list_table td.o_number_cell,
+.o_monetary,
+.o_field_monetary {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Bold/italic faces */
+strong, b, .text-bold, .font-weight-bold {
+    font-weight: 700;
+}
+em, i {
+    font-style: italic;
+}

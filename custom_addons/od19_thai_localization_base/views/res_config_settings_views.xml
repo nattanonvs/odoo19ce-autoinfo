@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_thai_localization" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.thai.localization</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='general_settings']" position="inside">
+                <block title="Thai Localization" id="l10n_th_base_settings">
+                    <setting
+                        id="thai_buddhist_year_setting"
+                        string="Use Buddhist Year (พ.ศ.)"
+                        help="If enabled, dates in Thai reports will use the Buddhist Era year (e.g., 2568 instead of 2025)."
+                    >
+                        <field name="l10n_th_buddhist_year"/>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

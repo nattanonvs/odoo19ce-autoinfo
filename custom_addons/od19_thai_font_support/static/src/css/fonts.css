@@ -1,0 +1,38 @@
+/* ============================================================
+ * OD19 Thai Font Support - @font-face declarations
+ * Font: Sarabun (SIL Open Font License)
+ * Bundled in this module so Web UI and QWeb PDF reports can
+ * render Thai text without requiring system font installation.
+ * ============================================================ */
+
+@font-face {
+    font-family: 'Sarabun';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('../fonts/Sarabun-Regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Sarabun';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('../fonts/Sarabun-Bold.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Sarabun';
+    font-style: italic;
+    font-weight: 400;
+    font-display: swap;
+    src: url('../fonts/Sarabun-Italic.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Sarabun';
+    font-style: italic;
+    font-weight: 700;
+    font-display: swap;
+    src: url('../fonts/Sarabun-BoldItalic.ttf') format('truetype');
+}

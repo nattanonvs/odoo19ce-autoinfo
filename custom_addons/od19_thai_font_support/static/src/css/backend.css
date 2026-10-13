@@ -1,0 +1,66 @@
+/* ============================================================
+ * OD19 Thai Font Support - Web UI (Backend & Frontend)
+ * Overrides the default Odoo font family with Sarabun for
+ * consistent Thai rendering across all on-screen surfaces.
+ * Fallback chain keeps Latin/CJK glyphs readable.
+ * ============================================================ */
+
+:root {
+    --od19-thai-font-family: 'Sarabun', 'Noto Sans Thai', 'Tahoma',
+                             'Arial Unicode MS', sans-serif;
+}
+
+html,
+body,
+.o_web_client,
+.o_main_navbar,
+.o_kanban_view,
+.o_list_view,
+.o_form_view,
+.o_search_view,
+.o_list_renderer,
+.o_form_renderer,
+.o_kanban_renderer,
+.o_activity,
+.o-mail-ChatWindow,
+.o-mail-FormView,
+.oe_button_box,
+.oe_title,
+.oe_form_group,
+.navbar,
+.dropdown-menu,
+.modal,
+.toast,
+.btn,
+.form-control,
+.custom-select,
+.input-group-text,
+.o_field_widget,
+.o_widget,
+.o_notebook,
+.o_horizontal_accordion,
+.o_list_table,
+.o_data_cell,
+.o_column_sortable {
+    font-family: var(--od19-thai-font-family) !important;
+}
+
+/* Keep code/monospace surfaces using a mono stack */
+.o_code_editor,
+.ace_editor,
+pre,
+code,
+kbd,
+samp,
+.o_field_monetary .o_input,
+.o_field_float .o_input {
+    font-family: 'Sarabun', 'Consolas', 'Monaco', 'Courier New', monospace !important;
+}
+
+/* Ensure bold/italic render with the correct Sarabun face */
+strong, b, .font-weight-bold, .fw-bold {
+    font-weight: 700;
+}
+em, i, .font-italic, .fst-italic {
+    font-style: italic;
+}
