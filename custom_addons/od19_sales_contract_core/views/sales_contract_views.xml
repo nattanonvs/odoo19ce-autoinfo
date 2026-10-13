@@ -8,8 +8,12 @@
                 <field name="name"/>
                 <field name="partner_id"/>
                 <field name="od19_project_id"/>
+                <field name="state"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
                 <field name="limit_amount"/>
                 <field name="consumed_amount"/>
+                <field name="consumed_from_orders"/>
                 <field name="over_limit_policy"/>
             </list>
         </field>
@@ -20,14 +24,46 @@
         <field name="model">od19.sales.contract</field>
         <field name="arch" type="xml">
             <form string="Sales Contract">
+                <header>
+                    <button name="action_approve"
+                            type="object"
+                            string="Approve"
+                            class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_activate"
+                            type="object"
+                            string="Activate"
+                            class="btn-primary"
+                            invisible="state not in ('approved', 'draft')"/>
+                    <button name="action_close"
+                            type="object"
+                            string="Close"
+                            class="btn-secondary"
+                            invisible="state not in ('approved', 'active')"/>
+                    <button name="action_draft"
+                            type="object"
+                            string="Reset to Draft"
+                            class="btn-secondary"
+                            invisible="state != 'closed'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,approved,active,closed"/>
+                </header>
                 <sheet>
                     <group>
-                        <field name="name"/>
-                        <field name="partner_id"/>
-                        <field name="od19_project_id"/>
-                        <field name="limit_amount"/>
-                        <field name="consumed_amount" readonly="1"/>
-                        <field name="over_limit_policy"/>
+                        <group>
+                            <field name="name"/>
+                            <field name="partner_id"/>
+                            <field name="od19_project_id"/>
+                        </group>
+                        <group>
+                            <field name="start_date"/>
+                            <field name="end_date"/>
+                            <field name="over_limit_policy"/>
+                        </group>
+                        <group>
+                            <field name="limit_amount"/>
+                            <field name="consumed_amount" readonly="1"/>
+                            <field name="consumed_from_orders" readonly="1"/>
+                        </group>
                     </group>
                     <notebook>
                         <page string="Activities">

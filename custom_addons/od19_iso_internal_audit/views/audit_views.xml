@@ -6,12 +6,12 @@
         <field name="name">od19.iso.audit.program.tree</field>
         <field name="model">od19.iso.audit.program</field>
         <field name="arch" type="xml">
-            <tree string="แผนการตรวจสอบประจำปี">
+            <list string="แผนการตรวจสอบประจำปี">
                 <field name="name"/>
                 <field name="year"/>
                 <field name="state"/>
                 <field name="scope"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -43,13 +43,13 @@
                     <notebook>
                         <page string="การตรวจสอบ">
                             <field name="audit_ids">
-                                <tree>
+                                <list>
                                     <field name="name"/>
                                     <field name="title"/>
                                     <field name="date_planned"/>
                                     <field name="state"/>
                                     <field name="auditee_department_id"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
                         <page string="หมายเหตุ">
@@ -64,7 +64,7 @@
     <record id="action_iso_audit_program" model="ir.actions.act_window">
         <field name="name">แผนการตรวจสอบประจำปี</field>
         <field name="res_model">od19.iso.audit.program</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="help" type="html"><p class="o_view_nocontent_smiling_face">สร้างแผนการตรวจสอบประจำปีใหม่</p></field>
     </record>
 
@@ -73,7 +73,7 @@
         <field name="name">od19.iso.audit.tree</field>
         <field name="model">od19.iso.audit</field>
         <field name="arch" type="xml">
-            <tree string="การตรวจสอบภายใน">
+            <list string="การตรวจสอบภายใน">
                 <field name="name"/>
                 <field name="title"/>
                 <field name="audit_type"/>
@@ -82,7 +82,7 @@
                 <field name="auditee_department_id"/>
                 <field name="state"/>
                 <field name="conclusion"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -129,14 +129,14 @@
                     <notebook>
                         <page string="ผลการตรวจสอบ (Findings)">
                             <field name="finding_ids">
-                                <tree>
+                                <list>
                                     <field name="name"/>
                                     <field name="severity"/>
                                     <field name="status"/>
                                     <field name="iso_clause"/>
                                     <field name="responsible_id"/>
                                     <field name="due_date"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
                         <page string="สรุปผล">
@@ -154,7 +154,7 @@
     <record id="action_iso_audit" model="ir.actions.act_window">
         <field name="name">การตรวจสอบภายใน</field>
         <field name="res_model">od19.iso.audit</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="help" type="html"><p class="o_view_nocontent_smiling_face">สร้างการตรวจสอบภายในใหม่</p></field>
     </record>
 
@@ -163,7 +163,7 @@
         <field name="name">od19.iso.audit.finding.tree</field>
         <field name="model">od19.iso.audit.finding</field>
         <field name="arch" type="xml">
-            <tree string="ผลการตรวจสอบ">
+            <list string="ผลการตรวจสอบ">
                 <field name="name"/>
                 <field name="audit_id"/>
                 <field name="severity"/>
@@ -171,7 +171,7 @@
                 <field name="iso_clause"/>
                 <field name="responsible_id"/>
                 <field name="due_date"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -217,7 +217,7 @@
     <record id="action_iso_audit_finding" model="ir.actions.act_window">
         <field name="name">ผลการตรวจสอบ</field>
         <field name="res_model">od19.iso.audit.finding</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
 
 </odoo>

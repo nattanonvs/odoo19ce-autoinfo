@@ -11,8 +11,10 @@
         "od19_sales_project_context",
     ],
     "data": [
+        "security/ir.model.access.csv",
         "views/product_views.xml",
         "views/stock_picking_views.xml",
+        "views/stock_valuation_by_lot_views.xml",
     ],
     "installable": True,
     "license": "LGPL-3",

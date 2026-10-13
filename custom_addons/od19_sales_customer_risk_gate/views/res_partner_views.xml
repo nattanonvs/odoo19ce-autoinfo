@@ -50,6 +50,10 @@
                         <group string="Credit">
                             <field name="od19_credit_request_state"/>
                             <field name="od19_credit_sale_allowed"/>
+                            <field name="od19_credit_limit_amount"/>
+                            <field name="od19_credit_used_amount" readonly="1"/>
+                            <field name="od19_credit_available" readonly="1"/>
+                            <field name="od19_credit_expiry_date"/>
                             <field name="od19_credit_requested_by"/>
                             <field name="od19_credit_request_date"/>
                             <field name="od19_credit_review_owner_id"/>

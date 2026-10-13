@@ -5,10 +5,12 @@
     "summary": "ISO 9001 / ISO 14001 Supplier Evaluation and Approved Supplier List",
     "author": "TRAE",
     "license": "LGPL-3",
-    "depends": ["od19_iso_document_control", "hr"],
+    "depends": ["od19_iso_document_control", "hr", "purchase"],
     "data": [
         "security/ir.model.access.csv",
         "data/supplier_quality_data.xml",
+        "views/res_company_views.xml",
+        "views/purchase_order_views.xml",
         "views/supplier_quality_views.xml",
         "views/menu.xml",
     ],

@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Tree View -->
+    <record id="od19_product_return_tree" model="ir.ui.view">
+        <field name="name">od19.product.return.tree</field>
+        <field name="model">od19.product.return</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name" />
+                <field name="return_date" />
+                <field name="partner_id" />
+                <field name="product_id" />
+                <field name="lot_id" optional="hide" />
+                <field name="quantity" sum="Total" />
+                <field name="reason" />
+                <field name="responsible_id" optional="hide" />
+                <field name="state" widget="badge"
+                       decoration-info="state in ('draft',)"
+                       decoration-warning="state in ('confirmed', 'approved')"
+                       decoration-success="state in ('returned', 'refunded')"
+                       decoration-danger="state == 'rejected'" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="od19_product_return_form" model="ir.ui.view">
+        <field name="name">od19.product.return.form</field>
+        <field name="model">od19.product.return</field>
+        <field name="arch" type="xml">
+            <form string="Product Return">
+                <header>
+                    <button name="action_confirm" string="Confirm" type="object"
+                            class="oe_highlight" invisible="state != 'draft'" />
+                    <button name="action_approve" string="Approve" type="object"
+                            class="oe_highlight" invisible="state != 'confirmed'" />
+                    <button name="action_return" string="Receive Return" type="object"
+                            class="oe_highlight" invisible="state != 'approved'" />
+                    <button name="action_refund" string="Create Refund" type="object"
+                            class="oe_highlight" invisible="state not in ('approved', 'returned')" />
+                    <button name="action_reject" string="Reject" type="object"
+                            invisible="state not in ('draft', 'confirmed', 'approved')" />
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,confirmed,approved,returned,refunded" />
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="%(stock.action_picking_tree_all)d" type="action"
+                                class="oe_stat_button" icon="fa-truck"
+                                invisible="not return_picking_id">
+                            <field name="return_picking_id" widget="statinfo" string="Return Picking" />
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1" /></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id" />
+                            <field name="return_date" />
+                            <field name="sale_order_id" />
+                            <field name="invoice_id" />
+                        </group>
+                        <group>
+                            <field name="responsible_id" />
+                            <field name="warranty_claim_id" />
+                            <field name="company_id" groups="base.group_multi_company" />
+                        </group>
+                    </group>
+                    <group string="Product Details">
+                        <group>
+                            <field name="product_id" />
+                            <field name="lot_id" />
+                            <field name="quantity" />
+                            <field name="uom_id" />
+                        </group>
+                        <group>
+                            <field name="reason" />
+                            <field name="refund_amount" />
+                            <field name="currency_id" invisible="1" />
+                        </group>
+                    </group>
+                    <group string="Description">
+                        <field name="description" nolabel="1" />
+                    </group>
+                    <group string="Rejection" invisible="state != 'rejected'">
+                        <field name="rejection_reason" nolabel="1" readonly="1" />
+                    </group>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="od19_product_return_search" model="ir.ui.view">
+        <field name="name">od19.product.return.search</field>
+        <field name="model">od19.product.return</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="partner_id" />
+                <field name="product_id" />
+                <field name="reason" />
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]" />
+                <filter string="Confirmed" name="confirmed" domain="[('state', '=', 'confirmed')]" />
+                <filter string="Approved" name="approved" domain="[('state', '=', 'approved')]" />
+                <filter string="Returned" name="returned" domain="[('state', '=', 'returned')]" />
+                <filter string="Refunded" name="refunded" domain="[('state', '=', 'refunded')]" />
+                <filter string="Rejected" name="rejected" domain="[('state', '=', 'rejected')]" />
+                <separator />
+                <filter string="Open" name="open"
+                        domain="[('state', 'in', ('draft', 'confirmed', 'approved', 'returned'))]" />
+                <group>
+                    <filter string="Customer" name="group_partner"
+                            domain="[]" context="{'group_by': 'partner_id'}" />
+                    <filter string="Product" name="group_product"
+                            domain="[]" context="{'group_by': 'product_id'}" />
+                    <filter string="Reason" name="group_reason"
+                            domain="[]" context="{'group_by': 'reason'}" />
+                    <filter string="Status" name="group_state"
+                            domain="[]" context="{'group_by': 'state'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_od19_product_return" model="ir.actions.act_window">
+        <field name="name">Product Returns</field>
+        <field name="res_model">od19.product.return</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="od19_product_return_search" />
+        <field name="context">{'search_default_open': 1}</field>
+    </record>
+
+    <!-- Reject Wizard View -->
+    <record id="od19_product_return_reject_wizard_form" model="ir.ui.view">
+        <field name="name">od19.product.return.reject.wizard.form</field>
+        <field name="model">od19.product.return.reject.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reject Product Return">
+                <sheet>
+                    <group>
+                        <field name="return_id" invisible="1" />
+                        <field name="rejection_reason" />
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_reject" string="Reject" type="object"
+                            class="btn-danger" />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

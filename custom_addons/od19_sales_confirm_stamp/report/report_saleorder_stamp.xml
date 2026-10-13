@@ -2,62 +2,69 @@
 <odoo>
     <data>
 
-        <!-- ===== QWeb template: quotation with red CONFIRMED stamp ===== -->
-        <template id="report_saleorder_stamp_document">
-            <t t-call="sale.report_saleorder_document">
-                <!-- Inject the CONFIRMED stamp box at the end of the document body.
-                     It is rendered only when the order is confirmed and stamp_date is set. -->
-                <t t-set="show_stamp"
-                   t-value="doc.state == 'sale' and doc.stamp_date"/>
-                <t t-if="show_stamp">
-                    <div class="text-end mt-4">
-                        <table class="table table-bordered od19-confirmed-stamp"
-                               style="border:2px solid #dc3545; width:320px; margin-left:auto; margin-right:0;">
+        <!-- ===== Inherit the base sale order document to inject the CONFIRMED stamp =====
+             The stamp is rendered only when `show_stamp` is set (by the stamped report)
+             AND the order is confirmed AND stamp_date is filled in. -->
+        <template id="report_saleorder_document_inherit_stamp"
+                  inherit_id="sale.report_saleorder_document">
+            <xpath expr="//div[hasclass('page')]" position="inside">
+                <t t-if="show_stamp and doc.state == 'sale' and doc.stamp_date">
+                    <!-- CONFIRMED stamp: overlaid on the page like a rubber stamp -->
+                    <div style="position:absolute; top:120px; right:40px; z-index:10; opacity:0.90; transform: rotate(-6deg); -webkit-transform: rotate(-6deg);">
+                        <table class="od19-confirmed-stamp"
+                               style="border:2.5px solid #dc3545; width:300px; background:transparent; border-collapse:collapse;">
                             <tbody>
                                 <!-- Header: CONFIRMED -->
                                 <tr>
                                     <td colspan="2"
-                                        style="border:1px solid #dc3545; text-align:center; padding:6px 8px;">
-                                        <strong style="color:#dc3545; font-size:18px; letter-spacing:2px;">
+                                        style="border:1.5px solid #dc3545; text-align:center; padding:5px 8px; background:transparent;">
+                                        <strong style="color:#dc3545; font-size:20px; letter-spacing:3px; font-family:'Arial Black', sans-serif;">
                                             CONFIRMED
                                         </strong>
                                     </td>
                                 </tr>
                                 <!-- SIGN -->
                                 <tr>
-                                    <td style="border:1px solid #dc3545; color:#dc3545; font-weight:bold; width:120px; padding:4px 8px;">
+                                    <td style="border:1.5px solid #dc3545; color:#dc3545; font-weight:bold; width:110px; padding:4px 8px; text-align:right; vertical-align:middle;">
                                         SIGN
                                     </td>
-                                    <td style="border:1px solid #dc3545; padding:4px 8px; min-height:22px;">
-                                        <span t-field="doc.confirmed_by_id.name"/>
+                                    <td style="border:1.5px solid #dc3545; padding:4px 8px; height:60px; vertical-align:middle; background:transparent;">
+                                        <t t-if="doc.confirmed_by_id.employee_id and doc.confirmed_by_id.employee_id.signature">
+                                            <img t-att-src="image_data_uri(doc.confirmed_by_id.employee_id.signature)"
+                                                 alt="Signature"
+                                                 style="max-height:52px; max-width:100%; height:auto; width:auto;"/>
+                                        </t>
+                                        <t t-else="">
+                                            <span t-field="doc.confirmed_by_id.name"/>
+                                        </t>
                                     </td>
                                 </tr>
                                 <!-- DATE -->
                                 <tr>
-                                    <td style="border:1px solid #dc3545; color:#dc3545; font-weight:bold; padding:4px 8px;">
+                                    <td style="border:1.5px solid #dc3545; color:#dc3545; font-weight:bold; padding:4px 8px; text-align:right; vertical-align:middle;">
                                         DATE
                                     </td>
-                                    <td style="border:1px solid #dc3545; padding:4px 8px;">
+                                    <td style="border:1.5px solid #dc3545; padding:4px 8px; vertical-align:middle; background:transparent;">
                                         <span t-field="doc.stamp_date"
                                               t-options='{"widget": "date"}'/>
                                     </td>
                                 </tr>
                                 <!-- DELIVERY ON -->
                                 <tr>
-                                    <td style="border:1px solid #dc3545; color:#dc3545; font-weight:bold; padding:4px 8px;">
+                                    <td style="border:1.5px solid #dc3545; color:#dc3545; font-weight:bold; padding:4px 8px; text-align:right; vertical-align:middle;">
                                         DELIVERY ON
                                     </td>
-                                    <td style="border:1px solid #dc3545; padding:4px 8px;">
+                                    <td style="border:1.5px solid #dc3545; padding:4px 8px; vertical-align:middle; background:transparent;">
                                         <span t-field="doc.commitment_date"
                                               t-options='{"widget": "date"}'/>
                                     </td>
                                 </tr>
                                 <!-- JOB -->
                                 <tr>
-                                    <td style="border:1px solid #dc3545; color:#dc3545; font-weight:bold; padding:4px 8px;">
+                                    <td style="border:1.5px solid #dc3545; color:#dc3545; font-weight:bold; padding:4px 8px; text-align:right; vertical-align:middle;">
                                         JOB
                                     </td>
-                                    <td style="border:1px solid #dc3545; padding:4px 8px;">
+                                    <td style="border:1.5px solid #dc3545; padding:4px 8px; vertical-align:middle; background:transparent;">
                                         <t t-if="doc.od19_project_id">
                                             <span t-field="doc.od19_project_id.job_no"/>
                                         </t>
@@ -65,10 +72,10 @@
                                 </tr>
                                 <!-- CODE -->
                                 <tr>
-                                    <td style="border:1px solid #dc3545; color:#dc3545; font-weight:bold; padding:4px 8px;">
+                                    <td style="border:1.5px solid #dc3545; color:#dc3545; font-weight:bold; padding:4px 8px; text-align:right; vertical-align:middle;">
                                         CODE
                                     </td>
-                                    <td style="border:1px solid #dc3545; padding:4px 8px;">
+                                    <td style="border:1.5px solid #dc3545; padding:4px 8px; vertical-align:middle; background:transparent;">
                                         <span t-field="doc.stamp_code"/>
                                     </td>
                                 </tr>
@@ -76,7 +83,13 @@
                         </table>
                     </div>
                 </t>
-            </t>
+            </xpath>
+        </template>
+
+        <!-- ===== Stamped report document: sets show_stamp then calls the base template ===== -->
+        <template id="report_saleorder_stamp_document">
+            <t t-set="show_stamp" t-value="True"/>
+            <t t-call="sale.report_saleorder_document"/>
         </template>
 
         <!-- Raw wrapper (iterates over multiple records) -->

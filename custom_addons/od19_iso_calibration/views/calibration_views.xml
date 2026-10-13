@@ -6,7 +6,7 @@
         <field name="name">od19.iso.calibration.equipment.tree</field>
         <field name="model">od19.iso.calibration.equipment</field>
         <field name="arch" type="xml">
-            <tree string="เครื่องมือวัดและสอบเทียบ" decoration-danger="calibration_status == 'overdue'" decoration-warning="calibration_status in ('due','out_of_service')">
+            <list string="เครื่องมือวัดและสอบเทียบ" decoration-danger="calibration_status == 'overdue'" decoration-warning="calibration_status in ('due','out_of_service')">
                 <field name="code"/>
                 <field name="name"/>
                 <field name="category"/>
@@ -16,7 +16,7 @@
                 <field name="next_calibration_date"/>
                 <field name="calibration_status"/>
                 <field name="state"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -59,7 +59,7 @@
                     <notebook>
                         <page string="ประวัติการสอบเทียบ">
                             <field name="calibration_ids">
-                                <tree>
+                                <list>
                                     <field name="name"/>
                                     <field name="date"/>
                                     <field name="calibration_type"/>
@@ -68,7 +68,7 @@
                                     <field name="certificate_no"/>
                                     <field name="next_due_date"/>
                                     <field name="status"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
                         <page string="หมายเหตุ">
@@ -83,7 +83,7 @@
     <record id="action_iso_calibration_equipment" model="ir.actions.act_window">
         <field name="name">เครื่องมือวัดและสอบเทียบ</field>
         <field name="res_model">od19.iso.calibration.equipment</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="help" type="html"><p class="o_view_nocontent_smiling_face">เพิ่มเครื่องมือวัดใหม่</p></field>
     </record>
 
@@ -92,7 +92,7 @@
         <field name="name">od19.iso.calibration.record.tree</field>
         <field name="model">od19.iso.calibration.record</field>
         <field name="arch" type="xml">
-            <tree string="บันทึกการสอบเทียบ">
+            <list string="บันทึกการสอบเทียบ">
                 <field name="name"/>
                 <field name="equipment_id"/>
                 <field name="date"/>
@@ -101,7 +101,7 @@
                 <field name="passed"/>
                 <field name="certificate_no"/>
                 <field name="status"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -153,7 +153,7 @@
     <record id="action_iso_calibration_record" model="ir.actions.act_window">
         <field name="name">บันทึกการสอบเทียบ</field>
         <field name="res_model">od19.iso.calibration.record</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="help" type="html"><p class="o_view_nocontent_smiling_face">บันทึกการสอบเทียบใหม่</p></field>
     </record>
 

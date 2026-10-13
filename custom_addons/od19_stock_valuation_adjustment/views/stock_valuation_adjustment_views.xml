@@ -36,7 +36,7 @@
                     <button name="action_approve" string="Approve" type="object"
                             class="btn-primary" invisible="state != 'confirmed'"/>
                     <button name="action_cancel" string="Cancel" type="object"
-                            invisible="state in ('done', 'cancelled')"/>
+                            invisible="state == 'cancelled'"/>
                     <button name="action_reset_to_draft" string="Reset to Draft" type="object"
                             invisible="state != 'cancelled'"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,done"/>
@@ -56,11 +56,18 @@
                             <field name="new_value"/>
                         </group>
                     </group>
+                    <group string="Accounting">
+                        <field name="journal_id"/>
+                        <field name="stock_valuation_account_id"/>
+                        <field name="adjustment_account_id"/>
+                        <field name="has_valuation_accounting" invisible="1"/>
+                    </group>
                     <group string="Adjustment Summary">
                         <field name="total_adjustment" readonly="1"
                                decoration-success="total_adjustment &gt; 0"
                                decoration-danger="total_adjustment &lt; 0"/>
                         <field name="approved_by" readonly="1"/>
+                        <field name="account_move_id" readonly="1"/>
                     </group>
                     <group>
                         <field name="reason"/>
@@ -121,4 +128,16 @@
 
     <menuitem id="menu_stock_valuation_adjustment" name="Valuation Adjustments"
               parent="stock.menu_stock_inventory_control" action="stock_valuation_adjustment_action" sequence="70"/>
+
+    <!-- Company settings: stock valuation adjustment account -->
+    <record id="view_company_stock_valuation_adjustment_form" model="ir.ui.view">
+        <field name="name">res.company.stock.valuation.adjustment.form</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="account.view_company_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='currency_id']" position="after">
+                <field name="od19_stock_valuation_adjustment_account_id"/>
+            </xpath>
+        </field>
+    </record>
 </odoo>

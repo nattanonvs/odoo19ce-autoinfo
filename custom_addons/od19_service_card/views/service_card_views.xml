@@ -11,7 +11,11 @@
                 <field name="product_id"/>
                 <field name="lot_id" optional="hide"/>
                 <field name="service_type"/>
+                <field name="team_id" optional="hide"/>
                 <field name="technician_id" optional="hide"/>
+                <field name="sla_hours" optional="hide"/>
+                <field name="sla_deadline" optional="hide"/>
+                <field name="is_sla_breached" optional="hide"/>
                 <field name="next_service_date"/>
                 <field name="state" widget="badge"
                        decoration-info="state == 'draft'"
@@ -45,17 +49,31 @@
                             <field name="service_date"/>
                             <field name="service_type"/>
                             <field name="service_interval"/>
+                            <field name="team_id"/>
                         </group>
                         <group>
                             <field name="partner_id"/>
                             <field name="product_id"/>
                             <field name="lot_id"/>
                             <field name="technician_id"/>
+                            <field name="sale_order_id"/>
                         </group>
                     </group>
                     <group>
                         <field name="next_service_date" readonly="1"/>
                         <field name="user_id"/>
+                    </group>
+                    <group string="SLA &amp; Time Tracking">
+                        <group>
+                            <field name="sla_hours"/>
+                            <field name="sla_deadline" readonly="1"/>
+                            <field name="is_sla_breached" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="start_time"/>
+                            <field name="end_time"/>
+                            <field name="duration" readonly="1"/>
+                        </group>
                     </group>
                     <group>
                         <field name="description"/>
@@ -83,6 +101,7 @@
                 <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
                 <filter string="Confirmed" name="confirmed" domain="[('state', '=', 'confirmed')]"/>
                 <filter string="Done" name="done" domain="[('state', '=', 'done')]"/>
+                <filter string="SLA Breached" name="sla_breached" domain="[('is_sla_breached', '=', True)]"/>
                 <group>
                     <filter string="Customer" name="partner" context="{'group_by': 'partner_id'}"/>
                     <filter string="Product" name="product" context="{'group_by': 'product_id'}"/>

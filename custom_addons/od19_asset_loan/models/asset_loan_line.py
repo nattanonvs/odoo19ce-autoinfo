@@ -65,3 +65,35 @@ class AssetLoanLine(models.Model):
                 raise UserError(
                     _("Returned quantity cannot exceed the borrowed quantity.")
                 )
+
+    @api.constrains("equipment_id", "state")
+    def _check_no_double_borrow(self):
+        """An equipment cannot have two active loans at the same time.
+
+        Active loans are those in 'draft' or 'borrowed' state.
+        """
+        LoanLine = self.env["asset.loan.line"]
+        for record in self:
+            if record.state in ("returned", "lost", "cancelled"):
+                continue
+            if not record.equipment_id:
+                continue
+            active = LoanLine.search(
+                [
+                    ("equipment_id", "=", record.equipment_id.id),
+                    ("state", "in", ("draft", "borrowed")),
+                    ("id", "!=", record.id),
+                ],
+                limit=1,
+            )
+            if active:
+                raise UserError(
+                    _(
+                        "อุปกรณ์ '%(equipment)s' กำลังถูกยืมอยู่แล้ว "
+                        "(ใบยืม: %(loan)s) ไม่สามารถยืมซ้ำได้"
+                    )
+                    % {
+                        "equipment": record.equipment_id.display_name,
+                        "loan": active.loan_id.name,
+                    }
+                )

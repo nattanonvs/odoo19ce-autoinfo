@@ -3,17 +3,18 @@
    ============================================================ */
 
 :root {
-    --od19-primary: #0056b3;
-    --od19-primary-dark: #003d80;
+    --od19-primary: #9E2424;
+    --od19-primary-dark: #7A1B1B;
+    --od19-primary-darker: #6b1515;
     --od19-secondary: #f39200;
-    --od19-dark: #1a2332;
+    --od19-dark: #2a1a1a;
     --od19-light: #f5f7fa;
     --od19-gray: #6c757d;
-    /* Override Bootstrap 5 primary to match Auto-Info brand */
-    --bs-primary: #0056b3;
-    --bs-primary-rgb: 0, 86, 179;
-    --bs-link-color: #0056b3;
-    --bs-link-hover-color: #003d80;
+    /* Override Bootstrap 5 primary to match Auto-Info brand (maroon) */
+    --bs-primary: #9E2424;
+    --bs-primary-rgb: 158, 36, 36;
+    --bs-link-color: #9E2424;
+    --bs-link-hover-color: #7A1B1B;
 }
 
 /* Override Bootstrap primary button colors */
@@ -21,48 +22,48 @@
 .btn.btn-primary,
 button.btn-primary,
 a.btn-primary {
-    background-color: #0056b3 !important;
-    border-color: #0056b3 !important;
+    background-color: #9E2424 !important;
+    border-color: #9E2424 !important;
 }
 .btn-primary:hover,
 .btn.btn-primary:hover,
 button.btn-primary:hover,
 a.btn-primary:hover {
-    background-color: #003d80 !important;
-    border-color: #003570 !important;
+    background-color: #7A1B1B !important;
+    border-color: #7A1B1B !important;
 }
 .btn-primary:active,
 .btn-primary:focus {
-    background-color: #003570 !important;
-    border-color: #003d80 !important;
+    background-color: #6b1515 !important;
+    border-color: #7A1B1B !important;
 }
 .btn-outline-primary,
 .btn.btn-outline-primary {
-    color: #0056b3 !important;
-    border-color: #0056b3 !important;
+    color: #9E2424 !important;
+    border-color: #9E2424 !important;
     background-color: transparent !important;
 }
 .btn-outline-primary:hover,
 .btn.btn-outline-primary:hover {
     color: #fff !important;
-    background-color: #0056b3 !important;
-    border-color: #0056b3 !important;
+    background-color: #9E2424 !important;
+    border-color: #9E2424 !important;
 }
-.text-primary { color: #0056b3 !important; }
-.bg-primary { background-color: #0056b3 !important; }
-.border-primary { border-color: #0056b3 !important; }
+.text-primary { color: #9E2424 !important; }
+.bg-primary { background-color: #9E2424 !important; }
+.border-primary { border-color: #9E2424 !important; }
 
 /* Navbar brand color */
 .navbar-light .navbar-nav .nav-link.active,
 .navbar-light .navbar-nav .show > .nav-link {
-    color: #0056b3;
+    color: #9E2424;
 }
 .navbar-light .navbar-nav .nav-link:hover,
 .navbar-light .navbar-nav .nav-link:focus {
-    color: #003d80;
+    color: #7A1B1B;
 }
-a { color: #0056b3; }
-a:hover { color: #003d80; }
+a { color: #9E2424; }
+a:hover { color: #7A1B1B; }
 
 /* ---------- Hero ---------- */
 .od19-hero {
@@ -257,7 +258,7 @@ a:hover { color: #003d80; }
     color: var(--od19-secondary);
 }
 .od19-footer-bottom {
-    border-top: 1px solid #2c3a4f;
+    border-top: 1px solid #3d2828;
     margin-top: 30px;
     padding-top: 18px;
     font-size: 0.85rem;
@@ -266,7 +267,7 @@ a:hover { color: #003d80; }
 
 /* ---------- Employee Portal ---------- */
 .od19-portal-hero {
-    background: linear-gradient(135deg, #1a2332 0%, #0056b3 100%);
+    background: linear-gradient(135deg, #2a1a1a 0%, #9E2424 100%);
     color: #fff;
     padding: 40px 0;
     margin-bottom: 30px;

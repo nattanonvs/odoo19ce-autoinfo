@@ -16,6 +16,7 @@ Also supports quotation revision with /R01, /R02 suffix.
         "sale_management",
         "hr",
         "od19_purchase_document_sequence",
+        "sale_order_revision",
     ],
     "data": [
         "data/ir_sequence_data.xml",

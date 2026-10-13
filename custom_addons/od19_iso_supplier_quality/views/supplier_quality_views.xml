@@ -6,7 +6,7 @@
         <field name="name">od19.iso.supplier.evaluation.tree</field>
         <field name="model">od19.iso.supplier.evaluation</field>
         <field name="arch" type="xml">
-            <tree string="การประเมินผู้จำหน่าย" decoration-success="grade == 'A'" decoration-warning="grade in ('C','D')" decoration-danger="grade == 'F'">
+            <list string="การประเมินผู้จำหน่าย" decoration-success="grade == 'A'" decoration-warning="grade in ('C','D')" decoration-danger="grade == 'F'">
                 <field name="name"/>
                 <field name="partner_id"/>
                 <field name="eval_type"/>
@@ -16,7 +16,7 @@
                 <field name="grade"/>
                 <field name="result"/>
                 <field name="status"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -52,7 +52,7 @@
                     <notebook>
                         <page string="เกณฑ์การประเมิน">
                             <field name="criteria_ids">
-                                <tree>
+                                <list>
                                     <field name="sequence" widget="handle"/>
                                     <field name="name"/>
                                     <field name="category"/>
@@ -60,7 +60,7 @@
                                     <field name="max_score"/>
                                     <field name="score"/>
                                     <field name="comment"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
                         <page string="สรุปผล">
@@ -79,7 +79,7 @@
     <record id="action_iso_supplier_eval" model="ir.actions.act_window">
         <field name="name">การประเมินผู้จำหน่าย</field>
         <field name="res_model">od19.iso.supplier.evaluation</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="help" type="html"><p class="o_view_nocontent_smiling_face">สร้างการประเมินผู้จำหน่ายใหม่</p></field>
     </record>
 
@@ -87,7 +87,7 @@
     <record id="action_iso_asl" model="ir.actions.act_window">
         <field name="name">รายชื่อผู้จำหน่ายที่อนุมัติ (ASL)</field>
         <field name="res_model">res.partner</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="domain">[('od19_iso_supplier_status','in',['approved','conditional'])]</field>
         <field name="context">{'search_default_supplier': 1, 'default_supplier_rank': 1}</field>
     </record>

@@ -51,9 +51,12 @@ class IsoDocument(models.Model):
     # ------------------------------------------------------------------
     code = fields.Char(
         string="รหัสเอกสาร",
-        required=True,
+        required=False,
+        readonly=True,
+        copy=False,
         tracking=True,
-        help="รูปแบบ เช่น FM-PU-12, PROC-QA-01, WI-PU-03",
+        help="รูปแบบ เช่น FM-PU-12, PROC-QA-01, WI-PU-03 "
+        "(สร้างอัตโนมัติเมื่อบันทึกเอกสาร)",
     )
     document_title = fields.Char(
         string="ชื่อเอกสาร", required=True, tracking=True
@@ -64,9 +67,20 @@ class IsoDocument(models.Model):
         required=True,
         tracking=True,
     )
+    department_id = fields.Many2one(
+        "hr.department",
+        string="แผนก",
+        tracking=True,
+        help="แผนกที่รับผิดชอบเอกสารนี้ "
+        "ใช้กำหนดรหัสแผนกในรหัสเอกสาร",
+    )
     department_code = fields.Char(
         string="รหัสแผนก",
-        help="รหัสแผนกในรหัสเอกสาร เช่น PU, SA, QA, IA",
+        related="department_id.code",
+        store=True,
+        readonly=True,
+        help="รหัสแผนกในรหัสเอกสาร เช่น PU, SA, QA, IA "
+        "(อ้างอิงจากรหัสแผนก)",
     )
     standard_ids = fields.Many2many(
         "od19.iso.standard",
@@ -402,18 +416,79 @@ class IsoDocument(models.Model):
     # ------------------------------------------------------------------
     # Attachment handling: rename uploaded files to include document code
     # ------------------------------------------------------------------
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if not vals.get("code"):
+                vals["code"] = self._generate_document_code(vals)
+        records = super().create(vals_list)
+        records._rename_attachments()
+        return records
+
+    def _get_sequence_by_category(self, category):
+        """Return the ir.sequence for the given document category prefix."""
+        self.ensure_one()
+        if not category:
+            return False
+        prefix = (category.prefix or "").strip().upper()
+        seq_xml_id = "od19_iso_document_control.seq_iso_doc_%s" % prefix.lower()
+        return self.env.ref(seq_xml_id, raise_if_not_found=False)
+
+    def _generate_document_code(self, vals):
+        """Generate the document code: {PREFIX}-{DEPT}-{NNN}.
+
+        Falls back to '/' when no category is set.
+        """
+        category_id = vals.get("category_id")
+        if not category_id:
+            return "/"
+        category = self.env["od19.iso.document.category"].browse(category_id)
+        if not category:
+            return "/"
+        prefix = (category.prefix or "").strip().upper()
+        if not prefix:
+            return "/"
+        # Determine department code.
+        dept_code = ""
+        dept_id = vals.get("department_id")
+        if dept_id:
+            dept = self.env["hr.department"].browse(dept_id)
+            dept_code = (
+                (dept.code or dept.od19_dept_code or "")
+                .strip()
+                .upper()
+            )
+        if not dept_code:
+            dept_code = "XX"
+        sequence = self.env.ref(
+            "od19_iso_document_control.seq_iso_doc_%s" % prefix.lower(),
+            raise_if_not_found=False,
+        )
+        number = sequence.next_by_id() if sequence else "001"
+        # Normalize number to 3 digits.
+        try:
+            number = "%03d" % int(number)
+        except (TypeError, ValueError):
+            number = str(number or "001").zfill(3)
+        return "%s-%s-%s" % (prefix, dept_code, number)
+
     def write(self, vals):
+        if "category_id" in vals or "department_id" in vals:
+            for doc in self:
+                if not doc.code or doc.code == "/":
+                    new_vals = dict(vals)
+                    new_vals["category_id"] = vals.get(
+                        "category_id", doc.category_id.id
+                    )
+                    new_vals["department_id"] = vals.get(
+                        "department_id", doc.department_id.id
+                    )
+                    doc.code = doc._generate_document_code(new_vals)
         result = super().write(vals)
         # When attachments are added, rename them to include the document code.
         if "document_attachment_ids" in vals:
             self._rename_attachments()
         return result
-
-    @api.model_create_multi
-    def create(self, vals_list):
-        records = super().create(vals_list)
-        records._rename_attachments()
-        return records
 
     def _rename_attachments(self):
         """Rename linked attachments to follow the document filename pattern."""

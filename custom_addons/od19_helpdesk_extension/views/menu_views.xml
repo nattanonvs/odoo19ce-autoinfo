@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- ===================================================== -->
+    <!-- Internal IT Helpdesk - separate top-level menu         -->
+    <!-- ===================================================== -->
+    <menuitem
+        id="menu_internal_helpdesk"
+        name="Internal Helpdesk"
+        sequence="17"
+        web_icon="helpdesk_mgmt,static/description/icon.png"
+        groups="group_internal_helpdesk"
+    />
+
+    <record id="action_internal_helpdesk_tickets" model="ir.actions.act_window">
+        <field name="name">Internal Tickets</field>
+        <field name="res_model">helpdesk.ticket</field>
+        <field name="view_mode">kanban,list,form,pivot</field>
+        <field name="domain">[('team_type', '=', 'internal')]</field>
+        <field name="context">
+            {'default_team_id': ref('od19_helpdesk_extension.team_internal_it'),
+             'search_default_open': 1}
+        </field>
+    </record>
+
+    <menuitem
+        id="menu_internal_tickets"
+        name="Tickets"
+        parent="menu_internal_helpdesk"
+        action="action_internal_helpdesk_tickets"
+        sequence="10"
+        groups="group_internal_helpdesk"
+    />
+
+    <record id="action_internal_my_tickets" model="ir.actions.act_window">
+        <field name="name">My Tickets</field>
+        <field name="res_model">helpdesk.ticket</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('team_type', '=', 'internal'), ('user_id', '=', uid)]</field>
+        <field name="context">
+            {'default_team_id': ref('od19_helpdesk_extension.team_internal_it')}
+        </field>
+    </record>
+
+    <menuitem
+        id="menu_internal_my_tickets"
+        name="My Tickets"
+        parent="menu_internal_helpdesk"
+        action="action_internal_my_tickets"
+        sequence="5"
+        groups="group_internal_helpdesk"
+    />
+
+    <!-- ===================================================== -->
+    <!-- Sales Services - under Sales menu                      -->
+    <!-- ===================================================== -->
+    <record id="action_sales_services_tickets" model="ir.actions.act_window">
+        <field name="name">Service Tickets</field>
+        <field name="res_model">helpdesk.ticket</field>
+        <field name="view_mode">kanban,list,form,pivot</field>
+        <field name="domain">[('team_type', '=', 'customer_service')]</field>
+        <field name="context">
+            {'default_team_id': ref('od19_helpdesk_extension.team_sales_services'),
+             'search_default_open': 1}
+        </field>
+    </record>
+
+    <menuitem
+        id="menu_sales_services"
+        name="Sales Services"
+        parent="sale.sale_menu_root"
+        sequence="30"
+        groups="group_sales_service"
+    />
+
+    <menuitem
+        id="menu_sales_services_tickets"
+        name="Service Tickets"
+        parent="menu_sales_services"
+        action="action_sales_services_tickets"
+        sequence="10"
+        groups="group_sales_service"
+    />
+
+    <record id="action_sales_services_my" model="ir.actions.act_window">
+        <field name="name">My Service Tickets</field>
+        <field name="res_model">helpdesk.ticket</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('team_type', '=', 'customer_service'), ('user_id', '=', uid)]</field>
+        <field name="context">
+            {'default_team_id': ref('od19_helpdesk_extension.team_sales_services')}
+        </field>
+    </record>
+
+    <menuitem
+        id="menu_sales_services_my"
+        name="My Tickets"
+        parent="menu_sales_services"
+        action="action_sales_services_my"
+        sequence="5"
+        groups="group_sales_service"
+    />
+</odoo>

@@ -12,6 +12,8 @@
                 <field name="loan_date"/>
                 <field name="expected_return_date"/>
                 <field name="actual_return_date"/>
+                <field name="is_overdue" widget="boolean_toggle" readonly="1"
+                       decoration-danger="is_overdue"/>
                 <field name="state" widget="badge"
                        decoration-info="state == 'draft'"
                        decoration-primary="state == 'borrowed'"
@@ -50,6 +52,7 @@
                             <field name="loan_date"/>
                             <field name="expected_return_date"/>
                             <field name="actual_return_date"/>
+                            <field name="is_overdue" readonly="1"/>
                         </group>
                         <group>
                             <field name="company_id" groups="base.group_multi_company"/>

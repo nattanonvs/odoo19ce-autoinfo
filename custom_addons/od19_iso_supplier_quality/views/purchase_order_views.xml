@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_purchase_order_form_inherit_supplier_block" model="ir.ui.view">
+        <field name="name">purchase.order.form.inherit.supplier.block</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="override_supplier_block"/>
+                <field name="override_supplier_block_reason"
+                       attrs="{'invisible': [('override_supplier_block', '=', False)]}"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

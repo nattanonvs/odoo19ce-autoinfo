@@ -4,7 +4,8 @@ from urllib.parse import urljoin
 
 import requests
 
-from odoo import api, models
+from odoo import api, models, _
+from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
@@ -24,7 +25,10 @@ class NotificationService(models.AbstractModel):
 
     @api.model
     def notify(self, partners, message, event="default", subject=None, subtype_xmlid=None):
-        """Send ``message`` to ``partners`` across their preferred channels.
+        """Queue ``message`` for ``partners`` across their preferred channels.
+
+        Messages are stored in the notification queue and dispatched by the
+        ``_cron_process_queue`` cron job. Failed sends are retried up to 3 times.
 
         :param partners: res.partner recordset (recipients)
         :param message: plain-text message body
@@ -39,19 +43,23 @@ class NotificationService(models.AbstractModel):
         if not partners:
             return
 
-        users = partners.mapped("user_ids")
+        Queue = self.env["od19.notification.queue"]
         for partner in partners:
             user = partner.user_ids[:1]
             channels = self._get_user_channels(user, event)
             for channel in channels:
-                if channel == "email":
-                    self._send_email(partner, message, subject)
-                elif channel == "odoo":
-                    self._send_odoo_notification(partner, message, subtype_xmlid)
-                elif channel == "line":
-                    self._send_line(partner, message)
-                else:
+                if channel not in ("email", "odoo", "line"):
                     _logger.warning("Unknown notification channel: %s", channel)
+                    continue
+                Queue.create(
+                    {
+                        "partner_id": partner.id,
+                        "channel": channel,
+                        "message": message,
+                        "subject": subject,
+                        "event": event,
+                    }
+                )
 
     @api.model
     def _get_user_channels(self, user, event):
@@ -124,23 +132,20 @@ class NotificationService(models.AbstractModel):
             "to": line_user_id,
             "messages": [{"type": "text", "text": message[:5000]}],
         }
-        try:
-            response = requests.post(
-                urljoin(LINE_PUSH_ENDPOINT, ""),
-                headers=headers,
-                data=json.dumps(payload),
-                timeout=10,
-            )
-            if response.status_code != 200:
-                _logger.error(
-                    "LINE push failed for partner %s: %s %s",
-                    partner.id,
-                    response.status_code,
-                    response.text,
-                )
-        except requests.RequestException as exc:
+        response = requests.post(
+            urljoin(LINE_PUSH_ENDPOINT, ""),
+            headers=headers,
+            data=json.dumps(payload),
+            timeout=10,
+        )
+        if response.status_code != 200:
             _logger.error(
-                "LINE push request exception for partner %s: %s",
+                "LINE push failed for partner %s: %s %s",
                 partner.id,
-                exc,
+                response.status_code,
+                response.text,
+            )
+            raise UserError(
+                _("LINE push failed: %(status)s %(body)s")
+                % {"status": response.status_code, "body": response.text}
             )

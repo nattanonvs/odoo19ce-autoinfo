@@ -159,3 +159,70 @@ class TestAssetLoan(TransactionCase):
         mock_post.return_value.status_code = 200
         self.equipment.calibration_date = fields.Date.today()
         self.Equipment._cron_send_calibration_reminders(days=7)
+
+    # ------------------------------------------------------------------
+    # Double-borrow guard
+    # ------------------------------------------------------------------
+    def test_cannot_borrow_same_equipment_twice(self):
+        loan1 = self._create_loan()
+        loan1.action_confirm()
+        # Second loan with the same equipment should fail on confirm.
+        loan2 = self._create_loan()
+        with self.assertRaises(UserError):
+            loan2.action_confirm()
+
+    def test_can_borrow_again_after_return(self):
+        loan1 = self._create_loan()
+        loan1.action_confirm()
+        loan1.action_return()
+        # After return, the equipment should be borrowable again.
+        loan2 = self._create_loan()
+        loan2.action_confirm()
+        self.assertEqual(loan2.state, "borrowed")
+
+    # ------------------------------------------------------------------
+    # Returned quantity uses borrowed quantity (not hardcoded 1)
+    # ------------------------------------------------------------------
+    def test_returned_quantity_equals_borrowed_quantity(self):
+        loan = self._create_loan(
+            line_ids=[
+                (0, 0, {"equipment_id": self.equipment.id, "quantity": 3})
+            ]
+        )
+        loan.action_confirm()
+        loan.action_return()
+        self.assertEqual(loan.line_ids.returned_quantity, 3)
+
+    def test_returned_quantity_cannot_exceed_borrowed(self):
+        loan = self._create_loan()
+        line = loan.line_ids
+        with self.assertRaises(UserError):
+            line.returned_quantity = 2
+
+    # ------------------------------------------------------------------
+    # Overdue detection
+    # ------------------------------------------------------------------
+    def test_overdue_flag_when_past_due(self):
+        loan = self._create_loan(
+            loan_date=fields.Date.today() - timedelta(days=5),
+            expected_return_date=fields.Date.today() - timedelta(days=1),
+        )
+        loan.action_confirm()
+        self.assertTrue(loan.is_overdue)
+
+    def test_not_overdue_when_future_due(self):
+        loan = self._create_loan(
+            expected_return_date=fields.Date.today() + timedelta(days=5),
+        )
+        loan.action_confirm()
+        self.assertFalse(loan.is_overdue)
+
+    def test_not_overdue_when_returned(self):
+        loan = self._create_loan(
+            loan_date=fields.Date.today() - timedelta(days=5),
+            expected_return_date=fields.Date.today() - timedelta(days=1),
+        )
+        loan.action_confirm()
+        loan.action_return()
+        self.assertFalse(loan.is_overdue)
+

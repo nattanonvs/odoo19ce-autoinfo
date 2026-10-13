@@ -34,6 +34,7 @@ class Od19CreditGateEvent(models.Model):
             ("quotation_create", "Quotation Create"),
             ("quotation_write", "Quotation Write"),
             ("order_confirm", "Order Confirm"),
+            ("credit_revalidation", "Credit Revalidation"),
         ],
         string="Stage",
         required=True,

@@ -2,7 +2,17 @@ from odoo import api, fields, models
 
 
 class SaleOrder(models.Model):
-    _inherit = "sale.order"
+    _name = "sale.order"
+    _inherit = ["sale.order", "tier.validation"]
+
+    _state_from = ["draft", "sent", "waiting_approval"]
+    _state_to = ["sale"]
+    _tier_validation_manual_config = False
+
+    state = fields.Selection(
+        selection_add=[("waiting_approval", "Waiting Approval")],
+        ondelete={"waiting_approval": "set default"},
+    )
 
     od19_delivery_state_bridge_ready = fields.Boolean(
         string="Required-Now: Delivery State Bridge Ready",
@@ -29,9 +39,9 @@ class SaleOrder(models.Model):
         help="Indicates that the required-now blanket bridge is active through OCA blanket-order capabilities on sale orders.",
     )
     od19_requires_tier_validation = fields.Boolean(
-        string="Deferred: Tier Validation",
-        default=False,
-        help="Reserved for a deferred OCA tier-validation integration, not the required-now baseline.",
+        string="Requires Tier Validation",
+        compute="_compute_od19_requires_tier_validation",
+        help="Indicates that this sale order requires tier validation before it can be confirmed.",
     )
     od19_invoice_plan_mode = fields.Selection(
         [("none", "None"), ("event", "Event-based"), ("schedule", "Scheduled")],
@@ -39,6 +49,13 @@ class SaleOrder(models.Model):
         default="none",
         help="Reserved for a deferred OCA invoice-plan integration, not the required-now baseline.",
     )
+
+    @api.depends("need_validation", "review_ids")
+    def _compute_od19_requires_tier_validation(self):
+        for order in self:
+            order.od19_requires_tier_validation = bool(order.need_validation) or bool(
+                order.review_ids
+            )
 
     @api.model
     def _od19_required_now_bridge_capabilities(self):
@@ -71,3 +88,26 @@ class SaleOrder(models.Model):
             order.od19_revision_bridge_ready = capabilities["revision"]
             order.od19_exception_bridge_ready = capabilities["exception"]
             order.od19_blanket_bridge_ready = capabilities["blanket"]
+
+    def action_confirm(self):
+        """Confirm sale orders, routing through tier validation when needed.
+
+        Orders that require tier validation are moved to the
+        ``waiting_approval`` state and a validation request is created
+        instead of being confirmed directly. Once all tiers are
+        validated the order can be confirmed normally.
+        """
+        awaiting_approval = self.browse()
+        for order in self:
+            if (
+                order.state in ("draft", "sent")
+                and order.need_validation
+            ):
+                awaiting_approval |= order
+        if awaiting_approval:
+            awaiting_approval.write({"state": "waiting_approval"})
+            awaiting_approval.request_validation()
+        remaining = self - awaiting_approval
+        if remaining:
+            return super(SaleOrder, remaining).action_confirm()
+        return True

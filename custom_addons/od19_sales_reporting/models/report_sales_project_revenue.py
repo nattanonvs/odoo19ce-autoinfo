@@ -6,6 +6,7 @@ class ReportSalesProjectRevenue(models.Model):
     _description = "Sales Project Revenue Report"
     _auto = False
 
+    company_id = fields.Many2one("res.company", readonly=True)
     project_id = fields.Many2one("project.project", readonly=True)
     commercial_customer_id = fields.Many2one("res.partner", readonly=True)
     project_owner_id = fields.Many2one("res.partner", readonly=True)
@@ -19,6 +20,7 @@ class ReportSalesProjectRevenue(models.Model):
             CREATE OR REPLACE VIEW {self._table} AS (
                 SELECT
                     MIN(so.id) AS id,
+                    so.company_id AS company_id,
                     so.od19_project_id AS project_id,
                     so.partner_id AS commercial_customer_id,
                     so.od19_project_owner_id AS project_owner_id,
@@ -26,7 +28,7 @@ class ReportSalesProjectRevenue(models.Model):
                     COALESCE(SUM(so.amount_untaxed), 0.0) AS amount_untaxed
                 FROM sale_order so
                 WHERE so.od19_project_id IS NOT NULL
-                GROUP BY so.od19_project_id, so.partner_id, so.od19_project_owner_id
+                GROUP BY so.company_id, so.od19_project_id, so.partner_id, so.od19_project_owner_id
             )
             """
         )

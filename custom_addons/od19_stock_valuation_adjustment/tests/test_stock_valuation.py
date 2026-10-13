@@ -114,3 +114,82 @@ class TestStockValuationAdjustment(TransactionCase):
             'reason': 'Seq test',
         })
         self.assertTrue(adj.name.startswith('SVA/'))
+
+    def test_approve_creates_valuation_layer(self):
+        """Approving should create a stock.valuation.layer for the difference."""
+        adj = self.env['od19.stock.valuation.adjustment'].create({
+            'product_id': self.product.id,
+            'quantity': 5.0,
+            'new_value': 12.0,
+            'adjustment_type': 'price_change',
+            'reason': 'SVL test',
+        })
+        adj.action_confirm()
+        adj.action_approve()
+        self.assertTrue(adj.valuation_layer_id)
+        self.assertEqual(adj.valuation_layer_id.product_id, self.product)
+        self.assertEqual(adj.valuation_layer_id.quantity, 5.0)
+        self.assertEqual(adj.valuation_layer_id.unit_cost, 2.0)
+        self.assertEqual(adj.valuation_layer_id.value, 10.0)
+
+    def test_approve_creates_valuation_layer_negative(self):
+        """A write-down should create a valuation layer with negative value."""
+        adj = self.env['od19.stock.valuation.adjustment'].create({
+            'product_id': self.product.id,
+            'quantity': 5.0,
+            'new_value': 8.0,
+            'adjustment_type': 'write_down',
+            'reason': 'SVL negative test',
+        })
+        adj.action_confirm()
+        adj.action_approve()
+        self.assertTrue(adj.valuation_layer_id)
+        self.assertEqual(adj.valuation_layer_id.value, -10.0)
+        self.assertEqual(adj.valuation_layer_id.unit_cost, -2.0)
+
+    def test_cancel_reverts_price_change(self):
+        """Cancelling a done price-change adjustment should revert standard_price."""
+        adj = self.env['od19.stock.valuation.adjustment'].create({
+            'product_id': self.product.id,
+            'quantity': 5.0,
+            'new_value': 20.0,
+            'adjustment_type': 'price_change',
+            'reason': 'Cancel test',
+        })
+        adj.action_confirm()
+        adj.action_approve()
+        self.assertEqual(self.product.standard_price, 20.0)
+        adj.action_cancel()
+        self.assertEqual(adj.state, 'cancelled')
+        self.assertEqual(self.product.standard_price, 10.0)
+
+    def test_cancel_creates_reversal_valuation_layer(self):
+        """Cancelling a done adjustment should create a reversing valuation layer."""
+        adj = self.env['od19.stock.valuation.adjustment'].create({
+            'product_id': self.product.id,
+            'quantity': 5.0,
+            'new_value': 12.0,
+            'adjustment_type': 'price_change',
+            'reason': 'Reversal test',
+        })
+        adj.action_confirm()
+        adj.action_approve()
+        original_value = adj.valuation_layer_id.value
+        adj.action_cancel()
+        # The reversal layer should offset the original
+        self.assertEqual(adj.valuation_layer_id.value, -original_value)
+
+    def test_reset_to_draft_from_cancelled(self):
+        """A cancelled adjustment can be reset to draft."""
+        adj = self.env['od19.stock.valuation.adjustment'].create({
+            'product_id': self.product.id,
+            'quantity': 5.0,
+            'new_value': 12.0,
+            'adjustment_type': 'price_change',
+            'reason': 'Reset test',
+        })
+        adj.action_confirm()
+        adj.action_cancel()
+        self.assertEqual(adj.state, 'cancelled')
+        adj.action_reset_to_draft()
+        self.assertEqual(adj.state, 'draft')

@@ -9,7 +9,7 @@
     "license": "LGPL-3",
     "depends": [
         "account",
-        "od19_accounting_wht",
+        "l10n_th_account_tax",
         "od19_partner_thai_fields",
     ],
     "data": [

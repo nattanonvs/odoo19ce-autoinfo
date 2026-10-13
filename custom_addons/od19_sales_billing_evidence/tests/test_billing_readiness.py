@@ -39,12 +39,38 @@ class TestBillingReadiness(TransactionCase):
                 "required_for_billing": True,
             }
         )
-        self.env["od19.billing.evidence"].create(
+        # Order must be confirmed for readiness to leave 'draft'
+        self.order.write(
+            {
+                "order_line": [
+                    (
+                        0,
+                        0,
+                        {
+                            "product_id": self.env["product.product"]
+                            .create({"name": "Svc", "type": "service"})
+                            .id,
+                            "product_uom_qty": 1,
+                        },
+                    )
+                ]
+            }
+        )
+        self.order.action_confirm()
+        attachment = self.env["ir.attachment"].create(
+            {
+                "name": "delivery_note.pdf",
+                "datas": "bW9ja2RhdGE=",
+                "res_model": "od19.billing.evidence",
+            }
+        )
+        evidence = self.env["od19.billing.evidence"].create(
             {
                 "name": "DN-001",
                 "sale_order_id": self.order.id,
                 "evidence_type_id": evidence_type.id,
                 "is_verified": True,
+                "attachment_ids": [(6, 0, [attachment.id])],
             }
         )
         self.order._compute_od19_billing_readiness_state()

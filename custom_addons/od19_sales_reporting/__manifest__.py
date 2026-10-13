@@ -4,6 +4,7 @@
     "depends": ["od19_sales_project_context", "od19_sales_contract_core", "od19_sales_billing_evidence"],
     "data": [
         "security/ir.model.access.csv",
+        "security/sales_reporting_security.xml",
         "views/report_sales_project_revenue_views.xml",
         "views/report_repeat_business_views.xml",
     ],

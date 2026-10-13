@@ -11,8 +11,10 @@
         "od19_sales_project_context",
     ],
     "data": [
+        "security/purchase_director_security.xml",
         "views/purchase_order_views.xml",
         "views/purchase_requisition_views.xml",
+        "views/res_company_views.xml",
     ],
     "installable": True,
     "license": "LGPL-3",

@@ -56,6 +56,12 @@ class AssetLoan(models.Model):
         copy=False,
         index=True,
     )
+    is_overdue = fields.Boolean(
+        string="Overdue",
+        compute="_compute_is_overdue",
+        store=True,
+        help="Loan is past its expected return date and not yet returned.",
+    )
     line_ids = fields.One2many(
         comodel_name="asset.loan.line",
         inverse_name="loan_id",
@@ -86,6 +92,16 @@ class AssetLoan(models.Model):
                 raise UserError(
                     _("Expected return date must be after the loan date.")
                 )
+
+    @api.depends("expected_return_date", "state")
+    def _compute_is_overdue(self):
+        today = fields.Date.context_today(self)
+        for record in self:
+            record.is_overdue = bool(
+                record.expected_return_date
+                and record.expected_return_date < today
+                and record.state not in ("returned", "lost", "cancelled")
+            )
 
     # ------------------------------------------------------------------
     # Actions
@@ -119,12 +135,13 @@ class AssetLoan(models.Model):
                     "actual_return_date": fields.Date.context_today(record),
                 }
             )
-            record.line_ids.write(
-                {
-                    "state": "returned",
-                    "returned_quantity": 1,
-                }
-            )
+            for line in record.line_ids:
+                line.write(
+                    {
+                        "state": "returned",
+                        "returned_quantity": line.quantity,
+                    }
+                )
 
     def action_lost(self):
         for record in self:

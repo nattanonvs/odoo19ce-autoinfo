@@ -11,9 +11,12 @@ SUPPLIER_STATUS = [
     ("approved", "ได้รับอนุมัติ"),
     ("conditional", "อนุมัติมีเงื่อนไข"),
     ("rejected", "ไม่อนุมัติ"),
+    ("disqualified", "ตัดสิทธิ์"),
     ("suspended", "ระงับ"),
     ("inactive", "ไม่ใช้งาน"),
 ]
+
+BLOCKED_SUPPLIER_STATUSES = ("disqualified", "suspended", "rejected")
 
 EVAL_STATUS = [
     ("draft", "ร่าง"),

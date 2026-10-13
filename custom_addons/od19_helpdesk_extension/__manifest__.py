@@ -1,0 +1,25 @@
+{
+    "name": "Helpdesk Extension (Internal + Sales Services)",
+    "version": "19.0.1.0.0",
+    "summary": "Separate Internal IT Helpdesk vs Customer Sales Services on OCA helpdesk_mgmt",
+    "category": "After-Sales",
+    "author": "Custom",
+    "license": "LGPL-3",
+    "depends": [
+        "helpdesk_mgmt",
+        "sale",
+        "stock",
+        "hr",
+        "account",
+    ],
+    "data": [
+        "security/helpdesk_security.xml",
+        "security/ir.model.access.csv",
+        "data/helpdesk_data.xml",
+        "views/helpdesk_team_views.xml",
+        "views/helpdesk_ticket_views.xml",
+        "views/menu_views.xml",
+    ],
+    "installable": True,
+    "application": True,
+}

@@ -1,8 +1,7 @@
 import logging
 
-from odoo import SUPERUSER_ID, _, api, fields, models
+from odoo import _, api, fields, models
 from odoo.exceptions import UserError
-from odoo.tools import config
 
 _logger = logging.getLogger(__name__)
 
@@ -69,33 +68,44 @@ class SaleOrder(models.Model):
                 )
                 % commercial.display_name,
             )
+        if (
+            self.od19_is_credit_sale
+            and commercial.od19_credit_limit_amount
+            and commercial.od19_credit_available < self.amount_total
+            and stage != "credit_revalidation"
+        ):
+            return (
+                "credit",
+                _(
+                    "credit: customer %s has insufficient available credit "
+                    "(available %.2f, order %.2f)."
+                )
+                % (
+                    commercial.display_name,
+                    commercial.od19_credit_available,
+                    self.amount_total,
+                ),
+            )
         return (None, None)
 
     def _od19_log_gate_event(self, partner, reason_code, stage, order_ref=False):
+        """Log a credit-gate blocked event using the ORM.
+
+        The event record is created in the current transaction so that it is
+        committed (or rolled back) atomically together with the sale order
+        write that triggered the gate check.  ``sudo()`` ensures the event
+        can be persisted even when the acting user lacks create rights on
+        the gate-event model.
+        """
         order_ref = order_ref or (self.display_name if self else "")
-        if config["test_enable"]:
-            self.env["od19.credit.gate.event"].sudo().create(
-                {
-                    "partner_id": partner.id,
-                    "reason_code": reason_code,
-                    "stage": stage,
-                    "order_ref": order_ref,
-                }
-            )
-            return
-        env = api.Environment(self.env.registry.cursor(), SUPERUSER_ID, {})
-        try:
-            env["od19.credit.gate.event"].create(
-                {
-                    "partner_id": partner.id,
-                    "reason_code": reason_code,
-                    "stage": stage,
-                    "order_ref": order_ref,
-                }
-            )
-            env.cr.commit()
-        finally:
-            env.cr.close()
+        self.env["od19.credit.gate.event"].sudo().create(
+            {
+                "partner_id": partner.id,
+                "reason_code": reason_code,
+                "stage": stage,
+                "order_ref": order_ref,
+            }
+        )
         _logger.info(
             "od19 credit gate blocked [stage=%s reason=%s] order=%s partner=%s",
             stage,

@@ -12,7 +12,7 @@ class ResCompany(models.Model):
     )
     od19_website_primary_color = fields.Char(
         string="Primary Color",
-        default="#0056b3",
+        default="#9E2424",
         help="Primary brand color used across the website (hex).",
     )
     od19_website_secondary_color = fields.Char(

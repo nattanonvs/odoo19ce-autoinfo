@@ -3,5 +3,6 @@
 
 from . import iso_standard
 from . import iso_document_category
+from . import hr_department
 from . import iso_document
 from . import ir_actions_report

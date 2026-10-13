@@ -8,6 +8,7 @@
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="od19_entry_mode"/>
                 <field name="od19_approval_state" readonly="1"/>
+                <field name="od19_approval_level" readonly="1"/>
                 <field name="od19_budget_warning_count" readonly="1"/>
             </xpath>
             <xpath expr="//field[@name='order_line']" position="before">
@@ -26,7 +27,7 @@
                 <button name="action_od19_approve"
                         type="object"
                         string="Approve"
-                        groups="purchase.group_purchase_manager"
+                        groups="purchase.group_purchase_manager,od19_purchase_procurement_core.group_purchase_director"
                         invisible="od19_approval_state != 'submitted'"/>
             </xpath>
             <xpath expr="//field[@name='order_line']/list/field[@name='product_qty']" position="after">

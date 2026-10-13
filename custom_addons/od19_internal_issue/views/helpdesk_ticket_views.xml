@@ -13,6 +13,33 @@
                        invisible="visibility != 'department'"/>
                 <field name="reported_by_id"/>
                 <field name="is_emergency"/>
+                <field name="state" widget="statusbar"
+                       statusbar_visible="draft,submitted,validated,in_progress,done"
+                       statusbar_colors='{"cancelled":"danger"}'/>
+            </xpath>
+
+            <xpath expr="//form/header" position="inside">
+                <button name="action_submit" type="object"
+                        string="ส่งตรวจสอบ" class="btn-primary"
+                        invisible="state != 'draft'"/>
+                <button name="action_validate" type="object"
+                        string="ตรวจสอบผ่าน" class="btn-success"
+                        invisible="state not in ('submitted',)"/>
+                <button name="action_reject" type="object"
+                        string="ปฏิเสธ" class="btn-danger"
+                        invisible="state not in ('submitted',)"/>
+                <button name="action_start_work" type="object"
+                        string="เริ่มดำเนินการ"
+                        invisible="state != 'validated'"/>
+                <button name="action_done" type="object"
+                        string="เสร็จสิ้น" class="btn-success"
+                        invisible="state != 'in_progress'"/>
+                <button name="action_cancel" type="object"
+                        string="ยกเลิก" class="btn-danger"
+                        invisible="state in ('done','cancelled')"/>
+                <button name="action_reset_to_draft" type="object"
+                        string="กลับเป็นร่าง"
+                        invisible="state not in ('cancelled',)"/>
             </xpath>
 
             <xpath expr="//notebook/page[@name='other_info']" position="after">
@@ -23,7 +50,8 @@
                             <field name="department_id"/>
                             <field name="reported_by_id"/>
                             <field name="is_emergency"/>
-                            <field name="has_tier_validation"/>
+                            <field name="need_validation" readonly="1"/>
+                            <field name="validation_status" readonly="1"/>
                         </group>
                     </group>
                     <field name="resolution" placeholder="Root cause and solution..."/>

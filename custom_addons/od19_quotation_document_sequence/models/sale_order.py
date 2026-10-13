@@ -1,3 +1,4 @@
+import ast
 import re
 
 from odoo import api, fields, models, _
@@ -12,6 +13,15 @@ class SaleOrder(models.Model):
         tracking=True,
         index=True,
     )
+    # NOTE (OD19 <-> OCA revision integration):
+    # The custom revision tracking fields (parent_ids, child_ids, revision_count,
+    # child_count) are kept for backward compatibility with existing views and
+    # reports, but the *primary* revision mechanism is now OCA's
+    # ``sale_order_revision`` (which provides ``current_revision_id``,
+    # ``old_revision_ids``, ``revision_number`` and the ``create_revision``
+    # method).  When OCA is installed, ``action_create_revision`` delegates to
+    # OCA's ``create_revision`` so that both systems stay consistent and there
+    # is a single source of truth for the revision chain.
     parent_ids = fields.One2many(
         "quotation.revision.parent",
         "sale_order_id",
@@ -94,9 +104,40 @@ class SaleOrder(models.Model):
                         )
         return res
 
+    def _od19_oca_revision_available(self):
+        """Return True if OCA sale_order_revision is installed.
+
+        Detected by the presence of ``current_revision_id`` (provided by OCA)
+        and the ``create_revision`` method on the sale order model.
+        """
+        return (
+            "current_revision_id" in self._fields
+            and hasattr(type(self), "create_revision")
+        )
+
     def action_create_revision(self):
-        """Open the revision confirmation wizard."""
+        """Create a new revision of the quotation.
+
+        When OCA ``sale_order_revision`` is installed, delegate the revision
+        creation to OCA's ``create_revision`` method so the revision chain is
+        managed by OCA (the single source of truth).  The custom
+        ``quotation.revision.parent`` records are still kept in sync for
+        backward-compatible reporting.
+
+        When OCA is not installed, fall back to the legacy wizard flow.
+        """
         self.ensure_one()
+        if self._od19_oca_revision_available():
+            # Delegate to OCA's create_revision which handles the full
+            # revision chain (current_revision_id, old_revision_ids,
+            # revision_number, unrevisioned_name).
+            result = self.create_revision()
+            # Keep the custom quotation.revision.parent table in sync so
+            # existing views/reports that rely on parent_ids still work.
+            new_revision_ids = result.get("domain", [])
+            self._od19_sync_custom_revision_links(new_revision_ids)
+            return result
+        # Legacy fallback: open the custom revision wizard.
         return {
             "name": _("Quotation Revision Confirmation"),
             "type": "ir.actions.act_window",
@@ -106,9 +147,49 @@ class SaleOrder(models.Model):
             "context": {"sale_id": self.id},
         }
 
+    def _od19_sync_custom_revision_links(self, new_revision_domain):
+        """Sync custom quotation.revision.parent records after OCA revision.
+
+        OCA manages the canonical revision chain.  This helper mirrors the
+        relationship into the custom ``quotation.revision.parent`` table so
+        that views relying on ``parent_ids``/``child_ids`` keep working.
+
+        ``new_revision_domain`` may be a list (e.g. ``[('id', 'in', [1, 2])]``)
+        or a string representation of such a list (OCA's ``create_revision``
+        returns the domain as a string).
+        """
+        if not new_revision_domain:
+            return
+        # OCA returns the domain as a string; parse it into a list if needed.
+        if isinstance(new_revision_domain, str):
+            try:
+                new_revision_domain = ast.literal_eval(new_revision_domain)
+            except (ValueError, SyntaxError):
+                return
+        new_orders = self.env["sale.order"].search(new_revision_domain)
+        for new_order in new_orders:
+            # Link the original as parent of the new revision
+            existing = self.env["quotation.revision.parent"].search(
+                [
+                    ("sale_order_id", "=", new_order.id),
+                    ("parent_id", "=", self.id),
+                ]
+            )
+            if not existing:
+                self.env["quotation.revision.parent"].create(
+                    {
+                        "sale_order_id": new_order.id,
+                        "parent_id": self.id,
+                    }
+                )
+
     def action_view_revisions(self):
         """View parent revisions of this quotation."""
         self.ensure_one()
+        if self._od19_oca_revision_available():
+            # Delegate to OCA's action_view_revisions which shows the full
+            # revision chain including inactive records.
+            return super(SaleOrder, self).action_view_revisions()
         action = self.env.ref("sale.action_quotations_with_onboarding")
         return {
             "name": action.name,
@@ -144,6 +225,12 @@ class SaleOrder(models.Model):
 
         If the name already ends with /RNN, increment it.
         Otherwise append /R01.
+
+        NOTE: This helper is retained for backward compatibility but is no
+        longer the primary naming mechanism.  OCA's ``base_revision`` uses
+        ``unrevisioned_name`` + ``revision_number`` (formatted as
+        ``{name}-{rev:02d}``).  When OCA is installed, OCA's naming takes
+        precedence.
         """
         match = re.search(r"/R(\d+)$", base_name)
         if match:

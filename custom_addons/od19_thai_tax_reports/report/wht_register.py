@@ -12,45 +12,52 @@ class WhtRegister(models.AbstractModel):
         company_id = self.env.context.get("company_id")
 
         domain = [
-            ("state", "=", "posted"),
             ("date", ">=", date_from),
             ("date", "<=", date_to),
-            ("wht_amount", ">", 0),
+            ("wht_tax_id", "!=", False),
+            ("cancelled", "=", False),
         ]
         if company_id:
             domain.append(("company_id", "=", company_id))
 
-        payments = self.env["account.payment"].search(domain, order="date, name")
+        wht_moves = self.env["account.withholding.move"].search(
+            domain, order="date, id"
+        )
 
         lines = []
         total_base = 0.0
         total_wht = 0.0
 
-        for payment in payments:
-            base = payment.wht_base_amount or 0.0
-            wht = payment.wht_amount or 0.0
+        for wht in wht_moves:
+            base = wht.amount_income or 0.0
+            wht_amt = wht.amount_wht or 0.0
+            payment = wht.payment_id
             lines.append(
                 {
-                    "date": payment.date,
-                    "name": payment.name,
-                    "partner_name": payment.partner_id.name or "",
-                    "partner_vat": payment.partner_id.vat or "",
-                    "wht_type": payment.wht_type_id.name or "",
-                    "wht_percent": payment.wht_type_id.percent if payment.wht_type_id else 0.0,
+                    "date": wht.date,
+                    "name": payment.name if payment else wht.move_id.name,
+                    "partner_name": wht.partner_id.name or "",
+                    "partner_vat": wht.partner_id.vat or "",
+                    "wht_type": wht.wht_tax_id.name or "",
+                    "wht_percent": wht.wht_tax_id.amount if wht.wht_tax_id else 0.0,
                     "base_amount": base,
-                    "wht_amount": wht,
+                    "wht_amount": wht_amt,
                 }
             )
             total_base += base
-            total_wht += wht
+            total_wht += wht_amt
 
         return {
-            "doc_ids": payments.ids,
-            "doc_model": "account.payment",
-            "docs": payments,
+            "doc_ids": wht_moves.ids,
+            "doc_model": "account.withholding.move",
+            "docs": wht_moves,
             "date_from": date_from,
             "date_to": date_to,
-            "company": self.env["res.company"].browse(company_id) if company_id else self.env.company,
+            "company": (
+                self.env["res.company"].browse(company_id)
+                if company_id
+                else self.env.company
+            ),
             "lines": lines,
             "total_base": total_base,
             "total_wht": total_wht,

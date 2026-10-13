@@ -80,6 +80,14 @@ class IsoCalibrationEquipment(models.Model):
         EQUIPMENT_STATUS, string="สถานะ", compute="_compute_calibration_status",
         store=True, default="active", tracking=True,
     )
+    is_overdue = fields.Boolean(
+        string="หมดอายุ", compute="_compute_calibration_status", store=True,
+        help="เครื่องมือหมดอายุสอบเทียบแล้ว",
+    )
+    reminder_sent = fields.Boolean(
+        string="ส่งเตือนแล้ว", default=False, copy=False,
+        help="แจ้งเตือนครั้งนี้ส่งออกไปแล้ว",
+    )
 
     # Equipment state
     state = fields.Selection(
@@ -109,15 +117,20 @@ class IsoCalibrationEquipment(models.Model):
         for rec in self:
             if rec.state != "active":
                 rec.calibration_status = "out_of_service" if rec.state == "out_of_service" else "decommissioned"
+                rec.is_overdue = False
                 continue
             if not rec.next_calibration_date:
                 rec.calibration_status = "due"
+                rec.is_overdue = False
             elif rec.next_calibration_date < today:
                 rec.calibration_status = "overdue"
+                rec.is_overdue = True
             elif (rec.next_calibration_date - today).days <= 30:
                 rec.calibration_status = "due"
+                rec.is_overdue = False
             else:
                 rec.calibration_status = "calibrated"
+                rec.is_overdue = False
 
     def action_out_of_service(self):
         self.write({"state": "out_of_service"})
@@ -127,6 +140,115 @@ class IsoCalibrationEquipment(models.Model):
 
     def action_reactivate(self):
         self.write({"state": "active"})
+
+    # ------------------------------------------------------------------
+    # Cron: due reminders and overdue flagging
+    # ------------------------------------------------------------------
+    def _get_responsible_user(self):
+        """Return the res.users linked to the equipment owner (hr.employee)."""
+        self.ensure_one()
+        owner = self.owner_id
+        if owner and owner.user_id:
+            return owner.user_id
+        # Fall back to the department manager's user, then the current user.
+        if self.department_id and self.department_id.manager_id:
+            return self.department_id.manager_id.user_id
+        return self.env.user
+
+    def _create_calibration_activity(self, activity_type_xmlid, summary, note):
+        """Create a mail.activity on the equipment for the responsible user."""
+        self.ensure_one()
+        activity_type = self.env.ref(
+            activity_type_xmlid, raise_if_not_found=False
+        )
+        user = self._get_responsible_user()
+        if not user:
+            return False
+        vals = {
+            "activity_type_id": activity_type.id if activity_type else False,
+            "summary": summary,
+            "note": note,
+            "user_id": user.id,
+            "res_model_id": self.env["ir.model"]._get_id(
+                "od19.iso.calibration.equipment"
+            ),
+            "res_id": self.id,
+            "date_deadline": fields.Date.today(),
+        }
+        return self.env["mail.activity"].sudo().create(vals)
+
+    @api.model
+    def _cron_calibration_due_reminder(self, days=7):
+        """Daily cron: remind about calibrations due within `days` and
+        flag overdue equipment.
+        """
+        today = fields.Date.today()
+        due_limit = fields.Date.add(today, days=days)
+
+        # Equipment due within `days` (not yet overdue).
+        due_equipment = self.search(
+            [
+                ("state", "=", "active"),
+                ("next_calibration_date", ">=", today),
+                ("next_calibration_date", "<=", due_limit),
+                ("reminder_sent", "=", False),
+            ]
+        )
+        for equipment in due_equipment:
+            days_left = (equipment.next_calibration_date - today).days
+            note = _(
+                "เครื่องมือ '%(name)s' (รหัส %(code)s) ต้องสอบเทียบภายใน "
+                "%(days)s วัน (วันครบกำหนด: %(due)s)"
+            ) % {
+                "name": equipment.name,
+                "code": equipment.code,
+                "days": days_left,
+                "due": equipment.next_calibration_date,
+            }
+            equipment._create_calibration_activity(
+                "mail.mail_activity_data_todo",
+                _("สอบเทียบใกล้ครบกำหนด: %s") % equipment.name,
+                note,
+            )
+            equipment.reminder_sent = True
+            equipment.message_post(body=note)
+
+        # Overdue equipment: next_calibration_date < today.
+        overdue_equipment = self.search(
+            [
+                ("state", "=", "active"),
+                ("next_calibration_date", "<", today),
+            ]
+        )
+        for equipment in overdue_equipment:
+            overdue_days = (today - equipment.next_calibration_date).days
+            note = _(
+                "เครื่องมือ '%(name)s' (รหัส %(code)s) หมดอายุสอบเทียบมาแล้ว "
+                "%(days)s วัน (วันครบกำหนด: %(due)s)"
+            ) % {
+                "name": equipment.name,
+                "code": equipment.code,
+                "days": overdue_days,
+                "due": equipment.next_calibration_date,
+            }
+            # Only create one activity per overdue cycle.
+            existing = self.env["mail.activity"].search(
+                [
+                    ("res_model", "=", "od19.iso.calibration.equipment"),
+                    ("res_id", "=", equipment.id),
+                    ("summary", "like", "หมดอายุสอบเทียบ"),
+                ],
+                limit=1,
+            )
+            if not existing:
+                equipment._create_calibration_activity(
+                    "mail.mail_activity_data_warning",
+                    _("หมดอายุสอบเทียบ: %s") % equipment.name,
+                    note,
+                )
+            equipment.message_post(body=note)
+
+        return True
 
 
 class IsoCalibrationRecord(models.Model):
@@ -171,7 +293,9 @@ class IsoCalibrationRecord(models.Model):
     def action_pass(self):
         self.write({"status": "passed", "passed": True})
         if self.equipment_id:
-            self.equipment_id.write({"last_calibration_date": self.date})
+            self.equipment_id.write(
+                {"last_calibration_date": self.date, "reminder_sent": False}
+            )
 
     def action_fail(self):
         self.write({"status": "failed", "passed": False})

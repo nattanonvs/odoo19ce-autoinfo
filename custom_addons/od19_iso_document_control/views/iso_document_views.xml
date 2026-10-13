@@ -6,7 +6,7 @@
         <field name="name">od19.iso.document.tree</field>
         <field name="model">od19.iso.document</field>
         <field name="arch" type="xml">
-            <tree string="เอกสารควบคุม">
+            <list string="เอกสารควบคุม">
                 <field name="code"/>
                 <field name="document_title"/>
                 <field name="category_id"/>
@@ -20,7 +20,7 @@
                 <field name="effective_date"/>
                 <field name="review_date"/>
                 <field name="owner_id"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -97,7 +97,7 @@
                 <sheet>
                     <div class="oe_title">
                         <h1>
-                            <field name="code" placeholder="เช่น FM-PU-12"/>
+                            <field name="code" placeholder="สร้างอัตโนมัติเมื่อบันทึก" readonly="1"/>
                         </h1>
                         <h2>
                             <field name="document_title" placeholder="ชื่อเอกสาร"/>
@@ -107,7 +107,8 @@
                     <group>
                         <group string="ข้อมูลทั่วไป">
                             <field name="category_id"/>
-                            <field name="department_code" placeholder="PU, SA, QA, IA"/>
+                            <field name="department_id"/>
+                            <field name="department_code" readonly="1"/>
                             <field name="standard_ids" widget="many2many_tags"/>
                             <field name="iso_clause" placeholder="เช่น 7.5, 8.6"/>
                         </group>
@@ -150,12 +151,12 @@
                     <notebook>
                         <page string="ประวัติการแก้ไข" name="revision_history">
                             <field name="revision_history_ids">
-                                <tree editable="bottom">
+                                <list editable="bottom">
                                     <field name="revision"/>
                                     <field name="effective_date"/>
                                     <field name="approved_by"/>
                                     <field name="note"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
                         <page string="ข้อความ" name="chatter">
@@ -177,7 +178,7 @@
         <field name="name">od19.iso.document.search</field>
         <field name="model">od19.iso.document</field>
         <field name="arch" type="xml">
-            <search string="ค้นหาเอกสารควบคุม">
+            <search>
                 <field name="code"/>
                 <field name="document_title"/>
                 <field name="category_id"/>
@@ -192,15 +193,13 @@
                         domain="[('status','=','approved')]"/>
                 <filter string="เลิกใช้" name="filter_obsolete"
                         domain="[('status','=','obsolete')]"/>
-                <group expand="0" string="จัดกลุ่ม">
+                <group>
                     <filter string="ประเภทเอกสาร" name="group_category"
                             context="{'group_by':'category_id'}"/>
                     <filter string="สถานะ" name="group_status"
                             context="{'group_by':'status'}"/>
                     <filter string="แผนก" name="group_dept"
                             context="{'group_by':'department_code'}"/>
-                    <filter string="มาตรฐาน" name="group_standard"
-                            context="{'group_by':'standard_ids'}"/>
                 </group>
             </search>
         </field>
@@ -210,7 +209,7 @@
     <record id="action_iso_document" model="ir.actions.act_window">
         <field name="name">เอกสารควบคุม</field>
         <field name="res_model">od19.iso.document</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_iso_document_search"/>
         <field name="context">{'search_default_filter_approved': 1}</field>
     </record>

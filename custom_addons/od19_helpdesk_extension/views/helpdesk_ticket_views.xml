@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Form view: add service fields for customer_service teams -->
+    <record id="ticket_view_form_inherit" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.view.form.inherit.od19</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk_mgmt.ticket_view_form" />
+        <field name="arch" type="xml">
+            <field name="active" position="after">
+                <field name="is_customer_service" invisible="1" />
+            </field>
+
+            <!-- Create Invoice button in header -->
+            <field name="stage_id" position="before">
+                <button
+                    string="Create Invoice"
+                    name="action_create_invoice"
+                    type="object"
+                    class="oe_highlight"
+                    invisible="not is_customer_service"
+                />
+            </field>
+
+            <!-- Service Information group after main group -->
+            <group name="main" position="after">
+                <group
+                    string="Service Information"
+                    invisible="not is_customer_service"
+                >
+                    <group>
+                        <field name="service_type" />
+                        <field name="product_id" />
+                        <field name="lot_id" />
+                        <field name="technician_id" />
+                    </group>
+                    <group>
+                        <field name="sale_order_id" />
+                        <field name="planned_date" />
+                        <field name="total_cost" />
+                        <field name="invoice_id" readonly="1" />
+                    </group>
+                </group>
+            </group>
+
+            <!-- Resolution page in notebook -->
+            <page name="description" position="after">
+                <page
+                    string="Resolution"
+                    name="resolution"
+                    invisible="not is_customer_service"
+                >
+                    <field name="resolution" widget="html" />
+                </page>
+            </page>
+        </field>
+    </record>
+
+    <!-- Tree view: add service columns -->
+    <record id="ticket_view_tree_inherit" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.view.list.inherit.od19</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk_mgmt.ticket_view_tree" />
+        <field name="arch" type="xml">
+            <field name="category_id" position="after">
+                <field name="service_type" optional="hide" />
+                <field name="technician_id" optional="hide" widget="many2one_avatar_employee" />
+                <field name="total_cost" optional="hide" sum="Total" />
+                <field name="invoice_id" optional="hide" />
+            </field>
+        </field>
+    </record>
+
+    <!-- Search view: add team_type filter -->
+    <record id="ticket_view_search_inherit" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.view.search.inherit.od19</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk_mgmt.helpdesk_ticket_view_search" />
+        <field name="arch" type="xml">
+            <field name="stage_id" position="after">
+                <field name="team_type" />
+                <field name="service_type" />
+                <field name="technician_id" />
+            </field>
+            <filter name="open" position="after">
+                <separator />
+                <filter
+                    string="Internal IT"
+                    name="internal"
+                    domain="[('team_type', '=', 'internal')]"
+                />
+                <filter
+                    string="Sales Services"
+                    name="sales_services"
+                    domain="[('team_type', '=', 'customer_service')]"
+                />
+            </filter>
+        </field>
+    </record>
+</odoo>

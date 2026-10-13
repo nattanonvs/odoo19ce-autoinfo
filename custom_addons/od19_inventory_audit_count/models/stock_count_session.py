@@ -1,5 +1,5 @@
 from odoo import _, api, fields, models
-from odoo.exceptions import ValidationError
+from odoo.exceptions import AccessError, UserError, ValidationError
 
 
 class StockCountSession(models.Model):
@@ -12,14 +12,99 @@ class StockCountSession(models.Model):
         selection=[
             ("scheduled", "Scheduled"),
             ("counted", "Counted"),
-            ("variance", "Variance"),
+            ("pending_approval", "Pending Approval"),
             ("adjusted", "Adjusted"),
             ("reviewed", "Reviewed"),
+            ("cancelled", "Cancelled"),
         ],
         required=True,
         default="scheduled",
+        tracking=True,
     )
     line_ids = fields.One2many("od19.stock.count.line", "session_id")
+    variance_count = fields.Integer(
+        string="Variances",
+        compute="_compute_variance_count",
+        help="Number of count lines with a non-zero variance.",
+    )
+    approved_by = fields.Many2one(
+        "res.users", string="Approved By", readonly=True, copy=False
+    )
+
+    @api.depends("line_ids.variance_qty")
+    def _compute_variance_count(self):
+        for session in self:
+            session.variance_count = len(
+                session.line_ids.filtered(lambda l: l.variance_qty)
+            )
+
+    def action_mark_counted(self):
+        for session in self:
+            if session.state != "scheduled":
+                raise UserError(
+                    _("Only scheduled count sessions can be marked as counted.")
+                )
+            if not session.line_ids:
+                raise UserError(
+                    _("Please add at least one count line before marking as counted.")
+                )
+            session.state = "counted"
+
+    def action_submit_for_approval(self):
+        for session in self:
+            if session.state != "counted":
+                raise UserError(
+                    _("Only counted sessions can be submitted for approval.")
+                )
+            session.state = "pending_approval"
+
+    def action_create_adjustment(self):
+        """Create stock.quant adjustments for every counted variance.
+
+        For each count line, the system quantity is set to the counted
+        quantity. This updates the quant and (for real-time valuation
+        categories) posts the corresponding valuation and accounting
+        entries through Odoo's standard inventory adjustment mechanism.
+        """
+        self.ensure_one()
+        if self.state != "pending_approval":
+            raise UserError(
+                _("Adjustments can only be created for sessions pending approval.")
+            )
+        if not self.env.user.has_group("stock.group_stock_manager"):
+            raise AccessError(
+                _("Only inventory managers can approve count adjustments.")
+            )
+        for line in self.line_ids:
+            if line.variance_qty:
+                line.quant_id.inventory_quantity = line.counted_qty
+                line.quant_id.action_apply_inventory()
+        self.approved_by = self.env.user
+        self.state = "adjusted"
+
+    def action_mark_reviewed(self):
+        for session in self:
+            if session.state != "adjusted":
+                raise UserError(
+                    _("Only adjusted sessions can be marked as reviewed.")
+                )
+            session.state = "reviewed"
+
+    def action_cancel(self):
+        for session in self:
+            if session.state in ("adjusted", "reviewed"):
+                raise UserError(
+                    _("Adjusted or reviewed sessions cannot be cancelled.")
+                )
+            session.state = "cancelled"
+
+    def action_reset_to_scheduled(self):
+        for session in self:
+            if session.state != "cancelled":
+                raise UserError(
+                    _("Only cancelled sessions can be reset to scheduled.")
+                )
+            session.state = "scheduled"
 
 
 class StockCountLine(models.Model):

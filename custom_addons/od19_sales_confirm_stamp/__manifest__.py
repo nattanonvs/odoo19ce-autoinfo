@@ -7,7 +7,8 @@
 Adds a Stamp Date field and supporting fields to sale orders.
 When a quotation is confirmed and Stamp Date is filled, the printed
 quotation displays a red CONFIRMED stamp box containing:
-  - SIGN  : the user who confirmed the order
+  - SIGN  : handwritten signature image of the user who confirmed the order
+            (falls back to the user's name if no signature is uploaded)
   - DATE  : Stamp Date
   - DELIVERY ON : commitment date
   - JOB   : linked project job number
@@ -19,10 +20,12 @@ Also renames the legacy x_stamp_date signal to stamp_date.
     "license": "LGPL-3",
     "depends": [
         "sale_management",
+        "hr",
         "od19_sales_project_context",
     ],
     "data": [
         "views/sale_order_views.xml",
+        "views/hr_employee_views.xml",
         "report/report_saleorder_stamp.xml",
     ],
     "installable": True,

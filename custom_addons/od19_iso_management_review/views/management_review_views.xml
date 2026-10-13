@@ -5,13 +5,13 @@
         <field name="name">od19.iso.management.review.tree</field>
         <field name="model">od19.iso.management.review</field>
         <field name="arch" type="xml">
-            <tree string="การทบทวนระบบจัดการ">
+            <list string="การทบทวนระบบจัดการ">
                 <field name="name"/>
                 <field name="title"/>
                 <field name="date"/>
                 <field name="chairman_id"/>
                 <field name="state"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -50,20 +50,20 @@
                             <field name="audit_ids" widget="many2many_tags"/>
                             <field name="nc_ids" widget="many2many_tags"/>
                             <field name="input_ids">
-                                <tree>
+                                <list>
                                     <field name="sequence" widget="handle"/>
                                     <field name="topic"/>
                                     <field name="topic_other" invisible="topic != 'other'"/>
                                     <field name="summary"/>
                                     <field name="responsible_id"/>
                                     <field name="conclusion"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
                         <page string="ผลการทบทวน">
                             <field name="output_summary"/>
                             <field name="decision_ids">
-                                <tree>
+                                <list>
                                     <field name="sequence" widget="handle"/>
                                     <field name="decision_type"/>
                                     <field name="decision"/>
@@ -71,7 +71,7 @@
                                     <field name="responsible_id"/>
                                     <field name="due_date"/>
                                     <field name="status"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
                         <page string="รายงานการประชุม">
@@ -86,7 +86,7 @@
     <record id="action_iso_mr" model="ir.actions.act_window">
         <field name="name">การทบทวนระบบจัดการ</field>
         <field name="res_model">od19.iso.management.review</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="help" type="html"><p class="o_view_nocontent_smiling_face">สร้างการทบทวนระบบจัดการใหม่</p></field>
     </record>
 

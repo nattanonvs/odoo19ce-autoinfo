@@ -1,5 +1,6 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
-from odoo import fields, models
+from odoo import api, fields, models, _
+from odoo.exceptions import ValidationError
 
 
 class AccountMove(models.Model):
@@ -49,6 +50,33 @@ class AccountMove(models.Model):
         copy=False,
     )
 
+    @api.constrains("dncn", "reason_id")
+    def _check_dncn_reason(self):
+        """DN/CN/Remaster invoices must have a reason."""
+        for move in self:
+            if move.dncn and not move.reason_id:
+                raise ValidationError(_(
+                    "A reason is required for %s documents."
+                ) % move._get_dncn_label())
+
+    def _get_dncn_label(self):
+        self.ensure_one()
+        mapping = {
+            "dn": _("Debit Note"),
+            "cn": _("Credit Note"),
+            "re": _("Remaster Invoice"),
+        }
+        return mapping.get(self.dncn, "")
+
+    def action_post(self):
+        """Validate DN/CN reason before posting."""
+        for move in self:
+            if move.dncn and not move.reason_id:
+                raise ValidationError(_(
+                    "Please select a reason before posting this %s."
+                ) % move._get_dncn_label())
+        return super().action_post()
+
     def _prepare_dncn_defaults(self, dncn_type):
         self.ensure_one()
         return {
@@ -96,19 +124,29 @@ class AccountMove(models.Model):
         }
 
     def action_create_credit_note(self):
-        """Create a Credit Note (ใบลดหนี้) - uses Odoo standard refund."""
+        """Create a Credit Note (ใบลดหนี้) - works for both customer and vendor."""
         self.ensure_one()
-        # Use Odoo standard reversal/refund
-        action = self.env.ref("account.action_move_out_refund_type").sudo()
-        # Create a credit note via standard reversal
+        # Determine the correct refund move type based on the original
+        if self.move_type == "out_invoice":
+            refund_type = "out_refund"
+        elif self.move_type == "in_invoice":
+            refund_type = "in_refund"
+        elif self.move_type == "out_refund":
+            refund_type = "out_invoice"
+        elif self.move_type == "in_refund":
+            refund_type = "in_invoice"
+        else:
+            refund_type = self.move_type
+
         ctx = dict(self.env.context)
         ctx.update({
-            "default_move_type": self.move_type.replace("invoice", "refund"),
+            "default_move_type": refund_type,
             "default_dncn": "cn",
             "default_parent_id": self.id,
             "default_partner_tax_name": self.partner_id.tax_name or self.partner_id.name,
             "default_partner_branch_code": self.partner_id.branch_code,
             "default_invoice_origin": self.name,
+            "default_reversed_entry_id": self.id,
         })
         return {
             "type": "ir.actions.act_window",

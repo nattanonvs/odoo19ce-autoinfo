@@ -6,14 +6,14 @@
         <field name="name">od19.iso.training.course.tree</field>
         <field name="model">od19.iso.training.course</field>
         <field name="arch" type="xml">
-            <tree string="หลักสูตรการฝึกอบรม">
+            <list string="หลักสูตรการฝึกอบรม">
                 <field name="name"/>
                 <field name="code"/>
                 <field name="course_type"/>
                 <field name="date"/>
                 <field name="duration"/>
                 <field name="state"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -60,7 +60,7 @@
                         </page>
                         <page string="ผู้เข้าร่วม">
                             <field name="participant_ids">
-                                <tree>
+                                <list>
                                     <field name="employee_id"/>
                                     <field name="department_id"/>
                                     <field name="attended"/>
@@ -68,7 +68,7 @@
                                     <field name="post_test_score"/>
                                     <field name="passed"/>
                                     <field name="certificate_issued"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
                     </notebook>
@@ -80,7 +80,7 @@
     <record id="action_iso_training_course" model="ir.actions.act_window">
         <field name="name">หลักสูตรการฝึกอบรม</field>
         <field name="res_model">od19.iso.training.course</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="help" type="html"><p class="o_view_nocontent_smiling_face">สร้างหลักสูตรการฝึกอบรมใหม่</p></field>
     </record>
 
@@ -89,13 +89,13 @@
         <field name="name">od19.iso.competence.tree</field>
         <field name="model">od19.iso.competence</field>
         <field name="arch" type="xml">
-            <tree string="ความสามารถ/ทักษะ">
+            <list string="ความสามารถ/ทักษะ">
                 <field name="name"/>
                 <field name="code"/>
                 <field name="category"/>
                 <field name="iso_clause"/>
                 <field name="active"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -127,7 +127,7 @@
     <record id="action_iso_competence" model="ir.actions.act_window">
         <field name="name">ความสามารถ/ทักษะ</field>
         <field name="res_model">od19.iso.competence</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
 
     <!-- ===================== Employee Competence Views ===================== -->
@@ -135,14 +135,14 @@
         <field name="name">od19.iso.employee.competence.tree</field>
         <field name="model">od19.iso.employee.competence</field>
         <field name="arch" type="xml">
-            <tree string="ตารางความสามารถพนักงาน">
+            <list string="ตารางความสามารถพนักงาน">
                 <field name="employee_id"/>
                 <field name="department_id"/>
                 <field name="competence_id"/>
                 <field name="level"/>
                 <field name="valid_from"/>
                 <field name="valid_to"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -176,7 +176,7 @@
     <record id="action_iso_employee_competence" model="ir.actions.act_window">
         <field name="name">ตารางความสามารถพนักงาน</field>
         <field name="res_model">od19.iso.employee.competence</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
 
 </odoo>

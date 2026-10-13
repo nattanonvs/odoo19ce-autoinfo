@@ -8,6 +8,7 @@
             <xpath expr="//field[@name='origin']" position="after">
                 <field name="od19_flow_class" readonly="1"/>
                 <field name="od19_execution_state" readonly="1"/>
+                <field name="backdate_date" groups="stock.group_stock_manager"/>
             </xpath>
         </field>
     </record>

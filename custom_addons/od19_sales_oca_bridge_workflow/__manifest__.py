@@ -8,8 +8,13 @@
         "base_exception",
         "sale_exception",
         "sale_blanket_order",
+        "base_tier_validation",
     ],
-    "data": ["views/sale_order_bridge_views.xml"],
+    "data": [
+        "security/sale_director_security.xml",
+        "data/od19_sale_tier_definition.xml",
+        "views/sale_order_bridge_views.xml",
+    ],
     "installable": True,
     "license": "LGPL-3",
 }

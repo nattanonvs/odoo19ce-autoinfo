@@ -39,6 +39,14 @@ class PurchaseOrder(models.Model):
                 "requisition" if order.requisition_id else "direct"
             )
 
+    @api.depends("amount_total", "company_id.od19_po_director_approval_threshold")
+    def _compute_od19_approval_level(self):
+        for order in self:
+            threshold = order.company_id.od19_po_director_approval_threshold or 0.0
+            order.od19_approval_level = (
+                "director" if order.amount_total >= threshold else "manager"
+            )
+
     od19_approval_state = fields.Selection(
         [
             ("draft", "Draft"),
@@ -50,6 +58,16 @@ class PurchaseOrder(models.Model):
         required=True,
         tracking=True,
         copy=False,
+    )
+    od19_approval_level = fields.Selection(
+        [
+            ("manager", "Manager"),
+            ("director", "Director"),
+        ],
+        string="Required Approval Level",
+        compute="_compute_od19_approval_level",
+        store=True,
+        help="Approval level required based on the purchase order total.",
     )
     od19_budget_warning_count = fields.Integer(
         string="Budget Warning Count",
@@ -151,10 +169,31 @@ class PurchaseOrder(models.Model):
         )
 
     def action_od19_approve(self):
-        if not self.env.user.has_group("purchase.group_purchase_manager"):
-            raise AccessError(_("Only purchase managers can approve procurement documents."))
         if any(order.od19_approval_state != "submitted" for order in self):
             raise UserError(_("Only submitted documents can be approved."))
+        for order in self:
+            if order.od19_approval_level == "director":
+                if not self.env.user.has_group(
+                    "od19_purchase_procurement_core.group_purchase_director"
+                ):
+                    raise AccessError(
+                        _(
+                            "This purchase order totals %s, which is at or "
+                            "above the director approval threshold of %s. "
+                            "Only a Purchase Director can approve it."
+                        )
+                        % (
+                            order.currency_id.format(order.amount_total),
+                            order.currency_id.format(
+                                order.company_id.od19_po_director_approval_threshold
+                            ),
+                        )
+                    )
+            else:
+                if not self.env.user.has_group("purchase.group_purchase_manager"):
+                    raise AccessError(
+                        _("Only purchase managers can approve this purchase order.")
+                    )
         self.with_context(**{self._OD19_APPROVAL_STATE_WRITE_CTX: True}).write(
             {"od19_approval_state": "approved"}
         )

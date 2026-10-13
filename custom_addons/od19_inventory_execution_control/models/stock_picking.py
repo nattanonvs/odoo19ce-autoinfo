@@ -1,4 +1,5 @@
-from odoo import api, fields, models
+from odoo import _, api, fields, models
+from odoo.exceptions import AccessError
 
 
 class StockPicking(models.Model):
@@ -26,6 +27,13 @@ class StockPicking(models.Model):
         store=True,
         readonly=True,
     )
+    backdate_date = fields.Date(
+        string="Backdate",
+        copy=False,
+        help="If set, the stock moves, valuation layers and accounting "
+        "entries of this picking will be posted on this date instead of "
+        "today. Only inventory managers are allowed to backdate.",
+    )
 
     @api.depends("picking_type_code", "return_id")
     def _compute_od19_flow_class(self):
@@ -52,3 +60,32 @@ class StockPicking(models.Model):
                 picking.od19_execution_state = "exception"
             else:
                 picking.od19_execution_state = "waiting"
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get("backdate_date"):
+                self._check_backdate_access()
+        return super().create(vals_list)
+
+    def write(self, vals):
+        if "backdate_date" in vals and vals["backdate_date"]:
+            self._check_backdate_access()
+        return super().write(vals)
+
+    def _check_backdate_access(self):
+        """Only inventory managers may set a backdate."""
+        if not self.env.user.has_group("stock.group_stock_manager"):
+            raise AccessError(
+                _(
+                    "Only inventory managers are allowed to backdate stock "
+                    "operations."
+                )
+            )
+
+    def _action_done(self):
+        """Propagate the backdate to the moves before validating."""
+        for picking in self:
+            if picking.backdate_date:
+                picking.move_ids.write({"backdate_date": picking.backdate_date})
+        return super()._action_done()

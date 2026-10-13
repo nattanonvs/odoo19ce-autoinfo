@@ -1,5 +1,9 @@
+import inspect
+
 from odoo.exceptions import UserError
 from odoo.tests import tagged
+
+from odoo.addons.od19_sales_customer_risk_gate.models.sale_order import SaleOrder
 
 from .common import CreditGateCommon
 
@@ -69,3 +73,45 @@ class TestSaleGate(CreditGateCommon):
         self._blacklist()
         order.write({"note": "after blacklist"})
         self.assertEqual(order.state, "sale")
+
+    def test_gate_event_logged_via_orm_uses_current_environment(self):
+        self.env["sale.order"]._od19_log_gate_event(
+            self.customer, "blacklist", "quotation_create"
+        )
+        event = self.env["od19.credit.gate.event"].search(
+            [("partner_id", "=", self.customer.id)], order="id desc", limit=1
+        )
+        self.assertTrue(event)
+        self.assertEqual(event.reason_code, "blacklist")
+        self.assertEqual(event.stage, "quotation_create")
+        # The event is created through sudo() so its user/company come from
+        # the ORM default rather than a separate raw cursor.
+        self.assertEqual(event.company_id, self.env.company)
+
+    def test_gate_event_logging_uses_no_raw_cursor(self):
+        source = inspect.getsource(SaleOrder._od19_log_gate_event)
+        self.assertNotIn("cr.execute", source)
+        self.assertNotIn("cr.commit", source)
+        self.assertNotIn("registry.cursor", source)
+        self.assertNotIn("api.Environment", source)
+        self.assertIn("self.env", source)
+        self.assertIn(".create(", source)
+
+    def test_gate_event_is_atomic_with_blocked_operation(self):
+        """A blocked create rolls the gate event back with the transaction.
+
+        Before the fix the event was written on a separate cursor with an
+        explicit commit, so it survived the rollback of the blocked sale
+        order.  Now the event lives in the same transaction and is rolled
+        back together with the failed create.
+        """
+        self._blacklist()
+        event_count_before = self.env["od19.credit.gate.event"].search_count(
+            [("partner_id", "=", self.customer.id)]
+        )
+        with self.assertRaisesRegex(UserError, "Blacklist"):
+            self.env["sale.order"].create(self._quotation_vals(self.contact))
+        event_count_after = self.env["od19.credit.gate.event"].search_count(
+            [("partner_id", "=", self.customer.id)]
+        )
+        self.assertEqual(event_count_before, event_count_after)

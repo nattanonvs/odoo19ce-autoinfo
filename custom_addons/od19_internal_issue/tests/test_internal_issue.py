@@ -96,3 +96,44 @@ class TestInternalIssue(TransactionCase):
         ticket = self._create_ticket()
         ticket.resolution = "<p>Fixed by restarting</p>"
         self.assertTrue(ticket.resolution)
+
+    # ------------------------------------------------------------------
+    # Tier validation workflow
+    # ------------------------------------------------------------------
+    def test_default_state_is_draft(self):
+        ticket = self._create_ticket()
+        self.assertEqual(ticket.state, "draft")
+
+    def test_submit_changes_state_to_submitted(self):
+        ticket = self._create_ticket()
+        ticket.action_submit()
+        self.assertEqual(ticket.state, "submitted")
+
+    def test_start_work_requires_validated_state(self):
+        ticket = self._create_ticket()
+        with self.assertRaises(Exception):
+            ticket.action_start_work()
+
+    def test_done_requires_in_progress_state(self):
+        ticket = self._create_ticket()
+        with self.assertRaises(Exception):
+            ticket.action_done()
+
+    def test_full_workflow_as_admin(self):
+        ticket = self._create_ticket()
+        ticket.action_submit()
+        self.assertEqual(ticket.state, "submitted")
+        # Admin can review
+        ticket.action_validate()
+        self.assertEqual(ticket.state, "validated")
+        ticket.action_start_work()
+        self.assertEqual(ticket.state, "in_progress")
+        ticket.action_done()
+        self.assertEqual(ticket.state, "done")
+
+    def test_cancel_and_reset(self):
+        ticket = self._create_ticket()
+        ticket.action_cancel()
+        self.assertEqual(ticket.state, "cancelled")
+        ticket.action_reset_to_draft()
+        self.assertEqual(ticket.state, "draft")

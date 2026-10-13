@@ -587,6 +587,10 @@ class IrActionsReport(models.Model):
                 stack.callback(delete_file, foot_file_path)
                 with closing(os.fdopen(foot_file_fd, 'wb')) as foot_file:
                     foot_file.write(footer.encode())
+                # TEMP DEBUG: save footer HTML for inspection
+                with open(r'c:\odoo-dev\odoo19\debug_footer.html', 'w', encoding='utf-8') as f:
+                    f.write(footer)
+                _logger.warning("TEMP DEBUG: footer saved to c:\\odoo-dev\\odoo19\\debug_footer.html, len=%d", len(footer))
                 files_command_args.extend(['--footer-html', foot_file_path])
 
             paths = []
