@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_picking_form_od19_delivery_label" model="ir.ui.view">
+        <field name="name">stock.picking.form.od19.delivery.label</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='origin']" position="after">
+                <field name="od19_project_id" readonly="1"/>
+                <field name="od19_department_code" required="1" placeholder="เช่น IA, BA, TA, DES, FA"/>
+            </xpath>
+            <!-- Add a notebook page for delivery label info -->
+            <xpath expr="//notebook" position="inside">
+                <page string="ใบปะหน้าสินค้า" name="od19_delivery_label_page">
+                    <group>
+                        <group string="เหตุผลการส่ง">
+                            <field name="od19_reason_claim"/>
+                            <field name="od19_reason_return"/>
+                            <field name="od19_reason_damaged"/>
+                            <field name="od19_reason_under_warranty"/>
+                            <field name="od19_reason_delivery"/>
+                            <field name="od19_reason_important_document"/>
+                            <field name="od19_delivery_reason_display" readonly="1"/>
+                        </group>
+                        <group string="ผู้ติดต่อสำหรับจัดส่ง">
+                            <field name="od19_contact_name"/>
+                            <field name="od19_contact_phone"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add Department Code field to hr.department form view -->
+    <record id="view_department_form_od19_delivery_label" model="ir.ui.view">
+        <field name="name">hr.department.form.od19.delivery.label</field>
+        <field name="model">hr.department</field>
+        <field name="inherit_id" ref="hr.view_department_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="code" placeholder="เช่น IA, BA, TA, DES, FA"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

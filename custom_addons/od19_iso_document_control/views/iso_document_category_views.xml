@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_iso_document_category_tree" model="ir.ui.view">
+        <field name="name">od19.iso.document.category.tree</field>
+        <field name="model">od19.iso.document.category</field>
+        <field name="arch" type="xml">
+            <tree string="ประเภทเอกสาร">
+                <field name="prefix"/>
+                <field name="name"/>
+                <field name="description"/>
+                <field name="active" widget="boolean_toggle"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_iso_document_category_form" model="ir.ui.view">
+        <field name="name">od19.iso.document.category.form</field>
+        <field name="model">od19.iso.document.category</field>
+        <field name="arch" type="xml">
+            <form string="ประเภทเอกสาร">
+                <sheet>
+                    <group>
+                        <field name="prefix"/>
+                        <field name="name"/>
+                        <field name="description"/>
+                        <field name="active" invisible="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_iso_document_category" model="ir.actions.act_window">
+        <field name="name">ประเภทเอกสาร</field>
+        <field name="res_model">od19.iso.document.category</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+</odoo>

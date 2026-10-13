@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_iso_nc" name="ไม่สอดคล้อง / CAPA"
+              parent="od19_iso_document_control.menu_iso_management"
+              sequence="40"/>
+
+    <menuitem id="menu_iso_nc_list" name="รายการไม่สอดคล้อง"
+              parent="menu_iso_nc"
+              action="action_iso_nc"
+              sequence="10"/>
+
+</odoo>

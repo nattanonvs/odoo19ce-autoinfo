@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_iso_supplier_quality" name="คุณภาพผู้จำหน่าย"
+              parent="od19_iso_document_control.menu_iso_management"
+              sequence="100"/>
+
+    <menuitem id="menu_iso_supplier_eval" name="การประเมินผู้จำหน่าย"
+              parent="menu_iso_supplier_quality"
+              action="action_iso_supplier_eval"
+              sequence="10"/>
+
+    <menuitem id="menu_iso_asl" name="รายชื่อผู้จำหน่ายที่อนุมัติ (ASL)"
+              parent="menu_iso_supplier_quality"
+              action="action_iso_asl"
+              sequence="20"/>
+
+</odoo>

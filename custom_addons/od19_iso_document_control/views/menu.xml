@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Top-level ISO menu -->
+    <menuitem id="menu_iso_root"
+              name="ISO Management"
+              web_icon="od19_iso_document_control,static/description/icon.png"
+              sequence="90"/>
+
+    <!-- Document Control submenu -->
+    <menuitem id="menu_iso_document_control"
+              name="ควบคุมเอกสาร"
+              parent="menu_iso_root"
+              sequence="10"/>
+
+    <menuitem id="menu_iso_documents"
+              name="เอกสารควบคุม"
+              parent="menu_iso_document_control"
+              action="action_iso_document"
+              sequence="10"/>
+
+    <!-- Configuration submenu -->
+    <menuitem id="menu_iso_configuration"
+              name="ตั้งค่า"
+              parent="menu_iso_root"
+              sequence="90"/>
+
+    <menuitem id="menu_iso_standards"
+              name="มาตรฐาน ISO"
+              parent="menu_iso_configuration"
+              action="action_iso_standard"
+              sequence="10"/>
+
+    <menuitem id="menu_iso_document_categories"
+              name="ประเภทเอกสาร"
+              parent="menu_iso_configuration"
+              action="action_iso_document_category"
+              sequence="20"/>
+
+</odoo>

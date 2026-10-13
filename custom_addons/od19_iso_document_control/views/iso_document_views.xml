@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ==================== Tree View ==================== -->
+    <record id="view_iso_document_tree" model="ir.ui.view">
+        <field name="name">od19.iso.document.tree</field>
+        <field name="model">od19.iso.document</field>
+        <field name="arch" type="xml">
+            <tree string="เอกสารควบคุม">
+                <field name="code"/>
+                <field name="document_title"/>
+                <field name="category_id"/>
+                <field name="department_code"/>
+                <field name="revision"/>
+                <field name="status" widget="badge"
+                       decoration-info="status in ('draft','review')"
+                       decoration-warning="status in ('approval','final_approval')"
+                       decoration-success="status == 'approved'"
+                       decoration-danger="status in ('rejected','obsolete')"/>
+                <field name="effective_date"/>
+                <field name="review_date"/>
+                <field name="owner_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- ==================== Form View ==================== -->
+    <record id="view_iso_document_form" model="ir.ui.view">
+        <field name="name">od19.iso.document.form</field>
+        <field name="model">od19.iso.document</field>
+        <field name="arch" type="xml">
+            <form string="เอกสารควบคุม">
+                <header>
+                    <!-- Draft actions -->
+                    <button name="action_submit_for_review"
+                            type="object"
+                            string="ส่งตรวจทาน"
+                            class="btn-primary"
+                            invisible="status != 'draft'"/>
+                    <button name="action_reset_to_draft"
+                            type="object"
+                            string="ดึงกลับเป็นร่าง"
+                            invisible="status not in ('review','approval','final_approval')"/>
+
+                    <!-- Review actions -->
+                    <button name="action_review_approve"
+                            type="object"
+                            string="ตรวจทานผ่าน"
+                            class="btn-success"
+                            invisible="status != 'review'"/>
+                    <button name="action_review_reject"
+                            type="object"
+                            string="ตรวจทานไม่ผ่าน"
+                            class="btn-danger"
+                            invisible="status != 'review'"/>
+
+                    <!-- Approval actions -->
+                    <button name="action_approve"
+                            type="object"
+                            string="อนุมัติ"
+                            class="btn-success"
+                            invisible="status != 'approval'"/>
+                    <button name="action_approve_reject"
+                            type="object"
+                            string="ไม่อนุมัติ"
+                            class="btn-danger"
+                            invisible="status != 'approval'"/>
+
+                    <!-- Final approval actions -->
+                    <button name="action_final_approve"
+                            type="object"
+                            string="อนุมัติสุดท้าย"
+                            class="btn-success"
+                            invisible="status != 'final_approval'"/>
+                    <button name="action_final_reject"
+                            type="object"
+                            string="ไม่อนุมัติสุดท้าย"
+                            class="btn-danger"
+                            invisible="status != 'final_approval'"/>
+
+                    <!-- Approved actions -->
+                    <button name="action_new_revision"
+                            type="object"
+                            string="สร้าง Revision ใหม่"
+                            invisible="status not in ('approved','obsolete')"/>
+                    <button name="action_mark_obsolete"
+                            type="object"
+                            string="เลิกใช้"
+                            class="btn-danger"
+                            invisible="status != 'approved'"/>
+
+                    <field name="status" widget="statusbar"
+                           statusbar_visible="draft,review,approval,final_approval,approved"
+                           statusbar_colors='{"rejected":"danger","obsolete":"danger"}'/>
+                </header>
+
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="code" placeholder="เช่น FM-PU-12"/>
+                        </h1>
+                        <h2>
+                            <field name="document_title" placeholder="ชื่อเอกสาร"/>
+                        </h2>
+                    </div>
+
+                    <group>
+                        <group string="ข้อมูลทั่วไป">
+                            <field name="category_id"/>
+                            <field name="department_code" placeholder="PU, SA, QA, IA"/>
+                            <field name="standard_ids" widget="many2many_tags"/>
+                            <field name="iso_clause" placeholder="เช่น 7.5, 8.6"/>
+                        </group>
+                        <group string="การควบคุม">
+                            <field name="revision"/>
+                            <field name="effective_date"/>
+                            <field name="review_date"/>
+                            <field name="owner_id"/>
+                        </group>
+                    </group>
+
+                    <group string="ผู้เกี่ยวข้อง (วงจรอนุมัติ 4 ชั้น)">
+                        <group>
+                            <field name="drafter_id"/>
+                            <field name="reviewer_id"/>
+                        </group>
+                        <group>
+                            <field name="approver_id"/>
+                            <field name="final_approver_id"/>
+                        </group>
+                    </group>
+
+                    <group string="รูปแบบการแสดงผล">
+                        <group>
+                            <field name="date_type"/>
+                            <field name="date_format"/>
+                        </group>
+                        <group>
+                            <field name="allow_e_name" widget="boolean_toggle"/>
+                            <field name="allow_e_signature" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+
+                    <group string="ไฟล์เอกสาร">
+                        <field name="filename_pattern" readonly="1"/>
+                        <field name="document_attachment_ids"
+                               widget="many2many_binary"/>
+                    </group>
+
+                    <notebook>
+                        <page string="ประวัติการแก้ไข" name="revision_history">
+                            <field name="revision_history_ids">
+                                <tree editable="bottom">
+                                    <field name="revision"/>
+                                    <field name="effective_date"/>
+                                    <field name="approved_by"/>
+                                    <field name="note"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="ข้อความ" name="chatter">
+                            <field name="message_ids" widget="mail_thread"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- ==================== Search View ==================== -->
+    <record id="view_iso_document_search" model="ir.ui.view">
+        <field name="name">od19.iso.document.search</field>
+        <field name="model">od19.iso.document</field>
+        <field name="arch" type="xml">
+            <search string="ค้นหาเอกสารควบคุม">
+                <field name="code"/>
+                <field name="document_title"/>
+                <field name="category_id"/>
+                <field name="department_code"/>
+                <filter string="ร่าง" name="filter_draft"
+                        domain="[('status','=','draft')]"/>
+                <filter string="รอตรวจทาน" name="filter_review"
+                        domain="[('status','=','review')]"/>
+                <filter string="รออนุมัติ" name="filter_approval"
+                        domain="[('status','in',['approval','final_approval'])]"/>
+                <filter string="อนุมัติแล้ว" name="filter_approved"
+                        domain="[('status','=','approved')]"/>
+                <filter string="เลิกใช้" name="filter_obsolete"
+                        domain="[('status','=','obsolete')]"/>
+                <group expand="0" string="จัดกลุ่ม">
+                    <filter string="ประเภทเอกสาร" name="group_category"
+                            context="{'group_by':'category_id'}"/>
+                    <filter string="สถานะ" name="group_status"
+                            context="{'group_by':'status'}"/>
+                    <filter string="แผนก" name="group_dept"
+                            context="{'group_by':'department_code'}"/>
+                    <filter string="มาตรฐาน" name="group_standard"
+                            context="{'group_by':'standard_ids'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ==================== Action ==================== -->
+    <record id="action_iso_document" model="ir.actions.act_window">
+        <field name="name">เอกสารควบคุม</field>
+        <field name="res_model">od19.iso.document</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_iso_document_search"/>
+        <field name="context">{'search_default_filter_approved': 1}</field>
+    </record>
+
+</odoo>

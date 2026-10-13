@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_iso_mr_tree" model="ir.ui.view">
+        <field name="name">od19.iso.management.review.tree</field>
+        <field name="model">od19.iso.management.review</field>
+        <field name="arch" type="xml">
+            <tree string="การทบทวนระบบจัดการ">
+                <field name="name"/>
+                <field name="title"/>
+                <field name="date"/>
+                <field name="chairman_id"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_iso_mr_form" model="ir.ui.view">
+        <field name="name">od19.iso.management.review.form</field>
+        <field name="model">od19.iso.management.review</field>
+        <field name="arch" type="xml">
+            <form string="การทบทวนระบบจัดการ">
+                <header>
+                    <button name="action_plan" type="object" string="วางแปรยัง" invisible="state != 'draft'"/>
+                    <button name="action_start" type="object" string="เริ่มประชุม" invisible="state != 'planned'"/>
+                    <button name="action_reviewed" type="object" string="ทบทวนแล้ว" invisible="state != 'in_progress'"/>
+                    <button name="action_close" type="object" string="ปิด" class="btn-primary" invisible="state not in ('reviewed','in_progress')"/>
+                    <button name="action_cancel" type="object" string="ยกเลิก" invisible="state in ('closed','cancel')"/>
+                    <button name="action_reset_to_draft" type="object" string="กลับเป็นร่าง" invisible="state not in ('cancel','planned')"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="title"/>
+                            <field name="date"/>
+                            <field name="location"/>
+                            <field name="standard_ids" widget="many2many_tags"/>
+                        </group>
+                        <group>
+                            <field name="chairman_id"/>
+                            <field name="attendee_ids" widget="many2many_tags"/>
+                            <field name="follow_up_date"/>
+                            <field name="close_date"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="ข้อมูลนำเข้า">
+                            <field name="audit_ids" widget="many2many_tags"/>
+                            <field name="nc_ids" widget="many2many_tags"/>
+                            <field name="input_ids">
+                                <tree>
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="topic"/>
+                                    <field name="topic_other" invisible="topic != 'other'"/>
+                                    <field name="summary"/>
+                                    <field name="responsible_id"/>
+                                    <field name="conclusion"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="ผลการทบทวน">
+                            <field name="output_summary"/>
+                            <field name="decision_ids">
+                                <tree>
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="decision_type"/>
+                                    <field name="decision"/>
+                                    <field name="action"/>
+                                    <field name="responsible_id"/>
+                                    <field name="due_date"/>
+                                    <field name="status"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="รายงานการประชุม">
+                            <field name="minutes"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_iso_mr" model="ir.actions.act_window">
+        <field name="name">การทบทวนระบบจัดการ</field>
+        <field name="res_model">od19.iso.management.review</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html"><p class="o_view_nocontent_smiling_face">สร้างการทบทวนระบบจัดการใหม่</p></field>
+    </record>
+
+</odoo>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_iso_standard_tree" model="ir.ui.view">
+        <field name="name">od19.iso.standard.tree</field>
+        <field name="model">od19.iso.standard</field>
+        <field name="arch" type="xml">
+            <tree string="มาตรฐาน ISO">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="description"/>
+                <field name="active" widget="boolean_toggle"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_iso_standard_form" model="ir.ui.view">
+        <field name="name">od19.iso.standard.form</field>
+        <field name="model">od19.iso.standard</field>
+        <field name="arch" type="xml">
+            <form string="มาตรฐาน ISO">
+                <sheet>
+                    <group>
+                        <field name="code"/>
+                        <field name="name"/>
+                        <field name="description"/>
+                        <field name="active" invisible="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_iso_standard" model="ir.actions.act_window">
+        <field name="name">มาตรฐาน ISO</field>
+        <field name="res_model">od19.iso.standard</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+</odoo>

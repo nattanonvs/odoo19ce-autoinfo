@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ===================== Equipment Views ===================== -->
+    <record id="view_iso_calibration_equipment_tree" model="ir.ui.view">
+        <field name="name">od19.iso.calibration.equipment.tree</field>
+        <field name="model">od19.iso.calibration.equipment</field>
+        <field name="arch" type="xml">
+            <tree string="เครื่องมือวัดและสอบเทียบ" decoration-danger="calibration_status == 'overdue'" decoration-warning="calibration_status in ('due','out_of_service')">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="category"/>
+                <field name="serial_no"/>
+                <field name="location"/>
+                <field name="last_calibration_date"/>
+                <field name="next_calibration_date"/>
+                <field name="calibration_status"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_iso_calibration_equipment_form" model="ir.ui.view">
+        <field name="name">od19.iso.calibration.equipment.form</field>
+        <field name="model">od19.iso.calibration.equipment</field>
+        <field name="arch" type="xml">
+            <form string="เครื่องมือวัดและสอบเทียบ">
+                <header>
+                    <button name="action_out_of_service" type="object" string="พักใช้งาน" invisible="state != 'active'"/>
+                    <button name="action_decommission" type="object" string="เลิกใช้" invisible="state == 'decommissioned'"/>
+                    <button name="action_reactivate" type="object" string="เริ่มใช้งาน" invisible="state == 'active'"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="name"/>
+                            <field name="category"/>
+                            <field name="serial_no"/>
+                            <field name="manufacturer"/>
+                            <field name="model"/>
+                        </group>
+                        <group>
+                            <field name="location"/>
+                            <field name="department_id"/>
+                            <field name="owner_id"/>
+                            <field name="accuracy_range"/>
+                            <field name="resolution"/>
+                            <field name="traceability"/>
+                        </group>
+                    </group>
+                    <group string="ตารางสอบเทียบ">
+                        <field name="calibration_interval"/>
+                        <field name="last_calibration_date"/>
+                        <field name="next_calibration_date" readonly="1"/>
+                        <field name="calibration_status" readonly="1"/>
+                    </group>
+                    <notebook>
+                        <page string="ประวัติการสอบเทียบ">
+                            <field name="calibration_ids">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="date"/>
+                                    <field name="calibration_type"/>
+                                    <field name="accuracy_result"/>
+                                    <field name="passed"/>
+                                    <field name="certificate_no"/>
+                                    <field name="next_due_date"/>
+                                    <field name="status"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="หมายเหตุ">
+                            <field name="note"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_iso_calibration_equipment" model="ir.actions.act_window">
+        <field name="name">เครื่องมือวัดและสอบเทียบ</field>
+        <field name="res_model">od19.iso.calibration.equipment</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html"><p class="o_view_nocontent_smiling_face">เพิ่มเครื่องมือวัดใหม่</p></field>
+    </record>
+
+    <!-- ===================== Calibration Record Views ===================== -->
+    <record id="view_iso_calibration_record_tree" model="ir.ui.view">
+        <field name="name">od19.iso.calibration.record.tree</field>
+        <field name="model">od19.iso.calibration.record</field>
+        <field name="arch" type="xml">
+            <tree string="บันทึกการสอบเทียบ">
+                <field name="name"/>
+                <field name="equipment_id"/>
+                <field name="date"/>
+                <field name="calibration_type"/>
+                <field name="accuracy_result"/>
+                <field name="passed"/>
+                <field name="certificate_no"/>
+                <field name="status"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_iso_calibration_record_form" model="ir.ui.view">
+        <field name="name">od19.iso.calibration.record.form</field>
+        <field name="model">od19.iso.calibration.record</field>
+        <field name="arch" type="xml">
+            <form string="บันทึกการสอบเทียบ">
+                <header>
+                    <button name="action_schedule" type="object" string="จัดตาราง" invisible="status != 'draft'"/>
+                    <button name="action_start" type="object" string="เริ่มสอบเทียบ" invisible="status not in ('draft','scheduled')"/>
+                    <button name="action_pass" type="object" string="ผ่าน" invisible="status not in ('draft','scheduled','in_progress')"/>
+                    <button name="action_fail" type="object" string="ไม่ผ่าน" invisible="status not in ('draft','scheduled','in_progress')"/>
+                    <button name="action_cancel" type="object" string="ยกเลิก" invisible="status in ('passed','failed','cancelled')"/>
+                    <button name="action_reset_to_draft" type="object" string="กลับเป็นร่าง" invisible="status not in ('cancelled','scheduled')"/>
+                    <field name="status" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="equipment_id"/>
+                            <field name="date"/>
+                            <field name="calibration_type"/>
+                            <field name="lab_id"/>
+                            <field name="technician_id"/>
+                        </group>
+                        <group>
+                            <field name="accuracy_result"/>
+                            <field name="passed"/>
+                            <field name="before_value"/>
+                            <field name="after_value"/>
+                            <field name="uncertainty"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="certificate_no"/>
+                        <field name="certificate_date"/>
+                        <field name="next_due_date"/>
+                    </group>
+                    <group>
+                        <field name="comment" colspan="2"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_iso_calibration_record" model="ir.actions.act_window">
+        <field name="name">บันทึกการสอบเทียบ</field>
+        <field name="res_model">od19.iso.calibration.record</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html"><p class="o_view_nocontent_smiling_face">บันทึกการสอบเทียบใหม่</p></field>
+    </record>
+
+</odoo>

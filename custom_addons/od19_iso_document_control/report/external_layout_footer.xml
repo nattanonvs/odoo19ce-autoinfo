@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================
+         Inherit the standard Odoo report layouts to automatically
+         inject the ISO document control number in both bottom corners.
+
+         This applies to ALL reports that use the standard external layout
+         (sale orders, invoices, pickings, etc.) as long as:
+         - the report action has od19_iso_show_footer = True
+         - the report action has od19_iso_document_id set
+
+         We inject the footer into each layout's footer div so it works
+         across all layout styles (standard, boxed, bold, folder, wave,
+         bubble, striped).
+    ============================================================ -->
+
+    <!-- Standard layout -->
+    <template id="iso_footer_standard" inherit_id="web.external_layout_standard">
+        <xpath expr="//div[hasclass('footer')]" position="inside">
+            <t t-call="od19_iso_document_control.iso_footer_corner"/>
+        </xpath>
+    </template>
+
+    <!-- Boxed layout -->
+    <template id="iso_footer_boxed" inherit_id="web.external_layout_boxed">
+        <xpath expr="//div[hasclass('footer')]" position="inside">
+            <t t-call="od19_iso_document_control.iso_footer_corner"/>
+        </xpath>
+    </template>
+
+    <!-- Bold layout -->
+    <template id="iso_footer_bold" inherit_id="web.external_layout_bold">
+        <xpath expr="//div[hasclass('footer')]" position="inside">
+            <t t-call="od19_iso_document_control.iso_footer_corner"/>
+        </xpath>
+    </template>
+
+    <!-- Striped layout -->
+    <template id="iso_footer_striped" inherit_id="web.external_layout_striped">
+        <xpath expr="//div[hasclass('footer')]" position="inside">
+            <t t-call="od19_iso_document_control.iso_footer_corner"/>
+        </xpath>
+    </template>
+
+    <!-- Folder layout -->
+    <template id="iso_footer_folder" inherit_id="web.external_layout_folder">
+        <xpath expr="//div[hasclass('footer')]" position="inside">
+            <t t-call="od19_iso_document_control.iso_footer_corner"/>
+        </xpath>
+    </template>
+
+    <!-- Wave layout -->
+    <template id="iso_footer_wave" inherit_id="web.external_layout_wave">
+        <xpath expr="//div[hasclass('footer')]" position="inside">
+            <t t-call="od19_iso_document_control.iso_footer_corner"/>
+        </xpath>
+    </template>
+
+    <!-- Bubble layout -->
+    <template id="iso_footer_bubble" inherit_id="web.external_layout_bubble">
+        <xpath expr="//div[hasclass('footer')]" position="inside">
+            <t t-call="od19_iso_document_control.iso_footer_corner"/>
+        </xpath>
+    </template>
+
+</odoo>

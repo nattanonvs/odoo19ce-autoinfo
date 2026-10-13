@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Top-level ISO Management menu (parent from od19_iso_document_control) -->
+    <menuitem id="menu_iso_audit" name="การตรวจสอบภายใน"
+              parent="od19_iso_document_control.menu_iso_management"
+              sequence="30"/>
+
+    <menuitem id="menu_iso_audit_program" name="แผนการตรวจสอบประจำปี"
+              parent="menu_iso_audit"
+              action="action_iso_audit_program"
+              sequence="10"/>
+
+    <menuitem id="menu_iso_audit_list" name="การตรวจสอบ"
+              parent="menu_iso_audit"
+              action="action_iso_audit"
+              sequence="20"/>
+
+    <menuitem id="menu_iso_audit_finding" name="ผลการตรวจสอบ"
+              parent="menu_iso_audit"
+              action="action_iso_audit_finding"
+              sequence="30"/>
+
+</odoo>

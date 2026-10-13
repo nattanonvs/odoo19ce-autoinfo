@@ -1,0 +1,18 @@
+{
+    "name": "ISO Supplier Quality",
+    "version": "19.0.1.0.0",
+    "category": "Management/ISO",
+    "summary": "ISO 9001 / ISO 14001 Supplier Evaluation and Approved Supplier List",
+    "author": "TRAE",
+    "license": "LGPL-3",
+    "depends": ["od19_iso_document_control", "hr"],
+    "data": [
+        "security/ir.model.access.csv",
+        "data/supplier_quality_data.xml",
+        "views/supplier_quality_views.xml",
+        "views/menu.xml",
+    ],
+    "installable": True,
+    "application": True,
+    "auto_install": False,
+}

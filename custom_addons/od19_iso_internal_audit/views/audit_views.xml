@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ===================== Audit Programme Views ===================== -->
+    <record id="view_iso_audit_program_tree" model="ir.ui.view">
+        <field name="name">od19.iso.audit.program.tree</field>
+        <field name="model">od19.iso.audit.program</field>
+        <field name="arch" type="xml">
+            <tree string="แผนการตรวจสอบประจำปี">
+                <field name="name"/>
+                <field name="year"/>
+                <field name="state"/>
+                <field name="scope"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_iso_audit_program_form" model="ir.ui.view">
+        <field name="name">od19.iso.audit.program.form</field>
+        <field name="model">od19.iso.audit.program</field>
+        <field name="arch" type="xml">
+            <form string="แผนการตรวจสอบประจำปี">
+                <header>
+                    <button name="action_approve" type="object" string="อนุมัติ" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_close" type="object" string="ปิด" invisible="state != 'approved'"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="year"/>
+                            <field name="standard_ids" widget="many2many_tags"/>
+                        </group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="state" readonly="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="scope" colspan="2"/>
+                    </group>
+                    <notebook>
+                        <page string="การตรวจสอบ">
+                            <field name="audit_ids">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="title"/>
+                                    <field name="date_planned"/>
+                                    <field name="state"/>
+                                    <field name="auditee_department_id"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="หมายเหตุ">
+                            <field name="note"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_iso_audit_program" model="ir.actions.act_window">
+        <field name="name">แผนการตรวจสอบประจำปี</field>
+        <field name="res_model">od19.iso.audit.program</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html"><p class="o_view_nocontent_smiling_face">สร้างแผนการตรวจสอบประจำปีใหม่</p></field>
+    </record>
+
+    <!-- ===================== Audit Views ===================== -->
+    <record id="view_iso_audit_tree" model="ir.ui.view">
+        <field name="name">od19.iso.audit.tree</field>
+        <field name="model">od19.iso.audit</field>
+        <field name="arch" type="xml">
+            <tree string="การตรวจสอบภายใน">
+                <field name="name"/>
+                <field name="title"/>
+                <field name="audit_type"/>
+                <field name="date_planned"/>
+                <field name="lead_auditor_id"/>
+                <field name="auditee_department_id"/>
+                <field name="state"/>
+                <field name="conclusion"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_iso_audit_form" model="ir.ui.view">
+        <field name="name">od19.iso.audit.form</field>
+        <field name="model">od19.iso.audit</field>
+        <field name="arch" type="xml">
+            <form string="การตรวจสอบภายใน">
+                <header>
+                    <button name="action_plan" type="object" string="วางแปรยัง" invisible="state != 'draft'"/>
+                    <button name="action_start" type="object" string="เริ่มตรวจสอบ" invisible="state != 'planned'"/>
+                    <button name="action_report" type="object" string="รายงานผล" invisible="state != 'in_progress'"/>
+                    <button name="action_follow_up" type="object" string="ติดตามผล" invisible="state not in ('report','follow_up')"/>
+                    <button name="action_close" type="object" string="ปิดการตรวจสอบ" class="btn-primary" invisible="state not in ('report','follow_up')"/>
+                    <button name="action_cancel" type="object" string="ยกเลิก" invisible="state in ('closed','cancel')"/>
+                    <button name="action_reset_to_draft" type="object" string="กลับเป็นร่าง" invisible="state not in ('cancel','planned')"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="title"/>
+                            <field name="program_id"/>
+                            <field name="audit_type"/>
+                            <field name="auditee_department_id"/>
+                            <field name="process_audited"/>
+                        </group>
+                        <group>
+                            <field name="date_planned"/>
+                            <field name="date_start"/>
+                            <field name="date_end"/>
+                            <field name="lead_auditor_id"/>
+                            <field name="auditor_ids" widget="many2many_tags"/>
+                            <field name="standard_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="scope" colspan="2"/>
+                        <field name="criteria" colspan="2"/>
+                        <field name="iso_clauses"/>
+                        <field name="conclusion"/>
+                    </group>
+                    <notebook>
+                        <page string="ผลการตรวจสอบ (Findings)">
+                            <field name="finding_ids">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="severity"/>
+                                    <field name="status"/>
+                                    <field name="iso_clause"/>
+                                    <field name="responsible_id"/>
+                                    <field name="due_date"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="สรุปผล">
+                            <field name="summary"/>
+                            <field name="report_date"/>
+                            <field name="follow_up_date"/>
+                            <field name="close_date"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_iso_audit" model="ir.actions.act_window">
+        <field name="name">การตรวจสอบภายใน</field>
+        <field name="res_model">od19.iso.audit</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html"><p class="o_view_nocontent_smiling_face">สร้างการตรวจสอบภายในใหม่</p></field>
+    </record>
+
+    <!-- ===================== Audit Finding Views ===================== -->
+    <record id="view_iso_audit_finding_tree" model="ir.ui.view">
+        <field name="name">od19.iso.audit.finding.tree</field>
+        <field name="model">od19.iso.audit.finding</field>
+        <field name="arch" type="xml">
+            <tree string="ผลการตรวจสอบ">
+                <field name="name"/>
+                <field name="audit_id"/>
+                <field name="severity"/>
+                <field name="status"/>
+                <field name="iso_clause"/>
+                <field name="responsible_id"/>
+                <field name="due_date"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_iso_audit_finding_form" model="ir.ui.view">
+        <field name="name">od19.iso.audit.finding.form</field>
+        <field name="model">od19.iso.audit.finding</field>
+        <field name="arch" type="xml">
+            <form string="ผลการตรวจสอบ">
+                <header>
+                    <button name="action_in_progress" type="object" string="กำลังแก้ไข" invisible="status != 'open'"/>
+                    <button name="action_verify" type="object" string="ตรวจสอบ" invisible="status != 'in_progress'"/>
+                    <button name="action_close" type="object" string="ปิด" invisible="status != 'verified'"/>
+                    <button name="action_open" type="object" string="เปิดใหม่" invisible="status == 'open'"/>
+                    <field name="status" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="audit_id"/>
+                            <field name="severity"/>
+                            <field name="iso_clause"/>
+                            <field name="responsible_id"/>
+                            <field name="due_date"/>
+                        </group>
+                        <group>
+                            <field name="verification_date"/>
+                            <field name="close_date"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="requirement" colspan="2"/>
+                        <field name="evidence" colspan="2"/>
+                        <field name="description" colspan="2"/>
+                        <field name="root_cause" colspan="2"/>
+                        <field name="correct_action" colspan="2"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_iso_audit_finding" model="ir.actions.act_window">
+        <field name="name">ผลการตรวจสอบ</field>
+        <field name="res_model">od19.iso.audit.finding</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+</odoo>

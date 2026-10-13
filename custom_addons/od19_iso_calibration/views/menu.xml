@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_iso_calibration" name="การสอบเทียบเครื่องมือ"
+              parent="od19_iso_document_control.menu_iso_management"
+              sequence="80"/>
+
+    <menuitem id="menu_iso_calibration_equipment" name="เครื่องมือวัดและสอบเทียบ"
+              parent="menu_iso_calibration"
+              action="action_iso_calibration_equipment"
+              sequence="10"/>
+
+    <menuitem id="menu_iso_calibration_record" name="บันทึกการสอบเทียบ"
+              parent="menu_iso_calibration"
+              action="action_iso_calibration_record"
+              sequence="20"/>
+
+</odoo>

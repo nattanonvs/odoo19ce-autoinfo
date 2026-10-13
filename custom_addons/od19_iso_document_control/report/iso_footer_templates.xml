@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================
+         Reusable template: ISO document footer (เลขที่กำกับ)
+         Displays the document control number in both bottom corners.
+
+         Usage inside a report template:
+             <t t-call="od19_iso_document_control.iso_footer">
+                 <t t-set="iso_document" t-value="report_action.od19_iso_document_id"/>
+             </t>
+
+         Or pass code/revision directly:
+             <t t-call="od19_iso_document_control.iso_footer">
+                 <t t-set="iso_code" t-value="'FM-PU-12'"/>
+                 <t t-set="iso_revision" t-value="'00'"/>
+                 <t t-set="iso_effective_date" t-value="'16/06/63'"/>
+             </t>
+    ============================================================ -->
+    <template id="iso_footer">
+        <!-- Bottom-left corner: document code -->
+        <div style="position: absolute; bottom: 5px; left: 8px; font-size: 9px; color: #333;">
+            <t t-out="iso_code or (iso_document and iso_document.code) or ''"/>
+        </div>
+        <!-- Bottom-right corner: code + revision + effective date -->
+        <div style="position: absolute; bottom: 5px; right: 8px; font-size: 9px; color: #333;">
+            <t t-out="iso_code or (iso_document and iso_document.code) or ''"/>
+            <t t-if="iso_revision or (iso_document and iso_document.revision)">
+                &#160;&#160;Rev.<t t-out="iso_revision or (iso_document and iso_document.revision) or '00'"/>
+            </t>
+            <t t-if="iso_effective_date or (iso_document and iso_document.effective_date)">
+                &#160;&#160;<t t-out="iso_effective_date or (iso_document and iso_document.effective_date and iso_document.effective_date.strftime('%d/%m/%y')) or ''"/>
+            </t>
+        </div>
+    </template>
+
+    <!-- ============================================================
+         Template for reports that read the ISO document from the
+         report action automatically. Use this when the report action
+         has od19_iso_document_id set.
+    ============================================================ -->
+    <template id="iso_footer_from_action">
+        <t t-set="iso_document" t-value="report_action and report_action.od19_iso_document_id or False"/>
+        <t t-if="iso_document and report_action and report_action.od19_iso_show_footer">
+            <t t-call="od19_iso_document_control.iso_footer"/>
+        </t>
+    </template>
+
+    <!-- ============================================================
+         Corner-only footer injected into standard Odoo layouts.
+         Reads ISO document from report_action and renders both
+         bottom corners. Used by external_layout_footer.xml.
+    ============================================================ -->
+    <template id="iso_footer_corner">
+        <t t-if="report_action and report_action.od19_iso_show_footer and report_action.od19_iso_document_id">
+            <!-- Bottom-left corner: document code -->
+            <div style="position: absolute; bottom: 5px; left: 8px; font-size: 9px; color: #333;">
+                <t t-out="report_action.od19_iso_document_id.code"/>
+            </div>
+            <!-- Bottom-right corner: code + revision + effective date -->
+            <div style="position: absolute; bottom: 5px; right: 8px; font-size: 9px; color: #333;">
+                <t t-out="report_action.od19_iso_document_id.code"/>
+                <t t-if="report_action.od19_iso_document_id.revision">
+                    &#160;&#160;Rev.<t t-out="report_action.od19_iso_document_id.revision"/>
+                </t>
+                <t t-if="report_action.od19_iso_document_id.effective_date">
+                    &#160;&#160;<t t-out="report_action.od19_iso_document_id.effective_date.strftime('%d/%m/%y')"/>
+                </t>
+            </div>
+        </t>
+    </template>
+
+</odoo>

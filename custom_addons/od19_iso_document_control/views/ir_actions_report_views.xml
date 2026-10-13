@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Add ISO document fields to the report action form view -->
+    <record id="view_ir_actions_report_form_iso" model="ir.ui.view">
+        <field name="name">ir.actions.report.form.iso</field>
+        <field name="model">ir.actions.report</field>
+        <field name="inherit_id" ref="base.act_report_xml_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='model']" position="after">
+                <field name="od19_iso_show_footer" widget="boolean_toggle"/>
+                <field name="od19_iso_document_id"
+                       invisible="not od19_iso_show_footer"
+                       options="{'no_create_edit': True}"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

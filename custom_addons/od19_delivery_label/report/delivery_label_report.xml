@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ===================== Report Action ===================== -->
+    <record id="action_report_delivery_label" model="ir.actions.report">
+        <field name="name">ใบปะหน้าสินค้ารอส่ง (FM-PU-12)</field>
+        <field name="model">stock.picking</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">od19_delivery_label.report_delivery_label</field>
+        <field name="report_file">od19_delivery_label.report_delivery_label</field>
+        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="od19_delivery_label.paperformat_delivery_label"/>
+    </record>
+
+    <!-- ===================== Paper Format ===================== -->
+    <record id="paperformat_delivery_label" model="report.paperformat">
+        <field name="name">Delivery Label (FM-PU-12)</field>
+        <field name="default" eval="True"/>
+        <field name="format">custom</field>
+        <field name="page_width">148</field>
+        <field name="page_height">105</field>
+        <field name="orientation">Landscape</field>
+        <field name="margin_top">5</field>
+        <field name="margin_bottom">5</field>
+        <field name="margin_left">8</field>
+        <field name="margin_right">8</field>
+        <field name="header_line" eval="False"/>
+        <field name="footer_line" eval="False"/>
+    </record>
+
+    <!-- ===================== Report Template ===================== -->
+    <template id="report_delivery_label">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <div class="page delivery-label-page" style="font-family: 'Sarabun', 'Noto Sans Thai', sans-serif;">
+
+                    <!-- Header: Logo + Title -->
+                    <div class="row" style="display: flex; align-items: center; border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 10px;">
+                        <!-- Logo "A" -->
+                        <div style="flex: 0 0 auto; padding-right: 12px;">
+                            <span style="font-size: 48px; font-weight: bold; line-height: 1; font-family: serif;">A</span>
+                        </div>
+                        <!-- Title -->
+                        <div style="flex: 1 1 auto; text-align: center;">
+                            <h1 style="font-size: 22px; font-weight: bold; margin: 0; border-bottom: 1px solid #000; display: inline-block; padding: 0 8px;">
+                                ใบปะหน้าสินค้ารอส่ง
+                            </h1>
+                        </div>
+                    </div>
+
+                    <!-- Fields -->
+                    <div class="delivery-fields" style="font-size: 13px; line-height: 1.9;">
+
+                        <!-- CODE -->
+                        <div style="display: flex; margin-bottom: 2px;">
+                            <div style="font-weight: bold; width: 100px; flex-shrink: 0;">CODE :</div>
+                            <div style="flex: 1; border-bottom: 1px dotted #000;" t-field="o.name"/>
+                        </div>
+
+                        <!-- Customer -->
+                        <div style="display: flex; margin-bottom: 2px;">
+                            <div style="font-weight: bold; width: 100px; flex-shrink: 0;">Customer :</div>
+                            <div style="flex: 1; border-bottom: 1px dotted #000;" t-field="o.partner_id.name"/>
+                        </div>
+
+                        <!-- Project -->
+                        <div style="display: flex; margin-bottom: 2px;">
+                            <div style="font-weight: bold; width: 100px; flex-shrink: 0;">Project :</div>
+                            <div style="flex: 1; border-bottom: 1px dotted #000;" t-field="o.od19_project_id.name"/>
+                        </div>
+
+                        <!-- DEPT -->
+                        <div style="display: flex; margin-bottom: 2px;">
+                            <div style="font-weight: bold; width: 100px; flex-shrink: 0;">DEPT :</div>
+                            <div style="flex: 1; border-bottom: 1px dotted #000; text-align: center; font-size: 15px; font-weight: bold;">
+                                <span t-field="o.od19_department_code"/>
+                            </div>
+                        </div>
+
+                        <!-- เหตุผลการส่ง (Delivery Reason) -->
+                        <div t-if="o.od19_delivery_reason_display" style="display: flex; margin-bottom: 2px;">
+                            <div style="font-weight: bold; width: 100px; flex-shrink: 0;">เหตุผล :</div>
+                            <div style="flex: 1; border-bottom: 1px dotted #000;" t-field="o.od19_delivery_reason_display"/>
+                        </div>
+
+                        <!-- ผู้ติดต่อ (Contact Name + Phone) -->
+                        <div t-if="o.od19_contact_name or o.od19_contact_phone" style="display: flex; margin-bottom: 2px;">
+                            <div style="font-weight: bold; width: 100px; flex-shrink: 0;">ติดต่อ :</div>
+                            <div style="flex: 1; border-bottom: 1px dotted #000;">
+                                <span t-field="o.od19_contact_name"/>
+                                <span t-if="o.od19_contact_name and o.od19_contact_phone"> - </span>
+                                <span t-field="o.od19_contact_phone"/>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Footer: ISO document control number (both bottom corners) -->
+                    <t t-call="od19_iso_document_control.iso_footer_from_action"/>
+
+                </div>
+            </t>
+        </t>
+    </template>
+
+</odoo>

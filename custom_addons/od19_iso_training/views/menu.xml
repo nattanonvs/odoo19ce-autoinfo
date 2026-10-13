@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_iso_training" name="การฝึกอบรมและความสามารถ"
+              parent="od19_iso_document_control.menu_iso_management"
+              sequence="70"/>
+
+    <menuitem id="menu_iso_training_course" name="หลักสูตรการฝึกอบรม"
+              parent="menu_iso_training"
+              action="action_iso_training_course"
+              sequence="10"/>
+
+    <menuitem id="menu_iso_competence" name="ความสามารถ/ทักษะ"
+              parent="menu_iso_training"
+              action="action_iso_competence"
+              sequence="20"/>
+
+    <menuitem id="menu_iso_employee_competence" name="ตารางความสามารถพนักงาน"
+              parent="menu_iso_training"
+              action="action_iso_employee_competence"
+              sequence="30"/>
+
+</odoo>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_iso_risk" name="ความเสี่ยงและโอกาส"
+              parent="od19_iso_document_control.menu_iso_management"
+              sequence="60"/>
+
+    <menuitem id="menu_iso_risk_list" name="รายการความเสี่ยง/โอกาส"
+              parent="menu_iso_risk"
+              action="action_iso_risk"
+              sequence="10"/>
+
+</odoo>

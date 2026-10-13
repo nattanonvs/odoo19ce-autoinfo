@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ===================== Training Course Views ===================== -->
+    <record id="view_iso_training_course_tree" model="ir.ui.view">
+        <field name="name">od19.iso.training.course.tree</field>
+        <field name="model">od19.iso.training.course</field>
+        <field name="arch" type="xml">
+            <tree string="หลักสูตรการฝึกอบรม">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="course_type"/>
+                <field name="date"/>
+                <field name="duration"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_iso_training_course_form" model="ir.ui.view">
+        <field name="name">od19.iso.training.course.form</field>
+        <field name="model">od19.iso.training.course</field>
+        <field name="arch" type="xml">
+            <form string="หลักสูตรการฝึกอบรม">
+                <header>
+                    <button name="action_plan" type="object" string="วางแปรยัง" invisible="state != 'draft'"/>
+                    <button name="action_start" type="object" string="เริ่มจัดฝึก" invisible="state != 'planned'"/>
+                    <button name="action_complete" type="object" string="จบหลักสูตร" invisible="state != 'in_progress'"/>
+                    <button name="action_cancel" type="object" string="ยกเลิก" invisible="state in ('completed','cancelled')"/>
+                    <button name="action_reset_to_draft" type="object" string="กลับเป็นร่าง" invisible="state not in ('cancelled','planned')"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="code"/>
+                            <field name="course_type"/>
+                            <field name="iso_clause"/>
+                            <field name="standard_ids" widget="many2many_tags"/>
+                            <field name="competency_ids" widget="many2many_tags"/>
+                        </group>
+                        <group>
+                            <field name="date"/>
+                            <field name="duration"/>
+                            <field name="location"/>
+                            <field name="trainer_id"/>
+                            <field name="trainer_internal_id"/>
+                            <field name="max_participants"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="รายละเอียด">
+                            <group>
+                                <field name="description" colspan="2"/>
+                                <field name="materials" colspan="2"/>
+                                <field name="evaluation_method" colspan="2"/>
+                                <field name="conclusion" colspan="2"/>
+                            </group>
+                        </page>
+                        <page string="ผู้เข้าร่วม">
+                            <field name="participant_ids">
+                                <tree>
+                                    <field name="employee_id"/>
+                                    <field name="department_id"/>
+                                    <field name="attended"/>
+                                    <field name="pre_test_score"/>
+                                    <field name="post_test_score"/>
+                                    <field name="passed"/>
+                                    <field name="certificate_issued"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_iso_training_course" model="ir.actions.act_window">
+        <field name="name">หลักสูตรการฝึกอบรม</field>
+        <field name="res_model">od19.iso.training.course</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html"><p class="o_view_nocontent_smiling_face">สร้างหลักสูตรการฝึกอบรมใหม่</p></field>
+    </record>
+
+    <!-- ===================== Competence Views ===================== -->
+    <record id="view_iso_competence_tree" model="ir.ui.view">
+        <field name="name">od19.iso.competence.tree</field>
+        <field name="model">od19.iso.competence</field>
+        <field name="arch" type="xml">
+            <tree string="ความสามารถ/ทักษะ">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="category"/>
+                <field name="iso_clause"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_iso_competence_form" model="ir.ui.view">
+        <field name="name">od19.iso.competence.form</field>
+        <field name="model">od19.iso.competence</field>
+        <field name="arch" type="xml">
+            <form string="ความสามารถ/ทักษะ">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="code"/>
+                            <field name="category"/>
+                        </group>
+                        <group>
+                            <field name="iso_clause"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="description" colspan="2"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_iso_competence" model="ir.actions.act_window">
+        <field name="name">ความสามารถ/ทักษะ</field>
+        <field name="res_model">od19.iso.competence</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- ===================== Employee Competence Views ===================== -->
+    <record id="view_iso_employee_competence_tree" model="ir.ui.view">
+        <field name="name">od19.iso.employee.competence.tree</field>
+        <field name="model">od19.iso.employee.competence</field>
+        <field name="arch" type="xml">
+            <tree string="ตารางความสามารถพนักงาน">
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="competence_id"/>
+                <field name="level"/>
+                <field name="valid_from"/>
+                <field name="valid_to"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_iso_employee_competence_form" model="ir.ui.view">
+        <field name="name">od19.iso.employee.competence.form</field>
+        <field name="model">od19.iso.employee.competence</field>
+        <field name="arch" type="xml">
+            <form string="ความสามารถพนักงาน">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="employee_id"/>
+                            <field name="competence_id"/>
+                            <field name="level"/>
+                            <field name="assessor_id"/>
+                        </group>
+                        <group>
+                            <field name="source_course_id"/>
+                            <field name="valid_from"/>
+                            <field name="valid_to"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="note" colspan="2"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_iso_employee_competence" model="ir.actions.act_window">
+        <field name="name">ตารางความสามารถพนักงาน</field>
+        <field name="res_model">od19.iso.employee.competence</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+</odoo>

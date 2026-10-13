@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ===================== Supplier Evaluation Views ===================== -->
+    <record id="view_iso_supplier_eval_tree" model="ir.ui.view">
+        <field name="name">od19.iso.supplier.evaluation.tree</field>
+        <field name="model">od19.iso.supplier.evaluation</field>
+        <field name="arch" type="xml">
+            <tree string="การประเมินผู้จำหน่าย" decoration-success="grade == 'A'" decoration-warning="grade in ('C','D')" decoration-danger="grade == 'F'">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="eval_type"/>
+                <field name="date"/>
+                <field name="evaluator_id"/>
+                <field name="percentage"/>
+                <field name="grade"/>
+                <field name="result"/>
+                <field name="status"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_iso_supplier_eval_form" model="ir.ui.view">
+        <field name="name">od19.iso.supplier.evaluation.form</field>
+        <field name="model">od19.iso.supplier.evaluation</field>
+        <field name="arch" type="xml">
+            <form string="การประเมินผู้จำหน่าย">
+                <header>
+                    <button name="action_start" type="object" string="เริ่มประเมิน" invisible="status != 'draft'"/>
+                    <button name="action_done" type="object" string="เสร็จสิ้น" class="btn-primary" invisible="status not in ('draft','in_progress')"/>
+                    <button name="action_cancel" type="object" string="ยกเลิก" invisible="status in ('done','cancelled')"/>
+                    <button name="action_reset_to_draft" type="object" string="กลับเป็นร่าง" invisible="status not in ('cancelled','in_progress')"/>
+                    <field name="status" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="partner_id"/>
+                            <field name="eval_type"/>
+                            <field name="date"/>
+                            <field name="evaluator_id"/>
+                        </group>
+                        <group>
+                            <field name="total_score" readonly="1"/>
+                            <field name="max_score" readonly="1"/>
+                            <field name="percentage" readonly="1"/>
+                            <field name="grade" readonly="1"/>
+                            <field name="result"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="เกณฑ์การประเมิน">
+                            <field name="criteria_ids">
+                                <tree>
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="category"/>
+                                    <field name="weight"/>
+                                    <field name="max_score"/>
+                                    <field name="score"/>
+                                    <field name="comment"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="สรุปผล">
+                            <group>
+                                <field name="comment" colspan="2"/>
+                                <field name="improvement_plan" colspan="2"/>
+                                <field name="review_date"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_iso_supplier_eval" model="ir.actions.act_window">
+        <field name="name">การประเมินผู้จำหน่าย</field>
+        <field name="res_model">od19.iso.supplier.evaluation</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html"><p class="o_view_nocontent_smiling_face">สร้างการประเมินผู้จำหน่ายใหม่</p></field>
+    </record>
+
+    <!-- ===================== Approved Supplier List Action ===================== -->
+    <record id="action_iso_asl" model="ir.actions.act_window">
+        <field name="name">รายชื่อผู้จำหน่ายที่อนุมัติ (ASL)</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('od19_iso_supplier_status','in',['approved','conditional'])]</field>
+        <field name="context">{'search_default_supplier': 1, 'default_supplier_rank': 1}</field>
+    </record>
+
+    <!-- ===================== Inherit res.partner form to show ISO status ===================== -->
+    <record id="view_partner_form_inherit_iso" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit.iso.supplier</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='vat']" position="after">
+                <field name="od19_iso_supplier_status"/>
+                <field name="od19_iso_next_evaluation_date"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

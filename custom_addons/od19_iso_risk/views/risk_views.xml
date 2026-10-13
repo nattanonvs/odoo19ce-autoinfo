@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_iso_risk_tree" model="ir.ui.view">
+        <field name="name">od19.iso.risk.tree</field>
+        <field name="model">od19.iso.risk</field>
+        <field name="arch" type="xml">
+            <tree string="ความเสี่ยงและโอกาส" decoration-danger="risk_level == 'critical'" decoration-warning="risk_level in ('high','medium')">
+                <field name="name"/>
+                <field name="title"/>
+                <field name="risk_type"/>
+                <field name="category"/>
+                <field name="likelihood"/>
+                <field name="severity"/>
+                <field name="risk_score"/>
+                <field name="risk_level"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_iso_risk_form" model="ir.ui.view">
+        <field name="name">od19.iso.risk.form</field>
+        <field name="model">od19.iso.risk</field>
+        <field name="arch" type="xml">
+            <form string="ความเสี่ยงและโอกาส">
+                <header>
+                    <button name="action_identified" type="object" string="ระบุ" invisible="state != 'draft'"/>
+                    <button name="action_analyzed" type="object" string="วิเคราะห์" invisible="state not in ('draft','identified')"/>
+                    <button name="action_evaluated" type="object" string="ประเมิน" invisible="state not in ('identified','analyzed')"/>
+                    <button name="action_treated" type="object" string="ดำเนินการ" invisible="state not in ('analyzed','evaluated')"/>
+                    <button name="action_monitored" type="object" string="เฝ้าดู" invisible="state not in ('treated','evaluated')"/>
+                    <button name="action_close" type="object" string="ปิด" class="btn-primary" invisible="state not in ('treated','monitored')"/>
+                    <button name="action_cancel" type="object" string="ยกเลิก" invisible="state in ('closed','cancel')"/>
+                    <button name="action_reset_to_draft" type="object" string="กลับเป็นร่าง" invisible="state not in ('cancel','identified')"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="title"/>
+                            <field name="risk_type"/>
+                            <field name="category"/>
+                            <field name="iso_clause"/>
+                            <field name="standard_ids" widget="many2many_tags"/>
+                        </group>
+                        <group>
+                            <field name="department_id"/>
+                            <field name="process"/>
+                            <field name="risk_owner_id"/>
+                            <field name="risk_appetite"/>
+                            <field name="review_date"/>
+                            <field name="close_date"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="รายละเอียด">
+                            <group>
+                                <field name="description" colspan="2"/>
+                                <field name="cause" colspan="2"/>
+                                <field name="consequence" colspan="2"/>
+                            </group>
+                        </page>
+                        <page string="วิเคราะห์และประเมิน">
+                            <group>
+                                <field name="likelihood"/>
+                                <field name="severity"/>
+                                <field name="risk_score" readonly="1"/>
+                                <field name="risk_level" readonly="1"/>
+                            </group>
+                        </page>
+                        <page string="การดำเนินการ">
+                            <group>
+                                <field name="treatment_type"/>
+                                <field name="treatment_plan" colspan="2"/>
+                                <field name="treatment_responsible_id"/>
+                                <field name="due_date"/>
+                                <field name="treatment_done_date"/>
+                            </group>
+                            <field name="action_ids">
+                                <tree>
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="action"/>
+                                    <field name="responsible_id"/>
+                                    <field name="due_date"/>
+                                    <field name="done_date"/>
+                                    <field name="status"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="ผลหลังดำเนินการ">
+                            <group>
+                                <field name="residual_likelihood"/>
+                                <field name="residual_severity"/>
+                                <field name="residual_score" readonly="1"/>
+                                <field name="effectiveness"/>
+                                <field name="note" colspan="2"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_iso_risk" model="ir.actions.act_window">
+        <field name="name">ความเสี่ยงและโอกาส</field>
+        <field name="res_model">od19.iso.risk</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html"><p class="o_view_nocontent_smiling_face">ระบุความเสี่ยงหรือโอกาสใหม่</p></field>
+    </record>
+
+</odoo>

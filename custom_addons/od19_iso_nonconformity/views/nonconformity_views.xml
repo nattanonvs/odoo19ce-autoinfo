@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ===================== Nonconformity Views ===================== -->
+    <record id="view_iso_nc_tree" model="ir.ui.view">
+        <field name="name">od19.iso.nonconformity.tree</field>
+        <field name="model">od19.iso.nonconformity</field>
+        <field name="arch" type="xml">
+            <tree string="ไม่สอดคล้อง / CAPA">
+                <field name="name"/>
+                <field name="title"/>
+                <field name="severity"/>
+                <field name="source"/>
+                <field name="category"/>
+                <field name="state"/>
+                <field name="responsible_id"/>
+                <field name="due_date"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_iso_nc_form" model="ir.ui.view">
+        <field name="name">od19.iso.nonconformity.form</field>
+        <field name="model">od19.iso.nonconformity</field>
+        <field name="arch" type="xml">
+            <form string="ไม่สอดคล้อง / CAPA">
+                <header>
+                    <button name="action_open" type="object" string="เปิด" invisible="state != 'draft'"/>
+                    <button name="action_analysis" type="object" string="วิเคราะห์สาเหตุ" invisible="state != 'open'"/>
+                    <button name="action_action" type="object" string="ดำเนินการ" invisible="state != 'analysis'"/>
+                    <button name="action_verification" type="object" string="ตรวจสอบผล" invisible="state != 'action'"/>
+                    <button name="action_close" type="object" string="ปิด" class="btn-primary" invisible="state not in ('verification','action')"/>
+                    <button name="action_cancel" type="object" string="ยกเลิก" invisible="state in ('closed','cancel')"/>
+                    <button name="action_reset_to_draft" type="object" string="กลับเป็นร่าง" invisible="state not in ('cancel','open')"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="title"/>
+                            <field name="severity"/>
+                            <field name="source"/>
+                            <field name="category"/>
+                            <field name="iso_clause"/>
+                            <field name="standard_ids" widget="many2many_tags"/>
+                        </group>
+                        <group>
+                            <field name="department_id"/>
+                            <field name="related_audit_id"/>
+                            <field name="partner_id"/>
+                            <field name="responsible_id"/>
+                            <field name="due_date"/>
+                            <field name="action_date"/>
+                            <field name="effective" invisible="state not in ('verification','closed')"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="รายละเอียด">
+                            <group>
+                                <field name="description" colspan="2"/>
+                                <field name="immediate_action" colspan="2"/>
+                                <field name="containment_action" colspan="2"/>
+                            </group>
+                        </page>
+                        <page string="วิเคราะห์สาเหตุ">
+                            <group>
+                                <field name="root_cause_method"/>
+                                <field name="root_cause" colspan="2"/>
+                            </group>
+                        </page>
+                        <page string="การดำเนินการ">
+                            <group>
+                                <field name="corrective_action" colspan="2"/>
+                                <field name="preventive_action" colspan="2"/>
+                            </group>
+                            <field name="action_plan_ids">
+                                <tree>
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="action"/>
+                                    <field name="action_type"/>
+                                    <field name="responsible_id"/>
+                                    <field name="due_date"/>
+                                    <field name="done_date"/>
+                                    <field name="status"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="ตรวจสอบและปิด">
+                            <group>
+                                <field name="verification_method" colspan="2"/>
+                                <field name="verification_result" colspan="2"/>
+                                <field name="verification_date"/>
+                                <field name="verified_by_id"/>
+                                <field name="close_date"/>
+                                <field name="closed_by_id"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_iso_nc" model="ir.actions.act_window">
+        <field name="name">ไม่สอดคล้อง / CAPA</field>
+        <field name="res_model">od19.iso.nonconformity</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html"><p class="o_view_nocontent_smiling_face">สร้างรายการไม่สอดคล้องใหม่</p></field>
+    </record>
+
+</odoo>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_iso_mr" name="การทบทวนระบบจัดการ"
+              parent="od19_iso_document_control.menu_iso_management"
+              sequence="50"/>
+
+    <menuitem id="menu_iso_mr_list" name="รายการการทบทวน"
+              parent="menu_iso_mr"
+              action="action_iso_mr"
+              sequence="10"/>
+
+</odoo>
