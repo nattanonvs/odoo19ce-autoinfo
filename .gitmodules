@@ -34,3 +34,19 @@
 	path = third_party/oca/tier-validation
 	url = https://github.com/OCA/tier-validation.git
 	branch = 19.0
+[submodule "third_party/oca/reporting-engine"]
+	path = third_party/oca/reporting-engine
+	url = https://github.com/OCA/reporting-engine.git
+	branch = 19.0
+[submodule "third_party/oca/knowledge"]
+	path = third_party/oca/knowledge
+	url = https://github.com/OCA/knowledge.git
+	branch = 19.0
+[submodule "third_party/oca/website"]
+	path = third_party/oca/website
+	url = https://github.com/OCA/website.git
+	branch = 19.0
+[submodule "third_party/oca/purchase-workflow"]
+	path = third_party/oca/purchase-workflow
+	url = https://github.com/OCA/purchase-workflow.git
+	branch = 19.0
