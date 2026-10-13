@@ -1,0 +1,51 @@
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+from odoo import fields, models
+
+
+class TaxReportWizard(models.TransientModel):
+    _name = "thai.tax.report.wizard"
+    _description = "Thai Tax Report Wizard"
+
+    date_from = fields.Date(
+        string="From Date",
+        required=True,
+        default=fields.Date.context_today,
+    )
+    date_to = fields.Date(
+        string="To Date",
+        required=True,
+        default=fields.Date.context_today,
+    )
+    company_id = fields.Many2one(
+        "res.company",
+        string="Company",
+        required=True,
+        default=lambda self: self.env.company,
+    )
+    report_type = fields.Selection(
+        [
+            ("vat_sales", "VAT Sales Register (สมุดรายการภาษีขาย)"),
+            ("vat_purchase", "VAT Purchase Register (สมุดรายการภาษีซื้อ)"),
+            ("wht", "WHT Register (สมุดภาษีหัก ณ ที่จ่าย)"),
+        ],
+        string="Report Type",
+        required=True,
+        default="vat_sales",
+    )
+
+    def action_print(self):
+        self.ensure_one()
+        report_map = {
+            "vat_sales": "od19_thai_tax_reports.action_vat_sales_register",
+            "vat_purchase": "od19_thai_tax_reports.action_vat_purchase_register",
+            "wht": "od19_thai_tax_reports.action_wht_register",
+        }
+        return (
+            self.env.ref(report_map[self.report_type])
+            .with_context(
+                date_from=self.date_from,
+                date_to=self.date_to,
+                company_id=self.company_id.id,
+            )
+            .report_action(self)
+        )

@@ -1,0 +1,57 @@
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+from odoo import fields, models
+
+
+class ResPartner(models.Model):
+    _inherit = "res.partner"
+
+    tax_name = fields.Char(
+        string="Tax Name",
+        help="Name as shown on tax invoice (ใบกำกับภาษี). "
+        "If empty, the partner name is used.",
+    )
+    branch_code = fields.Char(
+        string="Branch Code",
+        size=5,
+        help="5-digit branch code for Thai tax branch reporting. "
+        "Use '00000' for head office.",
+    )
+    name_en = fields.Char(
+        string="English Name",
+        help="Partner name in English (for international correspondence).",
+    )
+    address_en = fields.Text(
+        string="English Address",
+        help="Partner address in English (for international shipping).",
+    )
+    fax = fields.Char(string="Fax")
+
+
+class ResCompany(models.Model):
+    _inherit = "res.company"
+
+    tax_name = fields.Char(
+        related="partner_id.tax_name",
+        readonly=False,
+        string="Tax Name",
+    )
+    branch_code = fields.Char(
+        related="partner_id.branch_code",
+        readonly=False,
+        string="Branch Code",
+    )
+    name_en = fields.Char(
+        related="partner_id.name_en",
+        readonly=False,
+        string="English Name",
+    )
+    address_en = fields.Text(
+        related="partner_id.address_en",
+        readonly=False,
+        string="English Address",
+    )
+    fax = fields.Char(
+        related="partner_id.fax",
+        readonly=False,
+        string="Fax",
+    )

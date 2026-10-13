@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_partner_form_thai_fields" model="ir.ui.view">
+        <field name="name">res.partner.form.thai.fields</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='vat']" position="after">
+                <field name="tax_name" placeholder="Tax Invoice Name"/>
+                <field name="branch_code" placeholder="00000"/>
+            </xpath>
+            <xpath expr="//field[@name='website']" position="after">
+                <field name="name_en" placeholder="English Name"/>
+                <field name="fax" placeholder="Fax"/>
+            </xpath>
+            <xpath expr="//field[@name='comment']" position="before">
+                <field name="address_en" placeholder="English Address"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

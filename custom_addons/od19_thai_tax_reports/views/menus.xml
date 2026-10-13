@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem
+        id="menu_thai_tax_reports"
+        name="Thai Tax Reports"
+        parent="account.menu_finance_reports"
+        sequence="30"
+    />
+    <menuitem
+        id="menu_vat_sales_register"
+        name="VAT Sales Register (สมุดรายการภาษีขาย)"
+        parent="menu_thai_tax_reports"
+        action="action_thai_tax_report_wizard"
+        sequence="10"
+    />
+    <menuitem
+        id="menu_vat_purchase_register"
+        name="VAT Purchase Register (สมุดรายการภาษีซื้อ)"
+        parent="menu_thai_tax_reports"
+        action="action_thai_tax_report_wizard"
+        sequence="20"
+    />
+    <menuitem
+        id="menu_wht_register"
+        name="WHT Register (สมุดภาษีหัก ณ ที่จ่าย)"
+        parent="menu_thai_tax_reports"
+        action="action_thai_tax_report_wizard"
+        sequence="30"
+    />
+</odoo>
