@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="stock_valuation_adjustment_view_list" model="ir.ui.view">
+        <field name="name">od19.stock.valuation.adjustment.list</field>
+        <field name="model">od19.stock.valuation.adjustment</field>
+        <field name="arch" type="xml">
+            <list string="Stock Valuation Adjustments">
+                <field name="name"/>
+                <field name="adjustment_date"/>
+                <field name="adjustment_type"/>
+                <field name="product_id"/>
+                <field name="quantity"/>
+                <field name="current_value"/>
+                <field name="new_value"/>
+                <field name="total_adjustment"
+                       decoration-success="total_adjustment &gt; 0"
+                       decoration-danger="total_adjustment &lt; 0"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state == 'confirmed'"
+                       decoration-success="state == 'done'"
+                       decoration-danger="state == 'cancelled'"/>
+                <field name="user_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="stock_valuation_adjustment_view_form" model="ir.ui.view">
+        <field name="name">od19.stock.valuation.adjustment.form</field>
+        <field name="model">od19.stock.valuation.adjustment</field>
+        <field name="arch" type="xml">
+            <form string="Stock Valuation Adjustment">
+                <header>
+                    <button name="action_confirm" string="Confirm" type="object"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_approve" string="Approve" type="object"
+                            class="btn-primary" invisible="state != 'confirmed'"/>
+                    <button name="action_cancel" string="Cancel" type="object"
+                            invisible="state in ('done', 'cancelled')"/>
+                    <button name="action_reset_to_draft" string="Reset to Draft" type="object"
+                            invisible="state != 'cancelled'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,done"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="adjustment_type"/>
+                            <field name="adjustment_date"/>
+                            <field name="user_id" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="product_id"/>
+                            <field name="quantity"/>
+                            <field name="current_value" readonly="1"/>
+                            <field name="new_value"/>
+                        </group>
+                    </group>
+                    <group string="Adjustment Summary">
+                        <field name="total_adjustment" readonly="1"
+                               decoration-success="total_adjustment &gt; 0"
+                               decoration-danger="total_adjustment &lt; 0"/>
+                        <field name="approved_by" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="reason"/>
+                    </group>
+                    <group string="Audit Trail" invisible="state != 'done'">
+                        <field name="line_ids">
+                            <list>
+                                <field name="product_id"/>
+                                <field name="old_value"/>
+                                <field name="new_value"/>
+                                <field name="quantity"/>
+                                <field name="adjustment_type"/>
+                                <field name="user_id"/>
+                                <field name="create_date"/>
+                            </list>
+                        </field>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="stock_valuation_adjustment_view_search" model="ir.ui.view">
+        <field name="name">od19.stock.valuation.adjustment.search</field>
+        <field name="model">od19.stock.valuation.adjustment</field>
+        <field name="arch" type="xml">
+            <search string="Stock Valuation Adjustments">
+                <field name="name"/>
+                <field name="product_id"/>
+                <field name="adjustment_type"/>
+                <field name="state"/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Confirmed" name="confirmed" domain="[('state', '=', 'confirmed')]"/>
+                <filter string="Approved" name="done" domain="[('state', '=', 'done')]"/>
+                <group>
+                    <filter string="Product" name="product" context="{'group_by': 'product_id'}"/>
+                    <filter string="Type" name="type" context="{'group_by': 'adjustment_type'}"/>
+                    <filter string="Status" name="status" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="stock_valuation_adjustment_action" model="ir.actions.act_window">
+        <field name="name">Stock Valuation Adjustments</field>
+        <field name="res_model">od19.stock.valuation.adjustment</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="stock_valuation_adjustment_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create a stock valuation adjustment</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_stock_valuation_adjustment" name="Valuation Adjustments"
+              parent="stock.menu_stock_inventory_control" action="stock_valuation_adjustment_action" sequence="70"/>
+</odoo>
