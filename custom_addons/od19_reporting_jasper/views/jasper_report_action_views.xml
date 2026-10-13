@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_jasper_report_action_list" model="ir.ui.view">
+        <field name="name">jasper.report.action.list</field>
+        <field name="model">jasper.report.action</field>
+        <field name="arch" type="xml">
+            <list string="Report Actions">
+                <field name="name"/>
+                <field name="template_id"/>
+                <field name="model_id"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_jasper_report_action_form" model="ir.ui.view">
+        <field name="name">jasper.report.action.form</field>
+        <field name="model">jasper.report.action</field>
+        <field name="arch" type="xml">
+            <form string="Report Action">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="template_id"/>
+                        </group>
+                        <group>
+                            <field name="model_id"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_jasper_report_action_search" model="ir.ui.view">
+        <field name="name">jasper.report.action.search</field>
+        <field name="model">jasper.report.action</field>
+        <field name="arch" type="xml">
+            <search string="Search Report Actions">
+                <field name="name"/>
+                <field name="template_id"/>
+                <filter string="Active" name="active" domain="[('active', '=', True)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_jasper_report_action" model="ir.actions.act_window">
+        <field name="name">Report Actions</field>
+        <field name="res_model">jasper.report.action</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem
+        id="menu_jasper_reporting"
+        name="Reports"
+        parent="account.menu_finance_configuration"
+        sequence="100"
+    />
+
+    <menuitem
+        id="menu_jasper_report_template"
+        name="Report Templates"
+        parent="menu_jasper_reporting"
+        action="action_jasper_report_template"
+        sequence="10"
+    />
+
+    <menuitem
+        id="menu_jasper_report_action"
+        name="Report Actions"
+        parent="menu_jasper_reporting"
+        action="action_jasper_report_action"
+        sequence="20"
+    />
+
+</odoo>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_jasper_report_template_list" model="ir.ui.view">
+        <field name="name">jasper.report.template.list</field>
+        <field name="model">jasper.report.template</field>
+        <field name="arch" type="xml">
+            <list string="Report Templates">
+                <field name="name"/>
+                <field name="model_id"/>
+                <field name="report_type"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_jasper_report_template_form" model="ir.ui.view">
+        <field name="name">jasper.report.template.form</field>
+        <field name="model">jasper.report.template</field>
+        <field name="arch" type="xml">
+            <form string="Report Template">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="model_id"/>
+                            <field name="report_type"/>
+                        </group>
+                        <group>
+                            <field name="company_id"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="jasper_url" invisible="report_type != 'jasper'"/>
+                    </group>
+                    <notebook>
+                        <page string="Template">
+                            <field name="template"
+                                   nolabel="1"
+                                   widget="ace"
+                                   options="{'mode': 'xml'}"
+                                   placeholder="QWeb XML template or JasperServer report reference..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_jasper_report_template_search" model="ir.ui.view">
+        <field name="name">jasper.report.template.search</field>
+        <field name="model">jasper.report.template</field>
+        <field name="arch" type="xml">
+            <search string="Search Report Templates">
+                <field name="name"/>
+                <field name="model_id"/>
+                <filter string="Active" name="active" domain="[('active', '=', True)]"/>
+                <filter string="QWeb" name="qweb" domain="[('report_type', '=', 'qweb')]"/>
+                <filter string="Jasper" name="jasper" domain="[('report_type', '=', 'jasper')]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_jasper_report_template" model="ir.actions.act_window">
+        <field name="name">Report Templates</field>
+        <field name="res_model">jasper.report.template</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

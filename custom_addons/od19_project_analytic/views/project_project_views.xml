@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_project_project_form_inherit_od19" model="ir.ui.view">
+        <field name="name">project.project.form.od19</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="before">
+                <field name="job_no" placeholder="e.g. JOB-2026-001" required="1"/>
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="job_type"/>
+                <field name="department"/>
+                <field name="project_owner_id" domain="[('od19_is_project_owner', '=', True)]"/>
+                <field name="contractor_ids" widget="many2many_tags" domain="[('od19_is_contractor', '=', True)]"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_project_project_list_inherit_od19" model="ir.ui.view">
+        <field name="name">project.project.list.od19</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.view_project"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="before">
+                <field name="job_no"/>
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="job_type" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

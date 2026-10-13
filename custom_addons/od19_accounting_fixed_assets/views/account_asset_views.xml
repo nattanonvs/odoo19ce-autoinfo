@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_account_asset_list" model="ir.ui.view">
+        <field name="name">account.asset.list</field>
+        <field name="model">account.asset</field>
+        <field name="arch" type="xml">
+            <list string="Fixed Assets">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="asset_account_id"/>
+                <field name="value" sum="Total"/>
+                <field name="salvage_value"/>
+                <field name="method_number"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-success="state == 'open'"
+                       decoration-muted="state == 'close'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_account_asset_form" model="ir.ui.view">
+        <field name="name">account.asset.form</field>
+        <field name="model">account.asset</field>
+        <field name="arch" type="xml">
+            <form string="Fixed Asset">
+                <header>
+                    <button name="validate" type="object" string="Validate"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="set_to_close" type="object" string="Close"
+                            invisible="state != 'open'"/>
+                    <button name="set_to_draft" type="object" string="Reset to Draft"
+                            invisible="state != 'close'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,open,close"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="asset_account_id"/>
+                            <field name="journal_id"/>
+                            <field name="date"/>
+                        </group>
+                        <group>
+                            <field name="value"/>
+                            <field name="salvage_value"/>
+                            <field name="currency_id"/>
+                        </group>
+                    </group>
+                    <group string="Depreciation">
+                        <group>
+                            <field name="method"/>
+                            <field name="method_number"/>
+                        </group>
+                        <group>
+                            <field name="method_period"/>
+                            <field name="depreciation_account_id"/>
+                            <field name="expense_account_id"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Depreciation Schedule">
+                            <field name="depreciation_line_ids">
+                                <list>
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="depreciation_date"/>
+                                    <field name="amount" sum="Total"/>
+                                    <field name="move_check" readonly="1"/>
+                                    <field name="move_id" readonly="1" optional="hide"/>
+                                    <button name="create_move" type="object"
+                                            string="Create Entry"
+                                            invisible="move_check == True"
+                                            icon="fa-plus"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                    <group>
+                        <field name="note" placeholder="Internal notes..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_account_asset_search" model="ir.ui.view">
+        <field name="name">account.asset.search</field>
+        <field name="model">account.asset</field>
+        <field name="arch" type="xml">
+            <search string="Search Fixed Assets">
+                <field name="name"/>
+                <field name="asset_account_id"/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Running" name="open" domain="[('state', '=', 'open')]"/>
+                <filter string="Closed" name="close" domain="[('state', '=', 'close')]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_account_asset" model="ir.actions.act_window">
+        <field name="name">Fixed Assets</field>
+        <field name="res_model">account.asset</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem
+        id="menu_account_asset"
+        name="Fixed Assets"
+        parent="account.menu_finance"
+        action="action_account_asset"
+        sequence="90"
+    />
+
+</odoo>

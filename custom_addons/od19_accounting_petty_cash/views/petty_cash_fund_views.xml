@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_petty_cash_fund_list" model="ir.ui.view">
+        <field name="name">petty.cash.fund.list</field>
+        <field name="model">petty.cash.fund</field>
+        <field name="arch" type="xml">
+            <list string="Petty Cash Funds">
+                <field name="name"/>
+                <field name="account_id"/>
+                <field name="amount" sum="Total"/>
+                <field name="balance" sum="Balance"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'active'"
+                       decoration-muted="state == 'inactive'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_petty_cash_fund_form" model="ir.ui.view">
+        <field name="name">petty.cash.fund.form</field>
+        <field name="model">petty.cash.fund</field>
+        <field name="arch" type="xml">
+            <form string="Petty Cash Fund">
+                <header>
+                    <button name="action_deactivate" type="object" string="Deactivate"
+                            invisible="state != 'active'"/>
+                    <button name="action_activate" type="object" string="Activate"
+                            invisible="state != 'inactive'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="active,inactive"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="account_id"/>
+                            <field name="currency_id"/>
+                        </group>
+                        <group>
+                            <field name="amount"/>
+                            <field name="balance" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Transactions">
+                            <field name="transaction_ids">
+                                <list>
+                                    <field name="date"/>
+                                    <field name="name"/>
+                                    <field name="transaction_type"/>
+                                    <field name="amount"/>
+                                    <field name="state" widget="badge"
+                                           decoration-info="state == 'draft'"
+                                           decoration-success="state == 'posted'"
+                                           decoration-danger="state == 'cancelled'"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_petty_cash_fund_search" model="ir.ui.view">
+        <field name="name">petty.cash.fund.search</field>
+        <field name="model">petty.cash.fund</field>
+        <field name="arch" type="xml">
+            <search string="Search Petty Cash Funds">
+                <field name="name"/>
+                <field name="account_id"/>
+                <filter string="Active" name="active" domain="[('state', '=', 'active')]"/>
+                <filter string="Inactive" name="inactive" domain="[('state', '=', 'inactive')]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_petty_cash_fund" model="ir.actions.act_window">
+        <field name="name">Petty Cash Funds</field>
+        <field name="res_model">petty.cash.fund</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>
