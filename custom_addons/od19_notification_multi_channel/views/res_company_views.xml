@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_company_form_line_inherit" model="ir.ui.view">
+        <field name="name">res.company.form.line.inherit</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <group string="LINE Notifications" groups="base.group_system">
+                    <field name="line_enabled"/>
+                    <field name="line_channel_access_token" password="True" required="[('line_enabled', '=', True)]"/>
+                    <field name="line_channel_secret" password="True"/>
+                    <field name="line_default_channel_id"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

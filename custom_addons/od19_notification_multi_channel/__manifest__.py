@@ -1,0 +1,25 @@
+{
+    "name": "Notification Multi-Channel Gateway",
+    "version": "19.0.1.0.0",
+    "summary": "Unified notification gateway: Email + Odoo Inbox + LINE Messaging API",
+    "author": "AutoInfo",
+    "website": "https://github.com/nattanonvs/odoo19ce-autoinfo",
+    "license": "LGPL-3",
+    "category": "Tools",
+    "depends": [
+        "base",
+        "mail",
+    ],
+    "data": [
+        "security/notification_security.xml",
+        "security/ir.model.access.csv",
+        "data/notification_channel_data.xml",
+        "data/mail_template_data.xml",
+        "views/res_partner_views.xml",
+        "views/res_company_views.xml",
+        "views/notification_channel_views.xml",
+        "views/notification_preference_views.xml",
+    ],
+    "application": False,
+    "installable": True,
+}
