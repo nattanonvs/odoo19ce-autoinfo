@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Extend Fleet Vehicle Form View -->
+    <record id="fleet_vehicle_view_form_inherit" model="ir.ui.view">
+        <field name="name">fleet.vehicle.form.inherit.od19</field>
+        <field name="model">fleet.vehicle</field>
+        <field name="inherit_id" ref="fleet.fleet_vehicle_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="before">
+                <group string="Accounting" name="accounting_group">
+                    <group>
+                        <field name="department_id"/>
+                        <field name="expense_category_id"/>
+                    </group>
+                    <group>
+                        <field name="analytic_account_id"/>
+                        <field name="total_expense" readonly="1"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend Fleet Vehicle List View -->
+    <record id="fleet_vehicle_view_list_inherit" model="ir.ui.view">
+        <field name="name">fleet.vehicle.list.inherit.od19</field>
+        <field name="model">fleet.vehicle</field>
+        <field name="inherit_id" ref="fleet.fleet_vehicle_view_tree"/>
+        <field name="arch" type="xml">
+            <field name="license_plate" position="after">
+                <field name="department_id" optional="hide"/>
+                <field name="total_expense" optional="hide" widget="monetary"/>
+            </field>
+        </field>
+    </record>
+
+</odoo>

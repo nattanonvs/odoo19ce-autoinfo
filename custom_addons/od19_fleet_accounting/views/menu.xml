@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_od19_fleet_accounting_config"
+        name="Fleet Accounting"
+        parent="fleet.fleet_vehicles"
+        sequence="100"
+        groups="fleet.fleet_group_manager"/>
+
+    <menuitem id="menu_od19_vehicle_expense_category"
+        name="Expense Categories"
+        parent="menu_od19_fleet_accounting_config"
+        action="od19_vehicle_expense_category_action"
+        sequence="10"
+        groups="fleet.fleet_group_manager"/>
+
+</odoo>

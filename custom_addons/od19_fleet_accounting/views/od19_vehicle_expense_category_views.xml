@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Vehicle Expense Category List View -->
+    <record id="od19_vehicle_expense_category_list" model="ir.ui.view">
+        <field name="name">od19.vehicle.expense.category.list</field>
+        <field name="model">od19.vehicle.expense.category</field>
+        <field name="arch" type="xml">
+            <list string="Expense Categories">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="expense_type"/>
+                <field name="account_id"/>
+                <field name="active" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vehicle Expense Category Form View -->
+    <record id="od19_vehicle_expense_category_form" model="ir.ui.view">
+        <field name="name">od19.vehicle.expense.category.form</field>
+        <field name="model">od19.vehicle.expense.category</field>
+        <field name="arch" type="xml">
+            <form string="Expense Category">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="code"/>
+                        </group>
+                        <group>
+                            <field name="expense_type"/>
+                            <field name="account_id"/>
+                        </group>
+                    </group>
+                    <field name="active" invisible="1"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vehicle Expense Category Search View -->
+    <record id="od19_vehicle_expense_category_search" model="ir.ui.view">
+        <field name="name">od19.vehicle.expense.category.search</field>
+        <field name="model">od19.vehicle.expense.category</field>
+        <field name="arch" type="xml">
+            <search string="Expense Categories">
+                <field name="name"/>
+                <field name="expense_type"/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Vehicle Expense Category Action -->
+    <record id="od19_vehicle_expense_category_action" model="ir.actions.act_window">
+        <field name="name">Vehicle Expense Categories</field>
+        <field name="res_model">od19.vehicle.expense.category</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create vehicle expense categories
+            </p>
+        </field>
+    </record>
+
+</odoo>
