@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Base sale order list view (used by both Quotations and Sales Orders).
+        Adds the company-currency untaxed column next to the document-currency
+        untaxed column, and makes the document-currency untaxed column visible.
+        The company-currency total column is provided by OCA sale_company_currency
+        (amount_total_curr).
+    -->
+    <record id="sale_order_tree_currency_amount" model="ir.ui.view">
+        <field name="name">sale.order.list.currency.amount</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.sale_order_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='amount_untaxed']" position="attributes">
+                <attribute name="optional">show</attribute>
+            </xpath>
+            <xpath expr="//field[@name='amount_untaxed']" position="after">
+                <field name="amount_untaxed_curr"
+                       sum="Untaxed (Company Currency)"
+                       widget="monetary"
+                       options="{'currency_field': 'company_currency_id'}"
+                       optional="show"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
