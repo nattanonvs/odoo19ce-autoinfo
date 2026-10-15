@@ -22,13 +22,13 @@ registry.category("web_tour.tours").add("od19_iso_internal_audit_tour", {
 
         // --- Audit Program ---
         {
-            trigger: ".o_menu_sections a:contains('การตรวจสอบภายใน')",
+            trigger: ".o_menu_sections :contains('การตรวจสอบภายใน'), .dropdown-item:contains('การตรวจสอบภายใน')",
             content: markup(_t("Open the <b>การตรวจสอบภายใน (Internal Audit)</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections a:contains('แผนการตรวจสอบประจำปี')",
+            trigger: ".o_menu_sections :contains('แผนการตรวจสอบประจำปี'), .dropdown-item:contains('แผนการตรวจสอบประจำปี')",
             content: markup(_t("Open <b>แผนการตรวจสอบประจำปี (Annual Audit Program)</b>.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -65,7 +65,7 @@ registry.category("web_tour.tours").add("od19_iso_internal_audit_tour", {
 
         // --- Audit ---
         {
-            trigger: ".o_menu_sections a:contains('การตรวจสอบ')",
+            trigger: ".o_menu_sections :contains('การตรวจสอบ'), .dropdown-item:contains('การตรวจสอบ')",
             content: markup(_t("Open <b>การตรวจสอบ (Audits)</b>.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -128,7 +128,7 @@ registry.category("web_tour.tours").add("od19_iso_internal_audit_tour", {
 
         // --- Audit Findings ---
         {
-            trigger: ".o_menu_sections a:contains('ผลการตรวจสอบ')",
+            trigger: ".o_menu_sections :contains('ผลการตรวจสอบ'), .dropdown-item:contains('ผลการตรวจสอบ')",
             content: markup(_t("Open <b>ผลการตรวจสอบ (Audit Findings)</b> to manage nonconformities found during audits.")),
             tooltipPosition: "bottom",
             run: "click",

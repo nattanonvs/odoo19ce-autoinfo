@@ -25,13 +25,13 @@ registry.category("web_tour.tours").add("od19_dncn_tour", {
 
         // --- DN/CN Reasons ---
         {
-            trigger: ".o_menu_sections a:contains('Configuration')",
+            trigger: ".o_menu_sections :contains('Configuration'), .dropdown-item:contains('Configuration')",
             content: markup(_t("Open the <b>Configuration</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections a:contains('DN/CN Reasons')",
+            trigger: ".o_menu_sections :contains('DN/CN Reasons'), .dropdown-item:contains('DN/CN Reasons')",
             content: markup(_t(
                 "Open <b>DN/CN Reasons</b> to define why a debit or credit note is issued."
             )),
@@ -54,13 +54,13 @@ registry.category("web_tour.tours").add("od19_dncn_tour", {
 
         // --- Create DN/CN from Invoice ---
         {
-            trigger: ".o_menu_sections a:contains('Customers')",
+            trigger: ".o_menu_sections :contains('Customers'), .dropdown-item:contains('Customers')",
             content: markup(_t("Open the <b>Customers</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections a:contains('Invoices')",
+            trigger: ".o_menu_sections :contains('Invoices'), .dropdown-item:contains('Invoices')",
             content: markup(_t("Open <b>Invoices</b>.")),
             tooltipPosition: "bottom",
             run: "click",

@@ -18,7 +18,7 @@ registry.category("web_tour.tours").add("od19_iso_management_review_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections a:contains('การทบทวนระบบจัดการ')",
+            trigger: ".o_menu_sections :contains('การทบทวนระบบจัดการ'), .dropdown-item:contains('การทบทวนระบบจัดการ')",
             content: markup(_t("Open the <b>การทบทวนระบบจัดการ (Management Review)</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",

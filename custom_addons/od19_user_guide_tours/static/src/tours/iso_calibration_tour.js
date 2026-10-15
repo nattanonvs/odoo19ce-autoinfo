@@ -20,13 +20,13 @@ registry.category("web_tour.tours").add("od19_iso_calibration_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections a:contains('การสอบเทียบเครื่องมือ')",
+            trigger: ".o_menu_sections :contains('การสอบเทียบเครื่องมือ'), .dropdown-item:contains('การสอบเทียบเครื่องมือ')",
             content: markup(_t("Open the <b>การสอบเทียบเครื่องมือ (Calibration)</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections a:contains('เครื่องมือวัดและสอบเทียบ')",
+            trigger: ".o_menu_sections :contains('เครื่องมือวัดและสอบเทียบ'), .dropdown-item:contains('เครื่องมือวัดและสอบเทียบ')",
             content: markup(_t("Open <b>เครื่องมือวัดและสอบเทียบ (Measuring Equipment)</b>.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -51,7 +51,7 @@ registry.category("web_tour.tours").add("od19_iso_calibration_tour", {
 
         // --- Calibration Records ---
         {
-            trigger: ".o_menu_sections a:contains('บันทึกการสอบเทียบ')",
+            trigger: ".o_menu_sections :contains('บันทึกการสอบเทียบ'), .dropdown-item:contains('บันทึกการสอบเทียบ')",
             content: markup(_t("Open <b>บันทึกการสอบเทียบ (Calibration Records)</b>.")),
             tooltipPosition: "bottom",
             run: "click",

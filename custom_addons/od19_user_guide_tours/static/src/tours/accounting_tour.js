@@ -22,13 +22,13 @@ registry.category("web_tour.tours").add("od19_accounting_tour", {
 
         // --- Petty Cash Fund ---
         {
-            trigger: ".o_menu_sections a:contains('Petty Cash')",
+            trigger: ".o_menu_sections :contains('Petty Cash'), .dropdown-item:contains('Petty Cash')",
             content: markup(_t("Open the <b>Petty Cash</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections a:contains('Funds')",
+            trigger: ".o_menu_sections :contains('Funds'), .dropdown-item:contains('Funds')",
             content: markup(_t("Open <b>Funds</b> to manage small cash funds.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -67,7 +67,7 @@ registry.category("web_tour.tours").add("od19_accounting_tour", {
 
         // --- WHT on Payment ---
         {
-            trigger: ".o_menu_sections a:contains('Payments')",
+            trigger: ".o_menu_sections :contains('Payments'), .dropdown-item:contains('Payments')",
             content: markup(_t(
                 "Open <b>Payments</b> to record vendor/customer payments with <b>Withholding Tax (WHT)</b>."
             )),
@@ -103,7 +103,7 @@ registry.category("web_tour.tours").add("od19_accounting_tour", {
 
         // --- Fixed Assets ---
         {
-            trigger: ".o_menu_sections a:contains('Fixed Assets')",
+            trigger: ".o_menu_sections :contains('Fixed Assets'), .dropdown-item:contains('Fixed Assets')",
             content: markup(_t("Open <b>Fixed Assets</b> to manage assets and depreciation.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -155,13 +155,13 @@ registry.category("web_tour.tours").add("od19_accounting_tour", {
 
         // --- Fiscal Year ---
         {
-            trigger: ".o_menu_sections a:contains('Configuration')",
+            trigger: ".o_menu_sections :contains('Configuration'), .dropdown-item:contains('Configuration')",
             content: markup(_t("Open the <b>Configuration</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections a:contains('Fiscal Years')",
+            trigger: ".o_menu_sections :contains('Fiscal Years'), .dropdown-item:contains('Fiscal Years')",
             content: markup(_t("Open <b>Fiscal Years</b> to define accounting periods.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -197,7 +197,7 @@ registry.category("web_tour.tours").add("od19_accounting_tour", {
         ...stepUtils.discardForm(),
 
         {
-            trigger: ".o_menu_sections a:contains('Year-End Closing')",
+            trigger: ".o_menu_sections :contains('Year-End Closing'), .dropdown-item:contains('Year-End Closing')",
             content: markup(_t(
                 "At the end of the year, use <b>Year-End Closing</b> to close the fiscal year " +
                 "and carry forward balances."

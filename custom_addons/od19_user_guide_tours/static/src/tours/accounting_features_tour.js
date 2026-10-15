@@ -26,13 +26,13 @@ registry.category("web_tour.tours").add("od19_accounting_features_tour", {
 
         // --- WHT on Vendor Payment ---
         {
-            trigger: ".o_menu_sections a:contains('Vendors')",
+            trigger: ".o_menu_sections :contains('Vendors'), .dropdown-item:contains('Vendors')",
             content: markup(_t("Open the <b>Vendors</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections a:contains('Payments')",
+            trigger: ".o_menu_sections :contains('Payments'), .dropdown-item:contains('Payments')",
             content: markup(_t(
                 "Open <b>Payments</b> to record a vendor payment with <b>Withholding Tax</b>."
             )),
@@ -83,13 +83,13 @@ registry.category("web_tour.tours").add("od19_accounting_features_tour", {
 
         // --- Invoices: BOT, Actual Due Date, Cancel Reason ---
         {
-            trigger: ".o_menu_sections a:contains('Customers')",
+            trigger: ".o_menu_sections :contains('Customers'), .dropdown-item:contains('Customers')",
             content: markup(_t("Open the <b>Customers</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections a:contains('Invoices')",
+            trigger: ".o_menu_sections :contains('Invoices'), .dropdown-item:contains('Invoices')",
             content: markup(_t("Open <b>Invoices</b>.")),
             tooltipPosition: "bottom",
             run: "click",

@@ -20,7 +20,7 @@ registry.category("web_tour.tours").add("od19_project_enhanced_tour", {
 
         // --- Project Types ---
         {
-            trigger: ".o_menu_sections a:contains('Project Types')",
+            trigger: ".o_menu_sections :contains('Project Types'), .dropdown-item:contains('Project Types')",
             content: markup(_t(
                 "Open <b>Project Types</b> to define a classification used on projects and tasks."
             )),
@@ -57,7 +57,7 @@ registry.category("web_tour.tours").add("od19_project_enhanced_tour", {
 
         // --- Risk Report ---
         {
-            trigger: ".o_menu_sections a:contains('Risk Report')",
+            trigger: ".o_menu_sections :contains('Risk Report'), .dropdown-item:contains('Risk Report')",
             content: markup(_t(
                 "Open the <b>Risk Report</b> to monitor project profitability and risk."
             )),

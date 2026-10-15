@@ -21,7 +21,7 @@ registry.category("web_tour.tours").add("od19_knowledge_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections a:contains('Articles')",
+            trigger: ".o_menu_sections :contains('Articles'), .dropdown-item:contains('Articles')",
             content: markup(_t("Open the <b>Articles</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",

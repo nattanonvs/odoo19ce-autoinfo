@@ -20,13 +20,13 @@ registry.category("web_tour.tours").add("od19_iso_customer_satisfaction_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections a:contains('ความพึงพอใจลูกค้า')",
+            trigger: ".o_menu_sections :contains('ความพึงพอใจลูกค้า'), .dropdown-item:contains('ความพึงพอใจลูกค้า')",
             content: markup(_t("Open the <b>ความพึงพอใจลูกค้า (Customer Satisfaction)</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections a:contains('แบบสอบถามความพึงพอใจ')",
+            trigger: ".o_menu_sections :contains('แบบสอบถามความพึงพอใจ'), .dropdown-item:contains('แบบสอบถามความพึงพอใจ')",
             content: markup(_t("Open <b>แบบสอบถามความพึงพอใจ (Surveys)</b>.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -77,7 +77,7 @@ registry.category("web_tour.tours").add("od19_iso_customer_satisfaction_tour", {
 
         // --- Periodic Report ---
         {
-            trigger: ".o_menu_sections a:contains('รายงานรายงวด')",
+            trigger: ".o_menu_sections :contains('รายงานรายงวด'), .dropdown-item:contains('รายงานรายงวด')",
             content: markup(_t(
                 "Open <b>รายงานรายงวด (Periodic Reports)</b> to aggregate satisfaction scores " +
                 "and analyze trends over time."

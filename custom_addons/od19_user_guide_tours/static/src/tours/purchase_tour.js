@@ -24,7 +24,7 @@ registry.category("web_tour.tours").add("od19_purchase_approval_tour", {
         ),
         // --- Purchase Requisition ---
         {
-            trigger: ".o_menu_sections a:contains('Purchase Requisitions')",
+            trigger: ".o_menu_sections :contains('Purchase Requisitions'), .dropdown-item:contains('Purchase Requisitions')",
             content: markup(_t("Start by creating a <b>Purchase Requisition (PR)</b>.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -73,7 +73,7 @@ registry.category("web_tour.tours").add("od19_purchase_approval_tour", {
 
         // --- Purchase Order ---
         {
-            trigger: ".o_menu_sections a:contains('Purchase Orders')",
+            trigger: ".o_menu_sections :contains('Purchase Orders'), .dropdown-item:contains('Purchase Orders')",
             content: markup(_t("Now create a <b>Purchase Order (PO)</b>.")),
             tooltipPosition: "bottom",
             run: "click",

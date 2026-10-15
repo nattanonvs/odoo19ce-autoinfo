@@ -19,13 +19,13 @@ registry.category("web_tour.tours").add("od19_iso_document_control_tour", {
 
         // --- Configuration: Standards ---
         {
-            trigger: ".o_menu_sections a:contains('ตั้งค่า')",
+            trigger: ".o_menu_sections :contains('ตั้งค่า'), .dropdown-item:contains('ตั้งค่า')",
             content: markup(_t("Open the <b>ตั้งค่า (Configuration)</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections a:contains('มาตรฐาน ISO')",
+            trigger: ".o_menu_sections :contains('มาตรฐาน ISO'), .dropdown-item:contains('มาตรฐาน ISO')",
             content: markup(_t("Open <b>มาตรฐาน ISO</b> to define ISO standards (e.g. ISO 9001, ISO 14001).")),
             tooltipPosition: "bottom",
             run: "click",
@@ -46,7 +46,7 @@ registry.category("web_tour.tours").add("od19_iso_document_control_tour", {
 
         // --- Document Categories ---
         {
-            trigger: ".o_menu_sections a:contains('ประเภทเอกสาร')",
+            trigger: ".o_menu_sections :contains('ประเภทเอกสาร'), .dropdown-item:contains('ประเภทเอกสาร')",
             content: markup(_t("Open <b>ประเภทเอกสาร</b> to define document categories.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -67,13 +67,13 @@ registry.category("web_tour.tours").add("od19_iso_document_control_tour", {
 
         // --- Create Controlled Document ---
         {
-            trigger: ".o_menu_sections a:contains('ควบคุมเอกสาร')",
+            trigger: ".o_menu_sections :contains('ควบคุมเอกสาร'), .dropdown-item:contains('ควบคุมเอกสาร')",
             content: markup(_t("Open the <b>ควบคุมเอกสาร</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections a:contains('เอกสารควบคุม')",
+            trigger: ".o_menu_sections :contains('เอกสารควบคุม'), .dropdown-item:contains('เอกสารควบคุม')",
             content: markup(_t("Open <b>เอกสารควบคุม</b> to create a controlled document.")),
             tooltipPosition: "bottom",
             run: "click",

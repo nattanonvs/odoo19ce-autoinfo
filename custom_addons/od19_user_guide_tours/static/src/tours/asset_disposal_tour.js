@@ -20,13 +20,13 @@ registry.category("web_tour.tours").add("od19_asset_disposal_tour", {
             markup(_t("Let's learn how to <b>dispose</b> a fixed asset and generate the disposal entry."))
         ),
         {
-            trigger: ".o_menu_sections a:contains('Assets')",
+            trigger: ".o_menu_sections :contains('Assets'), .dropdown-item:contains('Assets')",
             content: markup(_t("Open the <b>Assets</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections a:contains('Assets')",
+            trigger: ".o_menu_sections :contains('Assets'), .dropdown-item:contains('Assets')",
             content: markup(_t("Open the <b>Assets</b> list.")),
             tooltipPosition: "bottom",
             run: "click",

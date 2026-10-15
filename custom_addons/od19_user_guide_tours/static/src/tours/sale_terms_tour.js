@@ -20,13 +20,13 @@ registry.category("web_tour.tours").add("od19_sale_terms_tour", {
 
         // --- Term templates ---
         {
-            trigger: ".o_menu_sections a:contains('Configuration')",
+            trigger: ".o_menu_sections :contains('Configuration'), .dropdown-item:contains('Configuration')",
             content: markup(_t("Open the Sales <b>Configuration</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections a:contains('Sale Term Templates')",
+            trigger: ".o_menu_sections :contains('Sale Term Templates'), .dropdown-item:contains('Sale Term Templates')",
             content: markup(_t("Open <b>Sale Term Templates</b>.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -59,13 +59,13 @@ registry.category("web_tour.tours").add("od19_sale_terms_tour", {
 
         // --- Apply on a quotation ---
         {
-            trigger: ".o_menu_sections a:contains('Orders')",
+            trigger: ".o_menu_sections :contains('Orders'), .dropdown-item:contains('Orders')",
             content: markup(_t("Open the <b>Orders</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections a:contains('Quotations')",
+            trigger: ".o_menu_sections :contains('Quotations'), .dropdown-item:contains('Quotations')",
             content: markup(_t("Open <b>Quotations</b>.")),
             tooltipPosition: "bottom",
             run: "click",

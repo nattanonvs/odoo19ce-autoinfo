@@ -20,13 +20,13 @@ registry.category("web_tour.tours").add("od19_misc_features_tour", {
 
         // --- Runtime Guard ---
         {
-            trigger: ".o_menu_sections a:contains('Runtime Guard')",
+            trigger: ".o_menu_sections :contains('Runtime Guard'), .dropdown-item:contains('Runtime Guard')",
             content: markup(_t("Open <b>Runtime Guard</b> to check the system health.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections a:contains('Run Runtime Check')",
+            trigger: ".o_menu_sections :contains('Run Runtime Check'), .dropdown-item:contains('Run Runtime Check')",
             content: markup(_t(
                 "Open <b>Run Runtime Check</b> to capture the current Odoo version, Python version, " +
                 "installed-module count and database size."
@@ -53,7 +53,7 @@ registry.category("web_tour.tours").add("od19_misc_features_tour", {
 
         // --- Repeat Customer Enhanced ---
         {
-            trigger: ".o_menu_sections a:contains('Repeat Customer Enhanced')",
+            trigger: ".o_menu_sections :contains('Repeat Customer Enhanced'), .dropdown-item:contains('Repeat Customer Enhanced')",
             content: markup(_t(
                 "Open <b>Repeat Customer Enhanced</b> to analyse repeat business."
             )),

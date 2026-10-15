@@ -20,13 +20,13 @@ registry.category("web_tour.tours").add("od19_purchase_wizards_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections a:contains('Orders')",
+            trigger: ".o_menu_sections :contains('Orders'), .dropdown-item:contains('Orders')",
             content: markup(_t("Open the <b>Orders</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections a:contains('Purchase Orders')",
+            trigger: ".o_menu_sections :contains('Purchase Orders'), .dropdown-item:contains('Purchase Orders')",
             content: markup(_t("Open <b>Purchase Orders</b>.")),
             tooltipPosition: "bottom",
             run: "click",

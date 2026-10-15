@@ -20,13 +20,13 @@ registry.category("web_tour.tours").add("od19_purchase_terms_tour", {
 
         // --- Term templates ---
         {
-            trigger: ".o_menu_sections a:contains('Configuration')",
+            trigger: ".o_menu_sections :contains('Configuration'), .dropdown-item:contains('Configuration')",
             content: markup(_t("Open the Purchase <b>Configuration</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections a:contains('Purchase Term Templates')",
+            trigger: ".o_menu_sections :contains('Purchase Term Templates'), .dropdown-item:contains('Purchase Term Templates')",
             content: markup(_t("Open <b>Purchase Term Templates</b>.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -59,13 +59,13 @@ registry.category("web_tour.tours").add("od19_purchase_terms_tour", {
 
         // --- Apply on a purchase order ---
         {
-            trigger: ".o_menu_sections a:contains('Orders')",
+            trigger: ".o_menu_sections :contains('Orders'), .dropdown-item:contains('Orders')",
             content: markup(_t("Open the <b>Orders</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections a:contains('Purchase Orders')",
+            trigger: ".o_menu_sections :contains('Purchase Orders'), .dropdown-item:contains('Purchase Orders')",
             content: markup(_t("Open <b>Purchase Orders</b>.")),
             tooltipPosition: "bottom",
             run: "click",

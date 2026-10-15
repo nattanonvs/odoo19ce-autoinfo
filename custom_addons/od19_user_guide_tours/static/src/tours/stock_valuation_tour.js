@@ -21,13 +21,13 @@ registry.category("web_tour.tours").add("od19_stock_valuation_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections a:contains('Inventory Control')",
+            trigger: ".o_menu_sections :contains('Inventory Control'), .dropdown-item:contains('Inventory Control')",
             content: markup(_t("Open the <b>Inventory Control</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections a:contains('Valuation Adjustments')",
+            trigger: ".o_menu_sections :contains('Valuation Adjustments'), .dropdown-item:contains('Valuation Adjustments')",
             content: markup(_t("Open <b>Valuation Adjustments</b>.")),
             tooltipPosition: "bottom",
             run: "click",

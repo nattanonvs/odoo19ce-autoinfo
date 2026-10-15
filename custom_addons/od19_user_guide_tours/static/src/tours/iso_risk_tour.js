@@ -18,7 +18,7 @@ registry.category("web_tour.tours").add("od19_iso_risk_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections a:contains('ความเสี่ยงและโอกาส')",
+            trigger: ".o_menu_sections :contains('ความเสี่ยงและโอกาส'), .dropdown-item:contains('ความเสี่ยงและโอกาส')",
             content: markup(_t("Open the <b>ความเสี่ยงและโอกาส (Risk &amp; Opportunity)</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",

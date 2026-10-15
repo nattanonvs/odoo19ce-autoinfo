@@ -21,7 +21,7 @@ registry.category("web_tour.tours").add("od19_advance_payment_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections a:contains('Advance Payments')",
+            trigger: ".o_menu_sections :contains('Advance Payments'), .dropdown-item:contains('Advance Payments')",
             content: markup(_t("Open the <b>Advance Payments</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",

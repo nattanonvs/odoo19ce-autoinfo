@@ -24,7 +24,7 @@ registry.category("web_tour.tours").add("od19_hr_expense_tour", {
 
         // --- Create Expense ---
         {
-            trigger: ".o_menu_sections a:contains('My Expenses')",
+            trigger: ".o_menu_sections :contains('My Expenses'), .dropdown-item:contains('My Expenses')",
             content: markup(_t("Open <b>My Expenses</b> to create a new expense.")),
             tooltipPosition: "bottom",
             run: "click",

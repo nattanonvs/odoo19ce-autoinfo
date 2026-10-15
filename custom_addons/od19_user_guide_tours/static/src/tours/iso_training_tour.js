@@ -20,13 +20,13 @@ registry.category("web_tour.tours").add("od19_iso_training_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections a:contains('การฝึกอบรมและความสามารถ')",
+            trigger: ".o_menu_sections :contains('การฝึกอบรมและความสามารถ'), .dropdown-item:contains('การฝึกอบรมและความสามารถ')",
             content: markup(_t("Open the <b>การฝึกอบรมและความสามารถ (Training &amp; Competence)</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections a:contains('หลักสูตรการฝึกอบรม')",
+            trigger: ".o_menu_sections :contains('หลักสูตรการฝึกอบรม'), .dropdown-item:contains('หลักสูตรการฝึกอบรม')",
             content: markup(_t("Open <b>หลักสูตรการฝึกอบรม (Training Courses)</b>.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -77,7 +77,7 @@ registry.category("web_tour.tours").add("od19_iso_training_tour", {
 
         // --- Competences ---
         {
-            trigger: ".o_menu_sections a:contains('ความสามารถ/ทักษะ')",
+            trigger: ".o_menu_sections :contains('ความสามารถ/ทักษะ'), .dropdown-item:contains('ความสามารถ/ทักษะ')",
             content: markup(_t("Open <b>ความสามารถ/ทักษะ (Competences)</b> to define required skills.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -98,7 +98,7 @@ registry.category("web_tour.tours").add("od19_iso_training_tour", {
 
         // --- Employee Competence Matrix ---
         {
-            trigger: ".o_menu_sections a:contains('ตารางความสามารถพนักงาน')",
+            trigger: ".o_menu_sections :contains('ตารางความสามารถพนักงาน'), .dropdown-item:contains('ตารางความสามารถพนักงาน')",
             content: markup(_t("Open <b>ตารางความสามารถพนักงาน (Employee Competence Matrix)</b> to assign competences to employees.")),
             tooltipPosition: "bottom",
             run: "click",

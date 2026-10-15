@@ -18,7 +18,7 @@ registry.category("web_tour.tours").add("od19_product_return_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections a:contains('Product Returns')",
+            trigger: ".o_menu_sections :contains('Product Returns'), .dropdown-item:contains('Product Returns')",
             content: markup(_t("Open the <b>Product Returns</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",

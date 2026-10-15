@@ -19,13 +19,13 @@ registry.category("web_tour.tours").add("od19_stock_picking_features_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections a:contains('Operations')",
+            trigger: ".o_menu_sections :contains('Operations'), .dropdown-item:contains('Operations')",
             content: markup(_t("Open the <b>Operations</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections a:contains('Transfers')",
+            trigger: ".o_menu_sections :contains('Transfers'), .dropdown-item:contains('Transfers')",
             content: markup(_t("Open <b>Transfers</b>.")),
             tooltipPosition: "bottom",
             run: "click",

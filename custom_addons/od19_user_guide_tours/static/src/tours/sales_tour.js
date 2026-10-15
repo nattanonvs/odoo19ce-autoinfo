@@ -22,7 +22,7 @@ registry.category("web_tour.tours").add("od19_sales_contract_billing_tour", {
         ),
         // --- Sales Contract ---
         {
-            trigger: ".o_menu_sections a:contains('Sales Contracts')",
+            trigger: ".o_menu_sections :contains('Sales Contracts'), .dropdown-item:contains('Sales Contracts')",
             content: markup(_t("Open the <b>Sales Contracts</b> menu to create a master contract.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -76,7 +76,7 @@ registry.category("web_tour.tours").add("od19_sales_contract_billing_tour", {
 
         // --- Billing Evidence (accessed from Sales Order) ---
         {
-            trigger: ".o_menu_sections a:contains('Orders')",
+            trigger: ".o_menu_sections :contains('Orders'), .dropdown-item:contains('Orders')",
             content: markup(_t("Open <b>Orders</b> to access Sales Orders.")),
             tooltipPosition: "bottom",
             run: "click",

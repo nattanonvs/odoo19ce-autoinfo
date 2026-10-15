@@ -21,13 +21,13 @@ registry.category("web_tour.tours").add("od19_sale_wizards_tour", {
 
         // --- Change delivery date ---
         {
-            trigger: ".o_menu_sections a:contains('Orders')",
+            trigger: ".o_menu_sections :contains('Orders'), .dropdown-item:contains('Orders')",
             content: markup(_t("Open the <b>Orders</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections a:contains('Quotations')",
+            trigger: ".o_menu_sections :contains('Quotations'), .dropdown-item:contains('Quotations')",
             content: markup(_t("Open <b>Quotations</b>.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -66,13 +66,13 @@ registry.category("web_tour.tours").add("od19_sale_wizards_tour", {
             markup(_t("Now switch to <b>Invoicing</b> to see the invoice wizards."))
         ),
         {
-            trigger: ".o_menu_sections a:contains('Customers')",
+            trigger: ".o_menu_sections :contains('Customers'), .dropdown-item:contains('Customers')",
             content: markup(_t("Open the <b>Customers</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections a:contains('Invoices')",
+            trigger: ".o_menu_sections :contains('Invoices'), .dropdown-item:contains('Invoices')",
             content: markup(_t("Open <b>Invoices</b>.")),
             tooltipPosition: "bottom",
             run: "click",

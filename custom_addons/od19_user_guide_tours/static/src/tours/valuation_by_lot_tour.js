@@ -18,13 +18,13 @@ registry.category("web_tour.tours").add("od19_valuation_by_lot_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections a:contains('Inventory Control')",
+            trigger: ".o_menu_sections :contains('Inventory Control'), .dropdown-item:contains('Inventory Control')",
             content: markup(_t("Open the <b>Inventory Control</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections a:contains('Valuation by Lot')",
+            trigger: ".o_menu_sections :contains('Valuation by Lot'), .dropdown-item:contains('Valuation by Lot')",
             content: markup(_t(
                 "Open <b>Valuation by Lot</b> to see stock value broken down by lot/serial number."
             )),

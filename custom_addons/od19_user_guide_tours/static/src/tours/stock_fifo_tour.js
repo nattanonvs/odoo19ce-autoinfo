@@ -21,13 +21,13 @@ registry.category("web_tour.tours").add("od19_stock_fifo_tour", {
 
         // --- FIFO Valuation Records ---
         {
-            trigger: ".o_menu_sections a:contains('FIFO Valuation /')",
+            trigger: ".o_menu_sections :contains('FIFO Valuation /'), .dropdown-item:contains('FIFO Valuation /')",
             content: markup(_t("Open the <b>FIFO Valuation</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections a:contains('FIFO Valuation Records')",
+            trigger: ".o_menu_sections :contains('FIFO Valuation Records'), .dropdown-item:contains('FIFO Valuation Records')",
             content: markup(_t(
                 "Open <b>FIFO Valuation Records</b>. Each line stores the date, product, " +
                 "quantity, unit cost and total value at the moment of the move."
@@ -45,7 +45,7 @@ registry.category("web_tour.tours").add("od19_stock_fifo_tour", {
 
         // --- FIFO As-Of ---
         {
-            trigger: ".o_menu_sections a:contains('FIFO As-Of')",
+            trigger: ".o_menu_sections :contains('FIFO As-Of'), .dropdown-item:contains('FIFO As-Of')",
             content: markup(_t(
                 "Open <b>FIFO As-Of</b> to value the whole stock at a chosen date."
             )),
@@ -79,7 +79,7 @@ registry.category("web_tour.tours").add("od19_stock_fifo_tour", {
 
         // --- BF Revaluation ---
         {
-            trigger: ".o_menu_sections a:contains('BF Revaluation')",
+            trigger: ".o_menu_sections :contains('BF Revaluation'), .dropdown-item:contains('BF Revaluation')",
             content: markup(_t(
                 "Open <b>BF Revaluation / ปรับมูลค่ายกมา</b> to adjust the brought-forward stock value."
             )),

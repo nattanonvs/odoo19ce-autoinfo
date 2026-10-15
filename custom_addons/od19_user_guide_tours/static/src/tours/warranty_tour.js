@@ -22,7 +22,7 @@ registry.category("web_tour.tours").add("od19_warranty_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections a:contains('Warranty Claims')",
+            trigger: ".o_menu_sections :contains('Warranty Claims'), .dropdown-item:contains('Warranty Claims')",
             content: markup(_t("Open <b>Warranty Claims</b>.")),
             tooltipPosition: "bottom",
             run: "click",

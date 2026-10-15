@@ -22,19 +22,19 @@ registry.category("web_tour.tours").add("od19_asset_loan_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections a:contains('Configuration')",
+            trigger: ".o_menu_sections :contains('Configuration'), .dropdown-item:contains('Configuration')",
             content: markup(_t("Open the <b>Configuration</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections a:contains('Asset Loan')",
+            trigger: ".o_menu_sections :contains('Asset Loan'), .dropdown-item:contains('Asset Loan')",
             content: markup(_t("Open <b>Asset Loan</b>.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections a:contains('Loans')",
+            trigger: ".o_menu_sections :contains('Loans'), .dropdown-item:contains('Loans')",
             content: markup(_t("Open <b>Loans</b> to view and create asset loans.")),
             tooltipPosition: "bottom",
             run: "click",

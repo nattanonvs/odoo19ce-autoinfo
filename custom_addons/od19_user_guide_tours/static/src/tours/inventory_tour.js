@@ -22,7 +22,7 @@ registry.category("web_tour.tours").add("od19_inventory_operations_tour", {
 
         // --- Service Card ---
         {
-            trigger: ".o_menu_sections a:contains('Service Cards')",
+            trigger: ".o_menu_sections :contains('Service Cards'), .dropdown-item:contains('Service Cards')",
             content: markup(_t(
                 "Open <b>Service Cards</b> to track preventive maintenance for equipment."
             )),
@@ -80,7 +80,7 @@ registry.category("web_tour.tours").add("od19_inventory_operations_tour", {
 
         // --- QC Inspection ---
         {
-            trigger: ".o_menu_sections a:contains('QC Inspections')",
+            trigger: ".o_menu_sections :contains('QC Inspections'), .dropdown-item:contains('QC Inspections')",
             content: markup(_t(
                 "Open <b>QC Inspections</b> for incoming and outgoing quality control."
             )),
@@ -142,7 +142,7 @@ registry.category("web_tour.tours").add("od19_inventory_operations_tour", {
 
         // --- Transportation ---
         {
-            trigger: ".o_menu_sections a:contains('Transportation')",
+            trigger: ".o_menu_sections :contains('Transportation'), .dropdown-item:contains('Transportation')",
             content: markup(_t(
                 "Open the <b>Transportation</b> menu to manage delivery vehicles and routes."
             )),
@@ -150,7 +150,7 @@ registry.category("web_tour.tours").add("od19_inventory_operations_tour", {
             run: "click",
         },
         {
-            trigger: ".o_menu_sections a:contains('Transport Orders')",
+            trigger: ".o_menu_sections :contains('Transport Orders'), .dropdown-item:contains('Transport Orders')",
             content: markup(_t("Open <b>Transport Orders</b> to track deliveries.")),
             tooltipPosition: "bottom",
             run: "click",

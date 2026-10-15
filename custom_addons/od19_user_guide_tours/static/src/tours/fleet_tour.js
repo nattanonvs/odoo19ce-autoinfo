@@ -22,13 +22,13 @@ registry.category("web_tour.tours").add("od19_fleet_accounting_tour", {
 
         // --- Expense Categories ---
         {
-            trigger: ".o_menu_sections a:contains('Fleet Accounting')",
+            trigger: ".o_menu_sections :contains('Fleet Accounting'), .dropdown-item:contains('Fleet Accounting')",
             content: markup(_t("Open the <b>Fleet Accounting</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections a:contains('Expense Categories')",
+            trigger: ".o_menu_sections :contains('Expense Categories'), .dropdown-item:contains('Expense Categories')",
             content: markup(_t(
                 "Open <b>Expense Categories</b> to classify vehicle costs (fuel, maintenance, etc.)."
             )),
@@ -51,7 +51,7 @@ registry.category("web_tour.tours").add("od19_fleet_accounting_tour", {
 
         // --- Vehicle Service Log ---
         {
-            trigger: ".o_menu_sections a:contains('Vehicles')",
+            trigger: ".o_menu_sections :contains('Vehicles'), .dropdown-item:contains('Vehicles')",
             content: markup(_t("Go back to <b>Vehicles</b>.")),
             tooltipPosition: "bottom",
             run: "click",

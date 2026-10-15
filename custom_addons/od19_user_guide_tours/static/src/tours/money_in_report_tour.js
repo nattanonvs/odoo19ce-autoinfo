@@ -20,19 +20,19 @@ registry.category("web_tour.tours").add("od19_money_in_report_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections a:contains('Reporting')",
+            trigger: ".o_menu_sections :contains('Reporting'), .dropdown-item:contains('Reporting')",
             content: markup(_t("Open the <b>Reporting</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections a:contains('Money In Analysis')",
+            trigger: ".o_menu_sections :contains('Money In Analysis'), .dropdown-item:contains('Money In Analysis')",
             content: markup(_t("Open <b>Money In Analysis</b>.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections a:contains('Generate Report')",
+            trigger: ".o_menu_sections :contains('Generate Report'), .dropdown-item:contains('Generate Report')",
             content: markup(_t("Click <b>Generate Report</b> to open the report wizard.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -90,7 +90,7 @@ registry.category("web_tour.tours").add("od19_money_in_report_tour", {
 
         // --- Review Report Runs ---
         {
-            trigger: ".o_menu_sections a:contains('Report Runs')",
+            trigger: ".o_menu_sections :contains('Report Runs'), .dropdown-item:contains('Report Runs')",
             content: markup(_t("Open <b>Report Runs</b> to see all generated reports.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -104,7 +104,7 @@ registry.category("web_tour.tours").add("od19_money_in_report_tour", {
 
         // --- Analysis Lines ---
         {
-            trigger: ".o_menu_sections a:contains('Analysis Lines')",
+            trigger: ".o_menu_sections :contains('Analysis Lines'), .dropdown-item:contains('Analysis Lines')",
             content: markup(_t(
                 "Open <b>Analysis Lines</b> to see the detailed breakdown of revenue " +
                 "by customer, salesperson, project, and product category."

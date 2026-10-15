@@ -18,7 +18,7 @@ registry.category("web_tour.tours").add("od19_iso_nonconformity_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections a:contains('ไม่สอดคล้อง')",
+            trigger: ".o_menu_sections :contains('ไม่สอดคล้อง'), .dropdown-item:contains('ไม่สอดคล้อง')",
             content: markup(_t("Open the <b>ไม่สอดคล้อง / CAPA</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",

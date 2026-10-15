@@ -21,13 +21,13 @@ registry.category("web_tour.tours").add("od19_notification_tour", {
 
         // --- Notification Channels ---
         {
-            trigger: ".o_menu_sections a:contains('Notifications')",
+            trigger: ".o_menu_sections :contains('Notifications'), .dropdown-item:contains('Notifications')",
             content: markup(_t("Open the <b>Notifications</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections a:contains('Channels')",
+            trigger: ".o_menu_sections :contains('Channels'), .dropdown-item:contains('Channels')",
             content: markup(_t("Open <b>Channels</b> to configure notification delivery channels.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -62,7 +62,7 @@ registry.category("web_tour.tours").add("od19_notification_tour", {
 
         // --- Notification Preferences ---
         {
-            trigger: ".o_menu_sections a:contains('My Preferences')",
+            trigger: ".o_menu_sections :contains('My Preferences'), .dropdown-item:contains('My Preferences')",
             content: markup(_t("Open <b>My Preferences</b> to choose how you want to be notified.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -94,7 +94,7 @@ registry.category("web_tour.tours").add("od19_notification_tour", {
 
         // --- Notification Queue ---
         {
-            trigger: ".o_menu_sections a:contains('Notification Queue')",
+            trigger: ".o_menu_sections :contains('Notification Queue'), .dropdown-item:contains('Notification Queue')",
             content: markup(_t(
                 "Open the <b>Notification Queue</b> to monitor outgoing notifications."
             )),
