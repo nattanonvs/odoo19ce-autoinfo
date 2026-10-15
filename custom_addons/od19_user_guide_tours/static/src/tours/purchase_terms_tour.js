@@ -1,0 +1,89 @@
+import { _t } from "@web/core/l10n/translation";
+import { registry } from "@web/core/registry";
+import { stepUtils } from "@web_tour/tour_utils";
+import { markup } from "@odoo/owl";
+
+/**
+ * OD19 Purchase Terms Tour
+ *
+ * Walks the user through:
+ *  1. Creating reusable purchase term templates
+ *  2. Applying terms on a purchase order (OD19 Terms tab)
+ */
+registry.category("web_tour.tours").add("od19_purchase_terms_tour", {
+    url: "/odoo",
+    steps: () => [
+        ...stepUtils.goToAppSteps(
+            "purchase.menu_purchase_root",
+            markup(_t("Let's set up reusable <b>Purchase Term Templates</b> and apply them on orders."))
+        ),
+
+        // --- Term templates ---
+        {
+            trigger: ".o_menu_sections a:contains('Configuration')",
+            content: markup(_t("Open the Purchase <b>Configuration</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".o_menu_sections a:contains('Purchase Term Templates')",
+            content: markup(_t("Open <b>Purchase Term Templates</b>.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_button_add",
+            content: _t("Create a new term template."),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='name'] input",
+            content: _t("Enter the template name (e.g. Standard Delivery To)."),
+            run: "edit Standard Delivery To",
+        },
+        {
+            trigger: ".o_field_widget[name='term_type'] select",
+            content: markup(_t(
+                "Choose the <b>Term Type</b> (warranty, delivery to, payment, shipment, weight)."
+            )),
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='content'] textarea",
+            content: _t("Type the standard wording printed on purchase orders."),
+            run: "edit ส่งของที่คลังสินค้าบริษัทภายใน 15 วัน",
+        },
+        ...stepUtils.saveForm(),
+        ...stepUtils.discardForm(),
+
+        // --- Apply on a purchase order ---
+        {
+            trigger: ".o_menu_sections a:contains('Orders')",
+            content: markup(_t("Open the <b>Orders</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".o_menu_sections a:contains('Purchase Orders')",
+            content: markup(_t("Open <b>Purchase Orders</b>.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_renderer",
+            content: markup(_t(
+                "On any purchase order open the <b>OD19 Terms</b> tab and pick the templates for " +
+                "<b>Warranty</b>, <b>Delivery To</b>, <b>Payment Term</b>, <b>Shipment Term</b> " +
+                "and <b>Weight Term</b>."
+            )),
+        },
+        {
+            trigger: ".o_list_renderer",
+            content: markup(_t(
+                "The combined term text is generated automatically and printed on the purchase order " +
+                "and its PDF."
+            )),
+        },
+    ],
+});

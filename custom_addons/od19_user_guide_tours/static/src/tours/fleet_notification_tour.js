@@ -1,0 +1,68 @@
+import { _t } from "@web/core/l10n/translation";
+import { registry } from "@web/core/registry";
+import { stepUtils } from "@web_tour/tour_utils";
+import { markup } from "@odoo/owl";
+
+/**
+ * OD19 Fleet Notification Tour
+ *
+ * Walks the user through setting the Insurance and Act (tax) expiry
+ * dates on a vehicle and configuring the reminder lead times.
+ */
+registry.category("web_tour.tours").add("od19_fleet_notification_tour", {
+    url: "/odoo",
+    steps: () => [
+        ...stepUtils.goToAppSteps(
+            "fleet.fleet_vehicles",
+            markup(_t("Let's configure <b>Insurance</b> and <b>Act (Tax)</b> expiry reminders for a vehicle."))
+        ),
+
+        {
+            trigger: ".o_list_renderer .o_data_row:first",
+            content: markup(_t("Open a vehicle to edit its expiry dates.")),
+            run: "click",
+        },
+        {
+            trigger: "a.nav-link:contains('Insurance')",
+            content: markup(_t("Open the <b>Insurance &amp; Act</b> tab.")),
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='od19_insurance_expire_date'] input",
+            content: markup(_t(
+                "Set the <b>Insurance Expire Date</b> (ประกัน). A reminder is scheduled before it expires."
+            )),
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='od19_insurance_reminder_days'] input",
+            content: markup(_t(
+                "Set the <b>Insurance Reminder Days</b> (how many days in advance to be notified)."
+            )),
+            run: "edit 30",
+        },
+        {
+            trigger: ".o_field_widget[name='od19_act_expire_date'] input",
+            content: markup(_t("Set the <b>Act (Tax) Expire Date</b> (ภาษี).")),
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='od19_act_reminder_days'] input",
+            content: markup(_t(
+                "Set the <b>Act Reminder Days</b>. The system notifies the responsible users " +
+                "before both the insurance and the tax expire."
+            )),
+            run: "edit 15",
+        },
+        ...stepUtils.saveForm(),
+        ...stepUtils.discardForm(),
+
+        {
+            trigger: ".o_list_renderer",
+            content: markup(_t(
+                "Fleet Notification complete! Insurance and Act expiry dates are tracked with " +
+                "configurable reminder lead times so renewals are never missed."
+            )),
+        },
+    ],
+});

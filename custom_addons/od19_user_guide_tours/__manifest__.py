@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'User Guide Tours',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.0.1',
     'category': 'Tools/User Guide',
     'summary': 'Interactive guided tours for all OD19 business modules',
     'description': """
@@ -12,8 +12,17 @@ all OD19 custom modules, including Contacts & Credit Risk,
 Sales Contracts & Billing, Purchase Approval, Inventory Operations,
 Accounting, HR Expense, and Project & Analytic Accounting.
 
-Tours are accessible from the user menu (top-right) under "Start Tour"
-and from the Help icon on each relevant screen.
+Each tour is declared twice:
+  * as a web_tour.tour record (data/tour_data.xml) so that it is listed
+    in the database and can be started by users;
+  * as a web_tour.tours registry entry (static/src/tours/*.js) holding
+    the actual steps.
+
+Tours can be started from:
+  * the "User Guide" menu (any internal user);
+  * Settings > Technical > Tours (administrators);
+  * a direct link: /odoo?tour=<tour_name>;
+  * the Odoo onboarding flow for users with the Onboarding option enabled.
     """,
     'depends': [
         'web_tour',
@@ -55,6 +64,22 @@ and from the Help icon on each relevant screen.
         'od19_accounting_money_in_report',
         'od19_thai_tax_reports',
         'od19_inventory_execution_control',
+        'od19_accounting_features',
+        'od19_asset_disposal',
+        'od19_fleet_notification',
+        'od19_hr_expense_enhanced',
+        'od19_misc_features',
+        'od19_project_enhanced',
+        'od19_purchase_terms',
+        'od19_purchase_wizards',
+        'od19_sale_terms',
+        'od19_sale_wizards',
+        'od19_stock_fifo',
+        'od19_stock_picking_features',
+    ],
+    'data': [
+        'data/tour_data.xml',
+        'views/tour_menus.xml',
     ],
     'assets': {
         'web.assets_backend': [
@@ -88,6 +113,18 @@ and from the Help icon on each relevant screen.
             'od19_user_guide_tours/static/src/tours/money_in_report_tour.js',
             'od19_user_guide_tours/static/src/tours/thai_tax_reports_tour.js',
             'od19_user_guide_tours/static/src/tours/valuation_by_lot_tour.js',
+            'od19_user_guide_tours/static/src/tours/accounting_features_tour.js',
+            'od19_user_guide_tours/static/src/tours/asset_disposal_tour.js',
+            'od19_user_guide_tours/static/src/tours/fleet_notification_tour.js',
+            'od19_user_guide_tours/static/src/tours/hr_expense_enhanced_tour.js',
+            'od19_user_guide_tours/static/src/tours/misc_features_tour.js',
+            'od19_user_guide_tours/static/src/tours/project_enhanced_tour.js',
+            'od19_user_guide_tours/static/src/tours/purchase_terms_tour.js',
+            'od19_user_guide_tours/static/src/tours/purchase_wizards_tour.js',
+            'od19_user_guide_tours/static/src/tours/sale_terms_tour.js',
+            'od19_user_guide_tours/static/src/tours/sale_wizards_tour.js',
+            'od19_user_guide_tours/static/src/tours/stock_fifo_tour.js',
+            'od19_user_guide_tours/static/src/tours/stock_picking_features_tour.js',
         ],
     },
     'installable': True,

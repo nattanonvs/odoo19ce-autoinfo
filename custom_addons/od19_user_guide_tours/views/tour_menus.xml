@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        A user-facing entry point so that any internal user (not only
+        administrators through Settings > Technical > Tours) can browse
+        and start the interactive guided tours.
+        It reuses the standard web_tour tour list action / view.
+    -->
+    <menuitem id="menu_od19_user_guide_root"
+              name="User Guide"
+              sequence="95"
+              groups="base.group_user"/>
+
+    <menuitem id="menu_od19_user_guide_tours"
+              name="Interactive Tours"
+              parent="menu_od19_user_guide_root"
+              action="web_tour.tour_action"
+              sequence="10"/>
+</odoo>
