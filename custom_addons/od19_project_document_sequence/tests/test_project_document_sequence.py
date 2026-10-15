@@ -46,6 +46,10 @@ class TestProjectDocumentSequence(TransactionCase):
         self.assertFalse(department.project_service_sequence_id)
 
     def test_project_has_type_and_department_fields(self):
-        project = self.env["project.project"].create({"name": "Test Project"})
+        department = self.env["hr.department"].create({"name": "Test Project Dept"})
+        project = self.env["project.project"].create({
+            "name": "Test Project",
+            "od19_department_id": department.id,
+        })
         self.assertEqual(project.od19_project_type, "job")
-        self.assertFalse(project.od19_department_id)
+        self.assertEqual(project.od19_department_id, department)
