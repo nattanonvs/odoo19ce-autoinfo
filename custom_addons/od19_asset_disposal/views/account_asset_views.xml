@@ -41,7 +41,7 @@
             </xpath>
 
             <!-- Add a new notebook page for disposal & linked documents -->
-            <xpath expr="//notebook/page[@string='Notes']" position="before">
+            <xpath expr="//notebook/page[.//field[@name='note']]" position="before">
                 <page string="Disposal">
                     <group>
                         <group string="Disposal Information">

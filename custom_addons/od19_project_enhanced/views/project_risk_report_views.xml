@@ -4,7 +4,7 @@
         <field name="name">od19.project.risk.report.tree</field>
         <field name="model">od19.project.risk.report</field>
         <field name="arch" type="xml">
-            <tree string="Project Risk Report" create="false" edit="false" delete="false">
+            <list string="Project Risk Report" create="false" edit="false" delete="false">
                 <field name="project_id"/>
                 <field name="project_name"/>
                 <field name="contract_amount" sum="Total"/>
@@ -17,7 +17,7 @@
                 <field name="risk_level" decoration-danger="risk_level == 'high'"
                        decoration-warning="risk_level == 'medium'"
                        decoration-success="risk_level == 'low'"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -49,7 +49,7 @@
     <record id="action_od19_project_risk_report" model="ir.actions.act_window">
         <field name="name">Project Risk Report</field>
         <field name="res_model">od19.project.risk.report</field>
-        <field name="view_mode">tree,graph,pivot</field>
+        <field name="view_mode">list,graph,pivot</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 No project risk data available yet.

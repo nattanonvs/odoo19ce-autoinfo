@@ -6,14 +6,14 @@
         <field name="name">od19.runtime.guard.tree</field>
         <field name="model">od19.runtime.guard</field>
         <field name="arch" type="xml">
-            <tree string="Runtime Guard Snapshots">
+            <list string="Runtime Guard Snapshots">
                 <field name="check_date"/>
                 <field name="odoo_version"/>
                 <field name="python_version"/>
                 <field name="installed_modules_count"/>
                 <field name="database_size_mb" sum="Total DB Size (MB)"/>
                 <field name="user_id"/>
-            </tree>
+            </list>
         </field>
     </record>
 

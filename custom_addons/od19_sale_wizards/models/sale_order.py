@@ -36,7 +36,7 @@ class SaleOrder(models.Model):
         }
 
 
-class SaleAdvancePaymentInv(models.Model):
+class SaleAdvancePaymentInv(models.TransientModel):
     _inherit = "sale.advance.payment.inv"
 
     def _prepare_down_payment_invoice_values(self, order, so_lines):
