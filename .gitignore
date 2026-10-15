@@ -108,3 +108,10 @@ backups/
 odoo_local.conf
 *.pid
 *.sock
+
+# Vendored nginx distribution (binary + shipped files);
+# only the project reverse-proxy config is kept under version control
+nginx/nginx-1.27.2/*
+!nginx/nginx-1.27.2/conf/
+nginx/nginx-1.27.2/conf/*
+!nginx/nginx-1.27.2/conf/nginx.conf
