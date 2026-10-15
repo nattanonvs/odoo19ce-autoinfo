@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Tree (list) view -->
+    <record id="view_od19_sale_term_template_tree" model="ir.ui.view">
+        <field name="name">od19.sale.term.template.tree</field>
+        <field name="model">od19.sale.term.template</field>
+        <field name="arch" type="xml">
+            <list string="Sale Term Templates">
+                <field name="name"/>
+                <field name="term_type"/>
+                <field name="content" optional="hide"/>
+                <field name="active" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form view -->
+    <record id="view_od19_sale_term_template_form" model="ir.ui.view">
+        <field name="name">od19.sale.term.template.form</field>
+        <field name="model">od19.sale.term.template</field>
+        <field name="arch" type="xml">
+            <form string="Sale Term Template">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="term_type"/>
+                            <field name="active"/>
+                        </group>
+                        <group string="Internal Note / หมายเหตุภายใน">
+                            <field name="note" nolabel="1" placeholder="Internal notes (not shown on quotations)"/>
+                        </group>
+                    </group>
+                    <group string="Content / เนื้อหาเงื่อนไข">
+                        <field name="content" nolabel="1" placeholder="Enter the terms text that will appear on the quotation..."/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_od19_sale_term_template" model="ir.actions.act_window">
+        <field name="name">Sale Term Templates</field>
+        <field name="res_model">od19.sale.term.template</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first sale term template
+            </p>
+            <p>
+                Reusable templates for the standard terms and conditions
+                shown on sales quotations: price, delivery, payment
+                (product &amp; engineering), validity, warranty and credit.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu: Sales > Configuration > Sale Term Templates -->
+    <menuitem
+        id="menu_od19_sale_term_template"
+        name="Sale Term Templates"
+        parent="sale.menu_sale_config"
+        action="action_od19_sale_term_template"
+        sequence="90"
+    />
+
+</odoo>

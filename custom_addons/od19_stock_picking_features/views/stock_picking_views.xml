@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- stock.picking form view extension                            -->
+    <!-- Adds:                                                         -->
+    <!--   * signature chain fields (salesperson + dept manager)      -->
+    <!--   * an "Additional Lines" notebook page with an inline tree  -->
+    <!-- ============================================================ -->
+    <record id="view_picking_form_od19_stock_picking_features" model="ir.ui.view">
+        <field name="name">stock.picking.form.od19.stock.picking.features</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Signature chain fields: place right after sale_id
+                 (sale_id is injected by sale_stock before move_type). -->
+            <xpath expr="//field[@name='sale_id']" position="after">
+                <field name="od19_sale_user_id"
+                       widget="many2one_avatar_user"
+                       readonly="state in ('cancel', 'done')"/>
+                <field name="od19_dept_manager_id"
+                       widget="many2one_avatar_user"
+                       readonly="state in ('cancel', 'done')"/>
+            </xpath>
+
+            <!-- Additional Lines notebook page -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Additional Lines / บรรทัดเพิ่มเติม"
+                      name="od19_additional_lines">
+                    <field name="od19_additional_line_ids"
+                           nolabel="1"
+                           readonly="state in ('cancel', 'done')">
+                        <list string="Additional Print Lines" editable="bottom">
+                            <control>
+                                <create string="Add a Line"/>
+                            </control>
+                            <field name="sequence" widget="handle" optional="hide"/>
+                            <field name="name"/>
+                            <field name="quantity"/>
+                            <field name="product_uom_id"
+                                   options="{'no_open': True, 'no_create': True}"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

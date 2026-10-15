@@ -94,6 +94,7 @@ class IsoTrainingParticipant(models.Model):
 
     _name = "od19.iso.training.participant"
     _description = "ISO Training Participant"
+    _inherit = ["mail.thread", "mail.activity.mixin"]
     _order = "course_id, id"
 
     course_id = fields.Many2one(
@@ -122,6 +123,7 @@ class IsoCompetence(models.Model):
 
     _name = "od19.iso.competence"
     _description = "ISO Competence / Skill"
+    _inherit = ["mail.thread", "mail.activity.mixin"]
     _order = "name"
 
     name = fields.Char(string="ความสามารถ/ทักษะ", required=True, tracking=True)
@@ -151,6 +153,7 @@ class IsoEmployeeCompetence(models.Model):
 
     _name = "od19.iso.employee.competence"
     _description = "ISO Employee Competence"
+    _inherit = ["mail.thread", "mail.activity.mixin"]
     _order = "employee_id, competence_id"
     _rec_name = "competence_id"
 

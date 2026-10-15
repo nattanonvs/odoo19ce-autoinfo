@@ -1,0 +1,187 @@
+# Copyright 2026 OD19
+# License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
+
+from odoo import api, fields, models
+from odoo.exceptions import UserError
+
+
+class AccountMove(models.Model):
+    _inherit = "account.move"
+
+    # ------------------------------------------------------------------
+    # Feature 1: Cancel reason
+    # ------------------------------------------------------------------
+    od19_cancel_reason = fields.Text(
+        string="Cancel Reason",
+        copy=False,
+        readonly=True,
+        help="Reason entered when cancelling this journal entry.",
+    )
+
+    def button_cancel(self):
+        """Open the cancel-reason wizard for posted/draft moves, then cancel.
+
+        When the wizard confirms it calls the real cancellation with the
+        reason stored on the move. The wizard passes ``od19_skip_reason``
+        in the context so this override does not loop.
+        """
+        if self.env.context.get("od19_skip_reason"):
+            return super().button_cancel()
+
+        # Only ask for a reason for moves that can be cancelled.
+        cancellable = self.filtered(lambda m: m.state in ("draft", "posted"))
+        if not cancellable:
+            return super().button_cancel()
+
+        return {
+            "name": "Cancel Reason",
+            "type": "ir.actions.act_window",
+            "res_model": "od19.account.move.cancel.reason",
+            "view_mode": "form",
+            "target": "new",
+            "context": {
+                "active_ids": cancellable.ids,
+                "active_model": "account.move",
+            },
+        }
+
+    # ------------------------------------------------------------------
+    # Feature 2: Payer / Payee on prepayments
+    # ------------------------------------------------------------------
+    od19_payer_id = fields.Many2one(
+        comodel_name="res.partner",
+        string="ผู้จ่ายเงิน / Payer",
+        help="Partner who actually pays for this prepayment.",
+    )
+    od19_payee_id = fields.Many2one(
+        comodel_name="res.partner",
+        string="ผู้รับเงิน / Payee",
+        help="Partner who actually receives this prepayment.",
+    )
+
+    od19_is_downpayment = fields.Boolean(
+        string="Is Prepayment",
+        compute="_compute_od19_is_downpayment",
+        help="Technical helper. True when the move is a downpayment/prepayment.",
+    )
+
+    @api.depends("move_type", "invoice_line_ids")
+    def _compute_od19_is_downpayment(self):
+        for move in self:
+            is_dp = False
+            # ``is_downpayment`` stored field is added by the ``sale`` module.
+            if "is_downpayment" in move._fields:
+                is_dp = bool(move.is_downpayment)
+            else:
+                # Fallback: account module provides a method that ``sale`` overrides.
+                try:
+                    is_dp = move._is_downpayment()
+                except Exception:
+                    is_dp = False
+            move.od19_is_downpayment = is_dp
+
+    # ------------------------------------------------------------------
+    # Feature 3: BOT URL link
+    # ------------------------------------------------------------------
+    od19_bot_url = fields.Char(
+        string="BOT Link",
+        compute="_compute_od19_bot_url",
+        help="Revenue Department (BOT) lookup URL for this tax invoice.",
+    )
+
+    @api.depends("name", "company_id.od19_bot_url")
+    def _compute_od19_bot_url(self):
+        for move in self:
+            base = (move.company_id.od19_bot_url or "").strip()
+            if base and move.name and move.name != "/":
+                sep = "&" if "?" in base else "?"
+                move.od19_bot_url = "{}{}id={}".format(base, sep, move.name)
+            else:
+                move.od19_bot_url = False
+
+    def action_open_bot_url(self):
+        self.ensure_one()
+        url = self.od19_bot_url
+        if not url:
+            raise UserError(
+                self.env._(
+                    "No BOT URL or invoice number available. "
+                    "Configure the BOT URL in Settings and post the invoice first."
+                )
+            )
+        return {
+            "type": "ir.actions.act_url",
+            "url": url,
+            "target": "new",
+        }
+
+    # ------------------------------------------------------------------
+    # Feature 4: Prepayment actual due date (+30 days)
+    # ------------------------------------------------------------------
+    od19_actual_due_date = fields.Date(
+        string="Actual Due Date",
+        compute="_compute_od19_actual_due_date",
+        store=True,
+        help="For prepayments: invoice date + 30 days. "
+        "For other moves: the standard due date.",
+    )
+
+    @api.depends("invoice_date", "invoice_date_due", "od19_is_downpayment")
+    def _compute_od19_actual_due_date(self):
+        for move in self:
+            if move.od19_is_downpayment and move.invoice_date:
+                move.od19_actual_due_date = fields.Date.add(
+                    move.invoice_date, days=30
+                )
+            else:
+                move.od19_actual_due_date = move.invoice_date_due
+
+    # ------------------------------------------------------------------
+    # Feature 5: Payment number on vendor bill
+    # ------------------------------------------------------------------
+    od19_payment_number = fields.Char(
+        string="Payment Number",
+        compute="_compute_od19_payment_number",
+        help="Name(s) of the payment(s) reconciled with this vendor bill.",
+    )
+
+    @api.depends("matched_payment_ids", "line_ids.full_reconcile_id")
+    def _compute_od19_payment_number(self):
+        for move in self:
+            payments = move._get_od19_reconciled_payments()
+            if payments:
+                move.od19_payment_number = ", ".join(
+                    payments.filtered(lambda p: p.name and p.name != "/").mapped(
+                        "name"
+                    )
+                )
+            else:
+                move.od19_payment_number = False
+
+    def _get_od19_reconciled_payments(self):
+        """Return the account.payment records linked to this move.
+
+        Odoo exposes ``matched_payment_ids`` (payments linked through
+        reconciliation) which is the most reliable source. We also fall
+        back to scanning the move lines for payments that share a
+        reconciliation.
+        """
+        self.ensure_one()
+        payments = self.env["account.payment"]
+        if "matched_payment_ids" in self._fields:
+            payments = self.matched_payment_ids
+        if not payments:
+            # Fallback: find payments reconciled with the move lines.
+            rec_lines = self.line_ids.filtered(
+                lambda l: l.account_id.reconcile and l.full_reconcile_id
+            )
+            if rec_lines:
+                reconcile_ids = rec_lines.mapped("full_reconcile_id").ids
+                aml = self.env["account.move.line"].search(
+                    [
+                        ("full_reconcile_id", "in", reconcile_ids),
+                        ("move_id", "!=", self.id),
+                    ]
+                )
+                payments = aml.mapped("payment_id")
+        return payments

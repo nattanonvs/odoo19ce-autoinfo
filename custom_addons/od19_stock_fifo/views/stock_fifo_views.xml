@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ============================================================ -->
+    <!-- Main FIFO Valuation Model Views                               -->
+    <!-- ============================================================ -->
+    <record id="view_od19_stock_fifo_tree" model="ir.ui.view">
+        <field name="name">od19.stock.fifo.tree</field>
+        <field name="model">od19.stock.fifo</field>
+        <field name="arch" type="xml">
+            <list string="FIFO Stock Valuation / มูลค่าสินค้า FIFO" editable="bottom">
+                <field name="od19_date"/>
+                <field name="od19_product_id"/>
+                <field name="od19_quantity" sum="Total Qty"/>
+                <field name="od19_unit_cost"/>
+                <field name="od19_total_value" sum="Total Value"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_od19_stock_fifo_form" model="ir.ui.view">
+        <field name="name">od19.stock.fifo.form</field>
+        <field name="model">od19.stock.fifo</field>
+        <field name="arch" type="xml">
+            <form string="FIFO Stock Valuation / มูลค่าสินค้า FIFO">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="od19_product_id"/>
+                            <field name="od19_date"/>
+                        </group>
+                        <group>
+                            <field name="od19_quantity"/>
+                            <field name="od19_unit_cost"/>
+                            <field name="od19_total_value"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_od19_stock_fifo_search" model="ir.ui.view">
+        <field name="name">od19.stock.fifo.search</field>
+        <field name="model">od19.stock.fifo</field>
+        <field name="arch" type="xml">
+            <search string="FIFO Stock Valuation">
+                <field name="od19_product_id"/>
+                <field name="od19_date"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <separator/>
+                <filter string="This Month" name="this_month"
+                        domain="[('od19_date', '&gt;=', context_today().strftime('%Y-%m-01'))]"/>
+                <group>
+                    <filter string="Product" name="group_product" context="{'group_by': 'od19_product_id'}"/>
+                    <filter string="Date" name="group_date" context="{'group_by': 'od19_date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- FIFO As-Of Line Tree View (used by the wizard result)         -->
+    <!-- ============================================================ -->
+    <record id="view_od19_stock_fifo_asof_line_tree" model="ir.ui.view">
+        <field name="name">od19.stock.fifo.asof.line.tree</field>
+        <field name="model">od19.stock.fifo.asof.line</field>
+        <field name="arch" type="xml">
+            <list string="FIFO Valuation Results / ผลการประเมินมูลค่า FIFO">
+                <field name="od19_product_id"/>
+                <field name="od19_quantity" sum="Total Qty"/>
+                <field name="od19_unit_cost"/>
+                <field name="od19_total_value" sum="Total Value"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_od19_stock_fifo_asof_line_form" model="ir.ui.view">
+        <field name="name">od19.stock.fifo.asof.line.form</field>
+        <field name="model">od19.stock.fifo.asof.line</field>
+        <field name="arch" type="xml">
+            <form string="FIFO Valuation Result / ผลการประเมินมูลค่า FIFO">
+                <sheet>
+                    <group>
+                        <field name="od19_product_id"/>
+                        <field name="od19_quantity"/>
+                        <field name="od19_unit_cost"/>
+                        <field name="od19_total_value"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Actions & Menus                                               -->
+    <!-- ============================================================ -->
+    <record id="action_od19_stock_fifo" model="ir.actions.act_window">
+        <field name="name">FIFO Stock Valuation / มูลค่าสินค้า FIFO</field>
+        <field name="res_model">od19.stock.fifo</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_od19_stock_fifo_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No FIFO valuation records yet.
+            </p>
+        </field>
+    </record>
+
+    <!-- Wizard actions -->
+    <record id="action_od19_stock_fifo_asof" model="ir.actions.act_window">
+        <field name="name">FIFO Valuation As-Of / ประเมินมูลค่า FIFO ณ วันที่</field>
+        <field name="res_model">od19.stock.fifo.asof</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <record id="action_od19_stock_bf_revaluation" model="ir.actions.act_window">
+        <field name="name">BF Stock Revaluation / ปรับมูลค่ายกมา</field>
+        <field name="res_model">od19.stock.bf.revaluation</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Top-level menu under Inventory -->
+    <menuitem id="menu_od19_stock_fifo_root"
+              name="FIFO Valuation / มูลค่า FIFO"
+              parent="stock.menu_stock_root"
+              sequence="90"/>
+
+    <menuitem id="menu_od19_stock_fifo_records"
+              name="FIFO Valuation Records / บันทึกมูลค่า FIFO"
+              parent="menu_od19_stock_fifo_root"
+              action="action_od19_stock_fifo"
+              sequence="10"/>
+
+    <menuitem id="menu_od19_stock_fifo_asof"
+              name="FIFO As-Of / ประเมิน FIFO ณ วันที่"
+              parent="menu_od19_stock_fifo_root"
+              action="action_od19_stock_fifo_asof"
+              sequence="20"/>
+
+    <menuitem id="menu_od19_stock_bf_revaluation"
+              name="BF Revaluation / ปรับมูลค่ายกมา"
+              parent="menu_od19_stock_fifo_root"
+              action="action_od19_stock_bf_revaluation"
+              sequence="30"/>
+</odoo>

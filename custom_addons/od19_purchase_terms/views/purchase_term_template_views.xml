@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Tree (list) view -->
+    <record id="view_od19_purchase_term_template_tree" model="ir.ui.view">
+        <field name="name">od19.purchase.term.template.tree</field>
+        <field name="model">od19.purchase.term.template</field>
+        <field name="arch" type="xml">
+            <list string="Purchase Term Templates">
+                <field name="name"/>
+                <field name="term_type"/>
+                <field name="content" optional="hide"/>
+                <field name="active" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form view -->
+    <record id="view_od19_purchase_term_template_form" model="ir.ui.view">
+        <field name="name">od19.purchase.term.template.form</field>
+        <field name="model">od19.purchase.term.template</field>
+        <field name="arch" type="xml">
+            <form string="Purchase Term Template">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="term_type"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <group string="Content / เนื้อหาเงื่อนไข">
+                        <field name="content" nolabel="1" placeholder="Enter the terms text that will appear on the purchase order..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_od19_purchase_term_template" model="ir.actions.act_window">
+        <field name="name">Purchase Term Templates</field>
+        <field name="res_model">od19.purchase.term.template</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first purchase term template
+            </p>
+            <p>
+                Reusable templates for the standard terms shown on purchase
+                orders: warranty, delivery to, payment term, shipment and
+                weight.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu: Purchase > Configuration > Purchase Term Templates -->
+    <menuitem
+        id="menu_od19_purchase_term_template"
+        name="Purchase Term Templates"
+        parent="purchase.menu_purchase_config"
+        action="action_od19_purchase_term_template"
+        sequence="90"
+    />
+
+</odoo>

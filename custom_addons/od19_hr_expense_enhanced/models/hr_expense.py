@@ -1,0 +1,219 @@
+# -*- coding: utf-8 -*-
+from odoo import api, fields, models, _
+from odoo.exceptions import UserError
+
+
+class HrExpense(models.Model):
+    _inherit = 'hr.expense'
+
+    # ------------------------------------------------------------------
+    # 1. Department head as auto approver
+    # ------------------------------------------------------------------
+    od19_first_approver_id = fields.Many2one(
+        'res.users',
+        string='First Approver (Dept Head) / หัวหน้าแผนก',
+        tracking=True,
+        help=(
+            'Auto-filled from the employee department manager. '
+            'Can be edited manually.'
+        ),
+    )
+
+    # ------------------------------------------------------------------
+    # 5. Delegate approvals (on hr.expense since hr.expense.sheet was
+    #    removed in Odoo 19)
+    # ------------------------------------------------------------------
+    od19_delegate_approver_id = fields.Many2one(
+        'res.users',
+        string='Delegate Approver / ผู้มอบหมายอนุมัติ',
+        tracking=True,
+        help='User to whom the approval has been delegated.',
+    )
+    od19_delegated_by_id = fields.Many2one(
+        'res.users',
+        string='Delegated By / ผู้มอบหมาย',
+        readonly=True,
+        tracking=True,
+    )
+    od19_delegation_date = fields.Datetime(
+        string='Delegation Date / วันที่มอบหมาย',
+        readonly=True,
+    )
+
+    # ------------------------------------------------------------------
+    # 2. Cash tracking state
+    # ------------------------------------------------------------------
+    od19_cash_state = fields.Selection(
+        [
+            ('not_received', 'Not Received / ยังไม่ได้รับเงิน'),
+            ('received', 'Received / ได้รับเงินแล้ว'),
+            ('used', 'Used / ใช้เงินแล้ว'),
+            ('returned', 'Returned / คืนเงินแล้ว'),
+        ],
+        string='Cash State / สถานะเงินสด',
+        default='not_received',
+        tracking=True,
+        copy=False,
+        help=(
+            'Tracks the physical cash lifecycle of the expense: '
+            'not received -> received -> used -> returned.'
+        ),
+    )
+
+    # ------------------------------------------------------------------
+    # Auto-approver logic
+    # ------------------------------------------------------------------
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if 'od19_first_approver_id' not in vals or not vals.get('od19_first_approver_id'):
+                employee_id = vals.get('employee_id')
+                if employee_id:
+                    approver = self._get_department_head_approver(employee_id)
+                    if approver:
+                        vals['od19_first_approver_id'] = approver.id
+        return super().create(vals_list)
+
+    def write(self, vals):
+        if 'employee_id' in vals and 'od19_first_approver_id' not in vals:
+            employee_id = vals['employee_id']
+            approver = self._get_department_head_approver(employee_id)
+            if approver:
+                vals['od19_first_approver_id'] = approver.id
+        return super().write(vals)
+
+    @api.onchange('employee_id')
+    def _onchange_employee_id_set_approver(self):
+        if self.employee_id:
+            approver = self._get_department_head_approver(self.employee_id.id)
+            if approver:
+                self.od19_first_approver_id = approver
+
+    @api.model
+    def _get_department_head_approver(self, employee_id):
+        """Return the res.users of the employee's department manager."""
+        employee = self.env['hr.employee'].browse(employee_id)
+        if not employee:
+            return self.env['res.users']
+        manager = employee.department_id.manager_id if employee.department_id else False
+        if manager and manager.user_id:
+            return manager.user_id
+        return self.env['res.users']
+
+    # ------------------------------------------------------------------
+    # Cash state actions
+    # ------------------------------------------------------------------
+    def action_receive_cash(self):
+        """Mark cash as received."""
+        for expense in self:
+            if expense.od19_cash_state != 'not_received':
+                raise UserError(_(
+                    'Cash can only be received when state is "Not Received".'
+                ))
+            expense.od19_cash_state = 'received'
+        return True
+
+    def action_use_cash(self):
+        """Mark cash as used."""
+        for expense in self:
+            if expense.od19_cash_state != 'received':
+                raise UserError(_(
+                    'Cash can only be used when state is "Received".'
+                ))
+            expense.od19_cash_state = 'used'
+        return True
+
+    def action_open_return_cash_wizard(self):
+        """Open the return cash wizard."""
+        self.ensure_one()
+        if self.od19_cash_state not in ('received', 'used'):
+            raise UserError(_(
+                'Cash can only be returned when state is "Received" or "Used".'
+            ))
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Return Cash / คืนเงิน'),
+            'res_model': 'od19.expense.return.cash',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_expense_id': self.id,
+                'default_amount': self.total_amount,
+            },
+        }
+
+    def action_open_reset_wizard(self):
+        """Open the reset cash state wizard (admin only)."""
+        self.ensure_one()
+        if not self.env.is_admin():
+            raise UserError(_(
+                'Only administrators can reset the cash state.'
+            ))
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Reset Cash State / รีเซ็ตสถานะเงินสด'),
+            'res_model': 'od19.expense.reset',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_expense_id': self.id},
+        }
+
+    # ------------------------------------------------------------------
+    # XLSX export helper (tree view button)
+    # ------------------------------------------------------------------
+    def action_open_xlsx_export_wizard(self):
+        """Open the XLSX export wizard from the expense tree view."""
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Export Expenses to XLSX / ส่งออกเป็น XLSX'),
+            'res_model': 'od19.expense.xlsx.export',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'active_ids': self.ids or self.env.context.get('active_ids', [])},
+        }
+
+    # ------------------------------------------------------------------
+    # Delegate approval actions
+    # ------------------------------------------------------------------
+    def action_delegate_approval(self):
+        """Open the delegation wizard to transfer approval to another user."""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Delegate Approval / มอบหมายการอนุมัติ'),
+            'res_model': 'od19.expense.delegate',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_expense_id': self.id},
+        }
+
+    def action_approve_delegate(self):
+        """Delegate approver approves the expense."""
+        self.ensure_one()
+        if not self.od19_delegate_approver_id:
+            raise UserError(_('No delegate approver has been assigned.'))
+        if self.env.user != self.od19_delegate_approver_id:
+            raise UserError(_(
+                'Only the assigned delegate approver can perform this action.'
+            ))
+        self.action_approve()
+        return True
+
+    def action_refuse_delegate(self):
+        """Delegate approver refuses the expense."""
+        self.ensure_one()
+        if not self.od19_delegate_approver_id:
+            raise UserError(_('No delegate approver has been assigned.'))
+        if self.env.user != self.od19_delegate_approver_id:
+            raise UserError(_(
+                'Only the assigned delegate approver can perform this action.'
+            ))
+        return self.action_refuse()
+
+    def action_clear_delegate(self):
+        """Clear the delegate approver."""
+        self.ensure_one()
+        self.od19_delegate_approver_id = False
+        self.od19_delegated_by_id = False
+        self.od19_delegation_date = False
+        return True

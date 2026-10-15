@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Extend hr.expense form view -->
+    <record id="view_hr_expense_form_inherit_enhanced" model="ir.ui.view">
+        <field name="name">hr.expense.form.inherit.enhanced</field>
+        <field name="model">hr.expense</field>
+        <field name="inherit_id" ref="hr_expense.hr_expense_view_form"/>
+        <field name="arch" type="xml">
+            <field name="employee_id" position="after">
+                <field name="od19_first_approver_id"
+                       string="First Approver (Dept Head)"/>
+                <field name="od19_cash_state" widget="badge"
+                       decoration-info="od19_cash_state == 'not_received'"
+                       decoration-success="od19_cash_state == 'received'"
+                       decoration-warning="od19_cash_state == 'used'"
+                       decoration-muted="od19_cash_state == 'returned'"/>
+            </field>
+
+            <xpath expr="//header" position="inside">
+                <button name="action_receive_cash"
+                        string="Receive Cash"
+                        type="object"
+                        class="btn-success"
+                        invisible="od19_cash_state != 'not_received'"/>
+                <button name="action_use_cash"
+                        string="Use Cash"
+                        type="object"
+                        class="btn-warning"
+                        invisible="od19_cash_state != 'received'"/>
+                <button name="action_open_return_cash_wizard"
+                        string="Return Cash"
+                        type="object"
+                        class="btn-primary"
+                        invisible="od19_cash_state not in ('received', 'used')"/>
+                <button name="action_open_reset_wizard"
+                        string="Reset Cash"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="od19_cash_state == 'not_received'"/>
+
+                <button name="action_delegate_approval"
+                        string="Delegate Approval"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="state not in ('draft', 'submitted')"/>
+                <button name="action_approve_delegate"
+                        string="Approve (Delegate)"
+                        type="object"
+                        class="btn-primary"
+                        invisible="od19_delegate_approver_id == False"/>
+                <button name="action_refuse_delegate"
+                        string="Refuse (Delegate)"
+                        type="object"
+                        class="btn-danger"
+                        invisible="od19_delegate_approver_id == False"/>
+                <button name="action_clear_delegate"
+                        string="Clear Delegate"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="od19_delegate_approver_id == False"/>
+            </xpath>
+
+            <xpath expr="//sheet" position="inside">
+                <group string="Delegation / การมอบหมาย" col="3">
+                    <field name="od19_delegate_approver_id"/>
+                    <field name="od19_delegated_by_id" readonly="1"/>
+                    <field name="od19_delegation_date" readonly="1"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend hr.expense tree (list) view -->
+    <record id="view_hr_expense_tree_inherit_enhanced" model="ir.ui.view">
+        <field name="name">hr.expense.tree.inherit.enhanced</field>
+        <field name="model">hr.expense</field>
+        <field name="inherit_id" ref="hr_expense.hr_expense_view_expenses_analysis_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='employee_id']" position="after">
+                <field name="od19_first_approver_id" optional="hide"/>
+                <field name="od19_cash_state" widget="badge"
+                       decoration-info="od19_cash_state == 'not_received'"
+                       decoration-success="od19_cash_state == 'received'"
+                       decoration-warning="od19_cash_state == 'used'"
+                       decoration-muted="od19_cash_state == 'returned'"
+                       optional="show"/>
+            </xpath>
+            <xpath expr="//list" position="inside">
+                <button name="action_open_xlsx_export_wizard"
+                        string="Export XLSX"
+                        type="object"
+                        icon="fa-file-excel-o"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

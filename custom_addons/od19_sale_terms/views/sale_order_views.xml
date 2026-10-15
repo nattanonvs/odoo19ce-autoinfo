@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_order_form_inherit_od19_sale_terms" model="ir.ui.view">
+        <field name="name">sale.order.form.od19.sale.terms</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="OD19 Terms" name="od19_terms">
+                    <group>
+                        <group string="Terms / เงื่อนไข">
+                            <field name="od19_price_term_id"/>
+                            <field name="od19_delivery_term_id"/>
+                            <field name="od19_payment_product_term_id"/>
+                            <field name="od19_payment_engineering_term_id"/>
+                            <field name="od19_validity_term_id"/>
+                            <field name="od19_warranty_term_id"/>
+                            <field name="od19_credit_term_id"/>
+                        </group>
+                        <group string="Combined Terms Preview / ตัวอย่างข้อความเงื่อนไขทั้งหมด">
+                            <field name="od19_terms_text" nolabel="1" readonly="1"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

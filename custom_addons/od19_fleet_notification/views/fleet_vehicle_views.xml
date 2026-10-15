@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="fleet_vehicle_view_form_inherit_od19_notification" model="ir.ui.view">
+        <field name="name">fleet.vehicle.form.od19.notification</field>
+        <field name="model">fleet.vehicle</field>
+        <field name="inherit_id" ref="fleet.fleet_vehicle_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Insurance &amp; Act" name="page_od19_insurance_act">
+                    <group>
+                        <group string="Insurance / ประกัน">
+                            <field name="od19_insurance_expire_date"/>
+                            <field name="od19_insurance_reminder_days"/>
+                        </group>
+                        <group string="Act (Tax) / ภาษี">
+                            <field name="od19_act_expire_date"/>
+                            <field name="od19_act_reminder_days"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="fleet_vehicle_view_tree_inherit_od19_notification" model="ir.ui.view">
+        <field name="name">fleet.vehicle.list.od19.notification</field>
+        <field name="model">fleet.vehicle</field>
+        <field name="inherit_id" ref="fleet.fleet_vehicle_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='acquisition_date']" position="after">
+                <field name="od19_insurance_expire_date" optional="hide"/>
+                <field name="od19_act_expire_date" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

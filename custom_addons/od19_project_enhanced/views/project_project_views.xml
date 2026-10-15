@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_project_project_form_inherit_od19_enhanced" model="ir.ui.view">
+        <field name="name">project.project.form.od19.enhanced</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="od19_project_type_id"
+                       domain="[('project_ok', '=', True)]"/>
+                <field name="od19_department_id"/>
+            </xpath>
+            <xpath expr="//sheet" position="inside">
+                <notebook>
+                    <page string="Job Assignment" name="od19_job_assignment">
+                        <group>
+                            <group string="Assignment">
+                                <field name="od19_responsible_person_ids"
+                                       widget="many2many_tags"
+                                       string="Responsible Persons"/>
+                                <field name="od19_coordinator_ids"
+                                       widget="many2many_tags"
+                                       string="Coordinators"/>
+                            </group>
+                            <group string="Documents">
+                                <field name="od19_scope_of_work"
+                                       string="Scope of Work"/>
+                                <field name="od19_document_requirements"
+                                       string="Document Requirements"/>
+                            </group>
+                        </group>
+                    </page>
+                </notebook>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_project_project_list_inherit_od19_enhanced" model="ir.ui.view">
+        <field name="name">project.project.list.od19.enhanced</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.view_project"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="od19_project_type_id" optional="show"/>
+                <field name="od19_department_id" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

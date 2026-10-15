@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_od19_repeat_customer_enhanced_tree" model="ir.ui.view">
+        <field name="name">od19.repeat.customer.enhanced.tree</field>
+        <field name="model">od19.repeat.customer.enhanced</field>
+        <field name="arch" type="xml">
+            <tree string="Repeat Customer Enhanced Report">
+                <field name="partner_id"/>
+                <field name="actual_partner_id"/>
+                <field name="last_order_date"/>
+                <field name="order_count" sum="Total Orders"/>
+                <field name="total_amount" sum="Total Amount"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_od19_repeat_customer_enhanced_search" model="ir.ui.view">
+        <field name="name">od19.repeat.customer.enhanced.search</field>
+        <field name="model">od19.repeat.customer.enhanced</field>
+        <field name="arch" type="xml">
+            <search string="Repeat Customer Enhanced Report">
+                <field name="partner_id"/>
+                <field name="actual_partner_id"/>
+                <separator/>
+                <filter name="last_30_days"
+                        string="Last 30 Days"
+                        domain="[('last_order_date', '&gt;=', (context_today() - relativedelta(days=30)).strftime('%Y-%m-%d'))]"/>
+                <filter name="last_90_days"
+                        string="Last 90 Days"
+                        domain="[('last_order_date', '&gt;=', (context_today() - relativedelta(days=90)).strftime('%Y-%m-%d'))]"/>
+                <separator/>
+                <group string="Group By" domain="[]">
+                    <filter name="group_by_partner"
+                            string="Customer"
+                            context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_by_actual_partner"
+                            string="Actual Partner"
+                            context="{'group_by': 'actual_partner_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_od19_repeat_customer_enhanced" model="ir.actions.act_window">
+        <field name="name">Repeat Customer Enhanced Report</field>
+        <field name="res_model">od19.repeat.customer.enhanced</field>
+        <field name="view_mode">tree</field>
+        <field name="search_view_id" ref="view_od19_repeat_customer_enhanced_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No data to display.
+            </p>
+            <p>
+                Confirmed sale orders are aggregated by actual partner
+                (shipping partner when set, otherwise the customer).
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_od19_repeat_customer_enhanced"
+              name="Repeat Customer Enhanced"
+              parent="menu_od19_misc_features_root"
+              action="action_od19_repeat_customer_enhanced"
+              sequence="20"/>
+
+</odoo>

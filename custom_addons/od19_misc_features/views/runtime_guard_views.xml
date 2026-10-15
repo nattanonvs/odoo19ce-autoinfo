@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ===================== Runtime Guard Snapshot ===================== -->
+    <record id="view_od19_runtime_guard_tree" model="ir.ui.view">
+        <field name="name">od19.runtime.guard.tree</field>
+        <field name="model">od19.runtime.guard</field>
+        <field name="arch" type="xml">
+            <tree string="Runtime Guard Snapshots">
+                <field name="check_date"/>
+                <field name="odoo_version"/>
+                <field name="python_version"/>
+                <field name="installed_modules_count"/>
+                <field name="database_size_mb" sum="Total DB Size (MB)"/>
+                <field name="user_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_od19_runtime_guard_form" model="ir.ui.view">
+        <field name="name">od19.runtime.guard.form</field>
+        <field name="model">od19.runtime.guard</field>
+        <field name="arch" type="xml">
+            <form string="Runtime Guard Snapshot">
+                <header/>
+                <sheet>
+                    <group>
+                        <group string="Runtime Information">
+                            <field name="odoo_version"/>
+                            <field name="python_version"/>
+                            <field name="installed_modules_count"/>
+                            <field name="database_size_mb"/>
+                        </group>
+                        <group string="Audit">
+                            <field name="check_date"/>
+                            <field name="user_id"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_od19_runtime_guard" model="ir.actions.act_window">
+        <field name="name">Runtime Guard Snapshots</field>
+        <field name="res_model">od19.runtime.guard</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No runtime snapshot yet.
+            </p>
+            <p>
+                Use the "Run Runtime Check" menu entry to collect the current
+                runtime information (manual trigger only, not a cron).
+            </p>
+        </field>
+    </record>
+
+    <!-- ===================== Runtime Guard Wizard ===================== -->
+    <record id="view_od19_runtime_guard_wizard_form" model="ir.ui.view">
+        <field name="name">od19.runtime.guard.wizard.form</field>
+        <field name="model">od19.runtime.guard.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Run Runtime Guard Check">
+                <sheet>
+                    <group>
+                        <field name="note" nolabel="1" readonly="1"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_run_check"
+                            string="Run Check"
+                            type="object"
+                            class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_od19_runtime_guard_wizard" model="ir.actions.act_window">
+        <field name="name">Run Runtime Guard Check</field>
+        <field name="res_model">od19.runtime.guard.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- ===================== Menus ===================== -->
+    <menuitem id="menu_od19_misc_features_root"
+              name="Misc Features"
+              sequence="99"/>
+
+    <menuitem id="menu_od19_runtime_guard"
+              name="Runtime Guard"
+              parent="menu_od19_misc_features_root"
+              action="action_od19_runtime_guard"
+              sequence="10"/>
+
+    <menuitem id="menu_od19_runtime_guard_run"
+              name="Run Runtime Check"
+              parent="menu_od19_runtime_guard"
+              action="action_od19_runtime_guard_wizard"
+              sequence="10"/>
+
+</odoo>

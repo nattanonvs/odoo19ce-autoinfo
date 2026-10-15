@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Add "Change Delivery Date" button to the sale order form header.
+         Only visible for quotations (draft / sent state). -->
+    <record id="view_sale_order_form_od19_delivery_date" model="ir.ui.view">
+        <field name="name">sale.order.form.od19.delivery.date</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_open_change_delivery_date"
+                        type="object"
+                        string="Change Delivery Date"
+                        class="btn-secondary"
+                        invisible="state not in ('draft', 'sent')"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

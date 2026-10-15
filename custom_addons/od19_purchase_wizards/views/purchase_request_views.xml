@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2026 OD19
+     License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0) -->
+<odoo>
+
+    <record id="view_purchase_request_form_inherit_od19" model="ir.ui.view">
+        <field name="name">purchase.request.form.od19</field>
+        <field name="model">purchase.request</field>
+        <field name="inherit_id" ref="purchase_request.view_purchase_request_form"/>
+        <field name="arch" type="xml">
+            <field name="origin" position="after">
+                <field name="od19_vendor_ref" readonly="is_editable == False"/>
+                <field name="od19_your_ref" readonly="is_editable == False"/>
+            </field>
+            <xpath expr="//field[@name='line_ids']//field[@name='estimated_cost']" position="before">
+                <field name="od19_price_unit" optional="show"/>
+                <field name="od19_discount" optional="show"/>
+                <field name="od19_taxes_id" widget="many2many_tags" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="purchase_request_line_form_inherit_od19" model="ir.ui.view">
+        <field name="name">purchase.request.line.form.od19</field>
+        <field name="model">purchase.request.line</field>
+        <field name="inherit_id" ref="purchase_request.purchase_request_line_form"/>
+        <field name="arch" type="xml">
+            <field name="estimated_cost" position="after">
+                <field name="od19_price_unit"/>
+                <field name="od19_discount"/>
+                <field name="od19_taxes_id" widget="many2many_tags" domain="[('type_tax_use', '=', 'purchase')]"/>
+            </field>
+        </field>
+    </record>
+
+</odoo>

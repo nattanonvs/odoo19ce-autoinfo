@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2026 OD19
+     License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0) -->
+<odoo>
+
+    <record id="od19_purchase_trade_discount_view_form" model="ir.ui.view">
+        <field name="name">od19.purchase.trade.discount.form</field>
+        <field name="model">od19.purchase.trade.discount</field>
+        <field name="arch" type="xml">
+            <form string="Trade Discount / ส่วนลดพิเศษ">
+                <group>
+                    <field name="purchase_order_id"/>
+                    <field name="discount_type"/>
+                    <field name="discount_value"/>
+                </group>
+                <footer>
+                    <button name="action_apply_discount"
+                            string="Apply Discount / ใช้ส่วนลด"
+                            type="object"
+                            class="oe_highlight"/>
+                    <button special="cancel" string="Cancel" class="oe_link"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ============================================================ -->
+    <!-- FIFO As-Of Wizard View                                        -->
+    <!-- ============================================================ -->
+    <record id="view_od19_stock_fifo_asof_form" model="ir.ui.view">
+        <field name="name">od19.stock.fifo.asof.form</field>
+        <field name="model">od19.stock.fifo.asof</field>
+        <field name="arch" type="xml">
+            <form string="FIFO Valuation As-Of / ประเมินมูลค่า FIFO ณ วันที่">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="od19_as_of_date"/>
+                        </group>
+                        <group>
+                            <field name="od19_product_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    <div class="text-muted">
+                        <p>กรุณาเลือกวันที่และสินค้าที่ต้องการประเมินมูลค่า FIFO</p>
+                        <p>Please select the as-of date and the products to compute FIFO valuation for.
+                           Leave products empty to compute for all products.</p>
+                    </div>
+                </sheet>
+                <footer>
+                    <button name="action_compute_fifo"
+                            type="object"
+                            string="Compute FIFO Valuation / คำนวณมูลค่า FIFO"
+                            class="btn-primary"/>
+                    <button string="Cancel / ยกเลิก" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

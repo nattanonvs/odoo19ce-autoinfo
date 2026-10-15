@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_od19_project_type_tree" model="ir.ui.view">
+        <field name="name">od19.project.type.tree</field>
+        <field name="model">od19.project.type</field>
+        <field name="arch" type="xml">
+            <tree string="Project Types">
+                <field name="complete_name"/>
+                <field name="project_ok"/>
+                <field name="task_ok"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_od19_project_type_form" model="ir.ui.view">
+        <field name="name">od19.project.type.form</field>
+        <field name="model">od19.project.type</field>
+        <field name="arch" type="xml">
+            <form string="Project Type">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="parent_id"/>
+                        </group>
+                        <group>
+                            <field name="project_ok"/>
+                            <field name="task_ok"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Child Types" name="child_types">
+                            <field name="child_ids">
+                                <tree string="Child Types">
+                                    <field name="name"/>
+                                    <field name="project_ok"/>
+                                    <field name="task_ok"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_od19_project_type" model="ir.actions.act_window">
+        <field name="name">Project Types</field>
+        <field name="res_model">od19.project.type</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Define your project types
+            </p>
+        </field>
+    </record>
+
+    <menuitem
+        id="menu_od19_project_type"
+        name="Project Types"
+        parent="project.menu_main_pm"
+        action="action_od19_project_type"
+        sequence="90"
+    />
+</odoo>

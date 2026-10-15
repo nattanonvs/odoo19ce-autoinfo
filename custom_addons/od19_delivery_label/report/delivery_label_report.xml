@@ -1,18 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- ===================== Report Action ===================== -->
-    <record id="action_report_delivery_label" model="ir.actions.report">
-        <field name="name">ใบปะหน้าสินค้ารอส่ง (FM-PU-12)</field>
-        <field name="model">stock.picking</field>
-        <field name="report_type">qweb-pdf</field>
-        <field name="report_name">od19_delivery_label.report_delivery_label</field>
-        <field name="report_file">od19_delivery_label.report_delivery_label</field>
-        <field name="binding_model_id" ref="stock.model_stock_picking"/>
-        <field name="binding_type">report</field>
-        <field name="paperformat_id" ref="od19_delivery_label.paperformat_delivery_label"/>
-    </record>
-
     <!-- ===================== Paper Format ===================== -->
     <record id="paperformat_delivery_label" model="report.paperformat">
         <field name="name">Delivery Label (FM-PU-12)</field>
@@ -25,8 +13,18 @@
         <field name="margin_bottom">5</field>
         <field name="margin_left">8</field>
         <field name="margin_right">8</field>
-        <field name="header_line" eval="False"/>
-        <field name="footer_line" eval="False"/>
+    </record>
+
+    <!-- ===================== Report Action ===================== -->
+    <record id="action_report_delivery_label" model="ir.actions.report">
+        <field name="name">ใบปะหน้าสินค้ารอส่ง (FM-PU-12)</field>
+        <field name="model">stock.picking</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">od19_delivery_label.report_delivery_label</field>
+        <field name="report_file">od19_delivery_label.report_delivery_label</field>
+        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="paperformat_delivery_label"/>
     </record>
 
     <!-- ===================== Report Template ===================== -->

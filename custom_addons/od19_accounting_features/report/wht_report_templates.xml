@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2026 OD19 -->
+<!-- License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl). -->
+<odoo>
+
+    <!-- ============================================================ -->
+    # Common WHT certificate styles (Sarabun Thai font).
+    # The Sarabun font is provided by od19_thai_font_support; we fall
+    # back to Noto Sans Thai / system fonts when it is not installed.
+    <!-- ============================================================ -->
+    <template id="report_wht_common_style">
+        <style type="text/css">
+            .wht-cert {
+                font-family: 'Sarabun', 'Noto Sans Thai', 'Tahoma', sans-serif;
+                font-size: 11pt;
+                color: #000;
+            }
+            .wht-cert table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            .wht-cert table th,
+            .wht-cert table td {
+                border: 1px solid #000;
+                padding: 4px 6px;
+                vertical-align: top;
+            }
+            .wht-cert .wht-title {
+                text-align: center;
+                font-size: 16pt;
+                font-weight: bold;
+                margin-bottom: 6px;
+            }
+            .wht-cert .wht-subtitle {
+                text-align: center;
+                font-size: 12pt;
+                margin-bottom: 12px;
+            }
+            .wht-cert .wht-label {
+                font-weight: bold;
+                width: 28%;
+            }
+            .wht-cert .wht-amount {
+                text-align: right;
+            }
+            .wht-cert .wht-header-table td {
+                border: none;
+                padding: 2px 4px;
+            }
+        </style>
+    </template>
+
+    <!-- ============================================================ -->
+    # Reusable header section: cert number, date, payer info.
+    <!-- ============================================================ -->
+    <template id="report_wht_header">
+        <div class="wht-header-table">
+            <table>
+                <tr>
+                    <td style="width:50%">
+                        <strong>ผู้จ่ายเงิน / Payer:</strong>
+                        <t t-if="o.od19_payer_id">
+                            <span t-field="o.od19_payer_id.name"/>
+                        </t>
+                        <t t-else="">
+                            <span t-field="o.company_id.name"/>
+                        </t>
+                    </td>
+                    <td style="width:50%; text-align:right">
+                        <div>เลขที่ใบหัก / Cert No:
+                            <span t-field="o.name"/>
+                        </div>
+                        <div>วันที่ / Date:
+                            <span t-field="o.date"/>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong>ผู้รับเงิน / Payee:</strong>
+                        <t t-if="o.od19_payee_id">
+                            <span t-field="o.od19_payee_id.name"/>
+                        </t>
+                        <t t-elif="o.partner_id">
+                            <span t-field="o.partner_id.name"/>
+                        </t>
+                    </td>
+                    <td style="text-align:right">
+                        <div>ประเภทภาษีหัก ณ ที่จ่าย / WHT Type:
+                            <t t-if="o.od19_wht_type_id">
+                                <span t-field="o.od19_wht_type_id.name"/>
+                            </t>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </template>
+
+    <!-- ============================================================ -->
+    # Reusable table of amounts.
+    <!-- ============================================================ -->
+    <template id="report_wht_amount_table">
+        <table style="margin-top:12px">
+            <thead>
+                <tr>
+                    <th style="width:8%">ลำดับ</th>
+                    <th>ประเภทเงินได้ / Income Type</th>
+                    <th style="width:18%">ฐานภาษี / Base Amount</th>
+                    <th style="width:12%">อัตราภาษี / Rate</th>
+                    <th style="width:18%">ภาษีหัก / WHT Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="text-align:center">1</td>
+                    <td>
+                        <t t-if="o.od19_wht_type_id">
+                            <span t-field="o.od19_wht_type_id.name"/>
+                        </t>
+                    </td>
+                    <td class="wht-amount">
+                        <span t-field="o.od19_wht_base_amount"
+                              t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                    </td>
+                    <td style="text-align:center">
+                        <span t-field="o.od19_wht_rate"/>
+                    </td>
+                    <td class="wht-amount">
+                        <span t-field="o.od19_wht_amount"
+                              t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </template>
+
+    <!-- ============================================================ -->
+    # Reusable signature section.
+    <!-- ============================================================ -->
+    <template id="report_wht_signature">
+        <table style="margin-top:40px; border:none">
+            <tr>
+                <td style="border:none; width:50%">
+                    <div style="text-align:center">
+                        ลงชื่อ....................................<br/>
+                        ผู้จ่ายเงิน / Authorized Payer
+                    </div>
+                </td>
+                <td style="border:none; width:50%">
+                    <div style="text-align:center">
+                        ลงชื่อ....................................<br/>
+                        ผู้รับเงิน / Payee
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </template>
+
+    <!-- ============================================================ -->
+    # ภงด.1 (PND1) - Individual withholding
+    <!-- ============================================================ -->
+    <template id="report_wht_pnd1_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page wht-cert">
+                        <t t-call="od19_accounting_features.report_wht_common_style"/>
+                        <div class="wht-title">ภงด. 1</div>
+                        <div class="wht-subtitle">
+                            ใบหัก ณ ที่จ่าย ภาษีเงินได้ (บุคคลธรรมดา)<br/>
+                            Withholding Tax Certificate (Individual)
+                        </div>
+                        <t t-call="od19_accounting_features.report_wht_header"/>
+                        <t t-call="od19_accounting_features.report_wht_amount_table"/>
+                        <t t-call="od19_accounting_features.report_wht_signature"/>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- ============================================================ -->
+    # ภงด.3 (PND3) - Company withholding
+    <!-- ============================================================ -->
+    <template id="report_wht_pnd3_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page wht-cert">
+                        <t t-call="od19_accounting_features.report_wht_common_style"/>
+                        <div class="wht-title">ภงด. 3</div>
+                        <div class="wht-subtitle">
+                            ใบหัก ณ ที่จ่าย ภาษีเงินได้นิติบุคคล<br/>
+                            Withholding Tax Certificate (Company)
+                        </div>
+                        <t t-call="od19_accounting_features.report_wht_header"/>
+                        <t t-call="od19_accounting_features.report_wht_amount_table"/>
+                        <t t-call="od19_accounting_features.report_wht_signature"/>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- ============================================================ -->
+    # ภงด.53 (PND53) - Specific payment
+    <!-- ============================================================ -->
+    <template id="report_wht_pnd53_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page wht-cert">
+                        <t t-call="od19_accounting_features.report_wht_common_style"/>
+                        <div class="wht-title">ภงด. 53</div>
+                        <div class="wht-subtitle">
+                            ใบหัก ณ ที่จ่าย ภาษีเงินได้ (เฉพาะกรณี)<br/>
+                            Withholding Tax Certificate (Specific Payment)
+                        </div>
+                        <t t-call="od19_accounting_features.report_wht_header"/>
+                        <t t-call="od19_accounting_features.report_wht_amount_table"/>
+                        <t t-call="od19_accounting_features.report_wht_signature"/>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- ============================================================ -->
+    # ภงด.53 ทริส (PND53 Tris) - special
+    <!-- ============================================================ -->
+    <template id="report_wht_pnd53_tris_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page wht-cert">
+                        <t t-call="od19_accounting_features.report_wht_common_style"/>
+                        <div class="wht-title">ภงด. 53 ทริส</div>
+                        <div class="wht-subtitle">
+                            ใบหัก ณ ที่จ่าย ภาษีเงินได้ (ทริส)<br/>
+                            Withholding Tax Certificate (PND53 Tris)
+                        </div>
+                        <t t-call="od19_accounting_features.report_wht_header"/>
+                        <t t-call="od19_accounting_features.report_wht_amount_table"/>
+                        <t t-call="od19_accounting_features.report_wht_signature"/>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>

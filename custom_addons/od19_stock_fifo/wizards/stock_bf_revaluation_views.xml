@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ============================================================ -->
+    <!-- BF Revaluation Wizard View                                    -->
+    <!-- ============================================================ -->
+    <record id="view_od19_stock_bf_revaluation_form" model="ir.ui.view">
+        <field name="name">od19.stock.bf.revaluation.form</field>
+        <field name="model">od19.stock.bf.revaluation</field>
+        <field name="arch" type="xml">
+            <form string="BF Stock Revaluation / ปรับมูลค่าสินค้ายกมา">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="od19_revaluation_date"/>
+                            <field name="od19_product_id"/>
+                            <field name="od19_journal_id"/>
+                        </group>
+                        <group>
+                            <field name="od19_current_qty" readonly="1"/>
+                            <field name="od19_current_value" readonly="1"/>
+                            <field name="od19_new_value"/>
+                            <field name="od19_difference" readonly="1"
+                                   decoration-success="od19_difference &gt; 0"
+                                   decoration-danger="od19_difference &lt; 0"/>
+                        </group>
+                    </group>
+                    <div class="alert alert-info" role="alert">
+                        <strong>Note / หมายเหตุ:</strong>
+                        <p>This will adjust the BF (ยกมา) stock value of the selected product.
+                           A stock valuation layer and a journal entry will be created for the
+                           difference between the current and new value.</p>
+                        <p>การดำเนินการนี้จะปรับมูลค่าสินค้ายกมาของสินค้าที่เลือก
+                           ระบบจะสร้างชั้นประเมินมูลค่าสินค้าและรายการสมุดบัญชี
+                           สำหรับผลต่างระหว่างมูลค่าปัจจุบันและมูลค่าใหม่</p>
+                    </div>
+                </sheet>
+                <footer>
+                    <button name="action_apply_revaluation"
+                            type="object"
+                            string="Apply Revaluation / ยืนยันการปรับมูลค่า"
+                            class="btn-primary"/>
+                    <button string="Cancel / ยกเลิก" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- Asset form view: disposal buttons, statusbar, fields         -->
+    <!-- ============================================================ -->
+    <record id="account_asset_view_form_disposal" model="ir.ui.view">
+        <field name="name">account.asset.form.disposal</field>
+        <field name="model">account.asset</field>
+        <field name="inherit_id" ref="account_asset_management.account_asset_view_form" />
+        <field name="arch" type="xml">
+
+            <!-- Statusbar: add 'disposed' state -->
+            <xpath expr="//header/field[@name='state']" position="attributes">
+                <attribute name="statusbar_visible">draft,open,close,removed,disposed</attribute>
+            </xpath>
+
+            <!-- Dispose button -->
+            <xpath expr="//header/button[@name='remove']" position="after">
+                <button
+                    name="action_dispose"
+                    string="Dispose"
+                    type="object"
+                    groups="account.group_account_manager"
+                    invisible="state not in ['open', 'close']"
+                    help="Dispose the asset and generate the disposal journal entry."
+                />
+                <button
+                    name="action_revert_disposal"
+                    string="Revert Disposal"
+                    type="object"
+                    groups="account.group_account_manager"
+                    invisible="state != 'disposed'"
+                    help="Reverse the disposal journal entry and reopen the asset."
+                />
+            </xpath>
+
+            <!-- Disposal date and reason near date_remove -->
+            <xpath expr="//field[@name='date_remove']" position="after">
+                <field name="od19_disposal_date" />
+            </xpath>
+
+            <!-- Add a new notebook page for disposal & linked documents -->
+            <xpath expr="//notebook/page[@string='Notes']" position="before">
+                <page string="Disposal">
+                    <group>
+                        <group string="Disposal Information">
+                            <field name="od19_disposal_date" readonly="1" />
+                            <field name="od19_disposal_reason" />
+                            <field name="od19_disposal_move_id" readonly="1" />
+                        </group>
+                        <group string="Linked Documents">
+                            <field name="od19_additional_bill_ids" widget="many2many_tags" />
+                            <field name="od19_supporting_move_ids" widget="many2many_tags" />
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Asset tree view: disposed state decoration                   -->
+    <!-- ============================================================ -->
+    <record id="account_asset_view_tree_disposal" model="ir.ui.view">
+        <field name="name">account.asset.list.disposal</field>
+        <field name="model">account.asset</field>
+        <field name="inherit_id" ref="account_asset_management.account_asset_view_tree" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='state']" position="attributes">
+                <attribute name="decoration-danger">state == 'disposed'</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Asset search view: disposed filter                           -->
+    <!-- ============================================================ -->
+    <record id="account_asset_view_search_disposal" model="ir.ui.view">
+        <field name="name">account.asset.search.disposal</field>
+        <field name="model">account.asset</field>
+        <field name="inherit_id" ref="account_asset_management.account_asset_view_search" />
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='removed']" position="after">
+                <filter
+                    string="Disposed"
+                    name="disposed"
+                    domain="[('state', '=', 'disposed')]"
+                />
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

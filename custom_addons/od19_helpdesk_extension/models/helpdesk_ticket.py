@@ -2,6 +2,7 @@ from odoo import api, fields, models
 
 
 class HelpdeskTicket(models.Model):
+    _name = "helpdesk.ticket"
     _inherit = "helpdesk.ticket"
 
     team_type = fields.Selection(

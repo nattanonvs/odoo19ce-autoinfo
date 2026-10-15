@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2026 OD19
+     License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0) -->
+<odoo>
+
+    <record id="od19_purchase_create_vendor_bill_view_form" model="ir.ui.view">
+        <field name="name">od19.purchase.create.vendor.bill.form</field>
+        <field name="model">od19.purchase.create.vendor.bill</field>
+        <field name="arch" type="xml">
+            <form string="Create Vendor Bill / สร้างใบแจ้งหนี้ผู้ขาย">
+                <group>
+                    <field name="purchase_order_id"/>
+                    <field name="bill_date"/>
+                    <field name="bill_reference"/>
+                </group>
+                <footer>
+                    <button name="action_create_bill"
+                            string="Create Bill / สร้างใบแจ้งหนี้"
+                            type="object"
+                            class="oe_highlight"/>
+                    <button special="cancel" string="Cancel" class="oe_link"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

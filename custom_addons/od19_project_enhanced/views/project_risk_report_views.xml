@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_od19_project_risk_report_tree" model="ir.ui.view">
+        <field name="name">od19.project.risk.report.tree</field>
+        <field name="model">od19.project.risk.report</field>
+        <field name="arch" type="xml">
+            <tree string="Project Risk Report" create="false" edit="false" delete="false">
+                <field name="project_id"/>
+                <field name="project_name"/>
+                <field name="contract_amount" sum="Total"/>
+                <field name="invoiced_amount" sum="Total"/>
+                <field name="actual_cost" sum="Total"/>
+                <field name="committed_cost" sum="Total"/>
+                <field name="overdue_ar" sum="Total"/>
+                <field name="margin_percent"/>
+                <field name="risk_score"/>
+                <field name="risk_level" decoration-danger="risk_level == 'high'"
+                       decoration-warning="risk_level == 'medium'"
+                       decoration-success="risk_level == 'low'"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_od19_project_risk_report_graph" model="ir.ui.view">
+        <field name="name">od19.project.risk.report.graph</field>
+        <field name="model">od19.project.risk.report</field>
+        <field name="arch" type="xml">
+            <graph string="Project Risk Report" type="bar">
+                <field name="project_name"/>
+                <field name="risk_score" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_od19_project_risk_report_pivot" model="ir.ui.view">
+        <field name="name">od19.project.risk.report.pivot</field>
+        <field name="model">od19.project.risk.report</field>
+        <field name="arch" type="xml">
+            <pivot string="Project Risk Report">
+                <field name="project_name" type="row"/>
+                <field name="risk_level" type="col"/>
+                <field name="contract_amount" type="measure"/>
+                <field name="actual_cost" type="measure"/>
+                <field name="overdue_ar" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_od19_project_risk_report" model="ir.actions.act_window">
+        <field name="name">Project Risk Report</field>
+        <field name="res_model">od19.project.risk.report</field>
+        <field name="view_mode">tree,graph,pivot</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No project risk data available yet.
+            </p>
+        </field>
+    </record>
+
+    <menuitem
+        id="menu_od19_project_risk_report"
+        name="Risk Report"
+        parent="project.menu_main_pm"
+        action="action_od19_project_risk_report"
+        sequence="95"
+    />
+</odoo>

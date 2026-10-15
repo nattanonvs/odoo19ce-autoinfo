@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Add "Get Sale Order Lines" button to the invoice form header.
+         Only visible for draft customer invoices. -->
+    <record id="view_move_form_od19_get_sale_lines" model="ir.ui.view">
+        <field name="name">account.move.form.od19.get.sale.lines</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_open_get_sale_lines"
+                        type="object"
+                        string="Get Sale Order Lines"
+                        class="btn-secondary"
+                        invisible="state != 'draft' or move_type != 'out_invoice'"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add "Downpayment Info" group to the Other Info tab of invoices. -->
+    <record id="view_move_form_od19_downpayment_info" model="ir.ui.view">
+        <field name="name">account.move.form.od19.downpayment.info</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@id='other_tab_group']" position="inside">
+                <group string="Downpayment Info / ข้อมูลเงินมัดจำ"
+                       name="od19_downpayment_info_group"
+                       invisible="not od19_downpayment_origin and not od19_source_po_name">
+                    <field name="od19_downpayment_origin"/>
+                    <field name="od19_downpayment_source"/>
+                    <field name="od19_source_po_name"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

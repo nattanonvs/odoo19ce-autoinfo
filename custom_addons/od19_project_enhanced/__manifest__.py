@@ -1,0 +1,28 @@
+{
+    "name": "OD19 Project Enhanced",
+    "author": "OD19",
+    "version": "19.0.1.0.0",
+    "category": "Services/Project",
+    "summary": "Extend project management with risk report, hierarchical project type, deadline notification, no backward stage change, job assignment fields, and department Many2one",
+    "depends": [
+        "project",
+        "hr",
+        "mail",
+        "sale",
+        "account",
+        "purchase",
+        "hr_expense",
+        "od19_project_analytic",
+    ],
+    "data": [
+        "security/ir.model.access.csv",
+        "data/mail_template.xml",
+        "data/ir_cron.xml",
+        "views/project_type_views.xml",
+        "views/project_project_views.xml",
+        "views/project_task_views.xml",
+        "views/project_risk_report_views.xml",
+    ],
+    "installable": True,
+    "license": "LGPL-3",
+}
