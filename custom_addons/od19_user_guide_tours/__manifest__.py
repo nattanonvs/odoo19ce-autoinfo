@@ -83,6 +83,7 @@ Tours can be started from:
     ],
     'assets': {
         'web.assets_backend': [
+            'od19_user_guide_tours/static/src/tours/tour_utils.js',
             'od19_user_guide_tours/static/src/tours/contacts_tour.js',
             'od19_user_guide_tours/static/src/tours/sales_tour.js',
             'od19_user_guide_tours/static/src/tours/purchase_tour.js',
