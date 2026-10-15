@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="autoinfo_currency_rate_bar_account_payment_form" model="ir.ui.view">
+        <field name="name">account.payment.form.autoinfo.currency.rate.bar</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/div[@name='button_box']" position="after">
+                <field name="autoinfo_currency_bar_show" invisible="1"/>
+                <field name="autoinfo_currency_bar_currency_id" invisible="1"/>
+                <div
+                    class="mb-2 py-1 px-2"
+                    role="alert"
+                    groups="od19_currency_rate_bot.group_currency_rate_bar_viewer"
+                    style="background:#f8fafc; border:1px solid #dbe4f0; border-radius:6px; color:#334155;"
+                    invisible="not autoinfo_currency_bar_show"
+                >
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="text-truncate">
+                            <span style="display:inline-block; padding:2px 8px; border-radius:999px; background:#eef4ff; color:#35518d; font-weight:600;">
+                                <field name="autoinfo_currency_bar_currency_id" readonly="1" nolabel="1" options="{'no_open': True, 'no_create': True}"/>
+                            </span>
+                            <span class="mx-1">/</span>
+                            <span style="display:inline-block; padding:2px 8px; border-radius:999px; background:#f1f5f9; color:#475569; font-weight:600;">THB</span>
+                            <span class="ml-2">1 <field name="autoinfo_currency_bar_currency_id" readonly="1" nolabel="1" options="{'no_open': True, 'no_create': True}"/> = <field name="autoinfo_currency_bar_rate" nolabel="1"/> THB</span>
+                            <span class="text-muted ml-2">rate date: <field name="autoinfo_currency_bar_rate_date" nolabel="1"/></span>
+                            <span class="text-muted ml-2">last update: <field name="autoinfo_currency_bar_last_update" nolabel="1"/></span>
+                        </div>
+                        <button name="action_refresh_currency_rates" type="object" class="btn-link px-0" icon="fa-refresh" title="Refresh currency rates" style="color:#64748b;"/>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>
