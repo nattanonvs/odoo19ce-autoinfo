@@ -48,36 +48,33 @@ class PurchaseOrder(models.Model):
             )
         return department.po_sequence_id
 
-    @api.model
-    def create(self, vals):
-        if vals.get("name", "New") == "New":
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get("name", "New") != "New":
+                continue
             department_id = vals.get("department_id")
-            if department_id:
-                department = self.env["hr.department"].browse(department_id)
-                purchase_type = vals.get("od19_purchase_type", "local")
-                sequence = False
-                if purchase_type == "indent":
-                    sequence = (
-                        department.po_indent_sequence_id
-                        or department.po_sequence_id
+            if not department_id:
+                continue
+            department = self.env["hr.department"].browse(department_id)
+            purchase_type = vals.get("od19_purchase_type", "local")
+            if purchase_type == "indent":
+                sequence = department.po_indent_sequence_id or department.po_sequence_id
+            elif purchase_type == "bulk":
+                sequence = self.env.ref(
+                    "od19_purchase_document_sequence.seq_purchase_order_bulk",
+                    raise_if_not_found=False,
+                )
+            else:
+                sequence = department.po_sequence_id
+            if sequence:
+                seq_date = None
+                if vals.get("date_order"):
+                    seq_date = fields.Datetime.context_timestamp(
+                        self, fields.Datetime.to_datetime(vals["date_order"])
                     )
-                elif purchase_type == "bulk":
-                    sequence = self.env.ref(
-                        "od19_purchase_document_sequence.seq_purchase_order_bulk",
-                        raise_if_not_found=False,
-                    )
-                else:
-                    sequence = department.po_sequence_id
-                if sequence:
-                    seq_date = None
-                    if vals.get("date_order"):
-                        seq_date = fields.Datetime.context_timestamp(
-                            self, fields.Datetime.to_datetime(vals["date_order"])
-                        )
-                    vals["name"] = (
-                        sequence.next_by_id(sequence_date=seq_date) or "/"
-                    )
-        return super().create(vals)
+                vals["name"] = sequence.next_by_id(sequence_date=seq_date) or "/"
+        return super().create(vals_list)
 
     def write(self, vals):
         res = super().write(vals)

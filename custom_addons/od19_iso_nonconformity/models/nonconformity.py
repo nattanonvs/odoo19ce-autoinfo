@@ -143,7 +143,7 @@ class IsoNonconformity(models.Model):
             if rec.due_date and rec.action_date and rec.action_date > rec.due_date:
                 raise ValidationError(_("วันดำเนินการต้องไม่หลังวันกำหนด"))
 
-    @api.constrains("verification_date")
+    @api.constrains("state", "verification_date")
     def _check_verification(self):
         for rec in self:
             if rec.state == "closed" and not rec.verification_date:

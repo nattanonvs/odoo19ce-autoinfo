@@ -170,7 +170,7 @@ class ProductReturn(models.Model):
                     0,
                     0,
                     {
-                        "name": self.product_id.display_name,
+                        "description_picking": self.product_id.display_name,
                         "product_id": self.product_id.id,
                         "product_uom_qty": self.quantity,
                         "product_uom": self.uom_id.id,

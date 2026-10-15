@@ -10,6 +10,7 @@
         "sale",
         "account",
         "od19_service_warranty",
+        "od19_delivery_label",
     ],
     "data": [
         "security/ir.model.access.csv",

@@ -11,7 +11,6 @@ class Od19ProjectType(models.Model):
     name = fields.Char(
         string="Name",
         required=True,
-        tracking=True,
     )
     parent_id = fields.Many2one(
         "od19.project.type",
@@ -40,7 +39,7 @@ class Od19ProjectType(models.Model):
         store=True,
         recursive=True,
     )
-    parent_path = fields.Char(index=True, unaccent=False)
+    parent_path = fields.Char(index=True)
 
     @api.depends("name", "parent_id.complete_name")
     def _compute_complete_name(self):

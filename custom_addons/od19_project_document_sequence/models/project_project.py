@@ -20,7 +20,7 @@ def _insert_initials_before_year(generated, initials):
     """
     if not generated:
         return generated
-    match = re.search(r'\d{2}', generated)
+    match = re.search(r'\d{2}(?=-)', generated)
     if match:
         pos = match.start()
         return generated[:pos] + initials + generated[pos:]
