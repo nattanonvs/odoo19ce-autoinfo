@@ -44,7 +44,7 @@
                                 <div class="card-body">
                                     <t t-if="announcements">
                                         <t t-foreach="announcements" t-as="ann">
-                                            <div class="mb-3 pb-3 border-bottom" t-if="not ann_last">
+                                            <div class="mb-3 pb-3 border-bottom">
                                                 <div class="d-flex justify-content-between">
                                                     <strong t-esc="ann.name"/>
                                                     <span class="od19-announcement-badge"

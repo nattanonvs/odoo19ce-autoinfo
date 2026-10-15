@@ -87,8 +87,8 @@
         <field name="context">{'search_default_filter_pending': 1}</field>
     </record>
 
-    <menuitem id="menu_notification_queue" name="Notification Queue"
-              parent="base.menu_administration"
-              action="od19_notification_queue_action" sequence="50"/>
+    <menuitem id="menu_notification_queue" name="Queue"
+              parent="menu_notification_root"
+              action="od19_notification_queue_action" sequence="30"/>
 
 </odoo>
