@@ -788,6 +788,11 @@ class TestDashboardAcceptance(TransactionCase):
             formula_expression="amount_total + amount_untaxed",
         )
         self.assertEqual(with_slots["value"], with_names["value"])
+        self.assertEqual(
+            with_slots["value"],
+            self.order.amount_total + self.order.amount_untaxed,
+            "Slots must resolve to the same measures as the direct names.",
+        )
 
     def test_cross_widget_value_matches_the_source_widget(self):
         source_widget = self.env["od19.dashboard.widget"].create(
@@ -817,6 +822,72 @@ class TestDashboardAcceptance(TransactionCase):
         widget_a.formula_expression = "count_records + widget_%s" % widget_b.id
         with self.assertRaises(ValidationError):
             widget_b.formula_expression = "count_records + widget_%s" % widget_a.id
+
+    def test_cycle_through_a_direct_rule_write_is_refused(self):
+        widget_a = self.env["od19.dashboard.widget"].create(
+            self._values(name="Rule cycle A", formula_mode="custom", formula_expression="count_records")
+        )
+        widget_b = self.env["od19.dashboard.widget"].create(
+            self._values(name="Rule cycle B", formula_mode="custom", formula_expression="count_records")
+        )
+        # A reads B through its expression, so the edge B -> A closes the loop.
+        widget_a.formula_expression = "count_records + widget_%s" % widget_b.id
+        # The owning widget is untouched here, so only the rule constraint can
+        # refuse the cycle (spec section 11).
+        with self.assertRaises(ValidationError):
+            self.env["od19.dashboard.widget.rule"].create(
+                {
+                    "widget_id": widget_b.id,
+                    "compare_type": "widget",
+                    "compare_widget_id": widget_a.id,
+                    "operator": "<=",
+                    "status": "red",
+                }
+            )
+
+    def test_cycle_is_refused_when_a_rule_is_reactivated(self):
+        widget_a = self.env["od19.dashboard.widget"].create(
+            self._values(name="Reactivate A", formula_mode="custom", formula_expression="count_records")
+        )
+        widget_b = self.env["od19.dashboard.widget"].create(
+            self._values(name="Reactivate B", formula_mode="custom", formula_expression="count_records")
+        )
+        rule = self.env["od19.dashboard.widget.rule"].create(
+            {
+                "widget_id": widget_b.id,
+                "compare_type": "widget",
+                "compare_widget_id": widget_a.id,
+                "operator": "<=",
+                "status": "red",
+                "active": False,
+            }
+        )
+        widget_a.formula_expression = "count_records + widget_%s" % widget_b.id
+        with self.assertRaises(ValidationError):
+            rule.active = True
+
+    def test_cycle_is_refused_when_a_widget_is_reactivated(self):
+        widget_a = self.env["od19.dashboard.widget"].create(
+            self._values(name="Widget reactivate A", formula_mode="custom", formula_expression="count_records")
+        )
+        widget_b = self.env["od19.dashboard.widget"].create(
+            self._values(name="Widget reactivate B", formula_mode="custom", formula_expression="count_records")
+        )
+        self.env["od19.dashboard.widget.rule"].create(
+            {
+                "widget_id": widget_b.id,
+                "compare_type": "widget",
+                "compare_widget_id": widget_a.id,
+                "operator": "<=",
+                "status": "red",
+            }
+        )
+        # Archiving B removes it from the graph, so A no longer depends on a
+        # live widget and the dashboard settles.
+        widget_b.active = False
+        widget_a.formula_expression = "count_records + widget_%s" % widget_b.id
+        with self.assertRaises(ValidationError):
+            widget_b.active = True
 
     def test_builder_rpc_refuses_a_user_without_write_access(self):
         widget = self.env["od19.dashboard.widget"].create(self._values(name="Protected widget"))
@@ -867,6 +938,12 @@ class TestDashboardAcceptance(TransactionCase):
             four_slots = len(calls)
         finally:
             model._read_group = original
+        self.assertGreater(
+            one_slot,
+            0,
+            "One operand slot must run its own aggregation, otherwise the "
+            "comparison below is vacuous.",
+        )
         self.assertEqual(
             four_slots,
             one_slot,

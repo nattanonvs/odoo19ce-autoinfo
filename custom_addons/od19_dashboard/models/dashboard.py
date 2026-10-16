@@ -295,27 +295,31 @@ class Od19Dashboard(models.Model):
         """
         self.ensure_one()
         pending = {widget.id: widget for widget in self.widget_ids.filtered("active")}
-        resolved = set()
-        while pending:
-            ready = [
-                widget
-                for widget in pending.values()
-                if all(dependency not in pending for dependency in widget._dependency_ids())
-            ]
-            if not ready:
-                names = ", ".join(
-                    sorted(widget.name or str(widget.id) for widget in pending.values())
-                )
-                raise ValidationError(
-                    _(
-                        "These widgets read each other in a loop: %s. "
-                        "Remove one of the references so the values can be computed."
+        try:
+            while pending:
+                ready = [
+                    widget
+                    for widget in pending.values()
+                    if all(dependency not in pending for dependency in widget._dependency_ids())
+                ]
+                if not ready:
+                    names = ", ".join(
+                        sorted(widget.name or str(widget.id) for widget in pending.values())
                     )
-                    % names
-                )
-            for widget in ready:
-                resolved.add(widget.id)
-                pending.pop(widget.id)
+                    raise ValidationError(
+                        _(
+                            "These widgets read each other in a loop: %s. "
+                            "Remove one of the references so the values can be computed."
+                        )
+                        % names
+                    )
+                for widget in ready:
+                    pending.pop(widget.id)
+        finally:
+            # Walking the graph reads ``rule_ids``, which caches the one2many.
+            # Odoo appends a later rule to that cached list instead of reading
+            # the table, so the cache has to be dropped to keep ``_order``.
+            self.widget_ids.invalidate_recordset(["rule_ids"])
 
     def _preview_dependency_ids(self, draft):
         """Return the ids of the stored widgets ``draft`` reads, transitively.
@@ -1405,7 +1409,7 @@ class Od19DashboardWidget(models.Model):
                     return rule.status, "rule"
         return self.default_status, "default"
 
-    @api.constrains("formula_mode", "formula_expression", "rule_ids")
+    @api.constrains("formula_mode", "formula_expression", "rule_ids", "active")
     def _check_dependency_cycle(self):
         for widget in self:
             if widget.dashboard_id:

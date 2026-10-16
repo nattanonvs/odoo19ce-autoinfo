@@ -101,6 +101,19 @@ class Od19DashboardWidgetRule(models.Model):
                     _("Set the percentage of the goal to compare with (rule: %s).") % label
                 )
 
+    @api.constrains("widget_id", "compare_widget_id", "active")
+    def _check_dashboard_dependency_cycle(self):
+        """Refuse a rule that closes a loop in the widget graph (spec section 11).
+
+        Writing a rule directly leaves the owning widget untouched, so the
+        widget constraint never sees the new edge. Checking here keeps the
+        invariant no matter which model the write goes through.
+        """
+        for rule in self:
+            dashboard = rule.widget_id.dashboard_id
+            if dashboard:
+                dashboard._check_no_cycle()
+
     def _to_values(self):
         """Return the rule as a plain dictionary for the builder and the tests."""
         self.ensure_one()
