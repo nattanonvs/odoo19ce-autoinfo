@@ -151,6 +151,36 @@
                                     </small>
                                 </div>
                             </div>
+                            <div class="col-md-6" t-if="isLibraryFormula">
+                                <label class="form-label" for="od19_widget_formula_id">
+                                    Formula library
+                                </label>
+                                <select id="od19_widget_formula_id" class="form-select"
+                                        t-model.number="state.draft.formula_id"
+                                        t-on-change="onFormulaSelect">
+                                    <option t-att-value="0">— Select a formula —</option>
+                                    <option t-foreach="formulaLibrary" t-as="formula" t-key="formula.id"
+                                            t-att-value="formula.id">
+                                        <t t-esc="formula.name"/>
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-12" t-if="isLibraryFormula and selectedLibraryFormula">
+                                <small class="text-muted d-block" t-if="selectedLibraryFormula.description"
+                                       t-esc="selectedLibraryFormula.description"/>
+                                <small class="text-muted">
+                                    Expression: <code t-esc="selectedLibraryFormula.expression"/>
+                                    <t t-if="selectedLibraryFormula.names and selectedLibraryFormula.names.length">
+                                        · Names: <code t-esc="selectedLibraryFormula.names.join(', ')"/>
+                                    </t>
+                                </small>
+                            </div>
+                            <div class="col-12" t-if="isLibraryFormula and !formulaLibrary.length">
+                                <p class="text-muted mb-0">
+                                    The formula library is empty. Ask an administrator to add a
+                                    reusable formula.
+                                </p>
+                            </div>
                             <div class="col-12" t-if="isCustomFormula">
                                 <label class="form-label" for="od19_widget_expression">Expression</label>
                                 <textarea id="od19_widget_expression" rows="2" class="form-control"
@@ -233,6 +263,25 @@
                             </div>
                         </div>
 
+                        <!-- ===================== Display ===================== -->
+                        <h6 class="od19-builder__section">Display</h6>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label" for="od19_widget_visible">
+                                    Show this widget only when
+                                </label>
+                                <textarea id="od19_widget_visible" rows="2" class="form-control"
+                                          placeholder="e.g. count_records > 0"
+                                          t-model="state.draft.visible_expression"
+                                          t-on-input="onFormulaChange"/>
+                                <small class="text-muted">
+                                    Leave empty to always show the widget. The computed value is
+                                    available as <code>value</code>; the measures of the source and
+                                    <code>count_records</code> may be used too.
+                                </small>
+                            </div>
+                        </div>
+
                         <!-- ===================== Targets ===================== -->
                         <h6 class="od19-builder__section">Target &amp; status</h6>
                         <div class="row g-3">
@@ -297,10 +346,11 @@
                                 <thead>
                                     <tr>
                                         <th style="width: 2rem"></th>
-                                        <th style="width: 22%">Operator</th>
-                                        <th style="width: 26%">Compare with</th>
-                                        <th>Value</th>
-                                        <th style="width: 18%">Colour</th>
+                                        <th style="width: 18%">Operator</th>
+                                        <th style="width: 22%">Compare with</th>
+                                        <th style="width: 16%">Value</th>
+                                        <th style="width: 14%">Colour</th>
+                                        <th style="width: 22%">Alert message</th>
                                         <th style="width: 5rem"></th>
                                     </tr>
                                 </thead>
@@ -366,6 +416,12 @@
                                                     <t t-esc="status.label"/>
                                                 </option>
                                             </select>
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control form-control-sm"
+                                                   placeholder="Shown on the widget"
+                                                   t-att-value="rule.alert_message"
+                                                   t-on-change="(ev) => this.updateRule(rule.index, 'alert_message', ev.target.value)"/>
                                         </td>
                                         <td class="od19-rules__actions">
                                             <button type="button" class="od19-icon-btn od19-icon-btn--sm"
@@ -447,7 +503,13 @@
                                                 <span class="text-muted"
                                                       t-esc="state.preview.data.status_source === 'rule' ? '(rule)' : '(default)'"/>
                                             </li>
+                                            <li>
+                                                Display:
+                                                <strong t-esc="previewVisible ? 'shown' : 'hidden'"/>
+                                            </li>
                                         </ul>
+                                        <div class="od19-preview__message" t-if="previewStatusMessage"
+                                             t-esc="previewStatusMessage"/>
                                         <div class="od19-preview__message" t-if="state.preview.data.message"
                                              t-esc="state.preview.data.message"/>
                                         <div class="od19-preview__expression" t-if="previewExpression">

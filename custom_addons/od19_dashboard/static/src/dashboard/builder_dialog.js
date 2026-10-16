@@ -672,6 +672,8 @@ export class BuilderDialog extends Component {
             formula_type: draft.formula_type || null,
             formula_slots: JSON.stringify(this._boundSlots()),
             formula_expression: draft.formula_expression,
+            formula_id: this.isLibraryFormula ? draft.formula_id || false : false,
+            visible_expression: draft.visible_expression || "",
             formula_basis: draft.formula_basis,
             delta_basis: draft.delta_basis,
             default_status: draft.default_status,
@@ -744,6 +746,10 @@ export class BuilderDialog extends Component {
         }
         if (this.isCustomFormula && !(draft.formula_expression || "").trim()) {
             this.state.error = _t("Type the formula of this widget.");
+            return;
+        }
+        if (this.isLibraryFormula && !draft.formula_id) {
+            this.state.error = _t("Choose a formula from the library.");
             return;
         }
         this.props.onSave(this._buildValues());

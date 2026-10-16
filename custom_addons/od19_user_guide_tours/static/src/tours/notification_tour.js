@@ -68,23 +68,37 @@ registry.category("web_tour.tours").add("od19_notification_tour", {
             tooltipPosition: "bottom",
             run: "click",
         },
+        // A preference already saved by a previous run cannot be created again
+        // (constraint: one preference per event per user). Open the existing one
+        // in that case, otherwise create a new one.
         {
+            isActive: [".o_list_renderer .o_data_row"],
+            trigger: ".o_list_renderer .o_data_row:first td.o_data_cell[name='event']",
+            content: _t("Open your existing notification preference to review it."),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            isActive: [".o_list_renderer:not(:has(.o_data_row))"],
             trigger: ".o_list_button_add",
             content: _t("Create a new notification preference."),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
+            isActive: [".o_form_editable"],
             trigger: ".o_field_widget[name='user_id'] input",
             content: _t("Assign the preference to a user (required)."),
             run: "click",
         },
         {
+            isActive: [".o_form_editable"],
             trigger: ".o-autocomplete--dropdown-menu a.dropdown-item:not(.o_loading)",
             content: _t("Pick the user from the suggestion list."),
             run: "click",
         },
         {
+            isActive: [".o_form_editable"],
             trigger: ".o_field_widget[name='event'] .o_select_menu_toggler",
             content: markup(_t(
                 "Select the <b>event</b> you want to be notified about " +
@@ -93,6 +107,7 @@ registry.category("web_tour.tours").add("od19_notification_tour", {
             run: "click",
         },
         {
+            isActive: [".o_form_editable"],
             trigger: ".o_field_widget[name='channel_ids'] input",
             content: markup(_t(
                 "Select the <b>channels</b> to use for this event " +
@@ -101,6 +116,7 @@ registry.category("web_tour.tours").add("od19_notification_tour", {
             run: "click",
         },
         {
+            isActive: [".o_form_editable"],
             trigger: ".o-autocomplete--dropdown-menu a.dropdown-item:not(.o_loading)",
             content: _t("Pick a channel from the suggestion list."),
             run: "click",

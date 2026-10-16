@@ -111,8 +111,8 @@
                     </button>
                 </div>
                 <div t-else="" class="od19-grid">
-                    <article t-foreach="state.widgets" t-as="widget" t-key="widget.id"
-                             t-if="!widget.hidden or state.editMode"
+                    <t t-foreach="state.widgets" t-as="widget" t-key="widget.id">
+                    <article t-if="!widget.hidden or state.editMode"
                              t-attf-class="od19-widget od19-widget--{{ widget.widget_type }} od19-status-{{ widget.status }} {{ widget.hidden ? 'od19-widget--hidden' : '' }} {{ state.editMode ? 'od19-widget--editable' : '' }} {{ state.dragWidgetId === widget.id ? 'od19-widget--dragging' : '' }}"
                              t-attf-style="grid-column: span {{ widget.grid_w }}; grid-row: span {{ widget.grid_h }}; {{ widget.color ? '--od19-widget-accent: ' + widget.color + ';' : '' }}"
                              t-att-draggable="state.editMode ? 'true' : 'false'"
@@ -286,6 +286,7 @@
                             </button>
                         </footer>
                     </article>
+                    </t>
                 </div>
             </div>
 

@@ -363,6 +363,38 @@ $od19-grey-bg: #f3f4f6;
 }
 
 // ---------------------------------------------------------------------------
+// Conditional display & alerts (spec phase 2)
+// ---------------------------------------------------------------------------
+.od19-widget {
+    &--hidden {
+        border-left-style: dashed;
+        opacity: 0.65;
+    }
+
+    // Message carried by the status rule that decided the colour.
+    &__alert {
+        display: flex;
+        align-items: center;
+        margin: 0 12px 6px;
+        padding: 4px 8px;
+        color: #7a1c1c;
+        background: rgba(158, 36, 36, 0.08);
+        border-radius: 6px;
+        font-size: 0.75rem;
+    }
+
+    // Placeholder shown while designing a widget hidden by its condition.
+    &__hidden-note {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: $od19-ink-soft;
+        font-size: 0.78rem;
+    }
+}
+
+// ---------------------------------------------------------------------------
 // KPI
 // ---------------------------------------------------------------------------
 .od19-kpi {
@@ -586,6 +618,25 @@ $od19-grey-bg: #f3f4f6;
 
     tr:last-child td {
         border-bottom: none;
+    }
+
+    // Conditional formatting: the first cell marks the status of the row.
+    &__row {
+        &.od19-status-green td:first-child {
+            box-shadow: inset 3px 0 0 $od19-green;
+        }
+
+        &.od19-status-yellow td:first-child {
+            box-shadow: inset 3px 0 0 $od19-yellow;
+        }
+
+        &.od19-status-red td:first-child {
+            box-shadow: inset 3px 0 0 $od19-red;
+        }
+
+        &.od19-status-grey td:first-child {
+            box-shadow: inset 3px 0 0 $od19-grey;
+        }
     }
 
     &__label {

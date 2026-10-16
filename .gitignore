@@ -70,6 +70,9 @@ Odoo15Backup/
 *.bak
 *.backup
 
+# Ad-hoc API responses downloaded while developing (e.g. BOT OpenAPI specs)
+response_*.json
+
 # Data files (Excel, CSV, PDFs with sensitive data)
 *.xlsx
 *.xls
