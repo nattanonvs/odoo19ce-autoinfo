@@ -32,6 +32,7 @@
     "assets": {
         "web.assets_frontend": [
             "od19_website/static/src/css/od19_website.css",
+            "od19_website/static/src/js/od19_products.js",
         ],
     },
     "images": ["static/description/icon.png"],
