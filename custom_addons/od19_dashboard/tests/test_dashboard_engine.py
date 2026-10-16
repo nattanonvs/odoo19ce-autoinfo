@@ -1,8 +1,9 @@
+import json
 from datetime import timedelta
 from unittest.mock import patch
 
 from odoo import fields
-from odoo.exceptions import ValidationError
+from odoo.exceptions import AccessError, ValidationError
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
@@ -403,18 +404,18 @@ class TestDashboardOrdering(TransactionCase):
         self.assertLess(ordered.index(self.widget_a), ordered.index(self.widget_c))
 
     def test_compute_order_survives_a_cycle(self):
-        self.widget_a.write(
-            {
-                "formula_mode": "custom",
-                "formula_expression": "count_records + widget_%s" % self.widget_b.id,
-            }
+        # The ORM refuses to store a cycle by design (``_check_dependency_cycle``
+        # raises ``ValidationError``), so the cycle has to be written straight
+        # into the database to exercise the fail-soft branch of ``_compute_order``.
+        self.env.cr.execute(
+            "UPDATE od19_dashboard_widget SET formula_mode = %s, formula_expression = %s WHERE id = %s",
+            ("custom", "count_records + widget_%s" % self.widget_b.id, self.widget_a.id),
         )
-        self.widget_b.write(
-            {
-                "formula_mode": "custom",
-                "formula_expression": "count_records + widget_%s" % self.widget_a.id,
-            }
+        self.env.cr.execute(
+            "UPDATE od19_dashboard_widget SET formula_mode = %s, formula_expression = %s WHERE id = %s",
+            ("custom", "count_records + widget_%s" % self.widget_a.id, self.widget_b.id),
         )
+        self.env.invalidate_all()
         ordered = self.dashboard._compute_order()
         # Widget C has no dependency, so it is emitted first. The A/B pair is a
         # cycle and cannot be ordered: the fallback emits the remaining widgets
@@ -694,3 +695,180 @@ class TestDashboardPreview(TransactionCase):
         self.assertEqual(widget._number_text(-1234.5, 2), "-1,234.5")
         self.assertEqual(widget._number_text(1234.5, 2), "1,234.5")
         self.assertEqual(widget._number_text(0, 0), "0")
+
+
+# Like ``TestDashboardPreview`` this class creates ``sale.order`` records.
+# Another installed module (``od19_sales_project_context``) adds a required
+# field on ``sale.order`` that the registry does not carry yet while
+# ``od19_dashboard`` is being installed, so the class runs during
+# ``post_install`` where the registry is complete.
+@tagged("post_install", "-at_install")
+class TestDashboardAcceptance(TransactionCase):
+    """Acceptance checks of spec section 10.2 no earlier task covered."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.dashboard = cls.env["od19.dashboard"].create({"name": "Acceptance dashboard"})
+        cls.source = cls.env.ref("od19_dashboard.source_sale_order")
+        partner = cls.env["res.partner"].create({"name": "Acceptance customer"})
+        product = cls.env["product.product"].create(
+            {"name": "Acceptance product", "list_price": 100.0}
+        )
+        cls.order = cls.env["sale.order"].create(
+            {
+                "partner_id": partner.id,
+                "order_line": [
+                    (0, 0, {"product_id": product.id, "product_uom_qty": 2.0})
+                ],
+            }
+        )
+
+    def _values(self, **extra):
+        values = {
+            "dashboard_id": self.dashboard.id,
+            "name": "Acceptance widget",
+            "widget_type": "kpi",
+            "source_id": self.source.id,
+            "measure_key": "__count",
+            "date_key": "date_order",
+            "date_range": "this_month",
+            "goal_value": 10.0,
+            # Scope every acceptance widget to the single order created in
+            # ``setUpClass`` so the expected values (1 record, 200 + 200) do
+            # not depend on other sale orders already in the database.
+            "domain": "[('partner_id', '=', %s)]" % self.order.partner_id.id,
+        }
+        values.update(extra)
+        return values
+
+    def _preview(self, **extra):
+        return self.env["od19.dashboard"].preview_widget(
+            self._values(**extra), date_range="this_month"
+        )
+
+    def test_every_preset_formula_returns_a_number(self):
+        slots_by_type = {
+            "ratio": {"a": "__count", "b": "amount_total"},
+            "difference": {"a": "amount_total", "b": "amount_untaxed"},
+            "growth": {"a": "amount_total", "b": "amount_untaxed"},
+            "share": {"a": "amount_total"},
+            "sum": {"a": "amount_total", "b": "amount_untaxed"},
+            "average": {"a": "amount_total", "b": "amount_untaxed"},
+            "weighted_average": {"a": "amount_total", "b": "amount_untaxed", "w1": 2, "w2": 1},
+            "percent_of_goal": {"a": "amount_total"},
+            "min": {"a": "amount_total", "b": "amount_untaxed"},
+            "max": {"a": "amount_total", "b": "amount_untaxed"},
+            "cumulative_change": {"a": "amount_total"},
+            "run_rate": {"a": "amount_total"},
+            "conversion_rate": {"a": "__count", "b": "amount_total"},
+            "variance": {"a": "amount_total", "b": "amount_untaxed"},
+        }
+        for formula_type, slots in slots_by_type.items():
+            result = self._preview(
+                formula_mode="preset",
+                formula_type=formula_type,
+                formula_slots=json.dumps(slots),
+            )
+            self.assertIsInstance(result["value"], (int, float), formula_type)
+            self.assertGreaterEqual(result["record_count"], 1, formula_type)
+
+    def test_count_records_alias_works(self):
+        result = self._preview(formula_mode="custom", formula_expression="count_records")
+        self.assertEqual(result["value"], 1)
+
+    def test_simple_slots_match_direct_names(self):
+        with_slots = self._preview(
+            formula_mode="custom",
+            formula_expression="a + b",
+            formula_slots=json.dumps({"a": "amount_total", "b": "amount_untaxed"}),
+        )
+        with_names = self._preview(
+            formula_mode="custom",
+            formula_expression="amount_total + amount_untaxed",
+        )
+        self.assertEqual(with_slots["value"], with_names["value"])
+
+    def test_cross_widget_value_matches_the_source_widget(self):
+        source_widget = self.env["od19.dashboard.widget"].create(
+            self._values(name="Source widget", formula_mode="custom", formula_expression="count_records")
+        )
+        reader_widget = self.env["od19.dashboard.widget"].create(
+            self._values(
+                name="Reader widget",
+                formula_mode="custom",
+                formula_expression="widget_%s * 2" % source_widget.id,
+            )
+        )
+        data = self.env["od19.dashboard"].get_dashboard_data(
+            self.dashboard.id, date_range="this_month"
+        )
+        values = {widget["id"]: widget["value"] for widget in data["widgets"]}
+        self.assertEqual(values[source_widget.id], 1)
+        self.assertEqual(values[reader_widget.id], 2)
+
+    def test_cycle_is_refused_on_save(self):
+        widget_a = self.env["od19.dashboard.widget"].create(
+            self._values(name="Cycle A", formula_mode="custom", formula_expression="count_records")
+        )
+        widget_b = self.env["od19.dashboard.widget"].create(
+            self._values(name="Cycle B", formula_mode="custom", formula_expression="count_records")
+        )
+        widget_a.formula_expression = "count_records + widget_%s" % widget_b.id
+        with self.assertRaises(ValidationError):
+            widget_b.formula_expression = "count_records + widget_%s" % widget_a.id
+
+    def test_builder_rpc_refuses_a_user_without_write_access(self):
+        widget = self.env["od19.dashboard.widget"].create(self._values(name="Protected widget"))
+        stranger = self.env["res.users"].create(
+            {
+                "name": "Acceptance stranger",
+                "login": "od19_dashboard_acceptance_stranger",
+                "group_ids": [(6, 0, [self.env.ref("base.group_user").id])],
+            }
+        )
+        with self.assertRaises(AccessError):
+            self.env["od19.dashboard"].with_user(stranger).update_widget(
+                widget.id, {"name": "Hijacked"}
+            )
+
+    def test_operands_do_not_add_aggregation_queries(self):
+        """Spec 10.2: operands must be batched into one aggregation per domain.
+
+        ``_record_count`` legitimately runs its own aggregation, so the check
+        compares two formulas with a different number of slots instead of
+        hard-coding a call count.
+        """
+        model = type(self.env["sale.order"])
+        original = model._read_group
+        calls = []
+
+        def counting_read_group(recordset, *args, **kwargs):
+            calls.append(recordset._name)
+            return original(recordset, *args, **kwargs)
+
+        model._read_group = counting_read_group
+        try:
+            self._preview(formula_mode="custom", formula_expression="amount_total")
+            one_slot = len(calls)
+            calls.clear()
+            self._preview(
+                formula_mode="custom",
+                formula_expression="a + b + c + d",
+                formula_slots=json.dumps(
+                    {
+                        "a": "amount_total",
+                        "b": "amount_untaxed",
+                        "c": "amount_total",
+                        "d": "amount_untaxed",
+                    }
+                ),
+            )
+            four_slots = len(calls)
+        finally:
+            model._read_group = original
+        self.assertEqual(
+            four_slots,
+            one_slot,
+            "Four operand slots must reuse the aggregation of a single slot.",
+        )

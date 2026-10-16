@@ -287,6 +287,36 @@ class Od19Dashboard(models.Model):
                 pending.pop(widget.id)
         return ordered
 
+    def _check_no_cycle(self):
+        """Refuse a widget graph that never settles (spec section 11).
+
+        ``_compute_order()`` resolves the same edges but fails soft at render
+        time; saving must fail hard so an unsolvable dashboard is never stored.
+        """
+        self.ensure_one()
+        pending = {widget.id: widget for widget in self.widget_ids.filtered("active")}
+        resolved = set()
+        while pending:
+            ready = [
+                widget
+                for widget in pending.values()
+                if all(dependency not in pending for dependency in widget._dependency_ids())
+            ]
+            if not ready:
+                names = ", ".join(
+                    sorted(widget.name or str(widget.id) for widget in pending.values())
+                )
+                raise ValidationError(
+                    _(
+                        "These widgets read each other in a loop: %s. "
+                        "Remove one of the references so the values can be computed."
+                    )
+                    % names
+                )
+            for widget in ready:
+                resolved.add(widget.id)
+                pending.pop(widget.id)
+
     def _preview_dependency_ids(self, draft):
         """Return the ids of the stored widgets ``draft`` reads, transitively.
 
@@ -1374,6 +1404,12 @@ class Od19DashboardWidget(models.Model):
                 if formula_tools.compare_values(context.get("value"), rule.operator, operand):
                     return rule.status, "rule"
         return self.default_status, "default"
+
+    @api.constrains("formula_mode", "formula_expression", "rule_ids")
+    def _check_dependency_cycle(self):
+        for widget in self:
+            if widget.dashboard_id:
+                widget.dashboard_id._check_no_cycle()
 
     def _build_domain(self, date_range=None, date_from=None, date_to=None, shift=None):
         self.ensure_one()
