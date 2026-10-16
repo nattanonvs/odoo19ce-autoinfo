@@ -103,3 +103,42 @@ class TestDashboardFormula(TransactionCase):
         names = fx.expression_names("a + count_records / goal")
         self.assertEqual(names, {"a", "count_records", "goal"})
         self.assertEqual(fx.expression_names("a /"), set())
+
+    def test_operand_names_skip_function_names(self):
+        self.assertEqual(fx.expression_names("min(a, b)"), {"a", "b"})
+        self.assertEqual(fx.expression_names("abs(a - b) * round(goal)"), {"a", "b", "goal"})
+
+    def test_preset_catalogue_is_complete(self):
+        self.assertEqual(len(fx.FORMULA_TYPES), 14)
+        self.assertEqual(
+            {key for key, _label in fx.FORMULA_TYPES},
+            set(fx.PRESET_REQUIRED_SLOTS),
+        )
+
+    def test_every_preset_type_builds_an_expression(self):
+        for formula_type, _label in fx.FORMULA_TYPES:
+            required = fx.PRESET_REQUIRED_SLOTS[formula_type]
+            slots = {key: "x" for key in required if key in fx.SLOT_KEYS}
+            slots.update({key: 1 for key in required if key in fx.WEIGHT_KEYS})
+            self.assertTrue(
+                fx.build_preset_expression(formula_type, slots).strip(),
+                formula_type,
+            )
+
+    def test_preset_sum_and_average_without_slots_return_zero(self):
+        self.assertEqual(fx.build_preset_expression("sum", {}), "0")
+        self.assertEqual(fx.build_preset_expression("average", {}), "0")
+        self.assertEqual(fx.build_preset_expression("cumulative_change", {}), "0")
+
+    def test_validate_rejects_subscript_comprehension_and_lambda(self):
+        for expression in ("a[0]", "[x for x in a]", "lambda: 1"):
+            with self.assertRaises(ValidationError, msg=expression):
+                fx.validate_expression(expression, {"a", "x"})
+
+    def test_validate_rejects_power(self):
+        with self.assertRaises(ValidationError):
+            fx.validate_expression("a ** b", {"a", "b"})
+
+    def test_compare_values_returns_false_on_none(self):
+        self.assertFalse(fx.compare_values(None, "<", 1.0))
+        self.assertFalse(fx.compare_values(1.0, "<", None))

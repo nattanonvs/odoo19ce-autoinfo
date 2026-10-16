@@ -7,7 +7,7 @@ owns the orchestration (read groups, cross widget ordering, fail-soft).
 
 import ast
 import calendar
-from datetime import date, timedelta
+from datetime import timedelta
 
 from odoo import _
 from odoo.exceptions import ValidationError
@@ -93,7 +93,6 @@ ALLOWED_NODES = (
     ast.Mult,
     ast.Div,
     ast.Mod,
-    ast.Pow,
     ast.FloorDiv,
     ast.USub,
     ast.UAdd,
@@ -130,12 +129,22 @@ def build_preset_expression(formula_type, slots):
 
 
 def expression_names(expression):
-    """Return the ``Name`` identifiers used by ``expression`` (empty on syntax error)."""
+    """Return the operand names used by ``expression`` (empty on syntax error).
+
+    Names of the whitelisted functions (:data:`ALLOWED_CALLS`) are calls, not
+    operands, so they are left out: ``expression_names("min(a, b)")`` returns
+    ``{"a", "b"}`` and no caller ever has to treat ``min`` as a value to
+    resolve.
+    """
     try:
         tree = ast.parse(expression or "", mode="eval")
     except SyntaxError:
         return set()
-    return {node.id for node in ast.walk(tree) if isinstance(node, ast.Name)}
+    return {
+        node.id
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Name) and node.id not in ALLOWED_CALLS
+    }
 
 
 def validate_expression(expression, allowed_names):
