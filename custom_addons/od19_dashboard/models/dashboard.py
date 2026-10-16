@@ -811,11 +811,10 @@ class Od19DashboardWidget(models.Model):
         """Return the expression names that would have no value at read time."""
         self.ensure_one()
         available = set(formula_tools.IMPLICIT_NAMES)
-        available |= {
-            slot_key
-            for slot_key, value in self._formula_slot_map().items()
-            if isinstance(value, str)
-        }
+        # A bound slot always carries a value: a string is a measure key read
+        # from the source, a number is a literal weight (``w1`` / ``w2`` of the
+        # weighted average) taken from the widget itself.
+        available |= set(self._formula_slot_map())
         available |= {"widget_%s" % widget_id for widget_id in self._dependency_ids()}
         available |= {key for key in self._source_measure_keys() if key != "__count"}
         used = formula_tools.expression_names(self._effective_expression())
@@ -850,6 +849,17 @@ class Od19DashboardWidget(models.Model):
                     raise ValidationError(_("Type the formula of this widget."))
             else:
                 continue
+            available_measures = widget._source_measure_keys()
+            unknown_slots = sorted(
+                slot_key
+                for slot_key, value in widget._formula_slot_map().items()
+                if isinstance(value, str) and value not in available_measures
+            )
+            if unknown_slots:
+                raise ValidationError(
+                    _("The slot(s) %s are bound to a field the data source does not offer.")
+                    % ", ".join(unknown_slots)
+                )
             formula_tools.validate_expression(expression, widget._allowed_names())
             unresolved = widget._unresolved_names()
             if unresolved:

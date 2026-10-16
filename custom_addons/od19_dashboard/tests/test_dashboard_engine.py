@@ -98,3 +98,18 @@ class TestDashboardFormulaEngine(TransactionCase):
         self.widget.formula_type = "growth"
         self.widget.formula_slots = '{"a": "amount_total", "b": "__count"}'
         self.assertEqual(self.widget._effective_expression(), "(a - b) / b * 100")
+
+    def test_validate_formula_config_accepts_literal_weight_slots(self):
+        self.widget.formula_mode = "preset"
+        self.widget.formula_type = "weighted_average"
+        self.widget.formula_slots = (
+            '{"a": "amount_total", "b": "amount_untaxed", "w1": 2, "w2": 1}'
+        )
+        self.widget._validate_formula_config()
+
+    def test_validate_formula_config_rejects_unknown_slot_measure(self):
+        self.widget.formula_mode = "preset"
+        self.widget.formula_type = "ratio"
+        self.widget.formula_slots = '{"a": "amout_total", "b": "__count"}'
+        with self.assertRaises(ValidationError):
+            self.widget._validate_formula_config()
