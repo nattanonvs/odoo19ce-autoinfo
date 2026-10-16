@@ -583,7 +583,7 @@ class Od19DashboardWidget(models.Model):
         data["status"] = self._compute_status(value)
 
         if self.show_delta:
-            previous_domain = self._build_domain(date_range, date_from, date_to, previous=True)
+            previous_domain = self._build_domain(date_range, date_from, date_to, shift="previous")
             previous_rows = model._read_group(previous_domain, [], [aggregate_spec], limit=1)
             previous_value = self._to_number(previous_rows[0][0]) if previous_rows and previous_rows[0] else 0.0
             if previous_value:
@@ -867,7 +867,59 @@ class Od19DashboardWidget(models.Model):
                     _("The formula uses names without value: %s.") % ", ".join(unresolved)
                 )
 
-    def _build_domain(self, date_range=None, date_from=None, date_to=None, previous=False):
+    # ------------------------------------------------------------------
+    # Status rules
+    # ------------------------------------------------------------------
+    def _required_shifts(self):
+        """Return the shifted periods this widget needs to read.
+
+        Derived from the period comparison of the KPI (``delta_basis``), from
+        the reference period of growth / cumulative change formulas
+        (``formula_basis``) and from the status rules comparing a period.
+        """
+        self.ensure_one()
+        shifts = set()
+        if self.show_delta and self.delta_basis:
+            shifts.add(self.delta_basis)
+        if self.formula_mode in ("preset", "custom") and self.formula_basis:
+            shifts.add(self.formula_basis)
+        shifts.update(
+            self.rule_ids.filtered(
+                lambda rule: rule.active
+                and rule.compare_type in formula_tools.PERIOD_COMPARE_TYPES
+            ).mapped("compare_type")
+        )
+        return {"previous" if shift == "prev" else shift for shift in shifts}
+
+    def _is_lower_better(self):
+        """Infer the direction of the KPI so the delta can be coloured.
+
+        A red rule that triggers on a *high* value means a low value is good
+        (``lower is better``); a red rule triggering on a low value means the
+        opposite. Defaults to ``higher is better`` when no red rule exists.
+        """
+        self.ensure_one()
+        for rule in self.rule_ids.filtered("active"):
+            if rule.status == "red":
+                return rule.operator in (">", ">=")
+        return False
+
+    def _evaluate_rules(self, context):
+        """Return ``(status, status_source)`` with a first-match-wins table.
+
+        ``status_source`` is ``"rule"`` when a rule matched and ``"default"``
+        when the widget falls back to ``default_status``. The left-hand side of
+        every comparison is always the value of this widget.
+        """
+        self.ensure_one()
+        if context.get("value") is not None:
+            for rule in self.rule_ids.filtered("active"):
+                operand = rule._compare_operand(context)
+                if formula_tools.compare_values(context.get("value"), rule.operator, operand):
+                    return rule.status, "rule"
+        return self.default_status, "default"
+
+    def _build_domain(self, date_range=None, date_from=None, date_to=None, shift=None):
         self.ensure_one()
         domain = []
         raw_domain = (self.domain or "").strip()
@@ -886,48 +938,66 @@ class Od19DashboardWidget(models.Model):
 
         effective_range = date_range or self.date_range or "all_time"
         if self.date_key and effective_range != "all_time":
-            domain += self._date_bounds(effective_range, date_from, date_to, previous)
+            domain += self._date_bounds(effective_range, date_from, date_to, shift)
         return domain
 
-    def _date_bounds(self, range_key, date_from, date_to, previous=False):
+    def _period_bounds(self, date_range=None, date_from=None, date_to=None, shift=None):
+        """Return the ``(start, end)`` dates of the period the widget reads.
+
+        ``shift`` moves the window back in time: ``previous`` (same length),
+        ``yty`` (same period last year), ``mtm`` (previous month) or ``qtq``
+        (previous quarter). ``(None, None, field_type)`` means "no date bound",
+        which is the case for ``all_time`` and for a widget without a date
+        field. Always returns three values, so the caller can unpack
+        ``start, end, field_type`` without a special case.
+        """
         self.ensure_one()
-        model = self.env[self.source_id.model_name]
-        field = model._fields.get(self.date_key)
-        field_type = field.type if field else "date"
+        field_type = "date"
+        if self.date_key and self.source_id.model_name in self.env:
+            field = self.env[self.source_id.model_name]._fields.get(self.date_key)
+            field_type = field.type if field else "date"
+        if not self.date_key:
+            return None, None, field_type
+        effective_range = date_range or self.date_range or "all_time"
+        if effective_range == "all_time":
+            return None, None, field_type
+
         today = fields.Date.context_today(self)
 
         start = end = None
         if date_from or date_to:
             start = fields.Date.to_date(date_from) if date_from else None
             end = fields.Date.to_date(date_to) if date_to else None
-        elif range_key == "today":
+        elif effective_range == "today":
             start = end = today
-        elif range_key == "yesterday":
+        elif effective_range == "yesterday":
             start = end = today - timedelta(days=1)
-        elif range_key == "last_7_days":
+        elif effective_range == "last_7_days":
             start, end = today - timedelta(days=6), today
-        elif range_key == "last_30_days":
+        elif effective_range == "last_30_days":
             start, end = today - timedelta(days=29), today
-        elif range_key == "last_90_days":
+        elif effective_range == "last_90_days":
             start, end = today - timedelta(days=89), today
-        elif range_key == "this_month":
+        elif effective_range == "this_month":
             start, end = today.replace(day=1), today
-        elif range_key == "this_quarter":
+        elif effective_range == "this_quarter":
             start, end = today.replace(month=3 * ((today.month - 1) // 3) + 1, day=1), today
-        elif range_key == "this_year":
+        elif effective_range == "this_year":
             start, end = today.replace(month=1, day=1), today
-        elif range_key == "next_7_days":
+        elif effective_range == "next_7_days":
             start, end = today, today + timedelta(days=7)
-        elif range_key == "overdue":
+        elif effective_range == "overdue":
             start, end = None, today - timedelta(days=1)
         else:
-            return []
+            return None, None, field_type
 
-        if previous and start and end:
-            length = (end - start).days + 1
-            end = start - timedelta(days=1)
-            start = end - timedelta(days=length - 1)
+        if shift:
+            start, end = formula_tools.apply_shift(start, end, shift)
+        return start, end, field_type
 
+    def _date_bounds(self, range_key, date_from, date_to, shift=None):
+        self.ensure_one()
+        start, end, field_type = self._period_bounds(range_key, date_from, date_to, shift)
         if field_type == "date":
             if start:
                 return [(self.date_key, ">=", start.isoformat())]

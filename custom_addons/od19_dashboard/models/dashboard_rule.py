@@ -31,8 +31,7 @@ STATUSES = [
     ("grey", "Grey"),
 ]
 
-#: Compare types that need the widget value of a shifted period.
-PERIOD_COMPARE_TYPES = ("prev", "yty", "mtm", "qtq")
+from .dashboard_formula import PERIOD_COMPARE_TYPES  # noqa: F401 - re-exported
 
 
 class Od19DashboardWidgetRule(models.Model):
@@ -103,3 +102,28 @@ class Od19DashboardWidgetRule(models.Model):
                 raise ValidationError(
                     _("Set the percentage of the goal to compare with (rule: %s).") % label
                 )
+
+    def _compare_operand(self, context):
+        """Return the right-hand value of the comparison.
+
+        ``context`` is the operand dictionary built by the widget:
+        ``{"value": float, "goal": float, "shifts": {shift: float},
+        "widget_values": {widget_id: float}}``. Returns ``None`` when the
+        operand cannot be resolved, in which case the rule does not match.
+        """
+        self.ensure_one()
+        if self.compare_type == "constant":
+            return self.compare_value
+        if self.compare_type == "goal":
+            return context.get("goal")
+        if self.compare_type == "percent_of_goal":
+            goal = context.get("goal")
+            if not goal or not self.compare_percent:
+                return None
+            return goal * self.compare_percent / 100.0
+        if self.compare_type == "widget":
+            if not self.compare_widget_id:
+                return None
+            return context.get("widget_values", {}).get(self.compare_widget_id.id)
+        shift = "previous" if self.compare_type == "prev" else self.compare_type
+        return context.get("shifts", {}).get(shift)

@@ -78,6 +78,9 @@ ALLOWED_CALLS = frozenset({"min", "max", "abs", "round"})
 #: Builtin names implicitly exposed to every formula.
 IMPLICIT_NAMES = frozenset({"goal", "total_a", "days_in_period", "days_elapsed", COUNT_ALIAS})
 
+#: Compare types of a status rule that need the widget value of a shifted period.
+PERIOD_COMPARE_TYPES = ("prev", "yty", "mtm", "qtq")
+
 ALLOWED_NODES = (
     ast.Expression,
     ast.Name,
