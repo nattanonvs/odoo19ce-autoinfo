@@ -88,6 +88,7 @@ registry.category("web_tour.tours").add("od19_announcement_tour", {
                 "Announcements workflow complete! Create → set audience &amp; expiry → " +
                 "<b>Publish</b>. Track read receipts and <b>Unpublish</b> when no longer needed."
             )),
+            run: "click",
         },
     ],
 });

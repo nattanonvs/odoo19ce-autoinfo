@@ -109,6 +109,7 @@ registry.category("web_tour.tours").add("od19_thai_tax_reports_tour", {
                 "<b>VAT Purchase Register</b>, and <b>WHT Register</b> for statutory compliance. " +
                 "These reports are required for monthly/quarterly tax filings with the Revenue Department."
             )),
+            run: "click",
         },
     ],
 });

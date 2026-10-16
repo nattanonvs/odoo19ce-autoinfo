@@ -56,6 +56,7 @@ registry.category("web_tour.tours").add("od19_purchase_wizards_tour", {
                 "discount across the order lines in one step."
             )),
             tooltipPosition: "left",
+            run: "click",
         },
         {
             trigger: ".o_list_renderer, .o_form_view",
@@ -63,6 +64,7 @@ registry.category("web_tour.tours").add("od19_purchase_wizards_tour", {
                 "Enter the order lines and <b>Confirm</b> the order. Once the order is confirmed, " +
                 "the <b>Create Vendor Bill</b> button becomes available."
             )),
+            run: "click",
         },
         {
             trigger: "button[name='action_od19_create_vendor_bill']",
@@ -72,6 +74,7 @@ registry.category("web_tour.tours").add("od19_purchase_wizards_tour", {
                 "invoice number and date before posting."
             )),
             tooltipPosition: "left",
+            run: "click",
         },
         ...stepUtils.discardForm(),
 
@@ -81,6 +84,7 @@ registry.category("web_tour.tours").add("od19_purchase_wizards_tour", {
                 "Purchase Wizards complete! <b>Trade Discount</b> speeds up order pricing and " +
                 "<b>Create Vendor Bill</b> turns a confirmed order into a draft vendor bill."
             )),
+            run: "click",
         },
     ],
 });

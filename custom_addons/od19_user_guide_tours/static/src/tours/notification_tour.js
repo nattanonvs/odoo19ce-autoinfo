@@ -123,6 +123,7 @@ registry.category("web_tour.tours").add("od19_notification_tour", {
                 "<b>Preferences</b> per event, and monitor the <b>Queue</b> for delivery status. " +
                 "Failed notifications can be retried with <b>Send Now</b>."
             )),
+            run: "click",
         },
     ],
 });

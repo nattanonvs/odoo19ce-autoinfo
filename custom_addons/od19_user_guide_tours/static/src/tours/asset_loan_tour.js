@@ -106,6 +106,7 @@ registry.category("web_tour.tours").add("od19_asset_loan_tour", {
                 "Asset Loan workflow complete: <b>Create → Confirm → Return</b> (or <b>Mark Lost</b>). " +
                 "Use the <b>Overdue</b> filter to find loans past their expected return date."
             )),
+            run: "click",
         },
     ],
 });

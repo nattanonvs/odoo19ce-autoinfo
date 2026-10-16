@@ -1,3 +1,4 @@
+import { _t } from "@web/core/l10n/translation";
 import { stepUtils as coreStepUtils } from "@web_tour/tour_utils";
 
 /**
@@ -46,5 +47,46 @@ export const stepUtils = {
         ].map((step) =>
             this.addDebugHelp(this._getHelpMessage("goToApp", dataMenuXmlid, description), step)
         );
+    },
+
+    /**
+     * Manual-mode friendly `saveForm()`. Core gates the click behind
+     * `isActive: ["auto"]`, so the step is inactive in manual mode: the record
+     * is never saved and the following steps wait for a state that never comes.
+     */
+    saveForm() {
+        return [
+            {
+                isActive: [".o_control_panel .o_form_button_save"],
+                content: _t("Save the record."),
+                trigger: ".o_control_panel .o_form_button_save",
+                tooltipPosition: "bottom",
+                run: "click",
+            },
+            {
+                trigger: ".o_form_readonly, .o_form_saved",
+            },
+        ];
+    },
+
+    /**
+     * Manual-mode friendly `discardForm()`. Same `isActive: ["auto"]` problem
+     * as `saveForm()`: without the fix the form is never left, and the next
+     * `goToAppSteps()` gets stuck behind the dirty form.
+     */
+    discardForm() {
+        return [
+            {
+                isActive: [".o_control_panel .o_form_button_cancel"],
+                content: _t("Discard the form to leave it."),
+                trigger: ".o_control_panel .o_form_button_cancel",
+                tooltipPosition: "bottom",
+                run: "click",
+            },
+            {
+                trigger:
+                    ".o_view_controller.o_list_view, .o_form_view > div > main > .o_form_readonly, .o_form_view > div > main > .o_form_saved",
+            },
+        ];
     },
 };

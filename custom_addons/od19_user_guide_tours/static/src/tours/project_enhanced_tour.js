@@ -51,6 +51,7 @@ registry.category("web_tour.tours").add("od19_project_enhanced_tour", {
                 "Tick <b>Usable on Projects</b> and/or <b>Usable on Tasks</b> to control where the " +
                 "type can be selected."
             )),
+            run: "click",
         },
         ...stepUtils.saveForm(),
         ...stepUtils.discardForm(),
@@ -70,6 +71,7 @@ registry.category("web_tour.tours").add("od19_project_enhanced_tour", {
                 "Each project shows <b>contract amount</b>, <b>invoiced</b>, <b>actual cost</b>, " +
                 "<b>committed cost</b>, <b>overdue AR</b> and the resulting <b>margin %</b>."
             )),
+            run: "click",
         },
         {
             trigger: ".o_list_renderer",
@@ -77,6 +79,7 @@ registry.category("web_tour.tours").add("od19_project_enhanced_tour", {
                 "A <b>risk score</b> and <b>risk level</b> (high / medium / low) are computed so you can " +
                 "act early on unprofitable projects."
             )),
+            run: "click",
         },
     ],
 });

@@ -62,6 +62,7 @@ registry.category("web_tour.tours").add("od19_hr_expense_enhanced_tour", {
                 "The <b>Cash State</b> badge tracks the cash advance: " +
                 "<b>Not Received → Received → Used → Returned</b>."
             )),
+            run: "click",
         },
         ...stepUtils.saveForm(),
 
@@ -97,6 +98,7 @@ registry.category("web_tour.tours").add("od19_hr_expense_enhanced_tour", {
         {
             trigger: "footer button[name='action_return_cash']",
             content: markup(_t("<b>Return Cash</b> records the return and closes the cash advance.")),
+            run: "click",
         },
         {
             trigger: "footer button[special='cancel']",
@@ -129,6 +131,7 @@ registry.category("web_tour.tours").add("od19_hr_expense_enhanced_tour", {
                 "Confirm with <b>Delegate</b>. The delegate then sees <b>Approve (Delegate)</b> " +
                 "and <b>Refuse (Delegate)</b> buttons."
             )),
+            run: "click",
         },
         {
             trigger: "footer button[special='cancel']",
@@ -144,6 +147,7 @@ registry.category("web_tour.tours").add("od19_hr_expense_enhanced_tour", {
                 "From the expense list use the <b>Export XLSX</b> button to export the filtered " +
                 "expenses (by date, state, employee, department and cash state)."
             )),
+            run: "click",
         },
         {
             trigger: ".o_list_renderer",
@@ -152,6 +156,7 @@ registry.category("web_tour.tours").add("od19_hr_expense_enhanced_tour", {
                 "<b>Not Received → Received → Used → Returned</b>, approvals can be delegated, " +
                 "and data can be exported to XLSX."
             )),
+            run: "click",
         },
     ],
 });

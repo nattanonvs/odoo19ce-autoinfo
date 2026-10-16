@@ -213,6 +213,7 @@ registry.category("web_tour.tours").add("od19_accounting_tour", {
                 "<b>WHT</b> on payments, <b>fixed asset</b> depreciation, and <b>fiscal year</b> " +
                 "management with year-end closing."
             )),
+            run: "click",
         },
     ],
 });

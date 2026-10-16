@@ -154,6 +154,7 @@ registry.category("web_tour.tours").add("od19_iso_risk_tour", {
                 "<b>Draft → Identified → Analyzed → Evaluated → Treated → Monitored → Closed</b>. " +
                 "Risk score = likelihood × severity, with automatic risk level (Low/Medium/High/Critical)."
             )),
+            run: "click",
         },
     ],
 });

@@ -116,6 +116,7 @@ registry.category("web_tour.tours").add("od19_product_return_tour", {
                 "<b>Draft → Confirm → Approve → Receive Return → Create Refund</b>. " +
                 "The return can be rejected at any stage before refund."
             )),
+            run: "click",
         },
     ],
 });

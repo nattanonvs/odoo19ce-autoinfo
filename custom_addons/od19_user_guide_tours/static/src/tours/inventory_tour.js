@@ -209,6 +209,7 @@ registry.category("web_tour.tours").add("od19_inventory_operations_tour", {
                 "<b>service cards</b> for maintenance, <b>QC inspections</b> with pass/fail criteria, " +
                 "and <b>transport orders</b> from draft to delivered."
             )),
+            run: "click",
         },
     ],
 });

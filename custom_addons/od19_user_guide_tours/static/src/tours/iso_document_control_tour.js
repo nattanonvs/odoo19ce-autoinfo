@@ -184,6 +184,7 @@ registry.category("web_tour.tours").add("od19_iso_document_control_tour", {
                 "ISO Document Control complete! Workflow: <b>Draft → Review → Approval → Final Approval → Approved</b>. " +
                 "The 4-level approval ensures proper document control and traceability."
             )),
+            run: "click",
         },
     ],
 });

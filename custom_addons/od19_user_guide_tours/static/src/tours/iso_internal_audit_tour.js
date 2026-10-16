@@ -141,6 +141,7 @@ registry.category("web_tour.tours").add("od19_iso_internal_audit_tour", {
                 "<b>Draft → Plan → In Progress → Report → Follow-up → Closed</b>. " +
                 "Audit findings are linked to Nonconformity/CAPA for corrective action tracking."
             )),
+            run: "click",
         },
     ],
 });

@@ -105,6 +105,7 @@ registry.category("web_tour.tours").add("od19_iso_calibration_tour", {
                 "<b>Draft → Scheduled → In Progress → Passed/Failed</b>. " +
                 "Track all measuring equipment and ensure calibration is done on schedule."
             )),
+            run: "click",
         },
     ],
 });

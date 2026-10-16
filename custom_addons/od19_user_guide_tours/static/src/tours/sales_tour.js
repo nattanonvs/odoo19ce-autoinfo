@@ -96,6 +96,7 @@ registry.category("web_tour.tours").add("od19_sales_contract_billing_tour", {
                 "(Ordered → Worked → Evidenced → Ready to Bill → Billed). " +
                 "Attach delivery slips or service reports as evidence before invoicing."
             )),
+            run: "click",
         },
         ...stepUtils.discardForm(),
         {
@@ -105,6 +106,7 @@ registry.category("web_tour.tours").add("od19_sales_contract_billing_tour", {
                 "attach <b>Billing Evidence</b> before invoicing. The system tracks status from " +
                 "<b>Ordered → Worked → Evidenced → Ready to Bill → Billed</b>."
             )),
+            run: "click",
         },
     ],
 });

@@ -85,6 +85,7 @@ registry.category("web_tour.tours").add("od19_iso_supplier_quality_tour", {
                 "<b>Draft → In Progress → Done</b>. " +
                 "Maintain the Approved Supplier List (ASL) based on evaluation results."
             )),
+            run: "click",
         },
     ],
 });

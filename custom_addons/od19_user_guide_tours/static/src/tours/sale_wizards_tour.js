@@ -40,25 +40,46 @@ registry.category("web_tour.tours").add("od19_sale_wizards_tour", {
         },
         {
             trigger: ".o_field_widget[name='partner_id'] input",
-            content: _t("Select the customer."),
+            content: markup(_t("Click the <b>customer</b> field to focus it.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='partner_id'] input",
+            content: markup(_t("Type a <b>customer</b> name.")),
+            tooltipPosition: "bottom",
+            run: "edit Tesla",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:contains('Tesla')",
+            content: markup(_t("Pick the customer from the suggestion list.")),
+            tooltipPosition: "bottom",
             run: "click",
         },
         {
             trigger: "button[name='action_open_change_delivery_date']",
             content: markup(_t(
-                "On a <b>draft / sent</b> quotation, click <b>Change Delivery Date</b> to shift the " +
-                "delivery date of all lines in one step."
+                "On a <b>draft / sent</b> quotation, click <b>Change Delivery Date</b>: a wizard " +
+                "opens where you set the new date once for the whole order."
             )),
             tooltipPosition: "left",
-        },
-        {
-            trigger: ".o_field_widget[name='commitment_date'] input",
-            content: markup(_t(
-                "Pick the new <b>delivery date</b> in the wizard and confirm to update the quotation."
-            )),
             run: "click",
         },
-        ...stepUtils.discardForm(),
+        {
+            trigger: ".o_dialog .o_field_widget[name='new_delivery_date'] input",
+            content: markup(_t(
+                "Pick the new <b>delivery date</b>. The wizard updates the commitment date of the " +
+                "quotation and of every order line in one step."
+            )),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".o_dialog .btn-close, .o_dialog .modal-header .btn-close",
+            content: markup(_t("Close the wizard when you are done.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
 
         // --- Get Sale Lines on invoice (Invoicing app) ---
         ...stepUtils.goToAppSteps(
@@ -83,6 +104,7 @@ registry.category("web_tour.tours").add("od19_sale_wizards_tour", {
                 "On a <b>draft customer invoice</b>, use <b>Get Sale Lines</b> to pull the order lines " +
                 "(or downpayment lines) into the invoice automatically."
             )),
+            run: "click",
         },
         {
             trigger: ".o_list_renderer",
@@ -90,6 +112,7 @@ registry.category("web_tour.tours").add("od19_sale_wizards_tour", {
                 "The invoice also shows the <b>Downpayment Info</b> group with the <b>origin</b> and " +
                 "<b>source</b> of the downpayment, plus the linked source purchase order."
             )),
+            run: "click",
         },
     ],
 });

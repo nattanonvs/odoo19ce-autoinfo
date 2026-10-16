@@ -41,6 +41,7 @@ registry.category("web_tour.tours").add("od19_stock_fifo_tour", {
                 "This list is the FIFO valuation ledger: <b>quantity × unit cost = total value</b>, " +
                 "used as the basis for stock accounting."
             )),
+            run: "click",
         },
 
         // --- FIFO As-Of ---
@@ -75,6 +76,7 @@ registry.category("web_tour.tours").add("od19_stock_fifo_tour", {
             content: markup(_t(
                 "The result shows quantity, unit cost and total value per product as of the chosen date."
             )),
+            run: "click",
         },
 
         // --- BF Revaluation ---
@@ -103,6 +105,7 @@ registry.category("web_tour.tours").add("od19_stock_fifo_tour", {
             trigger: "footer button[name='action_apply_revaluation']",
             content: markup(_t("Click <b>Apply Revaluation</b> to post the adjustment.")),
             tooltipPosition: "top",
+            run: "click",
         },
         {
             trigger: ".o_list_renderer",
@@ -110,6 +113,7 @@ registry.category("web_tour.tours").add("od19_stock_fifo_tour", {
                 "Stock FIFO complete! Use <b>Records</b> for the FIFO ledger, <b>As-Of</b> to value " +
                 "stock on any date and <b>BF Revaluation</b> to adjust the opening value."
             )),
+            run: "click",
         },
     ],
 });

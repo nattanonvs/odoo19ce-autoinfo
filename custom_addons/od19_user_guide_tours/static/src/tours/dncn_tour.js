@@ -116,6 +116,7 @@ registry.category("web_tour.tours").add("od19_dncn_tour", {
                 "to reduce/refund, and <b>Remaster</b> to cancel and recreate an invoice. " +
                 "Always set the <b>Reason</b> and add a <b>Remark</b> for audit purposes."
             )),
+            run: "click",
         },
     ],
 });

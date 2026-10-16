@@ -42,6 +42,7 @@ registry.category("web_tour.tours").add("od19_stock_picking_features_tour", {
                 "(od19_dept_manager_id) form the signature chain printed on the transfer document. " +
                 "They are locked once the transfer is done or cancelled."
             )),
+            run: "click",
         },
         {
             trigger: "a.nav-link:contains('Additional Lines')",
@@ -70,6 +71,7 @@ registry.category("web_tour.tours").add("od19_stock_picking_features_tour", {
                 "Stock Picking Features complete! Transfers now carry a <b>signature chain</b> and " +
                 "optional <b>additional print lines</b>."
             )),
+            run: "click",
         },
     ],
 });

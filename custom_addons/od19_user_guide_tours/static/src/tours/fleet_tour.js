@@ -103,6 +103,7 @@ registry.category("web_tour.tours").add("od19_fleet_accounting_tour", {
                 "Fleet Accounting complete! Vehicle expenses are now classified by <b>category</b>, " +
                 "<b>department</b>, and <b>analytic account</b> (project), enabling accurate P&amp;L tracking."
             )),
+            run: "click",
         },
     ],
 });

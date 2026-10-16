@@ -120,6 +120,7 @@ registry.category("web_tour.tours").add("od19_money_in_report_tour", {
                 "recognition and <b>Phase 2</b> for cash-based. Review <b>Report Runs</b> for " +
                 "summary results and <b>Analysis Lines</b> for detailed breakdowns."
             )),
+            run: "click",
         },
     ],
 });

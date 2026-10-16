@@ -63,6 +63,7 @@ registry.category("web_tour.tours").add("od19_fleet_notification_tour", {
                 "Fleet Notification complete! Insurance and Act expiry dates are tracked with " +
                 "configurable reminder lead times so renewals are never missed."
             )),
+            run: "click",
         },
     ],
 });

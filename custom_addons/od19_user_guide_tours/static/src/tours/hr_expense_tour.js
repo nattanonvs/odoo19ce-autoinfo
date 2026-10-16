@@ -117,6 +117,7 @@ registry.category("web_tour.tours").add("od19_hr_expense_tour", {
                 "HR Expense workflow complete! The process is: <b>Create → Submit → L1 Approve → " +
                 "L2 Approve → Reimbursed</b>. Thai expense types and payment methods support local compliance."
             )),
+            run: "click",
         },
     ],
 });

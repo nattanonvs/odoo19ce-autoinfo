@@ -86,6 +86,7 @@ registry.category("web_tour.tours").add("od19_iso_management_review_tour", {
                 "<b>Draft → Planned → In Progress → Reviewed → Closed</b>. " +
                 "Management review ensures the QMS remains suitable, adequate, and effective."
             )),
+            run: "click",
         },
     ],
 });

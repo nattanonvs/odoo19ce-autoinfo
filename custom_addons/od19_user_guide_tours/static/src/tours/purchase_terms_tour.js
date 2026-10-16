@@ -77,6 +77,7 @@ registry.category("web_tour.tours").add("od19_purchase_terms_tour", {
                 "<b>Warranty</b>, <b>Delivery To</b>, <b>Payment Term</b>, <b>Shipment Term</b> " +
                 "and <b>Weight Term</b>."
             )),
+            run: "click",
         },
         {
             trigger: ".o_list_renderer",
@@ -84,6 +85,7 @@ registry.category("web_tour.tours").add("od19_purchase_terms_tour", {
                 "The combined term text is generated automatically and printed on the purchase order " +
                 "and its PDF."
             )),
+            run: "click",
         },
     ],
 });

@@ -84,6 +84,7 @@ registry.category("web_tour.tours").add("od19_asset_disposal_tour", {
             content: markup(_t(
                 "The disposal journal entry is opened. Return to the asset to review the disposal details."
             )),
+            run: "click",
         },
         {
             trigger: "a.nav-link:contains('Disposal')",
@@ -104,6 +105,7 @@ registry.category("web_tour.tours").add("od19_asset_disposal_tour", {
                 "Attach <b>Additional Documents</b> and <b>Supporting Documents</b> (bills / moves) " +
                 "related to the disposal."
             )),
+            run: "click",
         },
         ...stepUtils.saveForm(),
 
@@ -115,6 +117,7 @@ registry.category("web_tour.tours").add("od19_asset_disposal_tour", {
                 "reversed and the asset goes back to <b>Running</b>."
             )),
             tooltipPosition: "left",
+            run: "click",
         },
         ...stepUtils.discardForm(),
 
@@ -124,6 +127,7 @@ registry.category("web_tour.tours").add("od19_asset_disposal_tour", {
                 "Asset Disposal complete! The lifecycle is <b>Draft → Running → Disposed</b>, " +
                 "with the option to revert. Disposed assets appear in red in the list."
             )),
+            run: "click",
         },
     ],
 });

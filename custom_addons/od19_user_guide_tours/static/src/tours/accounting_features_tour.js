@@ -71,6 +71,7 @@ registry.category("web_tour.tours").add("od19_accounting_features_tour", {
                 "The <b>WHT Base Amount</b> and <b>WHT Amount</b> are computed automatically " +
                 "from the base and the rate."
             )),
+            run: "click",
         },
         {
             trigger: ".o_field_widget[name='od19_payer_id'] input",
@@ -100,6 +101,7 @@ registry.category("web_tour.tours").add("od19_accounting_features_tour", {
                 "On an invoice you will find the <b>BOT</b> smart button (Revenue Department " +
                 "tax invoice lookup) and the <b>Actual Due Date</b> (invoice date + 30 days)."
             )),
+            run: "click",
         },
         {
             trigger: ".o_list_renderer",
@@ -107,6 +109,7 @@ registry.category("web_tour.tours").add("od19_accounting_features_tour", {
                 "When you <b>Cancel</b> an invoice the system asks for a <b>cancel reason</b>, " +
                 "which is stored and displayed on the form for audit."
             )),
+            run: "click",
         },
         {
             trigger: ".o_list_renderer",
@@ -114,6 +117,7 @@ registry.category("web_tour.tours").add("od19_accounting_features_tour", {
                 "Thai WHT certificate reports (ภงด.1 / ภงด.3 / ภงด.53 / ภงด.53 ทริส) are available " +
                 "from the <b>Print</b> menu on any payment."
             )),
+            run: "click",
         },
     ],
 });

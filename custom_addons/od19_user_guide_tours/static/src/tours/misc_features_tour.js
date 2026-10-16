@@ -49,6 +49,7 @@ registry.category("web_tour.tours").add("od19_misc_features_tour", {
                 "Each check is logged with the date, versions and metrics, so you can track " +
                 "environment drift over time."
             )),
+            run: "click",
         },
 
         // --- Repeat Customer Enhanced ---
@@ -67,6 +68,7 @@ registry.category("web_tour.tours").add("od19_misc_features_tour", {
                 "if set, otherwise the customer), showing <b>last order date</b>, <b>order count</b> " +
                 "and <b>total amount</b>."
             )),
+            run: "click",
         },
         {
             trigger: ".o_list_renderer",
@@ -74,6 +76,7 @@ registry.category("web_tour.tours").add("od19_misc_features_tour", {
                 "Use this report to identify your most loyal contractors and project owners, " +
                 "and to spot repeat-business opportunities."
             )),
+            run: "click",
         },
     ],
 });

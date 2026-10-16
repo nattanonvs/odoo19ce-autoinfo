@@ -111,6 +111,7 @@ registry.category("web_tour.tours").add("od19_iso_training_tour", {
                 "<b>Draft → Planned → In Progress → Completed</b>. " +
                 "Define competences, then assign them to employees via the competence matrix."
             )),
+            run: "click",
         },
     ],
 });

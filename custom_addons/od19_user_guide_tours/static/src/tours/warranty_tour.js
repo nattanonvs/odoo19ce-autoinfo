@@ -65,6 +65,7 @@ registry.category("web_tour.tours").add("od19_warranty_tour", {
             content: markup(_t(
                 "The <b>Under Warranty</b> flag is computed automatically based on the product and serial."
             )),
+            run: "click",
         },
         ...stepUtils.saveForm(),
         {
@@ -103,6 +104,7 @@ registry.category("web_tour.tours").add("od19_warranty_tour", {
                 "Warranty workflow complete: <b>Create → Confirm → Start → (Repair Order) → Done</b>. " +
                 "Warranty coverage is checked automatically from the product and serial number."
             )),
+            run: "click",
         },
     ],
 });

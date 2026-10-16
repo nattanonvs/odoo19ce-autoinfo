@@ -135,6 +135,7 @@ registry.category("web_tour.tours").add("od19_purchase_approval_tour", {
                 "project context is set at the <b>PO line level</b>, and budget control uses " +
                 "<b>warnings only</b> (no hard blocks)."
             )),
+            run: "click",
         },
     ],
 });

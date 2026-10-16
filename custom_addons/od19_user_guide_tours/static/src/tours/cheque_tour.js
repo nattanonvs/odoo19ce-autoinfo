@@ -109,6 +109,7 @@ registry.category("web_tour.tours").add("od19_cheque_tour", {
                 "Cheque workflow complete: <b>Draft → Confirm → Deposit → Clear</b> (or <b>Paid</b> for payables). " +
                 "Use <b>Bounce</b> for returned cheques."
             )),
+            run: "click",
         },
     ],
 });

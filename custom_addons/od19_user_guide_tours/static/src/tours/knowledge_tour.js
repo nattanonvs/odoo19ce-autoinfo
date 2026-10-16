@@ -85,6 +85,7 @@ registry.category("web_tour.tours").add("od19_knowledge_tour", {
                 "Knowledge Enhanced complete! Create articles with categories, keywords, " +
                 "and emergency flags. Use full-text search to find procedures quickly."
             )),
+            run: "click",
         },
     ],
 });

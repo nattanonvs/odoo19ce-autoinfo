@@ -93,6 +93,7 @@ registry.category("web_tour.tours").add("od19_advance_payment_tour", {
                 "Use <b>Cancel</b> to void an advance and <b>Reset to Draft</b> to reuse it. " +
                 "Remaining balance is tracked automatically as the advance is applied to invoices."
             )),
+            run: "click",
         },
     ],
 });

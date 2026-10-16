@@ -93,6 +93,7 @@ registry.category("web_tour.tours").add("od19_iso_customer_satisfaction_tour", {
                 "<b>Draft → Sent → Completed → Closed</b>. " +
                 "Use periodic reports to track satisfaction trends and identify improvement areas."
             )),
+            run: "click",
         },
     ],
 });

@@ -91,6 +91,7 @@ registry.category("web_tour.tours").add("od19_stock_valuation_tour", {
                 "Stock Valuation Adjustment complete: <b>Draft → Confirm → Approve → Done</b>. " +
                 "The <b>Audit Trail</b> tab records all changes for compliance."
             )),
+            run: "click",
         },
     ],
 });

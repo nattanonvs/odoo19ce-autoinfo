@@ -154,6 +154,7 @@ registry.category("web_tour.tours").add("od19_iso_nonconformity_tour", {
                 "<b>Draft → Open → Analysis → Action → Verification → Closed</b>. " +
                 "Always document root cause and corrective actions for audit traceability."
             )),
+            run: "click",
         },
     ],
 });

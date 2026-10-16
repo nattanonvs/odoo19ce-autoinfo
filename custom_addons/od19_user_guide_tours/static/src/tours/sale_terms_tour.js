@@ -77,6 +77,7 @@ registry.category("web_tour.tours").add("od19_sale_terms_tour", {
                 "<b>Price</b>, <b>Delivery</b>, <b>Payment (Product / Engineering)</b>, " +
                 "<b>Validity</b>, <b>Warranty</b> and <b>Credit</b>."
             )),
+            run: "click",
         },
         {
             trigger: ".o_list_renderer",
@@ -84,6 +85,7 @@ registry.category("web_tour.tours").add("od19_sale_terms_tour", {
                 "The combined term text is generated automatically into the <b>Terms &amp; Conditions</b> " +
                 "and printed on the quotation."
             )),
+            run: "click",
         },
     ],
 });

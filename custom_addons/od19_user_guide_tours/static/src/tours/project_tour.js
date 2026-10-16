@@ -83,6 +83,7 @@ registry.category("web_tour.tours").add("od19_project_analytic_tour", {
                 "Each project has a unique <b>Job Number</b> and an analytic account to track " +
                 "revenue, costs, and profit per project."
             )),
+            run: "click",
         },
     ],
 });

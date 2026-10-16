@@ -52,6 +52,7 @@ registry.category("web_tour.tours").add("od19_valuation_by_lot_tour", {
                 "Review the columns: <b>Quantity</b>, <b>Unit Cost</b>, and <b>Total Value</b>. " +
                 "Negative total values are highlighted in red and may indicate valuation issues."
             )),
+            run: "click",
         },
 
         {
@@ -61,6 +62,7 @@ registry.category("web_tour.tours").add("od19_valuation_by_lot_tour", {
                 "at the lot level, identify slow-moving or high-value lots, and reconcile " +
                 "with the general ledger."
             )),
+            run: "click",
         },
     ],
 });

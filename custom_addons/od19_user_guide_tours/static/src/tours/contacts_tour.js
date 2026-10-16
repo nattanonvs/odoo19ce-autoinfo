@@ -67,6 +67,7 @@ registry.category("web_tour.tours").add("od19_contacts_credit_risk_tour", {
             content: markup(_t(
                 "The credit status is now <b>Pending</b>, waiting for Accounting review."
             )),
+            run: "click",
         },
         {
             trigger: "a.nav-link:contains('Credit & Risk')",
@@ -98,6 +99,7 @@ registry.category("web_tour.tours").add("od19_contacts_credit_risk_tour", {
                 "A red <b>Blacklisted</b> ribbon now warns every user. " +
                 "Use <b>Clear Blacklist</b> to remove it when the risk is resolved."
             )),
+            run: "click",
         },
         {
             trigger: "button[name='action_od19_clear_blacklist']",
@@ -112,6 +114,7 @@ registry.category("web_tour.tours").add("od19_contacts_credit_risk_tour", {
                 "That's it! You have learned how to manage partner roles, credit requests, " +
                 "and blacklist status. Remember: <b>No credit approval, no credit sale</b>."
             )),
+            run: "click",
         },
     ],
 });
