@@ -586,14 +586,30 @@ class TestDashboardPreview(TransactionCase):
             formula_mode="custom", formula_expression="widget_%s" % dependent.id
         )
         self.assertEqual(result["value"], 101.0)
+        # The aggregate read to give the widget a row is not an operand the
+        # formula names, so the builder operand list stays empty.
+        self.assertEqual(result["operands"], [])
 
     def test_preview_shares_a_bucket_against_the_displayed_buckets(self):
+        """A chart divides each bucket by the displayed buckets, not the domain.
+
+        Three states are populated while only two buckets are displayed: using
+        the domain-wide total would make the series sum to less than 100.
+        """
         partner = self.env["res.partner"].create({"name": "Share customer"})
-        self.env["sale.order"].create({"partner_id": partner.id})
+        for state in ("draft", "sent", "sale"):
+            self.env["sale.order"].create({"partner_id": partner.id, "state": state})
+        displayed = sum(
+            count
+            for _state, count in self.env["sale.order"]._read_group(
+                [], ["state"], ["__count"], order="__count desc", limit=2
+            )
+        )
+        self.assertGreater(self.env["sale.order"].search_count([]), displayed)
         result = self._preview(
             widget_type="pie",
             groupby_key="state",
-            limit=50,
+            limit=2,
             measure_key="__count",
             formula_mode="preset",
             formula_type="share",

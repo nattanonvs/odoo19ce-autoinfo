@@ -979,7 +979,9 @@ class Od19DashboardWidget(models.Model):
                 add(name, measure_key)
         if not requests:
             # A custom formula may name only other widgets or literals: it still
-            # needs one aggregate column so the widget can be read at all.
+            # needs one aggregate column so the widget can be read at all. The
+            # alias is internal — the expression never names it — so it is kept
+            # out of the operand list shown by the builder.
             add("value", self.measure_key or "__count")
         return requests
 
@@ -1128,7 +1130,7 @@ class Od19DashboardWidget(models.Model):
         context.update(extra or {})
         return context
 
-    def _formula_extra(self, model, domain, requests, date_range=None, date_from=None, date_to=None, widget_values=None, shift=None, share=True):
+    def _formula_extra(self, model, domain, requests, date_range=None, date_from=None, date_to=None, widget_values=None, *, shift=None, share=True):
         """Return the context values that are not read from a single aggregate row.
 
         ``share=False`` skips the domain total read (used by charts, which
@@ -1153,7 +1155,12 @@ class Od19DashboardWidget(models.Model):
         return extra
 
     def _evaluate_value(self, context):
-        """Evaluate the effective expression on ``context`` (raises ``UserError``)."""
+        """Evaluate the effective expression on ``context``.
+
+        A division by zero and a malformed or unresolvable expression raise a
+        ``UserError``; any other failure is left to the caller, which logs it
+        and fails the widget soft.
+        """
         self.ensure_one()
         expression = self._effective_expression()
         if not expression:
@@ -1170,11 +1177,6 @@ class Od19DashboardWidget(models.Model):
             raise UserError(
                 _("The formula of widget '%s' could not be evaluated: %s") % (self.name, error)
             ) from error
-        except Exception:
-            # An unexpected failure (a real bug) is logged with its traceback and
-            # left to the caller, which fails the widget soft.
-            _logger.exception("The formula of widget %s raised an unexpected error", self.id)
-            raise
 
     def _record_count(self, model, domain):
         """Return the number of records the widget would collect on ``domain``."""
@@ -1190,7 +1192,13 @@ class Od19DashboardWidget(models.Model):
             for field in self.source_id.field_ids
         }
         details = []
+        used = formula_tools.expression_names(self._effective_expression())
         for alias, measure_key, _spec in requests:
+            if alias not in used and alias not in formula_tools.SLOT_KEYS:
+                # The aggregate column read only so the widget has a row: the
+                # formula names neither this alias nor a slot, so it is not an
+                # operand the designer wrote.
+                continue
             if measure_key == "__count":
                 label = _("Number of records")
             else:
@@ -1198,7 +1206,6 @@ class Od19DashboardWidget(models.Model):
             details.append(
                 {"alias": alias, "label": label, "value": context.get(alias, 0.0)}
             )
-        used = formula_tools.expression_names(self._effective_expression())
         for name in ("total_a", "days_in_period", "days_elapsed"):
             if name in used:
                 details.append(
