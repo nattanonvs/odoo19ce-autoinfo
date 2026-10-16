@@ -1,4 +1,5 @@
 from datetime import timedelta
+from unittest.mock import patch
 
 from odoo import fields
 from odoo.exceptions import ValidationError
@@ -378,18 +379,18 @@ class TestDashboardOrdering(TransactionCase):
         self.assertEqual(self.widget_c._dependency_ids(), [self.widget_a.id])
 
     def test_dependency_ids_never_contains_the_widget_itself(self):
-        # A widget referring to itself is refused by ``_check_formula_config`` on
-        # a real write, so build it in memory to reach the self-discard branch.
-        widget = self.env["od19.dashboard.widget"].new(
-            {
-                "dashboard_id": self.dashboard.id,
-                "source_id": self.source.id,
-                "measure_key": "__count",
-                "formula_mode": "custom",
-            }
-        )
-        widget.formula_expression = "count_records + widget_%s" % widget.id
-        self.assertEqual(widget._dependency_ids(), [])
+        # Both routes to a self reference are refused on a real write:
+        # ``_check_formula_config`` drops the widget's own id from the allowed
+        # names, and ``_check_compare_widget`` refuses a rule that compares a
+        # widget with itself. Force the expression in memory so the
+        # self-discard branch of ``_dependency_ids`` is actually exercised.
+        widget = self._make_widget("Self referencing")
+        with patch.object(
+            type(widget),
+            "_effective_expression",
+            lambda self: "count_records + widget_%s" % self.id,
+        ):
+            self.assertEqual(widget._dependency_ids(), [])
 
     def test_compute_order_places_dependencies_first(self):
         self.widget_c.write(
