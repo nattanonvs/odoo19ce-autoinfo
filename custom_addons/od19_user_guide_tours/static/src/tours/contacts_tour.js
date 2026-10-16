@@ -46,6 +46,13 @@ registry.category("web_tour.tours").add("od19_contacts_credit_risk_tour", {
             run: "click",
         },
         {
+            trigger: "a.nav-link:contains('Sales & Purchase')",
+            content: markup(_t(
+                "Open the <b>Sales &amp; Purchase</b> tab where the Partner Roles are shown."
+            )),
+            run: "click",
+        },
+        {
             trigger: ".o_field_widget[name='od19_is_commercial_customer'] input[type='checkbox']",
             content: markup(_t(
                 "Mark this partner as a <b>Commercial Customer</b> (the entity that orders and pays)."

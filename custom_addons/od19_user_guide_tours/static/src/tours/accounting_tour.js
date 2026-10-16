@@ -50,7 +50,7 @@ registry.category("web_tour.tours").add("od19_accounting_tour", {
             run: "click",
         },
         {
-            trigger: ".o-autocomplete--dropdown-item",
+            trigger: ".o-autocomplete--dropdown-menu a.dropdown-item:not(.o_loading)",
             run: "click",
         },
         {
@@ -96,7 +96,7 @@ registry.category("web_tour.tours").add("od19_accounting_tour", {
             run: "click",
         },
         {
-            trigger: ".o-autocomplete--dropdown-item",
+            trigger: ".o-autocomplete--dropdown-menu a.dropdown-item:not(.o_loading)",
             run: "click",
         },
         {
@@ -113,7 +113,7 @@ registry.category("web_tour.tours").add("od19_accounting_tour", {
             run: "click",
         },
         {
-            trigger: ".o-autocomplete--dropdown-item",
+            trigger: ".o-autocomplete--dropdown-menu a.dropdown-item:not(.o_loading)",
             run: "click",
         },
         ...stepUtils.saveForm(),

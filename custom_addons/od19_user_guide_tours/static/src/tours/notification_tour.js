@@ -33,7 +33,7 @@ registry.category("web_tour.tours").add("od19_notification_tour", {
             run: "click",
         },
         {
-            trigger: ".o_list_renderer .o_data_row:first",
+            trigger: ".o_list_renderer .o_data_row:first td.o_data_cell[name='name']",
             content: _t("Open an existing notification channel to review how it is configured."),
             tooltipPosition: "bottom",
             run: "click",
@@ -80,7 +80,7 @@ registry.category("web_tour.tours").add("od19_notification_tour", {
             run: "click",
         },
         {
-            trigger: ".o-autocomplete--dropdown-item:first",
+            trigger: ".o-autocomplete--dropdown-menu a.dropdown-item:not(.o_loading)",
             content: _t("Pick the user from the suggestion list."),
             run: "click",
         },
@@ -101,7 +101,7 @@ registry.category("web_tour.tours").add("od19_notification_tour", {
             run: "click",
         },
         {
-            trigger: ".o-autocomplete--dropdown-item:first",
+            trigger: ".o-autocomplete--dropdown-menu a.dropdown-item:not(.o_loading)",
             content: _t("Pick a channel from the suggestion list."),
             run: "click",
         },
@@ -110,7 +110,13 @@ registry.category("web_tour.tours").add("od19_notification_tour", {
 
         // --- Notification Queue ---
         {
-            trigger: navSection("Notification Queue"),
+            trigger: navSection("Notifications"),
+            content: markup(_t("Reopen the <b>Notifications</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: navItem("Queue"),
             content: markup(_t(
                 "Open the <b>Notification Queue</b> to monitor outgoing notifications."
             )),

@@ -51,11 +51,16 @@ registry.category("web_tour.tours").add("od19_asset_loan_tour", {
             run: "click",
         },
         {
-            trigger: ".o-autocomplete--dropdown-item",
+            trigger: ".o-autocomplete--dropdown-menu a.dropdown-item:not(.o_loading)",
             run: "click",
         },
         {
             trigger: ".o_field_widget[name='loan_date'] .o_input",
+            content: _t("Open the date picker to set the loan date."),
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='loan_date'] input.o_input",
             content: _t("Set the loan date."),
             run: "edit 2026-01-15",
         },
