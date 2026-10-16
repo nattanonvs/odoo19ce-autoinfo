@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Show the document revision on the printed Purchase Order.
+         This is the revision of the PO document itself and is unrelated to
+         the ISO report-template footer (od19_iso_document_control). -->
+    <record id="report_purchaseorder_document_od19_revision" model="ir.ui.view">
+        <field name="name">purchase.order.report.document.od19.revision</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.report_purchaseorder_document"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='informations']" position="inside">
+                <div t-if="o.od19_is_revision" class="col-2 bm-2">
+                    <strong>Revision:</strong>
+                    <p class="m-0" t-out="'R%02d' % o.od19_revision_no"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

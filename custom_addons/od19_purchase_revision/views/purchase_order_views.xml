@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_purchase_order_form_od19_revision" model="ir.ui.view">
+            <field name="name">purchase.order.form.od19.revision</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//button[@name='button_cancel']" position="before">
+                    <button name="action_create_revision"
+                            type="object"
+                            string="Create Revision"
+                            class="oe_highlight"
+                            groups="od19_purchase_procurement_core.group_purchase_director"
+                            invisible="state != 'purchase' or od19_revision_status == 'superseded'"/>
+                </xpath>
+
+                <xpath expr="//header" position="after">
+                    <div class="alert alert-warning" role="alert"
+                         invisible="od19_revision_status != 'superseded'">
+                        This document has been superseded by a newer revision and is read-only.
+                    </div>
+                </xpath>
+
+                <xpath expr="//div[@name='button_box']" position="inside">
+                    <button type="object"
+                            name="action_view_revisions"
+                            class="oe_stat_button"
+                            icon="fa-code-fork"
+                            invisible="od19_revision_count == 0">
+                        <field name="od19_revision_count" widget="statinfo" string="Revisions"/>
+                    </button>
+                </xpath>
+
+                <xpath expr="//field[@name='partner_ref']" position="after">
+                    <field name="od19_is_revision" invisible="1"/>
+                    <field name="od19_revision_of_id"
+                           readonly="1"
+                           invisible="not od19_is_revision"/>
+                    <field name="od19_revision_no"
+                           readonly="1"
+                           invisible="not od19_is_revision"/>
+                    <field name="od19_revision_status" readonly="1"/>
+                </xpath>
+
+            </field>
+        </record>
+
+        <record id="view_purchase_order_tree_od19_revision" model="ir.ui.view">
+            <field name="name">purchase.order.list.od19.revision</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='partner_id']" position="after">
+                    <field name="od19_revision_no" optional="hide"/>
+                    <field name="od19_revision_status" optional="hide"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_purchase_order_filter_od19_revision" model="ir.ui.view">
+            <field name="name">purchase.order.search.od19.revision</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.view_purchase_order_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//search" position="inside">
+                    <field name="od19_base_name"/>
+                    <filter name="od19_revision_latest"
+                            string="Latest Only"
+                            domain="[('od19_revision_status', '=', 'current')]"/>
+                    <filter name="od19_revision_superseded"
+                            string="Superseded"
+                            domain="[('od19_revision_status', '=', 'superseded')]"/>
+                    <filter name="od19_has_revision"
+                            string="Has Revision"
+                            domain="[('od19_is_revision', '=', True)]"/>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

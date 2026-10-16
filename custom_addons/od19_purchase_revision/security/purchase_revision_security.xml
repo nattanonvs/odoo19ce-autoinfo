@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Grant system administrators the ability to manage purchase order
+         revisions out of the box, following the project convention where
+         base.group_system implies the custom manager groups. -->
+    <record id="base.group_system" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('od19_purchase_procurement_core.group_purchase_director'))]"/>
+    </record>
+
+</odoo>
