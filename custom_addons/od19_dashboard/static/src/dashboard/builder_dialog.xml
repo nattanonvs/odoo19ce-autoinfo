@@ -3,7 +3,7 @@
 
     <t t-name="od19_dashboard.BuilderDialog">
         <div class="modal d-block od19-builder" role="dialog" t-on-click.self="props.onClose">
-            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-dialog modal-xl modal-dialog-scrollable">
                 <div class="modal-content">
 
                     <div class="modal-header">
@@ -17,6 +17,9 @@
 
                     <div class="modal-body">
                         <div class="alert alert-danger" role="alert" t-if="state.error" t-esc="state.error"/>
+
+                        <div class="row g-4">
+                            <div class="col-lg-8">
 
                         <!-- ===================== Identity ===================== -->
                         <h6 class="od19-builder__section">Content</h6>
@@ -80,10 +83,98 @@
                                     <i class="fa fa-database me-1"/><t t-esc="sourceHint"/>
                                 </small>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-6" t-if="isFormula">
+                                <label class="form-label" for="od19_widget_formula_mode">Formula</label>
+                                <select id="od19_widget_formula_mode" class="form-select"
+                                        t-model="state.draft.formula_mode"
+                                        t-on-change="onFormulaModeChange">
+                                    <option t-foreach="formulaModes" t-as="mode" t-key="mode.key"
+                                            t-att-value="mode.key">
+                                        <t t-esc="mode.label"/>
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-6" t-if="isFormula">
+                                <label class="form-label" for="od19_widget_formula_basis">
+                                    Period used by the formula
+                                </label>
+                                <select id="od19_widget_formula_basis" class="form-select"
+                                        t-model="state.draft.formula_basis"
+                                        t-on-change="onFormulaChange">
+                                    <option t-foreach="periodBases" t-as="basis" t-key="basis.key"
+                                            t-att-value="basis.key">
+                                        <t t-esc="basis.label"/>
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-6" t-if="isPresetFormula">
+                                <label class="form-label" for="od19_widget_formula_type">Preset</label>
+                                <select id="od19_widget_formula_type" class="form-select"
+                                        t-model="state.draft.formula_type"
+                                        t-on-change="onFormulaTypeChange">
+                                    <option t-att-value="null">— Select a formula —</option>
+                                    <option t-foreach="formulaTypes" t-as="formula" t-key="formula.key"
+                                            t-att-value="formula.key">
+                                        <t t-esc="formula.label"/>
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-12" t-if="isPresetFormula and selectedFormula">
+                                <div class="od19-slots">
+                                    <div class="od19-slots__row" t-foreach="slotRows" t-as="slot" t-key="slot.key">
+                                        <label class="od19-slots__label" t-att-for="'od19_slot_' + slot.key">
+                                            <t t-esc="slot.label"/>
+                                        </label>
+                                        <select t-if="!slot.is_weight"
+                                                t-att-id="'od19_slot_' + slot.key"
+                                                class="form-select form-select-sm"
+                                                t-att-value="slot.value"
+                                                t-on-change="(ev) => this.setSlot(slot.key, ev.target.value)">
+                                            <option t-att-value="">— Select a measure —</option>
+                                            <option t-foreach="measures" t-as="measure" t-key="measure.key"
+                                                    t-att-value="measure.key">
+                                                <t t-esc="measure.label"/>
+                                            </option>
+                                        </select>
+                                        <input t-else="" type="number" step="any" min="0"
+                                               t-att-id="'od19_slot_' + slot.key"
+                                               class="form-control form-control-sm"
+                                               t-att-value="slot.value"
+                                               t-on-change="(ev) => this.setSlot(slot.key, ev.target.value)"/>
+                                    </div>
+                                    <button type="button" class="btn btn-link btn-sm p-0" t-if="canAddSlot"
+                                            t-on-click="addSlot">
+                                        <i class="fa fa-plus me-1"/>Add a slot
+                                    </button>
+                                    <small class="text-muted d-block" t-if="selectedFormula.expression">
+                                        Expression: <code t-esc="selectedFormula.expression"/>
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="col-12" t-if="isCustomFormula">
+                                <label class="form-label" for="od19_widget_expression">Expression</label>
+                                <textarea id="od19_widget_expression" rows="2" class="form-control"
+                                          placeholder="a / b * 100"
+                                          t-model="state.draft.formula_expression"
+                                          t-on-input="onFormulaChange"/>
+                                <div class="od19-slots__names">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm"
+                                            t-foreach="insertableNames" t-as="name" t-key="name"
+                                            t-on-click="() => this.insertName(name)">
+                                        <t t-esc="name"/>
+                                    </button>
+                                </div>
+                                <small class="text-muted">
+                                    Allowed: <code>+ - * / % **</code>, comparisons,
+                                    <code>and</code> / <code>or</code>, <code>min</code>,
+                                    <code>max</code>, <code>abs</code>, <code>round</code>.
+                                </small>
+                            </div>
+                            <div class="col-md-6" t-if="!isFormula">
                                 <label class="form-label" for="od19_widget_measure">Measure</label>
                                 <select id="od19_widget_measure" class="form-select"
-                                        t-model="state.draft.measure_key">
+                                        t-model="state.draft.measure_key"
+                                        t-on-change="onFormulaChange">
                                     <option t-foreach="measures" t-as="measure" t-key="measure.key"
                                             t-att-value="measure.key">
                                         <t t-esc="measure.label"/>
@@ -145,41 +236,158 @@
                         <!-- ===================== Targets ===================== -->
                         <h6 class="od19-builder__section">Target &amp; status</h6>
                         <div class="row g-3">
-                            <div class="col-md-6" t-if="showGoal">
+                            <div class="col-md-4" t-if="showGoal">
                                 <label class="form-label" for="od19_widget_goal">Goal value</label>
                                 <input id="od19_widget_goal" type="number" step="any"
-                                       class="form-control" t-model.number="state.draft.goal_value"/>
+                                       class="form-control" t-model.number="state.draft.goal_value"
+                                       t-on-change="onFormulaChange"/>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label" for="od19_widget_threshold">Status rule</label>
-                                <select id="od19_widget_threshold" class="form-select"
-                                        t-model="state.draft.threshold_mode">
-                                    <option t-foreach="thresholdModes" t-as="mode" t-key="mode.key"
-                                            t-att-value="mode.key">
-                                        <t t-esc="mode.label"/>
+                            <div class="col-md-4">
+                                <label class="form-label" for="od19_widget_default_status">
+                                    When no rule matches
+                                </label>
+                                <select id="od19_widget_default_status" class="form-select"
+                                        t-model="state.draft.default_status"
+                                        t-on-change="onFormulaChange">
+                                    <option t-foreach="statuses" t-as="status" t-key="status.key"
+                                            t-att-value="status.key">
+                                        <t t-esc="status.label"/>
                                     </option>
                                 </select>
                             </div>
-                            <div class="col-md-3" t-if="showThreshold">
-                                <label class="form-label" for="od19_widget_warning">Warning level</label>
-                                <input id="od19_widget_warning" type="number" step="any"
-                                       class="form-control" t-model.number="state.draft.warning_value"/>
-                            </div>
-                            <div class="col-md-3" t-if="showThreshold">
-                                <label class="form-label" for="od19_widget_critical">Critical level</label>
-                                <input id="od19_widget_critical" type="number" step="any"
-                                       class="form-control" t-model.number="state.draft.critical_value"/>
-                            </div>
-                            <div class="col-12" t-if="state.draft.widget_type === 'kpi'">
-                                <div class="form-check">
+                            <div class="col-md-4" t-if="state.draft.widget_type === 'kpi'">
+                                <div class="form-check mt-md-4">
                                     <input id="od19_widget_delta" type="checkbox" class="form-check-input"
-                                           t-model="state.draft.show_delta"/>
+                                           t-model="state.draft.show_delta" t-on-change="onFormulaChange"/>
                                     <label class="form-check-label" for="od19_widget_delta">
-                                        Compare with the previous period
+                                        Show the period comparison
                                     </label>
                                 </div>
                             </div>
+                            <div class="col-md-4"
+                                 t-if="state.draft.widget_type === 'kpi' and state.draft.show_delta">
+                                <label class="form-label" for="od19_widget_delta_basis">
+                                    Comparison period
+                                </label>
+                                <select id="od19_widget_delta_basis" class="form-select"
+                                        t-model="state.draft.delta_basis"
+                                        t-on-change="onFormulaChange">
+                                    <option t-foreach="periodBases" t-as="basis" t-key="basis.key"
+                                            t-att-value="basis.key">
+                                        <t t-esc="basis.label"/>
+                                    </option>
+                                </select>
+                            </div>
                         </div>
+
+                        <!-- ===================== Status rules ===================== -->
+                        <h6 class="od19-builder__section">
+                            Status rules
+                            <button type="button" class="btn btn-outline-secondary btn-sm ms-2"
+                                    t-on-click="addRule">
+                                <i class="fa fa-plus me-1"/>Add rule
+                            </button>
+                        </h6>
+                        <p class="text-muted od19-rules__hint">
+                            The first matching rule, from the top, decides the colour of the widget.
+                            Drag the handle or use the arrows to change the order.
+                        </p>
+                        <div class="table-responsive" t-if="ruleRows.length">
+                            <table class="table table-sm align-middle od19-rules">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 2rem"></th>
+                                        <th style="width: 22%">Operator</th>
+                                        <th style="width: 26%">Compare with</th>
+                                        <th>Value</th>
+                                        <th style="width: 18%">Colour</th>
+                                        <th style="width: 5rem"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="ruleRows" t-as="rule" t-key="rule._key"
+                                        class="od19-rules__row" draggable="true"
+                                        t-on-dragstart="(ev) => this.onRuleDragStart(ev, rule.index)"
+                                        t-on-dragover="onRuleDragOver"
+                                        t-on-drop="(ev) => this.onRuleDrop(ev, rule.index)">
+                                        <td class="od19-rules__handle" title="Drag to reorder">
+                                            <i class="fa fa-bars"/>
+                                        </td>
+                                        <td>
+                                            <select class="form-select form-select-sm"
+                                                    t-att-value="rule.operator"
+                                                    t-on-change="(ev) => this.updateRule(rule.index, 'operator', ev.target.value)">
+                                                <option t-foreach="operators" t-as="operator" t-key="operator.key"
+                                                        t-att-value="operator.key">
+                                                    <t t-esc="operator.label"/>
+                                                </option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <select class="form-select form-select-sm"
+                                                    t-att-value="rule.compare_type"
+                                                    t-on-change="(ev) => this.updateRule(rule.index, 'compare_type', ev.target.value)">
+                                                <option t-foreach="compareTypes" t-as="compare" t-key="compare.key"
+                                                        t-att-value="compare.key">
+                                                    <t t-esc="compare.label"/>
+                                                </option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input t-if="rule.is_constant" type="number" step="any"
+                                                   class="form-control form-control-sm"
+                                                   t-att-value="rule.compare_value"
+                                                   t-on-change="(ev) => this.updateRule(rule.index, 'compare_value', ev.target.value)"/>
+                                            <div t-elif="rule.is_percent" class="input-group input-group-sm">
+                                                <input type="number" step="any" min="0"
+                                                       class="form-control"
+                                                       t-att-value="rule.compare_percent"
+                                                       t-on-change="(ev) => this.updateRule(rule.index, 'compare_percent', ev.target.value)"/>
+                                                <span class="input-group-text">%</span>
+                                            </div>
+                                            <select t-elif="rule.is_widget" class="form-select form-select-sm"
+                                                    t-att-value="rule.compare_widget_id"
+                                                    t-on-change="(ev) => this.updateRule(rule.index, 'compare_widget_id', parseInt(ev.target.value, 10) || false)">
+                                                <option t-att-value="false">— Select a widget —</option>
+                                                <option t-foreach="widgetOptions" t-as="option" t-key="option.id"
+                                                        t-att-value="option.id">
+                                                    <t t-esc="option.name"/>
+                                                </option>
+                                            </select>
+                                            <span t-else="" class="text-muted">—</span>
+                                        </td>
+                                        <td>
+                                            <select class="form-select form-select-sm"
+                                                    t-att-value="rule.status"
+                                                    t-on-change="(ev) => this.updateRule(rule.index, 'status', ev.target.value)">
+                                                <option t-foreach="statuses" t-as="status" t-key="status.key"
+                                                        t-att-value="status.key">
+                                                    <t t-esc="status.label"/>
+                                                </option>
+                                            </select>
+                                        </td>
+                                        <td class="od19-rules__actions">
+                                            <button type="button" class="od19-icon-btn od19-icon-btn--sm"
+                                                    title="Move up" t-on-click="() => this.moveRule(rule.index, -1)">
+                                                <i class="fa fa-arrow-up"/>
+                                            </button>
+                                            <button type="button" class="od19-icon-btn od19-icon-btn--sm"
+                                                    title="Move down" t-on-click="() => this.moveRule(rule.index, 1)">
+                                                <i class="fa fa-arrow-down"/>
+                                            </button>
+                                            <button type="button"
+                                                    class="od19-icon-btn od19-icon-btn--sm od19-icon-btn--danger"
+                                                    title="Remove rule" t-on-click="() => this.removeRule(rule.index)">
+                                                <i class="fa fa-trash-o"/>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-muted" t-else="">
+                            No rule yet: the widget keeps the colour chosen above.
+                        </p>
 
                         <!-- ===================== Layout ===================== -->
                         <h6 class="od19-builder__section">Layout</h6>
@@ -197,6 +405,78 @@
                                        t-att-min="props.meta.grid ? props.meta.grid.min_h : 1"
                                        t-att-max="props.meta.grid ? props.meta.grid.max_h : 6"
                                        class="form-control" t-model.number="state.draft.grid_h"/>
+                            </div>
+                        </div>
+
+                            </div>
+
+                            <!-- ===================== Preview ===================== -->
+                            <div class="col-lg-4">
+                                <div class="od19-preview">
+                                    <div class="od19-preview__header">
+                                        <h6 class="od19-builder__section mb-0">Preview</h6>
+                                        <button type="button" class="od19-icon-btn od19-icon-btn--sm"
+                                                title="Refresh the preview" t-on-click="_refreshPreview">
+                                            <i class="fa fa-refresh"/>
+                                        </button>
+                                    </div>
+
+                                    <div class="text-muted" t-if="state.preview.loading">
+                                        <i class="fa fa-spinner fa-spin me-1"/>Computing…
+                                    </div>
+                                    <div class="alert alert-warning" role="alert"
+                                         t-if="state.preview.error" t-esc="state.preview.error"/>
+                                    <div class="text-muted" t-if="!state.preview.data and !state.preview.loading and !state.preview.error">
+                                        Fill in the title and the data source to see the result.
+                                    </div>
+
+                                    <t t-if="state.preview.data and !state.preview.loading">
+                                        <div class="od19-preview__value">
+                                            <span t-attf-class="od19-preview__dot od19-status-{{ state.preview.data.status }}"/>
+                                            <span t-esc="previewValue"/>
+                                        </div>
+                                        <ul class="od19-preview__meta">
+                                            <li>
+                                                Records collected:
+                                                <strong t-esc="previewRecords"/>
+                                            </li>
+                                            <li>
+                                                Status:
+                                                <strong t-esc="previewStatusLabel"/>
+                                                <span class="text-muted"
+                                                      t-esc="state.preview.data.status_source === 'rule' ? '(rule)' : '(default)'"/>
+                                            </li>
+                                        </ul>
+                                        <div class="od19-preview__message" t-if="state.preview.data.message"
+                                             t-esc="state.preview.data.message"/>
+                                        <div class="od19-preview__expression" t-if="previewExpression">
+                                            <small class="text-muted">Expression</small>
+                                            <code t-esc="previewExpression"/>
+                                        </div>
+                                        <table class="table table-sm od19-preview__table" t-if="previewOperands.length">
+                                            <thead>
+                                                <tr><th>Slot</th><th>Value</th></tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr t-foreach="previewOperands" t-as="operand" t-key="operand.key">
+                                                    <td t-esc="operand.label"/>
+                                                    <td t-esc="operand.text"/>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <table class="table table-sm od19-preview__table" t-if="previewSeries.length">
+                                            <thead>
+                                                <tr><th>Group</th><th>Value</th></tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr t-foreach="previewSeries" t-as="point" t-key="point.key">
+                                                    <td t-esc="point.label"/>
+                                                    <td t-esc="point.text"/>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </t>
+                                </div>
                             </div>
                         </div>
                     </div>

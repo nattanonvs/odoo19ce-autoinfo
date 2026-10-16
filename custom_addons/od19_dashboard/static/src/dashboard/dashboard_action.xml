@@ -121,7 +121,8 @@
 
                         <div class="od19-widget__header">
                             <div class="od19-widget__headings">
-                                <span class="od19-widget__name" t-esc="widget.name"/>
+                                <span class="od19-widget__name" t-esc="widget.name"
+                                      t-att-title="state.editMode ? widget.formula_hint : ''"/>
                                 <small class="od19-widget__subtitle"
                                        t-if="widget.subtitle" t-esc="widget.subtitle"/>
                             </div>
@@ -150,7 +151,9 @@
                                          t-attf-class="od19-kpi__delta {{ widget.delta_class }}">
                                         <i t-attf-class="fa {{ widget.delta_icon }}"/>
                                         <t t-esc="widget.delta_text"/>
-                                        <span class="od19-kpi__delta-note">vs previous</span>
+                                        <span class="od19-kpi__delta-note"
+                                              t-if="widget.delta_note"
+                                              t-esc="widget.delta_note"/>
                                     </div>
                                 </div>
                                 <div class="od19-kpi__goal" t-if="widget.goal_text">
@@ -275,6 +278,8 @@
                  ========================================================= -->
             <BuilderDialog t-if="state.builder.open"
                            meta="state.meta"
+                           widgets="state.widgets"
+                           dashboardId="state.dashboardId"
                            config="state.builder.config"
                            onSave="onBuilderSave"
                            onClose="closeBuilder"/>

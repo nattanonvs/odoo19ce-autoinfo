@@ -46,7 +46,12 @@ export class DashboardAction extends Component {
                 sources: [],
                 widget_types: [],
                 value_formats: [],
-                threshold_modes: [],
+                formula_modes: [],
+                formula_types: [],
+                compare_types: [],
+                operators: [],
+                statuses: [],
+                period_bases: [],
                 date_ranges: [],
                 audiences: [],
                 currency: {},
@@ -158,7 +163,14 @@ export class DashboardAction extends Component {
     }
 
     openEditWidget(widget) {
-        this.state.builder = { open: true, config: { ...widget.config } };
+        const config = { ...widget.config };
+        // ``config.formula_expression`` is the *effective* expression, not the
+        // stored field: a measure widget carries the internal alias "value".
+        // Only a custom formula has a real expression worth hydrating.
+        if (config.formula_mode !== "custom") {
+            config.formula_expression = "";
+        }
+        this.state.builder = { open: true, config };
     }
 
     closeBuilder() {
@@ -353,6 +365,9 @@ export class DashboardAction extends Component {
                     : `${widget.delta > 0 ? "+" : ""}${widget.delta}%`;
             widget.delta_class = this._deltaClass(widget);
             widget.delta_icon = this._deltaIcon(widget);
+            widget.delta_note = this._basisLabel(widget.delta_basis).toLowerCase();
+            // Shown as a tooltip on the widget card while designing.
+            widget.formula_hint = widget.formula_expression || "";
             widget.progress =
                 widget.goal_value > 0 && widget.value !== null
                     ? Math.min(100, Math.round((widget.value / widget.goal_value) * 100))
@@ -373,8 +388,9 @@ export class DashboardAction extends Component {
             return "od19-delta-flat";
         }
         const positive = widget.delta > 0;
-        const better =
-            widget.threshold_mode === "lower_is_better" ? !positive : positive;
+        // The server infers the direction from the first red rule, so a widget
+        // whose alert is "below a threshold" is not shown as improving.
+        const better = widget.is_lower_better ? !positive : positive;
         return better ? "od19-delta-good" : "od19-delta-bad";
     }
 
@@ -384,6 +400,11 @@ export class DashboardAction extends Component {
             return "fa-minus";
         }
         return widget.delta > 0 ? "fa-arrow-up" : "fa-arrow-down";
+    }
+
+    _basisLabel(basis) {
+        const match = (this.state.meta.period_bases || []).find((item) => item.key === basis);
+        return match ? match.label : _t("previous period");
     }
 
     _bars(widget) {
