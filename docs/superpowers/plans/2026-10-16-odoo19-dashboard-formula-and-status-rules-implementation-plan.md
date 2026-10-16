@@ -34,6 +34,10 @@ venv19\Scripts\python.exe odoo-bin -c odoo.conf -d odoo19 -u od19_dashboard --te
 ```
 
 - หมายเหตุ: `-u` ใช้ได้เพราะโมดูลติดตั้งแล้ว (บทเรียนเดิม: ถ้ายังไม่ติดตั้งต้องใช้ `-i`)
+- ทำงานบน branch `feature/dashboard-formula-status-rules`; commit แรก (baseline ของโมดูล) = `d582e4e861d` ใช้เป็น BASE_SHA ของ Task แรกได้
+- ไฟล์ `security/ir.model.access.csv` และ `data/*.xml` ถูก `.gitignore` บล็อก (`*.csv`, `data/`) — commit baseline บังคับ track ไว้แล้ว (`git add -f`) ดังนั้น `git add` ปกติใน Task ถัด ๆ ไปใช้งานได้ และ `git grep` ใช้ตรวจสอบได้จริง
+
+- **ลำดับการทำงาน (สำคัญ):** ให้ทำ **Task 2 ก่อน Task 1** — Task 1 อ้าง `formula_tools.FORMULA_TYPES` และ import `models/dashboard_formula.py` ซึ่ง Task 2 เป็นผู้สร้าง ถ้าทำ Task 1 ก่อน โมดูลจะ import ไม่ผ่าน (plan ฉบับก่อนหน้าตั้งลำดับสลับกัน; แก้ที่หัวข้อนี้) จากนั้น Task 3–11 ทำตามลำดับปกติ
 
 ---
 
@@ -84,7 +88,7 @@ venv19\Scripts\python.exe odoo-bin -c odoo.conf -d odoo19 -u od19_dashboard --te
 
 - [ ] **Step 1: Write the failing test**
 
-สร้าง `custom_addons/od19_dashboard/tests/__init__.py`:
+ต่อท้าย `custom_addons/od19_dashboard/tests/__init__.py` (ไฟล์นี้ถูกสร้างไว้แล้วใน Task 2 — ต้อง **เพิ่มบรรทัด** ไม่ใช่เขียนทับ):
 
 ```python
 from . import test_dashboard_rules
@@ -342,28 +346,28 @@ from . import dashboard
 from . import dashboard_rule
 ```
 
-> หมายเหตุ: `dashboard_formula` จะถูกสร้างใน Task 2 หากยังไม่มีให้ comment บรรทัดนั้นไว้ชั่วคราวและเปิดเมื่อ Task 2 เสร็จ
+> หมายเหตุ: การ import `dashboard_formula` ที่นี่ใช้ได้ทันที เพราะ Task 2 (ผู้สร้างไฟล์นั้น) ถูกจัดให้ทำก่อน Task 1 แล้ว — ดู "ลำดับการทำงาน" ในหัวข้อ Precondition ไม่ต้อง comment บรรทัดใดไว้ชั่วคราว
 
 - [ ] **Step 5: Add the formula fields to the widget model**
 
 ใน `custom_addons/od19_dashboard/models/dashboard.py` แก้ส่วน import (บรรทัด 1–9) เป็น:
 
 ```python
-import ast
-import calendar
 import json
 import logging
 from datetime import date, datetime, timedelta
 
 from odoo import Command, _, api, fields, models
 from odoo.exceptions import AccessError, UserError, ValidationError
-from odoo.tools.misc import format_date, format_datetime, formatLang
+from odoo.tools.misc import format_date, format_datetime
 from odoo.tools.safe_eval import safe_eval
 
 from . import dashboard_formula as formula_tools
 
 _logger = logging.getLogger(__name__)
 ```
+
+> หมายเหตุ: `json` จำเป็นเพราะ `_formula_slot_map` ใช้ `json.loads`; ส่วน `ast` และ `calendar` ไม่ต้อง import ที่นี่ เพราะตรรกะ AST/date shift อยู่ใน `dashboard_formula.py` ทั้งหมด (`formatLang` ก็ไม่ถูกใช้ในไฟล์นี้ — import เกินจะทำให้เกิด lint warning)
 
 จากนั้นเพิ่มค่าคงที่ต่อจาก `DATE_RANGES` (หลังบรรทัด 50):
 
@@ -602,7 +606,7 @@ class TestDashboardFormula(TransactionCase):
 
     def test_shift_previous_keeps_period_length(self):
         start, end = fx.apply_shift(date(2026, 3, 5), date(2026, 3, 16), "previous")
-        self.assertEqual((start, end), (date(2026, 2, 22), date(2026, 3, 4)))
+        self.assertEqual((start, end), (date(2026, 2, 21), date(2026, 3, 4)))
 
     def test_shift_yty_handles_leap_day(self):
         start, end = fx.apply_shift(date(2024, 2, 29), date(2024, 3, 5), "yty")
@@ -620,6 +624,45 @@ class TestDashboardFormula(TransactionCase):
         names = fx.expression_names("a + count_records / goal")
         self.assertEqual(names, {"a", "count_records", "goal"})
         self.assertEqual(fx.expression_names("a /"), set())
+
+    def test_operand_names_skip_function_names(self):
+        self.assertEqual(fx.expression_names("min(a, b)"), {"a", "b"})
+        self.assertEqual(fx.expression_names("abs(a - b) * round(goal)"), {"a", "b", "goal"})
+
+    def test_preset_catalogue_is_complete(self):
+        self.assertEqual(len(fx.FORMULA_TYPES), 14)
+        self.assertEqual(
+            {key for key, _label in fx.FORMULA_TYPES},
+            set(fx.PRESET_REQUIRED_SLOTS),
+        )
+
+    def test_every_preset_type_builds_an_expression(self):
+        for formula_type, _label in fx.FORMULA_TYPES:
+            required = fx.PRESET_REQUIRED_SLOTS[formula_type]
+            slots = {key: "x" for key in required if key in fx.SLOT_KEYS}
+            slots.update({key: 1 for key in required if key in fx.WEIGHT_KEYS})
+            self.assertTrue(
+                fx.build_preset_expression(formula_type, slots).strip(),
+                formula_type,
+            )
+
+    def test_preset_sum_and_average_without_slots_return_zero(self):
+        self.assertEqual(fx.build_preset_expression("sum", {}), "0")
+        self.assertEqual(fx.build_preset_expression("average", {}), "0")
+        self.assertEqual(fx.build_preset_expression("cumulative_change", {}), "0")
+
+    def test_validate_rejects_subscript_comprehension_and_lambda(self):
+        for expression in ("a[0]", "[x for x in a]", "lambda: 1"):
+            with self.assertRaises(ValidationError, msg=expression):
+                fx.validate_expression(expression, {"a", "x"})
+
+    def test_validate_rejects_power(self):
+        with self.assertRaises(ValidationError):
+            fx.validate_expression("a ** b", {"a", "b"})
+
+    def test_compare_values_returns_false_on_none(self):
+        self.assertFalse(fx.compare_values(None, "<", 1.0))
+        self.assertFalse(fx.compare_values(1.0, "<", None))
 ```
 
 - [ ] **Step 2: Run the test to verify it fails**
@@ -644,7 +687,7 @@ owns the orchestration (read groups, cross widget ordering, fail-soft).
 
 import ast
 import calendar
-from datetime import date, timedelta
+from datetime import timedelta
 
 from odoo import _
 from odoo.exceptions import ValidationError
@@ -730,7 +773,6 @@ ALLOWED_NODES = (
     ast.Mult,
     ast.Div,
     ast.Mod,
-    ast.Pow,
     ast.FloorDiv,
     ast.USub,
     ast.UAdd,
@@ -767,12 +809,22 @@ def build_preset_expression(formula_type, slots):
 
 
 def expression_names(expression):
-    """Return the ``Name`` identifiers used by ``expression`` (empty on syntax error)."""
+    """Return the operand names used by ``expression`` (empty on syntax error).
+
+    Names of the whitelisted functions (:data:`ALLOWED_CALLS`) are calls, not
+    operands, so they are left out: ``expression_names("min(a, b)")`` returns
+    ``{"a", "b"}`` and no caller ever has to treat ``min`` as a value to
+    resolve.
+    """
     try:
         tree = ast.parse(expression or "", mode="eval")
     except SyntaxError:
         return set()
-    return {node.id for node in ast.walk(tree) if isinstance(node, ast.Name)}
+    return {
+        node.id
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Name) and node.id not in ALLOWED_CALLS
+    }
 
 
 def validate_expression(expression, allowed_names):
@@ -883,14 +935,14 @@ def apply_shift(start, end, shift):
 
 - [ ] **Step 4: Register the new test module**
 
-แทนที่ `custom_addons/od19_dashboard/tests/__init__.py`:
+สร้าง `custom_addons/od19_dashboard/tests/__init__.py`:
 
 ```python
 from . import test_dashboard_formula
-from . import test_dashboard_rules
 ```
 
-และตรวจว่า `custom_addons/od19_dashboard/models/__init__.py` มีบรรทัด `from . import dashboard_formula` แล้ว (จาก Task 1 Step 4)
+> หมายเหตุ: บรรทัด `from . import test_dashboard_rules` จะถูก **ต่อท้าย** ใน Task 1 (ซึ่งทำถัดไป) — ที่นี่ต้องมีแค่บรรทัดของ Task 2 เพราะ `test_dashboard_rules.py` ยังไม่มี
+> ยังไม่ต้องแก้ `models/__init__.py` ในขั้นนี้ — Task 1 Step 4 จะเขียนทับให้ครบทั้ง 4 import ส่วนเทสต์ที่นี่ import ผ่าน `from ..models import dashboard_formula` จึงทำงานได้โดยไม่ต้องมีบรรทัดนั้น
 
 - [ ] **Step 5: Run the tests to verify they pass**
 
@@ -898,7 +950,7 @@ from . import test_dashboard_rules
 venv19\Scripts\python.exe odoo-bin -c odoo.conf -d odoo19 -u od19_dashboard --test-enable --test-tags /od19_dashboard --stop-after-init --log-level=test
 ```
 
-Expected: PASS ทั้ง `TestDashboardFormula` และ `TestDashboardRules`
+Expected: PASS ทั้งหมดใน `TestDashboardFormula`
 
 - [ ] **Step 6: Commit**
 
@@ -1022,6 +1074,21 @@ class TestDashboardFormulaEngine(TransactionCase):
         self.widget.formula_type = "growth"
         self.widget.formula_slots = '{"a": "amount_total", "b": "__count"}'
         self.assertEqual(self.widget._effective_expression(), "(a - b) / b * 100")
+
+    def test_validate_formula_config_accepts_literal_weight_slots(self):
+        self.widget.formula_mode = "preset"
+        self.widget.formula_type = "weighted_average"
+        self.widget.formula_slots = (
+            '{"a": "amount_total", "b": "amount_untaxed", "w1": 2, "w2": 1}'
+        )
+        self.widget._validate_formula_config()
+
+    def test_validate_formula_config_rejects_unknown_slot_measure(self):
+        self.widget.formula_mode = "preset"
+        self.widget.formula_type = "ratio"
+        self.widget.formula_slots = '{"a": "amout_total", "b": "__count"}'
+        with self.assertRaises(ValidationError):
+            self.widget._validate_formula_config()
 ```
 
 - [ ] **Step 2: Run the test to verify it fails**
@@ -1191,11 +1258,10 @@ Expected: FAIL — `AttributeError: 'od19.dashboard.source' object has no attrib
         """Return the expression names that would have no value at read time."""
         self.ensure_one()
         available = set(formula_tools.IMPLICIT_NAMES)
-        available |= {
-            slot_key
-            for slot_key, value in self._formula_slot_map().items()
-            if isinstance(value, str)
-        }
+        # A bound slot always carries a value: a string is a measure key read
+        # from the source, a number is a literal weight (``w1`` / ``w2`` of the
+        # weighted average) taken from the widget itself.
+        available |= set(self._formula_slot_map())
         available |= {"widget_%s" % widget_id for widget_id in self._dependency_ids()}
         available |= {key for key in self._source_measure_keys() if key != "__count"}
         used = formula_tools.expression_names(self._effective_expression())
@@ -1230,6 +1296,17 @@ Expected: FAIL — `AttributeError: 'od19.dashboard.source' object has no attrib
                     raise ValidationError(_("Type the formula of this widget."))
             else:
                 continue
+            available_measures = widget._source_measure_keys()
+            unknown_slots = sorted(
+                slot_key
+                for slot_key, value in widget._formula_slot_map().items()
+                if isinstance(value, str) and value not in available_measures
+            )
+            if unknown_slots:
+                raise ValidationError(
+                    _("The slot(s) %s are bound to a field the data source does not offer.")
+                    % ", ".join(unknown_slots)
+                )
             formula_tools.validate_expression(expression, widget._allowed_names())
             unresolved = widget._unresolved_names()
             if unresolved:
@@ -1362,11 +1439,15 @@ class TestDashboardRuleEngine(TransactionCase):
         self.assertEqual(self.widget_a._required_shifts(), set())
 
     def test_date_bounds_applies_previous_shift(self):
+        # ``apply_shift(..., "previous")`` uses inclusive bounds, so a 12 day
+        # window (2026-03-05 → 2026-03-16) shifts to 2026-02-21 → 2026-03-04.
+        # This mirrors ``test_shift_previous_keeps_period_length`` in
+        # ``test_dashboard_formula.py``.
         bounds = self.widget_a._date_bounds("this_year", "2026-03-05", "2026-03-16", shift="previous")
         self.assertEqual(
             bounds,
             [
-                ("date_order", ">=", "2026-02-22 00:00:00"),
+                ("date_order", ">=", "2026-02-21 00:00:00"),
                 ("date_order", "<=", "2026-03-04 23:59:59"),
             ],
         )
@@ -1503,27 +1584,24 @@ Expected: FAIL — `AttributeError: 'od19.dashboard.widget.rule' object has no a
 
 `PERIOD_COMPARE_TYPES` และ `formula_tools` ต้องเข้าถึงได้จาก `dashboard.py`:
 
-- ใน `custom_addons/od19_dashboard/models/dashboard.py` แก้ import (บรรทัด 1–9) เป็น:
+- import block ของ `custom_addons/od19_dashboard/models/dashboard.py` ถูกวางไว้ถูกต้องแล้วใน **Task 1 Step 5** — ใน Task นี้ **ไม่ต้องแก้ import block** เพียงตรวจสอบว่าเป็นเวอร์ชันนี้ (ห้ามมี `ast`, `calendar`, `formatLang` และห้าม `from .dashboard_rule import ...`):
 
 ```python
-import ast
-import calendar
 import json
 import logging
 from datetime import date, datetime, timedelta
 
 from odoo import Command, _, api, fields, models
 from odoo.exceptions import AccessError, UserError, ValidationError
-from odoo.tools.misc import format_date, format_datetime, formatLang
+from odoo.tools.misc import format_date, format_datetime
 from odoo.tools.safe_eval import safe_eval
 
 from . import dashboard_formula as formula_tools
-from .dashboard_rule import PERIOD_COMPARE_TYPES
 
 _logger = logging.getLogger(__name__)
 ```
 
-> `from .dashboard_rule import PERIOD_COMPARE_TYPES` ใช้ได้เพราะ `models/__init__.py` โหลด `dashboard` ก่อน `dashboard_rule`? — **ไม่ใช่** ลำดับคือ `dashboard_source`, `dashboard_formula`, `dashboard`, `dashboard_rule` ดังนั้นการ import แบบ relative จาก `dashboard.py` ไปยัง `dashboard_rule.py` จะทำให้ `dashboard_rule` ถูก import ก่อนกำหนด `PERIOD_COMPARE_TYPES`? ทดสอบไม่ได้ — **ให้ย้ายค่าคงที่ `PERIOD_COMPARE_TYPES` ไปประกาศใน `dashboard_formula.py` แทน** แล้วให้ `dashboard_rule.py` ทำ `from .dashboard_formula import PERIOD_COMPARE_TYPES` (ดู Step 3b) เพื่อไม่ให้เกิด import cycle
+> เหตุผลที่ Step 3b ย้ายค่าคงที่: `models/__init__.py` โหลดตามลำดับ `dashboard_source`, `dashboard_formula`, `dashboard`, `dashboard_rule` — ถ้า `dashboard.py` ทำ `from .dashboard_rule import PERIOD_COMPARE_TYPES` จะเกิดการ import ข้ามไฟล์ที่พึ่งพาลำดับการโหลด จึงย้ายค่าคงที่ไปประกาศใน `dashboard_formula.py` (ไฟล์ที่สอง) แล้วให้ `dashboard_rule.py` import จากที่นั่น เพื่อไม่ให้เกิด import cycle
 
 - [ ] **Step 3b: Move `PERIOD_COMPARE_TYPES` to the formula module**
 
@@ -1639,17 +1717,18 @@ from . import dashboard_formula as formula_tools
     def _date_bounds(self, range_key, date_from, date_to, shift=None):
         self.ensure_one()
         start, end, field_type = self._period_bounds(range_key, date_from, date_to, shift)
+        bounds = []
         if field_type == "date":
             if start:
-                return [(self.date_key, ">=", start.isoformat())]
+                bounds.append((self.date_key, ">=", start.isoformat()))
             if end:
-                return [(self.date_key, "<=", end.isoformat())]
-            return []
+                bounds.append((self.date_key, "<=", end.isoformat()))
+            return bounds
         if start:
-            return [(self.date_key, ">=", "%s 00:00:00" % start.isoformat())]
+            bounds.append((self.date_key, ">=", "%s 00:00:00" % start.isoformat()))
         if end:
-            return [(self.date_key, "<=", "%s 23:59:59" % end.isoformat())]
-        return []
+            bounds.append((self.date_key, "<=", "%s 23:59:59" % end.isoformat()))
+        return bounds
 ```
 
 > หมายเหตุ: `_period_bounds` คืน 3 ค่า แต่ผู้เรียกที่ต้องการแค่ขอบเขตให้ใช้ `start, end, _field_type = ...` — ใน Task 6 มี helper `_shifted_period()` ห่อไว้อีกชั้นเพื่อให้อ่านง่าย
@@ -1906,6 +1985,16 @@ class TestDashboardPreview(TransactionCase):
         self.assertEqual(result["formula_expression"], "a / b")
         self.assertEqual([item["alias"] for item in result["operands"]], ["a", "b"])
 
+    def test_preview_evaluates_a_literal_weight_slot(self):
+        result = self._preview(
+            formula_mode="preset",
+            formula_type="weighted_average",
+            formula_slots='{"a": "amount_total", "b": "amount_untaxed", "w1": 2, "w2": 1}',
+        )
+        operands = {item["alias"]: item["value"] for item in result["operands"]}
+        expected = (operands["a"] * 2 + operands["b"] * 1) / 3
+        self.assertAlmostEqual(result["value"], expected)
+
     def test_preview_applies_the_first_matching_rule(self):
         result = self._preview(
             rule_ids=[
@@ -2010,6 +2099,12 @@ Expected: FAIL — `AttributeError: 'od19.dashboard' object has no attribute 'pr
         for index, (alias, _measure_key, _spec) in enumerate(requests):
             value = row[index + 1] if len(row) > index + 1 else 0
             context[alias] = self._to_number(value)
+        # A slot bound to a literal weight (``w1`` / ``w2`` of the weighted
+        # average) is not an aggregate: its value is the number stored on the
+        # widget itself.
+        for slot_key, slot_value in self._formula_slot_map().items():
+            if not isinstance(slot_value, str):
+                context.setdefault(slot_key, self._to_number(slot_value))
         for name in formula_tools.IMPLICIT_NAMES:
             context.setdefault(name, 0.0)
         for widget_id in self._dependency_ids():
@@ -2715,7 +2810,7 @@ THRESHOLD_MODES = [
 
 - [ ] **Step 5: Publish the new catalogues in `get_builder_meta()`**
 
-**5a.** แก้ import ของ `dashboard.py` (บล็อกที่ Task 4 Step 3b วางไว้) ให้เพิ่มบรรทัด:
+**5a.** แก้ import ของ `dashboard.py` (บล็อกที่ **Task 1 Step 5** วางไว้) ให้เพิ่มบรรทัด:
 
 ```python
 from .dashboard_rule import COMPARE_TYPES, OPERATORS
