@@ -19,13 +19,13 @@ registry.category("web_tour.tours").add("od19_iso_document_control_tour", {
 
         // --- Configuration: Standards ---
         {
-            trigger: ".o_menu_sections :contains('ตั้งค่า'), .dropdown-item:contains('ตั้งค่า')",
+            trigger: navSection('ตั้งค่า'),
             content: markup(_t("Open the <b>ตั้งค่า (Configuration)</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections :contains('มาตรฐาน ISO'), .dropdown-item:contains('มาตรฐาน ISO')",
+            trigger: navItem('มาตรฐาน ISO'),
             content: markup(_t("Open <b>มาตรฐาน ISO</b> to define ISO standards (e.g. ISO 9001, ISO 14001).")),
             tooltipPosition: "bottom",
             run: "click",
@@ -37,6 +37,11 @@ registry.category("web_tour.tours").add("od19_iso_document_control_tour", {
             run: "click",
         },
         {
+            trigger: ".o_field_widget[name='code'] input",
+            content: markup(_t("Enter the <b>standard code</b> (e.g. ISO9001).")),
+            run: "edit ISO9001",
+        },
+        {
             trigger: ".o_field_widget[name='name'] input",
             content: _t("Enter the standard name (e.g. ISO 9001:2015)."),
             run: "edit ISO 9001:2015",
@@ -46,7 +51,13 @@ registry.category("web_tour.tours").add("od19_iso_document_control_tour", {
 
         // --- Document Categories ---
         {
-            trigger: ".o_menu_sections :contains('ประเภทเอกสาร'), .dropdown-item:contains('ประเภทเอกสาร')",
+            trigger: navSection('ตั้งค่า'),
+            content: markup(_t("Open the <b>ตั้งค่า (Configuration)</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: navItem('ประเภทเอกสาร'),
             content: markup(_t("Open <b>ประเภทเอกสาร</b> to define document categories.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -58,6 +69,11 @@ registry.category("web_tour.tours").add("od19_iso_document_control_tour", {
             run: "click",
         },
         {
+            trigger: ".o_field_widget[name='prefix'] input",
+            content: markup(_t("Enter the <b>prefix</b> for document codes (e.g. MANUAL).")),
+            run: "edit MANUAL",
+        },
+        {
             trigger: ".o_field_widget[name='name'] input",
             content: _t("Enter the category name (e.g. Quality Manual)."),
             run: "edit Quality Manual",
@@ -67,13 +83,13 @@ registry.category("web_tour.tours").add("od19_iso_document_control_tour", {
 
         // --- Create Controlled Document ---
         {
-            trigger: ".o_menu_sections :contains('ควบคุมเอกสาร'), .dropdown-item:contains('ควบคุมเอกสาร')",
+            trigger: navSection('ควบคุมเอกสาร'),
             content: markup(_t("Open the <b>ควบคุมเอกสาร</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections :contains('เอกสารควบคุม'), .dropdown-item:contains('เอกสารควบคุม')",
+            trigger: navItem('เอกสารควบคุม'),
             content: markup(_t("Open <b>เอกสารควบคุม</b> to create a controlled document.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -83,11 +99,6 @@ registry.category("web_tour.tours").add("od19_iso_document_control_tour", {
             content: _t("Create a new controlled document."),
             tooltipPosition: "bottom",
             run: "click",
-        },
-        {
-            trigger: ".o_field_widget[name='code'] input",
-            content: markup(_t("Enter the <b>document code</b> (e.g. FM-PU-12).")),
-            run: "edit FM-PU-12",
         },
         {
             trigger: ".o_field_widget[name='document_title'] input",
@@ -100,9 +111,17 @@ registry.category("web_tour.tours").add("od19_iso_document_control_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='department_code'] input",
-            content: markup(_t("Enter the <b>department code</b> (e.g. PU, SA, QA, IA).")),
-            run: "edit PU",
+            trigger: ".o-autocomplete--dropdown-item",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='department_id'] input",
+            content: markup(_t("Select the <b>department</b> (its code becomes the document code prefix, e.g. PU, SA, QA, IA).")),
+            run: "click",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item",
+            run: "click",
         },
         {
             trigger: ".o_field_widget[name='owner_id'] input",
@@ -110,14 +129,18 @@ registry.category("web_tour.tours").add("od19_iso_document_control_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='effective_date'] input",
-            content: _t("Set the effective date."),
+            trigger: ".o-autocomplete--dropdown-item",
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='review_date'] input",
+            trigger: ".o_field_widget[name='effective_date'] .o_input",
+            content: _t("Set the effective date."),
+            run: "edit 2026-10-01",
+        },
+        {
+            trigger: ".o_field_widget[name='review_date'] .o_input",
             content: _t("Set the next review date."),
-            run: "click",
+            run: "edit 2027-10-01",
         },
         // 4-level approval roles
         {
@@ -126,8 +149,16 @@ registry.category("web_tour.tours").add("od19_iso_document_control_tour", {
             run: "click",
         },
         {
+            trigger: ".o-autocomplete--dropdown-item",
+            run: "click",
+        },
+        {
             trigger: ".o_field_widget[name='reviewer_id'] input",
             content: markup(_t("Set the <b>Reviewer</b> (ผู้ตรวจทาน).")),
+            run: "click",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item",
             run: "click",
         },
         {
@@ -136,8 +167,16 @@ registry.category("web_tour.tours").add("od19_iso_document_control_tour", {
             run: "click",
         },
         {
+            trigger: ".o-autocomplete--dropdown-item",
+            run: "click",
+        },
+        {
             trigger: ".o_field_widget[name='final_approver_id'] input",
             content: markup(_t("Set the <b>Final Approver</b> (ผู้อนุมัติสุดท้าย).")),
+            run: "click",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item",
             run: "click",
         },
         ...stepUtils.saveForm(),

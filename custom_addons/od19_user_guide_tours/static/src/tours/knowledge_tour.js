@@ -1,6 +1,6 @@
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { stepUtils } from "@od19_user_guide_tours/tours/tour_utils";
+import { stepUtils, navSection } from "@od19_user_guide_tours/tours/tour_utils";
 import { markup } from "@odoo/owl";
 
 /**
@@ -21,7 +21,7 @@ registry.category("web_tour.tours").add("od19_knowledge_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections :contains('Articles'), .dropdown-item:contains('Articles')",
+            trigger: navSection("Articles"),
             content: markup(_t("Open the <b>Articles</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -65,6 +65,26 @@ registry.category("web_tour.tours").add("od19_knowledge_tour", {
                 "for context on why it was created."
             )),
             run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='parent_id'] input",
+            content: markup(_t("Set the <b>Category</b> for the article.")),
+            run: "edit Odoo Features",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:contains('Odoo Features')",
+            content: _t("Pick the category."),
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='draft_name'] input",
+            content: markup(_t("Enter the revision name (e.g. Rev 01).")),
+            run: "edit 1.0",
+        },
+        {
+            trigger: ".o_field_widget[name='draft_summary'] textarea",
+            content: markup(_t("Describe the change summary for this revision.")),
+            run: "edit Initial revision",
         },
         ...stepUtils.saveForm(),
         ...stepUtils.discardForm(),

@@ -1,6 +1,6 @@
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { stepUtils } from "@od19_user_guide_tours/tours/tour_utils";
+import { stepUtils, navSection } from "@od19_user_guide_tours/tours/tour_utils";
 import { markup } from "@odoo/owl";
 
 /**
@@ -21,7 +21,7 @@ registry.category("web_tour.tours").add("od19_advance_payment_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections .o_nav_entry:text('Advance Payments')",
+            trigger: navSection("Advance Payments"),
             content: markup(_t("Open the <b>Advance Payments</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -45,6 +45,10 @@ registry.category("web_tour.tours").add("od19_advance_payment_tour", {
             run: "click",
         },
         {
+            trigger: ".o-autocomplete--dropdown-item",
+            run: "click",
+        },
+        {
             trigger: ".o_field_widget[name='amount'] input",
             content: _t("Enter the advance amount."),
             run: "edit 20000",
@@ -55,6 +59,10 @@ registry.category("web_tour.tours").add("od19_advance_payment_tour", {
             run: "click",
         },
         {
+            trigger: ".o-autocomplete--dropdown-item",
+            run: "click",
+        },
+        {
             trigger: ".o_field_widget[name='advance_account_id'] input",
             content: markup(_t(
                 "Set the <b>advance account</b> (a current liability or asset account)."
@@ -62,9 +70,13 @@ registry.category("web_tour.tours").add("od19_advance_payment_tour", {
             run: "click",
         },
         {
+            trigger: ".o-autocomplete--dropdown-item",
+            run: "click",
+        },
+        {
             trigger: ".o_field_widget[name='date'] .o_input",
             content: _t("Set the payment date."),
-            run: "click",
+            run: "edit 2026-01-15",
         },
         ...stepUtils.saveForm(),
         {

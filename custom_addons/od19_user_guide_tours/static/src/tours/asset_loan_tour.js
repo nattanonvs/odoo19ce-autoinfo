@@ -1,6 +1,6 @@
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { stepUtils } from "@od19_user_guide_tours/tours/tour_utils";
+import { stepUtils, navSection, navItem } from "@od19_user_guide_tours/tours/tour_utils";
 import { markup } from "@odoo/owl";
 
 /**
@@ -22,13 +22,19 @@ registry.category("web_tour.tours").add("od19_asset_loan_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections .dropdown-toggle:text('Configuration')",
+            trigger: navSection("Configuration"),
             content: markup(_t("Open the <b>Configuration</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".dropdown-menu .dropdown-item:text('Loans')",
+            trigger: ".dropdown-menu .dropdown-header:text('Asset Loan')",
+            content: markup(_t("Open <b>Asset Loan</b>.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: navItem("Loans"),
             content: markup(_t("Open <b>Loans</b> to view and create asset loans.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -45,14 +51,18 @@ registry.category("web_tour.tours").add("od19_asset_loan_tour", {
             run: "click",
         },
         {
+            trigger: ".o-autocomplete--dropdown-item",
+            run: "click",
+        },
+        {
             trigger: ".o_field_widget[name='loan_date'] .o_input",
             content: _t("Set the loan date."),
-            run: "click",
+            run: "edit 2026-01-15",
         },
         {
             trigger: ".o_field_widget[name='expected_return_date'] .o_input",
             content: _t("Set the expected return date."),
-            run: "click",
+            run: "edit 2026-02-15",
         },
         {
             trigger: "a.nav-link:contains('Equipment')",

@@ -1,6 +1,6 @@
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { stepUtils } from "@od19_user_guide_tours/tours/tour_utils";
+import { stepUtils, navSection, navItem } from "@od19_user_guide_tours/tours/tour_utils";
 import { markup } from "@odoo/owl";
 
 /**
@@ -20,13 +20,13 @@ registry.category("web_tour.tours").add("od19_sale_terms_tour", {
 
         // --- Term templates ---
         {
-            trigger: ".o_menu_sections :contains('Configuration'), .dropdown-item:contains('Configuration')",
+            trigger: navSection('Configuration'),
             content: markup(_t("Open the Sales <b>Configuration</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections :contains('Sale Term Templates'), .dropdown-item:contains('Sale Term Templates')",
+            trigger: navItem('Sale Term Templates'),
             content: markup(_t("Open <b>Sale Term Templates</b>.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -50,6 +50,11 @@ registry.category("web_tour.tours").add("od19_sale_terms_tour", {
             run: "click",
         },
         {
+            trigger: ".o_select_menu_item",
+            content: _t("Pick a term type from the list."),
+            run: "click",
+        },
+        {
             trigger: ".o_field_widget[name='content'] textarea",
             content: _t("Type the standard wording shown on quotations."),
             run: "edit รับประกันสินค้า 1 ปี นับจากวันที่ส่งมอบ",
@@ -59,13 +64,13 @@ registry.category("web_tour.tours").add("od19_sale_terms_tour", {
 
         // --- Apply on a quotation ---
         {
-            trigger: ".o_menu_sections :contains('Orders'), .dropdown-item:contains('Orders')",
+            trigger: navSection('Orders'),
             content: markup(_t("Open the <b>Orders</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections :contains('Quotations'), .dropdown-item:contains('Quotations')",
+            trigger: navItem('Quotations'),
             content: markup(_t("Open <b>Quotations</b>.")),
             tooltipPosition: "bottom",
             run: "click",

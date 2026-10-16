@@ -1,6 +1,6 @@
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { stepUtils } from "@od19_user_guide_tours/tours/tour_utils";
+import { stepUtils, navSection, navItem } from "@od19_user_guide_tours/tours/tour_utils";
 import { markup } from "@odoo/owl";
 
 /**
@@ -20,32 +20,32 @@ registry.category("web_tour.tours").add("od19_money_in_report_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections :contains('Reporting'), .dropdown-item:contains('Reporting')",
+            trigger: navSection("Reporting"),
             content: markup(_t("Open the <b>Reporting</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections :contains('Money In Analysis'), .dropdown-item:contains('Money In Analysis')",
+            trigger: ".dropdown-menu .dropdown-header:text('Money In Analysis')",
             content: markup(_t("Open <b>Money In Analysis</b>.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections :contains('Generate Report'), .dropdown-item:contains('Generate Report')",
+            trigger: navItem("Generate Report"),
             content: markup(_t("Click <b>Generate Report</b> to open the report wizard.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='date_from'] input",
+            trigger: ".o_field_widget[name='date_from'] .o_input",
             content: _t("Set the start date of the analysis period."),
-            run: "click",
+            run: "edit 2026-01-01",
         },
         {
-            trigger: ".o_field_widget[name='date_to'] input",
+            trigger: ".o_field_widget[name='date_to'] .o_input",
             content: _t("Set the end date of the analysis period."),
-            run: "click",
+            run: "edit 2026-12-31",
         },
         {
             trigger: ".o_field_widget[name='phase'] .o_select_menu_toggler",
@@ -90,7 +90,19 @@ registry.category("web_tour.tours").add("od19_money_in_report_tour", {
 
         // --- Review Report Runs ---
         {
-            trigger: ".o_menu_sections :contains('Report Runs'), .dropdown-item:contains('Report Runs')",
+            trigger: navSection("Reporting"),
+            content: markup(_t("Open the <b>Reporting</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".dropdown-menu .dropdown-header:text('Money In Analysis')",
+            content: markup(_t("Open <b>Money In Analysis</b>.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: navItem("Report Runs"),
             content: markup(_t("Open <b>Report Runs</b> to see all generated reports.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -104,7 +116,19 @@ registry.category("web_tour.tours").add("od19_money_in_report_tour", {
 
         // --- Analysis Lines ---
         {
-            trigger: ".o_menu_sections :contains('Analysis Lines'), .dropdown-item:contains('Analysis Lines')",
+            trigger: navSection("Reporting"),
+            content: markup(_t("Open the <b>Reporting</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".dropdown-menu .dropdown-header:text('Money In Analysis')",
+            content: markup(_t("Open <b>Money In Analysis</b>.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: navItem("Analysis Lines"),
             content: markup(_t(
                 "Open <b>Analysis Lines</b> to see the detailed breakdown of revenue " +
                 "by customer, salesperson, project, and product category."

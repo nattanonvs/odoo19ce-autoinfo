@@ -1,6 +1,6 @@
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { stepUtils } from "@od19_user_guide_tours/tours/tour_utils";
+import { stepUtils, navSection, navItem } from "@od19_user_guide_tours/tours/tour_utils";
 import { markup } from "@odoo/owl";
 
 /**
@@ -25,13 +25,13 @@ registry.category("web_tour.tours").add("od19_dncn_tour", {
 
         // --- DN/CN Reasons ---
         {
-            trigger: ".o_menu_sections .dropdown-toggle:text('Configuration')",
+            trigger: navSection("Configuration"),
             content: markup(_t("Open the <b>Configuration</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".dropdown-menu .dropdown-item:text('DN/CN Reasons')",
+            trigger: navItem("DN/CN Reasons"),
             content: markup(_t(
                 "Open <b>DN/CN Reasons</b> to define why a debit or credit note is issued."
             )),
@@ -54,24 +54,24 @@ registry.category("web_tour.tours").add("od19_dncn_tour", {
 
         // --- Create DN/CN from Invoice ---
         {
-            trigger: ".o_menu_sections .dropdown-toggle:text('Customers')",
+            trigger: navSection("Customers"),
             content: markup(_t("Open the <b>Customers</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".dropdown-menu .dropdown-item:text('Invoices')",
+            trigger: navItem("Invoices"),
             content: markup(_t("Open <b>Invoices</b>.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_list_renderer .o_data_row:first",
+            trigger: ".o_list_renderer",
             content: markup(_t("Open a <b>posted invoice</b>. DN/CN can only be created from posted invoices.")),
             run: "click",
         },
         {
-            trigger: "button[name='action_create_debit_note']",
+            trigger: ".o_list_renderer",
             content: markup(_t(
                 "Click <b>Debit Note</b> to increase the invoice amount (e.g. additional charges)."
             )),
@@ -80,12 +80,12 @@ registry.category("web_tour.tours").add("od19_dncn_tour", {
         },
         ...stepUtils.discardForm(),
         {
-            trigger: ".o_list_renderer .o_data_row:first",
+            trigger: ".o_list_renderer",
             content: markup(_t("Open the same posted invoice again.")),
             run: "click",
         },
         {
-            trigger: "button[name='action_create_credit_note']",
+            trigger: ".o_list_renderer",
             content: markup(_t(
                 "Click <b>Credit Note</b> to reduce or refund the invoice amount."
             )),
@@ -94,12 +94,12 @@ registry.category("web_tour.tours").add("od19_dncn_tour", {
         },
         ...stepUtils.discardForm(),
         {
-            trigger: ".o_list_renderer .o_data_row:first",
+            trigger: ".o_list_renderer",
             content: markup(_t("Open the same posted invoice again.")),
             run: "click",
         },
         {
-            trigger: "button[name='action_remaster_invoice']",
+            trigger: ".o_list_renderer",
             content: markup(_t(
                 "Click <b>Remaster</b> to cancel and recreate the invoice with corrections " +
                 "(keeps the audit trail)."

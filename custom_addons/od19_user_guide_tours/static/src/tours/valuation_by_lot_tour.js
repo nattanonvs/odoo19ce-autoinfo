@@ -1,6 +1,6 @@
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { stepUtils } from "@od19_user_guide_tours/tours/tour_utils";
+import { stepUtils, navSection, navItem } from "@od19_user_guide_tours/tours/tour_utils";
 import { markup } from "@odoo/owl";
 
 /**
@@ -18,13 +18,13 @@ registry.category("web_tour.tours").add("od19_valuation_by_lot_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections :contains('Inventory Control'), .dropdown-item:contains('Inventory Control')",
+            trigger: navSection('Products'),
             content: markup(_t("Open the <b>Inventory Control</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections :contains('Valuation by Lot'), .dropdown-item:contains('Valuation by Lot')",
+            trigger: navItem('Valuation by Lot'),
             content: markup(_t(
                 "Open <b>Valuation by Lot</b> to see stock value broken down by lot/serial number."
             )),
@@ -39,7 +39,7 @@ registry.category("web_tour.tours").add("od19_valuation_by_lot_tour", {
             run: "click",
         },
         {
-            trigger: ".o_cp_searchview .o_dropdown_item:contains('Group By'), .o_searchview .fa-bars",
+            trigger: ".o_searchview_dropdown_toggler",
             content: markup(_t(
                 "Use <b>Group By</b> to aggregate the valuation by Product, Lot, Location, or Cost Method. " +
                 "This helps identify which lots have the highest value."

@@ -1,6 +1,6 @@
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { stepUtils } from "@od19_user_guide_tours/tours/tour_utils";
+import { stepUtils, navSection, navItem } from "@od19_user_guide_tours/tours/tour_utils";
 import { markup } from "@odoo/owl";
 
 /**
@@ -20,13 +20,13 @@ registry.category("web_tour.tours").add("od19_asset_disposal_tour", {
             markup(_t("Let's learn how to <b>dispose</b> a fixed asset and generate the disposal entry."))
         ),
         {
-            trigger: ".o_menu_sections .dropdown-toggle:text('Assets')",
+            trigger: navSection("Assets"),
             content: markup(_t("Open the <b>Assets</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".dropdown-menu .dropdown-item:text('Assets')",
+            trigger: navItem("Assets"),
             content: markup(_t("Open the <b>Assets</b> list.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -55,9 +55,9 @@ registry.category("web_tour.tours").add("od19_asset_disposal_tour", {
             run: "edit 12000",
         },
         {
-            trigger: ".o_field_widget[name='method_number'] input",
-            content: _t("Set the number of depreciation periods (e.g. 60 months)."),
-            run: "edit 60",
+            trigger: ".o_field_widget[name='date_start'] .o_input",
+            content: _t("Set the start date of the depreciation (e.g. the acquisition date)."),
+            run: "edit 2026-01-01",
         },
         ...stepUtils.saveForm(),
         {
@@ -80,7 +80,7 @@ registry.category("web_tour.tours").add("od19_asset_disposal_tour", {
             run: "click",
         },
         {
-            trigger: ".o_form_view",
+            trigger: ".o_control_panel .o_back_button",
             content: markup(_t(
                 "The disposal journal entry is opened. Return to the asset to review the disposal details."
             )),

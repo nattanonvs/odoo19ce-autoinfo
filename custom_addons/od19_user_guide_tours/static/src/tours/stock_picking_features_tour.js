@@ -1,6 +1,6 @@
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { stepUtils } from "@od19_user_guide_tours/tours/tour_utils";
+import { stepUtils, navSection, navItem } from "@od19_user_guide_tours/tours/tour_utils";
 import { markup } from "@odoo/owl";
 
 /**
@@ -19,13 +19,13 @@ registry.category("web_tour.tours").add("od19_stock_picking_features_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections :contains('Operations'), .dropdown-item:contains('Operations')",
+            trigger: navSection('Operations'),
             content: markup(_t("Open the <b>Operations</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections :contains('Transfers'), .dropdown-item:contains('Transfers')",
+            trigger: navItem('Receipts'),
             content: markup(_t("Open <b>Transfers</b>.")),
             tooltipPosition: "bottom",
             run: "click",

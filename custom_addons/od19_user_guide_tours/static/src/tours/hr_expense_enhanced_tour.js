@@ -50,6 +50,11 @@ registry.category("web_tour.tours").add("od19_hr_expense_enhanced_tour", {
             run: "click",
         },
         {
+            trigger: ".o-autocomplete--dropdown-item:first",
+            content: _t("Pick the first available expense category."),
+            run: "click",
+        },
+        {
             trigger: ".o_field_widget[name='total_amount_currency'] input",
             content: _t("Enter the amount."),
             run: "edit 3000",

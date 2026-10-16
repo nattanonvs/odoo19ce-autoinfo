@@ -20,13 +20,19 @@ registry.category("web_tour.tours").add("od19_iso_customer_satisfaction_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections :contains('ความพึงพอใจลูกค้า'), .dropdown-item:contains('ความพึงพอใจลูกค้า')",
+            trigger: navSection('การจัดการ ISO'),
+            content: markup(_t("Open the <b>การจัดการ ISO</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".dropdown-menu .dropdown-header:text('ความพึงพอใจลูกค้า')",
             content: markup(_t("Open the <b>ความพึงพอใจลูกค้า (Customer Satisfaction)</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections :contains('แบบสอบถามความพึงพอใจ'), .dropdown-item:contains('แบบสอบถามความพึงพอใจ')",
+            trigger: navItem('แบบสอบถามความพึงพอใจ'),
             content: markup(_t("Open <b>แบบสอบถามความพึงพอใจ (Surveys)</b>.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -48,9 +54,13 @@ registry.category("web_tour.tours").add("od19_iso_customer_satisfaction_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='date_sent'] input",
-            content: _t("Set the survey send date."),
+            trigger: ".o-autocomplete--dropdown-item",
             run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='date'] .o_input",
+            content: _t("Set the survey date."),
+            run: "edit 2026-10-15",
         },
         ...stepUtils.saveForm(),
 
@@ -77,7 +87,19 @@ registry.category("web_tour.tours").add("od19_iso_customer_satisfaction_tour", {
 
         // --- Periodic Report ---
         {
-            trigger: ".o_menu_sections :contains('รายงานรายงวด'), .dropdown-item:contains('รายงานรายงวด')",
+            trigger: navSection('การจัดการ ISO'),
+            content: markup(_t("Open the <b>การจัดการ ISO</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".dropdown-menu .dropdown-header:text('ความพึงพอใจลูกค้า')",
+            content: markup(_t("Open the <b>ความพึงพอใจลูกค้า (Customer Satisfaction)</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: navItem('รายงานรายงวด'),
             content: markup(_t(
                 "Open <b>รายงานรายงวด (Periodic Reports)</b> to aggregate satisfaction scores " +
                 "and analyze trends over time."

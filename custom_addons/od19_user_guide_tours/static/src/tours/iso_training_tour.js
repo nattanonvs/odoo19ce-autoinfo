@@ -20,13 +20,19 @@ registry.category("web_tour.tours").add("od19_iso_training_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections :contains('การฝึกอบรมและความสามารถ'), .dropdown-item:contains('การฝึกอบรมและความสามารถ')",
+            trigger: navSection('การจัดการ ISO'),
+            content: markup(_t("Open the <b>การจัดการ ISO</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".dropdown-menu .dropdown-header:text('การฝึกอบรมและความสามารถ')",
             content: markup(_t("Open the <b>การฝึกอบรมและความสามารถ (Training &amp; Competence)</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections :contains('หลักสูตรการฝึกอบรม'), .dropdown-item:contains('หลักสูตรการฝึกอบรม')",
+            trigger: navItem('หลักสูตรการฝึกอบรม'),
             content: markup(_t("Open <b>หลักสูตรการฝึกอบรม (Training Courses)</b>.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -43,14 +49,9 @@ registry.category("web_tour.tours").add("od19_iso_training_tour", {
             run: "edit ISO 9001 Internal Auditor Training",
         },
         {
-            trigger: ".o_field_widget[name='date_start'] input",
-            content: _t("Set the start date."),
-            run: "click",
-        },
-        {
-            trigger: ".o_field_widget[name='date_end'] input",
-            content: _t("Set the end date."),
-            run: "click",
+            trigger: ".o_field_widget[name='date'] .o_input",
+            content: _t("Set the course date."),
+            run: "edit 2026-05-20",
         },
         ...stepUtils.saveForm(),
 
@@ -77,7 +78,19 @@ registry.category("web_tour.tours").add("od19_iso_training_tour", {
 
         // --- Competences ---
         {
-            trigger: ".o_menu_sections :contains('ความสามารถ/ทักษะ'), .dropdown-item:contains('ความสามารถ/ทักษะ')",
+            trigger: navSection('การจัดการ ISO'),
+            content: markup(_t("Open the <b>การจัดการ ISO</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".dropdown-menu .dropdown-header:text('การฝึกอบรมและความสามารถ')",
+            content: markup(_t("Open the <b>การฝึกอบรมและความสามารถ (Training &amp; Competence)</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: navItem('ความสามารถ/ทักษะ'),
             content: markup(_t("Open <b>ความสามารถ/ทักษะ (Competences)</b> to define required skills.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -98,7 +111,19 @@ registry.category("web_tour.tours").add("od19_iso_training_tour", {
 
         // --- Employee Competence Matrix ---
         {
-            trigger: ".o_menu_sections :contains('ตารางความสามารถพนักงาน'), .dropdown-item:contains('ตารางความสามารถพนักงาน')",
+            trigger: navSection('การจัดการ ISO'),
+            content: markup(_t("Open the <b>การจัดการ ISO</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".dropdown-menu .dropdown-header:text('การฝึกอบรมและความสามารถ')",
+            content: markup(_t("Open the <b>การฝึกอบรมและความสามารถ (Training &amp; Competence)</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: navItem('ตารางความสามารถพนักงาน'),
             content: markup(_t("Open <b>ตารางความสามารถพนักงาน (Employee Competence Matrix)</b> to assign competences to employees.")),
             tooltipPosition: "bottom",
             run: "click",

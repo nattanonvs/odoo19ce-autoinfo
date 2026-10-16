@@ -22,13 +22,13 @@ registry.category("web_tour.tours").add("od19_iso_internal_audit_tour", {
 
         // --- Audit Program ---
         {
-            trigger: ".o_menu_sections :contains('การตรวจสอบภายใน'), .dropdown-item:contains('การตรวจสอบภายใน')",
+            trigger: navSection('การตรวจสอบภายใน'),
             content: markup(_t("Open the <b>การตรวจสอบภายใน (Internal Audit)</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections :contains('แผนการตรวจสอบประจำปี'), .dropdown-item:contains('แผนการตรวจสอบประจำปี')",
+            trigger: navItem('แผนการตรวจสอบประจำปี'),
             content: markup(_t("Open <b>แผนการตรวจสอบประจำปี (Annual Audit Program)</b>.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -65,7 +65,13 @@ registry.category("web_tour.tours").add("od19_iso_internal_audit_tour", {
 
         // --- Audit ---
         {
-            trigger: ".o_menu_sections :contains('การตรวจสอบ'), .dropdown-item:contains('การตรวจสอบ')",
+            trigger: navSection('การตรวจสอบภายใน'),
+            content: markup(_t("Open the <b>การตรวจสอบภายใน (Internal Audit)</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: navItem('การตรวจสอบ'),
             content: markup(_t("Open <b>การตรวจสอบ (Audits)</b>.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -89,6 +95,33 @@ registry.category("web_tour.tours").add("od19_iso_internal_audit_tour", {
         {
             trigger: ".o_field_widget[name='audit_type'] .o_select_menu_toggler",
             content: markup(_t("Set the <b>audit type</b> (Internal, External, Surveillance).")),
+            run: "click",
+        },
+        {
+            trigger: ".o_select_menu_item",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='date_planned'] .o_input",
+            content: _t("Set the planned audit date."),
+            run: "edit 2026-06-15",
+        },
+        {
+            trigger: ".o_field_widget[name='lead_auditor_id'] input",
+            content: markup(_t("Set the <b>lead auditor</b>.")),
+            run: "click",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='auditee_department_id'] input",
+            content: markup(_t("Set the <b>auditee department</b>.")),
+            run: "click",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item",
             run: "click",
         },
         ...stepUtils.saveForm(),
@@ -128,7 +161,13 @@ registry.category("web_tour.tours").add("od19_iso_internal_audit_tour", {
 
         // --- Audit Findings ---
         {
-            trigger: ".o_menu_sections :contains('ผลการตรวจสอบ'), .dropdown-item:contains('ผลการตรวจสอบ')",
+            trigger: navSection('การตรวจสอบภายใน'),
+            content: markup(_t("Open the <b>การตรวจสอบภายใน (Internal Audit)</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: navItem('ผลการตรวจสอบ'),
             content: markup(_t("Open <b>ผลการตรวจสอบ (Audit Findings)</b> to manage nonconformities found during audits.")),
             tooltipPosition: "bottom",
             run: "click",

@@ -1,6 +1,6 @@
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { stepUtils } from "@od19_user_guide_tours/tours/tour_utils";
+import { stepUtils, navSection, navItem } from "@od19_user_guide_tours/tours/tour_utils";
 import { markup } from "@odoo/owl";
 
 /**
@@ -22,7 +22,13 @@ registry.category("web_tour.tours").add("od19_inventory_operations_tour", {
 
         // --- Service Card ---
         {
-            trigger: ".o_menu_sections :contains('Service Cards'), .dropdown-item:contains('Service Cards')",
+            trigger: navSection('Products'),
+            content: markup(_t("Open the <b>Products</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: navItem('Service Cards'),
             content: markup(_t(
                 "Open <b>Service Cards</b> to track preventive maintenance for equipment."
             )),
@@ -36,7 +42,7 @@ registry.category("web_tour.tours").add("od19_inventory_operations_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='service_date'] input",
+            trigger: ".o_field_widget[name='service_date'] .o_input",
             content: _t("Set the service date."),
             run: "click",
         },
@@ -51,8 +57,18 @@ registry.category("web_tour.tours").add("od19_inventory_operations_tour", {
             run: "click",
         },
         {
+            trigger: ".o-autocomplete--dropdown-item",
+            content: _t("Pick the customer from the suggestion list."),
+            run: "click",
+        },
+        {
             trigger: ".o_field_widget[name='product_id'] input",
             content: _t("Select the product / equipment being serviced."),
+            run: "click",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item",
+            content: _t("Pick the product from the suggestion list."),
             run: "click",
         },
         {
@@ -80,7 +96,13 @@ registry.category("web_tour.tours").add("od19_inventory_operations_tour", {
 
         // --- QC Inspection ---
         {
-            trigger: ".o_menu_sections :contains('QC Inspections'), .dropdown-item:contains('QC Inspections')",
+            trigger: navSection('Products'),
+            content: markup(_t("Open the <b>Products</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: navItem('QC Inspections'),
             content: markup(_t(
                 "Open <b>QC Inspections</b> for incoming and outgoing quality control."
             )),
@@ -109,6 +131,11 @@ registry.category("web_tour.tours").add("od19_inventory_operations_tour", {
             run: "click",
         },
         {
+            trigger: ".o-autocomplete--dropdown-item",
+            content: _t("Pick the product from the suggestion list."),
+            run: "click",
+        },
+        {
             trigger: ".o_field_widget[name='qty_tested'] input",
             content: _t("Enter the quantity tested."),
             run: "edit 10",
@@ -124,6 +151,11 @@ registry.category("web_tour.tours").add("od19_inventory_operations_tour", {
                 "Add <b>inspection lines</b>: each parameter with expected vs. actual value and pass/fail result."
             )),
             run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='parameter'] input",
+            content: _t("Enter the inspection parameter name."),
+            run: "edit Surface finish",
         },
         ...stepUtils.saveForm(),
         {
@@ -142,7 +174,13 @@ registry.category("web_tour.tours").add("od19_inventory_operations_tour", {
 
         // --- Transportation ---
         {
-            trigger: ".o_menu_sections :contains('Transportation'), .dropdown-item:contains('Transportation')",
+            trigger: navSection('Products'),
+            content: markup(_t("Open the <b>Products</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".dropdown-menu .dropdown-header:text('Transportation')",
             content: markup(_t(
                 "Open the <b>Transportation</b> menu to manage delivery vehicles and routes."
             )),
@@ -150,7 +188,7 @@ registry.category("web_tour.tours").add("od19_inventory_operations_tour", {
             run: "click",
         },
         {
-            trigger: ".o_menu_sections :contains('Transport Orders'), .dropdown-item:contains('Transport Orders')",
+            trigger: navItem('Transport Orders'),
             content: markup(_t("Open <b>Transport Orders</b> to track deliveries.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -162,7 +200,7 @@ registry.category("web_tour.tours").add("od19_inventory_operations_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='date'] input",
+            trigger: ".o_field_widget[name='date'] .o_input",
             content: _t("Set the transport date."),
             run: "click",
         },
@@ -172,14 +210,34 @@ registry.category("web_tour.tours").add("od19_inventory_operations_tour", {
             run: "click",
         },
         {
+            trigger: ".o-autocomplete--dropdown-item",
+            content: _t("Pick the vehicle from the suggestion list."),
+            run: "click",
+        },
+        {
             trigger: ".o_field_widget[name='driver_id'] input",
             content: _t("Select the driver."),
+            run: "click",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item",
+            content: _t("Pick the driver from the suggestion list."),
             run: "click",
         },
         {
             trigger: ".o_field_widget[name='route_id'] input",
             content: _t("Select the transport route (origin → destination)."),
             run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='origin_location'] input",
+            content: _t("Enter the origin location."),
+            run: "edit Bangkok",
+        },
+        {
+            trigger: ".o_field_widget[name='destination_location'] input",
+            content: _t("Enter the destination location."),
+            run: "edit Chiang Mai",
         },
         ...stepUtils.saveForm(),
         {

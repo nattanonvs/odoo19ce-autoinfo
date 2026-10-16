@@ -49,7 +49,11 @@ registry.category("web_tour.tours").add("od19_iso_supplier_quality_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='evaluation_date'] input",
+            trigger: ".o-autocomplete--dropdown-item",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='date'] .o_input",
             content: _t("Set the evaluation date."),
             run: "click",
         },
@@ -75,7 +79,19 @@ registry.category("web_tour.tours").add("od19_iso_supplier_quality_tour", {
 
         // --- Approved Supplier List ---
         {
-            trigger: ".o_menu_sections :contains('รายชื่อผู้จำหน่ายที่อนุมัติ'), .dropdown-item:contains('รายชื่อผู้จำหน่ายที่อนุมัติ')",
+            trigger: navSection('การจัดการ ISO'),
+            content: markup(_t("Open the <b>การจัดการ ISO</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".dropdown-menu .dropdown-header:text('คุณภาพผู้จำหน่าย')",
+            content: markup(_t("Open the <b>คุณภาพผู้จำหน่าย (Supplier Quality)</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: navItem('รายชื่อผู้จำหน่ายที่อนุมัติ (ASL)'),
             content: markup(_t(
                 "Open <b>รายชื่อผู้จำหน่ายที่อนุมัติ (ASL)</b> to manage the list of approved suppliers. " +
                 "Only suppliers with passing evaluations should be on this list."

@@ -1,6 +1,6 @@
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { stepUtils } from "@od19_user_guide_tours/tours/tour_utils";
+import { stepUtils, navSection, navItem } from "@od19_user_guide_tours/tours/tour_utils";
 import { markup } from "@odoo/owl";
 
 /**
@@ -20,13 +20,13 @@ registry.category("web_tour.tours").add("od19_purchase_terms_tour", {
 
         // --- Term templates ---
         {
-            trigger: ".o_menu_sections :contains('Configuration'), .dropdown-item:contains('Configuration')",
+            trigger: navSection('Configuration'),
             content: markup(_t("Open the Purchase <b>Configuration</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections :contains('Purchase Term Templates'), .dropdown-item:contains('Purchase Term Templates')",
+            trigger: navItem('Purchase Term Templates'),
             content: markup(_t("Open <b>Purchase Term Templates</b>.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -50,6 +50,11 @@ registry.category("web_tour.tours").add("od19_purchase_terms_tour", {
             run: "click",
         },
         {
+            trigger: ".o_select_menu_item",
+            content: _t("Pick a term type from the list."),
+            run: "click",
+        },
+        {
             trigger: ".o_field_widget[name='content'] textarea",
             content: _t("Type the standard wording printed on purchase orders."),
             run: "edit ส่งของที่คลังสินค้าบริษัทภายใน 15 วัน",
@@ -59,13 +64,13 @@ registry.category("web_tour.tours").add("od19_purchase_terms_tour", {
 
         // --- Apply on a purchase order ---
         {
-            trigger: ".o_menu_sections :contains('Orders'), .dropdown-item:contains('Orders')",
+            trigger: navSection('Orders'),
             content: markup(_t("Open the <b>Orders</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections :contains('Purchase Orders'), .dropdown-item:contains('Purchase Orders')",
+            trigger: navItem('Purchase Orders'),
             content: markup(_t("Open <b>Purchase Orders</b>.")),
             tooltipPosition: "bottom",
             run: "click",

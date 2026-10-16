@@ -1,6 +1,6 @@
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { stepUtils } from "@od19_user_guide_tours/tours/tour_utils";
+import { stepUtils, navSection, navItem } from "@od19_user_guide_tours/tours/tour_utils";
 import { markup } from "@odoo/owl";
 
 /**
@@ -24,7 +24,13 @@ registry.category("web_tour.tours").add("od19_purchase_approval_tour", {
         ),
         // --- Purchase Requisition ---
         {
-            trigger: ".o_menu_sections :contains('Purchase Requisitions'), .dropdown-item:contains('Purchase Requisitions')",
+            trigger: navSection('Orders'),
+            content: markup(_t("Open the <b>Orders</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: navItem('Purchase Requests'),
             content: markup(_t("Start by creating a <b>Purchase Requisition (PR)</b>.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -52,6 +58,16 @@ registry.category("web_tour.tours").add("od19_purchase_approval_tour", {
             content: _t("Add a product line to the requisition."),
             run: "click",
         },
+        {
+            trigger: ".o_field_widget[name='line_ids'] .o_field_widget[name='product_id'] input",
+            content: _t("Pick the product to requisition."),
+            run: "click",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item",
+            content: _t("Pick the product from the suggestion list."),
+            run: "click",
+        },
         ...stepUtils.saveForm(),
         {
             trigger: "button[name='action_od19_submit_for_approval']",
@@ -73,7 +89,13 @@ registry.category("web_tour.tours").add("od19_purchase_approval_tour", {
 
         // --- Purchase Order ---
         {
-            trigger: ".o_menu_sections :contains('Purchase Orders'), .dropdown-item:contains('Purchase Orders')",
+            trigger: navSection('Orders'),
+            content: markup(_t("Open the <b>Orders</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: navItem('Purchase Orders'),
             content: markup(_t("Now create a <b>Purchase Order (PO)</b>.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -90,8 +112,23 @@ registry.category("web_tour.tours").add("od19_purchase_approval_tour", {
             run: "click",
         },
         {
+            trigger: ".o-autocomplete--dropdown-item",
+            content: _t("Pick the vendor from the suggestion list."),
+            run: "click",
+        },
+        {
             trigger: ".o_field_widget[name='order_line'] .o_field_x2many_list_row_add",
             content: _t("Add a product line to the PO."),
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='order_line'] .o_field_widget[name='product_id'] input",
+            content: _t("Pick the product for the order line."),
+            run: "click",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item",
+            content: _t("Pick the product from the suggestion list."),
             run: "click",
         },
         {

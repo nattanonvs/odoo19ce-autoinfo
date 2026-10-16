@@ -1,6 +1,6 @@
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { stepUtils } from "@od19_user_guide_tours/tours/tour_utils";
+import { stepUtils, navSection, navItem } from "@od19_user_guide_tours/tours/tour_utils";
 import { markup } from "@odoo/owl";
 
 /**
@@ -22,13 +22,13 @@ registry.category("web_tour.tours").add("od19_accounting_tour", {
 
         // --- Petty Cash Fund ---
         {
-            trigger: ".o_menu_sections .dropdown-toggle:text('Petty Cash')",
+            trigger: navSection("Petty Cash"),
             content: markup(_t("Open the <b>Petty Cash</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".dropdown-menu .dropdown-item:text('Funds')",
+            trigger: navItem("Funds"),
             content: markup(_t("Open <b>Funds</b> to manage small cash funds.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -50,6 +50,10 @@ registry.category("web_tour.tours").add("od19_accounting_tour", {
             run: "click",
         },
         {
+            trigger: ".o-autocomplete--dropdown-item",
+            run: "click",
+        },
+        {
             trigger: ".o_field_widget[name='amount'] input",
             content: markup(_t("Set the <b>fund amount</b>. The balance is updated automatically by transactions.")),
             run: "edit 5000",
@@ -67,13 +71,13 @@ registry.category("web_tour.tours").add("od19_accounting_tour", {
 
         // --- WHT on Payment ---
         {
-            trigger: ".o_menu_sections .dropdown-toggle:text('Vendors')",
+            trigger: navSection("Vendors"),
             content: markup(_t("Open the <b>Vendors</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".dropdown-menu .dropdown-item:text('Payments')",
+            trigger: navItem("Payments"),
             content: markup(_t(
                 "Open <b>Payments</b> to record vendor/customer payments with <b>Withholding Tax (WHT)</b>."
             )),
@@ -92,6 +96,10 @@ registry.category("web_tour.tours").add("od19_accounting_tour", {
             run: "click",
         },
         {
+            trigger: ".o-autocomplete--dropdown-item",
+            run: "click",
+        },
+        {
             trigger: ".o_field_widget[name='amount'] input",
             content: _t("Enter the payment amount."),
             run: "edit 10000",
@@ -104,18 +112,22 @@ registry.category("web_tour.tours").add("od19_accounting_tour", {
             )),
             run: "click",
         },
+        {
+            trigger: ".o-autocomplete--dropdown-item",
+            run: "click",
+        },
         ...stepUtils.saveForm(),
         ...stepUtils.discardForm(),
 
         // --- Fixed Assets ---
         {
-            trigger: ".o_menu_sections .dropdown-toggle:text('Assets')",
+            trigger: navSection("Assets"),
             content: markup(_t("Open the <b>Assets</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".dropdown-menu .dropdown-item:text('Assets')",
+            trigger: navItem("Assets"),
             content: markup(_t("Open <b>Fixed Assets</b> to manage assets and depreciation.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -142,9 +154,9 @@ registry.category("web_tour.tours").add("od19_accounting_tour", {
             run: "edit 50000",
         },
         {
-            trigger: ".o_field_widget[name='method_number'] input",
-            content: _t("Set the number of depreciation periods (e.g. 60 months)."),
-            run: "edit 60",
+            trigger: ".o_field_widget[name='date_start'] .o_input",
+            content: _t("Set the start date of the depreciation (e.g. the acquisition date)."),
+            run: "edit 2026-01-01",
         },
         ...stepUtils.saveForm(),
         {
@@ -167,13 +179,13 @@ registry.category("web_tour.tours").add("od19_accounting_tour", {
 
         // --- Fiscal Year ---
         {
-            trigger: ".o_menu_sections .dropdown-toggle:text('Configuration')",
+            trigger: navSection("Configuration"),
             content: markup(_t("Open the <b>Configuration</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".dropdown-menu .dropdown-item:text('Fiscal Years')",
+            trigger: navItem("Fiscal Years"),
             content: markup(_t("Open <b>Fiscal Years</b> to define accounting periods.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -190,26 +202,26 @@ registry.category("web_tour.tours").add("od19_accounting_tour", {
             run: "edit FY 2026",
         },
         {
-            trigger: ".o_field_widget[name='date_from'] input",
+            trigger: ".o_field_widget[name='date_from'] .o_input",
             content: _t("Set the start date of the fiscal year."),
-            run: "click",
+            run: "edit 2026-01-01",
         },
         {
-            trigger: ".o_field_widget[name='date_to'] input",
+            trigger: ".o_field_widget[name='date_to'] .o_input",
             content: _t("Set the end date of the fiscal year."),
-            run: "click",
+            run: "edit 2026-12-31",
         },
         ...stepUtils.saveForm(),
         ...stepUtils.discardForm(),
 
         {
-            trigger: ".o_menu_sections .dropdown-toggle:text('Accounting')",
+            trigger: navSection("Accounting"),
             content: markup(_t("Open the <b>Accounting</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".dropdown-menu .dropdown-item:text('Secure Entries')",
+            trigger: navItem("Secure Entries"),
             content: markup(_t(
                 "At the end of the year, use <b>Secure Entries</b> to close the fiscal year " +
                 "and carry forward balances."

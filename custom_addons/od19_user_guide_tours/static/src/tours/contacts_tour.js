@@ -29,7 +29,7 @@ registry.category("web_tour.tours").add("od19_contacts_credit_risk_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='name'] textarea",
+            trigger: ".o_field_widget[name='name'] input",
             content: _t("Enter the company name."),
             run: "edit OD19 Demo Construction Co., Ltd.",
         },

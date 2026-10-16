@@ -1,6 +1,6 @@
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { stepUtils } from "@od19_user_guide_tours/tours/tour_utils";
+import { stepUtils, navSection, navItem } from "@od19_user_guide_tours/tours/tour_utils";
 import { markup } from "@odoo/owl";
 
 /**
@@ -20,13 +20,13 @@ registry.category("web_tour.tours").add("od19_misc_features_tour", {
 
         // --- Runtime Guard ---
         {
-            trigger: ".o_menu_sections :contains('Runtime Guard'), .dropdown-item:contains('Runtime Guard')",
+            trigger: navSection("Runtime Guard"),
             content: markup(_t("Open <b>Runtime Guard</b> to check the system health.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections :contains('Run Runtime Check'), .dropdown-item:contains('Run Runtime Check')",
+            trigger: navItem("Run Runtime Check"),
             content: markup(_t(
                 "Open <b>Run Runtime Check</b> to capture the current Odoo version, Python version, " +
                 "installed-module count and database size."
@@ -44,7 +44,7 @@ registry.category("web_tour.tours").add("od19_misc_features_tour", {
             run: "click",
         },
         {
-            trigger: ".o_list_renderer",
+            trigger: ".o_form_view, .o_list_renderer",
             content: markup(_t(
                 "Each check is logged with the date, versions and metrics, so you can track " +
                 "environment drift over time."
@@ -54,7 +54,7 @@ registry.category("web_tour.tours").add("od19_misc_features_tour", {
 
         // --- Repeat Customer Enhanced ---
         {
-            trigger: ".o_menu_sections :contains('Repeat Customer Enhanced'), .dropdown-item:contains('Repeat Customer Enhanced')",
+            trigger: navSection("Repeat Customer Enhanced"),
             content: markup(_t(
                 "Open <b>Repeat Customer Enhanced</b> to analyse repeat business."
             )),

@@ -18,7 +18,7 @@ registry.category("web_tour.tours").add("od19_fleet_notification_tour", {
         ),
 
         {
-            trigger: ".o_list_renderer .o_data_row:first",
+            trigger: ".o_kanban_record:first",
             content: markup(_t("Open a vehicle to edit its expiry dates.")),
             run: "click",
         },
@@ -58,7 +58,7 @@ registry.category("web_tour.tours").add("od19_fleet_notification_tour", {
         ...stepUtils.discardForm(),
 
         {
-            trigger: ".o_list_renderer",
+            trigger: ".o_kanban_view, .o_list_view",
             content: markup(_t(
                 "Fleet Notification complete! Insurance and Act expiry dates are tracked with " +
                 "configurable reminder lead times so renewals are never missed."

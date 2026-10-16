@@ -114,8 +114,16 @@ registry.category("web_tour.tours").add("od19_iso_risk_tour", {
             run: "click",
         },
         {
+            trigger: ".o_select_menu_item",
+            run: "click",
+        },
+        {
             trigger: ".o_field_widget[name='severity'] .o_select_menu_toggler",
             content: markup(_t("Set the <b>severity</b> (1-5). The risk score and level are calculated automatically.")),
+            run: "click",
+        },
+        {
+            trigger: ".o_select_menu_item",
             run: "click",
         },
         ...stepUtils.saveForm(),
@@ -139,6 +147,10 @@ registry.category("web_tour.tours").add("od19_iso_risk_tour", {
         {
             trigger: ".o_field_widget[name='treatment_type'] .o_select_menu_toggler",
             content: markup(_t("Set the <b>treatment type</b> (Avoid, Mitigate, Transfer, Accept).")),
+            run: "click",
+        },
+        {
+            trigger: ".o_select_menu_item",
             run: "click",
         },
         {

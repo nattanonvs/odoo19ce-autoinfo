@@ -1,6 +1,6 @@
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { stepUtils } from "@od19_user_guide_tours/tours/tour_utils";
+import { stepUtils, navSection } from "@od19_user_guide_tours/tours/tour_utils";
 import { markup } from "@odoo/owl";
 
 /**
@@ -20,7 +20,7 @@ registry.category("web_tour.tours").add("od19_project_enhanced_tour", {
 
         // --- Project Types ---
         {
-            trigger: ".o_menu_sections :contains('Project Types'), .dropdown-item:contains('Project Types')",
+            trigger: navSection("Project Types"),
             content: markup(_t(
                 "Open <b>Project Types</b> to define a classification used on projects and tasks."
             )),
@@ -58,7 +58,7 @@ registry.category("web_tour.tours").add("od19_project_enhanced_tour", {
 
         // --- Risk Report ---
         {
-            trigger: ".o_menu_sections :contains('Risk Report'), .dropdown-item:contains('Risk Report')",
+            trigger: navSection("Risk Report"),
             content: markup(_t(
                 "Open the <b>Risk Report</b> to monitor project profitability and risk."
             )),

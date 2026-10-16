@@ -1,6 +1,6 @@
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { stepUtils } from "@od19_user_guide_tours/tours/tour_utils";
+import { stepUtils, navSection } from "@od19_user_guide_tours/tours/tour_utils";
 import { markup } from "@odoo/owl";
 
 /**
@@ -22,7 +22,7 @@ registry.category("web_tour.tours").add("od19_warranty_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections :contains('Warranty Claims'), .dropdown-item:contains('Warranty Claims')",
+            trigger: navSection("Warranty Claims"),
             content: markup(_t("Open <b>Warranty Claims</b>.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -44,6 +44,11 @@ registry.category("web_tour.tours").add("od19_warranty_tour", {
             run: "click",
         },
         {
+            trigger: ".o-autocomplete--dropdown-item",
+            content: _t("Pick the customer from the suggestion list."),
+            run: "click",
+        },
+        {
             trigger: ".o_field_widget[name='claim_type'] .o_select_menu_toggler",
             content: _t("Select the claim type (warranty, out-of-warranty, etc.)."),
             run: "click",
@@ -51,6 +56,11 @@ registry.category("web_tour.tours").add("od19_warranty_tour", {
         {
             trigger: ".o_field_widget[name='product_id'] input",
             content: _t("Select the product with warranty."),
+            run: "click",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item",
+            content: _t("Pick the product from the suggestion list."),
             run: "click",
         },
         {
@@ -66,6 +76,11 @@ registry.category("web_tour.tours").add("od19_warranty_tour", {
                 "The <b>Under Warranty</b> flag is computed automatically based on the product and serial."
             )),
             run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='description'] textarea",
+            content: markup(_t("Describe the <b>problem</b> reported by the customer.")),
+            run: "edit Product not working as expected",
         },
         ...stepUtils.saveForm(),
         {
@@ -86,6 +101,12 @@ registry.category("web_tour.tours").add("od19_warranty_tour", {
                 "Click <b>Create Repair Order</b> to generate a linked repair order for servicing."
             )),
             tooltipPosition: "left",
+            run: "click",
+        },
+        {
+            trigger: ".o_control_panel .o_back_button:visible",
+            content: markup(_t("Go back to the warranty claim to complete it.")),
+            tooltipPosition: "bottom",
             run: "click",
         },
         {

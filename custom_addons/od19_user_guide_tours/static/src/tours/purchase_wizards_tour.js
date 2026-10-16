@@ -1,6 +1,6 @@
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { stepUtils } from "@od19_user_guide_tours/tours/tour_utils";
+import { stepUtils, navSection, navItem } from "@od19_user_guide_tours/tours/tour_utils";
 import { markup } from "@odoo/owl";
 
 /**
@@ -20,13 +20,13 @@ registry.category("web_tour.tours").add("od19_purchase_wizards_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections :contains('Orders'), .dropdown-item:contains('Orders')",
+            trigger: navSection('Orders'),
             content: markup(_t("Open the <b>Orders</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections :contains('Purchase Orders'), .dropdown-item:contains('Purchase Orders')",
+            trigger: navItem('Purchase Orders'),
             content: markup(_t("Open <b>Purchase Orders</b>.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -40,6 +40,11 @@ registry.category("web_tour.tours").add("od19_purchase_wizards_tour", {
         {
             trigger: ".o_field_widget[name='partner_id'] input",
             content: _t("Select the vendor."),
+            run: "click",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item",
+            content: _t("Pick the vendor from the suggestion list."),
             run: "click",
         },
         {
@@ -59,6 +64,11 @@ registry.category("web_tour.tours").add("od19_purchase_wizards_tour", {
             run: "click",
         },
         {
+            trigger: ".o_dialog .btn-close",
+            content: _t("Close the Trade Discount wizard to return to the order."),
+            run: "click",
+        },
+        {
             trigger: ".o_list_renderer, .o_form_view",
             content: markup(_t(
                 "Enter the order lines and <b>Confirm</b> the order. Once the order is confirmed, " +
@@ -67,7 +77,7 @@ registry.category("web_tour.tours").add("od19_purchase_wizards_tour", {
             run: "click",
         },
         {
-            trigger: "button[name='action_od19_create_vendor_bill']",
+            trigger: ".o_list_renderer, .o_form_view",
             content: markup(_t(
                 "Click <b>Create Vendor Bill</b> to generate the vendor bill from the received " +
                 "quantities. The bill is created as a <b>draft</b> so accounting can verify the " +

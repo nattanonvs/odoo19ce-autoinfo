@@ -49,6 +49,10 @@ registry.category("web_tour.tours").add("od19_cheque_tour", {
             run: "click",
         },
         {
+            trigger: ".o-autocomplete--dropdown-item",
+            run: "click",
+        },
+        {
             trigger: ".o_field_widget[name='bank_id'] input",
             content: _t("Select the bank."),
             run: "click",
@@ -59,14 +63,14 @@ registry.category("web_tour.tours").add("od19_cheque_tour", {
             run: "edit 50000",
         },
         {
-            trigger: ".o_field_widget[name='cheque_date'] input",
+            trigger: ".o_field_widget[name='cheque_date'] .o_input",
             content: _t("Set the cheque date."),
-            run: "click",
+            run: "edit 2026-01-15",
         },
         {
-            trigger: ".o_field_widget[name='due_date'] input",
+            trigger: ".o_field_widget[name='due_date'] .o_input",
             content: _t("Set the due date."),
-            run: "click",
+            run: "edit 2026-02-15",
         },
         ...stepUtils.saveForm(),
         {

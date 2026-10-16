@@ -18,8 +18,20 @@ registry.category("web_tour.tours").add("od19_iso_nonconformity_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections :contains('ไม่สอดคล้อง'), .dropdown-item:contains('ไม่สอดคล้อง')",
+            trigger: navSection('การจัดการ ISO'),
+            content: markup(_t("Open the <b>การจัดการ ISO</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".dropdown-menu .dropdown-header:text('ไม่สอดคล้อง / CAPA')",
             content: markup(_t("Open the <b>ไม่สอดคล้อง / CAPA</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: navItem('รายการไม่สอดคล้อง'),
+            content: markup(_t("Open <b>รายการไม่สอดคล้อง (Nonconformities)</b>.")),
             tooltipPosition: "bottom",
             run: "click",
         },
@@ -40,8 +52,25 @@ registry.category("web_tour.tours").add("od19_iso_nonconformity_tour", {
             run: "click",
         },
         {
+            trigger: ".o_select_menu_item",
+            run: "click",
+        },
+        {
             trigger: ".o_field_widget[name='source'] .o_select_menu_toggler",
             content: markup(_t("Set the <b>source</b> of the nonconformity (audit, customer complaint, etc.).")),
+            run: "click",
+        },
+        {
+            trigger: ".o_select_menu_item",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='category'] .o_select_menu_toggler",
+            content: markup(_t("Set the <b>category</b> of the nonconformity (quality, environment, safety, etc.).")),
+            run: "click",
+        },
+        {
+            trigger: ".o_select_menu_item",
             run: "click",
         },
         {
@@ -55,9 +84,9 @@ registry.category("web_tour.tours").add("od19_iso_nonconformity_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='due_date'] input",
+            trigger: ".o_field_widget[name='due_date'] .o_input",
             content: _t("Set the due date for corrective action."),
-            run: "click",
+            run: "edit 2026-11-30",
         },
         {
             trigger: "a.nav-link:contains('รายละเอียด')",
@@ -91,6 +120,10 @@ registry.category("web_tour.tours").add("od19_iso_nonconformity_tour", {
         {
             trigger: ".o_field_widget[name='root_cause_method'] .o_select_menu_toggler",
             content: markup(_t("Select the <b>root cause method</b> (5 Whys, Fishbone, etc.).")),
+            run: "click",
+        },
+        {
+            trigger: ".o_select_menu_item",
             run: "click",
         },
         {

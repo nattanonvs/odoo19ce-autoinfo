@@ -20,13 +20,19 @@ registry.category("web_tour.tours").add("od19_iso_calibration_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections :contains('การสอบเทียบเครื่องมือ'), .dropdown-item:contains('การสอบเทียบเครื่องมือ')",
+            trigger: navSection('การจัดการ ISO'),
+            content: markup(_t("Open the <b>การจัดการ ISO</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".dropdown-menu .dropdown-header:text('การสอบเทียบเครื่องมือ')",
             content: markup(_t("Open the <b>การสอบเทียบเครื่องมือ (Calibration)</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections :contains('เครื่องมือวัดและสอบเทียบ'), .dropdown-item:contains('เครื่องมือวัดและสอบเทียบ')",
+            trigger: navItem('เครื่องมือวัดและสอบเทียบ'),
             content: markup(_t("Open <b>เครื่องมือวัดและสอบเทียบ (Measuring Equipment)</b>.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -38,9 +44,23 @@ registry.category("web_tour.tours").add("od19_iso_calibration_tour", {
             run: "click",
         },
         {
+            trigger: ".o_field_widget[name='code'] input",
+            content: markup(_t("Enter the <b>equipment code</b> (e.g. EQ-DC-001).")),
+            run: "edit EQ-DC-001",
+        },
+        {
             trigger: ".o_field_widget[name='name'] input",
             content: _t("Enter the equipment name."),
             run: "edit Digital Caliper 0-150mm",
+        },
+        {
+            trigger: ".o_field_widget[name='category'] .o_select_menu_toggler",
+            content: markup(_t("Set the <b>equipment category</b>.")),
+            run: "click",
+        },
+        {
+            trigger: ".o_select_menu_item",
+            run: "click",
         },
         {
             trigger: ".o_field_widget[name='serial_no'] input",
@@ -51,7 +71,19 @@ registry.category("web_tour.tours").add("od19_iso_calibration_tour", {
 
         // --- Calibration Records ---
         {
-            trigger: ".o_menu_sections :contains('บันทึกการสอบเทียบ'), .dropdown-item:contains('บันทึกการสอบเทียบ')",
+            trigger: navSection('การจัดการ ISO'),
+            content: markup(_t("Open the <b>การจัดการ ISO</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".dropdown-menu .dropdown-header:text('การสอบเทียบเครื่องมือ')",
+            content: markup(_t("Open the <b>การสอบเทียบเครื่องมือ (Calibration)</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: navItem('บันทึกการสอบเทียบ'),
             content: markup(_t("Open <b>บันทึกการสอบเทียบ (Calibration Records)</b>.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -68,9 +100,13 @@ registry.category("web_tour.tours").add("od19_iso_calibration_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='date_planned'] input",
-            content: _t("Set the planned calibration date."),
+            trigger: ".o-autocomplete--dropdown-item",
             run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='date'] .o_input",
+            content: _t("Set the planned calibration date."),
+            run: "edit 2026-04-15",
         },
         ...stepUtils.saveForm(),
 

@@ -23,7 +23,7 @@ registry.category("web_tour.tours").add("od19_project_analytic_tour", {
         ),
 
         {
-            trigger: ".o_list_button_add",
+            trigger: ".o-kanban-button-new",
             content: _t("Create a new project."),
             tooltipPosition: "bottom",
             run: "click",
@@ -76,7 +76,7 @@ registry.category("web_tour.tours").add("od19_project_analytic_tour", {
         ...stepUtils.discardForm(),
 
         {
-            trigger: ".o_list_renderer",
+            trigger: ".o_kanban_view, .o_list_view",
             content: markup(_t(
                 "Project setup complete! The hierarchy is: " +
                 "<b>1 Project Owner → Many Projects → Many Contractors → Many Contracts</b>. " +

@@ -1,6 +1,6 @@
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { stepUtils } from "@od19_user_guide_tours/tours/tour_utils";
+import { stepUtils, navSection, navItem } from "@od19_user_guide_tours/tours/tour_utils";
 import { markup } from "@odoo/owl";
 
 /**
@@ -21,13 +21,13 @@ registry.category("web_tour.tours").add("od19_stock_valuation_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections :contains('Inventory Control'), .dropdown-item:contains('Inventory Control')",
+            trigger: navSection('Products'),
             content: markup(_t("Open the <b>Inventory Control</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections :contains('Valuation Adjustments'), .dropdown-item:contains('Valuation Adjustments')",
+            trigger: navItem('Valuation Adjustments'),
             content: markup(_t("Open <b>Valuation Adjustments</b>.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -48,6 +48,11 @@ registry.category("web_tour.tours").add("od19_stock_valuation_tour", {
         {
             trigger: ".o_field_widget[name='product_id'] input",
             content: _t("Select the product to adjust."),
+            run: "click",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item",
+            content: _t("Pick the product from the suggestion list."),
             run: "click",
         },
         {

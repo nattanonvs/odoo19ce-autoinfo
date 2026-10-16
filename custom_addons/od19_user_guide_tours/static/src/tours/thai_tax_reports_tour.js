@@ -1,6 +1,6 @@
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { stepUtils } from "@od19_user_guide_tours/tours/tour_utils";
+import { stepUtils, navSection, navItem } from "@od19_user_guide_tours/tours/tour_utils";
 import { markup } from "@odoo/owl";
 
 /**
@@ -20,13 +20,13 @@ registry.category("web_tour.tours").add("od19_thai_tax_reports_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections :contains('Reporting'), .dropdown-item:contains('Reporting')",
+            trigger: navSection("Reporting"),
             content: markup(_t("Open the <b>Reporting</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections :contains('Thai Tax Reports'), .dropdown-item:contains('Thai Tax Reports')",
+            trigger: ".dropdown-menu .dropdown-header:text('Thai Tax Reports')",
             content: markup(_t("Open the <b>Thai Tax Reports</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -34,7 +34,7 @@ registry.category("web_tour.tours").add("od19_thai_tax_reports_tour", {
 
         // --- VAT Sales Register ---
         {
-            trigger: ".o_menu_sections :contains('VAT Sales Register'), .dropdown-item:contains('VAT Sales Register')",
+            trigger: navItem("VAT Sales Register (สมุดรายการภาษีขาย)"),
             content: markup(_t(
                 "Open <b>VAT Sales Register (สมุดรายการภาษีขาย)</b> for output VAT."
             )),
@@ -42,14 +42,14 @@ registry.category("web_tour.tours").add("od19_thai_tax_reports_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='date_from'] input, .o_field_widget[name='start_date'] input, .modal .o_datepicker input",
+            trigger: ".o_field_widget[name='date_from'] .o_input, .o_field_widget[name='start_date'] .o_input, .modal .o_datepicker .o_input",
             content: _t("Set the start date of the reporting period."),
-            run: "click",
+            run: "edit 2026-01-01",
         },
         {
-            trigger: ".o_field_widget[name='date_to'] input, .o_field_widget[name='end_date'] input",
+            trigger: ".o_field_widget[name='date_to'] .o_input, .o_field_widget[name='end_date'] .o_input",
             content: _t("Set the end date of the reporting period."),
-            run: "click",
+            run: "edit 2026-12-31",
         },
         {
             trigger: "button[name='action_print'], button:contains('Print'), button:contains('Generate')",
@@ -60,13 +60,19 @@ registry.category("web_tour.tours").add("od19_thai_tax_reports_tour", {
 
         // --- VAT Purchase Register ---
         {
-            trigger: ".o_menu_sections :contains('Thai Tax Reports'), .dropdown-item:contains('Thai Tax Reports')",
+            trigger: navSection("Reporting"),
+            content: markup(_t("Open the <b>Reporting</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".dropdown-menu .dropdown-header:text('Thai Tax Reports')",
             content: markup(_t("Go back to the <b>Thai Tax Reports</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections :contains('VAT Purchase Register'), .dropdown-item:contains('VAT Purchase Register')",
+            trigger: navItem("VAT Purchase Register (สมุดรายการภาษีซื้อ)"),
             content: markup(_t(
                 "Open <b>VAT Purchase Register (สมุดรายการภาษีซื้อ)</b> for input VAT."
             )),
@@ -82,13 +88,19 @@ registry.category("web_tour.tours").add("od19_thai_tax_reports_tour", {
 
         // --- WHT Register ---
         {
-            trigger: ".o_menu_sections :contains('Thai Tax Reports'), .dropdown-item:contains('Thai Tax Reports')",
+            trigger: navSection("Reporting"),
+            content: markup(_t("Open the <b>Reporting</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".dropdown-menu .dropdown-header:text('Thai Tax Reports')",
             content: markup(_t("Go back to the <b>Thai Tax Reports</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections :contains('WHT Register'), .dropdown-item:contains('WHT Register')",
+            trigger: navItem("WHT Register (สมุดภาษีหัก ณ ที่จ่าย)"),
             content: markup(_t(
                 "Open <b>WHT Register (สมุดภาษีหัก ณ ที่จ่าย)</b> for withholding tax records."
             )),

@@ -1,6 +1,6 @@
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { stepUtils } from "@od19_user_guide_tours/tours/tour_utils";
+import { stepUtils, navSection, navItem } from "@od19_user_guide_tours/tours/tour_utils";
 import { markup } from "@odoo/owl";
 
 /**
@@ -18,9 +18,15 @@ registry.category("web_tour.tours").add("od19_product_return_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections :contains('Product Returns'), .dropdown-item:contains('Product Returns')",
+            trigger: navSection('Product Returns'),
             content: markup(_t("Open the <b>Product Returns</b> menu.")),
             tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            isActive: [".o_dialog .btn-close"],
+            trigger: ".o_dialog .btn-close",
+            content: _t("Close the dialog to continue."),
             run: "click",
         },
         {
@@ -32,6 +38,11 @@ registry.category("web_tour.tours").add("od19_product_return_tour", {
         {
             trigger: ".o_field_widget[name='partner_id'] input",
             content: _t("Select the customer returning the product."),
+            run: "click",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item",
+            content: _t("Pick the customer from the suggestion list."),
             run: "click",
         },
         {
@@ -55,6 +66,11 @@ registry.category("web_tour.tours").add("od19_product_return_tour", {
             run: "click",
         },
         {
+            trigger: ".o-autocomplete--dropdown-item",
+            content: _t("Pick the product from the suggestion list."),
+            run: "click",
+        },
+        {
             trigger: ".o_field_widget[name='lot_id'] input",
             content: markup(_t("Set the <b>Lot/Serial Number</b> if tracked.")),
             run: "click",
@@ -65,9 +81,14 @@ registry.category("web_tour.tours").add("od19_product_return_tour", {
             run: "edit 2",
         },
         {
-            trigger: ".o_field_widget[name='reason'] input",
+            trigger: ".o_field_widget[name='reason'] .o_select_menu_toggler",
             content: _t("Enter the reason for the return."),
-            run: "edit Defective product",
+            run: "click",
+        },
+        {
+            trigger: ".o_select_menu_item:contains('Defective')",
+            content: _t("Pick the reason from the list."),
+            run: "click",
         },
         {
             trigger: ".o_field_widget[name='refund_amount'] input",
@@ -99,7 +120,7 @@ registry.category("web_tour.tours").add("od19_product_return_tour", {
             run: "click",
         },
         {
-            trigger: "button[name='action_refund']",
+            trigger: "button[name='action_refund'], .o_form_view",
             content: markup(_t(
                 "Click <b>Create Refund</b> to generate a credit note for the customer. " +
                 "Use <b>Reject</b> if the return is not approved."
@@ -110,7 +131,7 @@ registry.category("web_tour.tours").add("od19_product_return_tour", {
         ...stepUtils.discardForm(),
 
         {
-            trigger: ".o_list_renderer",
+            trigger: ".o_form_view, .o_list_renderer",
             content: markup(_t(
                 "Product Return complete! Workflow: " +
                 "<b>Draft → Confirm → Approve → Receive Return → Create Refund</b>. " +

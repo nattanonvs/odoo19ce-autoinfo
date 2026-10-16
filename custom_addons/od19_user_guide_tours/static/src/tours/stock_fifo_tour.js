@@ -1,6 +1,6 @@
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { stepUtils } from "@od19_user_guide_tours/tours/tour_utils";
+import { stepUtils, navSection, navItem } from "@od19_user_guide_tours/tours/tour_utils";
 import { markup } from "@odoo/owl";
 
 /**
@@ -21,13 +21,13 @@ registry.category("web_tour.tours").add("od19_stock_fifo_tour", {
 
         // --- FIFO Valuation Records ---
         {
-            trigger: ".o_menu_sections :contains('FIFO Valuation /'), .dropdown-item:contains('FIFO Valuation /')",
+            trigger: navSection('FIFO Valuation / มูลค่า FIFO'),
             content: markup(_t("Open the <b>FIFO Valuation</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections :contains('FIFO Valuation Records'), .dropdown-item:contains('FIFO Valuation Records')",
+            trigger: navItem('FIFO Valuation Records / บันทึกมูลค่า FIFO'),
             content: markup(_t(
                 "Open <b>FIFO Valuation Records</b>. Each line stores the date, product, " +
                 "quantity, unit cost and total value at the moment of the move."
@@ -46,7 +46,13 @@ registry.category("web_tour.tours").add("od19_stock_fifo_tour", {
 
         // --- FIFO As-Of ---
         {
-            trigger: ".o_menu_sections :contains('FIFO As-Of'), .dropdown-item:contains('FIFO As-Of')",
+            trigger: navSection('FIFO Valuation / มูลค่า FIFO'),
+            content: markup(_t("Open the <b>FIFO Valuation</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: navItem('FIFO As-Of / ประเมิน FIFO ณ วันที่'),
             content: markup(_t(
                 "Open <b>FIFO As-Of</b> to value the whole stock at a chosen date."
             )),
@@ -54,7 +60,7 @@ registry.category("web_tour.tours").add("od19_stock_fifo_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='od19_as_of_date'] input",
+            trigger: ".o_field_widget[name='od19_as_of_date'] .o_input",
             content: markup(_t("Pick the <b>As-Of Date</b> and optionally the products to value.")),
             run: "click",
         },
@@ -81,7 +87,13 @@ registry.category("web_tour.tours").add("od19_stock_fifo_tour", {
 
         // --- BF Revaluation ---
         {
-            trigger: ".o_menu_sections :contains('BF Revaluation'), .dropdown-item:contains('BF Revaluation')",
+            trigger: navSection('FIFO Valuation / มูลค่า FIFO'),
+            content: markup(_t("Open the <b>FIFO Valuation</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: navItem('BF Revaluation / ปรับมูลค่ายกมา'),
             content: markup(_t(
                 "Open <b>BF Revaluation / ปรับมูลค่ายกมา</b> to adjust the brought-forward stock value."
             )),
@@ -91,6 +103,11 @@ registry.category("web_tour.tours").add("od19_stock_fifo_tour", {
         {
             trigger: ".o_field_widget[name='od19_product_id'] input",
             content: markup(_t("Select the product whose opening value must be adjusted.")),
+            run: "click",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item",
+            content: markup(_t("Pick the product from the suggestion list.")),
             run: "click",
         },
         {
@@ -108,7 +125,7 @@ registry.category("web_tour.tours").add("od19_stock_fifo_tour", {
             run: "click",
         },
         {
-            trigger: ".o_list_renderer",
+            trigger: ".o_form_view, .o_list_renderer",
             content: markup(_t(
                 "Stock FIFO complete! Use <b>Records</b> for the FIFO ledger, <b>As-Of</b> to value " +
                 "stock on any date and <b>BF Revaluation</b> to adjust the opening value."
