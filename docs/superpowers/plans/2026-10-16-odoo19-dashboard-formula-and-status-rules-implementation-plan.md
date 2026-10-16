@@ -2681,6 +2681,19 @@ git commit -m "feat(od19_dashboard): evaluate widget formulas and expose the liv
 - Modify: `custom_addons/od19_dashboard/models/dashboard_rule.py`
 - Modify: `custom_addons/od19_dashboard/tests/test_dashboard_rules.py`
 
+> **ขอบเขตที่ *ไม่* รวมใน Task นี้ (โดยเจตนา):**
+>
+> - `data/dashboard_data.xml` ยังคงมี `threshold_mode` / `warning_value` / `critical_value` ต่อไปจนถึง **Task 10** ไฟล์นี้ถูกประกาศด้วย `noupdate="1"` การอัปเดตโมดูลบนฐานข้อมูลเดิม (mode `update`) จะข้าม record ที่มีอยู่แล้ว **ก่อน** อ่านฟิลด์ (ดู [convert.py](file:///c:/odoo-dev/odoo19/odoo/tools/convert.py#L360-L380)) จึงไม่ล้ม — ผลข้างเคียงคือ **การติดตั้งใหม่ (mode `init`) จะล้มจนกว่า Task 10 จะแก้ seed** ซึ่งเป็นงานของ Task 10 ตามที่ระบุไว้ที่นั่น
+> - `static/src/dashboard/builder_dialog.js` / `builder_dialog.xml` / `dashboard_action.js` ที่ยังอ้าง `threshold_mode` เป็นของ **Task 8** (การลบฟิลด์ใน Task นี้ทำให้ `widget.threshold_mode` กลายเป็น `undefined` ฝั่ง JS ชั่วคราว)
+>
+> **การรันเทสต์ของ Task นี้** (ใช้กับ Step 2 และ Step 7) — พอร์ต 8070 ถูกเซิร์ฟเวอร์พื้นหลังยึดอยู่ และ `odoo.conf` เขียน log ลงไฟล์ ทำให้ stdout ว่าง ต้องระบุสองแฟลกเพิ่ม:
+>
+> ```powershell
+> venv19\Scripts\python.exe odoo-bin -c odoo.conf -d odoo19 -u od19_dashboard --test-enable --test-tags /od19_dashboard --stop-after-init --log-level=test --http-port=8099 --logfile=$env:TEMP\od19_dashboard_task7.log
+> ```
+>
+> อ่านผลจากบรรทัด `odoo.tests.result: N failed, M error(s) of K tests` ใน `$env:TEMP\od19_dashboard_task7.log`
+
 **บริบท:** หลัง Task 6 การตัดสินสถานะย้ายมาอยู่ที่ `_evaluate_rules()` ทั้งหมดแล้ว จึงถอด threshold เดิมออกทั้งชุด — ค่าคงที่ `THRESHOLD_MODES`, ฟิลด์ 3 ตัวบน widget, validation ใน `_check_source_fields()` และเมธอด `_compute_status()` — แล้วให้ builder รับแค็ตตาล็อกใหม่ (โหมดสูตร, ประเภทสูตร, ประเภทการเทียบ, ตัวดำเนินการ, สถานะ) ผ่าน `get_builder_meta()` แทน `threshold_modes`
 
 **การตรวจสูตรผูกเป็น `@api.constrains` ไม่ใช่เรียกมือใน `create_widget()` / `update_widget()`** เพราะ `od19.dashboard.widget` ถูกเขียนผ่าน `create()` / `write()` ได้หลายทาง (builder RPC, form view, seed data) — constrains จะจับทุกทางที่เขียน (Odoo 19 รัน `_validate_fields()` แบบ sudo ให้) ส่วน `preview_widget()` ยังเรียก `_validate_formula_config()` เอง เพราะ record ที่สร้างด้วย `Model.new()` ไม่ผ่าน constrains
@@ -2834,7 +2847,7 @@ Expected: FAIL — `test_widget_no_longer_carries_the_threshold_fields` ล้�
 
 - [ ] **Step 3: Delete the legacy threshold constant, fields and validation**
 
-**3a.** ใน `custom_addons/od19_dashboard/models/dashboard.py` ลบบล็อกบรรทัด 26–30:
+**3a.** ใน `custom_addons/od19_dashboard/models/dashboard.py` ลบบล็อกบรรทัด 29–33:
 
 ```python
 THRESHOLD_MODES = [
@@ -2844,14 +2857,14 @@ THRESHOLD_MODES = [
 ]
 ```
 
-**3b.** ลบฟิลด์ 3 ตัวบน `Od19DashboardWidget` (บรรทัด 355–357) ให้เหลือ:
+**3b.** ลบฟิลด์ 3 ตัวบน `Od19DashboardWidget` (บรรทัด 502–504) ให้เหลือ:
 
 ```python
     goal_value = fields.Float()
     show_delta = fields.Boolean(default=True, string="Show Period Comparison")
 ```
 
-**3c.** ลบบล็อก threshold validation 2 ท่อนท้าย `_check_source_fields()` (บรรทัด 395–402):
+**3c.** ลบบล็อก threshold validation 2 ท่อนท้าย `_check_source_fields()` (บรรทัด 585–592):
 
 ```python
             if widget.threshold_mode == "higher_is_better" and widget.critical_value > widget.warning_value:
@@ -2864,9 +2877,9 @@ THRESHOLD_MODES = [
                 )
 ```
 
-ให้เมธอดจบที่การตรวจ `date_key` (บรรทัด 390–394) แล้วปิด loop
+ให้เมธอดจบที่การตรวจ `date_key` (บรรทัด 580–584) แล้วปิด loop
 
-**3d.** ลบเมธอด `_compute_status()` ทั้งบล็อก (บรรทัด 688–702):
+**3d.** ลบเมธอด `_compute_status()` ทั้งบล็อก (บรรทัด 1450–1464):
 
 ```python
     def _compute_status(self, value):
@@ -2910,7 +2923,7 @@ THRESHOLD_MODES = [
         }
 ```
 
-**4b.** ใน `dashboard.py` แทนบล็อกบรรทัด 439–442 ของ `_to_config()`:
+**4b.** ใน `dashboard.py` แทนบล็อกบรรทัด 629–633 ของ `_to_config()`:
 
 ```python
             "goal_value": self.goal_value,
@@ -2945,7 +2958,7 @@ THRESHOLD_MODES = [
 from .dashboard_rule import COMPARE_TYPES, OPERATORS
 ```
 
-**5b.** แทนบรรทัด 177 ของ `get_builder_meta()`:
+**5b.** แทนบรรทัด 200 ของ `get_builder_meta()`:
 
 ```python
             "threshold_modes": [{"key": key, "label": label} for key, label in THRESHOLD_MODES],
@@ -2975,7 +2988,7 @@ from .dashboard_rule import COMPARE_TYPES, OPERATORS
 >
 > แต่ละรายการของ `formula_types` ส่ง `slots` (สล็อตที่สูตรนั้นต้องใช้ เรียงตามลำดับที่แสดงในตาราง), `variadic` (`True` สำหรับ `sum` / `average` — เติมสล็อต c–e ได้เอง) และ `expression` (สูตรที่ระบบจะสร้างให้ แสดงเป็นตัวอย่างในไดอะล็อก) เพื่อให้ builder ไม่ต้องคัดลอกรายการสล็อตซ้ำไว้ฝั่ง JS — ถ้า `dashboard_formula.py` เพิ่มสูตรใหม่ builder จะเห็นทันทีโดยไม่ต้องแก้ front-end
 >
-> **5c.** เพิ่มค่าคงที่ต่อจาก `FORMULA_MODES` ที่หัวไฟล์ `dashboard.py`:
+> **5c.** เพิ่มค่าคงที่ต่อจาก `FORMULA_MODES` (ปัจจุบันจบที่บรรทัด 59) ที่หัวไฟล์ `dashboard.py`:
 >
 > ```python
 > #: Preset formulas whose slot list is filled by the designer (a, b, c, d, e).
@@ -2984,7 +2997,7 @@ from .dashboard_rule import COMPARE_TYPES, OPERATORS
 
 - [ ] **Step 6: Make the formula validation automatic on create and write**
 
-**6a.** ใน `dashboard.py` เพิ่ม constrains ต่อจาก `_check_domain()`:
+**6a.** ใน `dashboard.py` เพิ่ม constrains ต่อจาก `_check_domain()` (จบที่บรรทัด 608):
 
 ```python
     @api.constrains(
