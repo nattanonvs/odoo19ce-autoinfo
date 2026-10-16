@@ -98,4 +98,38 @@
         <field name="perm_create" eval="True"/>
         <field name="perm_unlink" eval="True"/>
     </record>
+
+    <!-- ===================== Record rules: widget status rule ===================== -->
+    <record id="rule_od19_dashboard_widget_rule_read" model="ir.rule">
+        <field name="name">Dashboard widget rule: read from visible dashboard</field>
+        <field name="model_id" ref="model_od19_dashboard_widget_rule"/>
+        <field name="domain_force">['|', ('widget_id.dashboard_id.shared', '=', True), ('widget_id.dashboard_id.owner_id', '=', user.id)]</field>
+        <field name="groups" eval="[Command.link(ref('base.group_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_od19_dashboard_widget_rule_write" model="ir.rule">
+        <field name="name">Dashboard widget rule: edit on own dashboard</field>
+        <field name="model_id" ref="model_od19_dashboard_widget_rule"/>
+        <field name="domain_force">[('widget_id.dashboard_id.owner_id', '=', user.id)]</field>
+        <field name="groups" eval="[Command.link(ref('group_od19_dashboard_user'))]"/>
+        <field name="perm_read" eval="False"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_od19_dashboard_widget_rule_manager" model="ir.rule">
+        <field name="name">Dashboard widget rule: manager full access</field>
+        <field name="model_id" ref="model_od19_dashboard_widget_rule"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_od19_dashboard_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
 </odoo>

@@ -1,3 +1,4 @@
+import json
 import logging
 from datetime import date, datetime, timedelta
 
@@ -5,6 +6,8 @@ from odoo import Command, _, api, fields, models
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tools.misc import format_date, format_datetime
 from odoo.tools.safe_eval import safe_eval
+
+from . import dashboard_formula as formula_tools
 
 _logger = logging.getLogger(__name__)
 
@@ -47,6 +50,26 @@ DATE_RANGES = [
     ("this_year", "This Year"),
     ("next_7_days", "Next 7 Days"),
     ("overdue", "Overdue"),
+]
+
+FORMULA_MODES = [
+    ("measure", "Single measure"),
+    ("preset", "Preset formula"),
+    ("custom", "Custom expression"),
+]
+
+FORMULA_BASIS = [
+    ("previous", "Previous period"),
+    ("yty", "Same period last year"),
+    ("mtm", "Previous month"),
+    ("qtq", "Previous quarter"),
+]
+
+STATUS_SELECTION = [
+    ("red", "Red"),
+    ("yellow", "Yellow"),
+    ("green", "Green"),
+    ("grey", "Grey"),
 ]
 
 # Grid limits shared with the front-end builder.
@@ -356,6 +379,49 @@ class Od19DashboardWidget(models.Model):
     warning_value = fields.Float()
     critical_value = fields.Float()
     show_delta = fields.Boolean(default=True, string="Show Period Comparison")
+
+    formula_mode = fields.Selection(
+        selection=FORMULA_MODES,
+        default="measure",
+        required=True,
+        help="Single measure keeps the historical behaviour; preset and custom "
+        "let the user combine several measures.",
+    )
+    formula_type = fields.Selection(
+        selection=formula_tools.FORMULA_TYPES,
+        help="Used when the formula mode is 'Preset formula'.",
+    )
+    formula_slots = fields.Text(
+        default="{}",
+        help="JSON mapping of slot to measure, e.g. "
+        '{"a": "amount_total", "b": "__count"}. Weight slots w1 / w2 hold numbers.',
+    )
+    formula_expression = fields.Char(
+        help="Expression evaluated with safe_eval, used when the formula mode is 'Custom expression'.",
+    )
+    formula_basis = fields.Selection(
+        selection=FORMULA_BASIS,
+        default="previous",
+        required=True,
+        help="Reference period of the growth and cumulative change formulas.",
+    )
+    delta_basis = fields.Selection(
+        selection=FORMULA_BASIS,
+        default="previous",
+        required=True,
+        help="Reference period of the period comparison shown on a KPI.",
+    )
+    default_status = fields.Selection(
+        selection=STATUS_SELECTION,
+        default="green",
+        required=True,
+        help="Status used when no status rule matches.",
+    )
+    rule_ids = fields.One2many(
+        "od19.dashboard.widget.rule",
+        "widget_id",
+        string="Status Rules",
+    )
 
     grid_w = fields.Integer(default=4, string="Width (columns)")
     grid_h = fields.Integer(default=2, string="Height (rows)")
