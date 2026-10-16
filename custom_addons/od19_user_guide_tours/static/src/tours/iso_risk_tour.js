@@ -35,12 +35,12 @@ registry.category("web_tour.tours").add("od19_iso_risk_tour", {
             run: "edit Supply chain disruption risk",
         },
         {
-            trigger: ".o_field_widget[name='risk_type'] select",
+            trigger: ".o_field_widget[name='risk_type'] .o_select_menu_toggler",
             content: markup(_t("Set the <b>type</b>: Risk or Opportunity.")),
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='category'] select",
+            trigger: ".o_field_widget[name='category'] .o_select_menu_toggler",
             content: markup(_t("Set the <b>category</b> (Strategic, Operational, Financial, etc.).")),
             run: "click",
         },
@@ -89,12 +89,12 @@ registry.category("web_tour.tours").add("od19_iso_risk_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='likelihood'] select",
+            trigger: ".o_field_widget[name='likelihood'] .o_select_menu_toggler",
             content: markup(_t("Set the <b>likelihood</b> (1-5).")),
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='severity'] select",
+            trigger: ".o_field_widget[name='severity'] .o_select_menu_toggler",
             content: markup(_t("Set the <b>severity</b> (1-5). The risk score and level are calculated automatically.")),
             run: "click",
         },
@@ -117,7 +117,7 @@ registry.category("web_tour.tours").add("od19_iso_risk_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='treatment_type'] select",
+            trigger: ".o_field_widget[name='treatment_type'] .o_select_menu_toggler",
             content: markup(_t("Set the <b>treatment type</b> (Avoid, Mitigate, Transfer, Accept).")),
             run: "click",
         },

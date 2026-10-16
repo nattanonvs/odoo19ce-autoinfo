@@ -87,7 +87,7 @@ registry.category("web_tour.tours").add("od19_iso_internal_audit_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='audit_type'] select",
+            trigger: ".o_field_widget[name='audit_type'] .o_select_menu_toggler",
             content: markup(_t("Set the <b>audit type</b> (Internal, External, Surveillance).")),
             run: "click",
         },

@@ -13,7 +13,7 @@ registry.category("web_tour.tours").add("od19_fleet_notification_tour", {
     url: "/odoo",
     steps: () => [
         ...stepUtils.goToAppSteps(
-            "fleet.fleet_vehicles",
+            "fleet.menu_root",
             markup(_t("Let's configure <b>Insurance</b> and <b>Act (Tax)</b> expiry reminders for a vehicle."))
         ),
 

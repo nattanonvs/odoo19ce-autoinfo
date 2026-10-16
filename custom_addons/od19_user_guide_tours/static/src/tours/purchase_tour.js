@@ -41,7 +41,7 @@ registry.category("web_tour.tours").add("od19_purchase_approval_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='od19_entry_mode'] select",
+            trigger: ".o_field_widget[name='od19_entry_mode'] .o_select_menu_toggler",
             content: markup(_t(
                 "Choose the <b>Entry Mode</b>: manual, from PR, or from SO."
             )),
@@ -103,7 +103,7 @@ registry.category("web_tour.tours").add("od19_purchase_approval_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='od19_procurement_purpose'] select",
+            trigger: ".o_field_widget[name='od19_procurement_purpose'] .o_select_menu_toggler",
             content: markup(_t(
                 "Set the <b>Procurement Purpose</b> on each line (stock, project, service, etc.)."
             )),

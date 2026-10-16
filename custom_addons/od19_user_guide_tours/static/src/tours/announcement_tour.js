@@ -47,9 +47,9 @@ registry.category("web_tour.tours").add("od19_announcement_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='body'] iframe",
+            trigger: ".o_field_widget[name='body'] .note-editable",
             content: markup(_t("Write the <b>announcement content</b> in the rich text editor.")),
-            run: "click",
+            run: "editor System maintenance is scheduled for Friday at 10 PM.",
         },
         {
             trigger: ".o_field_widget[name='expiry_date'] input",

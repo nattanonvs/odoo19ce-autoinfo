@@ -48,7 +48,7 @@ registry.category("web_tour.tours").add("od19_money_in_report_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='phase'] select",
+            trigger: ".o_field_widget[name='phase'] .o_select_menu_toggler",
             content: markup(_t(
                 "Choose the <b>phase</b>:<br/>" +
                 "<b>Phase 1</b> (Invoice-based): recognizes revenue when invoices are posted.<br/>" +

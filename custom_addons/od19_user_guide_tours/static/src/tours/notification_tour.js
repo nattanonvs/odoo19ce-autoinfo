@@ -44,7 +44,7 @@ registry.category("web_tour.tours").add("od19_notification_tour", {
             run: "edit Email Notifications",
         },
         {
-            trigger: ".o_field_widget[name='channel_type'] select",
+            trigger: ".o_field_widget[name='channel_type'] .o_select_menu_toggler",
             content: markup(_t(
                 "Select the <b>channel type</b>: Email, SMS, Line, or other supported channels."
             )),
@@ -74,7 +74,7 @@ registry.category("web_tour.tours").add("od19_notification_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='event'] select",
+            trigger: ".o_field_widget[name='event'] .o_select_menu_toggler",
             content: markup(_t(
                 "Select the <b>event</b> you want to be notified about " +
                 "(e.g. new ticket assigned, approval requested)."

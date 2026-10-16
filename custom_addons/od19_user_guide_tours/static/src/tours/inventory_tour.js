@@ -41,7 +41,7 @@ registry.category("web_tour.tours").add("od19_inventory_operations_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='service_type'] select",
+            trigger: ".o_field_widget[name='service_type'] .o_select_menu_toggler",
             content: _t("Choose the service type (preventive, corrective, etc.)."),
             run: "click",
         },
@@ -94,7 +94,7 @@ registry.category("web_tour.tours").add("od19_inventory_operations_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='inspection_type'] select",
+            trigger: ".o_field_widget[name='inspection_type'] .o_select_menu_toggler",
             content: _t("Select inspection type: incoming, outgoing, or in-process."),
             run: "click",
         },

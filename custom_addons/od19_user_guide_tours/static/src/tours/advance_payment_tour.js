@@ -33,7 +33,7 @@ registry.category("web_tour.tours").add("od19_advance_payment_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='advance_type'] select",
+            trigger: ".o_field_widget[name='advance_type'] .o_select_menu_toggler",
             content: markup(_t(
                 "Choose the <b>advance type</b>: Customer (deposit received) or Supplier (prepayment made)."
             )),

@@ -16,7 +16,7 @@ registry.category("web_tour.tours").add("od19_fleet_accounting_tour", {
     url: "/odoo",
     steps: () => [
         ...stepUtils.goToAppSteps(
-            "fleet.fleet_vehicles",
+            "fleet.menu_root",
             markup(_t("Let's manage <b>Fleet Accounting</b>: vehicle expenses and cost tracking."))
         ),
 

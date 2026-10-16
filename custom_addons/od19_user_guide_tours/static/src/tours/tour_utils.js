@@ -57,9 +57,9 @@ export const stepUtils = {
     saveForm() {
         return [
             {
-                isActive: [".o_control_panel .o_form_button_save"],
+                isActive: [".o_control_panel .o_form_button_save:visible"],
                 content: _t("Save the record."),
-                trigger: ".o_control_panel .o_form_button_save",
+                trigger: ".o_control_panel .o_form_button_save:visible",
                 tooltipPosition: "bottom",
                 run: "click",
             },
@@ -73,19 +73,31 @@ export const stepUtils = {
      * Manual-mode friendly `discardForm()`. Same `isActive: ["auto"]` problem
      * as `saveForm()`: without the fix the form is never left, and the next
      * `goToAppSteps()` gets stuck behind the dirty form.
+     *
+     * The `:visible` guard matters because Odoo keeps `.o_form_button_cancel`
+     * in the DOM even on a saved (readonly) form, where it is hidden. Without
+     * it the step stayed "active" and then timed out on an invisible trigger.
+     * When there is nothing left to discard we fall back to the control-panel
+     * back arrow so the tour still returns to the list view.
      */
     discardForm() {
         return [
             {
-                isActive: [".o_control_panel .o_form_button_cancel"],
+                isActive: [".o_control_panel .o_form_button_cancel:visible"],
                 content: _t("Discard the form to leave it."),
-                trigger: ".o_control_panel .o_form_button_cancel",
+                trigger: ".o_control_panel .o_form_button_cancel:visible",
                 tooltipPosition: "bottom",
                 run: "click",
             },
             {
-                trigger:
-                    ".o_view_controller.o_list_view, .o_form_view > div > main > .o_form_readonly, .o_form_view > div > main > .o_form_saved",
+                isActive: [".o_control_panel .o_back_button:visible"],
+                content: _t("Go back to the list."),
+                trigger: ".o_control_panel .o_back_button:visible",
+                tooltipPosition: "bottom",
+                run: "click",
+            },
+            {
+                trigger: ".o_list_view, .o_kanban_view",
             },
         ];
     },

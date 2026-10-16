@@ -39,7 +39,7 @@ registry.category("web_tour.tours").add("od19_cheque_tour", {
             run: "edit CHQ-000123",
         },
         {
-            trigger: ".o_field_widget[name='cheque_type'] select",
+            trigger: ".o_field_widget[name='cheque_type'] .o_select_menu_toggler",
             content: markup(_t("Choose the <b>cheque type</b> (receivable or payable).")),
             run: "click",
         },

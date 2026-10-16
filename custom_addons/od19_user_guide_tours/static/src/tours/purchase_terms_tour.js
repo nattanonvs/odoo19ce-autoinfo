@@ -43,7 +43,7 @@ registry.category("web_tour.tours").add("od19_purchase_terms_tour", {
             run: "edit Standard Delivery To",
         },
         {
-            trigger: ".o_field_widget[name='term_type'] select",
+            trigger: ".o_field_widget[name='term_type'] .o_select_menu_toggler",
             content: markup(_t(
                 "Choose the <b>Term Type</b> (warranty, delivery to, payment, shipment, weight)."
             )),

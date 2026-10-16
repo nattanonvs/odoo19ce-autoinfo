@@ -44,7 +44,7 @@ registry.category("web_tour.tours").add("od19_warranty_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='claim_type'] select",
+            trigger: ".o_field_widget[name='claim_type'] .o_select_menu_toggler",
             content: _t("Select the claim type (warranty, out-of-warranty, etc.)."),
             run: "click",
         },

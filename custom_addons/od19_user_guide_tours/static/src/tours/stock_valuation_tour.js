@@ -39,7 +39,7 @@ registry.category("web_tour.tours").add("od19_stock_valuation_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='adjustment_type'] select",
+            trigger: ".o_field_widget[name='adjustment_type'] .o_select_menu_toggler",
             content: markup(_t(
                 "Choose the <b>adjustment type</b>: increase or decrease the stock value."
             )),

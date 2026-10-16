@@ -35,12 +35,12 @@ registry.category("web_tour.tours").add("od19_iso_nonconformity_tour", {
             run: "edit Defective parts found in incoming inspection",
         },
         {
-            trigger: ".o_field_widget[name='severity'] select",
+            trigger: ".o_field_widget[name='severity'] .o_select_menu_toggler",
             content: markup(_t("Set the <b>severity</b> (Minor, Major, Critical).")),
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='source'] select",
+            trigger: ".o_field_widget[name='source'] .o_select_menu_toggler",
             content: markup(_t("Set the <b>source</b> of the nonconformity (audit, customer complaint, etc.).")),
             run: "click",
         },
@@ -89,7 +89,7 @@ registry.category("web_tour.tours").add("od19_iso_nonconformity_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='root_cause_method'] select",
+            trigger: ".o_field_widget[name='root_cause_method'] .o_select_menu_toggler",
             content: markup(_t("Select the <b>root cause method</b> (5 Whys, Fishbone, etc.).")),
             run: "click",
         },

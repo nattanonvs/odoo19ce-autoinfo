@@ -43,7 +43,7 @@ registry.category("web_tour.tours").add("od19_sale_terms_tour", {
             run: "edit Standard Warranty 1 Year",
         },
         {
-            trigger: ".o_field_widget[name='term_type'] select",
+            trigger: ".o_field_widget[name='term_type'] .o_select_menu_toggler",
             content: markup(_t(
                 "Choose the <b>Term Type</b> (price, delivery, payment, validity, warranty, credit)."
             )),

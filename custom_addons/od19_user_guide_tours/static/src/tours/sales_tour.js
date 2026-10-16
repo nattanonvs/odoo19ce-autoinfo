@@ -58,7 +58,7 @@ registry.category("web_tour.tours").add("od19_sales_contract_billing_tour", {
             run: "edit 1000000",
         },
         {
-            trigger: ".o_field_widget[name='over_limit_policy'] select",
+            trigger: ".o_field_widget[name='over_limit_policy'] .o_select_menu_toggler",
             content: markup(_t(
                 "Choose the <b>Over-Limit Policy</b>: block, warn, or allow consumption beyond the limit."
             )),

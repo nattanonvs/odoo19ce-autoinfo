@@ -46,7 +46,7 @@ registry.category("web_tour.tours").add("od19_project_analytic_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='job_type'] select",
+            trigger: ".o_field_widget[name='job_type'] .o_select_menu_toggler",
             content: markup(_t(
                 "Set the <b>Job Type</b> (construction, service, maintenance, etc.)."
             )),

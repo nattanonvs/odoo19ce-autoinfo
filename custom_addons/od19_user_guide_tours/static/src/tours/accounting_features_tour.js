@@ -26,13 +26,13 @@ registry.category("web_tour.tours").add("od19_accounting_features_tour", {
 
         // --- WHT on Vendor Payment ---
         {
-            trigger: ".o_menu_sections :contains('Vendors'), .dropdown-item:contains('Vendors')",
+            trigger: ".o_menu_sections .dropdown-toggle:text('Vendors'), .o_menu_sections .o_nav_entry:text('Vendors')",
             content: markup(_t("Open the <b>Vendors</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections :contains('Payments'), .dropdown-item:contains('Payments')",
+            trigger: ".o_menu_sections .dropdown-item:text('Payments')",
             content: markup(_t(
                 "Open <b>Payments</b> to record a vendor payment with <b>Withholding Tax</b>."
             )),
@@ -61,7 +61,7 @@ registry.category("web_tour.tours").add("od19_accounting_features_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='od19_wht_rate'] select",
+            trigger: ".o_field_widget[name='od19_wht_rate'] .o_select_menu_toggler",
             content: markup(_t("Set the <b>WHT Rate</b> (1%, 1.5%, 2%, 3% or 5%).")),
             run: "click",
         },
@@ -84,13 +84,13 @@ registry.category("web_tour.tours").add("od19_accounting_features_tour", {
 
         // --- Invoices: BOT, Actual Due Date, Cancel Reason ---
         {
-            trigger: ".o_menu_sections :contains('Customers'), .dropdown-item:contains('Customers')",
+            trigger: ".o_menu_sections .dropdown-toggle:text('Customers'), .o_menu_sections .o_nav_entry:text('Customers')",
             content: markup(_t("Open the <b>Customers</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections :contains('Invoices'), .dropdown-item:contains('Invoices')",
+            trigger: ".o_menu_sections .dropdown-item:text('Invoices')",
             content: markup(_t("Open <b>Invoices</b>.")),
             tooltipPosition: "bottom",
             run: "click",

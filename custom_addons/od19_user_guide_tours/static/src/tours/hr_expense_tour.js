@@ -51,21 +51,21 @@ registry.category("web_tour.tours").add("od19_hr_expense_tour", {
             run: "edit 500",
         },
         {
-            trigger: ".o_field_widget[name='payment_mode'] select",
+            trigger: ".o_field_widget[name='payment_mode'] .o_select_menu_toggler",
             content: markup(_t(
                 "Choose <b>Payment Mode</b>: own account (employee paid) or company account."
             )),
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='payment_method'] select",
+            trigger: ".o_field_widget[name='payment_method'] .o_select_menu_toggler",
             content: markup(_t(
                 "Set the <b>Payment Method</b> (cash, transfer, etc.)."
             )),
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='thai_expense_type'] select",
+            trigger: ".o_field_widget[name='thai_expense_type'] .o_select_menu_toggler",
             content: markup(_t(
                 "Set the <b>Thai Expense Type</b> for tax and reporting classification."
             )),
