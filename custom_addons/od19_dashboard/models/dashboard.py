@@ -8,6 +8,7 @@ from odoo.tools.misc import format_date, format_datetime
 from odoo.tools.safe_eval import safe_eval
 
 from . import dashboard_formula as formula_tools
+from .dashboard_rule import COMPARE_TYPES, OPERATORS
 
 _logger = logging.getLogger(__name__)
 
@@ -24,12 +25,6 @@ VALUE_FORMATS = [
     ("currency", "Currency"),
     ("percent", "Percent"),
     ("hours", "Hours"),
-]
-
-THRESHOLD_MODES = [
-    ("none", "No threshold"),
-    ("higher_is_better", "Higher is better"),
-    ("lower_is_better", "Lower is better"),
 ]
 
 AUDIENCES = [
@@ -57,6 +52,9 @@ FORMULA_MODES = [
     ("preset", "Preset formula"),
     ("custom", "Custom expression"),
 ]
+
+#: Preset formulas whose slot list is filled by the designer (a, b, c, d, e).
+VARIADIC_FORMULA_TYPES = ("sum", "average")
 
 FORMULA_BASIS = [
     ("previous", "Previous period"),
@@ -197,7 +195,21 @@ class Od19Dashboard(models.Model):
             "sources": [source._to_meta() for source in sources],
             "widget_types": [{"key": key, "label": label} for key, label in WIDGET_TYPES],
             "value_formats": [{"key": key, "label": label} for key, label in VALUE_FORMATS],
-            "threshold_modes": [{"key": key, "label": label} for key, label in THRESHOLD_MODES],
+            "formula_modes": [{"key": key, "label": label} for key, label in FORMULA_MODES],
+            "formula_types": [
+                {
+                    "key": key,
+                    "label": label,
+                    "slots": list(formula_tools.PRESET_REQUIRED_SLOTS.get(key, ())),
+                    "variadic": key in VARIADIC_FORMULA_TYPES,
+                    "expression": formula_tools.PRESET_EXPRESSIONS.get(key, ""),
+                }
+                for key, label in formula_tools.FORMULA_TYPES
+            ],
+            "compare_types": [{"key": key, "label": label} for key, label in COMPARE_TYPES],
+            "operators": [{"key": key, "label": label} for key, label in OPERATORS],
+            "statuses": [{"key": key, "label": label} for key, label in STATUS_SELECTION],
+            "period_bases": [{"key": key, "label": label} for key, label in FORMULA_BASIS],
             "date_ranges": [{"key": key, "label": label} for key, label in DATE_RANGES],
             "audiences": [{"key": key, "label": label} for key, label in AUDIENCES],
             "currency": {
@@ -499,9 +511,6 @@ class Od19DashboardWidget(models.Model):
     limit = fields.Integer(default=10)
 
     goal_value = fields.Float()
-    threshold_mode = fields.Selection(selection=THRESHOLD_MODES, default="none", required=True)
-    warning_value = fields.Float()
-    critical_value = fields.Float()
     show_delta = fields.Boolean(default=True, string="Show Period Comparison")
 
     formula_mode = fields.Selection(
@@ -582,14 +591,6 @@ class Od19DashboardWidget(models.Model):
                     _("Date field '%s' is not available on data source '%s'.")
                     % (widget.date_key, source.name)
                 )
-            if widget.threshold_mode == "higher_is_better" and widget.critical_value > widget.warning_value:
-                raise ValidationError(
-                    _("For 'higher is better' the critical value must be lower than the warning value.")
-                )
-            if widget.threshold_mode == "lower_is_better" and widget.critical_value < widget.warning_value:
-                raise ValidationError(
-                    _("For 'lower is better' the critical value must be higher than the warning value.")
-                )
 
     @api.constrains("domain")
     def _check_domain(self):
@@ -606,6 +607,20 @@ class Od19DashboardWidget(models.Model):
                 raise ValidationError(
                     _("The filter of widget '%s' must be a list (Odoo domain).") % widget.name
                 )
+
+    @api.constrains(
+        "formula_mode",
+        "formula_type",
+        "formula_slots",
+        "formula_expression",
+        "formula_basis",
+        "delta_basis",
+        "source_id",
+        "measure_key",
+        "rule_ids",
+    )
+    def _check_formula_config(self):
+        self._validate_formula_config()
 
     # ------------------------------------------------------------------
     # Serialisation
@@ -627,10 +642,15 @@ class Od19DashboardWidget(models.Model):
             "domain": self.domain or "[]",
             "limit": self.limit,
             "goal_value": self.goal_value,
-            "threshold_mode": self.threshold_mode,
-            "warning_value": self.warning_value,
-            "critical_value": self.critical_value,
             "show_delta": self.show_delta,
+            "formula_mode": self.formula_mode,
+            "formula_type": self.formula_type or "",
+            "formula_slots": self.formula_slots or "{}",
+            "formula_expression": self._effective_expression(),
+            "formula_basis": self.formula_basis,
+            "delta_basis": self.delta_basis,
+            "default_status": self.default_status,
+            "rule_ids": [rule._to_values() for rule in self.rule_ids],
             "grid_w": self.grid_w,
             "grid_h": self.grid_h,
             "sequence": self.sequence,
@@ -1018,9 +1038,9 @@ class Od19DashboardWidget(models.Model):
     def _validate_formula_config(self):
         """Validate the whole formula configuration and raise ``ValidationError``.
 
-        Called by ``create_widget`` / ``update_widget`` / ``preview_widget`` so
-        a broken formula is refused while the designer saves it instead of
-        failing soft later on the dashboard.
+        Called automatically by the ``_check_formula_config`` constraint on
+        every create / write of a widget, and explicitly by ``preview_widget``
+        because a record built with ``Model.new()`` never triggers a constraint.
         """
         for widget in self:
             expression = widget._effective_expression()
@@ -1446,22 +1466,6 @@ class Od19DashboardWidget(models.Model):
         if end:
             bounds.append((self.date_key, "<=", "%s 23:59:59" % end.isoformat()))
         return bounds
-
-    def _compute_status(self, value):
-        self.ensure_one()
-        if value is None or self.threshold_mode == "none":
-            return "green" if value is not None else "grey"
-        if self.threshold_mode == "higher_is_better":
-            if value <= self.critical_value:
-                return "red"
-            if value <= self.warning_value:
-                return "yellow"
-            return "green"
-        if value >= self.critical_value:
-            return "red"
-        if value >= self.warning_value:
-            return "yellow"
-        return "green"
 
     def _group_label(self, group_value):
         self.ensure_one()

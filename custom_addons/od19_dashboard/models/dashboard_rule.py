@@ -101,6 +101,22 @@ class Od19DashboardWidgetRule(models.Model):
                     _("Set the percentage of the goal to compare with (rule: %s).") % label
                 )
 
+    def _to_values(self):
+        """Return the rule as a plain dictionary for the builder and the tests."""
+        self.ensure_one()
+        return {
+            "id": self.id,
+            "name": self.name or "",
+            "sequence": self.sequence,
+            "active": self.active,
+            "operator": self.operator,
+            "compare_type": self.compare_type,
+            "compare_value": self.compare_value,
+            "compare_percent": self.compare_percent,
+            "compare_widget_id": self.compare_widget_id.id,
+            "status": self.status,
+        }
+
     def _compare_operand(self, context):
         """Return the right-hand value of the comparison.
 
