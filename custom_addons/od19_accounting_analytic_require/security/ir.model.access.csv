@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_od19_analytic_require_user,Analytic Require User,model_res_company,account.group_account_invoice,1,0,0,0
+access_od19_analytic_require_manager,Analytic Require Manager,model_res_company,account.group_account_manager,1,1,1,0

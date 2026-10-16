@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_iso_csat_survey_user,od19.iso.customer.satisfaction.user,model_od19_iso_customer_satisfaction,base.group_user,1,1,1,0
+access_iso_csat_survey_manager,od19.iso.customer.satisfaction.manager,model_od19_iso_customer_satisfaction,base.group_system,1,1,1,1
+access_iso_csat_item_user,od19.iso.csat.item.user,model_od19_iso_csat_item,base.group_user,1,1,1,0
+access_iso_csat_item_manager,od19.iso.csat.item.manager,model_od19_iso_csat_item,base.group_system,1,1,1,1
+access_iso_csat_period_user,od19.iso.csat.period.report.user,model_od19_iso_csat_period_report,base.group_user,1,1,1,0
+access_iso_csat_period_manager,od19.iso.csat.period.report.manager,model_od19_iso_csat_period_report,base.group_system,1,1,1,1

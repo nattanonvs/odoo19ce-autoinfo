@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <record id="iso_standard_9001" model="od19.iso.standard">
+        <field name="name">ระบบจัดการคุณภาพ</field>
+        <field name="code">ISO 9001:2015</field>
+        <field name="description">มาตรฐานระบบจัดการคุณภาพ</field>
+    </record>
+
+    <record id="iso_standard_14001" model="od19.iso.standard">
+        <field name="name">ระบบจัดการสิ่งแวดล้อม</field>
+        <field name="code">ISO 14001:2015</field>
+        <field name="description">มาตรฐานระบบจัดการสิ่งแวดล้อม</field>
+    </record>
+
+    <record id="iso_standard_45001" model="od19.iso.standard">
+        <field name="name">ระบบจัดการอาชีวอนามัยและความปลอดภัย</field>
+        <field name="code">ISO 45001:2018</field>
+        <field name="description">มาตรฐานระบบจัดการอาชีวอนามัยและความปลอดภัยในงาน</field>
+    </record>
+
+</odoo>

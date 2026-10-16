@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_iso_document_user,od19.iso.document.user,model_od19_iso_document,base.group_user,1,1,1,0
+access_iso_document_manager,od19.iso.document.manager,model_od19_iso_document,base.group_system,1,1,1,1
+access_iso_document_category_user,od19.iso.document.category.user,model_od19_iso_document_category,base.group_user,1,0,0,0
+access_iso_document_category_manager,od19.iso.document.category.manager,model_od19_iso_document_category,base.group_system,1,1,1,1
+access_iso_standard_user,od19.iso.standard.user,model_od19_iso_standard,base.group_user,1,0,0,0
+access_iso_standard_manager,od19.iso.standard.manager,model_od19_iso_standard,base.group_system,1,1,1,1
+access_iso_document_revision_user,od19.iso.document.revision.user,model_od19_iso_document_revision,base.group_user,1,1,1,0
+access_iso_document_revision_manager,od19.iso.document.revision.manager,model_od19_iso_document_revision,base.group_system,1,1,1,1

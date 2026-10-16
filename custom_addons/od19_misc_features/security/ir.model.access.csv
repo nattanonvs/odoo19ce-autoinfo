@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_od19_runtime_guard_admin,od19.runtime.guard admin,model_od19_runtime_guard,base.group_system,1,1,1,1
+access_od19_runtime_guard_wizard_admin,od19.runtime.guard.wizard admin,model_od19_runtime_guard_wizard,base.group_system,1,1,1,1
+access_od19_repeat_customer_enhanced_user,od19.repeat.customer.enhanced user,model_od19_repeat_customer_enhanced,base.group_user,1,0,0,0
+access_od19_repeat_customer_enhanced_admin,od19.repeat.customer.enhanced admin,model_od19_repeat_customer_enhanced,base.group_system,1,1,1,1

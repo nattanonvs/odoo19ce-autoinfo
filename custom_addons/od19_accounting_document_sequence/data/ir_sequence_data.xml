@@ -1,0 +1,568 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ======================================================== -->
+        <!-- Billing & Prepayments                                     -->
+        <!-- ======================================================== -->
+
+        <record id="seq_billing_no" model="ir.sequence">
+            <field name="name">Billing No</field>
+            <field name="code">account.billing</field>
+            <field name="prefix">BL%(range_y)s%(range_month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_prepayment_no" model="ir.sequence">
+            <field name="name">Prepayments No</field>
+            <field name="code">account.prepayment</field>
+            <field name="prefix">PP%(range_y)s%(range_month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- ======================================================== -->
+        <!-- Cheque Book & Cash                                       -->
+        <!-- ======================================================== -->
+
+        <record id="seq_cheque_book" model="ir.sequence">
+            <field name="name">Cheque book</field>
+            <field name="code">account.cheque.book</field>
+            <field name="prefix">CHQB/%(range_year)s/%(month)s/</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_cash_in" model="ir.sequence">
+            <field name="name">Account Cash Sale</field>
+            <field name="code">account.cash.in</field>
+            <field name="prefix">CASH.IN/%(range_year)s/</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_cash_out" model="ir.sequence">
+            <field name="name">Account Cash Purchase</field>
+            <field name="code">account.cash.out</field>
+            <field name="prefix">CASH.OUT/%(range_year)s/</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- ======================================================== -->
+        <!-- Advances                                                 -->
+        <!-- ======================================================== -->
+
+        <record id="seq_advance_request" model="ir.sequence">
+            <field name="name">Advance Request No</field>
+            <field name="code">account.advance.request</field>
+            <field name="prefix">ADVR/%(y)s/</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_advance_clear" model="ir.sequence">
+            <field name="name">Advance Clear</field>
+            <field name="code">account.advance.clear</field>
+            <field name="prefix">ADVC/%(y)s/</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- ======================================================== -->
+        <!-- Petty Cash                                               -->
+        <!-- ======================================================== -->
+
+        <record id="seq_petty_cash_request" model="ir.sequence">
+            <field name="name">Petty Cash Request</field>
+            <field name="code">account.petty.cash.request</field>
+            <field name="prefix">PCR/%(range_year)s/</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- ======================================================== -->
+        <!-- Withholding Tax                                          -->
+        <!-- ======================================================== -->
+
+        <record id="seq_wht" model="ir.sequence">
+            <field name="name">Withholding tax</field>
+            <field name="code">account.wht</field>
+            <field name="prefix">WHT/%(range_year)s/%(month)s/</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_wht1" model="ir.sequence">
+            <field name="name">WHT(1)</field>
+            <field name="code">account.wht1</field>
+            <field name="prefix">WHT1/%(range_year)s/%(month)s/</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_wht2" model="ir.sequence">
+            <field name="name">WHT(2)</field>
+            <field name="code">account.wht2</field>
+            <field name="prefix">WHT2/%(range_year)s/%(month)s/</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_wht3" model="ir.sequence">
+            <field name="name">WHT(3)</field>
+            <field name="code">account.wht3</field>
+            <field name="prefix">WHT3/%(range_year)s/%(month)s/</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_wht53" model="ir.sequence">
+            <field name="name">WHT(53)</field>
+            <field name="code">account.wht53</field>
+            <field name="prefix">WHT53/%(range_year)s/%(month)s/</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- ======================================================== -->
+        <!-- VAT                                                      -->
+        <!-- ======================================================== -->
+
+        <record id="seq_vat_purchase" model="ir.sequence">
+            <field name="name">VAT Purchase</field>
+            <field name="code">account.vat.purchase</field>
+            <field name="prefix">VATP/%(range_year)s/%(month)s/</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_vat_sale" model="ir.sequence">
+            <field name="name">VAT Sale</field>
+            <field name="code">account.vat.sale</field>
+            <field name="prefix">VATS/%(range_year)s/%(month)s/</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- ======================================================== -->
+        <!-- Asset                                                    -->
+        <!-- ======================================================== -->
+
+        <record id="seq_asset_stock_check" model="ir.sequence">
+            <field name="name">Asset Stock Checking</field>
+            <field name="code">account.asset.stock.checking</field>
+            <field name="prefix">ASSC/%(range_year)s/%(range_month)s/</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_asset_location_transfer" model="ir.sequence">
+            <field name="name">Asset Location Transfer</field>
+            <field name="code">account.asset.location.transfer</field>
+            <field name="prefix">ASLT/%(range_year)s/%(range_month)s/</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- ======================================================== -->
+        <!-- Bring Forward                                            -->
+        <!-- ======================================================== -->
+
+        <record id="seq_bring_forward" model="ir.sequence">
+            <field name="name">Bring Forward</field>
+            <field name="code">account.bring.forward</field>
+            <field name="prefix">BF/%(range_year)s/%(month)s/</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- ======================================================== -->
+        <!-- Warranty                                                 -->
+        <!-- ======================================================== -->
+
+        <record id="seq_warranty_card" model="ir.sequence">
+            <field name="name">Warranty Card No</field>
+            <field name="code">account.warranty.card</field>
+            <field name="prefix">WC/%(range_year)s/</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- ======================================================== -->
+        <!-- Voucher Sequences                                        -->
+        <!-- ======================================================== -->
+
+        <record id="seq_journal_misc" model="ir.sequence">
+            <field name="name">Journals MISC</field>
+            <field name="code">account.journal.misc</field>
+            <field name="prefix">MSV%(range_y)s%(range_month)s</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_journal_voucher" model="ir.sequence">
+            <field name="name">Journals Voucher</field>
+            <field name="code">account.journal.voucher</field>
+            <field name="prefix">JVV%(range_y)s%(range_month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_voucher_expense" model="ir.sequence">
+            <field name="name">Voucher Expense</field>
+            <field name="code">account.voucher.expense</field>
+            <field name="prefix">EXP%(range_y)s%(range_month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_voucher_advance" model="ir.sequence">
+            <field name="name">Voucher Advance</field>
+            <field name="code">account.voucher.advance</field>
+            <field name="prefix">AD%(range_y)s%(range_month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_voucher_advance_v" model="ir.sequence">
+            <field name="name">Voucher Advance V</field>
+            <field name="code">account.voucher.advance.v</field>
+            <field name="prefix">ADV%(range_y)s%(range_month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_voucher_bf" model="ir.sequence">
+            <field name="name">Voucher Bring Forward</field>
+            <field name="code">account.voucher.bf</field>
+            <field name="prefix">BF%(range_y)s%(range_month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_voucher_cash" model="ir.sequence">
+            <field name="name">Voucher Cash</field>
+            <field name="code">account.voucher.cash</field>
+            <field name="prefix">CAV%(range_y)s%(range_month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_voucher_cbtv" model="ir.sequence">
+            <field name="name">Voucher Cash Basis Taxes</field>
+            <field name="code">account.voucher.cbtv</field>
+            <field name="prefix">CT%(range_y)s%(range_month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_voucher_customer_invoice" model="ir.sequence">
+            <field name="name">Voucher Customer Invoice</field>
+            <field name="code">account.voucher.customer.invoice</field>
+            <field name="prefix">REV%(range_y)s%(range_month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_voucher_customer_payment" model="ir.sequence">
+            <field name="name">Voucher Customer Payment</field>
+            <field name="code">account.voucher.customer.payment</field>
+            <field name="prefix">RV%(range_y)s%(range_month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_voucher_exchange_diff" model="ir.sequence">
+            <field name="name">Voucher Exchange Difference</field>
+            <field name="code">account.voucher.exchange.diff</field>
+            <field name="prefix">EDV%(range_y)s%(range_month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_voucher_expense_journal" model="ir.sequence">
+            <field name="name">Voucher Expense Journal</field>
+            <field name="code">account.voucher.expense.journal</field>
+            <field name="prefix">ECV%(range_y)s%(range_month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_voucher_fixed_asset" model="ir.sequence">
+            <field name="name">Voucher Fixed Asset</field>
+            <field name="code">account.voucher.fixed.asset</field>
+            <field name="prefix">FAV%(range_y)s%(range_month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_voucher_inventory_valuation" model="ir.sequence">
+            <field name="name">Voucher Inventory Valuation Stock</field>
+            <field name="code">account.voucher.inventory.valuation</field>
+            <field name="prefix">SVV%(range_y)s%(range_month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- Bank Vouchers -->
+        <record id="seq_kbank_ca_023" model="ir.sequence">
+            <field name="name">Voucher Kbank C/A 023-1-06082-0</field>
+            <field name="code">account.voucher.kbank.ca.023</field>
+            <field name="prefix">KBV20%(range_y)s%(range_month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_kbank_ca_609" model="ir.sequence">
+            <field name="name">Voucher Kbank C/A 609-1-00004-9</field>
+            <field name="code">account.voucher.kbank.ca.609</field>
+            <field name="prefix">KBV49%(range_y)s%(range_month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_kbank_fa_023" model="ir.sequence">
+            <field name="name">Voucher Kbank F/A 023-3-04435-0</field>
+            <field name="code">account.voucher.kbank.fa.023</field>
+            <field name="prefix">KBV50%(range_y)s%(range_month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_kbank_fa_609" model="ir.sequence">
+            <field name="name">Voucher Kbank F/A 609-3-00181-6</field>
+            <field name="code">account.voucher.kbank.fa.609</field>
+            <field name="prefix">KBV16%(range_y)s%(range_month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_kbank_sa_023" model="ir.sequence">
+            <field name="name">Voucher Kbank S/A 023-2-36473-4</field>
+            <field name="code">account.voucher.kbank.sa.023</field>
+            <field name="prefix">KBV34%(range_y)s%(range_month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_kbank_sa_609" model="ir.sequence">
+            <field name="name">Voucher Kbank S/A 609-2-00057-3</field>
+            <field name="code">account.voucher.kbank.sa.609</field>
+            <field name="prefix">KBV73%(range_y)s%(range_month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_scb_sa_140" model="ir.sequence">
+            <field name="name">Voucher SCB S/A 140-2-13697-4</field>
+            <field name="code">account.voucher.scb.sa.140</field>
+            <field name="prefix">SBV74%(range_y)s%(range_month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_uob_ca_797" model="ir.sequence">
+            <field name="name">Voucher UOB C/A 797-3-63052-4</field>
+            <field name="code">account.voucher.uob.ca.797</field>
+            <field name="prefix">UBV24%(range_y)s%(range_month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_uob_fa_797" model="ir.sequence">
+            <field name="name">Voucher UOB F/A 797-0-03044-5</field>
+            <field name="code">account.voucher.uob.fa.797</field>
+            <field name="prefix">UBV45%(range_y)s%(range_month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_uob_sa_797" model="ir.sequence">
+            <field name="name">Voucher UOB S/A 797-163-731-9</field>
+            <field name="code">account.voucher.uob.sa.797</field>
+            <field name="prefix">UBV19%(range_y)s%(range_month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- Journal Vouchers -->
+        <record id="seq_voucher_payment_journal" model="ir.sequence">
+            <field name="name">Voucher Payment Journal</field>
+            <field name="code">account.voucher.payment.journal</field>
+            <field name="prefix">PVJ%(range_y)s%(range_month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_voucher_petty_cash" model="ir.sequence">
+            <field name="name">Voucher Petty Cash</field>
+            <field name="code">account.voucher.petty.cash</field>
+            <field name="prefix">CV%(range_y)s%(range_month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_voucher_petty_cash_v" model="ir.sequence">
+            <field name="name">Voucher Petty Cash V</field>
+            <field name="code">account.voucher.petty.cash.v</field>
+            <field name="prefix">PCV%(range_y)s%(range_month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_voucher_purchases_journal" model="ir.sequence">
+            <field name="name">Voucher Purchases Journal</field>
+            <field name="code">account.voucher.purchases.journal</field>
+            <field name="prefix">PUJ%(range_y)s%(range_month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_voucher_received_journal" model="ir.sequence">
+            <field name="name">Voucher Received Journal</field>
+            <field name="code">account.voucher.received.journal</field>
+            <field name="prefix">RCJ%(range_y)s%(range_month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_voucher_sales_journal" model="ir.sequence">
+            <field name="name">Voucher Sales Journal</field>
+            <field name="code">account.voucher.sales.journal</field>
+            <field name="prefix">SAJ%(range_y)s%(range_month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_voucher_vendor_bills" model="ir.sequence">
+            <field name="name">Voucher Vendor Bills</field>
+            <field name="code">account.voucher.vendor.bills</field>
+            <field name="prefix">PVV%(range_y)s%(range_month)s</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_voucher_vendor_payment" model="ir.sequence">
+            <field name="name">Voucher Vendor Payment</field>
+            <field name="code">account.voucher.vendor.payment</field>
+            <field name="prefix">PV%(range_y)s%(range_month)s</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_voucher_cheque" model="ir.sequence">
+            <field name="name">Payment Voucher Cheque</field>
+            <field name="code">account.voucher.cheque</field>
+            <field name="prefix">PVC%(range_y)s%(range_month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+    </data>
+</odoo>

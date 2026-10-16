@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_od19_purchase_trade_discount_user,od19.purchase.trade.discount user,model_od19_purchase_trade_discount,purchase.group_purchase_user,1,1,1,1
+access_od19_purchase_trade_discount_manager,od19.purchase.trade.discount manager,model_od19_purchase_trade_discount,purchase.group_purchase_manager,1,1,1,1
+access_od19_purchase_create_vendor_bill_user,od19.purchase.create.vendor.bill user,model_od19_purchase_create_vendor_bill,purchase.group_purchase_user,1,1,1,1
+access_od19_purchase_create_vendor_bill_account,od19.purchase.create.vendor.bill account,model_od19_purchase_create_vendor_bill,account.group_account_invoice,1,1,1,1

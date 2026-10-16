@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_od19_stock_picking_additional_line_user,od19.stock.picking.additional.line user,model_od19_stock_picking_additional_line,stock.group_stock_user,1,1,1,1
+access_od19_stock_picking_additional_line_manager,od19.stock.picking.additional.line manager,model_od19_stock_picking_additional_line,stock.group_stock_manager,1,1,1,1

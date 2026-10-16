@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_notification_channel_user,notification.channel.user,model_notification_channel,base.group_user,1,0,0,0
+access_notification_channel_manager,notification.channel.manager,model_notification_channel,base.group_system,1,1,1,1
+access_notification_preference_user,notification.preference.user,model_notification_preference,base.group_user,1,1,1,1
+access_notification_queue_user,notification.queue.user,model_od19_notification_queue,base.group_user,1,0,0,0
+access_notification_queue_manager,notification.queue.manager,model_od19_notification_queue,base.group_system,1,1,1,1

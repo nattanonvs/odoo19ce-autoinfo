@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="mail_template_task_deadline_notification" model="mail.template">
+        <field name="name">OD19 Project Task Deadline Notification</field>
+        <field name="model_id" ref="project.model_project_task"/>
+        <field name="subject">Task Deadline Reminder: {{ object.name }}</field>
+        <field name="email_from">{{ (object.company_id.partner_id.email_formatted or user.email_formatted) }}</field>
+        <field name="auto_delete" eval="True"/>
+        <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px;">
+    <p>Dear <t t-esc="ctx.get('od19_recipient_name', '')"/>,</p>
+    <p>
+        This is a friendly reminder that the task
+        <strong>{{ object.name }}</strong>
+        <t t-if="object.project_id">
+            in project <strong>{{ object.project_id.name }}</strong>
+        </t>
+        has a deadline on
+        <strong>{{ object._get_deadline_formatted() }}</strong>.
+    </p>
+    <p>Please make sure the task is completed on time.</p>
+    <p>
+        Best regards,<br/>
+        {{ object.company_id.name or user.company_id.name }}
+    </p>
+</div>
+        </field>
+    </record>
+</odoo>

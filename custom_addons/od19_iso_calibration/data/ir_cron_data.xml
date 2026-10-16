@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!--
+        Daily cron: send calibration due reminders and flag overdue equipment.
+        Runs every day at 08:00.
+    -->
+    <record id="cron_iso_calibration_due_reminder" model="ir.cron">
+        <field name="name">ISO Calibration Due Reminders</field>
+        <field name="model_id" ref="model_od19_iso_calibration_equipment"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_calibration_due_reminder()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active">True</field>
+        <field name="nextcall" eval="(DateTime.today() + relativedelta(days=1, hour=8, minute=0)).strftime('%Y-%m-%d %H:%M:%S')"/>
+    </record>
+
+</odoo>

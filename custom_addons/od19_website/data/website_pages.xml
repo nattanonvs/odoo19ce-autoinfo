@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- Website Pages                                                  -->
+    <!-- ============================================================ -->
+
+    <!-- Remove default Odoo homepage pages so our custom homepage wins -->
+    <delete model="website.page" search="[('key', '=', 'website.homepage')]"/>
+
+    <record id="homepage_page" model="website.page">
+        <field name="name">Home</field>
+        <field name="url">/</field>
+        <field name="view_id" ref="od19_homepage"/>
+        <field name="website_id" ref="website.default_website"/>
+        <field name="is_published" eval="True"/>
+    </record>
+
+    <record id="industrial_page" model="website.page">
+        <field name="name">Industrial Automation</field>
+        <field name="url">/industrial-automation</field>
+        <field name="view_id" ref="od19_industrial_page"/>
+        <field name="website_id" ref="website.default_website"/>
+        <field name="is_published" eval="True"/>
+    </record>
+
+    <record id="building_page" model="website.page">
+        <field name="name">Building Automation</field>
+        <field name="url">/building-automation</field>
+        <field name="view_id" ref="od19_building_page"/>
+        <field name="website_id" ref="website.default_website"/>
+        <field name="is_published" eval="True"/>
+    </record>
+
+    <record id="terminal_page" model="website.page">
+        <field name="name">Terminal Automation</field>
+        <field name="url">/terminal-automation</field>
+        <field name="view_id" ref="od19_terminal_page"/>
+        <field name="website_id" ref="website.default_website"/>
+        <field name="is_published" eval="True"/>
+    </record>
+
+    <record id="products_page" model="website.page">
+        <field name="name">Products</field>
+        <field name="url">/products</field>
+        <field name="view_id" ref="od19_products_page"/>
+        <field name="website_id" ref="website.default_website"/>
+        <field name="is_published" eval="True"/>
+    </record>
+
+    <record id="about_page" model="website.page">
+        <field name="name">About Us</field>
+        <field name="url">/about-us</field>
+        <field name="view_id" ref="od19_about_page"/>
+        <field name="website_id" ref="website.default_website"/>
+        <field name="is_published" eval="True"/>
+    </record>
+
+</odoo>

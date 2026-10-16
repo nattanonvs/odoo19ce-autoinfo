@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- Seed documents are intentionally left empty. -->
+    <!-- Administrators can create controlled documents from the ISO menu. -->
+
+</odoo>

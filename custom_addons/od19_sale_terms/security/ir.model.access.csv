@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_od19_sale_term_template_user,access.od19.sale.term.template.user,model_od19_sale_term_template,base.group_user,1,1,1,0
+access_od19_sale_term_template_manager,access.od19.sale.term.template.manager,model_od19_sale_term_template,sales_team.group_sale_manager,1,1,1,1

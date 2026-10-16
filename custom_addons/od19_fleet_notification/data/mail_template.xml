@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- Expiry notification email template (summary sent to fleet managers) -->
+    <record id="mail_template_fleet_expiry_notification" model="mail.template">
+        <field name="name">Fleet: Insurance / Act Expiry Reminder</field>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <field name="subject">Fleet Insurance / Act Expiry Reminder</field>
+        <field name="email_from">{{ (object.company_id.email_formatted or '') }}</field>
+        <field name="email_to">{{ object.email }}</field>
+        <field name="body_html" type="html">
+<div style="font-family: 'Sarabun', 'Noto Sans Thai', Arial, sans-serif; color: #333; max-width: 700px; margin: 0 auto;">
+    <h2 style="color: #b8001f;">Fleet Insurance / Act Expiry Reminder</h2>
+    <p>เรียน {{ object.name }},</p>
+    <p>The following fleet vehicles have insurance / Act (tax) expiring soon or already expired:</p>
+    <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; font-size: 13px;">
+        <thead style="background-color: #f2f2f2;">
+            <tr>
+                <th>Vehicle</th>
+                <th>Plate</th>
+                <th>Expiry Type</th>
+                <th>Expiry Date</th>
+                <th>Days Remaining</th>
+            </tr>
+        </thead>
+        <tbody>
+            <t t-foreach="ctx.get('expiry_lines', [])" t-as="line">
+                <tr>
+                    <td><t t-esc="line['vehicle_name']"/></td>
+                    <td><t t-esc="line['plate']"/></td>
+                    <td><t t-esc="line['type']"/></td>
+                    <td><t t-esc="line['expiry_date']"/></td>
+                    <td t-att-style="line['days_remaining'] &lt; 0 and 'color: red; font-weight: bold;' or ''">
+                        <t t-esc="line['status']"/>
+                    </td>
+                </tr>
+            </t>
+        </tbody>
+    </table>
+    <p>กรุณาตรวจสอบและดำเนินการต่ออายุให้เรียบร้อยครับ</p>
+    <p>ขอแสดงความนับถือ<br/>ระบบแจ้งเตือนอัตโนมัติ</p>
+</div>
+        </field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+
+    <!-- Service done notification email template -->
+    <record id="mail_template_fleet_service_done" model="mail.template">
+        <field name="name">Fleet: Service Done Notification</field>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <field name="subject">Service Done: {{ ctx.get('vehicle_name', 'Vehicle') }}</field>
+        <field name="email_from">{{ (object.company_id.email_formatted or '') }}</field>
+        <field name="email_to">{{ object.email }}</field>
+        <field name="body_html" type="html">
+<div style="font-family: 'Sarabun', 'Noto Sans Thai', Arial, sans-serif; color: #333; max-width: 700px; margin: 0 auto;">
+    <h2 style="color: #0e8a3a;">Service Completed</h2>
+    <p>เรียน {{ object.name }},</p>
+    <p>A service has been completed for your vehicle.</p>
+    <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; font-size: 13px;">
+        <tbody>
+            <tr>
+                <td style="background-color: #f2f2f2; font-weight: bold; width: 40%;">Vehicle</td>
+                <td>{{ ctx.get('vehicle_name', '') }}</td>
+            </tr>
+            <tr>
+                <td style="background-color: #f2f2f2; font-weight: bold;">License Plate</td>
+                <td>{{ ctx.get('plate', '') }}</td>
+            </tr>
+            <tr>
+                <td style="background-color: #f2f2f2; font-weight: bold;">Service Type</td>
+                <td>{{ ctx.get('service_type', '') }}</td>
+            </tr>
+            <tr>
+                <td style="background-color: #f2f2f2; font-weight: bold;">Date</td>
+                <td>{{ ctx.get('date', '') }}</td>
+            </tr>
+            <tr>
+                <td style="background-color: #f2f2f2; font-weight: bold;">Cost</td>
+                <td>{{ ctx.get('amount', '') }}</td>
+            </tr>
+            <tr t-if="ctx.get('description')">
+                <td style="background-color: #f2f2f2; font-weight: bold;">Description</td>
+                <td>{{ ctx.get('description', '') }}</td>
+            </tr>
+        </tbody>
+    </table>
+    <p>ขอแสดงความนับถือ<br/>ระบบแจ้งเตือนอัตโนมัติ</p>
+</div>
+        </field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+
+</odoo>

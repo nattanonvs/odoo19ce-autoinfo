@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="seq_service_card" model="ir.sequence">
+        <field name="name">Service Card</field>
+        <field name="code">od19.service.card</field>
+        <field name="prefix">SC/%(year)s/</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+</odoo>

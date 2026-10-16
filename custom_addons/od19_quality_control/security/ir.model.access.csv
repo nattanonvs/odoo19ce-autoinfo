@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_od19_qc_inspection_user,od19.qc.inspection.user,model_od19_qc_inspection,base.group_user,1,1,1,0
+access_od19_qc_inspection_manager,od19.qc.inspection.manager,model_od19_qc_inspection,account.group_account_manager,1,1,1,1
+access_od19_qc_inspection_line_user,od19.qc.inspection.line.user,model_od19_qc_inspection_line,base.group_user,1,1,1,0
+access_od19_qc_inspection_line_manager,od19.qc.inspection.line.manager,model_od19_qc_inspection_line,account.group_account_manager,1,1,1,1

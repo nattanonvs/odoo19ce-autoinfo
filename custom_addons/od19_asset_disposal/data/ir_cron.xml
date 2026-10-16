@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+
+    <record id="od19_ir_cron_asset_safe_depreciation" model="ir.cron">
+        <field name="name">Asset Management: Safe Depreciation (OD19)</field>
+        <field name="model_id" ref="account_asset_management.model_account_asset" />
+        <field name="state">code</field>
+        <field name="code">model.od19_safe_depreciation()</field>
+        <field name="user_id" ref="base.user_root" />
+        <field name="interval_number">1</field>
+        <field name="interval_type">months</field>
+        <field name="active" eval="True" />
+    </record>
+
+</odoo>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!--
+    Sale Order Tier Validation Definitions
+    ======================================
+    Approval thresholds (THB):
+      * amount_total < 100,000       -> no approval (auto-confirm)
+      * 100,000 <= amount < 500,000  -> Sales Manager approval
+      * amount_total >= 500,000      -> Sales Director approval
+    -->
+    <record id="od19_sale_tier_definition_manager" model="tier.definition">
+        <field name="name">Sale Order Approval (Sales Manager)</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="sales_team.group_sale_manager"/>
+        <field name="definition_type">domain</field>
+        <field name="definition_domain">[('amount_total', '&gt;=', 100000), ('amount_total', '&lt;', 500000)]</field>
+        <field name="sequence">10</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="od19_sale_tier_definition_director" model="tier.definition">
+        <field name="name">Sale Order Approval (Sales Director)</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="od19_sales_oca_bridge_workflow.group_sale_director"/>
+        <field name="definition_type">domain</field>
+        <field name="definition_domain">[('amount_total', '&gt;=', 500000)]</field>
+        <field name="sequence">20</field>
+        <field name="company_id" eval="False"/>
+    </record>
+</odoo>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- Troubleshooting template as a document.page category -->
+    <record id="knowledge_article_template_troubleshooting" model="document.page">
+        <field name="name">Template: Troubleshooting</field>
+        <field name="type">category</field>
+        <field name="category">troubleshooting</field>
+        <field name="template"><![CDATA[
+<h2>Problem</h2>
+<p>Describe the issue here.</p>
+<h2>Cause</h2>
+<p>Explain the root cause.</p>
+<h2>Solution</h2>
+<p>Step-by-step solution.</p>
+<h2>Prevention</h2>
+<p>How to prevent recurrence.</p>
+        ]]></field>
+        <field name="keywords">template, troubleshooting</field>
+        <field name="active" eval="False"/>
+    </record>
+
+</odoo>

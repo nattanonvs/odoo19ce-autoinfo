@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_od19_stock_valuation_adj_user,od19.stock.valuation.adjustment.user,model_od19_stock_valuation_adjustment,base.group_user,1,1,1,0
+access_od19_stock_valuation_adj_manager,od19.stock.valuation.adjustment.manager,model_od19_stock_valuation_adjustment,account.group_account_manager,1,1,1,1
+access_od19_stock_valuation_adj_line_user,od19.stock.valuation.adjustment.line.user,model_od19_stock_valuation_adjustment_line,base.group_user,1,0,0,0
+access_od19_stock_valuation_adj_line_manager,od19.stock.valuation.adjustment.line.manager,model_od19_stock_valuation_adjustment_line,account.group_account_manager,1,1,1,1

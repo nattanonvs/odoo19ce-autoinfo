@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_od19_stock_fifo_user,od19.stock.fifo.user,model_od19_stock_fifo,stock.group_stock_user,1,1,1,0
+access_od19_stock_fifo_manager,od19.stock.fifo.manager,model_od19_stock_fifo,stock.group_stock_manager,1,1,1,1
+access_od19_stock_fifo_asof_user,od19.stock.fifo.asof.user,model_od19_stock_fifo_asof,stock.group_stock_user,1,1,1,1
+access_od19_stock_fifo_asof_line_user,od19.stock.fifo.asof.line.user,model_od19_stock_fifo_asof_line,stock.group_stock_user,1,1,1,1
+access_od19_stock_bf_revaluation_user,od19.stock.bf.revaluation.user,model_od19_stock_bf_revaluation,stock.group_stock_user,1,1,1,1
+access_od19_stock_bf_revaluation_manager,od19.stock.bf.revaluation.manager,model_od19_stock_bf_revaluation,account.group_account_manager,1,1,1,1

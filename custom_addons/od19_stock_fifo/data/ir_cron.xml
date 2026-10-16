@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ============================================================ -->
+    <!-- Monthly FIFO Stock Report Cron                                -->
+    <!-- Runs on the 1st of each month at 08:00 (server time)         -->
+    <!-- In Odoo 19, scheduling is based on interval_number,           -->
+    <!-- interval_type and nextcall. day/hour/minute are gone.         -->
+    <!-- ============================================================ -->
+    <record id="od19_cron_monthly_stock_report" model="ir.cron">
+        <field name="name">OD19: Monthly FIFO Stock Report / รายงานมูลค่าสินค้า FIFO ประจำเดือน</field>
+        <field name="model_id" ref="model_od19_stock_fifo"/>
+        <field name="state">code</field>
+        <field name="code">model._send_monthly_stock_report()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">months</field>
+        <field name="active">True</field>
+        <field name="priority">5</field>
+        <!-- Next call = 1st of next month at 08:00:00 -->
+        <field name="nextcall" eval="(datetime.now() + timedelta(days=32)).replace(day=1, hour=8, minute=0, second=0, microsecond=0)"/>
+    </record>
+</odoo>

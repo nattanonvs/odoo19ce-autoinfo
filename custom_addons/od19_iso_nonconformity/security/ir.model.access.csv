@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_iso_nc_user,od19.iso.nonconformity.user,model_od19_iso_nonconformity,base.group_user,1,1,1,0
+access_iso_nc_manager,od19.iso.nonconformity.manager,model_od19_iso_nonconformity,base.group_system,1,1,1,1
+access_iso_nc_action_user,od19.iso.nc.action.user,model_od19_iso_nc_action,base.group_user,1,1,1,0
+access_iso_nc_action_manager,od19.iso.nc.action.manager,model_od19_iso_nc_action,base.group_system,1,1,1,1

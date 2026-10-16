@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_iso_mr_user,od19.iso.management.review.user,model_od19_iso_management_review,base.group_user,1,1,1,0
+access_iso_mr_manager,od19.iso.management.review.manager,model_od19_iso_management_review,base.group_system,1,1,1,1
+access_iso_mr_input_user,od19.iso.mr.input.user,model_od19_iso_mr_input,base.group_user,1,1,1,0
+access_iso_mr_input_manager,od19.iso.mr.input.manager,model_od19_iso_mr_input,base.group_system,1,1,1,1
+access_iso_mr_decision_user,od19.iso.mr.decision.user,model_od19_iso_mr_decision,base.group_user,1,1,1,0
+access_iso_mr_decision_manager,od19.iso.mr.decision.manager,model_od19_iso_mr_decision,base.group_system,1,1,1,1

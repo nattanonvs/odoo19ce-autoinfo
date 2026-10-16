@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Odoo 19 stores the list of user-facing tours in the database
+        (model web_tour.tour). The actual tour steps stay in the JS
+        registry (web_tour.tours); web_tour automatically merges the
+        matching registry tour into a record that has no steps of its
+        own (see web_tour/static/src/tour_plugin.js -> getTour).
+
+        Therefore a DB record is REQUIRED for a tour to be:
+          * listed under User Guide > Interactive Tours
+          * listed under Settings > Technical > Tours
+          * reachable with /odoo?tour=<name>
+
+        custom = True keeps these guide tours out of the automatic
+        onboarding queue (get_current_tour only returns custom = False
+        tours). They are started on demand by the user, from the tour
+        list or from a direct link, so 42 tours do not pop up on their
+        own. The sequence only controls the order in the list.
+    -->
+
+    <!-- Contacts & Credit Risk -->
+    <record id="tour_od19_contacts_credit_risk" model="web_tour.tour">
+        <field name="name">od19_contacts_credit_risk_tour</field>
+        <field name="sequence">10</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+
+    <!-- Sales -->
+    <record id="tour_od19_sales_contract_billing" model="web_tour.tour">
+        <field name="name">od19_sales_contract_billing_tour</field>
+        <field name="sequence">20</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_sale_terms" model="web_tour.tour">
+        <field name="name">od19_sale_terms_tour</field>
+        <field name="sequence">21</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_sale_wizards" model="web_tour.tour">
+        <field name="name">od19_sale_wizards_tour</field>
+        <field name="sequence">22</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+
+    <!-- Purchase -->
+    <record id="tour_od19_purchase_approval" model="web_tour.tour">
+        <field name="name">od19_purchase_approval_tour</field>
+        <field name="sequence">30</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_purchase_terms" model="web_tour.tour">
+        <field name="name">od19_purchase_terms_tour</field>
+        <field name="sequence">31</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_purchase_wizards" model="web_tour.tour">
+        <field name="name">od19_purchase_wizards_tour</field>
+        <field name="sequence">32</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+
+    <!-- Inventory / Stock -->
+    <record id="tour_od19_inventory_operations" model="web_tour.tour">
+        <field name="name">od19_inventory_operations_tour</field>
+        <field name="sequence">40</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_stock_valuation" model="web_tour.tour">
+        <field name="name">od19_stock_valuation_tour</field>
+        <field name="sequence">41</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_valuation_by_lot" model="web_tour.tour">
+        <field name="name">od19_valuation_by_lot_tour</field>
+        <field name="sequence">42</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_stock_fifo" model="web_tour.tour">
+        <field name="name">od19_stock_fifo_tour</field>
+        <field name="sequence">43</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_stock_picking_features" model="web_tour.tour">
+        <field name="name">od19_stock_picking_features_tour</field>
+        <field name="sequence">44</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_product_return" model="web_tour.tour">
+        <field name="name">od19_product_return_tour</field>
+        <field name="sequence">45</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+
+    <!-- Accounting -->
+    <record id="tour_od19_accounting" model="web_tour.tour">
+        <field name="name">od19_accounting_tour</field>
+        <field name="sequence">50</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_cheque" model="web_tour.tour">
+        <field name="name">od19_cheque_tour</field>
+        <field name="sequence">51</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_dncn" model="web_tour.tour">
+        <field name="name">od19_dncn_tour</field>
+        <field name="sequence">52</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_advance_payment" model="web_tour.tour">
+        <field name="name">od19_advance_payment_tour</field>
+        <field name="sequence">53</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_accounting_features" model="web_tour.tour">
+        <field name="name">od19_accounting_features_tour</field>
+        <field name="sequence">54</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_money_in_report" model="web_tour.tour">
+        <field name="name">od19_money_in_report_tour</field>
+        <field name="sequence">55</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_thai_tax_reports" model="web_tour.tour">
+        <field name="name">od19_thai_tax_reports_tour</field>
+        <field name="sequence">56</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+
+    <!-- HR Expense -->
+    <record id="tour_od19_hr_expense" model="web_tour.tour">
+        <field name="name">od19_hr_expense_tour</field>
+        <field name="sequence">60</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_hr_expense_enhanced" model="web_tour.tour">
+        <field name="name">od19_hr_expense_enhanced_tour</field>
+        <field name="sequence">61</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+
+    <!-- Project & Analytic -->
+    <record id="tour_od19_project_analytic" model="web_tour.tour">
+        <field name="name">od19_project_analytic_tour</field>
+        <field name="sequence">70</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_project_enhanced" model="web_tour.tour">
+        <field name="name">od19_project_enhanced_tour</field>
+        <field name="sequence">71</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+
+    <!-- Service / Assets -->
+    <record id="tour_od19_warranty" model="web_tour.tour">
+        <field name="name">od19_warranty_tour</field>
+        <field name="sequence">80</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_asset_loan" model="web_tour.tour">
+        <field name="name">od19_asset_loan_tour</field>
+        <field name="sequence">81</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_asset_disposal" model="web_tour.tour">
+        <field name="name">od19_asset_disposal_tour</field>
+        <field name="sequence">82</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+
+    <!-- Fleet -->
+    <record id="tour_od19_fleet_accounting" model="web_tour.tour">
+        <field name="name">od19_fleet_accounting_tour</field>
+        <field name="sequence">90</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_fleet_notification" model="web_tour.tour">
+        <field name="name">od19_fleet_notification_tour</field>
+        <field name="sequence">91</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+
+    <!-- Other modules -->
+    <record id="tour_od19_announcement" model="web_tour.tour">
+        <field name="name">od19_announcement_tour</field>
+        <field name="sequence">100</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_knowledge" model="web_tour.tour">
+        <field name="name">od19_knowledge_tour</field>
+        <field name="sequence">110</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_notification" model="web_tour.tour">
+        <field name="name">od19_notification_tour</field>
+        <field name="sequence">120</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_misc_features" model="web_tour.tour">
+        <field name="name">od19_misc_features_tour</field>
+        <field name="sequence">130</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+
+    <!-- ISO -->
+    <record id="tour_od19_iso_document_control" model="web_tour.tour">
+        <field name="name">od19_iso_document_control_tour</field>
+        <field name="sequence">200</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_iso_nonconformity" model="web_tour.tour">
+        <field name="name">od19_iso_nonconformity_tour</field>
+        <field name="sequence">201</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_iso_internal_audit" model="web_tour.tour">
+        <field name="name">od19_iso_internal_audit_tour</field>
+        <field name="sequence">202</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_iso_risk" model="web_tour.tour">
+        <field name="name">od19_iso_risk_tour</field>
+        <field name="sequence">203</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_iso_training" model="web_tour.tour">
+        <field name="name">od19_iso_training_tour</field>
+        <field name="sequence">204</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_iso_calibration" model="web_tour.tour">
+        <field name="name">od19_iso_calibration_tour</field>
+        <field name="sequence">205</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_iso_customer_satisfaction" model="web_tour.tour">
+        <field name="name">od19_iso_customer_satisfaction_tour</field>
+        <field name="sequence">206</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_iso_management_review" model="web_tour.tour">
+        <field name="name">od19_iso_management_review_tour</field>
+        <field name="sequence">207</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_iso_supplier_quality" model="web_tour.tour">
+        <field name="name">od19_iso_supplier_quality_tour</field>
+        <field name="sequence">208</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+</odoo>

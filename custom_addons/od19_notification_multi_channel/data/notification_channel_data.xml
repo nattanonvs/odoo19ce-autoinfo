@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="notification_channel_email" model="notification.channel">
+        <field name="name">Email</field>
+        <field name="channel_type">email</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="notification_channel_odoo" model="notification.channel">
+        <field name="name">Odoo Inbox</field>
+        <field name="channel_type">odoo</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="notification_channel_line" model="notification.channel">
+        <field name="name">LINE</field>
+        <field name="channel_type">line</field>
+        <field name="sequence">30</field>
+    </record>
+</odoo>

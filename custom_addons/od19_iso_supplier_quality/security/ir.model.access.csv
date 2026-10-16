@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_iso_supplier_evaluation_user,od19.iso.supplier.evaluation.user,model_od19_iso_supplier_evaluation,base.group_user,1,1,1,0
+access_iso_supplier_evaluation_manager,od19.iso.supplier.evaluation.manager,model_od19_iso_supplier_evaluation,base.group_system,1,1,1,1
+access_iso_supplier_eval_criteria_user,od19.iso.supplier.eval.criteria.user,model_od19_iso_supplier_eval_criteria,base.group_user,1,1,1,0
+access_iso_supplier_eval_criteria_manager,od19.iso.supplier.eval.criteria.manager,model_od19_iso_supplier_eval_criteria,base.group_system,1,1,1,1

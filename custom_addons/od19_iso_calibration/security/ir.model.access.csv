@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_iso_calibration_equipment_user,od19.iso.calibration.equipment.user,model_od19_iso_calibration_equipment,base.group_user,1,1,1,0
+access_iso_calibration_equipment_manager,od19.iso.calibration.equipment.manager,model_od19_iso_calibration_equipment,base.group_system,1,1,1,1
+access_iso_calibration_record_user,od19.iso.calibration.record.user,model_od19_iso_calibration_record,base.group_user,1,1,1,0
+access_iso_calibration_record_manager,od19.iso.calibration.record.manager,model_od19_iso_calibration_record,base.group_system,1,1,1,1

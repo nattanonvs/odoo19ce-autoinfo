@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_jasper_report_template_user,jasper.report.template user,model_jasper_report_template,account.group_account_invoice,1,0,0,0
+access_jasper_report_template_manager,jasper.report.template manager,model_jasper_report_template,account.group_account_manager,1,1,1,1
+access_jasper_report_action_user,jasper.report.action user,model_jasper_report_action,account.group_account_invoice,1,0,0,0
+access_jasper_report_action_manager,jasper.report.action manager,model_jasper_report_action,account.group_account_manager,1,1,1,1

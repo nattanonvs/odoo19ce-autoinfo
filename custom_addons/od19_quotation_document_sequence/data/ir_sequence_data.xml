@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ==================== Quotation Sequences ==================== -->
+        <record id="seq_sale_quotation_ba" model="ir.sequence">
+            <field name="name">Quotation (QB), Dept : BA</field>
+            <field name="code">sale.quotation.ba</field>
+            <field name="prefix">QB%(y)s%(month)s</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_sale_quotation_ta" model="ir.sequence">
+            <field name="name">Quotation (QT), Dept : TA</field>
+            <field name="code">sale.quotation.ta</field>
+            <field name="prefix">QT%(y)s%(month)s</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_sale_quotation_ia" model="ir.sequence">
+            <field name="name">Quotation (QI), Dept : IA</field>
+            <field name="code">sale.quotation.ia</field>
+            <field name="prefix">QI%(y)s%(month)s</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_sale_quotation_fdes" model="ir.sequence">
+            <field name="name">Quotation (QD), Dept : F/DES</field>
+            <field name="code">sale.quotation.fdes</field>
+            <field name="prefix">QD%(y)s%(month)s</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+    </data>
+</odoo>

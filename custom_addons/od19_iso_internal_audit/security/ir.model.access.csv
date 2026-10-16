@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_iso_audit_program_user,od19.iso.audit.program.user,model_od19_iso_audit_program,base.group_user,1,1,1,0
+access_iso_audit_program_manager,od19.iso.audit.program.manager,model_od19_iso_audit_program,base.group_system,1,1,1,1
+access_iso_audit_user,od19.iso.audit.user,model_od19_iso_audit,base.group_user,1,1,1,0
+access_iso_audit_manager,od19.iso.audit.manager,model_od19_iso_audit,base.group_system,1,1,1,1
+access_iso_audit_finding_user,od19.iso.audit.finding.user,model_od19_iso_audit_finding,base.group_user,1,1,1,0
+access_iso_audit_finding_manager,od19.iso.audit.finding.manager,model_od19_iso_audit_finding,base.group_system,1,1,1,1

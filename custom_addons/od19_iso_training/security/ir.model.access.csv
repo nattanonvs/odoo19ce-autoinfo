@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_iso_training_course_user,od19.iso.training.course.user,model_od19_iso_training_course,base.group_user,1,1,1,0
+access_iso_training_course_manager,od19.iso.training.course.manager,model_od19_iso_training_course,base.group_system,1,1,1,1
+access_iso_training_participant_user,od19.iso.training.participant.user,model_od19_iso_training_participant,base.group_user,1,1,1,0
+access_iso_training_participant_manager,od19.iso.training.participant.manager,model_od19_iso_training_participant,base.group_system,1,1,1,1
+access_iso_competence_user,od19.iso.competence.user,model_od19_iso_competence,base.group_user,1,1,1,0
+access_iso_competence_manager,od19.iso.competence.manager,model_od19_iso_competence,base.group_system,1,1,1,1
+access_iso_employee_competence_user,od19.iso.employee.competence.user,model_od19_iso_employee_competence,base.group_user,1,1,1,0
+access_iso_employee_competence_manager,od19.iso.employee.competence.manager,model_od19_iso_employee_competence,base.group_system,1,1,1,1

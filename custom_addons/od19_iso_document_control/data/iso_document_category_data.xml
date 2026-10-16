@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <record id="iso_doc_cat_fm" model="od19.iso.document.category">
+        <field name="name">แบบฟอร์ม (Form)</field>
+        <field name="prefix">FM</field>
+        <field name="description">แบบฟอร์มที่ใช้บันทึกข้อมูลต่างๆ</field>
+    </record>
+
+    <record id="iso_doc_cat_proc" model="od19.iso.document.category">
+        <field name="name">ขั้นตอนการทำงาน (Procedure)</field>
+        <field name="prefix">PROC</field>
+        <field name="description">ขั้นตอนการทำงานที่กำหนดไว้เป็นระบบ</field>
+    </record>
+
+    <record id="iso_doc_cat_wi" model="od19.iso.document.category">
+        <field name="name">คู่มือการทำงาน (Work Instruction)</field>
+        <field name="prefix">WI</field>
+        <field name="description">คำแนะนำการปฏิบัติงานรายละเอียด</field>
+    </record>
+
+    <record id="iso_doc_cat_form" model="od19.iso.document.category">
+        <field name="name">ฟอร์ม (Form Record)</field>
+        <field name="prefix">FORM</field>
+        <field name="description">ฟอร์มบันทึกข้อมูล</field>
+    </record>
+
+    <record id="iso_doc_cat_rec" model="od19.iso.document.category">
+        <field name="name">บันทึก (Record)</field>
+        <field name="prefix">REC</field>
+        <field name="description">เอกสารบันทึกหลักฐานการปฏิบัติงาน</field>
+    </record>
+
+    <record id="iso_doc_cat_manual" model="od19.iso.document.category">
+        <field name="name">คู่มือระบบ (Manual)</field>
+        <field name="prefix">MANUAL</field>
+        <field name="description">คู่มือระดับระบบจัดการคุณภาพ</field>
+    </record>
+
+    <record id="iso_doc_cat_policy" model="od19.iso.document.category">
+        <field name="name">นโยบาย (Policy)</field>
+        <field name="prefix">POL</field>
+        <field name="description">นโยบายขององค์กร</field>
+    </record>
+
+</odoo>

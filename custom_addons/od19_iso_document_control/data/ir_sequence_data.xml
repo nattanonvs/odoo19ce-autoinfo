@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!--
+        ISO Document sequences.
+        Each document category (prefix) has its own numeric sequence.
+        The document code is assembled as {PREFIX}-{DEPT}-{NNN} in code.
+    -->
+
+    <record id="seq_iso_doc_fm" model="ir.sequence">
+        <field name="name">ISO Document - Form (FM)</field>
+        <field name="code">od19.iso.document.fm</field>
+        <field name="prefix"></field>
+        <field name="padding">3</field>
+        <field name="number_next">1</field>
+        <field name="number_increment">1</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="seq_iso_doc_proc" model="ir.sequence">
+        <field name="name">ISO Document - Procedure (PROC)</field>
+        <field name="code">od19.iso.document.proc</field>
+        <field name="prefix"></field>
+        <field name="padding">3</field>
+        <field name="number_next">1</field>
+        <field name="number_increment">1</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="seq_iso_doc_wi" model="ir.sequence">
+        <field name="name">ISO Document - Work Instruction (WI)</field>
+        <field name="code">od19.iso.document.wi</field>
+        <field name="prefix"></field>
+        <field name="padding">3</field>
+        <field name="number_next">1</field>
+        <field name="number_increment">1</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="seq_iso_doc_form" model="ir.sequence">
+        <field name="name">ISO Document - Form Record (FORM)</field>
+        <field name="code">od19.iso.document.form</field>
+        <field name="prefix"></field>
+        <field name="padding">3</field>
+        <field name="number_next">1</field>
+        <field name="number_increment">1</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="seq_iso_doc_rec" model="ir.sequence">
+        <field name="name">ISO Document - Record (REC)</field>
+        <field name="code">od19.iso.document.rec</field>
+        <field name="prefix"></field>
+        <field name="padding">3</field>
+        <field name="number_next">1</field>
+        <field name="number_increment">1</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="seq_iso_doc_manual" model="ir.sequence">
+        <field name="name">ISO Document - Manual (MANUAL)</field>
+        <field name="code">od19.iso.document.manual</field>
+        <field name="prefix"></field>
+        <field name="padding">3</field>
+        <field name="number_next">1</field>
+        <field name="number_increment">1</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="seq_iso_doc_pol" model="ir.sequence">
+        <field name="name">ISO Document - Policy (POL)</field>
+        <field name="code">od19.iso.document.pol</field>
+        <field name="prefix"></field>
+        <field name="padding">3</field>
+        <field name="number_next">1</field>
+        <field name="number_increment">1</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+</odoo>

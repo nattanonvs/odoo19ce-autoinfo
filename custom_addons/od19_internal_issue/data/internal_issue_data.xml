@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!--
+        Tier definition for internal issues.
+        Urgent (is_emergency) issues require director approval.
+        Reviewer group: System Administrator (can be changed by admin).
+    -->
+    <record id="tier_definition_internal_issue_urgent" model="tier.definition">
+        <field name="name">Internal Issue: Urgent requires Director approval</field>
+        <field name="model_id" ref="helpdesk_mgmt.model_helpdesk_ticket"/>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="base.group_system"/>
+        <field name="definition_domain">[('is_emergency', '=', True)]</field>
+        <field name="sequence">10</field>
+        <field name="notify_on_create" eval="True"/>
+        <field name="notify_on_pending" eval="True"/>
+    </record>
+
+    <!--
+        Tier definition for all internal issues (non-urgent).
+        Any issue requires at least one validation step.
+    -->
+    <record id="tier_definition_internal_issue_standard" model="tier.definition">
+        <field name="name">Internal Issue: Standard validation</field>
+        <field name="model_id" ref="helpdesk_mgmt.model_helpdesk_ticket"/>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="base.group_system"/>
+        <field name="definition_domain">[('is_emergency', '=', False)]</field>
+        <field name="sequence">20</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_od19_transport_order_user,od19.transport.order.user,model_od19_transport_order,stock.group_stock_user,1,1,1,0
+access_od19_transport_order_manager,od19.transport.order.manager,model_od19_transport_order,stock.group_stock_manager,1,1,1,1
+access_od19_transport_route_user,od19.transport.route.user,model_od19_transport_route,stock.group_stock_user,1,1,1,0
+access_od19_transport_route_manager,od19.transport.route.manager,model_od19_transport_route,stock.group_stock_manager,1,1,1,1

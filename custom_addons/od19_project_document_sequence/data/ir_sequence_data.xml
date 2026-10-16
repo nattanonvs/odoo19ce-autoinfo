@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ==================== Project Task Sequence ==================== -->
+        <record id="seq_project_task_default" model="ir.sequence">
+            <field name="name">Project Task Sequence</field>
+            <field name="code">project.task.default</field>
+            <field name="prefix">T</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- ==================== Project Job Sequences ==================== -->
+        <record id="seq_project_job_ba" model="ir.sequence">
+            <field name="name">JOB (JB), Dept : BA</field>
+            <field name="code">project.job.ba</field>
+            <field name="prefix">JB%(y)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_project_job_ta" model="ir.sequence">
+            <field name="name">JOB (JT), Dept : TA</field>
+            <field name="code">project.job.ta</field>
+            <field name="prefix">JT%(y)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_project_job_ia" model="ir.sequence">
+            <field name="name">JOB (JI), Dept : IA</field>
+            <field name="code">project.job.ia</field>
+            <field name="prefix">JI%(y)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_project_job_fdes" model="ir.sequence">
+            <field name="name">JOB (JD), Dept : F/DES</field>
+            <field name="code">project.job.fdes</field>
+            <field name="prefix">JD%(y)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- ==================== Project Server Sequences ==================== -->
+        <record id="seq_project_server_ba" model="ir.sequence">
+            <field name="name">Server (SVB), Dept : BA</field>
+            <field name="code">project.server.ba</field>
+            <field name="prefix">SVB%(y)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_project_server_ta" model="ir.sequence">
+            <field name="name">Server (SVT), Dept : TA</field>
+            <field name="code">project.server.ta</field>
+            <field name="prefix">SVT%(y)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_project_server_ia" model="ir.sequence">
+            <field name="name">Server (SVI), Dept : IA</field>
+            <field name="code">project.server.ia</field>
+            <field name="prefix">SVI%(y)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_project_server_fdes" model="ir.sequence">
+            <field name="name">Server (SVD), Dept : F/DES</field>
+            <field name="code">project.server.fdes</field>
+            <field name="prefix">SVD%(y)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- ==================== Project PM Sequences ==================== -->
+        <record id="seq_project_pm_ba" model="ir.sequence">
+            <field name="name">Preventive Maintenance (PMB), Dept : BA</field>
+            <field name="code">project.pm.ba</field>
+            <field name="prefix">PMB%(y)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_project_pm_ta" model="ir.sequence">
+            <field name="name">Preventive Maintenance (PMT), Dept : TA</field>
+            <field name="code">project.pm.ta</field>
+            <field name="prefix">PMT%(y)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_project_pm_ia" model="ir.sequence">
+            <field name="name">Preventive Maintenance (PMI), Dept : IA</field>
+            <field name="code">project.pm.ia</field>
+            <field name="prefix">PMI%(y)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_project_pm_fdes" model="ir.sequence">
+            <field name="name">Preventive Maintenance (PMD), Dept : F/DES</field>
+            <field name="code">project.pm.fdes</field>
+            <field name="prefix">PMD%(y)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- ==================== Project Service Sequences ==================== -->
+        <record id="seq_project_service_ba" model="ir.sequence">
+            <field name="name">Service (SB), Dept : BA</field>
+            <field name="code">project.service.ba</field>
+            <field name="prefix">SB%(y)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_project_service_ta" model="ir.sequence">
+            <field name="name">Service (ST), Dept : TA</field>
+            <field name="code">project.service.ta</field>
+            <field name="prefix">ST%(y)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_project_service_ia" model="ir.sequence">
+            <field name="name">Service (SI), Dept : IA</field>
+            <field name="code">project.service.ia</field>
+            <field name="prefix">SI%(y)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_project_service_fdes" model="ir.sequence">
+            <field name="name">Service (SD), Dept : F/DES</field>
+            <field name="code">project.service.fdes</field>
+            <field name="prefix">SD%(y)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+    </data>
+</odoo>

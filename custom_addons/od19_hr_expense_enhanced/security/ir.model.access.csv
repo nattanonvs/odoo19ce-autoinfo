@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_od19_expense_return_cash_user,access.od19.expense.return.cash,model_od19_expense_return_cash,base.group_user,1,1,1,1
+access_od19_expense_reset_user,access.od19.expense.reset,model_od19_expense_reset,base.group_user,1,1,1,1
+access_od19_expense_xlsx_export_user,access.od19.expense.xlsx.export,model_od19_expense_xlsx_export,base.group_user,1,1,1,1
+access_od19_expense_delegate_user,access.od19.expense.delegate,model_od19_expense_delegate,base.group_user,1,1,1,1

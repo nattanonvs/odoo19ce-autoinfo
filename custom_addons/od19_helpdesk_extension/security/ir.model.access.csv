@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_helpdesk_ticket_internal,helpdesk.ticket.internal,helpdesk_mgmt.model_helpdesk_ticket,group_internal_helpdesk,1,1,1,0
+access_helpdesk_ticket_sales,helpdesk.ticket.sales,helpdesk_mgmt.model_helpdesk_ticket,group_sales_service,1,1,1,0

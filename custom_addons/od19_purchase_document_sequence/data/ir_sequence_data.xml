@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ==================== Purchase Request Sequences ==================== -->
+        <record id="seq_purchase_request_default" model="ir.sequence">
+            <field name="name">Purchase Request (Default)</field>
+            <field name="code">purchase.request.default</field>
+            <field name="prefix">PR</field>
+            <field name="padding">5</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_purchase_request_ba" model="ir.sequence">
+            <field name="name">Purchase Request (PRB), Dept : BA</field>
+            <field name="code">purchase.request.ba</field>
+            <field name="prefix">PRB%(y)s%(month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_purchase_request_ta" model="ir.sequence">
+            <field name="name">Purchase Request (PRT), Dept : TA</field>
+            <field name="code">purchase.request.ta</field>
+            <field name="prefix">PRT%(y)s%(month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_purchase_request_ia" model="ir.sequence">
+            <field name="name">Purchase Request (PRI), Dept : IA</field>
+            <field name="code">purchase.request.ia</field>
+            <field name="prefix">PRI%(y)s%(month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_purchase_request_fa" model="ir.sequence">
+            <field name="name">Purchase Request (PRF), Dept : FA</field>
+            <field name="code">purchase.request.fa</field>
+            <field name="prefix">PRF%(y)s%(month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_purchase_request_fdes" model="ir.sequence">
+            <field name="name">Purchase Request (PRF/D), Dept : F/DES</field>
+            <field name="code">purchase.request.fdes</field>
+            <field name="prefix">PRF/D%(y)s%(month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- ==================== Purchase Order (Local) Sequences ==================== -->
+        <record id="seq_purchase_order_ba" model="ir.sequence">
+            <field name="name">Purchase Order (PB), Dept : BA</field>
+            <field name="code">purchase.order.ba</field>
+            <field name="prefix">PB%(y)s%(month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_purchase_order_ta" model="ir.sequence">
+            <field name="name">Purchase Order (PT), Dept : TA</field>
+            <field name="code">purchase.order.ta</field>
+            <field name="prefix">PT%(y)s%(month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_purchase_order_ia" model="ir.sequence">
+            <field name="name">Purchase Order (PI), Dept : IA</field>
+            <field name="code">purchase.order.ia</field>
+            <field name="prefix">PI%(range_y)s%(range_month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_purchase_order_fa" model="ir.sequence">
+            <field name="name">Purchase Order (PF), Dept : FA</field>
+            <field name="code">purchase.order.fa</field>
+            <field name="prefix">PF%(y)s%(month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_purchase_order_fdes" model="ir.sequence">
+            <field name="name">Purchase Order (PF/D), Dept : F/DES</field>
+            <field name="code">purchase.order.fdes</field>
+            <field name="prefix">PF/D%(y)s%(month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- ==================== Purchase Order (Indent/Import) Sequences ==================== -->
+        <record id="seq_purchase_order_indent_ba" model="ir.sequence">
+            <field name="name">Purchase Order - Indent (IB), Dept : BA</field>
+            <field name="code">purchase.order.indent.ba</field>
+            <field name="prefix">IB%(y)s%(month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_purchase_order_indent_ta" model="ir.sequence">
+            <field name="name">Purchase Order - Indent (IT), Dept : TA</field>
+            <field name="code">purchase.order.indent.ta</field>
+            <field name="prefix">IT%(y)s%(month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_purchase_order_indent" model="ir.sequence">
+            <field name="name">Purchase Order - Indent (II)</field>
+            <field name="code">purchase.order.indent</field>
+            <field name="prefix">II%(y)s%(month)s-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- ==================== Purchase Order Bulk ==================== -->
+        <record id="seq_purchase_order_bulk" model="ir.sequence">
+            <field name="name">Purchase Order Bulk</field>
+            <field name="code">purchase.order.bulk</field>
+            <field name="prefix">BULK</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+    </data>
+</odoo>

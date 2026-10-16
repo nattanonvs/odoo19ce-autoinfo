@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ============================================================ -->
+    <!-- Monthly Stock Report Email Template                           -->
+    <!-- ============================================================ -->
+    <record id="mail_template_monthly_stock_report" model="mail.template">
+        <field name="name">OD19: Monthly FIFO Stock Valuation Report / รายงานมูลค่าสินค้า FIFO ประจำเดือน</field>
+        <field name="model_id" ref="base.model_res_company"/>
+        <field name="subject">Monthly FIFO Stock Valuation Report - {{ ctx.get('as_of_date') }}</field>
+        <field name="email_from">{{ (ctx.get('company_name') or '') }} &lt;{{ user.email_formatted or '' }}&gt;</field>
+        <field name="body_html" type="html">
+<p>Dear Inventory / Accounting Team,</p>
+<p>สวัสดีค่ะ ทีมคลังสินค้า / ทีมบัญชี</p>
+
+<p>Please find attached the Monthly FIFO Stock Valuation Report as of
+<strong>{{ ctx.get('as_of_date') }}</strong>.</p>
+
+<p>กรุณาพบเอกสารแนบ รายงานมูลค่าสินค้า FIFO ประจำเดือน ณ วันที่
+<strong>{{ ctx.get('as_of_date') }}</strong></p>
+
+<ul>
+    <li>Products in report / จำนวนสินค้าในรายงาน: <strong>{{ ctx.get('product_count') }}</strong></li>
+    <li>Total Quantity / จำนวนรวม: <strong>{{ '{:,.2f}'.format(ctx.get('total_qty', 0.0)) }}</strong></li>
+    <li>Total Value / มูลค่ารวม: <strong>{{ '{:,.2f}'.format(ctx.get('total_value', 0.0)) }}</strong></li>
+</ul>
+
+<p>Best regards,<br/>
+ด้วยความนับถือ<br/>
+{{ ctx.get('company_name') or '' }}</p>
+        </field>
+        <field name="auto_delete">False</field>
+    </record>
+</odoo>

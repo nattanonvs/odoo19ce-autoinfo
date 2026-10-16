@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_od19_sale_change_delivery_date_user,od19.sale.change.delivery.date user,model_od19_sale_change_delivery_date,base.group_user,1,1,1,1
+access_od19_account_invoice_get_sale_lines_user,od19.account.invoice.get.sale.lines user,model_od19_account_invoice_get_sale_lines,base.group_user,1,1,1,1

@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_od19_hr_attendance_device_user,od19.hr.attendance.device.user,model_hr_attendance_device,hr_attendance.group_hr_attendance_user,1,0,0,0
+access_od19_hr_attendance_device_manager,od19.hr.attendance.device.manager,model_hr_attendance_device,hr_attendance.group_hr_attendance_manager,1,1,1,1
+access_od19_hr_attendance_device_log_user,od19.hr.attendance.device.log.user,model_hr_attendance_device_log,hr_attendance.group_hr_attendance_user,1,0,0,0
+access_od19_hr_attendance_device_log_manager,od19.hr.attendance.device.log.manager,model_hr_attendance_device_log,hr_attendance.group_hr_attendance_manager,1,1,1,1

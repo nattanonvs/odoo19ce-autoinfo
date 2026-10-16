@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_od19_warranty_claim_user,od19.warranty.claim.user,model_od19_warranty_claim,base.group_user,1,1,1,0
+access_od19_warranty_claim_manager,od19.warranty.claim.manager,model_od19_warranty_claim,account.group_account_manager,1,1,1,1
