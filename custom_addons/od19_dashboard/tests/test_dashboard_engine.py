@@ -1,3 +1,6 @@
+from datetime import timedelta
+
+from odoo import fields
 from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
@@ -240,6 +243,45 @@ class TestDashboardRuleEngine(TransactionCase):
             [
                 ("date_order", ">=", "2026-03-01 00:00:00"),
                 ("date_order", "<=", "2026-03-31 23:59:59"),
+            ],
+        )
+
+    def test_period_bounds_all_time_has_no_bounds(self):
+        start, end, field_type = self.widget_a._period_bounds("all_time")
+        self.assertIsNone(start)
+        self.assertIsNone(end)
+        self.assertEqual(field_type, "datetime")
+
+    def test_period_bounds_without_date_key_has_no_bounds(self):
+        start, end, field_type = self.widget_b._period_bounds("this_month")
+        self.assertIsNone(start)
+        self.assertIsNone(end)
+        self.assertEqual(field_type, "date")
+
+    def test_period_bounds_overdue_starts_at_none(self):
+        today = fields.Date.context_today(self.widget_a)
+        start, end, _field_type = self.widget_a._period_bounds("overdue")
+        self.assertIsNone(start)
+        self.assertEqual(end, today - timedelta(days=1))
+
+    def test_date_bounds_on_a_date_field_has_no_time_suffix(self):
+        widget = self.env["od19.dashboard.widget"].create(
+            {
+                "dashboard_id": self.dashboard.id,
+                "name": "Date field widget",
+                "widget_type": "kpi",
+                "source_id": self.env.ref("od19_dashboard.source_account_move").id,
+                "measure_key": "amount_total",
+                "date_key": "invoice_date",
+                "date_range": "this_year",
+            }
+        )
+        bounds = widget._date_bounds("this_year", "2026-03-01", "2026-03-31")
+        self.assertEqual(
+            bounds,
+            [
+                ("invoice_date", ">=", "2026-03-01"),
+                ("invoice_date", "<=", "2026-03-31"),
             ],
         )
 

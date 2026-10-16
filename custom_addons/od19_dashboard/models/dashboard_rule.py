@@ -31,8 +31,6 @@ STATUSES = [
     ("grey", "Grey"),
 ]
 
-from .dashboard_formula import PERIOD_COMPARE_TYPES  # noqa: F401 - re-exported
-
 
 class Od19DashboardWidgetRule(models.Model):
     """One row of a widget status table.
