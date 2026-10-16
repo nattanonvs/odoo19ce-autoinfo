@@ -1335,13 +1335,24 @@ git commit -m "feat(od19_dashboard): resolve formula operands and aggregate requ
 ### Task 4: Status rule engine and period shift
 
 **Files:**
-- Modify: `custom_addons/od19_dashboard/models/dashboard_rule.py` (เพิ่ม `_compare_operand` ต่อท้าย `_check_compare_target`)
+- Modify: `custom_addons/od19_dashboard/models/dashboard_rule.py` (เพิ่ม `_compare_operand` ต่อท้าย `_check_compare_target` และลบ `PERIOD_COMPARE_TYPES`)
+- Modify: `custom_addons/od19_dashboard/models/dashboard_formula.py` (เพิ่ม `PERIOD_COMPARE_TYPES` ต่อจาก `IMPLICIT_NAMES`) — Step 3b
 - Modify: `custom_addons/od19_dashboard/models/dashboard.py` (`_period_bounds` / `_date_bounds` / `_build_domain` และเพิ่ม `_required_shifts`, `_evaluate_rules`, `_is_lower_better`)
-- Modify: `custom_addons/od19_dashboard/tests/test_dashboard_engine.py` (เพิ่มคลาส `TestDashboardRuleEngine`)
+- Modify: `custom_addons/od19_dashboard/tests/test_dashboard_engine.py` (เพิ่มคลาส `TestDashboardRuleEngine` — 21 เทสต์)
 
 - [ ] **Step 1: Write the failing test**
 
-ต่อท้าย `custom_addons/od19_dashboard/tests/test_dashboard_engine.py`:
+ต่อท้าย `custom_addons/od19_dashboard/tests/test_dashboard_engine.py` (และเพิ่ม import 2 บรรทัดบนสุดของไฟล์ — ปัจจุบันมีแค่ `ValidationError` กับ `TransactionCase`):
+
+```python
+from datetime import timedelta
+
+from odoo import fields
+from odoo.exceptions import ValidationError
+from odoo.tests.common import TransactionCase
+```
+
+แล้วต่อท้ายไฟล์ด้วย:
 
 ```python
 class TestDashboardRuleEngine(TransactionCase):
@@ -1472,6 +1483,45 @@ class TestDashboardRuleEngine(TransactionCase):
             ],
         )
 
+    def test_period_bounds_all_time_has_no_bounds(self):
+        start, end, field_type = self.widget_a._period_bounds("all_time")
+        self.assertIsNone(start)
+        self.assertIsNone(end)
+        self.assertEqual(field_type, "datetime")
+
+    def test_period_bounds_without_date_key_has_no_bounds(self):
+        start, end, field_type = self.widget_b._period_bounds("this_month")
+        self.assertIsNone(start)
+        self.assertIsNone(end)
+        self.assertEqual(field_type, "date")
+
+    def test_period_bounds_overdue_starts_at_none(self):
+        today = fields.Date.context_today(self.widget_a)
+        start, end, _field_type = self.widget_a._period_bounds("overdue")
+        self.assertIsNone(start)
+        self.assertEqual(end, today - timedelta(days=1))
+
+    def test_date_bounds_on_a_date_field_has_no_time_suffix(self):
+        widget = self.env["od19.dashboard.widget"].create(
+            {
+                "dashboard_id": self.dashboard.id,
+                "name": "Date field widget",
+                "widget_type": "kpi",
+                "source_id": self.env.ref("od19_dashboard.source_account_move").id,
+                "measure_key": "amount_total",
+                "date_key": "invoice_date",
+                "date_range": "this_year",
+            }
+        )
+        bounds = widget._date_bounds("this_year", "2026-03-01", "2026-03-31")
+        self.assertEqual(
+            bounds,
+            [
+                ("invoice_date", ">=", "2026-03-01"),
+                ("invoice_date", "<=", "2026-03-31"),
+            ],
+        )
+
     def test_is_lower_better_inferred_from_the_first_red_rule(self):
         self.assertFalse(self.widget_a._is_lower_better())
         self._rule(operator="<=", compare_value=100.0, status="red")
@@ -1548,7 +1598,7 @@ Expected: FAIL — `AttributeError: 'od19.dashboard.widget.rule' object has no a
             shifts.add(self.formula_basis)
         shifts.update(
             self.rule_ids.filtered(
-                lambda rule: rule.active and rule.compare_type in PERIOD_COMPARE_TYPES
+                lambda rule: rule.active and rule.compare_type in formula_tools.PERIOD_COMPARE_TYPES
             ).mapped("compare_type")
         )
         return {"previous" if shift == "prev" else shift for shift in shifts}
@@ -1601,7 +1651,9 @@ from . import dashboard_formula as formula_tools
 _logger = logging.getLogger(__name__)
 ```
 
-> เหตุผลที่ Step 3b ย้ายค่าคงที่: `models/__init__.py` โหลดตามลำดับ `dashboard_source`, `dashboard_formula`, `dashboard`, `dashboard_rule` — ถ้า `dashboard.py` ทำ `from .dashboard_rule import PERIOD_COMPARE_TYPES` จะเกิดการ import ข้ามไฟล์ที่พึ่งพาลำดับการโหลด จึงย้ายค่าคงที่ไปประกาศใน `dashboard_formula.py` (ไฟล์ที่สอง) แล้วให้ `dashboard_rule.py` import จากที่นั่น เพื่อไม่ให้เกิด import cycle
+> เหตุผลที่ Step 3b ย้ายค่าคงที่: `PERIOD_COMPARE_TYPES` เป็นคำศัพท์ที่ **ทั้ง** `dashboard.py` (ผ่าน `_required_shifts`) และ `dashboard_rule.py` (ผ่าน `COMPARE_TYPES` ของ domain เดียวกัน) ต้องใช้ การประกาศไว้ใน `dashboard_formula.py` ซึ่งเป็นโมดูล pure helper (ไม่แตะ ORM) ทำให้ทั้งสองไฟล์อ้างผ่าน `formula_tools.PERIOD_COMPARE_TYPES` ได้โดยไม่ต้องให้ `dashboard.py` import ข้ามไปยังโมเดลไฟล์ `dashboard_rule.py` (ซึ่ง `models/__init__.py` โหลดทีหลัง) — ลำดับโหลดคือ `dashboard_source`, `dashboard_formula`, `dashboard`, `dashboard_rule`
+>
+> **ห้าม re-export** — `PERIOD_COMPARE_TYPES` ไม่มีผู้เรียกใช้จาก `dashboard_rule` อีกต่อไป และการวาง `import` ไว้กลางไฟล์ (หลังค่าคงที่ module level) จะขัดกฎ `E402` (module level import not at top) ของ `ruff.toml` ที่ repo ใช้บน runbot — `# noqa: F401` ปิดได้เฉพาะ `F401` ไม่ปิด `E402`
 
 - [ ] **Step 3b: Move `PERIOD_COMPARE_TYPES` to the formula module**
 
@@ -1612,18 +1664,14 @@ _logger = logging.getLogger(__name__)
 PERIOD_COMPARE_TYPES = ("prev", "yty", "mtm", "qtq")
 ```
 
-และใน `custom_addons/od19_dashboard/models/dashboard_rule.py` แทนบรรทัด
+และใน `custom_addons/od19_dashboard/models/dashboard_rule.py` **ลบบรรทัดค่าคงที่**
 
 ```python
 #: Compare types that need the widget value of a shifted period.
 PERIOD_COMPARE_TYPES = ("prev", "yty", "mtm", "qtq")
 ```
 
-ด้วย
-
-```python
-from .dashboard_formula import PERIOD_COMPARE_TYPES  # noqa: F401 - re-exported
-```
+ออกทั้งหมด — **ห้าม** แทนด้วย `from .dashboard_formula import PERIOD_COMPARE_TYPES` เพราะ (ก) ไม่มีผู้เรียกใช้ค่าคงที่นี้ผ่าน `dashboard_rule` อีกแล้ว (มีแต่ `formula_tools.PERIOD_COMPARE_TYPES` ใน `dashboard.py`) และ (ข) `import` ที่วางกลางไฟล์ (หลัง `OPERATORS` / `COMPARE_TYPES` / `STATUSES`) จะขัดกฎ ruff `E402` ซึ่ง `ruff.toml` ของ repo เปิดไว้
 
 แล้วใน `dashboard.py` ให้ import จาก formula module:
 
