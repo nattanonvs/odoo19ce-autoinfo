@@ -44,10 +44,20 @@ registry.category("web_tour.tours").add("od19_sales_contract_billing_tour", {
             run: "click",
         },
         {
+            trigger: ".o-autocomplete--dropdown-item",
+            content: _t("Pick the customer from the suggestion list."),
+            run: "click",
+        },
+        {
             trigger: ".o_field_widget[name='od19_project_id'] input",
             content: markup(_t(
                 "Link the contract to a <b>Project</b> (Job No). Each contract belongs to one project."
             )),
+            run: "click",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item",
+            content: _t("Pick the project from the suggestion list."),
             run: "click",
         },
         {
@@ -76,8 +86,14 @@ registry.category("web_tour.tours").add("od19_sales_contract_billing_tour", {
 
         // --- Billing Evidence (accessed from Sales Order) ---
         {
-            trigger: ".o_menu_sections :contains('Orders'), .dropdown-item:contains('Orders')",
+            trigger: navSection('Orders'),
             content: markup(_t("Open <b>Orders</b> to access Sales Orders.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: navItem('Orders'),
+            content: markup(_t("Open the <b>Sales Orders</b> list.")),
             tooltipPosition: "bottom",
             run: "click",
         },
