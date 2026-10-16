@@ -309,6 +309,7 @@
                                         class="od19-rules__row" draggable="true"
                                         t-on-dragstart="(ev) => this.onRuleDragStart(ev, rule.index)"
                                         t-on-dragover="onRuleDragOver"
+                                        t-on-dragend="onRuleDragEnd"
                                         t-on-drop="(ev) => this.onRuleDrop(ev, rule.index)">
                                         <td class="od19-rules__handle" title="Drag to reorder">
                                             <i class="fa fa-bars"/>

@@ -507,7 +507,10 @@ export class DashboardAction extends Component {
     }
 
     _notifyError(error) {
-        const message = (error && error.message) || _t("Something went wrong.");
+        // The server wraps a ValidationError in an envelope whose ``message`` is
+        // "Odoo Server Error"; the real text lives in ``error.data.message``.
+        const data = (error && error.data) || {};
+        const message = data.message || (error && error.message) || _t("Something went wrong.");
         this.notification.add(message, { type: "danger" });
     }
 }

@@ -198,11 +198,6 @@ export class BuilderDialog extends Component {
         );
     }
 
-    get needsWeight() {
-        const formula = this.selectedFormula;
-        return Boolean(formula && formula.slots.some((key) => WEIGHT_KEYS.includes(key)));
-    }
-
     /** The slots currently bound, as a plain object (bad JSON reads as empty). */
     get slotMap() {
         try {
@@ -413,7 +408,12 @@ export class BuilderDialog extends Component {
 
     onFormulaTypeChange(ev) {
         const draft = this.state.draft;
-        draft.formula_type = ev.target.value;
+        const value = ev.target.value;
+        // The placeholder option carries the string the template wrote into the
+        // DOM attribute, so an unset preset comes back as "null" rather than as
+        // an empty value. Normalise it back so the guard on save and the server
+        // selection field both see a missing formula type.
+        draft.formula_type = value === "null" ? null : value;
         // The slots of the previous preset no longer apply.
         draft.formula_slots = "{}";
         this._schedulePreview();
@@ -530,6 +530,12 @@ export class BuilderDialog extends Component {
         ev.preventDefault();
     }
 
+    onRuleDragEnd() {
+        // A drag released outside the table never fires ``drop``: clear the
+        // pending source row so the next drop cannot reorder by accident.
+        this.state.dragRuleIndex = null;
+    }
+
     onRuleDrop(ev, index) {
         ev.preventDefault();
         const from = this.state.dragRuleIndex;
@@ -569,13 +575,23 @@ export class BuilderDialog extends Component {
             return;
         }
         this.state.preview = { loading: true, data: this.state.preview.data, error: "" };
+        // Two requests can be in flight at once and are not guaranteed to come
+        // back in order: only the newest one may write the panel.
+        const seq = (this._previewSeq || 0) + 1;
+        this._previewSeq = seq;
         try {
             const data = await this.orm.call("od19.dashboard", "preview_widget", [
                 values,
                 this.state.draft.date_range,
             ]);
+            if (this._previewSeq !== seq) {
+                return;
+            }
             this.state.preview = { loading: false, data, error: "" };
         } catch (error) {
+            if (this._previewSeq !== seq) {
+                return;
+            }
             this.state.preview = { loading: false, data: null, error: this._errorText(error) };
         }
     }
