@@ -32,7 +32,7 @@ registry.category("web_tour.tours").add("od19_announcement_tour", {
             run: "edit New Company Policy Update",
         },
         {
-            trigger: ".o_field_widget[name='announcement_type'] select",
+            trigger: ".o_field_widget[name='announcement_type'] .o_select_menu_toggler",
             content: markup(_t(
                 "Choose the <b>type</b>: <b>Normal</b> or <b>Mandatory</b> " +
                 "(mandatory announcements force users to acknowledge)."
@@ -40,7 +40,7 @@ registry.category("web_tour.tours").add("od19_announcement_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='target_type'] select",
+            trigger: ".o_field_widget[name='target_type'] .o_select_menu_toggler",
             content: markup(_t(
                 "Choose the <b>target audience</b>: All Users, Specific Department, or Role."
             )),
