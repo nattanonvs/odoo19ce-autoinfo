@@ -218,10 +218,12 @@ class Od19Dashboard(models.Model):
         dashboard.check_access_rule("read")
 
         widgets = []
-        for widget in dashboard.widget_ids.filtered("active").sorted(
-            lambda widget: (widget.sequence, widget.id)
-        ):
-            data = widget._get_widget_data(date_range, date_from, date_to)
+        widget_values = {}
+        for widget in dashboard._compute_order():
+            data = widget._get_widget_data(
+                date_range, date_from, date_to, widget_values=widget_values
+            )
+            widget_values[widget.id] = data.get("value")
             data["config"] = widget._to_config()
             widgets.append(data)
 
@@ -242,6 +244,36 @@ class Od19Dashboard(models.Model):
                 "generated_at": fields.Datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             },
         }
+
+    def _compute_order(self):
+        """Return the active widgets of this dashboard in dependency order.
+
+        A widget is emitted only once every widget it reads has been emitted,
+        so a rule can compare with an already computed value. Sequence (then
+        id) breaks ties, which keeps the visual order stable. A cycle cannot be
+        solved: it is logged and the remaining widgets are emitted in sequence
+        order, which keeps the dashboard usable (fail soft).
+        """
+        self.ensure_one()
+        pending = {widget.id: widget for widget in self.widget_ids.filtered("active")}
+        ordered = []
+        while pending:
+            ready = [
+                widget
+                for widget in pending.values()
+                if all(dependency not in pending for dependency in widget._dependency_ids())
+            ]
+            if not ready:
+                _logger.warning(
+                    "Dashboard %s has a circular widget dependency, falling back to sequence order: %s",
+                    self.id,
+                    sorted(pending),
+                )
+                ready = list(pending.values())
+            for widget in sorted(ready, key=lambda item: (item.sequence, item.id)):
+                ordered.append(widget)
+                pending.pop(widget.id)
+        return ordered
 
     @api.model
     def save_layout(self, dashboard_id, layout):
@@ -515,7 +547,7 @@ class Od19DashboardWidget(models.Model):
     # ------------------------------------------------------------------
     # Data computation
     # ------------------------------------------------------------------
-    def _get_widget_data(self, date_range=None, date_from=None, date_to=None):
+    def _get_widget_data(self, date_range=None, date_from=None, date_to=None, widget_values=None):
         self.ensure_one()
         data = {
             "id": self.id,
@@ -530,6 +562,7 @@ class Od19DashboardWidget(models.Model):
             "grid_h": self.grid_h,
             "sequence": self.sequence,
             "status": "grey",
+            "status_source": "default",
             "value": None,
             "delta": None,
             "series": [],

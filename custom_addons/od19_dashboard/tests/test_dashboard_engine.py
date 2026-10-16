@@ -299,3 +299,76 @@ class TestDashboardRuleEngine(TransactionCase):
         self.assertEqual(self.widget_a._unresolved_names(), ["a"])
         self.widget_a.formula_slots = '{"a": "amount_total"}'
         self.assertEqual(self.widget_a._unresolved_names(), [])
+
+
+class TestDashboardOrdering(TransactionCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.dashboard = cls.env["od19.dashboard"].create({"name": "Ordering dashboard"})
+        cls.source = cls.env.ref("od19_dashboard.source_sale_order")
+        cls.widget_a = cls._make_widget(cls, "Widget A")
+        cls.widget_b = cls._make_widget(cls, "Widget B")
+        cls.widget_c = cls._make_widget(cls, "Widget C")
+
+    def _make_widget(self, name):
+        return self.env["od19.dashboard.widget"].create(
+            {
+                "dashboard_id": self.dashboard.id,
+                "name": name,
+                "widget_type": "kpi",
+                "source_id": self.source.id,
+                "measure_key": "__count",
+            }
+        )
+
+    def test_dependency_ids_from_rule_and_expression(self):
+        self.env["od19.dashboard.widget.rule"].create(
+            {
+                "widget_id": self.widget_a.id,
+                "compare_type": "widget",
+                "compare_widget_id": self.widget_b.id,
+                "status": "green",
+            }
+        )
+        self.widget_c.formula_mode = "custom"
+        self.widget_c.formula_expression = "count_records + widget_%s" % self.widget_a.id
+        self.assertEqual(self.widget_a._dependency_ids(), [self.widget_b.id])
+        self.assertEqual(self.widget_c._dependency_ids(), [self.widget_a.id])
+
+    def test_dependency_ids_never_contains_the_widget_itself(self):
+        self.widget_c.formula_mode = "custom"
+        self.widget_c.formula_expression = "count_records + widget_%s" % self.widget_c.id
+        self.assertEqual(self.widget_c._dependency_ids(), [])
+
+    def test_compute_order_places_dependencies_first(self):
+        self.widget_c.formula_mode = "custom"
+        self.widget_c.formula_expression = "count_records + widget_%s" % self.widget_a.id
+        ordered = self.dashboard._compute_order()
+        self.assertLess(ordered.index(self.widget_a), ordered.index(self.widget_c))
+
+    def test_compute_order_survives_a_cycle(self):
+        self.widget_a.formula_mode = "custom"
+        self.widget_a.formula_expression = "count_records + widget_%s" % self.widget_b.id
+        self.widget_b.formula_mode = "custom"
+        self.widget_b.formula_expression = "count_records + widget_%s" % self.widget_a.id
+        ordered = self.dashboard._compute_order()
+        self.assertEqual(len(ordered), 3)
+
+    def test_get_dashboard_data_returns_every_widget_with_a_cross_widget_rule(self):
+        self.env["od19.dashboard.widget.rule"].create(
+            {
+                "widget_id": self.widget_a.id,
+                "compare_type": "widget",
+                "compare_widget_id": self.widget_b.id,
+                "operator": ">",
+                "status": "green",
+            }
+        )
+        data = self.env["od19.dashboard"].get_dashboard_data(self.dashboard.id)
+        self.assertEqual(len(data["widgets"]), 3)
+        self.assertEqual(
+            {widget["id"] for widget in data["widgets"]},
+            {self.widget_a.id, self.widget_b.id, self.widget_c.id},
+        )
+        self.assertIn("status_source", data["widgets"][0])
