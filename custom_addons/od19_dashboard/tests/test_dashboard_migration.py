@@ -82,7 +82,13 @@ class TestDashboardThresholdMigration(TransactionCase):
         )
 
     def _legacy_widget(self, mode, warning_value, critical_value):
-        """Create a widget and give it threshold values through raw SQL."""
+        """Create a widget holding the values of a pre-upgrade row.
+
+        The threshold columns are only reachable through raw SQL. ``formula_slots``
+        is cleared on purpose as well: it is the only new column that is nullable,
+        so it is the only default ``post-migrate.py`` can really repair, and
+        keeping the ORM value would leave that part of the script untested.
+        """
         widget = self.widget_model.create(
             {
                 "dashboard_id": self.dashboard.id,
@@ -94,7 +100,8 @@ class TestDashboardThresholdMigration(TransactionCase):
         self.env.cr.execute(
             """
             UPDATE od19_dashboard_widget
-               SET threshold_mode = %s, warning_value = %s, critical_value = %s
+               SET threshold_mode = %s, warning_value = %s, critical_value = %s,
+                   formula_slots = NULL
              WHERE id = %s
             """,
             (mode, warning_value, critical_value, widget.id),
@@ -137,12 +144,21 @@ class TestDashboardThresholdMigration(TransactionCase):
                 [rule.compare_value for rule in rules], [critical_value, warning_value]
             )
             self.assertTrue(all(rule.active for rule in rules))
+            # ``formula_mode``, ``formula_basis``, ``delta_basis`` and
+            # ``default_status`` are NOT NULL, so the ORM already filled them
+            # while adding the columns; ``formula_slots`` is nullable and is the
+            # only default ``_set_widget_defaults()`` genuinely has to repair.
             self.assertEqual(widget.default_status, "green")
             self.assertEqual(widget.formula_mode, "measure")
             self.assertEqual(widget.formula_basis, "previous")
             self.assertEqual(widget.delta_basis, "previous")
+            self.assertEqual(widget.formula_slots, "{}")
 
-            for value in (-10.0, 0.0, 49.0, 50.0, 79.0, 80.0, 100.0):
+            # The value list has to reach every band of every mode: 7.0 sits
+            # inside the yellow band of ``lower_is_better`` (5 <= value < 10) and
+            # 10.0 is on its critical boundary, neither of which a list shared by
+            # both modes would otherwise hit.
+            for value in (-10.0, 0.0, 7.0, 10.0, 49.0, 50.0, 79.0, 80.0, 100.0):
                 context = {"value": value, "goal": 0.0, "widget_values": {}, "shifts": {}}
                 self.assertEqual(
                     widget._evaluate_rules(context)[0],
@@ -174,13 +190,20 @@ class TestDashboardThresholdMigration(TransactionCase):
         self._add_legacy_columns()
         widget = self._legacy_widget("higher_is_better", 80.0, 50.0)
 
-        self._run_migration()
-        # A second pass must not duplicate anything: without the backup table
-        # the pre script has nothing to copy and the post script only refreshes
-        # the new column defaults.
+        # The backup runs twice while the legacy column is still present: the
+        # second call has to keep the table it finds instead of failing on
+        # ``CREATE TABLE`` or storing the rows twice.
         self.pre_migrate(self.env.cr, self.installed_version)
+        self.pre_migrate(self.env.cr, self.installed_version)
+        self.env.cr.execute("SELECT count(*) FROM %s" % BACKUP_TABLE)
+        self.assertEqual(self.env.cr.fetchone()[0], 1)
+
+        self._drop_legacy_columns()
         self.post_migrate(self.env.cr, self.installed_version)
-        widget.invalidate_recordset()
+        # A second conversion pass has no backup table left to read, so it must
+        # not duplicate the rules.
+        self.post_migrate(self.env.cr, self.installed_version)
+        self.env.invalidate_all()
 
         self.assertEqual(len(widget.rule_ids), 2)
         self.env.cr.execute("SELECT to_regclass(%s)", (BACKUP_TABLE,))
