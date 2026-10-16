@@ -76,7 +76,6 @@ registry.category("web_tour.tours").add("od19_advance_payment_tour", {
         {
             trigger: ".o_field_widget[name='date'] .o_input",
             content: _t("Set the payment date."),
-            run: "edit 2026-01-15",
         },
         ...stepUtils.saveForm(),
         {

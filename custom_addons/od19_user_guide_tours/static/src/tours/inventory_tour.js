@@ -54,20 +54,20 @@ registry.category("web_tour.tours").add("od19_inventory_operations_tour", {
         {
             trigger: ".o_field_widget[name='partner_id'] input",
             content: _t("Select the customer."),
-            run: "click",
+            run: "edit Tesla",
         },
         {
-            trigger: ".o-autocomplete--dropdown-item",
+            trigger: ".o-autocomplete--dropdown-item:contains('Tesla, Inc.')",
             content: _t("Pick the customer from the suggestion list."),
             run: "click",
         },
         {
             trigger: ".o_field_widget[name='product_id'] input",
             content: _t("Select the product / equipment being serviced."),
-            run: "click",
+            run: "edit Communication",
         },
         {
-            trigger: ".o-autocomplete--dropdown-item",
+            trigger: ".o-autocomplete--dropdown-item:contains('Communication')",
             content: _t("Pick the product from the suggestion list."),
             run: "click",
         },
@@ -128,10 +128,10 @@ registry.category("web_tour.tours").add("od19_inventory_operations_tour", {
         {
             trigger: ".o_field_widget[name='product_id'] input",
             content: _t("Select the product to inspect."),
-            run: "click",
+            run: "edit Communication",
         },
         {
-            trigger: ".o-autocomplete--dropdown-item",
+            trigger: ".o-autocomplete--dropdown-item:contains('Communication')",
             content: _t("Pick the product from the suggestion list."),
             run: "click",
         },
@@ -217,10 +217,10 @@ registry.category("web_tour.tours").add("od19_inventory_operations_tour", {
         {
             trigger: ".o_field_widget[name='driver_id'] input",
             content: _t("Select the driver."),
-            run: "click",
+            run: "edit Administrator",
         },
         {
-            trigger: ".o-autocomplete--dropdown-item",
+            trigger: ".o-autocomplete--dropdown-item:contains('Administrator')",
             content: _t("Pick the driver from the suggestion list."),
             run: "click",
         },

@@ -165,6 +165,11 @@ registry.category("web_tour.tours").add("od19_iso_nonconformity_tour", {
             content: markup(_t("Record the <b>verification result</b>.")),
             run: "edit Verification passed - no recurrence in last 3 batches",
         },
+        {
+            trigger: ".o_field_widget[name='verification_date'] .o_input",
+            content: markup(_t("Set the <b>verification date</b> — it is required before the CAPA can be closed.")),
+            run: "edit 2026-12-15",
+        },
         ...stepUtils.saveForm(),
         {
             trigger: "button[name='action_verification']",

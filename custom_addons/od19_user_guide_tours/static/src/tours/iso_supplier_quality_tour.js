@@ -45,16 +45,11 @@ registry.category("web_tour.tours").add("od19_iso_supplier_quality_tour", {
         },
         {
             trigger: ".o_field_widget[name='partner_id'] input",
-            content: _t("Select the supplier to evaluate."),
-            run: "click",
+            content: _t("Type to search and select the supplier to evaluate."),
+            run: "edit Tesla",
         },
         {
-            trigger: ".o-autocomplete--dropdown-item",
-            run: "click",
-        },
-        {
-            trigger: ".o_field_widget[name='date'] .o_input",
-            content: _t("Set the evaluation date."),
+            trigger: ".o-autocomplete--dropdown-item:contains('Tesla, Inc.')",
             run: "click",
         },
         ...stepUtils.saveForm(),

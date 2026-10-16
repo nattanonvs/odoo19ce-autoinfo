@@ -48,10 +48,10 @@ registry.category("web_tour.tours").add("od19_stock_valuation_tour", {
         {
             trigger: ".o_field_widget[name='product_id'] input",
             content: _t("Select the product to adjust."),
-            run: "click",
+            run: "edit Communication",
         },
         {
-            trigger: ".o-autocomplete--dropdown-item",
+            trigger: ".o-autocomplete--dropdown-item:contains('Communication')",
             content: _t("Pick the product from the suggestion list."),
             run: "click",
         },

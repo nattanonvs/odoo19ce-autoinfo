@@ -44,12 +44,10 @@ registry.category("web_tour.tours").add("od19_thai_tax_reports_tour", {
         {
             trigger: ".o_field_widget[name='date_from'] .o_input, .o_field_widget[name='start_date'] .o_input, .modal .o_datepicker .o_input",
             content: _t("Set the start date of the reporting period."),
-            run: "edit 2026-01-01",
         },
         {
             trigger: ".o_field_widget[name='date_to'] .o_input, .o_field_widget[name='end_date'] .o_input",
             content: _t("Set the end date of the reporting period."),
-            run: "edit 2026-12-31",
         },
         {
             trigger: "button[name='action_print'], button:contains('Print'), button:contains('Generate')",

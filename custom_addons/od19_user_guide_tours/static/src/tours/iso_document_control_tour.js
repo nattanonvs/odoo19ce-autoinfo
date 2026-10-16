@@ -107,29 +107,11 @@ registry.category("web_tour.tours").add("od19_iso_document_control_tour", {
         },
         {
             trigger: ".o_field_widget[name='category_id'] input",
-            content: _t("Select the document category."),
-            run: "click",
+            content: _t("Type to search the document category."),
+            run: "edit ขั้นตอน",
         },
         {
-            trigger: ".o-autocomplete--dropdown-item",
-            run: "click",
-        },
-        {
-            trigger: ".o_field_widget[name='department_id'] input",
-            content: markup(_t("Select the <b>department</b> (its code becomes the document code prefix, e.g. PU, SA, QA, IA).")),
-            run: "click",
-        },
-        {
-            trigger: ".o-autocomplete--dropdown-item",
-            run: "click",
-        },
-        {
-            trigger: ".o_field_widget[name='owner_id'] input",
-            content: _t("Set the document owner."),
-            run: "click",
-        },
-        {
-            trigger: ".o-autocomplete--dropdown-item",
+            trigger: ".o-autocomplete--dropdown-item:contains('ขั้นตอนการทำงาน')",
             run: "click",
         },
         {
@@ -142,41 +124,63 @@ registry.category("web_tour.tours").add("od19_iso_document_control_tour", {
             content: _t("Set the next review date."),
             run: "edit 2027-10-01",
         },
-        // 4-level approval roles
+        // 4-level approval roles: an empty Many2one input shows no usable
+        // suggestion when clicked, so each role is *typed* first and then
+        // picked from the (non-empty) suggestion list.
         {
-            trigger: ".o_field_widget[name='drafter_id'] input",
-            content: markup(_t("Set the <b>Drafter</b> (ผู้จัดทำ).")),
+            trigger: ".o_field_widget[name='owner_id'] input",
+            content: _t("Set the document owner."),
+            run: "edit Administrator",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:contains('Administrator')",
             run: "click",
         },
         {
-            trigger: ".o-autocomplete--dropdown-item",
+            trigger: ".o_field_widget[name='drafter_id'] input",
+            content: markup(_t("Set the <b>Drafter</b> (ผู้จัดทำ).")),
+            run: "edit Administrator",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:contains('Administrator')",
             run: "click",
         },
         {
             trigger: ".o_field_widget[name='reviewer_id'] input",
             content: markup(_t("Set the <b>Reviewer</b> (ผู้ตรวจทาน).")),
-            run: "click",
+            run: "edit Administrator",
         },
         {
-            trigger: ".o-autocomplete--dropdown-item",
+            trigger: ".o-autocomplete--dropdown-item:contains('Administrator')",
             run: "click",
         },
         {
             trigger: ".o_field_widget[name='approver_id'] input",
             content: markup(_t("Set the <b>Approver</b> (ผู้อนุมัติ).")),
-            run: "click",
+            run: "edit Administrator",
         },
         {
-            trigger: ".o-autocomplete--dropdown-item",
+            trigger: ".o-autocomplete--dropdown-item:contains('Administrator')",
             run: "click",
         },
         {
             trigger: ".o_field_widget[name='final_approver_id'] input",
             content: markup(_t("Set the <b>Final Approver</b> (ผู้อนุมัติสุดท้าย).")),
-            run: "click",
+            run: "edit Administrator",
         },
         {
-            trigger: ".o-autocomplete--dropdown-item",
+            trigger: ".o-autocomplete--dropdown-item:contains('Administrator')",
+            run: "click",
+        },
+        // Department last: it recomputes department_code (stored related),
+        // which refreshes the form — keep it after the other selections.
+        {
+            trigger: ".o_field_widget[name='department_id'] input",
+            content: markup(_t("Select the <b>department</b> (its code becomes the document code prefix, e.g. PU, SA, QA, IA).")),
+            run: "edit Administration",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:contains('Administration')",
             run: "click",
         },
         ...stepUtils.saveForm(),

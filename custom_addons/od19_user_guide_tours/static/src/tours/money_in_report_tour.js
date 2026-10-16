@@ -40,12 +40,10 @@ registry.category("web_tour.tours").add("od19_money_in_report_tour", {
         {
             trigger: ".o_field_widget[name='date_from'] .o_input",
             content: _t("Set the start date of the analysis period."),
-            run: "edit 2026-01-01",
         },
         {
             trigger: ".o_field_widget[name='date_to'] .o_input",
             content: _t("Set the end date of the analysis period."),
-            run: "edit 2026-12-31",
         },
         {
             trigger: ".o_field_widget[name='phase'] .o_select_menu_toggler",
@@ -57,7 +55,7 @@ registry.category("web_tour.tours").add("od19_money_in_report_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='job_type_values'] input",
+            trigger: ".o_field_widget[name='job_type_values'] .o_select_menu_toggler",
             content: markup(_t("Filter by <b>job type</b> (optional).")),
             run: "click",
         },

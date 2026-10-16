@@ -44,23 +44,16 @@ registry.category("web_tour.tours").add("od19_iso_customer_satisfaction_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='name'] input",
-            content: _t("Enter the survey name."),
-            run: "edit Customer Satisfaction Survey Q4 2026",
-        },
-        {
             trigger: ".o_field_widget[name='partner_id'] input",
-            content: _t("Select the customer."),
-            run: "click",
+            content: markup(_t(
+                "Select the <b>customer</b>. The survey number and the survey " +
+                "date (today) are set automatically when the record is saved."
+            )),
+            run: "edit The Auto-Info",
         },
         {
-            trigger: ".o-autocomplete--dropdown-item",
+            trigger: ".o-autocomplete--dropdown-item:contains('The Auto-Info')",
             run: "click",
-        },
-        {
-            trigger: ".o_field_widget[name='date'] .o_input",
-            content: _t("Set the survey date."),
-            run: "edit 2026-10-15",
         },
         ...stepUtils.saveForm(),
 
