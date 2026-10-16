@@ -10,7 +10,7 @@
         <field name="inherit_id" ref="purchase.report_purchaseorder_document"/>
         <field name="arch" type="xml">
             <xpath expr="//div[@id='informations']" position="inside">
-                <div t-if="o.od19_is_revision" class="col-2 bm-2">
+                <div t-if="o.od19_is_revision" class="col-2 mb-2">
                     <strong>Revision:</strong>
                     <p class="m-0" t-out="'R%02d' % o.od19_revision_no"/>
                 </div>
