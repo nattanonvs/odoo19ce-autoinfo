@@ -200,29 +200,48 @@ class TestDashboardRuleEngine(TransactionCase):
     def test_evaluate_rules_first_match_wins(self):
         self._rule(sequence=10, operator="<=", compare_value=100.0, status="red")
         self._rule(sequence=20, operator="<=", compare_value=500.0, status="yellow")
-        status, source = self.widget_a._evaluate_rules({"value": 50.0})
+        status, source, message = self.widget_a._evaluate_rules({"value": 50.0})
         self.assertEqual(status, "red")
         self.assertEqual(source, "rule")
+        self.assertEqual(message, "")
 
     def test_evaluate_rules_continues_when_rule_does_not_match(self):
         self._rule(sequence=10, operator="<=", compare_value=10.0, status="red")
         self._rule(sequence=20, operator="<=", compare_value=500.0, status="yellow")
-        status, source = self.widget_a._evaluate_rules({"value": 50.0})
+        status, source, _message = self.widget_a._evaluate_rules({"value": 50.0})
         self.assertEqual((status, source), ("yellow", "rule"))
+
+    def test_evaluate_rules_carries_the_alert_message(self):
+        self._rule(
+            sequence=10,
+            operator="<=",
+            compare_value=100.0,
+            status="red",
+            alert_message="Below the minimum",
+        )
+        status, _source, message = self.widget_a._evaluate_rules({"value": 50.0})
+        self.assertEqual(status, "red")
+        self.assertEqual(message, "Below the minimum")
 
     def test_evaluate_rules_falls_back_to_default_status(self):
         self.widget_a.default_status = "grey"
-        self.assertEqual(self.widget_a._evaluate_rules({"value": 50.0}), ("grey", "default"))
+        self.assertEqual(
+            self.widget_a._evaluate_rules({"value": 50.0}), ("grey", "default", "")
+        )
 
     def test_evaluate_rules_skips_inactive_rules(self):
         self._rule(compare_value=100.0, status="red", active=False)
         self.widget_a.default_status = "green"
-        self.assertEqual(self.widget_a._evaluate_rules({"value": 50.0}), ("green", "default"))
+        self.assertEqual(
+            self.widget_a._evaluate_rules({"value": 50.0}), ("green", "default", "")
+        )
 
     def test_evaluate_rules_ignores_none_value(self):
         self._rule(compare_value=100.0, status="red")
         self.widget_a.default_status = "grey"
-        self.assertEqual(self.widget_a._evaluate_rules({"value": None}), ("grey", "default"))
+        self.assertEqual(
+            self.widget_a._evaluate_rules({"value": None}), ("grey", "default", "")
+        )
 
     def test_required_shifts_collects_delta_rules_and_formula(self):
         self.widget_a.write(
@@ -557,6 +576,37 @@ class TestDashboardPreview(TransactionCase):
         self.assertEqual(result["status"], "yellow")
         self.assertEqual(result["status_source"], "rule")
 
+    def test_preview_reports_the_alert_message(self):
+        """Phase 2, item 2: the matching rule carries a message to display."""
+        result = self._preview(
+            rule_ids=[
+                (0, 0, {
+                    "operator": ">=",
+                    "compare_type": "constant",
+                    "compare_value": -1,
+                    "status": "red",
+                    "alert_message": "Amount out of range",
+                }),
+            ],
+        )
+        self.assertEqual(result["status"], "red")
+        self.assertEqual(result["status_message"], "Amount out of range")
+
+    def test_preview_reports_a_hidden_widget(self):
+        """Phase 2, item 1: a false condition hides the widget."""
+        hidden = self._preview(
+            formula_mode="custom",
+            formula_expression="count_records",
+            visible_expression="count_records < 0",
+        )
+        self.assertFalse(hidden["visible"])
+        shown = self._preview(
+            formula_mode="custom",
+            formula_expression="count_records",
+            visible_expression="count_records >= 0",
+        )
+        self.assertTrue(shown["visible"])
+
     def test_preview_refuses_a_broken_formula(self):
         with self.assertRaises(ValidationError):
             self._preview(formula_mode="custom", formula_expression="__import__('os').system('dir')")
@@ -812,6 +862,88 @@ class TestDashboardAcceptance(TransactionCase):
         self.assertEqual(values[source_widget.id], 1)
         self.assertEqual(values[reader_widget.id], 2)
 
+    def test_a_rule_may_read_a_widget_of_another_dashboard(self):
+        """Phase 2, item 6: a cross-dashboard widget is resolved lazily."""
+        other = self.env["od19.dashboard"].create({"name": "Foreign acceptance dashboard"})
+        foreign = self.env["od19.dashboard.widget"].create(
+            dict(
+                self._values(
+                    name="Foreign source",
+                    formula_mode="custom",
+                    formula_expression="count_records",
+                ),
+                dashboard_id=other.id,
+            )
+        )
+        reader = self.env["od19.dashboard.widget"].create(
+            self._values(
+                name="Cross dashboard reader",
+                formula_mode="custom",
+                formula_expression="widget_%s * 10" % foreign.id,
+            )
+        )
+        data = self.env["od19.dashboard"].get_dashboard_data(
+            self.dashboard.id, date_range="this_month"
+        )
+        values = {widget["id"]: widget["value"] for widget in data["widgets"]}
+        # The foreign widget belongs to another dashboard, so it must not be
+        # emitted, but its value still has to reach the reader's formula.
+        self.assertNotIn(foreign.id, values)
+        self.assertEqual(values[reader.id], 10)
+
+    def test_chart_buckets_carry_their_own_status(self):
+        """Phase 2, item 4: every bar of a chart is coloured by its own status."""
+        widget = self.env["od19.dashboard.widget"].create(
+            self._values(name="Bucket chart", widget_type="bar", groupby_key="state", limit=50)
+        )
+        self.env["od19.dashboard.widget.rule"].create(
+            {
+                "widget_id": widget.id,
+                "operator": ">=",
+                "compare_type": "constant",
+                "compare_value": 0.0,
+                "status": "red",
+                "alert_message": "Bucket alert",
+            }
+        )
+        data = widget._get_widget_data(date_range="this_month")
+        self.assertTrue(data["series"])
+        for bucket in data["series"]:
+            self.assertEqual(bucket["status"], "red")
+            self.assertEqual(bucket["color"], "#9E2424")
+            self.assertEqual(bucket["message"], "Bucket alert")
+        # The widget status is the most severe bucket status.
+        self.assertEqual(data["status"], "red")
+        self.assertEqual(data["status_source"], "rule")
+        self.assertEqual(data["status_message"], "Bucket alert")
+
+    def test_list_rows_carry_their_own_status(self):
+        """Phase 2, item 3: every row of a list is coloured by its own status."""
+        widget = self.env["od19.dashboard.widget"].create(
+            self._values(
+                name="Status list",
+                widget_type="list",
+                measure_key="amount_total",
+                limit=5,
+            )
+        )
+        self.env["od19.dashboard.widget.rule"].create(
+            {
+                "widget_id": widget.id,
+                "operator": ">=",
+                "compare_type": "constant",
+                "compare_value": 0.0,
+                "status": "yellow",
+            }
+        )
+        data = widget._get_widget_data(date_range="this_month")
+        self.assertTrue(data["rows"])
+        for row in data["rows"]:
+            self.assertEqual(row["status"], "yellow")
+            self.assertEqual(row["color"], "#B7791F")
+        self.assertEqual(data["status"], "yellow")
+        self.assertEqual(data["status_source"], "rule")
+
     def test_cycle_is_refused_on_save(self):
         widget_a = self.env["od19.dashboard.widget"].create(
             self._values(name="Cycle A", formula_mode="custom", formula_expression="count_records")
@@ -949,3 +1081,145 @@ class TestDashboardAcceptance(TransactionCase):
             one_slot,
             "Four operand slots must reuse the aggregation of a single slot.",
         )
+
+
+class TestDashboardFormulaLibrary(TransactionCase):
+    """Phase 2, item 5: reusable named formulas and cross-source slots."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.dashboard = cls.env["od19.dashboard"].create({"name": "Library dashboard"})
+        cls.source = cls.env.ref("od19_dashboard.source_sale_order")
+        cls.formula = cls.env["od19.dashboard.formula"].create(
+            {"name": "Invoice rate", "expression": "invoices / orders * 100"}
+        )
+
+    def _widget(self, **values):
+        base = {
+            "dashboard_id": self.dashboard.id,
+            "name": "Library widget",
+            "widget_type": "kpi",
+            "source_id": self.source.id,
+            "measure_key": "__count",
+        }
+        base.update(values)
+        return self.env["od19.dashboard.widget"].create(base)
+
+    def test_formula_meta_exposes_its_names(self):
+        meta = self.formula._to_meta()
+        self.assertEqual(meta["name"], "Invoice rate")
+        self.assertEqual(meta["expression"], "invoices / orders * 100")
+        self.assertEqual(meta["names"], ["invoices", "orders"])
+
+    def test_library_mode_evaluates_the_named_formula(self):
+        widget = self._widget(
+            formula_mode="library",
+            formula_id=self.formula.id,
+            formula_slots=json.dumps({"invoices": "amount_total", "orders": "__count"}),
+        )
+        self.assertEqual(widget._effective_expression(), "invoices / orders * 100")
+        # A library formula names its own slots: any identifier is accepted.
+        self.assertEqual(sorted(widget._formula_slot_map()), ["invoices", "orders"])
+        self.assertEqual(
+            widget._aggregate_requests(),
+            [
+                ("invoices", "amount_total", "amount_total:sum"),
+                ("orders", "__count", "__count"),
+            ],
+        )
+
+    def test_library_mode_requires_a_selected_formula(self):
+        with self.assertRaises(ValidationError):
+            self._widget(formula_mode="library")
+
+    def test_library_mode_rejects_an_unbound_name(self):
+        with self.assertRaises(ValidationError):
+            self._widget(
+                formula_mode="library",
+                formula_id=self.formula.id,
+                formula_slots=json.dumps({"invoices": "amount_total"}),
+            )
+
+    def test_cross_source_slot_is_read_outside_the_widget_domain(self):
+        purchase = self.env.ref("od19_dashboard.source_purchase_order")
+        widget = self._widget(
+            formula_mode="library",
+            formula_id=self.formula.id,
+            formula_slots=json.dumps(
+                {
+                    "invoices": {"source_id": purchase.id, "measure_key": "amount_total"},
+                    "orders": "__count",
+                }
+            ),
+        )
+        # A slot bound to another source is not read by the single aggregation
+        # of the widget: it is resolved through ``_external_slot_values()``.
+        self.assertNotIn(
+            "invoices", [request[0] for request in widget._aggregate_requests()]
+        )
+        external = widget._external_slot_values()
+        self.assertIn("invoices", external)
+        rows = self.env["purchase.order"]._read_group([], [], ["amount_total:sum"])
+        expected = rows[0][0] if rows else 0.0
+        self.assertEqual(external["invoices"], expected)
+
+
+class TestDashboardVisibility(TransactionCase):
+    """Phase 2, item 1: conditional display through ``visible_expression``."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.dashboard = cls.env["od19.dashboard"].create({"name": "Visibility dashboard"})
+        cls.source = cls.env.ref("od19_dashboard.source_sale_order")
+
+    def _widget(self, **values):
+        base = {
+            "dashboard_id": self.dashboard.id,
+            "name": "Visibility widget",
+            "widget_type": "kpi",
+            "source_id": self.source.id,
+            "measure_key": "__count",
+        }
+        base.update(values)
+        return self.env["od19.dashboard.widget"].create(base)
+
+    def test_empty_condition_keeps_the_widget_visible(self):
+        widget = self._widget()
+        self.assertTrue(widget._is_visible({"value": 0.0}))
+
+    def test_condition_hides_the_widget_when_it_is_false(self):
+        widget = self._widget(visible_expression="value > 0")
+        self.assertFalse(widget._is_visible({"value": 0.0}))
+        self.assertTrue(widget._is_visible({"value": 1.0}))
+
+    def test_condition_that_raises_fails_open(self):
+        # ``count_records`` is zero when the period is empty: the condition
+        # divides by zero and must leave the widget visible rather than hide it
+        # silently.
+        widget = self._widget(
+            visible_expression="value / count_records > 1",
+        )
+        self.assertTrue(widget._is_visible({"value": 1.0, "count_records": 0}))
+
+    def test_validate_rejects_an_unknown_name(self):
+        with self.assertRaises(ValidationError):
+            self._widget(visible_expression="secret > 0")
+
+    def test_visibility_context_exposes_the_operands(self):
+        widget = self._widget(
+            formula_mode="custom",
+            formula_expression="amount_total",
+            visible_expression="amount_total > 0",
+        )
+        context = widget._visibility_context(
+            {
+                "value": 5.0,
+                "record_count": 3,
+                "operands": [{"alias": "amount_total", "value": 5.0}],
+            }
+        )
+        self.assertEqual(context["value"], 5.0)
+        self.assertEqual(context["amount_total"], 5.0)
+        self.assertEqual(context["count_records"], 3)

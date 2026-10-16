@@ -1,7 +1,7 @@
 {
     "name": "OD19 Dashboard Builder",
     "author": "OD19",
-    "version": "19.0.2.0.0",
+    "version": "19.0.3.0.0",
     "category": "Productivity",
     "summary": "Role-based dashboards with an in-browser drag & drop builder",
     "description": """
@@ -27,6 +27,12 @@ Features
   ``safe_eval``, and per-group evaluation on bar / line / pie charts.
 * Live preview in the builder shows the resulting value and the number of
   records the widget would collect before the widget is saved.
+* Reusable named formulas (``od19.dashboard.formula``) picked from the
+  library and slotted per widget, including measures read across data sources.
+* Conditional display (a widget hides itself when its condition is false) and
+  alert messages carried by a status rule.
+* Status rules are evaluated per chart bucket and per list row, so every bar,
+  line point, pie slice and row is coloured by its own status.
 * Data is read only from a curated whitelist of models and measures
   (``od19.dashboard.source``) so no arbitrary model can be queried.
 """,

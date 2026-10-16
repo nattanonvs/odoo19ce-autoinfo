@@ -33,6 +33,8 @@ class TestDashboardRules(TransactionCase):
             "formula_type",
             "formula_slots",
             "formula_expression",
+            "formula_id",
+            "visible_expression",
             "formula_basis",
             "delta_basis",
             "default_status",
@@ -67,7 +69,8 @@ class TestDashboardRules(TransactionCase):
                 }
             )
 
-    def test_rule_rejects_cross_dashboard_widget(self):
+    def test_rule_accepts_cross_dashboard_widget(self):
+        """A rule may compare with a widget of another dashboard (phase 2, item 6)."""
         other = self.env["od19.dashboard"].create({"name": "Other dashboard"})
         other_widget = self.env["od19.dashboard.widget"].create(
             {
@@ -78,15 +81,25 @@ class TestDashboardRules(TransactionCase):
                 "measure_key": "__count",
             }
         )
-        with self.assertRaises(ValidationError):
-            self.env["od19.dashboard.widget.rule"].create(
-                {
-                    "widget_id": self.widget_a.id,
-                    "compare_type": "widget",
-                    "compare_widget_id": other_widget.id,
-                    "status": "red",
-                }
-            )
+        rule = self.env["od19.dashboard.widget.rule"].create(
+            {
+                "widget_id": self.widget_a.id,
+                "compare_type": "widget",
+                "compare_widget_id": other_widget.id,
+                "status": "red",
+            }
+        )
+        self.assertEqual(rule.compare_widget_id, other_widget)
+
+    def test_rule_exposes_the_alert_message(self):
+        rule = self.env["od19.dashboard.widget.rule"].create(
+            {
+                "widget_id": self.widget_a.id,
+                "status": "red",
+                "alert_message": "Sales below target",
+            }
+        )
+        self.assertEqual(rule._to_values()["alert_message"], "Sales below target")
 
     def test_rule_requires_widget_target(self):
         with self.assertRaises(ValidationError):
@@ -146,7 +159,7 @@ class TestDashboardBuilderMeta(TransactionCase):
         self.assertNotIn("threshold_modes", meta)
         self.assertEqual(
             [item["key"] for item in meta["formula_modes"]],
-            ["measure", "preset", "custom"],
+            ["measure", "preset", "custom", "library"],
         )
         formula_types = {item["key"]: item for item in meta["formula_types"]}
         self.assertIn("ratio", formula_types)
@@ -201,6 +214,8 @@ class TestDashboardBuilderMeta(TransactionCase):
             "formula_type",
             "formula_slots",
             "formula_expression",
+            "formula_id",
+            "visible_expression",
             "formula_basis",
             "delta_basis",
             "default_status",

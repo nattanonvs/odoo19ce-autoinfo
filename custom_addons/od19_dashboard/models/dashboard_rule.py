@@ -1,5 +1,5 @@
 from odoo import _, api, fields, models
-from odoo.exceptions import ValidationError
+from odoo.exceptions import AccessError, ValidationError
 
 #: Operators allowed in the left-hand comparison of a status rule.
 OPERATORS = [
@@ -71,22 +71,42 @@ class Od19DashboardWidgetRule(models.Model):
         string="Compare with",
     )
     status = fields.Selection(selection=STATUSES, required=True, default="red")
+    alert_message = fields.Char(
+        help="Message shown on the widget when this rule matches a bucket or the widget value.",
+    )
 
     @api.constrains("widget_id", "compare_widget_id")
     def _check_compare_widget(self):
+        """Refuse a self reference; allow a widget of another dashboard.
+
+        Comparing with a widget of another dashboard is a cross dashboard
+        value (spec phase 2, section 6). The two dashboards must belong to the
+        same company and the user must be able to read the target, otherwise
+        the comparison could never be resolved.
+        """
         for rule in self:
             if not rule.compare_widget_id or not rule.widget_id:
                 continue
+            label = rule.name or rule.id
             if rule.compare_widget_id == rule.widget_id:
                 raise ValidationError(
-                    _("A status rule cannot compare a widget with itself (rule: %s).")
-                    % (rule.name or rule.id)
+                    _("A status rule cannot compare a widget with itself (rule: %s).") % label
                 )
-            if rule.compare_widget_id.dashboard_id != rule.widget_id.dashboard_id:
+            target = rule.compare_widget_id
+            source = rule.widget_id
+            if target.dashboard_id.company_id != source.dashboard_id.company_id:
                 raise ValidationError(
-                    _("A status rule can only compare widgets of the same dashboard (rule: %s).")
-                    % (rule.name or rule.id)
+                    _("A status rule can only compare widgets of the same company (rule: %s).")
+                    % label
                 )
+            try:
+                target.check_access_rights("read")
+                target.dashboard_id.check_access_rights("read")
+            except AccessError as error:
+                raise ValidationError(
+                    _("You cannot read the widget '%(widget)s' this rule compares with (rule: %(rule)s).")
+                    % {"widget": target.display_name, "rule": label}
+                ) from error
 
     @api.constrains("compare_type", "compare_widget_id", "compare_percent")
     def _check_compare_target(self):
@@ -128,6 +148,7 @@ class Od19DashboardWidgetRule(models.Model):
             "compare_percent": self.compare_percent,
             "compare_widget_id": self.compare_widget_id.id,
             "status": self.status,
+            "alert_message": self.alert_message or "",
         }
 
     def _compare_operand(self, context):

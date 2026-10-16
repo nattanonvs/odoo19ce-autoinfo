@@ -112,7 +112,8 @@
                 </div>
                 <div t-else="" class="od19-grid">
                     <article t-foreach="state.widgets" t-as="widget" t-key="widget.id"
-                             t-attf-class="od19-widget od19-widget--{{ widget.widget_type }} od19-status-{{ widget.status }} {{ state.editMode ? 'od19-widget--editable' : '' }} {{ state.dragWidgetId === widget.id ? 'od19-widget--dragging' : '' }}"
+                             t-if="!widget.hidden or state.editMode"
+                             t-attf-class="od19-widget od19-widget--{{ widget.widget_type }} od19-status-{{ widget.status }} {{ widget.hidden ? 'od19-widget--hidden' : '' }} {{ state.editMode ? 'od19-widget--editable' : '' }} {{ state.dragWidgetId === widget.id ? 'od19-widget--dragging' : '' }}"
                              t-attf-style="grid-column: span {{ widget.grid_w }}; grid-row: span {{ widget.grid_h }}; {{ widget.color ? '--od19-widget-accent: ' + widget.color + ';' : '' }}"
                              t-att-draggable="state.editMode ? 'true' : 'false'"
                              t-on-dragstart="(ev) => this.onDragStart(ev, widget)"
@@ -141,7 +142,17 @@
                             </div>
                         </div>
 
+                        <div class="od19-widget__alert" role="alert"
+                             t-if="!widget.hidden and widget.alert_text">
+                            <i class="fa fa-exclamation-triangle me-1"/>
+                            <t t-esc="widget.alert_text"/>
+                        </div>
+
                         <div class="od19-widget__body">
+                            <div class="od19-widget__hidden-note" t-if="widget.hidden">
+                                <i class="fa fa-eye-slash me-1"/>Hidden by its visibility condition
+                            </div>
+                            <t t-else="">
 
                             <!-- KPI widget -->
                             <t t-if="widget.widget_type === 'kpi'">
@@ -173,11 +184,12 @@
 
                             <t t-elif="widget.widget_type === 'bar'">
                                 <div class="od19-bars" t-if="widget.bars and widget.bars.length">
-                                    <div class="od19-bar" t-foreach="widget.bars" t-as="bar" t-key="bar_index">
+                                    <div class="od19-bar" t-foreach="widget.bars" t-as="bar" t-key="bar_index"
+                                         t-att-title="bar.message">
                                         <span class="od19-bar__label" t-esc="bar.label"/>
                                         <span class="od19-bar__track">
                                             <span class="od19-bar__fill"
-                                                  t-attf-style="width: {{ bar.width }}%;"/>
+                                                  t-attf-style="width: {{ bar.width }}%; {{ bar.color ? 'background: ' + bar.color + ';' : '' }}"/>
                                         </span>
                                         <span class="od19-bar__value" t-esc="bar.text"/>
                                     </div>
@@ -192,8 +204,9 @@
                                                   t-att-points="widget.line.points"/>
                                         <circle t-foreach="widget.line.dots" t-as="dot" t-key="dot.key"
                                                 class="od19-line__dot"
+                                                t-attf-style="{{ dot.color ? 'fill: ' + dot.color + ';' : '' }}"
                                                 t-att-cx="dot.x" t-att-cy="dot.y" r="1.8">
-                                            <title><t t-esc="dot.label"/>: <t t-esc="dot.text"/></title>
+                                            <title><t t-esc="dot.label"/>: <t t-esc="dot.text"/> <t t-if="dot.message" t-esc="dot.message"/></title>
                                         </circle>
                                     </svg>
                                     <div class="od19-line__labels">
@@ -225,7 +238,9 @@
                             <t t-elif="widget.widget_type === 'list'">
                                 <table class="od19-list" t-if="widget.rows and widget.rows.length">
                                     <tbody>
-                                        <tr t-foreach="widget.rows" t-as="row" t-key="row.id">
+                                        <tr t-foreach="widget.rows" t-as="row" t-key="row.id"
+                                            t-attf-class="od19-list__row od19-status-{{ row.status }}"
+                                            t-att-title="row.message">
                                             <td class="od19-list__label" t-esc="row.label"/>
                                             <td class="od19-list__extra" t-esc="row.extra"/>
                                             <td class="od19-list__value"
@@ -238,6 +253,7 @@
                             <p class="od19-widget__message"
                                t-if="widget.message and !(widget.widget_type === 'kpi' and widget.value !== null)"
                                t-esc="widget.message"/>
+                            </t>
                         </div>
 
                         <footer class="od19-widget__editbar"

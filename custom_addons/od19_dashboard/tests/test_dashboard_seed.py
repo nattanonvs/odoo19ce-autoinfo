@@ -105,7 +105,7 @@ class TestDashboardSeedData(TransactionCase):
         # value, expected status, expected status source.
         cases = [(50.0, "red", "rule"), (90.0, "yellow", "rule"), (120.0, "green", "default")]
         for value, expected_status, expected_source in cases:
-            status, source = widget._evaluate_rules({"value": value})
+            status, source, _message = widget._evaluate_rules({"value": value})
             message = "Revenue vs Goal at %s" % value
             self.assertEqual(status, expected_status, message)
             # "green" is never seeded as a rule, it is the default fallback.

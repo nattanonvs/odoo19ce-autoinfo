@@ -28,6 +28,8 @@ const DEFAULT_CONFIG = {
     formula_type: null,
     formula_slots: "{}",
     formula_expression: "",
+    formula_id: false,
+    visible_expression: "",
     formula_basis: "previous",
     delta_basis: "previous",
     default_status: "green",
@@ -192,6 +194,21 @@ export class BuilderDialog extends Component {
         return this.state.draft.formula_mode === "custom";
     }
 
+    get isLibraryFormula() {
+        return this.state.draft.formula_mode === "library";
+    }
+
+    /** Reusable formulas shared with the other widgets of the company. */
+    get formulaLibrary() {
+        return this.props.meta.formulas || [];
+    }
+
+    get selectedLibraryFormula() {
+        return (
+            this.formulaLibrary.find((item) => item.id === this.state.draft.formula_id) || null
+        );
+    }
+
     get selectedFormula() {
         return (
             this.formulaTypes.find((item) => item.key === this.state.draft.formula_type) || null
@@ -303,6 +320,16 @@ export class BuilderDialog extends Component {
         return match ? match.label : data.status;
     }
 
+    get previewStatusMessage() {
+        const data = this.state.preview.data;
+        return data ? data.status_message || "" : "";
+    }
+
+    get previewVisible() {
+        const data = this.state.preview.data;
+        return data ? data.visible !== false : true;
+    }
+
     get previewOperands() {
         const data = this.state.preview.data;
         if (!data) {
@@ -402,7 +429,18 @@ export class BuilderDialog extends Component {
                 draft.formula_type = first.key;
             }
         }
+        if (draft.formula_mode === "library" && !draft.formula_id) {
+            const first = this.formulaLibrary[0];
+            if (first) {
+                draft.formula_id = first.id;
+            }
+        }
         this.state.error = "";
+        this._schedulePreview();
+    }
+
+    onFormulaSelect(ev) {
+        this.state.draft.formula_id = parseInt(ev.target.value, 10) || false;
         this._schedulePreview();
     }
 
@@ -468,6 +506,7 @@ export class BuilderDialog extends Component {
                 compare_percent: 0,
                 compare_widget_id: this.widgetOptions.length ? this.widgetOptions[0].id : false,
                 status: this.statuses.length ? this.statuses[0].key : "red",
+                alert_message: "",
             },
         ];
         this._schedulePreview();
@@ -675,6 +714,7 @@ export class BuilderDialog extends Component {
                 compare_percent: Number(rule.compare_percent) || 0,
                 compare_widget_id: rule.compare_widget_id || false,
                 status: rule.status,
+                alert_message: rule.alert_message || "",
             };
             commands.push(rule.id ? [1, rule.id, data] : [0, 0, data]);
         }

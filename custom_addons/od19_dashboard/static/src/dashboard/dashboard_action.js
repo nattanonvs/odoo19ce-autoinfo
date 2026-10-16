@@ -44,6 +44,7 @@ export class DashboardAction extends Component {
             widgets: [],
             meta: {
                 sources: [],
+                formulas: [],
                 widget_types: [],
                 value_formats: [],
                 formula_modes: [],
@@ -51,6 +52,7 @@ export class DashboardAction extends Component {
                 compare_types: [],
                 operators: [],
                 statuses: [],
+                status_colors: {},
                 period_bases: [],
                 date_ranges: [],
                 audiences: [],
@@ -372,6 +374,10 @@ export class DashboardAction extends Component {
                 widget.goal_value > 0 && widget.value !== null
                     ? Math.min(100, Math.round((widget.value / widget.goal_value) * 100))
                     : null;
+            // Phase 2: the visibility condition may hide the widget, and the
+            // rule that decided the colour may carry an alert message.
+            widget.hidden = widget.visible === false;
+            widget.alert_text = widget.status_message || "";
             if (widget.widget_type === "bar") {
                 widget.bars = this._bars(widget);
             } else if (widget.widget_type === "line") {
@@ -415,6 +421,10 @@ export class DashboardAction extends Component {
             label: item.label,
             text: this._format(item.value, widget.value_format),
             width: Math.round((Math.abs(item.value) / factor) * 100),
+            // Conditional formatting: the server decides the colour of a bucket.
+            color: item.color || "",
+            status: item.status || "",
+            message: item.message || "",
         }));
     }
 
@@ -434,6 +444,9 @@ export class DashboardAction extends Component {
             y: (38 - ((item.value - min) / span) * 34).toFixed(2),
             label: item.label,
             text: this._format(item.value, widget.value_format),
+            color: item.color || "",
+            status: item.status || "",
+            message: item.message || "",
         }));
         return {
             points: dots.map((dot) => `${dot.x},${dot.y}`).join(" "),
@@ -458,7 +471,10 @@ export class DashboardAction extends Component {
                 label: item.label,
                 text: this._format(item.value, widget.value_format),
                 pct: Math.round((Math.abs(item.value) / total) * 100),
-                color: PIE_PALETTE[index % PIE_PALETTE.length],
+                // A status rule may colour the slice; the palette is the fallback.
+                color: item.color || PIE_PALETTE[index % PIE_PALETTE.length],
+                status: item.status || "",
+                message: item.message || "",
                 path: `M20 20 L${x1} ${y1} A18 18 0 ${largeArc} 1 ${x2} ${y2} Z`,
             };
         });

@@ -51,6 +51,7 @@ FORMULA_MODES = [
     ("measure", "Single measure"),
     ("preset", "Preset formula"),
     ("custom", "Custom expression"),
+    ("library", "Library formula"),
 ]
 
 #: Preset formulas whose slot list is filled by the designer (a, b, c, d, e).
@@ -69,6 +70,17 @@ STATUS_SELECTION = [
     ("green", "Green"),
     ("grey", "Grey"),
 ]
+
+#: Colours the client paints the chart buckets and the list rows with.
+STATUS_COLORS = {
+    "red": "#9E2424",
+    "yellow": "#B7791F",
+    "green": "#2E7D32",
+    "grey": "#6B7280",
+}
+
+#: Severity of a bucket status; the widget keeps the most severe one.
+STATUS_SEVERITY = {"grey": 0, "green": 1, "yellow": 2, "red": 3}
 
 # Grid limits shared with the front-end builder.
 MIN_GRID_W, MAX_GRID_W = 2, 12
@@ -190,9 +202,11 @@ class Od19Dashboard(models.Model):
     def get_builder_meta(self):
         """Return everything the builder dialog needs to render its forms."""
         sources = self.env["od19.dashboard.source"].search([("active", "=", True)])
+        formulas = self.env["od19.dashboard.formula"].search([("active", "=", True)])
         company = self.env.company
         return {
             "sources": [source._to_meta() for source in sources],
+            "formulas": [formula._to_meta() for formula in formulas],
             "widget_types": [{"key": key, "label": label} for key, label in WIDGET_TYPES],
             "value_formats": [{"key": key, "label": label} for key, label in VALUE_FORMATS],
             "formula_modes": [{"key": key, "label": label} for key, label in FORMULA_MODES],
@@ -209,6 +223,7 @@ class Od19Dashboard(models.Model):
             "compare_types": [{"key": key, "label": label} for key, label in COMPARE_TYPES],
             "operators": [{"key": key, "label": label} for key, label in OPERATORS],
             "statuses": [{"key": key, "label": label} for key, label in STATUS_SELECTION],
+            "status_colors": dict(STATUS_COLORS),
             "period_bases": [{"key": key, "label": label} for key, label in FORMULA_BASIS],
             "date_ranges": [{"key": key, "label": label} for key, label in DATE_RANGES],
             "audiences": [{"key": key, "label": label} for key, label in AUDIENCES],
@@ -232,6 +247,7 @@ class Od19Dashboard(models.Model):
         widgets = []
         widget_values = {}
         for widget in dashboard._compute_order():
+            dashboard._resolve_dependency_values(widget, widget_values)
             data = widget._get_widget_data(
                 date_range, date_from, date_to, widget_values=widget_values
             )
@@ -287,14 +303,66 @@ class Od19Dashboard(models.Model):
                 pending.pop(widget.id)
         return ordered
 
+    def _dependency_closure(self):
+        """Return every active widget reachable from this dashboard.
+
+        A status rule may compare with a widget of another dashboard (spec
+        phase 2, section 6), so the graph is not limited to ``widget_ids``. The
+        closure is what ``_check_no_cycle()`` sorts to spot a loop. An archived
+        widget is left out: it is no longer part of the live graph, so the
+        widgets reading it can settle again.
+        """
+        self.ensure_one()
+        closure = {}
+        pending = list(self.widget_ids.filtered("active"))
+        while pending:
+            widget = pending.pop()
+            if widget.id in closure:
+                continue
+            closure[widget.id] = widget
+            for dependency_id in widget._dependency_ids():
+                if dependency_id in closure:
+                    continue
+                other = self.env["od19.dashboard.widget"].browse(dependency_id).exists()
+                if other and other.active:
+                    pending.append(other)
+        return closure
+
+    def _resolve_dependency_values(self, widget, widget_values, stack=None):
+        """Fill ``widget_values`` with the value of every widget ``widget`` reads.
+
+        A dependency of another dashboard cannot be reached by
+        ``_compute_order()`` (it is not part of this dashboard), so it is
+        computed here, lazily and recursively. ``stack`` guards a cross
+        dashboard loop: a widget already being resolved falls back to ``None``
+        (fail soft) instead of looping forever.
+        """
+        self.ensure_one()
+        stack = set(stack or ())
+        stack.add(widget.id)
+        for dependency_id in widget._dependency_ids():
+            if dependency_id in widget_values or dependency_id in stack:
+                widget_values.setdefault(dependency_id, None)
+                continue
+            other = self.env["od19.dashboard.widget"].browse(dependency_id).exists()
+            if not other:
+                widget_values[dependency_id] = None
+                continue
+            self._resolve_dependency_values(other, widget_values, stack)
+            data = other._get_widget_data(widget_values=widget_values)
+            widget_values[dependency_id] = data.get("value")
+        return widget_values
+
     def _check_no_cycle(self):
         """Refuse a widget graph that never settles (spec section 11).
 
         ``_compute_order()`` resolves the same edges but fails soft at render
         time; saving must fail hard so an unsolvable dashboard is never stored.
+        The graph is walked across dashboards because a rule may compare with a
+        widget of another dashboard.
         """
         self.ensure_one()
-        pending = {widget.id: widget for widget in self.widget_ids.filtered("active")}
+        pending = self._dependency_closure()
         try:
             while pending:
                 ready = [
@@ -395,10 +463,12 @@ class Od19Dashboard(models.Model):
             for widget in dashboard._compute_order():
                 if widget.id not in wanted:
                     continue
+                dashboard._resolve_dependency_values(widget, widget_values)
                 other = widget._get_widget_data(
                     date_range=effective_range, widget_values=widget_values
                 )
                 widget_values[widget.id] = other.get("value")
+            dashboard._resolve_dependency_values(draft, widget_values)
 
         data = draft._get_widget_data(date_range=effective_range, widget_values=widget_values)
         return {
@@ -407,6 +477,8 @@ class Od19Dashboard(models.Model):
             "record_count": data.get("record_count") or 0,
             "status": data.get("status"),
             "status_source": data.get("status_source") or "default",
+            "status_message": data.get("status_message") or "",
+            "visible": data.get("visible", True),
             "operands": data.get("operands") or [],
             "series_preview": (data.get("series") or [])[:5],
             "formula_expression": draft._effective_expression(),
@@ -566,6 +638,16 @@ class Od19DashboardWidget(models.Model):
     formula_expression = fields.Char(
         help="Expression evaluated with safe_eval, used when the formula mode is 'Custom expression'.",
     )
+    formula_id = fields.Many2one(
+        "od19.dashboard.formula",
+        ondelete="restrict",
+        string="Library Formula",
+        help="Named formula picked from the library, used when the formula mode is 'Library formula'.",
+    )
+    visible_expression = fields.Char(
+        help="Condition hiding the widget when it evaluates to 0 / False. "
+        "Empty means the widget is always shown.",
+    )
     formula_basis = fields.Selection(
         selection=FORMULA_BASIS,
         default="previous",
@@ -647,6 +729,8 @@ class Od19DashboardWidget(models.Model):
         "formula_type",
         "formula_slots",
         "formula_expression",
+        "formula_id",
+        "visible_expression",
         "formula_basis",
         "delta_basis",
         "source_id",
@@ -681,6 +765,8 @@ class Od19DashboardWidget(models.Model):
             "formula_type": self.formula_type or "",
             "formula_slots": self.formula_slots or "{}",
             "formula_expression": self._effective_expression(),
+            "formula_id": self.formula_id.id,
+            "visible_expression": self.visible_expression or "",
             "formula_basis": self.formula_basis,
             "delta_basis": self.delta_basis,
             "default_status": self.default_status,
@@ -710,6 +796,8 @@ class Od19DashboardWidget(models.Model):
             "sequence": self.sequence,
             "status": "grey",
             "status_source": "default",
+            "status_message": "",
+            "visible": True,
             "value": None,
             "value_text": "",
             "record_count": 0,
@@ -760,6 +848,10 @@ class Od19DashboardWidget(models.Model):
             data["message"] = _("This widget could not be computed: %s") % error
             data["status"] = "grey"
             data["status_source"] = "default"
+        if (self.visible_expression or "").strip():
+            data["visible"] = self._is_visible(
+                self._visibility_context(data, widget_values)
+            )
         return data
 
     def _fill_kpi_data(self, data, model, domain, requests, date_range=None, date_from=None, date_to=None, widget_values=None):
@@ -791,7 +883,9 @@ class Od19DashboardWidget(models.Model):
             "widget_values": widget_values or {},
             "shifts": self._shift_values(model, requests, date_range, date_from, date_to, widget_values),
         }
-        data["status"], data["status_source"] = self._evaluate_rules(rule_context)
+        data["status"], data["status_source"], data["status_message"] = self._evaluate_rules(
+            rule_context
+        )
 
         if self.show_delta:
             self._fill_delta(data, model, requests, value, date_range, date_from, date_to, widget_values)
@@ -857,18 +951,30 @@ class Od19DashboardWidget(models.Model):
             extra["total_a"] = sum(context.get("a", 0.0) for context in contexts)
 
         series = []
+        statuses = []
         for row, context in zip(rows, contexts):
             context.update(extra)
-            series.append(
-                {"label": self._group_label(row[0]), "value": self._evaluate_value(context)}
+            value = self._evaluate_value(context)
+            status, source, message = self._evaluate_rules(
+                self._bucket_rule_context(value, widget_values)
             )
+            series.append(
+                {
+                    "label": self._group_label(row[0]),
+                    "value": value,
+                    "status": status,
+                    "color": STATUS_COLORS.get(status, STATUS_COLORS["grey"]),
+                    "message": message,
+                }
+            )
+            statuses.append((status, source, message))
         if self.widget_type == "line":
             series.reverse()
         if self.formula_mode == "preset" and self.formula_type == "cumulative_change":
             series = self._cumulative_series(series)
 
         data["series"] = series
-        data["status"] = "green" if series else "grey"
+        self._apply_bucket_status(data, statuses)
         if series:
             data["value"] = series[-1]["value"]
             data["value_text"] = self._value_text(data["value"])
@@ -888,20 +994,28 @@ class Od19DashboardWidget(models.Model):
             order="%s desc" % measure_field if measure_field else "id desc",
         )
         rows = []
+        statuses = []
         for record in records:
             value = None
             if measure_field:
                 value = self._to_number(record[measure_field])
+            status, source, message = self._evaluate_rules(
+                self._bucket_rule_context(value)
+            )
             rows.append(
                 {
                     "id": record.id,
                     "label": record.display_name,
                     "value": value,
+                    "status": status,
+                    "color": STATUS_COLORS.get(status, STATUS_COLORS["grey"]),
+                    "message": message,
                     "extra": self._record_extra(record),
                 }
             )
+            statuses.append((status, source, message))
         data["rows"] = rows
-        data["status"] = "green" if rows else "grey"
+        self._apply_bucket_status(data, statuses)
         if not rows:
             data["message"] = _("No record matches the selected filters.")
 
@@ -923,7 +1037,14 @@ class Od19DashboardWidget(models.Model):
     # Formula helpers
     # ------------------------------------------------------------------
     def _formula_slot_map(self):
-        """Return the slot -> measure / weight mapping stored on the widget."""
+        """Return the slot -> measure / weight mapping stored on the widget.
+
+        A preset / custom expression only uses the reserved slot names
+        (``a``-``e``, ``w1``, ``w2``); a library formula names its slots
+        itself, so any identifier is accepted in that mode. A slot value is
+        either a measure key (string), a literal weight (number) or a
+        cross-source descriptor (``{"source_id": ..., "measure_key": ...}``).
+        """
         self.ensure_one()
         raw = (self.formula_slots or "").strip()
         if not raw:
@@ -934,11 +1055,51 @@ class Od19DashboardWidget(models.Model):
             return {}
         if not isinstance(parsed, dict):
             return {}
+        if self.formula_mode == "library":
+            allowed = {str(key) for key in parsed if str(key).isidentifier()}
+        else:
+            allowed = set(formula_tools.ALL_SLOT_KEYS)
         return {
             str(key): value
             for key, value in parsed.items()
-            if key in formula_tools.ALL_SLOT_KEYS and value not in (None, "")
+            if key in allowed and value not in (None, "")
         }
+
+    def _slot_source(self, bound):
+        """Return the data source a cross-source slot reads, or an empty recordset."""
+        self.ensure_one()
+        if not isinstance(bound, dict):
+            return self.env["od19.dashboard.source"]
+        return self.env["od19.dashboard.source"].browse(bound.get("source_id") or 0).exists()
+
+    def _external_slot_values(self):
+        """Return the value of every slot bound to another source (cross-source).
+
+        The measure is read on the target model without any widget domain: a
+        value crossing models is not tied to the period of this widget. A slot
+        whose source or measure has become unavailable is simply skipped, so
+        the value resolves to the ``0.0`` default set by ``_formula_context``.
+        """
+        self.ensure_one()
+        values = {}
+        for slot_key, bound in self._formula_slot_map().items():
+            if not isinstance(bound, dict):
+                continue
+            source = self._slot_source(bound)
+            measure_key = bound.get("measure_key")
+            if not source or not source.model_name or source.model_name not in self.env:
+                continue
+            spec = source._aggregate_spec(measure_key)
+            if not spec:
+                continue
+            try:
+                model = self.env[source.model_name]
+                model.check_access_rights("read")
+                rows = model._read_group([], [], [spec], limit=1)
+            except (AccessError, UserError):
+                continue
+            values[slot_key] = self._to_number(rows[0][0]) if rows and rows[0] else 0.0
+        return values
 
     def _source_measure_keys(self):
         """Return every measure name the whitelist exposes for this source."""
@@ -962,6 +1123,8 @@ class Od19DashboardWidget(models.Model):
             return formula_tools.build_preset_expression(
                 self.formula_type, self._formula_slot_map()
             )
+        if self.formula_mode == "library":
+            return (self.formula_id.expression or "").strip() or "0"
         return (self.formula_expression or "").strip()
 
     def _allowed_names(self):
@@ -971,6 +1134,7 @@ class Od19DashboardWidget(models.Model):
         names |= set(formula_tools.IMPLICIT_NAMES)
         names -= {"__count"}
         names |= {key for key in self._source_measure_keys() if key != "__count"}
+        names |= set(self._formula_slot_map())
         names |= {"widget_%s" % widget_id for widget_id in self._dependency_ids()}
         return names
 
@@ -1012,16 +1176,18 @@ class Od19DashboardWidget(models.Model):
                     add(slot_key, measure_key)
             return requests
 
-        # Custom mode: the names actually written in the expression are
-        # resolved one by one — a slot name (a-e) maps to the measure bound to
-        # it, count_records maps to the record count, any other name is a
-        # measure field of the whitelisted source.
+        # Custom and library modes: the names actually written in the
+        # expression are resolved one by one — a slot name maps to the measure
+        # (or weight) bound to it, count_records maps to the record count, any
+        # other name is a measure field of the whitelisted source. A slot bound
+        # to another source (a dict) is not read here: it is resolved by
+        # ``_external_slot_values()``.
         slots = self._formula_slot_map()
         measure_keys = self._source_measure_keys()
-        for name in sorted(formula_tools.expression_names(self.formula_expression)):
+        for name in sorted(formula_tools.expression_names(self._effective_expression())):
             if name in formula_tools.WEIGHT_KEYS:
                 continue
-            if name in formula_tools.SLOT_KEYS:
+            if name in slots:
                 measure_key = slots.get(name)
             elif name == formula_tools.COUNT_ALIAS:
                 measure_key = "__count"
@@ -1077,6 +1243,9 @@ class Od19DashboardWidget(models.Model):
         because a record built with ``Model.new()`` never triggers a constraint.
         """
         for widget in self:
+            widget._validate_visible_expression()
+            if widget.formula_mode == "measure":
+                continue
             expression = widget._effective_expression()
             if widget.formula_mode == "preset":
                 if not widget.formula_type:
@@ -1093,21 +1262,31 @@ class Od19DashboardWidget(models.Model):
                         _("The preset formula '%(formula)s' needs the slot(s): %(slots)s.")
                         % {"formula": widget.formula_type, "slots": ", ".join(missing)}
                     )
+            elif widget.formula_mode == "library":
+                if not widget.formula_id:
+                    raise ValidationError(
+                        _("Choose a formula from the library for widget '%s'.") % widget.name
+                    )
             elif widget.formula_mode == "custom":
                 if not (widget.formula_expression or "").strip():
                     raise ValidationError(_("Type the formula of this widget."))
-            else:
-                continue
             available_measures = widget._source_measure_keys()
-            unknown_slots = sorted(
-                slot_key
-                for slot_key, value in widget._formula_slot_map().items()
-                if isinstance(value, str) and value not in available_measures
-            )
+            unknown_slots = []
+            for slot_key, value in widget._formula_slot_map().items():
+                if isinstance(value, str):
+                    if value not in available_measures:
+                        unknown_slots.append(slot_key)
+                elif isinstance(value, dict):
+                    # A cross-source slot: the measure belongs to the target
+                    # source, not to the source of this widget.
+                    source = widget._slot_source(value)
+                    measure_key = value.get("measure_key")
+                    if not source or not source._aggregate_spec(measure_key):
+                        unknown_slots.append(slot_key)
             if unknown_slots:
                 raise ValidationError(
                     _("The slot(s) %s are bound to a field the data source does not offer.")
-                    % ", ".join(unknown_slots)
+                    % ", ".join(sorted(unknown_slots))
                 )
             formula_tools.validate_expression(expression, widget._allowed_names())
             unresolved = widget._unresolved_names()
@@ -1115,6 +1294,29 @@ class Od19DashboardWidget(models.Model):
                 raise ValidationError(
                     _("The formula uses names without value: %s.") % ", ".join(unresolved)
                 )
+
+    def _validate_visible_expression(self):
+        """Validate ``visible_expression`` of this widget (spec phase 2, 3.3).
+
+        The condition is evaluated with the same names as the formula plus the
+        widget value, so ``_allowed_names()`` is the whitelist.
+        """
+        self.ensure_one()
+        expression = (self.visible_expression or "").strip()
+        if not expression:
+            return
+        allowed = self._allowed_names() | {"value"}
+        formula_tools.validate_expression(expression, allowed)
+        unresolved = sorted(
+            name
+            for name in formula_tools.expression_names(expression)
+            if name not in allowed
+        )
+        if unresolved:
+            raise ValidationError(
+                _("The visibility condition uses names without value: %s.")
+                % ", ".join(unresolved)
+            )
 
     # ------------------------------------------------------------------
     # Formula evaluation
@@ -1192,7 +1394,7 @@ class Od19DashboardWidget(models.Model):
         reference period the values are read on.
         """
         self.ensure_one()
-        extra = {}
+        extra = self._external_slot_values()
         for widget_id in self._dependency_ids():
             extra["widget_%s" % widget_id] = self._to_number((widget_values or {}).get(widget_id))
         if share and self._uses_share():
@@ -1207,6 +1409,48 @@ class Od19DashboardWidget(models.Model):
                 extra["days_in_period"] = float(days[0])
                 extra["days_elapsed"] = float(days[1])
         return extra
+
+    def _visibility_context(self, data, widget_values=None):
+        """Return the context used to evaluate ``visible_expression``.
+
+        The condition sees the widget value, the goal, the number of records,
+        every operand read for the widget, the values of the widgets it reads
+        and the cross-source slot values — the same names a formula may use
+        plus ``value`` (spec phase 2, 3.3).
+        """
+        self.ensure_one()
+        context = {
+            "value": data.get("value"),
+            "goal": self.goal_value or 0.0,
+            "record_count": data.get("record_count") or 0,
+        }
+        for name in formula_tools.IMPLICIT_NAMES:
+            context.setdefault(name, 0.0)
+        context[formula_tools.COUNT_ALIAS] = data.get("record_count") or 0
+        for operand in data.get("operands") or []:
+            context[operand["alias"]] = operand["value"]
+        for widget_id in self._dependency_ids():
+            context["widget_%s" % widget_id] = self._to_number(
+                (widget_values or {}).get(widget_id)
+            )
+        context.update(self._external_slot_values())
+        return context
+
+    def _is_visible(self, context):
+        """Return False when ``visible_expression`` evaluates to a falsy value.
+
+        An empty condition keeps the widget visible (historical behaviour). A
+        condition that cannot be evaluated fails open, so a broken condition
+        never hides a widget silently.
+        """
+        self.ensure_one()
+        expression = (self.visible_expression or "").strip()
+        if not expression:
+            return True
+        try:
+            return bool(formula_tools.evaluate_expression(expression, context))
+        except (ArithmeticError, ValueError, TypeError, NameError):
+            return True
 
     def _evaluate_value(self, context):
         """Evaluate the effective expression on ``context``.
@@ -1328,10 +1572,12 @@ class Od19DashboardWidget(models.Model):
         if not series:
             return series
         base = series[0]["value"]
-        return [
-            {"label": item["label"], "value": round(item["value"] - base, 4)}
-            for item in series
-        ]
+        changed = []
+        for item in series:
+            new_item = dict(item)
+            new_item["value"] = round(item["value"] - base, 4)
+            changed.append(new_item)
+        return changed
 
     def _cumulative_change_value(self, model, domain, requests, date_range=None, date_from=None, date_to=None, widget_values=None):
         """Return the change between the first and the last bucket of the period.
@@ -1371,7 +1617,7 @@ class Od19DashboardWidget(models.Model):
         shifts = set()
         if self.show_delta and self.delta_basis:
             shifts.add(self.delta_basis)
-        if self.formula_mode in ("preset", "custom") and self.formula_basis:
+        if self.formula_mode in ("preset", "custom", "library") and self.formula_basis:
             shifts.add(self.formula_basis)
         shifts.update(
             self.rule_ids.filtered(
@@ -1395,19 +1641,50 @@ class Od19DashboardWidget(models.Model):
         return False
 
     def _evaluate_rules(self, context):
-        """Return ``(status, status_source)`` with a first-match-wins table.
+        """Return ``(status, status_source, message)`` with a first-match-wins table.
 
         ``status_source`` is ``"rule"`` when a rule matched and ``"default"``
-        when the widget falls back to ``default_status``. The left-hand side of
-        every comparison is always the value of this widget.
+        when the widget falls back to ``default_status``. ``message`` is the
+        ``alert_message`` of the matching rule (empty when no rule matched).
+        The left-hand side of every comparison is the value carried by
+        ``context`` — the widget value for a KPI, a bucket value for a chart or
+        a row value for a list.
         """
         self.ensure_one()
         if context.get("value") is not None:
             for rule in self.rule_ids.filtered("active"):
                 operand = rule._compare_operand(context)
                 if formula_tools.compare_values(context.get("value"), rule.operator, operand):
-                    return rule.status, "rule"
-        return self.default_status, "default"
+                    return rule.status, "rule", rule.alert_message or ""
+        return self.default_status, "default", ""
+
+    def _bucket_rule_context(self, value, widget_values=None):
+        """Return the rule context of one chart bucket or one list row.
+
+        A bucket has no period of its own, so the shifted values are empty: a
+        rule comparing a period simply does not match on a bucket.
+        """
+        self.ensure_one()
+        return {
+            "value": value,
+            "goal": self.goal_value or 0.0,
+            "widget_values": widget_values or {},
+            "shifts": {},
+        }
+
+    def _apply_bucket_status(self, data, statuses):
+        """Set the widget status to the most severe bucket / row status."""
+        self.ensure_one()
+        if not statuses:
+            data["status"], data["status_source"], data["status_message"] = (
+                "grey",
+                "default",
+                "",
+            )
+            return
+        data["status"], data["status_source"], data["status_message"] = max(
+            statuses, key=lambda item: STATUS_SEVERITY.get(item[0], 0)
+        )
 
     @api.constrains("formula_mode", "formula_expression", "rule_ids", "active")
     def _check_dependency_cycle(self):

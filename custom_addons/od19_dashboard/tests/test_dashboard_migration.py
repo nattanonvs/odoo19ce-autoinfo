@@ -175,7 +175,7 @@ class TestDashboardThresholdMigration(TransactionCase):
         self.assertFalse(widget.rule_ids)
         self.assertEqual(widget.default_status, "green")
         context = {"value": 42.0, "goal": 0.0, "widget_values": {}, "shifts": {}}
-        self.assertEqual(widget._evaluate_rules(context), ("green", "default"))
+        self.assertEqual(widget._evaluate_rules(context), ("green", "default", ""))
 
     def test_backup_table_is_dropped(self):
         self._add_legacy_columns()
