@@ -1,6 +1,6 @@
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { stepUtils } from "@od19_user_guide_tours/tours/tour_utils";
+import { stepUtils, navSection, navItem } from "@od19_user_guide_tours/tours/tour_utils";
 import { markup } from "@odoo/owl";
 
 /**
@@ -18,8 +18,20 @@ registry.category("web_tour.tours").add("od19_iso_risk_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections :contains('ความเสี่ยงและโอกาส'), .dropdown-item:contains('ความเสี่ยงและโอกาส')",
+            trigger: navSection('การจัดการ ISO'),
+            content: markup(_t("Open the <b>การจัดการ ISO</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".dropdown-menu .dropdown-header:text('ความเสี่ยงและโอกาส')",
             content: markup(_t("Open the <b>ความเสี่ยงและโอกาส (Risk &amp; Opportunity)</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: navItem('รายการความเสี่ยง/โอกาส'),
+            content: markup(_t("Open the <b>รายการความเสี่ยง/โอกาส</b> list.")),
             tooltipPosition: "bottom",
             run: "click",
         },
@@ -40,8 +52,16 @@ registry.category("web_tour.tours").add("od19_iso_risk_tour", {
             run: "click",
         },
         {
+            trigger: ".o_select_menu_item",
+            run: "click",
+        },
+        {
             trigger: ".o_field_widget[name='category'] .o_select_menu_toggler",
             content: markup(_t("Set the <b>category</b> (Strategic, Operational, Financial, etc.).")),
+            run: "click",
+        },
+        {
+            trigger: ".o_select_menu_item",
             run: "click",
         },
         {

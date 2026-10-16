@@ -1,6 +1,6 @@
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { stepUtils } from "@od19_user_guide_tours/tours/tour_utils";
+import { stepUtils, navSection, navItem } from "@od19_user_guide_tours/tours/tour_utils";
 import { markup } from "@odoo/owl";
 
 /**
@@ -18,8 +18,20 @@ registry.category("web_tour.tours").add("od19_iso_management_review_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections :contains('การทบทวนระบบจัดการ'), .dropdown-item:contains('การทบทวนระบบจัดการ')",
+            trigger: navSection('การจัดการ ISO'),
+            content: markup(_t("Open the <b>การจัดการ ISO</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".dropdown-menu .dropdown-header:text('การทบทวนระบบจัดการ')",
             content: markup(_t("Open the <b>การทบทวนระบบจัดการ (Management Review)</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: navItem('รายการการทบทวน'),
+            content: markup(_t("Open the <b>รายการการทบทวน</b> list.")),
             tooltipPosition: "bottom",
             run: "click",
         },
@@ -30,18 +42,22 @@ registry.category("web_tour.tours").add("od19_iso_management_review_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='name'] input",
+            trigger: ".o_field_widget[name='title'] input",
             content: _t("Enter the review name."),
             run: "edit Management Review Meeting Q4 2026",
         },
         {
-            trigger: ".o_field_widget[name='date'] input",
+            trigger: ".o_field_widget[name='date'] .o_input",
             content: _t("Set the review meeting date."),
+            run: "edit 2026-04-01",
+        },
+        {
+            trigger: ".o_field_widget[name='chairman_id'] input",
+            content: _t("Set the lead reviewer (top management)."),
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='reviewer_id'] input",
-            content: _t("Set the lead reviewer (top management)."),
+            trigger: ".o-autocomplete--dropdown-item",
             run: "click",
         },
         ...stepUtils.saveForm(),

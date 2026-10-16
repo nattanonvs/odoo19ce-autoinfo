@@ -20,13 +20,13 @@ registry.category("web_tour.tours").add("od19_asset_disposal_tour", {
             markup(_t("Let's learn how to <b>dispose</b> a fixed asset and generate the disposal entry."))
         ),
         {
-            trigger: ".o_menu_sections :contains('Assets'), .dropdown-item:contains('Assets')",
+            trigger: ".o_menu_sections .dropdown-toggle:text('Assets')",
             content: markup(_t("Open the <b>Assets</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections :contains('Assets'), .dropdown-item:contains('Assets')",
+            trigger: ".dropdown-menu .dropdown-item:text('Assets')",
             content: markup(_t("Open the <b>Assets</b> list.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -45,7 +45,7 @@ registry.category("web_tour.tours").add("od19_asset_disposal_tour", {
             run: "edit Machine A",
         },
         {
-            trigger: ".o_field_widget[name='value'] input",
+            trigger: ".o_field_widget[name='purchase_value'] input",
             content: _t("Enter the purchase value."),
             run: "edit 120000",
         },

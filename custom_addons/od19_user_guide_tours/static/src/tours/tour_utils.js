@@ -17,6 +17,41 @@ import { stepUtils as coreStepUtils } from "@web_tour/tour_utils";
  * making the app-switcher step depend on what is actually displayed instead of
  * on the tour mode.
  */
+/**
+ * Exact-label selector for a **top-level section** of the current app navbar.
+ *
+ * Odoo 19 renders the app sections inside `.o_menu_sections`:
+ *  - a section that owns children becomes a `<button class="dropdown-toggle">
+ *    <span>NAME</span></button>`;
+ *  - a childless section becomes a `<a class="o_nav_entry">NAME</a>`.
+ *
+ * `:text()` performs a **strict equality** match on the element text, while
+ * `:contains()` matches any substring. The old `:contains()` selectors used to
+ * match the wrapping dropdown group (which contains every label) and therefore
+ * clicked nothing at all.
+ */
+export function navSection(label) {
+    return (
+        `.o_menu_sections .dropdown-toggle:text('${label}'), ` +
+        `.o_menu_sections .o_nav_entry:text('${label}')`
+    );
+}
+
+/**
+ * Exact-label selector for an entry **inside an opened dropdown menu**.
+ *
+ * `web.NavBar.SectionsMenu.Dropdown.MenuSlot` renders the whole sub-tree of a
+ * section inside a single dropdown, so every descendant — whatever its depth —
+ * is a `.dropdown-item`. Group headers (`<div class="dropdown-menu_group
+ * dropdown-header">`) are *not* clickable: target the child item instead.
+ *
+ * Always click `navSection(parentSection)` in a previous step to open the
+ * dropdown before using this selector.
+ */
+export function navItem(label) {
+    return `.dropdown-menu .dropdown-item:text('${label}')`;
+}
+
 export const stepUtils = {
     ...coreStepUtils,
 

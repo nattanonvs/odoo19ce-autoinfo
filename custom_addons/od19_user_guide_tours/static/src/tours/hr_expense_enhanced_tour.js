@@ -22,7 +22,13 @@ registry.category("web_tour.tours").add("od19_hr_expense_enhanced_tour", {
 
         // --- Create an expense ---
         {
-            trigger: ".o_menu_sections :contains('My Expenses'), .dropdown-item:contains('My Expenses')",
+            trigger: ".o_menu_sections .dropdown-toggle:text('My Expenses')",
+            content: markup(_t("Open the <b>My Expenses</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".dropdown-menu .dropdown-item:text('My Expenses')",
             content: markup(_t("Open <b>My Expenses</b>.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -44,7 +50,7 @@ registry.category("web_tour.tours").add("od19_hr_expense_enhanced_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='total_amount'] input",
+            trigger: ".o_field_widget[name='total_amount_currency'] input",
             content: _t("Enter the amount."),
             run: "edit 3000",
         },
@@ -121,7 +127,7 @@ registry.category("web_tour.tours").add("od19_hr_expense_enhanced_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='reason'] textarea",
+            trigger: ".o_field_widget[name='reason'] input",
             content: _t("Record the reason for the delegation."),
             run: "edit Annual leave",
         },

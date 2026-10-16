@@ -1,6 +1,6 @@
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { stepUtils } from "@od19_user_guide_tours/tours/tour_utils";
+import { stepUtils, navSection, navItem } from "@od19_user_guide_tours/tours/tour_utils";
 import { markup } from "@odoo/owl";
 
 /**
@@ -22,7 +22,7 @@ registry.category("web_tour.tours").add("od19_sales_contract_billing_tour", {
         ),
         // --- Sales Contract ---
         {
-            trigger: ".o_menu_sections :contains('Sales Contracts'), .dropdown-item:contains('Sales Contracts')",
+            trigger: navSection('Sales Contracts'),
             content: markup(_t("Open the <b>Sales Contracts</b> menu to create a master contract.")),
             tooltipPosition: "bottom",
             run: "click",

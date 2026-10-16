@@ -32,7 +32,7 @@ registry.category("web_tour.tours").add("od19_accounting_features_tour", {
             run: "click",
         },
         {
-            trigger: ".o_menu_sections .dropdown-item:text('Payments')",
+            trigger: ".dropdown-menu .dropdown-item:text('Payments'), .dropdown-menu .dropdown-item:contains('Payments')",
             content: markup(_t(
                 "Open <b>Payments</b> to record a vendor payment with <b>Withholding Tax</b>."
             )),
@@ -90,7 +90,7 @@ registry.category("web_tour.tours").add("od19_accounting_features_tour", {
             run: "click",
         },
         {
-            trigger: ".o_menu_sections .dropdown-item:text('Invoices')",
+            trigger: ".dropdown-menu .dropdown-item:text('Invoices'), .dropdown-menu .dropdown-item:contains('Invoices')",
             content: markup(_t("Open <b>Invoices</b>.")),
             tooltipPosition: "bottom",
             run: "click",

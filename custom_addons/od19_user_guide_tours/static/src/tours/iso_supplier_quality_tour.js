@@ -1,6 +1,6 @@
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { stepUtils } from "@od19_user_guide_tours/tours/tour_utils";
+import { stepUtils, navSection, navItem } from "@od19_user_guide_tours/tours/tour_utils";
 import { markup } from "@odoo/owl";
 
 /**
@@ -20,13 +20,19 @@ registry.category("web_tour.tours").add("od19_iso_supplier_quality_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections :contains('คุณภาพผู้จำหน่าย'), .dropdown-item:contains('คุณภาพผู้จำหน่าย')",
+            trigger: navSection('การจัดการ ISO'),
+            content: markup(_t("Open the <b>การจัดการ ISO</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".dropdown-menu .dropdown-header:text('คุณภาพผู้จำหน่าย')",
             content: markup(_t("Open the <b>คุณภาพผู้จำหน่าย (Supplier Quality)</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections :contains('การประเมินผู้จำหน่าย'), .dropdown-item:contains('การประเมินผู้จำหน่าย')",
+            trigger: navItem('การประเมินผู้จำหน่าย'),
             content: markup(_t("Open <b>การประเมินผู้จำหน่าย (Supplier Evaluations)</b>.")),
             tooltipPosition: "bottom",
             run: "click",

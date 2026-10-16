@@ -29,13 +29,20 @@ registry.category("web_tour.tours").add("od19_contacts_credit_risk_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='name'] input",
+            trigger: ".o_field_widget[name='name'] textarea",
             content: _t("Enter the company name."),
             run: "edit OD19 Demo Construction Co., Ltd.",
         },
         {
-            trigger: ".o_field_widget[name='is_company'] input[type='checkbox']",
-            content: _t("Tick 'Is a Company' so partner roles become available."),
+            trigger: ".o_field_widget[name='email'] input",
+            content: markup(_t(
+                "Add an <b>email</b>: a commercial customer must have at least one contact channel."
+            )),
+            run: "edit od19.demo@example.com",
+        },
+        {
+            trigger: ".o_field_widget[name='company_type'] .o_radio_input[data-value='company']",
+            content: _t("Set the contact type to 'Company' so partner roles become available."),
             run: "click",
         },
         {
@@ -63,6 +70,13 @@ registry.category("web_tour.tours").add("od19_contacts_credit_risk_tour", {
             run: "click",
         },
         {
+            trigger: "a.nav-link:contains('Credit & Risk')",
+            content: markup(_t(
+                "Open the <b>Credit &amp; Risk</b> tab to see the full credit and blacklist information."
+            )),
+            run: "click",
+        },
+        {
             trigger: ".o_field_widget[name='od19_credit_request_state']",
             content: markup(_t(
                 "The credit status is now <b>Pending</b>, waiting for Accounting review."
@@ -70,11 +84,11 @@ registry.category("web_tour.tours").add("od19_contacts_credit_risk_tour", {
             run: "click",
         },
         {
-            trigger: "a.nav-link:contains('Credit & Risk')",
+            trigger: ".o_field_widget[name='od19_credit_review_note'] textarea",
             content: markup(_t(
-                "Open the <b>Credit &amp; Risk</b> tab to see the full credit and blacklist information."
+                "Accounting must record a <b>review note</b> before approving."
             )),
-            run: "click",
+            run: "edit Approved by Accounting - OD19 demo.",
         },
         {
             trigger: "button[name='action_od19_approve_credit']",
@@ -83,6 +97,13 @@ registry.category("web_tour.tours").add("od19_contacts_credit_risk_tour", {
             )),
             tooltipPosition: "left",
             run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='od19_blacklist_reason'] textarea",
+            content: markup(_t(
+                "A <b>blacklist reason</b> is required before blacklisting."
+            )),
+            run: "edit Overdue balance - OD19 demo.",
         },
         {
             trigger: "button[name='action_od19_set_blacklist']",
@@ -94,7 +115,7 @@ registry.category("web_tour.tours").add("od19_contacts_credit_risk_tour", {
             run: "click",
         },
         {
-            trigger: ".o_ribbon:contains('Blacklisted')",
+            trigger: "div.ribbon span:text('Blacklisted')",
             content: markup(_t(
                 "A red <b>Blacklisted</b> ribbon now warns every user. " +
                 "Use <b>Clear Blacklist</b> to remove it when the risk is resolved."

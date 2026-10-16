@@ -34,7 +34,7 @@ registry.category("web_tour.tours").add("od19_warranty_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='claim_date'] input",
+            trigger: ".o_field_widget[name='claim_date'] .o_input",
             content: _t("Set the claim date."),
             run: "click",
         },

@@ -22,7 +22,7 @@ registry.category("web_tour.tours").add("od19_cheque_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections :contains('Cheques'), .dropdown-item:contains('Cheques')",
+            trigger: ".o_menu_sections .o_nav_entry:text('Cheques')",
             content: markup(_t("Open the <b>Cheques</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",

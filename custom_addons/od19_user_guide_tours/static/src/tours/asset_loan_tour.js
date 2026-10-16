@@ -22,19 +22,13 @@ registry.category("web_tour.tours").add("od19_asset_loan_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections :contains('Configuration'), .dropdown-item:contains('Configuration')",
+            trigger: ".o_menu_sections .dropdown-toggle:text('Configuration')",
             content: markup(_t("Open the <b>Configuration</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_menu_sections :contains('Asset Loan'), .dropdown-item:contains('Asset Loan')",
-            content: markup(_t("Open <b>Asset Loan</b>.")),
-            tooltipPosition: "bottom",
-            run: "click",
-        },
-        {
-            trigger: ".o_menu_sections :contains('Loans'), .dropdown-item:contains('Loans')",
+            trigger: ".dropdown-menu .dropdown-item:text('Loans')",
             content: markup(_t("Open <b>Loans</b> to view and create asset loans.")),
             tooltipPosition: "bottom",
             run: "click",
@@ -51,12 +45,12 @@ registry.category("web_tour.tours").add("od19_asset_loan_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='loan_date'] input",
+            trigger: ".o_field_widget[name='loan_date'] .o_input",
             content: _t("Set the loan date."),
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='expected_return_date'] input",
+            trigger: ".o_field_widget[name='expected_return_date'] .o_input",
             content: _t("Set the expected return date."),
             run: "click",
         },

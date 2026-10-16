@@ -35,7 +35,7 @@ registry.category("web_tour.tours").add("od19_product_return_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='return_date'] input",
+            trigger: ".o_field_widget[name='return_date'] .o_input",
             content: _t("Set the return date."),
             run: "click",
         },
