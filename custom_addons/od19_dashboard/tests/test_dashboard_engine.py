@@ -412,6 +412,12 @@ class TestDashboardOrdering(TransactionCase):
         self.assertIn("status_source", data["widgets"][0])
 
 
+# These tests create ``sale.order`` records. Another installed module
+# (``od19_sales_project_context``) adds a required field on ``sale.order`` that
+# the registry does not carry yet while ``od19_dashboard`` is being installed,
+# so the class runs during ``post_install`` where the registry is complete.
+# The tests are neither skipped nor weakened: they run in the same
+# ``--test-enable`` pass.
 @tagged("post_install", "-at_install")
 class TestDashboardPreview(TransactionCase):
     @classmethod
@@ -529,6 +535,73 @@ class TestDashboardPreview(TransactionCase):
             sum(item["value"] for item in result["series_preview"]),
             float(sum(count for _state, count in rows)),
         )
+
+    def test_preview_ignores_non_creation_rule_commands(self):
+        """Link / clear / delete commands must not become empty create commands."""
+        rule = {
+            "operator": ">",
+            "compare_type": "constant",
+            "compare_value": 1,
+            "status": "red",
+        }
+        values = self.env["od19.dashboard"]._normalise_preview_values(
+            {
+                "name": "Draft",
+                "rule_ids": [(4, 7, 0), (5, 0, 0), (2, 7, 0), (0, 0, rule)],
+            }
+        )
+        self.assertEqual(values["rule_ids"], [(0, 0, rule)])
+
+    def test_preview_reads_a_chained_dependency(self):
+        """A widget the draft reads must itself be computed after its own dependency."""
+        other = self.env["od19.dashboard.widget"].create(
+            {
+                "dashboard_id": self.dashboard.id,
+                "name": "Constant",
+                "widget_type": "kpi",
+                "source_id": self.source.id,
+                "measure_key": "amount_total",
+                "date_key": "date_order",
+                "date_range": "all_time",
+                "sequence": 20,
+                "formula_mode": "custom",
+                "formula_expression": "100",
+            }
+        )
+        dependent = self.env["od19.dashboard.widget"].create(
+            {
+                "dashboard_id": self.dashboard.id,
+                "name": "Chained",
+                "widget_type": "kpi",
+                "source_id": self.source.id,
+                "measure_key": "amount_total",
+                "date_key": "date_order",
+                "date_range": "all_time",
+                "sequence": 5,
+                "formula_mode": "custom",
+                "formula_expression": "widget_%s + 1" % other.id,
+            }
+        )
+        result = self._preview(
+            formula_mode="custom", formula_expression="widget_%s" % dependent.id
+        )
+        self.assertEqual(result["value"], 101.0)
+
+    def test_preview_shares_a_bucket_against_the_displayed_buckets(self):
+        partner = self.env["res.partner"].create({"name": "Share customer"})
+        self.env["sale.order"].create({"partner_id": partner.id})
+        result = self._preview(
+            widget_type="pie",
+            groupby_key="state",
+            limit=50,
+            measure_key="__count",
+            formula_mode="preset",
+            formula_type="share",
+            formula_slots='{"a": "__count"}',
+        )
+        series = result["series_preview"]
+        self.assertTrue(series)
+        self.assertAlmostEqual(sum(item["value"] for item in series), 100.0)
 
     def test_number_text_keeps_a_single_minus_sign(self):
         widget = self.env["od19.dashboard.widget"].new({"name": "Number text"})

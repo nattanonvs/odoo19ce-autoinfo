@@ -275,6 +275,25 @@ class Od19Dashboard(models.Model):
                 pending.pop(widget.id)
         return ordered
 
+    def _preview_dependency_ids(self, draft):
+        """Return the ids of the stored widgets ``draft`` reads, transitively.
+
+        A draft is not part of the dashboard, so its own dependencies never
+        appear in ``_compute_order()``. Walking them here keeps the preview
+        cheap: only the widgets the formula actually reads are computed.
+        """
+        self.ensure_one()
+        by_id = {widget.id: widget for widget in self.widget_ids.filtered("active")}
+        needed = set()
+        pending = list(draft._dependency_ids())
+        while pending:
+            widget_id = pending.pop()
+            if widget_id in needed or widget_id not in by_id:
+                continue
+            needed.add(widget_id)
+            pending.extend(by_id[widget_id]._dependency_ids())
+        return needed
+
     @api.model
     def _normalise_preview_values(self, values):
         """Return builder values usable to build an in-memory widget record.
@@ -290,9 +309,12 @@ class Od19Dashboard(models.Model):
         for rule in cleaned.get("rule_ids") or []:
             if isinstance(rule, (list, tuple)):
                 code = rule[0] if rule else 0
-                if code in (2, 3, 6):  # delete / unlink / clear
+                # Only a create (0) or an update (1) command carries the values
+                # of a rule. A link (4), a clear (5) or a delete (2, 3, 6) is
+                # dropped: the draft always carries brand new rules.
+                if code not in (0, 1) or len(rule) < 3 or not isinstance(rule[2], dict):
                     continue
-                data = dict(rule[2] or {}) if len(rule) > 2 else {}
+                data = dict(rule[2])
             else:
                 data = dict(rule)
             data.pop("id", None)
@@ -315,16 +337,22 @@ class Od19Dashboard(models.Model):
         draft._validate_formula_config()
 
         dashboard = draft.dashboard_id
+        wanted = set()
         if dashboard:
             dashboard.check_access_rights("read")
+            dashboard.check_access_rule("read")
+            wanted = dashboard._preview_dependency_ids(draft)
 
         effective_range = date_range or cleaned.get("date_range")
         widget_values = {}
-        for widget in dashboard.widget_ids.filtered("active"):
-            other = widget._get_widget_data(
-                date_range=effective_range, widget_values=widget_values
-            )
-            widget_values[widget.id] = other.get("value")
+        if dashboard:
+            for widget in dashboard._compute_order():
+                if widget.id not in wanted:
+                    continue
+                other = widget._get_widget_data(
+                    date_range=effective_range, widget_values=widget_values
+                )
+                widget_values[widget.id] = other.get("value")
 
         data = draft._get_widget_data(date_range=effective_range, widget_values=widget_values)
         return {
@@ -720,7 +748,7 @@ class Od19DashboardWidget(models.Model):
         previous_domain = self._build_domain(date_range, date_from, date_to, shift=self.delta_basis)
         try:
             previous_value = self._value_for(
-                model, previous_domain, requests, date_range, date_from, date_to, widget_values
+                model, previous_domain, requests, date_range, date_from, date_to, widget_values, shift=self.delta_basis
             )
         except (UserError, ValidationError) as error:
             _logger.info("Delta of widget %s could not be computed: %s", self.id, error)
@@ -764,17 +792,19 @@ class Od19DashboardWidget(models.Model):
                 limit=limit,
             )
 
-        extra = self._formula_extra(model, domain, requests, date_range, date_from, date_to, widget_values)
+        extra = self._formula_extra(
+            model, domain, requests, date_range, date_from, date_to, widget_values, share=False
+        )
+        contexts = [self._formula_context(row, requests) for row in rows]
         if self._uses_share():
             # In a chart the share of a bucket is measured against the total of
-            # every displayed bucket, not against the whole domain.
-            extra["total_a"] = sum(
-                self._formula_context(row, requests).get("a", 0.0) for row in rows
-            )
+            # every displayed bucket, not against the whole domain, so the
+            # domain total is not read at all here.
+            extra["total_a"] = sum(context.get("a", 0.0) for context in contexts)
 
         series = []
-        for row in rows:
-            context = self._formula_context(row, requests, extra)
+        for row, context in zip(rows, contexts):
+            context.update(extra)
             series.append(
                 {"label": self._group_label(row[0]), "value": self._evaluate_value(context)}
             )
@@ -947,6 +977,10 @@ class Od19DashboardWidget(models.Model):
                 continue
             if isinstance(measure_key, str):
                 add(name, measure_key)
+        if not requests:
+            # A custom formula may name only other widgets or literals: it still
+            # needs one aggregate column so the widget can be read at all.
+            add("value", self.measure_key or "__count")
         return requests
 
     def _dependency_ids(self):
@@ -1035,12 +1069,12 @@ class Od19DashboardWidget(models.Model):
         start, end, _field_type = self._period_bounds(date_range, date_from, date_to, shift)
         return start, end
 
-    def _run_rate_days(self, date_range=None, date_from=None, date_to=None):
+    def _run_rate_days(self, date_range=None, date_from=None, date_to=None, shift=None):
         """Return ``(days_in_period, days_elapsed)``, or ``None`` without a bound."""
         self.ensure_one()
         if not self.date_key:
             return None
-        start, end = self._shifted_period(date_range, date_from, date_to)
+        start, end = self._shifted_period(date_range, date_from, date_to, shift)
         if not start or not end:
             return None
         days_in_period = (end - start).days + 1
@@ -1094,20 +1128,25 @@ class Od19DashboardWidget(models.Model):
         context.update(extra or {})
         return context
 
-    def _formula_extra(self, model, domain, requests, date_range=None, date_from=None, date_to=None, widget_values=None):
-        """Return the context values that are not read from a single aggregate row."""
+    def _formula_extra(self, model, domain, requests, date_range=None, date_from=None, date_to=None, widget_values=None, shift=None, share=True):
+        """Return the context values that are not read from a single aggregate row.
+
+        ``share=False`` skips the domain total read (used by charts, which
+        measure the share against their displayed buckets); ``shift`` is the
+        reference period the values are read on.
+        """
         self.ensure_one()
         extra = {}
         for widget_id in self._dependency_ids():
             extra["widget_%s" % widget_id] = self._to_number((widget_values or {}).get(widget_id))
-        if self._uses_share():
+        if share and self._uses_share():
             slot_a = self._formula_slot_map().get("a") or self.measure_key
             spec = self.source_id._aggregate_spec(slot_a) if isinstance(slot_a, str) else False
             if spec:
                 rows = model._read_group(domain, [], [spec], limit=1)
                 extra["total_a"] = self._to_number(rows[0][0]) if rows and rows[0] else 0.0
         if self._needs_bounded_period():
-            days = self._run_rate_days(date_range, date_from, date_to)
+            days = self._run_rate_days(date_range, date_from, date_to, shift=shift)
             if days:
                 extra["days_in_period"] = float(days[0])
                 extra["days_elapsed"] = float(days[1])
@@ -1127,10 +1166,15 @@ class Od19DashboardWidget(models.Model):
             raise UserError(
                 _("The formula of widget '%s' divides by zero for this period.") % self.name
             ) from error
-        except Exception as error:  # noqa: BLE001 - surfaced as a widget message
+        except (ArithmeticError, ValueError, TypeError, NameError) as error:
             raise UserError(
                 _("The formula of widget '%s' could not be evaluated: %s") % (self.name, error)
             ) from error
+        except Exception:
+            # An unexpected failure (a real bug) is logged with its traceback and
+            # left to the caller, which fails the widget soft.
+            _logger.exception("The formula of widget %s raised an unexpected error", self.id)
+            raise
 
     def _record_count(self, model, domain):
         """Return the number of records the widget would collect on ``domain``."""
@@ -1194,12 +1238,12 @@ class Od19DashboardWidget(models.Model):
             return "%s %s" % (symbol, text)
         return self._number_text(value, 2)
 
-    def _value_for(self, model, domain, requests, date_range=None, date_from=None, date_to=None, widget_values=None):
+    def _value_for(self, model, domain, requests, date_range=None, date_from=None, date_to=None, widget_values=None, shift=None):
         """Evaluate the formula of this widget on an arbitrary domain."""
         self.ensure_one()
         aggregates = [request[2] for request in requests]
         rows = model._read_group(domain, [], aggregates, limit=1)
-        extra = self._formula_extra(model, domain, requests, date_range, date_from, date_to, widget_values)
+        extra = self._formula_extra(model, domain, requests, date_range, date_from, date_to, widget_values, shift=shift)
         return self._evaluate_value(self._formula_context(rows[0] if rows else (), requests, extra))
 
     def _shift_values(self, model, requests, date_range=None, date_from=None, date_to=None, widget_values=None):
@@ -1210,7 +1254,7 @@ class Od19DashboardWidget(models.Model):
             domain = self._build_domain(date_range, date_from, date_to, shift=shift)
             try:
                 values[shift] = self._value_for(
-                    model, domain, requests, date_range, date_from, date_to, widget_values
+                    model, domain, requests, date_range, date_from, date_to, widget_values, shift=shift
                 )
             except (UserError, ValidationError) as error:
                 # A rule comparing with an unreachable period is skipped, not fatal.
