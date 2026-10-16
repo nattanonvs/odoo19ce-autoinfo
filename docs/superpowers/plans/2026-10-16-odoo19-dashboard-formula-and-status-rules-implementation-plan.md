@@ -2680,11 +2680,13 @@ git commit -m "feat(od19_dashboard): evaluate widget formulas and expose the liv
 - Modify: `custom_addons/od19_dashboard/models/dashboard.py`
 - Modify: `custom_addons/od19_dashboard/models/dashboard_rule.py`
 - Modify: `custom_addons/od19_dashboard/tests/test_dashboard_rules.py`
+- Modify: `custom_addons/od19_dashboard/tests/test_dashboard_engine.py` — **เพิ่มเข้ามาระหว่างทำ Task 7** คอนสเตรนต์ `_check_formula_config` ที่เพิ่มใน Step 6a ยิงทุก `write()` ทำให้เทสต์เดิม 17 ตัวที่เซตฟิลด์สูตรทีละฟิลด์ล้ม ต้องแปลงเป็นการเรียก `write({...})` ครั้งเดียว และย้าย 2 เทสต์ที่ต้องใช้สถานะยังไม่ valid ไปสร้างเรกคอร์ดด้วย `Model.new()`
 
 > **ขอบเขตที่ *ไม่* รวมใน Task นี้ (โดยเจตนา):**
 >
 > - `data/dashboard_data.xml` ยังคงมี `threshold_mode` / `warning_value` / `critical_value` ต่อไปจนถึง **Task 10** ไฟล์นี้ถูกประกาศด้วย `noupdate="1"` การอัปเดตโมดูลบนฐานข้อมูลเดิม (mode `update`) จะข้าม record ที่มีอยู่แล้ว **ก่อน** อ่านฟิลด์ (ดู [convert.py](file:///c:/odoo-dev/odoo19/odoo/tools/convert.py#L360-L380)) จึงไม่ล้ม — ผลข้างเคียงคือ **การติดตั้งใหม่ (mode `init`) จะล้มจนกว่า Task 10 จะแก้ seed** ซึ่งเป็นงานของ Task 10 ตามที่ระบุไว้ที่นั่น
 > - `static/src/dashboard/builder_dialog.js` / `builder_dialog.xml` / `dashboard_action.js` ที่ยังอ้าง `threshold_mode` เป็นของ **Task 8** (การลบฟิลด์ใน Task นี้ทำให้ `widget.threshold_mode` กลายเป็น `undefined` ฝั่ง JS ชั่วคราว)
+> - เทสต์ `test_dependency_ids_never_contains_the_widget_itself` ต้อง**บังคับ** ค่าตัวเองเข้าไปในหน่วยความจำ (patch `_effective_expression`) เพราะทั้งสองเส้นทางที่ผู้ใช้ทำได้จริงถูกกันไว้แล้ว — `_check_formula_config` ตัด id ของ widget ตัวเองออกจาก allowed names และ `_check_compare_widget` ห้ามกฎเทียบ widget กับตัวเอง — การสร้างด้วย `Model.new()` แบบเดิมทำให้เทสต์ผ่านตลอดกาลโดยไม่แตะบรรทัด `ids.discard(self.id)` เลย
 >
 > **การรันเทสต์ของ Task นี้** (ใช้กับ Step 2 และ Step 7) — พอร์ต 8070 ถูกเซิร์ฟเวอร์พื้นหลังยึดอยู่ และ `odoo.conf` เขียน log ลงไฟล์ ทำให้ stdout ว่าง ต้องระบุสองแฟลกเพิ่ม:
 >
@@ -3079,6 +3081,8 @@ git commit -m "refactor(od19_dashboard): retire the per-widget thresholds for fo
 > **3. `_boundSlots()` ตัดสล็อตว่างออก** — ระหว่างแก้ไข ตารางสล็อตต้องเก็บคีย์ที่ยังว่างไว้เพื่อให้แถวยังแสดงอยู่ แต่ payload ที่ส่งเซิร์ฟเวอร์ต้องมีเฉพาะสล็อตที่ผูกค่าแล้ว มิฉะนั้น `_validate_formula_config()` จะไม่เห็นสล็อตบังคับแล้วรายงานว่า "needs the slot(s): b"
 
 > **4. `dashboard_id` ส่งเฉพาะตอน preview ไม่ส่งตอนบันทึก** — `preview_widget()` ต้องรู้แดชบอร์ดปลายทางเพื่อคำนวณค่าของ widget อื่นที่จะถูกอ้างอิง แต่ `update_widget()` เขียนค่าทุกคีย์ที่ได้รับลงระเบียนจริง การส่ง `dashboard_id` ตอนบันทึกจึงเท่ากับย้าย widget — `_previewValues()` เติมคีย์นี้ ส่วน `_buildValues()` ไม่มีคีย์นี้
+
+> **5. `config.formula_expression` คือ *effective expression* ไม่ใช่ค่าฟิลด์ดิบ** — Task 7 Step 4b ให้ `_to_config()` ส่ง `self._effective_expression()` ภายใต้คีย์นี้ (และ `_get_widget_data()` ก็ส่งค่าเดียวกันมานานแล้ว) ผลคือ widget โหมด measure จะได้ค่า sentinel ภายในคือ `"value"` (alias ที่ `_aggregate_requests()` ใช้ตอนโหมด measure) **ไม่ใช่** นิพจน์ที่ผู้ใช้พิมพ์ ดังนั้น `openEditWidget()` ต้องดู `formula_mode` ก่อนใช้ค่านี้: ถ้าไม่ใช่ `custom` ให้ตั้ง textarea เป็น `""` และ `onFormulaModeChange()` ต้องรีเซ็ต `formula_expression` เป็น `""` เมื่อสลับออก/เข้าโหมด custom มิฉะนั้นผู้ใช้ที่สลับจาก measure ไป custom จะเห็นคำว่า `value` ค้างในช่อง และโดนปฏิเสธด้วย "The formula uses names without value: value."
 
 ---
 
