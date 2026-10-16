@@ -66,6 +66,7 @@ venv*/
 
 # Project backups & reference data
 Odoo15Backup/
+/backups/
 *.bak
 *.backup
 
