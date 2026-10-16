@@ -353,7 +353,38 @@ class TestDashboardOrdering(TransactionCase):
         self.widget_b.formula_mode = "custom"
         self.widget_b.formula_expression = "count_records + widget_%s" % self.widget_a.id
         ordered = self.dashboard._compute_order()
+        # Widget C has no dependency, so it is emitted first. The A/B pair is a
+        # cycle and cannot be ordered: the fallback emits the remaining widgets
+        # in (sequence, id) order, which here is A then B. No widget is lost.
+        self.assertEqual(ordered, [self.widget_c, self.widget_a, self.widget_b])
+
+    def test_compute_order_skips_inactive_widgets(self):
+        self.widget_b.active = False
+        self.widget_c.formula_mode = "custom"
+        self.widget_c.formula_expression = "count_records + widget_%s" % self.widget_b.id
+        ordered = self.dashboard._compute_order()
+        # An inactive widget is never emitted, but reading it must not block
+        # the widget that refers to it.
+        self.assertEqual(ordered, [self.widget_a, self.widget_c])
+
+    def test_compute_order_ignores_a_dependency_outside_the_dashboard(self):
+        other = self.env["od19.dashboard"].create({"name": "Other ordering dashboard"})
+        foreign = self.env["od19.dashboard.widget"].create(
+            {
+                "dashboard_id": other.id,
+                "name": "Foreign widget",
+                "widget_type": "kpi",
+                "source_id": self.source.id,
+                "measure_key": "__count",
+            }
+        )
+        self.widget_c.formula_mode = "custom"
+        self.widget_c.formula_expression = "count_records + widget_%s" % foreign.id
+        ordered = self.dashboard._compute_order()
+        # A dependency that is not part of this dashboard is already satisfied,
+        # so it must neither deadlock the sort nor be emitted.
         self.assertEqual(len(ordered), 3)
+        self.assertNotIn(foreign, ordered)
 
     def test_get_dashboard_data_returns_every_widget_with_a_cross_widget_rule(self):
         self.env["od19.dashboard.widget.rule"].create(
@@ -370,5 +401,11 @@ class TestDashboardOrdering(TransactionCase):
         self.assertEqual(
             {widget["id"] for widget in data["widgets"]},
             {self.widget_a.id, self.widget_b.id, self.widget_c.id},
+        )
+        # Widget A reads Widget B, so B must be rendered (and therefore
+        # computed) before A: the emitted order proves the dependency wins.
+        self.assertEqual(
+            [widget["id"] for widget in data["widgets"]],
+            [self.widget_b.id, self.widget_c.id, self.widget_a.id],
         )
         self.assertIn("status_source", data["widgets"][0])
