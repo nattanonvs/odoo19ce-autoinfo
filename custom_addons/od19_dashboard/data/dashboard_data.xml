@@ -26,13 +26,11 @@
         <field name="measure_key">amount_total</field>
         <field name="date_key">date_order</field>
         <field name="date_range">this_month</field>
-        <field name="threshold_mode">higher_is_better</field>
-        <field name="warning_value" eval="500000"/>
-        <field name="critical_value" eval="200000"/>
         <field name="goal_value" eval="1500000"/>
         <field name="grid_w" eval="3"/>
         <field name="grid_h" eval="2"/>
         <field name="sequence" eval="10"/>
+        <field name="rule_ids" eval="[(0, 0, {'sequence': 10, 'name': 'Below the critical value', 'operator': '&lt;=', 'compare_type': 'constant', 'compare_value': 200000.0, 'status': 'red'}), (0, 0, {'sequence': 20, 'name': 'Below the warning value', 'operator': '&lt;=', 'compare_type': 'constant', 'compare_value': 500000.0, 'status': 'yellow'})]"/>
     </record>
     <record id="dashboard_owner_receivables" model="od19.dashboard.widget">
         <field name="dashboard_id" ref="dashboard_owner"/>
@@ -44,13 +42,11 @@
         <field name="measure_key">amount_residual</field>
         <field name="date_range">all_time</field>
         <field name="domain">[('move_type', '=', 'out_invoice'), ('state', '=', 'posted')]</field>
-        <field name="threshold_mode">lower_is_better</field>
-        <field name="warning_value" eval="300000"/>
-        <field name="critical_value" eval="800000"/>
         <field name="show_delta" eval="False"/>
         <field name="grid_w" eval="3"/>
         <field name="grid_h" eval="2"/>
         <field name="sequence" eval="20"/>
+        <field name="rule_ids" eval="[(0, 0, {'sequence': 10, 'name': 'Above the critical value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 800000.0, 'status': 'red'}), (0, 0, {'sequence': 20, 'name': 'Above the warning value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 300000.0, 'status': 'yellow'})]"/>
     </record>
     <record id="dashboard_owner_orders" model="od19.dashboard.widget">
         <field name="dashboard_id" ref="dashboard_owner"/>
@@ -76,13 +72,31 @@
         <field name="date_key">scheduled_date</field>
         <field name="date_range">overdue</field>
         <field name="domain">[('state', 'not in', ['done', 'cancel'])]</field>
-        <field name="threshold_mode">lower_is_better</field>
-        <field name="warning_value" eval="3"/>
-        <field name="critical_value" eval="10"/>
         <field name="show_delta" eval="False"/>
         <field name="grid_w" eval="3"/>
         <field name="grid_h" eval="2"/>
         <field name="sequence" eval="40"/>
+        <field name="rule_ids" eval="[(0, 0, {'sequence': 10, 'name': 'Above the critical value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 10.0, 'status': 'red'}), (0, 0, {'sequence': 20, 'name': 'Above the warning value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 3.0, 'status': 'yellow'})]"/>
+    </record>
+    <record id="dashboard_owner_revenue_goal" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_owner"/>
+        <field name="name">Revenue vs Goal</field>
+        <field name="subtitle">Confirmed sales orders as a percentage of the monthly goal</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">percent</field>
+        <field name="source_id" ref="source_sale_order"/>
+        <field name="measure_key">amount_total</field>
+        <field name="date_key">date_order</field>
+        <field name="date_range">this_month</field>
+        <field name="goal_value" eval="1500000"/>
+        <field name="formula_mode">preset</field>
+        <field name="formula_type">percent_of_goal</field>
+        <field name="formula_slots">{"a": "amount_total"}</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="3"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="45"/>
+        <field name="rule_ids" eval="[(0, 0, {'sequence': 10, 'name': 'Under 80% of the goal', 'operator': '&lt;=', 'compare_type': 'constant', 'compare_value': 80.0, 'status': 'red'}), (0, 0, {'sequence': 20, 'name': 'Under the goal', 'operator': '&lt;=', 'compare_type': 'constant', 'compare_value': 100.0, 'status': 'yellow'})]"/>
     </record>
     <record id="dashboard_owner_revenue_trend" model="od19.dashboard.widget">
         <field name="dashboard_id" ref="dashboard_owner"/>
@@ -303,13 +317,11 @@
         <field name="date_key">scheduled_date</field>
         <field name="date_range">overdue</field>
         <field name="domain">[('state', 'not in', ['done', 'cancel'])]</field>
-        <field name="threshold_mode">lower_is_better</field>
-        <field name="warning_value" eval="3"/>
-        <field name="critical_value" eval="10"/>
         <field name="show_delta" eval="False"/>
         <field name="grid_w" eval="3"/>
         <field name="grid_h" eval="2"/>
         <field name="sequence" eval="20"/>
+        <field name="rule_ids" eval="[(0, 0, {'sequence': 10, 'name': 'Above the critical value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 10.0, 'status': 'red'}), (0, 0, {'sequence': 20, 'name': 'Above the warning value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 3.0, 'status': 'yellow'})]"/>
     </record>
     <record id="dashboard_operational_tasks" model="od19.dashboard.widget">
         <field name="dashboard_id" ref="dashboard_operational"/>

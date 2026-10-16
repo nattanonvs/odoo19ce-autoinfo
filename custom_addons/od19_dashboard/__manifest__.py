@@ -1,7 +1,7 @@
 {
     "name": "OD19 Dashboard Builder",
     "author": "OD19",
-    "version": "19.0.1.0.0",
+    "version": "19.0.2.0.0",
     "category": "Productivity",
     "summary": "Role-based dashboards with an in-browser drag & drop builder",
     "description": """
@@ -18,8 +18,15 @@ Features
 * In-browser builder: add, edit, remove, drag to reorder and resize widgets.
 * Widget types: KPI value (with period-over-period delta), bar, line, pie
   chart and list.
-* KPI widgets inherit the red / yellow / green / grey status model from
-  ``kpi-reporting-baseline.md`` through per-widget thresholds.
+* KPI status rules are a reorderable first-match-wins table that compares the
+  widget value with a constant, a goal, a percentage of the goal, another
+  widget of the same dashboard, or a shifted period (previous, YtY, MtM, QtQ).
+* Formula engine: 14 preset formulas (ratio, difference, growth, share, sum,
+  average, weighted average, percent of goal, min, max, cumulative change, run
+  rate, conversion rate, variance), a free-text expression evaluated through
+  ``safe_eval``, and per-group evaluation on bar / line / pie charts.
+* Live preview in the builder shows the resulting value and the number of
+  records the widget would collect before the widget is saved.
 * Data is read only from a curated whitelist of models and measures
   (``od19.dashboard.source``) so no arbitrary model can be queried.
 """,

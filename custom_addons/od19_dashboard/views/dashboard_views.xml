@@ -101,7 +101,8 @@
             <p>
                 Build a dashboard from the pre-defined data sources, then design it
                 with the in-browser builder: add widgets, drag to reorder, resize and
-                set red / yellow / green thresholds.
+                define status rules (red / yellow / green) or a formula combining
+                several measures.
             </p>
         </field>
     </record>
