@@ -276,6 +276,70 @@ class Od19Dashboard(models.Model):
         return ordered
 
     @api.model
+    def _normalise_preview_values(self, values):
+        """Return builder values usable to build an in-memory widget record.
+
+        ``id`` is dropped (it would bind the new record to a stored one) and
+        ``rule_ids`` is rewritten as create commands so a draft always carries
+        brand new rules, whether the builder sent an existing rule, a modified
+        rule or a deleted one.
+        """
+        cleaned = dict(values or {})
+        cleaned.pop("id", None)
+        commands = []
+        for rule in cleaned.get("rule_ids") or []:
+            if isinstance(rule, (list, tuple)):
+                code = rule[0] if rule else 0
+                if code in (2, 3, 6):  # delete / unlink / clear
+                    continue
+                data = dict(rule[2] or {}) if len(rule) > 2 else {}
+            else:
+                data = dict(rule)
+            data.pop("id", None)
+            data.pop("widget_id", None)
+            commands.append((0, 0, data))
+        cleaned["rule_ids"] = commands
+        return cleaned
+
+    @api.model
+    def preview_widget(self, values, date_range=None):
+        """Evaluate a draft widget configuration without writing to the database.
+
+        The builder calls this on every change so the designer immediately sees
+        the value, the number of records the widget would collect, the status
+        resulting from the rule list, and the operands actually used. The draft
+        lives in a new (in-memory) record: nothing is stored.
+        """
+        cleaned = self._normalise_preview_values(values)
+        draft = self.env["od19.dashboard.widget"].new(cleaned)
+        draft._validate_formula_config()
+
+        dashboard = draft.dashboard_id
+        if dashboard:
+            dashboard.check_access_rights("read")
+
+        effective_range = date_range or cleaned.get("date_range")
+        widget_values = {}
+        for widget in dashboard.widget_ids.filtered("active"):
+            other = widget._get_widget_data(
+                date_range=effective_range, widget_values=widget_values
+            )
+            widget_values[widget.id] = other.get("value")
+
+        data = draft._get_widget_data(date_range=effective_range, widget_values=widget_values)
+        return {
+            "value": data.get("value"),
+            "value_text": data.get("value_text") or "",
+            "record_count": data.get("record_count") or 0,
+            "status": data.get("status"),
+            "status_source": data.get("status_source") or "default",
+            "operands": data.get("operands") or [],
+            "series_preview": (data.get("series") or [])[:5],
+            "formula_expression": draft._effective_expression(),
+            "message": data.get("message") or "",
+        }
+
+    @api.model
     def save_layout(self, dashboard_id, layout):
         """Persist the order / size of the widgets after a drag or resize."""
         dashboard = self.browse(dashboard_id).exists()
@@ -557,16 +621,21 @@ class Od19DashboardWidget(models.Model):
             "value_format": self.value_format,
             "color": self.color or "",
             "goal_value": self.goal_value,
-            "threshold_mode": self.threshold_mode,
+            "delta_basis": self.delta_basis,
+            "is_lower_better": self._is_lower_better(),
             "grid_w": self.grid_w,
             "grid_h": self.grid_h,
             "sequence": self.sequence,
             "status": "grey",
             "status_source": "default",
             "value": None,
+            "value_text": "",
+            "record_count": 0,
             "delta": None,
             "series": [],
             "rows": [],
+            "operands": [],
+            "formula_expression": self._effective_expression(),
             "message": False,
         }
 
@@ -582,8 +651,8 @@ class Od19DashboardWidget(models.Model):
             data["message"] = _("You do not have read access on %s.") % source.name
             return data
 
-        aggregate_spec = source._aggregate_spec(self.measure_key)
-        if not aggregate_spec:
+        requests = self._aggregate_requests()
+        if not requests:
             data["message"] = _("The measure configured on this widget is not available any more.")
             return data
 
@@ -595,42 +664,86 @@ class Od19DashboardWidget(models.Model):
 
         try:
             if self.widget_type == "kpi":
-                self._fill_kpi_data(data, model, domain, aggregate_spec, date_range, date_from, date_to)
+                self._fill_kpi_data(data, model, domain, requests, date_range, date_from, date_to, widget_values)
             elif self.widget_type in ("bar", "line", "pie"):
-                self._fill_chart_data(data, model, domain, aggregate_spec)
+                self._fill_chart_data(data, model, domain, requests, date_range, date_from, date_to, widget_values)
             else:
                 self._fill_list_data(data, model, domain)
         except (AccessError, UserError) as error:
             data["message"] = str(error)
             data["status"] = "grey"
+            data["status_source"] = "default"
         except Exception as error:  # noqa: BLE001 - never break the whole dashboard
             _logger.exception("Dashboard widget %s could not be computed", self.id)
             data["message"] = _("This widget could not be computed: %s") % error
             data["status"] = "grey"
+            data["status_source"] = "default"
         return data
 
-    def _fill_kpi_data(self, data, model, domain, aggregate_spec, date_range, date_from, date_to):
-        rows = model._read_group(domain, [], [aggregate_spec], limit=1)
-        value = self._to_number(rows[0][0]) if rows and rows[0] else 0.0
+    def _fill_kpi_data(self, data, model, domain, requests, date_range=None, date_from=None, date_to=None, widget_values=None):
+        if self._needs_bounded_period() and not self._run_rate_days(date_range, date_from, date_to):
+            data["message"] = _("Choose a date field and a bounded period to compute this formula.")
+            return
+
+        aggregates = [request[2] for request in requests]
+        rows = model._read_group(domain, [], aggregates, limit=1)
+        extra = self._formula_extra(model, domain, requests, date_range, date_from, date_to, widget_values)
+        context = self._formula_context(rows[0] if rows else (), requests, extra)
+        value = self._evaluate_value(context)
+        if self.formula_mode == "preset" and self.formula_type == "cumulative_change":
+            value = self._cumulative_change_value(
+                model, domain, requests, date_range, date_from, date_to, widget_values
+            )
+        if value is None:
+            data["message"] = _("Choose a date field and a bounded period to compute this formula.")
+            return
+
         data["value"] = value
-        data["status"] = self._compute_status(value)
+        data["value_text"] = self._value_text(value)
+        data["record_count"] = self._record_count(model, domain)
+        data["operands"] = self._operand_details(requests, context)
+
+        rule_context = {
+            "value": value,
+            "goal": self.goal_value or 0.0,
+            "widget_values": widget_values or {},
+            "shifts": self._shift_values(model, requests, date_range, date_from, date_to, widget_values),
+        }
+        data["status"], data["status_source"] = self._evaluate_rules(rule_context)
 
         if self.show_delta:
-            previous_domain = self._build_domain(date_range, date_from, date_to, shift="previous")
-            previous_rows = model._read_group(previous_domain, [], [aggregate_spec], limit=1)
-            previous_value = self._to_number(previous_rows[0][0]) if previous_rows and previous_rows[0] else 0.0
-            if previous_value:
-                data["delta"] = round((value - previous_value) / previous_value * 100, 1)
-            elif value:
-                data["delta"] = 100.0
-            else:
-                data["delta"] = 0.0
+            self._fill_delta(data, model, requests, value, date_range, date_from, date_to, widget_values)
 
-    def _fill_chart_data(self, data, model, domain, aggregate_spec):
+    def _fill_delta(self, data, model, requests, value, date_range=None, date_from=None, date_to=None, widget_values=None):
+        """Fill the KPI delta against the basis period chosen by the designer."""
+        self.ensure_one()
+        previous_domain = self._build_domain(date_range, date_from, date_to, shift=self.delta_basis)
+        try:
+            previous_value = self._value_for(
+                model, previous_domain, requests, date_range, date_from, date_to, widget_values
+            )
+        except (UserError, ValidationError) as error:
+            _logger.info("Delta of widget %s could not be computed: %s", self.id, error)
+            return
+        if previous_value is None:
+            return
+        if previous_value:
+            data["delta"] = round((value - previous_value) / previous_value * 100, 1)
+        elif value:
+            data["delta"] = 100.0
+        else:
+            data["delta"] = 0.0
+
+    def _fill_chart_data(self, data, model, domain, requests, date_range=None, date_from=None, date_to=None, widget_values=None):
         groupby_spec = self._groupby_spec()
         if not groupby_spec:
             data["message"] = _("Choose a group by field for this chart.")
             return
+        if self._needs_bounded_period() and not self._run_rate_days(date_range, date_from, date_to):
+            data["message"] = _("Choose a date field and a bounded period to compute this formula.")
+            return
+
+        aggregates = [request[2] for request in requests]
         limit = self.limit if self.limit > 0 else None
         if self.widget_type == "line":
             # A line chart is a trend: take the most recent buckets, then
@@ -638,7 +751,7 @@ class Od19DashboardWidget(models.Model):
             rows = model._read_group(
                 domain,
                 [groupby_spec],
-                [aggregate_spec],
+                aggregates,
                 order="%s desc" % groupby_spec,
                 limit=limit,
             )
@@ -646,25 +759,36 @@ class Od19DashboardWidget(models.Model):
             rows = model._read_group(
                 domain,
                 [groupby_spec],
-                [aggregate_spec],
-                order="%s desc" % aggregate_spec,
+                aggregates,
+                order="%s desc" % aggregates[0],
                 limit=limit,
             )
+
+        extra = self._formula_extra(model, domain, requests, date_range, date_from, date_to, widget_values)
+        if self._uses_share():
+            # In a chart the share of a bucket is measured against the total of
+            # every displayed bucket, not against the whole domain.
+            extra["total_a"] = sum(
+                self._formula_context(row, requests).get("a", 0.0) for row in rows
+            )
+
         series = []
         for row in rows:
-            group_value = row[0]
-            aggregate_value = row[1] if len(row) > 1 else 0
+            context = self._formula_context(row, requests, extra)
             series.append(
-                {
-                    "label": self._group_label(group_value),
-                    "value": self._to_number(aggregate_value),
-                }
+                {"label": self._group_label(row[0]), "value": self._evaluate_value(context)}
             )
         if self.widget_type == "line":
             series.reverse()
+        if self.formula_mode == "preset" and self.formula_type == "cumulative_change":
+            series = self._cumulative_series(series)
+
         data["series"] = series
         data["status"] = "green" if series else "grey"
-        if not series:
+        if series:
+            data["value"] = series[-1]["value"]
+            data["value_text"] = self._value_text(data["value"])
+        else:
             data["message"] = _("No data for the selected period.")
 
     def _fill_list_data(self, data, model, domain):
@@ -770,8 +894,10 @@ class Od19DashboardWidget(models.Model):
         """Return the de-duplicated ``(alias, measure_key, spec)`` triples to read.
 
         The list is ordered consistently with the aggregate columns returned
-        by a single ``_read_group`` call, so index ``i + 1`` of a result row
-        belongs to ``requests[i]``.
+        by a single ``_read_group`` call. A KPI, a delta and a period
+        comparison read a single row without any grouping, so the offset of
+        the first aggregate in a result row is derived from the length of the
+        row instead of assuming a group value is always present.
         """
         self.ensure_one()
         source = self.source_id
@@ -899,6 +1025,232 @@ class Od19DashboardWidget(models.Model):
                 raise ValidationError(
                     _("The formula uses names without value: %s.") % ", ".join(unresolved)
                 )
+
+    # ------------------------------------------------------------------
+    # Formula evaluation
+    # ------------------------------------------------------------------
+    def _shifted_period(self, date_range=None, date_from=None, date_to=None, shift=None):
+        """Return the ``(start, end)`` dates of a period, or ``(None, None)``."""
+        self.ensure_one()
+        start, end, _field_type = self._period_bounds(date_range, date_from, date_to, shift)
+        return start, end
+
+    def _run_rate_days(self, date_range=None, date_from=None, date_to=None):
+        """Return ``(days_in_period, days_elapsed)``, or ``None`` without a bound."""
+        self.ensure_one()
+        if not self.date_key:
+            return None
+        start, end = self._shifted_period(date_range, date_from, date_to)
+        if not start or not end:
+            return None
+        days_in_period = (end - start).days + 1
+        elapsed_end = min(end, fields.Date.context_today(self))
+        days_elapsed = max((elapsed_end - start).days + 1, 0)
+        if days_elapsed <= 0:
+            return None
+        return days_in_period, days_elapsed
+
+    def _needs_bounded_period(self):
+        """Return True when the formula needs a bounded period to be computable."""
+        self.ensure_one()
+        return bool(
+            formula_tools.expression_names(self._effective_expression())
+            & {"days_in_period", "days_elapsed"}
+        )
+
+    def _uses_share(self):
+        """Return True when the expression divides a measure by the total of A."""
+        self.ensure_one()
+        return "total_a" in formula_tools.expression_names(self._effective_expression())
+
+    def _formula_context(self, row, requests, extra=None):
+        """Return the ``safe_eval`` context of one ``_read_group`` row.
+
+        A ``_read_group`` row is flat: the group by values come first, then the
+        aggregate of every request. The alias of each request becomes a name of
+        the context. A KPI, a delta and a period comparison read a single row
+        without any grouping, so their row starts directly with the aggregates:
+        the offset is derived from the length of the row instead of assuming a
+        group value is always present. Every implicit name is pre-set to
+        ``0.0`` so an expression can never raise ``KeyError`` at evaluation.
+        """
+        self.ensure_one()
+        offset = max(len(row) - len(requests), 0)
+        context = {}
+        for index, (alias, _measure_key, _spec) in enumerate(requests):
+            value = row[index + offset] if len(row) > index + offset else 0
+            context[alias] = self._to_number(value)
+        # A slot bound to a literal weight (``w1`` / ``w2`` of the weighted
+        # average) is not an aggregate: its value is the number stored on the
+        # widget itself.
+        for slot_key, slot_value in self._formula_slot_map().items():
+            if not isinstance(slot_value, str):
+                context.setdefault(slot_key, self._to_number(slot_value))
+        for name in formula_tools.IMPLICIT_NAMES:
+            context.setdefault(name, 0.0)
+        for widget_id in self._dependency_ids():
+            context.setdefault("widget_%s" % widget_id, 0.0)
+        context["goal"] = self.goal_value or 0.0
+        context.update(extra or {})
+        return context
+
+    def _formula_extra(self, model, domain, requests, date_range=None, date_from=None, date_to=None, widget_values=None):
+        """Return the context values that are not read from a single aggregate row."""
+        self.ensure_one()
+        extra = {}
+        for widget_id in self._dependency_ids():
+            extra["widget_%s" % widget_id] = self._to_number((widget_values or {}).get(widget_id))
+        if self._uses_share():
+            slot_a = self._formula_slot_map().get("a") or self.measure_key
+            spec = self.source_id._aggregate_spec(slot_a) if isinstance(slot_a, str) else False
+            if spec:
+                rows = model._read_group(domain, [], [spec], limit=1)
+                extra["total_a"] = self._to_number(rows[0][0]) if rows and rows[0] else 0.0
+        if self._needs_bounded_period():
+            days = self._run_rate_days(date_range, date_from, date_to)
+            if days:
+                extra["days_in_period"] = float(days[0])
+                extra["days_elapsed"] = float(days[1])
+        return extra
+
+    def _evaluate_value(self, context):
+        """Evaluate the effective expression on ``context`` (raises ``UserError``)."""
+        self.ensure_one()
+        expression = self._effective_expression()
+        if not expression:
+            raise UserError(_("Type the formula of this widget."))
+        if expression == "value":
+            return context.get("value", 0.0)
+        try:
+            return formula_tools.evaluate_expression(expression, context)
+        except ZeroDivisionError as error:
+            raise UserError(
+                _("The formula of widget '%s' divides by zero for this period.") % self.name
+            ) from error
+        except Exception as error:  # noqa: BLE001 - surfaced as a widget message
+            raise UserError(
+                _("The formula of widget '%s' could not be evaluated: %s") % (self.name, error)
+            ) from error
+
+    def _record_count(self, model, domain):
+        """Return the number of records the widget would collect on ``domain``."""
+        self.ensure_one()
+        rows = model._read_group(domain, [], ["__count"], limit=1)
+        return int(rows[0][0] or 0) if rows and rows[0] else 0
+
+    def _operand_details(self, requests, context):
+        """Return the ``alias`` → label / value list shown by the builder preview."""
+        self.ensure_one()
+        labels = {
+            field.field_name: field.label or field.field_name
+            for field in self.source_id.field_ids
+        }
+        details = []
+        for alias, measure_key, _spec in requests:
+            if measure_key == "__count":
+                label = _("Number of records")
+            else:
+                label = labels.get(measure_key, measure_key)
+            details.append(
+                {"alias": alias, "label": label, "value": context.get(alias, 0.0)}
+            )
+        used = formula_tools.expression_names(self._effective_expression())
+        for name in ("total_a", "days_in_period", "days_elapsed"):
+            if name in used:
+                details.append(
+                    {"alias": name, "label": name, "value": context.get(name, 0.0)}
+                )
+        return details
+
+    def _number_text(self, value, decimals):
+        """Format a number the way the dashboard client does (no padding zeros)."""
+        text = ("%%.%df" % decimals) % self._to_number(value)
+        sign = "-" if text.startswith("-") else ""
+        integer, _dot, decimal = (text[1:] if sign else text).partition(".")
+        grouped = "{:,}".format(int(integer or 0))
+        return "%s%s%s" % (
+            sign,
+            grouped,
+            (".%s" % decimal.rstrip("0")) if decimal.rstrip("0") else "",
+        )
+
+    def _value_text(self, value):
+        """Return the value formatted with ``value_format``, mirroring the client."""
+        self.ensure_one()
+        if value is None:
+            return ""
+        currency = self.env.company.currency_id
+        if self.value_format == "percent":
+            return "%s%%" % self._number_text(value, 1)
+        if self.value_format == "hours":
+            return "%s h" % self._number_text(value, 1)
+        if self.value_format == "currency":
+            text = self._number_text(value, currency.decimal_places or 2)
+            symbol = currency.symbol or ""
+            if not symbol:
+                return text
+            if currency.position == "after":
+                return "%s %s" % (text, symbol)
+            return "%s %s" % (symbol, text)
+        return self._number_text(value, 2)
+
+    def _value_for(self, model, domain, requests, date_range=None, date_from=None, date_to=None, widget_values=None):
+        """Evaluate the formula of this widget on an arbitrary domain."""
+        self.ensure_one()
+        aggregates = [request[2] for request in requests]
+        rows = model._read_group(domain, [], aggregates, limit=1)
+        extra = self._formula_extra(model, domain, requests, date_range, date_from, date_to, widget_values)
+        return self._evaluate_value(self._formula_context(rows[0] if rows else (), requests, extra))
+
+    def _shift_values(self, model, requests, date_range=None, date_from=None, date_to=None, widget_values=None):
+        """Return ``{shift: value}`` for the shifts the status rules of this widget need."""
+        self.ensure_one()
+        values = {}
+        for shift in sorted(self._required_shifts()):
+            domain = self._build_domain(date_range, date_from, date_to, shift=shift)
+            try:
+                values[shift] = self._value_for(
+                    model, domain, requests, date_range, date_from, date_to, widget_values
+                )
+            except (UserError, ValidationError) as error:
+                # A rule comparing with an unreachable period is skipped, not fatal.
+                _logger.info("Shift '%s' of widget %s could not be computed: %s", shift, self.id, error)
+                values[shift] = None
+        return values
+
+    def _cumulative_series(self, series):
+        """Turn a series into its cumulative change (bucket − first bucket)."""
+        if not series:
+            return series
+        base = series[0]["value"]
+        return [
+            {"label": item["label"], "value": round(item["value"] - base, 4)}
+            for item in series
+        ]
+
+    def _cumulative_change_value(self, model, domain, requests, date_range=None, date_from=None, date_to=None, widget_values=None):
+        """Return the change between the first and the last bucket of the period.
+
+        Used when ``cumulative_change`` is applied to a widget without buckets
+        (KPI or list): the period of the widget is bucketed by month on its date
+        field, each bucket is evaluated with the formula and the difference
+        between the last and the first bucket is returned. ``None`` means the
+        widget has no date field, so the formula cannot be computed.
+        """
+        self.ensure_one()
+        if not self.date_key:
+            return None
+        groupby_spec = "%s:month" % self.date_key
+        aggregates = [request[2] for request in requests]
+        rows = model._read_group(domain, [groupby_spec], aggregates, order="%s asc" % groupby_spec)
+        if len(rows) < 2:
+            return 0.0
+        extra = self._formula_extra(model, domain, requests, date_range, date_from, date_to, widget_values)
+        values = [
+            self._evaluate_value(self._formula_context(row, requests, extra))
+            for row in rows
+        ]
+        return values[-1] - values[0]
 
     # ------------------------------------------------------------------
     # Status rules

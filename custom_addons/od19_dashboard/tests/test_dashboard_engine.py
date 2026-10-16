@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from odoo import fields
 from odoo.exceptions import ValidationError
+from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
 
@@ -409,3 +410,128 @@ class TestDashboardOrdering(TransactionCase):
             [self.widget_b.id, self.widget_c.id, self.widget_a.id],
         )
         self.assertIn("status_source", data["widgets"][0])
+
+
+@tagged("post_install", "-at_install")
+class TestDashboardPreview(TransactionCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.dashboard = cls.env["od19.dashboard"].create({"name": "Preview test dashboard"})
+        cls.source = cls.env.ref("od19_dashboard.source_sale_order")
+        cls.base_values = {
+            "dashboard_id": cls.dashboard.id,
+            "name": "Preview widget",
+            "widget_type": "kpi",
+            "source_id": cls.source.id,
+            "measure_key": "amount_total",
+            "date_key": "date_order",
+            "date_range": "all_time",
+        }
+
+    def _preview(self, **overrides):
+        values = dict(self.base_values)
+        values.update(overrides)
+        return self.env["od19.dashboard"].preview_widget(values)
+
+    def test_preview_returns_a_value_and_a_count(self):
+        result = self._preview()
+        self.assertIn("value", result)
+        self.assertIsInstance(result["record_count"], int)
+        self.assertEqual(result["status"], "green")
+        self.assertEqual(result["status_source"], "default")
+
+    def test_preview_evaluates_a_preset_formula(self):
+        result = self._preview(
+            formula_mode="preset",
+            formula_type="ratio",
+            formula_slots='{"a": "amount_total", "b": "__count"}',
+        )
+        self.assertEqual(result["formula_expression"], "a / b")
+        self.assertEqual([item["alias"] for item in result["operands"]], ["a", "b"])
+
+    def test_preview_evaluates_a_literal_weight_slot(self):
+        result = self._preview(
+            formula_mode="preset",
+            formula_type="weighted_average",
+            formula_slots='{"a": "amount_total", "b": "amount_untaxed", "w1": 2, "w2": 1}',
+        )
+        operands = {item["alias"]: item["value"] for item in result["operands"]}
+        expected = (operands["a"] * 2 + operands["b"] * 1) / 3
+        self.assertAlmostEqual(result["value"], expected)
+
+    def test_preview_applies_the_first_matching_rule(self):
+        result = self._preview(
+            rule_ids=[
+                (0, 0, {
+                    "operator": "<",
+                    "compare_type": "constant",
+                    "compare_value": -1,
+                    "status": "red",
+                }),
+                (0, 0, {
+                    "operator": ">=",
+                    "compare_type": "constant",
+                    "compare_value": -1,
+                    "status": "yellow",
+                }),
+            ],
+        )
+        self.assertEqual(result["status"], "yellow")
+        self.assertEqual(result["status_source"], "rule")
+
+    def test_preview_refuses_a_broken_formula(self):
+        with self.assertRaises(ValidationError):
+            self._preview(formula_mode="custom", formula_expression="__import__('os').system('dir')")
+        with self.assertRaises(ValidationError):
+            self._preview(formula_mode="preset", formula_type="ratio", formula_slots='{"a": "amount_total"}')
+
+    def test_preview_writes_nothing(self):
+        before = self.env["od19.dashboard.widget"].search_count(
+            [("dashboard_id", "=", self.dashboard.id)]
+        )
+        self._preview()
+        after = self.env["od19.dashboard.widget"].search_count(
+            [("dashboard_id", "=", self.dashboard.id)]
+        )
+        self.assertEqual(before, after)
+
+    def test_preview_returns_a_series_preview_for_charts(self):
+        result = self._preview(widget_type="bar", groupby_key="state", limit=5)
+        self.assertLessEqual(len(result["series_preview"]), 5)
+
+    def test_preview_reads_the_aggregate_of_an_ungrouped_row(self):
+        """A KPI reads one row without a group value, so alias 0 maps to row[0]."""
+        partner = self.env["res.partner"].create({"name": "Preview customer"})
+        self.env["sale.order"].create({"partner_id": partner.id})
+        expected = float(self.env["sale.order"].search_count([]))
+        self.assertGreater(expected, 0)
+        result = self._preview(
+            measure_key="__count",
+            formula_mode="custom",
+            formula_expression="count_records",
+        )
+        self.assertEqual(result["value"], expected)
+
+    def test_preview_reads_the_aggregate_of_a_grouped_row(self):
+        """A chart reads grouped rows: the group value precedes the aggregates."""
+        rows = self.env["sale.order"]._read_group([], ["state"], ["__count"])
+        self.assertLessEqual(len(rows), 5)
+        result = self._preview(
+            widget_type="bar",
+            groupby_key="state",
+            limit=50,
+            measure_key="__count",
+            formula_mode="custom",
+            formula_expression="count_records",
+        )
+        self.assertEqual(
+            sum(item["value"] for item in result["series_preview"]),
+            float(sum(count for _state, count in rows)),
+        )
+
+    def test_number_text_keeps_a_single_minus_sign(self):
+        widget = self.env["od19.dashboard.widget"].new({"name": "Number text"})
+        self.assertEqual(widget._number_text(-1234.5, 2), "-1,234.5")
+        self.assertEqual(widget._number_text(1234.5, 2), "1,234.5")
+        self.assertEqual(widget._number_text(0, 0), "0")
