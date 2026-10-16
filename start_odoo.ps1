@@ -62,8 +62,9 @@ if ($nginxRunning) {
     Write-Host "  Nginx: Already running on port 80" -ForegroundColor Green
 } else {
     Write-Host "  Starting Nginx..." -ForegroundColor Yellow
-    Start-Process "$nginxPath\nginx.exe" -WorkingDirectory $nginxPath
-    Start-Sleep -Seconds 2
+    # Start nginx as a fully detached process (survives console close)
+    $ret = Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{CommandLine="`"$nginxPath\nginx.exe`""; CurrentDirectory=$nginxPath}
+    Start-Sleep -Seconds 3
     $check = Get-NetTCPConnection -LocalPort 80 -State Listen -ErrorAction SilentlyContinue
     if ($check) {
         Write-Host "  Nginx: Started (port 80)" -ForegroundColor Green
