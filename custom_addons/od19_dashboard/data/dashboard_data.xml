@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!--
+        Sample dashboards delivered with the module. They follow the zones of
+        role-based-dashboard-blueprint.md (summary, alerts, trend, detail) and
+        the red / yellow / green status model of kpi-reporting-baseline.md.
+        noupdate="1" keeps the user customisations made with the builder.
+    -->
+
+    <!-- ===================== Owner / Executive ===================== -->
+    <record id="dashboard_owner" model="od19.dashboard">
+        <field name="name">Owner Executive Dashboard</field>
+        <field name="audience">owner</field>
+        <field name="description">Company level summary, risk alerts and trend for the owner.</field>
+        <field name="sequence">10</field>
+        <field name="is_default" eval="True"/>
+        <field name="default_date_range">this_month</field>
+    </record>
+    <record id="dashboard_owner_revenue" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_owner"/>
+        <field name="name">Revenue (This Month)</field>
+        <field name="subtitle">Confirmed sales orders</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">currency</field>
+        <field name="source_id" ref="source_sale_order"/>
+        <field name="measure_key">amount_total</field>
+        <field name="date_key">date_order</field>
+        <field name="date_range">this_month</field>
+        <field name="threshold_mode">higher_is_better</field>
+        <field name="warning_value" eval="500000"/>
+        <field name="critical_value" eval="200000"/>
+        <field name="goal_value" eval="1500000"/>
+        <field name="grid_w" eval="3"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="10"/>
+    </record>
+    <record id="dashboard_owner_receivables" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_owner"/>
+        <field name="name">Outstanding Receivables</field>
+        <field name="subtitle">Posted customer invoices</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">currency</field>
+        <field name="source_id" ref="source_account_move"/>
+        <field name="measure_key">amount_residual</field>
+        <field name="date_range">all_time</field>
+        <field name="domain">[('move_type', '=', 'out_invoice'), ('state', '=', 'posted')]</field>
+        <field name="threshold_mode">lower_is_better</field>
+        <field name="warning_value" eval="300000"/>
+        <field name="critical_value" eval="800000"/>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="3"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="20"/>
+    </record>
+    <record id="dashboard_owner_orders" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_owner"/>
+        <field name="name">Confirmed Orders (30 Days)</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_sale_order"/>
+        <field name="measure_key">__count</field>
+        <field name="date_key">date_order</field>
+        <field name="date_range">last_30_days</field>
+        <field name="domain">[('state', '=', 'sale')]</field>
+        <field name="grid_w" eval="3"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="30"/>
+    </record>
+    <record id="dashboard_owner_late_delivery" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_owner"/>
+        <field name="name">Overdue Deliveries</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_stock_picking"/>
+        <field name="measure_key">__count</field>
+        <field name="date_key">scheduled_date</field>
+        <field name="date_range">overdue</field>
+        <field name="domain">[('state', 'not in', ['done', 'cancel'])]</field>
+        <field name="threshold_mode">lower_is_better</field>
+        <field name="warning_value" eval="3"/>
+        <field name="critical_value" eval="10"/>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="3"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="40"/>
+    </record>
+    <record id="dashboard_owner_revenue_trend" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_owner"/>
+        <field name="name">Revenue Trend by Month</field>
+        <field name="widget_type">line</field>
+        <field name="value_format">currency</field>
+        <field name="source_id" ref="source_sale_order"/>
+        <field name="measure_key">amount_total</field>
+        <field name="groupby_key">date_order</field>
+        <field name="date_key">date_order</field>
+        <field name="date_range">this_year</field>
+        <field name="limit" eval="12"/>
+        <field name="grid_w" eval="8"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="50"/>
+    </record>
+    <record id="dashboard_owner_revenue_team" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_owner"/>
+        <field name="name">Revenue by Sales Team</field>
+        <field name="widget_type">pie</field>
+        <field name="value_format">currency</field>
+        <field name="source_id" ref="source_sale_order"/>
+        <field name="measure_key">amount_total</field>
+        <field name="groupby_key">team_id</field>
+        <field name="date_key">date_order</field>
+        <field name="date_range">this_year</field>
+        <field name="limit" eval="6"/>
+        <field name="grid_w" eval="4"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="60"/>
+    </record>
+    <record id="dashboard_owner_top_customers" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_owner"/>
+        <field name="name">Top Customers</field>
+        <field name="widget_type">list</field>
+        <field name="value_format">currency</field>
+        <field name="source_id" ref="source_sale_order"/>
+        <field name="measure_key">amount_total</field>
+        <field name="date_key">date_order</field>
+        <field name="date_range">this_year</field>
+        <field name="domain">[('state', '=', 'sale')]</field>
+        <field name="limit" eval="10"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="70"/>
+    </record>
+    <record id="dashboard_owner_late_list" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_owner"/>
+        <field name="name">Overdue Delivery List</field>
+        <field name="widget_type">list</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_stock_picking"/>
+        <field name="measure_key">__count</field>
+        <field name="date_key">scheduled_date</field>
+        <field name="date_range">overdue</field>
+        <field name="domain">[('state', 'not in', ['done', 'cancel'])]</field>
+        <field name="limit" eval="10"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="80"/>
+    </record>
+
+    <!-- ===================== Management ===================== -->
+    <record id="dashboard_management" model="od19.dashboard">
+        <field name="name">Management Performance Dashboard</field>
+        <field name="audience">management</field>
+        <field name="description">Performance summary, exceptions, trend and pipeline for managers.</field>
+        <field name="sequence">20</field>
+        <field name="is_default" eval="True"/>
+        <field name="default_date_range">last_30_days</field>
+    </record>
+    <record id="dashboard_management_orders" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_management"/>
+        <field name="name">Confirmed Orders (30 Days)</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_sale_order"/>
+        <field name="measure_key">__count</field>
+        <field name="date_key">date_order</field>
+        <field name="date_range">last_30_days</field>
+        <field name="domain">[('state', '=', 'sale')]</field>
+        <field name="grid_w" eval="3"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="10"/>
+    </record>
+    <record id="dashboard_management_quotes" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_management"/>
+        <field name="name">Quotations in Progress</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_sale_order"/>
+        <field name="measure_key">__count</field>
+        <field name="date_key">date_order</field>
+        <field name="date_range">last_30_days</field>
+        <field name="domain">[('state', 'in', ['draft', 'sent'])]</field>
+        <field name="grid_w" eval="3"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="20"/>
+    </record>
+    <record id="dashboard_management_purchase" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_management"/>
+        <field name="name">Purchases (This Month)</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">currency</field>
+        <field name="source_id" ref="source_purchase_order"/>
+        <field name="measure_key">amount_total</field>
+        <field name="date_key">date_order</field>
+        <field name="date_range">this_month</field>
+        <field name="grid_w" eval="3"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="30"/>
+    </record>
+    <record id="dashboard_management_tasks" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_management"/>
+        <field name="name">Tasks Due Next 7 Days</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_project_task"/>
+        <field name="measure_key">__count</field>
+        <field name="date_key">date_deadline</field>
+        <field name="date_range">next_7_days</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="3"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="40"/>
+    </record>
+    <record id="dashboard_management_pipeline" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_management"/>
+        <field name="name">Sales Orders by Status</field>
+        <field name="widget_type">bar</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_sale_order"/>
+        <field name="measure_key">__count</field>
+        <field name="groupby_key">state</field>
+        <field name="date_range">all_time</field>
+        <field name="limit" eval="8"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="50"/>
+    </record>
+    <record id="dashboard_management_vendors" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_management"/>
+        <field name="name">Purchases by Vendor</field>
+        <field name="widget_type">bar</field>
+        <field name="value_format">currency</field>
+        <field name="source_id" ref="source_purchase_order"/>
+        <field name="measure_key">amount_total</field>
+        <field name="groupby_key">partner_id</field>
+        <field name="date_key">date_order</field>
+        <field name="date_range">last_90_days</field>
+        <field name="limit" eval="8"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="60"/>
+    </record>
+    <record id="dashboard_management_invoiced_trend" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_management"/>
+        <field name="name">Invoiced Amount by Month</field>
+        <field name="widget_type">line</field>
+        <field name="value_format">currency</field>
+        <field name="source_id" ref="source_account_move"/>
+        <field name="measure_key">amount_total</field>
+        <field name="groupby_key">invoice_date</field>
+        <field name="date_key">invoice_date</field>
+        <field name="date_range">this_year</field>
+        <field name="domain">[('move_type', '=', 'out_invoice'), ('state', '=', 'posted')]</field>
+        <field name="limit" eval="12"/>
+        <field name="grid_w" eval="12"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="70"/>
+    </record>
+    <record id="dashboard_management_backlog" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_management"/>
+        <field name="name">Delivery Backlog</field>
+        <field name="widget_type">list</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_stock_picking"/>
+        <field name="measure_key">__count</field>
+        <field name="date_range">all_time</field>
+        <field name="domain">[('state', 'not in', ['done', 'cancel'])]</field>
+        <field name="limit" eval="10"/>
+        <field name="grid_w" eval="12"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="80"/>
+    </record>
+
+    <!-- ===================== Operational Lead ===================== -->
+    <record id="dashboard_operational" model="od19.dashboard">
+        <field name="name">Operations Daily Dashboard</field>
+        <field name="audience">operational</field>
+        <field name="description">Priority queue, blockers and daily pace for operational leads.</field>
+        <field name="sequence">30</field>
+        <field name="is_default" eval="True"/>
+        <field name="default_date_range">today</field>
+    </record>
+    <record id="dashboard_operational_today" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_operational"/>
+        <field name="name">Deliveries Due Today</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_stock_picking"/>
+        <field name="measure_key">__count</field>
+        <field name="date_key">scheduled_date</field>
+        <field name="date_range">today</field>
+        <field name="domain">[('state', 'not in', ['done', 'cancel'])]</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="3"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="10"/>
+    </record>
+    <record id="dashboard_operational_late" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_operational"/>
+        <field name="name">Late Deliveries</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_stock_picking"/>
+        <field name="measure_key">__count</field>
+        <field name="date_key">scheduled_date</field>
+        <field name="date_range">overdue</field>
+        <field name="domain">[('state', 'not in', ['done', 'cancel'])]</field>
+        <field name="threshold_mode">lower_is_better</field>
+        <field name="warning_value" eval="3"/>
+        <field name="critical_value" eval="10"/>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="3"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="20"/>
+    </record>
+    <record id="dashboard_operational_tasks" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_operational"/>
+        <field name="name">New Tasks (30 Days)</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_project_task"/>
+        <field name="measure_key">__count</field>
+        <field name="date_key">create_date</field>
+        <field name="date_range">last_30_days</field>
+        <field name="grid_w" eval="3"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="30"/>
+    </record>
+    <record id="dashboard_operational_purchase" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_operational"/>
+        <field name="name">Purchase Orders (30 Days)</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_purchase_order"/>
+        <field name="measure_key">__count</field>
+        <field name="date_key">date_order</field>
+        <field name="date_range">last_30_days</field>
+        <field name="grid_w" eval="3"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="40"/>
+    </record>
+    <record id="dashboard_operational_status" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_operational"/>
+        <field name="name">Transfers by Status</field>
+        <field name="widget_type">bar</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_stock_picking"/>
+        <field name="measure_key">__count</field>
+        <field name="groupby_key">state</field>
+        <field name="date_range">all_time</field>
+        <field name="limit" eval="8"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="50"/>
+    </record>
+    <record id="dashboard_operational_type" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_operational"/>
+        <field name="name">Transfers by Operation Type</field>
+        <field name="widget_type">pie</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_stock_picking"/>
+        <field name="measure_key">__count</field>
+        <field name="groupby_key">picking_type_id</field>
+        <field name="date_key">scheduled_date</field>
+        <field name="date_range">last_30_days</field>
+        <field name="limit" eval="6"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="60"/>
+    </record>
+    <record id="dashboard_operational_queue" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_operational"/>
+        <field name="name">Latest Transfers</field>
+        <field name="widget_type">list</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_stock_picking"/>
+        <field name="measure_key">__count</field>
+        <field name="date_key">scheduled_date</field>
+        <field name="date_range">last_30_days</field>
+        <field name="limit" eval="10"/>
+        <field name="grid_w" eval="12"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="70"/>
+    </record>
+</odoo>

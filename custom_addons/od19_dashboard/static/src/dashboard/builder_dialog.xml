@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="od19_dashboard.BuilderDialog">
+        <div class="modal d-block od19-builder" role="dialog" t-on-click.self="props.onClose">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fa fa-sliders me-2"/>
+                            <t t-esc="dialogTitle"/>
+                        </h5>
+                        <button type="button" class="btn-close" title="Close" aria-label="Close"
+                                t-on-click="props.onClose"/>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="alert alert-danger" role="alert" t-if="state.error" t-esc="state.error"/>
+
+                        <!-- ===================== Identity ===================== -->
+                        <h6 class="od19-builder__section">Content</h6>
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <label class="form-label" for="od19_widget_name">Title</label>
+                                <input id="od19_widget_name" type="text" class="form-control"
+                                       placeholder="e.g. Revenue this month"
+                                       t-model="state.draft.name"/>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" for="od19_widget_format">Value format</label>
+                                <select id="od19_widget_format" class="form-select"
+                                        t-model="state.draft.value_format">
+                                    <option t-foreach="valueFormats" t-as="format" t-key="format.key"
+                                            t-att-value="format.key">
+                                        <t t-esc="format.label"/>
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label" for="od19_widget_subtitle">Subtitle</label>
+                                <input id="od19_widget_subtitle" type="text" class="form-control"
+                                       placeholder="Optional caption"
+                                       t-model="state.draft.subtitle"/>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" for="od19_widget_color">Accent colour</label>
+                                <input id="od19_widget_color" type="text" class="form-control"
+                                       placeholder="Default"
+                                       t-model="state.draft.color"/>
+                            </div>
+                        </div>
+
+                        <!-- ===================== Data ===================== -->
+                        <h6 class="od19-builder__section">Data</h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="od19_widget_type">Widget type</label>
+                                <select id="od19_widget_type" class="form-select"
+                                        t-model="state.draft.widget_type"
+                                        t-on-change="onTypeChange">
+                                    <option t-foreach="widgetTypes" t-as="type" t-key="type.key"
+                                            t-att-value="type.key">
+                                        <t t-esc="type.label"/>
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="od19_widget_source">Data source</label>
+                                <select id="od19_widget_source" class="form-select"
+                                        t-model.number="state.draft.source_id"
+                                        t-on-change="onSourceChange">
+                                    <option t-att-value="0">— Select a source —</option>
+                                    <option t-foreach="sources" t-as="source" t-key="source.id"
+                                            t-att-value="source.id">
+                                        <t t-esc="source.name"/>
+                                    </option>
+                                </select>
+                                <small class="text-muted" t-if="sourceHint">
+                                    <i class="fa fa-database me-1"/><t t-esc="sourceHint"/>
+                                </small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="od19_widget_measure">Measure</label>
+                                <select id="od19_widget_measure" class="form-select"
+                                        t-model="state.draft.measure_key">
+                                    <option t-foreach="measures" t-as="measure" t-key="measure.key"
+                                            t-att-value="measure.key">
+                                        <t t-esc="measure.label"/>
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-6" t-if="isChart">
+                                <label class="form-label" for="od19_widget_groupby">Group by</label>
+                                <select id="od19_widget_groupby" class="form-select"
+                                        t-model="state.draft.groupby_key">
+                                    <option t-att-value="">— Select a field —</option>
+                                    <option t-foreach="groupbys" t-as="groupby" t-key="groupby.key"
+                                            t-att-value="groupby.key">
+                                        <t t-esc="groupby.label"/>
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="od19_widget_date">Period field</label>
+                                <select id="od19_widget_date" class="form-select"
+                                        t-model="state.draft.date_key">
+                                    <option t-att-value="">— No period filter —</option>
+                                    <option t-foreach="dates" t-as="date" t-key="date.key"
+                                            t-att-value="date.key">
+                                        <t t-esc="date.label"/>
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="od19_widget_range">Default period</label>
+                                <select id="od19_widget_range" class="form-select"
+                                        t-model="state.draft.date_range">
+                                    <option t-foreach="dateRanges" t-as="range" t-key="range.key"
+                                            t-att-value="range.key">
+                                        <t t-esc="range.label"/>
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="od19_widget_limit">
+                                    <t t-if="state.draft.widget_type === 'list'">Rows to display</t>
+                                    <t t-else="">Number of points</t>
+                                </label>
+                                <input id="od19_widget_limit" type="number" min="1" max="100"
+                                       class="form-control" t-model.number="state.draft.limit"/>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label" for="od19_widget_domain">Filter (Odoo domain)</label>
+                                <textarea id="od19_widget_domain" rows="2" class="form-control"
+                                          placeholder="[('state', '=', 'sale')]"
+                                          t-model="state.draft.domain"/>
+                                <small class="text-muted">
+                                    Extra domain applied on top of the data source, e.g.
+                                    <code>[('move_type', '=', 'out_invoice')]</code>.
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- ===================== Targets ===================== -->
+                        <h6 class="od19-builder__section">Target &amp; status</h6>
+                        <div class="row g-3">
+                            <div class="col-md-6" t-if="showGoal">
+                                <label class="form-label" for="od19_widget_goal">Goal value</label>
+                                <input id="od19_widget_goal" type="number" step="any"
+                                       class="form-control" t-model.number="state.draft.goal_value"/>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="od19_widget_threshold">Status rule</label>
+                                <select id="od19_widget_threshold" class="form-select"
+                                        t-model="state.draft.threshold_mode">
+                                    <option t-foreach="thresholdModes" t-as="mode" t-key="mode.key"
+                                            t-att-value="mode.key">
+                                        <t t-esc="mode.label"/>
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-3" t-if="showThreshold">
+                                <label class="form-label" for="od19_widget_warning">Warning level</label>
+                                <input id="od19_widget_warning" type="number" step="any"
+                                       class="form-control" t-model.number="state.draft.warning_value"/>
+                            </div>
+                            <div class="col-md-3" t-if="showThreshold">
+                                <label class="form-label" for="od19_widget_critical">Critical level</label>
+                                <input id="od19_widget_critical" type="number" step="any"
+                                       class="form-control" t-model.number="state.draft.critical_value"/>
+                            </div>
+                            <div class="col-12" t-if="state.draft.widget_type === 'kpi'">
+                                <div class="form-check">
+                                    <input id="od19_widget_delta" type="checkbox" class="form-check-input"
+                                           t-model="state.draft.show_delta"/>
+                                    <label class="form-check-label" for="od19_widget_delta">
+                                        Compare with the previous period
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ===================== Layout ===================== -->
+                        <h6 class="od19-builder__section">Layout</h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="od19_widget_grid_w">Width (columns)</label>
+                                <input id="od19_widget_grid_w" type="number"
+                                       t-att-min="props.meta.grid ? props.meta.grid.min_w : 2"
+                                       t-att-max="props.meta.grid ? props.meta.grid.max_w : 12"
+                                       class="form-control" t-model.number="state.draft.grid_w"/>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="od19_widget_grid_h">Height (rows)</label>
+                                <input id="od19_widget_grid_h" type="number"
+                                       t-att-min="props.meta.grid ? props.meta.grid.min_h : 1"
+                                       t-att-max="props.meta.grid ? props.meta.grid.max_h : 6"
+                                       class="form-control" t-model.number="state.draft.grid_h"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" t-on-click="props.onClose">
+                            Cancel
+                        </button>
+                        <button type="button" class="btn btn-primary" t-on-click="onSave">
+                            <i class="fa fa-check me-1"/>Save widget
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="modal-backdrop show" t-on-click="props.onClose"/>
+    </t>
+
+</templates>

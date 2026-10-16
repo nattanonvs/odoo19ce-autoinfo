@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Whitelist of models and fields the dashboard builder is allowed to
+        read. Only the records declared here can be used by a widget, so the
+        in-browser builder can never query an arbitrary model or field.
+    -->
+
+    <!-- ===================== Sales Orders ===================== -->
+    <record id="source_sale_order" model="od19.dashboard.source">
+        <field name="name">Sales Orders</field>
+        <field name="model_name">sale.order</field>
+        <field name="description">Quotations and confirmed sales orders.</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_sale_order_amount_total" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_sale_order"/>
+        <field name="label">Order Amount</field>
+        <field name="field_name">amount_total</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_sale_order_amount_untaxed" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_sale_order"/>
+        <field name="label">Untaxed Amount</field>
+        <field name="field_name">amount_untaxed</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_sale_order_state" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_sale_order"/>
+        <field name="label">Status</field>
+        <field name="field_name">state</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_sale_order_partner" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_sale_order"/>
+        <field name="label">Customer</field>
+        <field name="field_name">partner_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_sale_order_user" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_sale_order"/>
+        <field name="label">Salesperson</field>
+        <field name="field_name">user_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="source_sale_order_team" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_sale_order"/>
+        <field name="label">Sales Team</field>
+        <field name="field_name">team_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="source_sale_order_date" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_sale_order"/>
+        <field name="label">Order Date</field>
+        <field name="field_name">date_order</field>
+        <field name="kind">date</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <!-- ===================== Purchase Orders ===================== -->
+    <record id="source_purchase_order" model="od19.dashboard.source">
+        <field name="name">Purchase Orders</field>
+        <field name="model_name">purchase.order</field>
+        <field name="description">Requests for quotation and confirmed purchase orders.</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_purchase_order_amount_total" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_purchase_order"/>
+        <field name="label">Order Amount</field>
+        <field name="field_name">amount_total</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_purchase_order_amount_untaxed" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_purchase_order"/>
+        <field name="label">Untaxed Amount</field>
+        <field name="field_name">amount_untaxed</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_purchase_order_state" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_purchase_order"/>
+        <field name="label">Status</field>
+        <field name="field_name">state</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_purchase_order_partner" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_purchase_order"/>
+        <field name="label">Vendor</field>
+        <field name="field_name">partner_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_purchase_order_user" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_purchase_order"/>
+        <field name="label">Buyer</field>
+        <field name="field_name">user_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="source_purchase_order_date" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_purchase_order"/>
+        <field name="label">Order Date</field>
+        <field name="field_name">date_order</field>
+        <field name="kind">date</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <!-- ===================== Invoices and Journal Entries ===================== -->
+    <record id="source_account_move" model="od19.dashboard.source">
+        <field name="name">Invoices &amp; Journal Entries</field>
+        <field name="model_name">account.move</field>
+        <field name="description">Customer invoices, vendor bills and journal entries.</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="source_account_move_amount_total" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_account_move"/>
+        <field name="label">Total Amount</field>
+        <field name="field_name">amount_total</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_account_move_amount_residual" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_account_move"/>
+        <field name="label">Amount Due</field>
+        <field name="field_name">amount_residual</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_account_move_move_type" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_account_move"/>
+        <field name="label">Document Type</field>
+        <field name="field_name">move_type</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_account_move_state" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_account_move"/>
+        <field name="label">Status</field>
+        <field name="field_name">state</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_account_move_partner" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_account_move"/>
+        <field name="label">Partner</field>
+        <field name="field_name">partner_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="source_account_move_invoice_date" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_account_move"/>
+        <field name="label">Invoice Date</field>
+        <field name="field_name">invoice_date</field>
+        <field name="kind">date</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_account_move_date" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_account_move"/>
+        <field name="label">Accounting Date</field>
+        <field name="field_name">date</field>
+        <field name="kind">date</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <!-- ===================== Payments ===================== -->
+    <record id="source_account_payment" model="od19.dashboard.source">
+        <field name="name">Payments</field>
+        <field name="model_name">account.payment</field>
+        <field name="description">Incoming and outgoing payments.</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="source_account_payment_state" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_account_payment"/>
+        <field name="label">Status</field>
+        <field name="field_name">state</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_account_payment_type" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_account_payment"/>
+        <field name="label">Direction</field>
+        <field name="field_name">payment_type</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_account_payment_partner" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_account_payment"/>
+        <field name="label">Partner</field>
+        <field name="field_name">partner_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="source_account_payment_date" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_account_payment"/>
+        <field name="label">Payment Date</field>
+        <field name="field_name">date</field>
+        <field name="kind">date</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <!-- ===================== Transfers ===================== -->
+    <record id="source_stock_picking" model="od19.dashboard.source">
+        <field name="name">Delivery &amp; Receipt Orders</field>
+        <field name="model_name">stock.picking</field>
+        <field name="description">Incoming receipts, internal transfers and deliveries.</field>
+        <field name="sequence">50</field>
+    </record>
+    <record id="source_stock_picking_state" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_stock_picking"/>
+        <field name="label">Status</field>
+        <field name="field_name">state</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_stock_picking_partner" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_stock_picking"/>
+        <field name="label">Contact</field>
+        <field name="field_name">partner_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_stock_picking_type" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_stock_picking"/>
+        <field name="label">Operation Type</field>
+        <field name="field_name">picking_type_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="source_stock_picking_scheduled_date" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_stock_picking"/>
+        <field name="label">Scheduled Date</field>
+        <field name="field_name">scheduled_date</field>
+        <field name="kind">date</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_stock_picking_date_done" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_stock_picking"/>
+        <field name="label">Completion Date</field>
+        <field name="field_name">date_done</field>
+        <field name="kind">date</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <!-- ===================== Project Tasks ===================== -->
+    <record id="source_project_task" model="od19.dashboard.source">
+        <field name="name">Project Tasks</field>
+        <field name="model_name">project.task</field>
+        <field name="description">Tasks of every project, used for workload and pace tracking.</field>
+        <field name="sequence">60</field>
+    </record>
+    <record id="source_project_task_allocated_hours" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_project_task"/>
+        <field name="label">Allocated Hours</field>
+        <field name="field_name">allocated_hours</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_project_task_stage" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_project_task"/>
+        <field name="label">Stage</field>
+        <field name="field_name">stage_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_project_task_project" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_project_task"/>
+        <field name="label">Project</field>
+        <field name="field_name">project_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_project_task_priority" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_project_task"/>
+        <field name="label">Priority</field>
+        <field name="field_name">priority</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="source_project_task_deadline" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_project_task"/>
+        <field name="label">Deadline</field>
+        <field name="field_name">date_deadline</field>
+        <field name="kind">date</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_project_task_create_date" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_project_task"/>
+        <field name="label">Creation Date</field>
+        <field name="field_name">create_date</field>
+        <field name="kind">date</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <!-- ===================== Contacts ===================== -->
+    <record id="source_res_partner" model="od19.dashboard.source">
+        <field name="name">Customers &amp; Vendors</field>
+        <field name="model_name">res.partner</field>
+        <field name="description">Customer and vendor master data.</field>
+        <field name="sequence">70</field>
+    </record>
+    <record id="source_res_partner_country" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_res_partner"/>
+        <field name="label">Country</field>
+        <field name="field_name">country_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_res_partner_user" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_res_partner"/>
+        <field name="label">Salesperson</field>
+        <field name="field_name">user_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_res_partner_company_type" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_res_partner"/>
+        <field name="label">Company Type</field>
+        <field name="field_name">company_type</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="source_res_partner_create_date" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_res_partner"/>
+        <field name="label">Creation Date</field>
+        <field name="field_name">create_date</field>
+        <field name="kind">date</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <!-- ===================== Products ===================== -->
+    <record id="source_product_template" model="od19.dashboard.source">
+        <field name="name">Products</field>
+        <field name="model_name">product.template</field>
+        <field name="description">Product catalogue used for range and margin analysis.</field>
+        <field name="sequence">80</field>
+    </record>
+    <record id="source_product_template_list_price" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_product_template"/>
+        <field name="label">Average Sales Price</field>
+        <field name="field_name">list_price</field>
+        <field name="kind">measure</field>
+        <field name="agg">avg</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_product_template_categ" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_product_template"/>
+        <field name="label">Product Category</field>
+        <field name="field_name">categ_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">10</field>
+    </record>
+    <!-- ===================== Trend buckets (date group by) ===================== -->
+    <record id="source_sale_order_month" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_sale_order"/>
+        <field name="label">Order Month</field>
+        <field name="field_name">date_order</field>
+        <field name="kind">groupby</field>
+        <field name="granularity">month</field>
+        <field name="sequence">90</field>
+    </record>
+    <record id="source_purchase_order_month" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_purchase_order"/>
+        <field name="label">Order Month</field>
+        <field name="field_name">date_order</field>
+        <field name="kind">groupby</field>
+        <field name="granularity">month</field>
+        <field name="sequence">90</field>
+    </record>
+    <record id="source_account_move_month" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_account_move"/>
+        <field name="label">Invoice Month</field>
+        <field name="field_name">invoice_date</field>
+        <field name="kind">groupby</field>
+        <field name="granularity">month</field>
+        <field name="sequence">90</field>
+    </record>
+    <record id="source_project_task_month" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_project_task"/>
+        <field name="label">Deadline Month</field>
+        <field name="field_name">date_deadline</field>
+        <field name="kind">groupby</field>
+        <field name="granularity">month</field>
+        <field name="sequence">90</field>
+    </record>
+</odoo>

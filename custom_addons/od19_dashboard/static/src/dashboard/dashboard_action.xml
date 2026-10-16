@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="od19_dashboard.DashboardAction">
+        <div class="od19-dashboard"
+             t-attf-style="--od19-accent: {{ state.dashboard ? state.dashboard.color : '#9E2424' }};">
+
+            <!-- =========================================================
+                 Header
+                 ========================================================= -->
+            <header class="od19-dashboard__header">
+                <div class="od19-dashboard__identity">
+                    <h1 class="od19-dashboard__title">
+                        <t t-esc="state.dashboard ? state.dashboard.name : 'My Dashboards'"/>
+                    </h1>
+                    <div class="od19-dashboard__tags" t-if="state.dashboard">
+                        <span class="od19-badge" t-esc="audienceLabel"/>
+                        <span class="od19-dashboard__owner" t-if="state.dashboard.owner_name">
+                            <i class="fa fa-user-circle-o me-1"/><t t-esc="state.dashboard.owner_name"/>
+                        </span>
+                    </div>
+                    <p class="od19-dashboard__description"
+                       t-if="state.dashboard and state.dashboard.description"
+                       t-esc="state.dashboard.description"/>
+                </div>
+
+                <div class="od19-dashboard__toolbar">
+                    <select class="od19-select" title="Choose a dashboard"
+                            t-if="state.dashboards.length"
+                            t-model.number="state.dashboardId"
+                            t-on-change="onSelectDashboard">
+                        <option t-foreach="state.dashboards" t-as="dash" t-key="dash.id"
+                                t-att-value="dash.id">
+                            <t t-esc="dash.audience_label"/> · <t t-esc="dash.name"/>
+                        </option>
+                    </select>
+
+                    <select class="od19-select" title="Period"
+                            t-if="state.dashboard"
+                            t-model="state.dateRange"
+                            t-on-change="onSelectDateRange">
+                        <option t-foreach="state.meta.date_ranges" t-as="range" t-key="range.key"
+                                t-att-value="range.key">
+                            <t t-esc="range.label"/>
+                        </option>
+                    </select>
+
+                    <button type="button" class="od19-icon-btn" title="Refresh data"
+                            aria-label="Refresh data" t-on-click="onRefresh">
+                        <i class="fa fa-refresh"/>
+                    </button>
+
+                    <span class="od19-dashboard__separator"/>
+
+                    <button type="button" class="od19-text-btn" title="Create a dashboard"
+                            t-on-click="openCreateDashboard">
+                        <i class="fa fa-plus me-1"/>New
+                    </button>
+                    <button type="button" class="od19-text-btn" title="Duplicate this dashboard"
+                            t-if="state.dashboardId" t-on-click="duplicateDashboard">
+                        <i class="fa fa-files-o me-1"/>Duplicate
+                    </button>
+
+                    <button type="button" class="od19-icon-btn od19-icon-btn--accent"
+                            title="Add a widget"
+                            t-if="state.dashboard and state.dashboard.can_edit and state.editMode"
+                            t-on-click="openCreateWidget">
+                        <i class="fa fa-plus"/>
+                    </button>
+                    <button type="button" class="od19-text-btn od19-text-btn--primary"
+                            title="Toggle design mode"
+                            t-if="state.dashboard and state.dashboard.can_edit"
+                            t-on-click="toggleEditMode">
+                        <i t-attf-class="fa {{ state.editMode ? 'fa-check' : 'fa-pencil' }} me-1"/>
+                        <t t-esc="state.editMode ? 'Done' : 'Customize'"/>
+                    </button>
+                </div>
+            </header>
+
+            <!-- =========================================================
+                 Body
+                 ========================================================= -->
+            <div class="od19-dashboard__body">
+
+                <div class="od19-dashboard__loading" t-if="state.loading">
+                    <i class="fa fa-spinner fa-spin fa-2x"/>
+                    <span>Loading…</span>
+                </div>
+
+                <!-- No dashboard at all -->
+                <div class="od19-dashboard__empty" t-elif="!state.dashboardId">
+                    <i class="fa fa-th-large fa-3x"/>
+                    <h3>No dashboard yet</h3>
+                    <p>Design your first dashboard and add the KPIs you need to follow.</p>
+                    <button type="button" class="btn btn-primary" t-on-click="openCreateDashboard">
+                        <i class="fa fa-plus me-1"/>Create a dashboard
+                    </button>
+                </div>
+                <div class="od19-dashboard__empty"
+                     t-elif="!state.widgets.length">
+                    <i class="fa fa-cubes fa-3x"/>
+                    <h3>This dashboard is empty</h3>
+                    <p t-if="state.dashboard and state.dashboard.can_edit">
+                        Switch to design mode and add your first widget.
+                    </p>
+                    <p t-else="">No widget has been published for this dashboard yet.</p>
+                    <button type="button" class="btn btn-primary"
+                            t-if="state.dashboard and state.dashboard.can_edit"
+                            t-on-click="openCreateWidget">
+                        <i class="fa fa-plus me-1"/>Add a widget
+                    </button>
+                </div>
+                <div t-else="" class="od19-grid">
+                    <article t-foreach="state.widgets" t-as="widget" t-key="widget.id"
+                             t-attf-class="od19-widget od19-widget--{{ widget.widget_type }} od19-status-{{ widget.status }} {{ state.editMode ? 'od19-widget--editable' : '' }} {{ state.dragWidgetId === widget.id ? 'od19-widget--dragging' : '' }}"
+                             t-attf-style="grid-column: span {{ widget.grid_w }}; grid-row: span {{ widget.grid_h }}; {{ widget.color ? '--od19-widget-accent: ' + widget.color + ';' : '' }}"
+                             t-att-draggable="state.editMode ? 'true' : 'false'"
+                             t-on-dragstart="(ev) => this.onDragStart(ev, widget)"
+                             t-on-dragover="onDragOver"
+                             t-on-drop="(ev) => this.onDrop(ev, widget)">
+
+                        <div class="od19-widget__header">
+                            <div class="od19-widget__headings">
+                                <span class="od19-widget__name" t-esc="widget.name"/>
+                                <small class="od19-widget__subtitle"
+                                       t-if="widget.subtitle" t-esc="widget.subtitle"/>
+                            </div>
+                            <div class="od19-widget__tools"
+                                 t-if="state.editMode and state.dashboard and state.dashboard.can_edit">
+                                <button type="button" class="od19-icon-btn od19-icon-btn--sm"
+                                        title="Edit widget"
+                                        t-on-click="() => this.openEditWidget(widget)">
+                                    <i class="fa fa-pencil"/>
+                                </button>
+                                <button type="button" class="od19-icon-btn od19-icon-btn--sm od19-icon-btn--danger"
+                                        title="Remove widget"
+                                        t-on-click="() => this.onDeleteWidget(widget)">
+                                    <i class="fa fa-trash-o"/>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="od19-widget__body">
+
+                            <!-- KPI widget -->
+                            <t t-if="widget.widget_type === 'kpi'">
+                                <div class="od19-kpi" t-if="widget.value !== null">
+                                    <div class="od19-kpi__value" t-esc="widget.value_text"/>
+                                    <div t-if="widget.delta_text"
+                                         t-attf-class="od19-kpi__delta {{ widget.delta_class }}">
+                                        <i t-attf-class="fa {{ widget.delta_icon }}"/>
+                                        <t t-esc="widget.delta_text"/>
+                                        <span class="od19-kpi__delta-note">vs previous</span>
+                                    </div>
+                                </div>
+                                <div class="od19-kpi__goal" t-if="widget.goal_text">
+                                    <div class="od19-kpi__goal-line">
+                                        <span>Goal</span>
+                                        <strong t-esc="widget.goal_text"/>
+                                    </div>
+                                    <div class="od19-progress" t-if="widget.progress !== null">
+                                        <div class="od19-progress__bar"
+                                             t-attf-style="width: {{ widget.progress }}%;"/>
+                                    </div>
+                                    <small class="text-muted" t-if="widget.progress !== null">
+                                        <t t-esc="widget.progress"/>% of goal
+                                    </small>
+                                </div>
+                            </t>
+
+                            <t t-elif="widget.widget_type === 'bar'">
+                                <div class="od19-bars" t-if="widget.bars and widget.bars.length">
+                                    <div class="od19-bar" t-foreach="widget.bars" t-as="bar" t-key="bar_index">
+                                        <span class="od19-bar__label" t-esc="bar.label"/>
+                                        <span class="od19-bar__track">
+                                            <span class="od19-bar__fill"
+                                                  t-attf-style="width: {{ bar.width }}%;"/>
+                                        </span>
+                                        <span class="od19-bar__value" t-esc="bar.text"/>
+                                    </div>
+                                </div>
+                            </t>
+
+                            <t t-elif="widget.widget_type === 'line'">
+                                <div class="od19-line-wrap" t-if="widget.line and widget.line.dots.length">
+                                    <svg class="od19-line" viewBox="0 0 100 40"
+                                         preserveAspectRatio="none" role="img">
+                                        <polyline class="od19-line__path"
+                                                  t-att-points="widget.line.points"/>
+                                        <circle t-foreach="widget.line.dots" t-as="dot" t-key="dot.key"
+                                                class="od19-line__dot"
+                                                t-att-cx="dot.x" t-att-cy="dot.y" r="1.8">
+                                            <title><t t-esc="dot.label"/>: <t t-esc="dot.text"/></title>
+                                        </circle>
+                                    </svg>
+                                    <div class="od19-line__labels">
+                                        <span t-foreach="widget.line.dots" t-as="dot" t-key="dot.key"
+                                              t-esc="dot.label"/>
+                                    </div>
+                                </div>
+                            </t>
+
+                            <t t-elif="widget.widget_type === 'pie'">
+                                <div class="od19-pie-wrap" t-if="widget.slices and widget.slices.length">
+                                    <svg class="od19-pie" viewBox="0 0 40 40" role="img">
+                                        <path t-foreach="widget.slices" t-as="slice" t-key="slice.key"
+                                              t-att-d="slice.path" t-att-fill="slice.color">
+                                            <title><t t-esc="slice.label"/>: <t t-esc="slice.text"/></title>
+                                        </path>
+                                    </svg>
+                                    <ul class="od19-legend">
+                                        <li t-foreach="widget.slices" t-as="slice" t-key="slice.key">
+                                            <span class="od19-legend__dot"
+                                                  t-attf-style="background: {{ slice.color }};"/>
+                                            <span class="od19-legend__label" t-esc="slice.label"/>
+                                            <span class="od19-legend__value" t-esc="slice.text"/>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </t>
+
+                            <t t-elif="widget.widget_type === 'list'">
+                                <table class="od19-list" t-if="widget.rows and widget.rows.length">
+                                    <tbody>
+                                        <tr t-foreach="widget.rows" t-as="row" t-key="row.id">
+                                            <td class="od19-list__label" t-esc="row.label"/>
+                                            <td class="od19-list__extra" t-esc="row.extra"/>
+                                            <td class="od19-list__value"
+                                                t-esc="this._format(row.value, widget.value_format)"/>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </t>
+
+                            <p class="od19-widget__message"
+                               t-if="widget.message and !(widget.widget_type === 'kpi' and widget.value !== null)"
+                               t-esc="widget.message"/>
+                        </div>
+
+                        <footer class="od19-widget__editbar"
+                                t-if="state.editMode and state.dashboard and state.dashboard.can_edit">
+                            <span class="od19-widget__handle" title="Drag to reorder">
+                                <i class="fa fa-arrows"/>
+                            </span>
+                            <button type="button" class="od19-icon-btn od19-icon-btn--sm"
+                                    title="Decrease width"
+                                    t-on-click="() => this.resizeWidget(widget, -1, 0)">
+                                <i class="fa fa-minus"/>
+                            </button>
+                            <span class="od19-widget__size">
+                                <t t-esc="widget.grid_w"/>×<t t-esc="widget.grid_h"/>
+                            </span>
+                            <button type="button" class="od19-icon-btn od19-icon-btn--sm"
+                                    title="Increase width"
+                                    t-on-click="() => this.resizeWidget(widget, 1, 0)">
+                                <i class="fa fa-plus"/>
+                            </button>
+                            <button type="button" class="od19-icon-btn od19-icon-btn--sm"
+                                    title="Decrease height"
+                                    t-on-click="() => this.resizeWidget(widget, 0, -1)">
+                                <i class="fa fa-chevron-up"/>
+                            </button>
+                            <button type="button" class="od19-icon-btn od19-icon-btn--sm"
+                                    title="Increase height"
+                                    t-on-click="() => this.resizeWidget(widget, 0, 1)">
+                                <i class="fa fa-chevron-down"/>
+                            </button>
+                        </footer>
+                    </article>
+                </div>
+            </div>
+
+            <!-- =========================================================
+                 Widget builder
+                 ========================================================= -->
+            <BuilderDialog t-if="state.builder.open"
+                           meta="state.meta"
+                           config="state.builder.config"
+                           onSave="onBuilderSave"
+                           onClose="closeBuilder"/>
+
+            <!-- =========================================================
+                 New dashboard dialog
+                 ========================================================= -->
+            <div t-if="state.draft.open" class="modal d-block od19-new-dashboard"
+                 role="dialog" t-on-click.self="closeCreateDashboard">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="fa fa-th-large me-2"/>New Dashboard
+                            </h5>
+                            <button type="button" class="btn-close" title="Close" aria-label="Close"
+                                    t-on-click="closeCreateDashboard"/>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label" for="od19_dash_name">Name</label>
+                                <input id="od19_dash_name" type="text" class="form-control"
+                                       placeholder="e.g. Sales Management"
+                                       t-model="state.draft.name"/>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="od19_dash_audience">Audience</label>
+                                <select id="od19_dash_audience" class="form-select"
+                                        t-model="state.draft.audience">
+                                    <option t-foreach="state.meta.audiences" t-as="audience" t-key="audience.key"
+                                            t-att-value="audience.key">
+                                        <t t-esc="audience.label"/>
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="od19_dash_range">Default period</label>
+                                <select id="od19_dash_range" class="form-select"
+                                        t-model="state.draft.default_date_range">
+                                    <option t-foreach="state.meta.date_ranges" t-as="range" t-key="range.key"
+                                            t-att-value="range.key">
+                                        <t t-esc="range.label"/>
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary"
+                                    t-on-click="closeCreateDashboard">Cancel</button>
+                            <button type="button" class="btn btn-primary"
+                                    t-on-click="confirmCreateDashboard">
+                                <i class="fa fa-check me-1"/>Create
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-backdrop show" t-if="state.draft.open"
+                 t-on-click="closeCreateDashboard"/>
+        </div>
+    </t>
+
+</templates>

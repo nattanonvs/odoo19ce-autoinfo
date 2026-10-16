@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_od19_dashboard_root"
+              name="Dashboards"
+              sequence="15"
+              groups="base.group_user"/>
+
+    <menuitem id="menu_od19_dashboard_builder"
+              name="My Dashboards"
+              parent="menu_od19_dashboard_root"
+              action="action_od19_dashboard_builder"
+              sequence="10"/>
+
+    <menuitem id="menu_od19_dashboard_configuration"
+              name="Configuration"
+              parent="menu_od19_dashboard_root"
+              groups="od19_dashboard.group_od19_dashboard_manager"
+              sequence="90"/>
+
+    <menuitem id="menu_od19_dashboard_manage"
+              name="Dashboards"
+              parent="menu_od19_dashboard_configuration"
+              action="action_od19_dashboard_manage"
+              sequence="10"/>
+
+    <menuitem id="menu_od19_dashboard_sources"
+              name="Data Sources"
+              parent="menu_od19_dashboard_configuration"
+              action="action_od19_dashboard_source"
+              sequence="20"/>
+</odoo>

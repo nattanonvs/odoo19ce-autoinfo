@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_od19_dashboard_viewer,access.od19.dashboard.viewer,model_od19_dashboard,base.group_user,1,0,0,0
+access_od19_dashboard_user,access.od19.dashboard.user,model_od19_dashboard,group_od19_dashboard_user,1,1,1,1
+access_od19_dashboard_manager,access.od19.dashboard.manager,model_od19_dashboard,group_od19_dashboard_manager,1,1,1,1
+access_od19_dashboard_widget_viewer,access.od19.dashboard.widget.viewer,model_od19_dashboard_widget,base.group_user,1,0,0,0
+access_od19_dashboard_widget_user,access.od19.dashboard.widget.user,model_od19_dashboard_widget,group_od19_dashboard_user,1,1,1,1
+access_od19_dashboard_widget_manager,access.od19.dashboard.widget.manager,model_od19_dashboard_widget,group_od19_dashboard_manager,1,1,1,1
+access_od19_dashboard_source_user,access.od19.dashboard.source.user,model_od19_dashboard_source,base.group_user,1,0,0,0
+access_od19_dashboard_source_manager,access.od19.dashboard.source.manager,model_od19_dashboard_source,base.group_system,1,1,1,1
+access_od19_dashboard_source_field_user,access.od19.dashboard.source.field.user,model_od19_dashboard_source_field,base.group_user,1,0,0,0
+access_od19_dashboard_source_field_manager,access.od19.dashboard.source.field.manager,model_od19_dashboard_source_field,base.group_system,1,1,1,1

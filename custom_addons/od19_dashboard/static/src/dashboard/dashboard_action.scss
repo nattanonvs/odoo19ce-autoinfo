@@ -1,0 +1,662 @@
+// ---------------------------------------------------------------------------
+// OD19 Dashboard Builder — web based dashboard designer.
+// Accent colour follows the corporate maroon (#9E2424) from the brand guide.
+// ---------------------------------------------------------------------------
+
+$od19-font: Sarabun, "Noto Sans Thai", Tahoma, "Arial Unicode MS", sans-serif;
+
+$od19-ink: #1f2933;
+$od19-ink-soft: #6b7280;
+$od19-line: #e3e6ea;
+$od19-surface: #ffffff;
+$od19-canvas: #f4f5f7;
+
+$od19-green: #2e7d32;
+$od19-green-bg: #e8f5e9;
+$od19-yellow: #b7791f;
+$od19-yellow-bg: #fff8e1;
+$od19-red: #9e2424;
+$od19-red-bg: #fdecea;
+$od19-grey: #6b7280;
+$od19-grey-bg: #f3f4f6;
+
+.od19-dashboard {
+    --od19-accent: #9e2424;
+
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    background: $od19-canvas;
+    color: $od19-ink;
+    font-family: $od19-font;
+
+    h1,
+    h3,
+    h5,
+    h6 {
+        font-family: $od19-font;
+    }
+
+    // -----------------------------------------------------------------------
+    // Header
+    // -----------------------------------------------------------------------
+    &__header {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px 24px;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 20px;
+        background: $od19-surface;
+        border-bottom: 1px solid $od19-line;
+        border-left: 5px solid var(--od19-accent);
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    }
+
+    &__identity {
+        min-width: 240px;
+    }
+
+    &__title {
+        margin: 0;
+        font-size: 1.35rem;
+        font-weight: 600;
+        line-height: 1.3;
+    }
+
+    &__tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        margin-top: 4px;
+    }
+
+    &__owner {
+        color: $od19-ink-soft;
+        font-size: 0.82rem;
+    }
+
+    &__description {
+        margin: 6px 0 0;
+        color: $od19-ink-soft;
+        font-size: 0.85rem;
+    }
+
+    &__toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+    }
+
+    &__separator {
+        width: 1px;
+        height: 24px;
+        background: $od19-line;
+    }
+
+    &__body {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow: auto;
+        padding: 16px 20px 28px;
+    }
+
+    &__loading,
+    &__empty {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        min-height: 320px;
+        color: $od19-ink-soft;
+        text-align: center;
+    }
+
+    &__empty {
+        i {
+            color: #c3c8cf;
+        }
+
+        h3 {
+            margin: 8px 0 0;
+            font-size: 1.1rem;
+            color: $od19-ink;
+        }
+
+        p {
+            max-width: 420px;
+            margin: 0 0 8px;
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Badges & controls
+// ---------------------------------------------------------------------------
+.od19-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--od19-accent, #9e2424);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.od19-select {
+    min-width: 150px;
+    height: 34px;
+    padding: 0 10px;
+    border: 1px solid $od19-line;
+    border-radius: 6px;
+    background: $od19-surface;
+    color: $od19-ink;
+    font-family: $od19-font;
+    font-size: 0.85rem;
+
+    &:focus {
+        border-color: var(--od19-accent, #9e2424);
+        outline: none;
+    }
+}
+
+.od19-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 1px solid $od19-line;
+    border-radius: 6px;
+    background: $od19-surface;
+    color: $od19-ink;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+
+    &:hover {
+        background: $od19-grey-bg;
+    }
+
+    &--accent {
+        border-color: var(--od19-accent, #9e2424);
+        background: var(--od19-accent, #9e2424);
+        color: #fff;
+
+        &:hover {
+            background: darken(#9e2424, 6%);
+        }
+    }
+
+    &--danger {
+        color: $od19-red;
+
+        &:hover {
+            background: $od19-red-bg;
+        }
+    }
+
+    &--sm {
+        width: 26px;
+        height: 26px;
+        font-size: 0.75rem;
+    }
+}
+
+.od19-text-btn {
+    display: inline-flex;
+    align-items: center;
+    height: 34px;
+    padding: 0 12px;
+    border: 1px solid $od19-line;
+    border-radius: 6px;
+    background: $od19-surface;
+    color: $od19-ink;
+    font-family: $od19-font;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.15s ease;
+
+    &:hover {
+        background: $od19-grey-bg;
+    }
+
+    &--primary {
+        border-color: var(--od19-accent, #9e2424);
+        background: var(--od19-accent, #9e2424);
+        color: #fff;
+
+        &:hover {
+            background: darken(#9e2424, 6%);
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Grid & widget cards
+// ---------------------------------------------------------------------------
+.od19-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-auto-rows: 84px;
+    gap: 14px;
+    align-content: start;
+}
+
+.od19-widget {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    background: $od19-surface;
+    border: 1px solid $od19-line;
+    border-left: 4px solid var(--od19-widget-accent, var(--od19-accent, #9e2424));
+    border-radius: 10px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+
+    &--editable {
+        cursor: grab;
+        outline: 1px dashed rgba(158, 36, 36, 0.25);
+        outline-offset: -3px;
+    }
+
+    &--dragging {
+        opacity: 0.5;
+    }
+
+    &__header {
+        display: flex;
+        gap: 8px;
+        align-items: flex-start;
+        justify-content: space-between;
+        padding: 10px 12px 6px;
+    }
+
+    &__headings {
+        min-width: 0;
+    }
+
+    &__name {
+        display: block;
+        overflow: hidden;
+        font-size: 0.88rem;
+        font-weight: 600;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__subtitle {
+        display: block;
+        overflow: hidden;
+        color: $od19-ink-soft;
+        font-size: 0.72rem;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__tools {
+        display: flex;
+        gap: 4px;
+        flex-shrink: 0;
+    }
+
+    &__body {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow: auto;
+        padding: 0 12px 12px;
+    }
+
+    &__message {
+        margin: 6px 0 0;
+        color: $od19-ink-soft;
+        font-size: 0.78rem;
+    }
+
+    &__editbar {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+        padding: 4px 8px;
+        background: $od19-canvas;
+        border-top: 1px dashed $od19-line;
+    }
+
+    &__handle {
+        margin-right: auto;
+        color: $od19-ink-soft;
+        cursor: grab;
+    }
+
+    &__size {
+        min-width: 34px;
+        color: $od19-ink-soft;
+        font-size: 0.72rem;
+        text-align: center;
+    }
+}
+
+// Status accent, shared by KPI / charts / lists.
+.od19-status-green {
+    border-left-color: $od19-green;
+}
+
+.od19-status-yellow {
+    border-left-color: $od19-yellow;
+}
+
+.od19-status-red {
+    border-left-color: $od19-red;
+}
+
+.od19-status-grey {
+    border-left-color: $od19-grey;
+}
+
+// ---------------------------------------------------------------------------
+// KPI
+// ---------------------------------------------------------------------------
+.od19-kpi {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    align-items: baseline;
+
+    &__value {
+        font-size: 1.85rem;
+        font-weight: 600;
+        line-height: 1.1;
+        letter-spacing: -0.01em;
+    }
+
+    &__delta {
+        display: inline-flex;
+        gap: 4px;
+        align-items: center;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    &__delta-note {
+        color: $od19-ink-soft;
+        font-weight: 400;
+    }
+
+    &__goal {
+        margin-top: 8px;
+    }
+
+    &__goal-line {
+        display: flex;
+        justify-content: space-between;
+        color: $od19-ink-soft;
+        font-size: 0.78rem;
+    }
+}
+
+.od19-delta-good {
+    color: $od19-green;
+}
+
+.od19-delta-bad {
+    color: $od19-red;
+}
+
+.od19-delta-flat {
+    color: $od19-ink-soft;
+}
+
+.od19-progress {
+    height: 6px;
+    margin: 4px 0 2px;
+    overflow: hidden;
+    background: $od19-grey-bg;
+    border-radius: 999px;
+
+    &__bar {
+        height: 100%;
+        background: var(--od19-widget-accent, var(--od19-accent, #9e2424));
+        border-radius: 999px;
+        transition: width 0.3s ease;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Bar chart
+// ---------------------------------------------------------------------------
+.od19-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding-top: 4px;
+}
+
+.od19-bar {
+    display: grid;
+    grid-template-columns: minmax(60px, 34%) 1fr auto;
+    gap: 8px;
+    align-items: center;
+    font-size: 0.76rem;
+
+    &__label {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__track {
+        height: 8px;
+        overflow: hidden;
+        background: $od19-grey-bg;
+        border-radius: 999px;
+    }
+
+    &__fill {
+        display: block;
+        height: 100%;
+        background: var(--od19-widget-accent, var(--od19-accent, #9e2424));
+        border-radius: 999px;
+    }
+
+    &__value {
+        color: $od19-ink-soft;
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Line chart
+// ---------------------------------------------------------------------------
+.od19-line-wrap {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding-top: 6px;
+}
+
+.od19-line {
+    width: 100%;
+    height: 100%;
+    min-height: 48px;
+
+    &__path {
+        fill: none;
+        stroke: var(--od19-widget-accent, var(--od19-accent, #9e2424));
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 1.4;
+        vector-effect: non-scaling-stroke;
+    }
+
+    &__dot {
+        fill: var(--od19-widget-accent, var(--od19-accent, #9e2424));
+    }
+
+    &__labels {
+        display: flex;
+        justify-content: space-between;
+        gap: 4px;
+        margin-top: 4px;
+        overflow: hidden;
+        color: $od19-ink-soft;
+        font-size: 0.66rem;
+
+        span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Pie chart
+// ---------------------------------------------------------------------------
+.od19-pie-wrap {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    height: 100%;
+    padding-top: 4px;
+}
+
+.od19-pie {
+    flex: 0 0 auto;
+    width: 84px;
+    height: 84px;
+}
+
+.od19-legend {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.74rem;
+
+    li {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        line-height: 1.6;
+    }
+
+    &__dot {
+        flex: 0 0 auto;
+        width: 9px;
+        height: 9px;
+        border-radius: 2px;
+    }
+
+    &__label {
+        overflow: hidden;
+        flex: 1 1 auto;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__value {
+        color: $od19-ink-soft;
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// List
+// ---------------------------------------------------------------------------
+.od19-list {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.76rem;
+
+    td {
+        padding: 3px 4px;
+        border-bottom: 1px solid $od19-line;
+        vertical-align: middle;
+    }
+
+    tr:last-child td {
+        border-bottom: none;
+    }
+
+    &__label {
+        overflow: hidden;
+        max-width: 0;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__extra {
+        color: $od19-ink-soft;
+        white-space: nowrap;
+    }
+
+    &__value {
+        font-variant-numeric: tabular-nums;
+        text-align: right;
+        white-space: nowrap;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Builder / dialogs
+// ---------------------------------------------------------------------------
+.od19-builder,
+.od19-new-dashboard {
+    // Bootstrap's .modal is already the fixed full screen overlay: the
+    // sibling .modal-backdrop provides the dimming, so no extra background.
+    .modal-content {
+        font-family: $od19-font;
+    }
+}
+
+.od19-builder__section {
+    margin: 18px 0 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid $od19-line;
+    color: $od19-ink-soft;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+
+    &:first-child {
+        margin-top: 0;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Responsive
+// ---------------------------------------------------------------------------
+@media (max-width: 767.98px) {
+    .od19-dashboard {
+        &__header {
+            padding: 12px 14px;
+        }
+
+        &__body {
+            padding: 12px 14px 24px;
+        }
+
+        &__toolbar {
+            width: 100%;
+        }
+    }
+
+    .od19-grid {
+        grid-auto-rows: 76px;
+    }
+
+    .od19-widget {
+        grid-column: span 12 !important;
+    }
+}

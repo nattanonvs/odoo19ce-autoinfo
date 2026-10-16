@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ===================== Dashboard: list / form / search ===================== -->
+    <record id="view_od19_dashboard_list" model="ir.ui.view">
+        <field name="name">od19.dashboard.list</field>
+        <field name="model">od19.dashboard</field>
+        <field name="arch" type="xml">
+            <list string="Dashboards">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="audience"/>
+                <field name="owner_id"/>
+                <field name="widget_count"/>
+                <field name="shared"/>
+                <field name="is_default"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_od19_dashboard_form" model="ir.ui.view">
+        <field name="name">od19.dashboard.form</field>
+        <field name="model">od19.dashboard</field>
+        <field name="arch" type="xml">
+            <form string="Dashboard">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="e.g. Owner Executive Dashboard"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="audience"/>
+                            <field name="owner_id"/>
+                            <field name="sequence"/>
+                            <field name="color"/>
+                        </group>
+                        <group>
+                            <field name="default_date_range"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="shared"/>
+                            <field name="is_default"/>
+                        </group>
+                    </group>
+                    <group string="Visibility">
+                        <field name="group_ids" widget="many2many_tags"/>
+                        <field name="user_ids" widget="many2many_tags"/>
+                    </group>
+                    <field name="description" placeholder="Purpose and audience of this dashboard"/>
+                    <notebook>
+                        <page string="Widgets" name="widgets">
+                            <field name="widget_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="widget_type"/>
+                                    <field name="source_id"/>
+                                    <field name="measure_key"/>
+                                    <field name="groupby_key"/>
+                                    <field name="date_key"/>
+                                    <field name="grid_w"/>
+                                    <field name="grid_h"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_od19_dashboard_search" model="ir.ui.view">
+        <field name="name">od19.dashboard.search</field>
+        <field name="model">od19.dashboard</field>
+        <field name="arch" type="xml">
+            <search string="Dashboards">
+                <field name="name"/>
+                <field name="owner_id"/>
+                <filter name="filter_my" string="My Dashboards" domain="[('owner_id', '=', uid)]"/>
+                <filter name="filter_shared" string="Shared" domain="[('shared', '=', True)]"/>
+                <filter name="filter_default" string="Default" domain="[('is_default', '=', True)]"/>
+                <separator/>
+                <filter name="group_audience" string="Audience" context="{'group_by': 'audience'}"/>
+                <filter name="group_owner" string="Owner" context="{'group_by': 'owner_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- ===================== Dashboard: windows actions ===================== -->
+    <record id="action_od19_dashboard_manage" model="ir.actions.act_window">
+        <field name="name">Dashboards</field>
+        <field name="res_model">od19.dashboard</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_od19_dashboard_search"/>
+        <field name="context">{'search_default_filter_my': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first dashboard
+            </p>
+            <p>
+                Build a dashboard from the pre-defined data sources, then design it
+                with the in-browser builder: add widgets, drag to reorder, resize and
+                set red / yellow / green thresholds.
+            </p>
+        </field>
+    </record>
+
+    <!-- ===================== Data source views ===================== -->
+    <record id="view_od19_dashboard_source_list" model="ir.ui.view">
+        <field name="name">od19.dashboard.source.list</field>
+        <field name="model">od19.dashboard.source</field>
+        <field name="arch" type="xml">
+            <list string="Dashboard Data Sources">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="model_name"/>
+                <field name="field_count"/>
+                <field name="active" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_od19_dashboard_source_form" model="ir.ui.view">
+        <field name="name">od19.dashboard.source.form</field>
+        <field name="model">od19.dashboard.source</field>
+        <field name="arch" type="xml">
+            <form string="Dashboard Data Source">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="e.g. Sales Orders"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="model_name" placeholder="e.g. sale.order"/>
+                            <field name="description"/>
+                        </group>
+                        <group>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                            <field name="field_count"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Available Fields" name="fields">
+                            <field name="field_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="label"/>
+                                    <field name="field_name"/>
+                                    <field name="kind"/>
+                                    <field name="agg"/>
+                                    <field name="granularity"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_od19_dashboard_source_search" model="ir.ui.view">
+        <field name="name">od19.dashboard.source.search</field>
+        <field name="model">od19.dashboard.source</field>
+        <field name="arch" type="xml">
+            <search string="Dashboard Data Sources">
+                <field name="name"/>
+                <field name="model_name"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_od19_dashboard_source" model="ir.actions.act_window">
+        <field name="name">Data Sources</field>
+        <field name="res_model">od19.dashboard.source</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_od19_dashboard_source_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add a dashboard data source
+            </p>
+            <p>
+                Only the models and fields declared here can be used by the
+                dashboard builder. This keeps the builder safe and the data
+                consistent with the reporting baseline.
+            </p>
+        </field>
+    </record>
+
+    <!-- ===================== Front-end dashboard builder ===================== -->
+    <record id="action_od19_dashboard_builder" model="ir.actions.client">
+        <field name="name">My Dashboards</field>
+        <field name="tag">od19_dashboard.builder</field>
+        <field name="target">current</field>
+    </record>
+</odoo>
