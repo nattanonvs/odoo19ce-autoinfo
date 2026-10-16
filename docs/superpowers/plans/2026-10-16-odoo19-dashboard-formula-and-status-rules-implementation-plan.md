@@ -2119,6 +2119,42 @@ class TestDashboardPreview(TransactionCase):
     def test_preview_returns_a_series_preview_for_charts(self):
         result = self._preview(widget_type="bar", groupby_key="state", limit=5)
         self.assertLessEqual(len(result["series_preview"]), 5)
+
+    def test_preview_reads_the_aggregate_of_an_ungrouped_row(self):
+        """A KPI reads one row without a group value, so alias 0 maps to row[0]."""
+        partner = self.env["res.partner"].create({"name": "Preview customer"})
+        self.env["sale.order"].create({"partner_id": partner.id})
+        expected = float(self.env["sale.order"].search_count([]))
+        self.assertGreater(expected, 0)
+        result = self._preview(
+            measure_key="__count",
+            formula_mode="custom",
+            formula_expression="count_records",
+        )
+        self.assertEqual(result["value"], expected)
+
+    def test_preview_reads_the_aggregate_of_a_grouped_row(self):
+        """A chart reads grouped rows: the group value precedes the aggregates."""
+        rows = self.env["sale.order"]._read_group([], ["state"], ["__count"])
+        self.assertLessEqual(len(rows), 5)
+        result = self._preview(
+            widget_type="bar",
+            groupby_key="state",
+            limit=50,
+            measure_key="__count",
+            formula_mode="custom",
+            formula_expression="count_records",
+        )
+        self.assertEqual(
+            sum(item["value"] for item in result["series_preview"]),
+            float(sum(count for _state, count in rows)),
+        )
+
+    def test_number_text_keeps_a_single_minus_sign(self):
+        widget = self.env["od19.dashboard.widget"].new({"name": "Number text"})
+        self.assertEqual(widget._number_text(-1234.5, 2), "-1,234.5")
+        self.assertEqual(widget._number_text(1234.5, 2), "1,234.5")
+        self.assertEqual(widget._number_text(0, 0), "0")
 ```
 
 - [ ] **Step 2: Run the test to verify it fails**
@@ -2174,15 +2210,19 @@ Expected: FAIL — `AttributeError: 'od19.dashboard' object has no attribute 'pr
     def _formula_context(self, row, requests, extra=None):
         """Return the ``safe_eval`` context of one ``_read_group`` row.
 
-        ``row[0]`` is the group by value and ``row[i + 1]`` the aggregate of
-        ``requests[i]``; the alias of each request becomes a name of the
-        context. Every implicit name is pre-set to ``0.0`` so an expression can
-        never raise ``KeyError`` at evaluation time.
+        A ``_read_group`` row is flat: the group by values come first, then the
+        aggregate of every request. The alias of each request becomes a name of
+        the context. A KPI, a delta and a period comparison read a single row
+        without any grouping, so their row starts directly with the aggregates:
+        the offset is derived from the length of the row instead of assuming a
+        group value is always present. Every implicit name is pre-set to
+        ``0.0`` so an expression can never raise ``KeyError`` at evaluation.
         """
         self.ensure_one()
+        offset = max(len(row) - len(requests), 0)
         context = {}
         for index, (alias, _measure_key, _spec) in enumerate(requests):
-            value = row[index + 1] if len(row) > index + 1 else 0
+            value = row[index + offset] if len(row) > index + offset else 0
             context[alias] = self._to_number(value)
         # A slot bound to a literal weight (``w1`` / ``w2`` of the weighted
         # average) is not an aggregate: its value is the number stored on the
@@ -2269,10 +2309,14 @@ Expected: FAIL — `AttributeError: 'od19.dashboard' object has no attribute 'pr
     def _number_text(self, value, decimals):
         """Format a number the way the dashboard client does (no padding zeros)."""
         text = ("%%.%df" % decimals) % self._to_number(value)
-        integer, _dot, decimal = text.partition(".")
-        sign = "-" if integer.startswith("-") else ""
+        sign = "-" if text.startswith("-") else ""
+        integer, _dot, decimal = (text[1:] if sign else text).partition(".")
         grouped = "{:,}".format(int(integer or 0))
-        return "%s%s%s" % (sign, grouped, (".%s" % decimal.rstrip("0")) if decimal.rstrip("0") else "")
+        return "%s%s%s" % (
+            sign,
+            grouped,
+            (".%s" % decimal.rstrip("0")) if decimal.rstrip("0") else "",
+        )
 
     def _value_text(self, value):
         """Return the value formatted with ``value_format``, mirroring the client."""
@@ -2355,7 +2399,7 @@ Expected: FAIL — `AttributeError: 'od19.dashboard' object has no attribute 'pr
 
 - [ ] **Step 4: Rewrite the data fillers on top of the formula engine**
 
-ใน `custom_addons/od19_dashboard/models/dashboard.py` แทน `_get_widget_data` (บรรทัด 452–511), `_fill_kpi_data` (513–529) และ `_fill_chart_data` (530–569):
+ใน `custom_addons/od19_dashboard/models/dashboard.py` แทน `_get_widget_data` (บรรทัด 550–610), `_fill_kpi_data` (612–627) และ `_fill_chart_data` (629–668):
 
 ```python
     def _get_widget_data(self, date_range=None, date_from=None, date_to=None, widget_values=None):
@@ -2543,7 +2587,7 @@ Expected: FAIL — `AttributeError: 'od19.dashboard' object has no attribute 'pr
 
 - [ ] **Step 5: Add the preview RPC**
 
-แทรกต่อจาก `get_dashboard_data` (หลังบรรทัด 221) ใน `custom_addons/od19_dashboard/models/dashboard.py`:
+แทรกต่อจาก `_compute_order` (คือก่อน `save_layout`) ใน `custom_addons/od19_dashboard/models/dashboard.py`:
 
 ```python
     @api.model
