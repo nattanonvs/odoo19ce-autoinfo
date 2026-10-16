@@ -123,6 +123,21 @@ class Od19DashboardSource(models.Model):
             return False
         return "%s:%s" % (field.field_name, field.agg or "sum")
 
+    def _aggregate_specs(self, measure_keys):
+        """Return the de-duplicated ``_read_group`` aggregate specifications.
+
+        The formula engine needs several measures in a single read group, so
+        the order of the returned list is the order of the aggregate columns
+        returned by ``_read_group``.
+        """
+        self.ensure_one()
+        specs = []
+        for measure_key in measure_keys:
+            spec = self._aggregate_spec(measure_key)
+            if spec and spec not in specs:
+                specs.append(spec)
+        return specs
+
 
 class Od19DashboardSourceField(models.Model):
     _name = "od19.dashboard.source.field"

@@ -678,6 +678,185 @@ class Od19DashboardWidget(models.Model):
             return "%s:%s" % (field.field_name, field.granularity)
         return field.field_name
 
+    # ------------------------------------------------------------------
+    # Formula helpers
+    # ------------------------------------------------------------------
+    def _formula_slot_map(self):
+        """Return the slot -> measure / weight mapping stored on the widget."""
+        self.ensure_one()
+        raw = (self.formula_slots or "").strip()
+        if not raw:
+            return {}
+        try:
+            parsed = json.loads(raw)
+        except (TypeError, ValueError):
+            return {}
+        if not isinstance(parsed, dict):
+            return {}
+        return {
+            str(key): value
+            for key, value in parsed.items()
+            if key in formula_tools.ALL_SLOT_KEYS and value not in (None, "")
+        }
+
+    def _source_measure_keys(self):
+        """Return every measure name the whitelist exposes for this source."""
+        self.ensure_one()
+        keys = {"__count", formula_tools.COUNT_ALIAS}
+        keys.update(
+            self.source_id.field_ids.filtered(
+                lambda field: field.kind == "measure"
+            ).mapped("field_name")
+        )
+        return keys
+
+    def _effective_expression(self):
+        """Return the expression actually evaluated for this widget."""
+        self.ensure_one()
+        if self.formula_mode == "measure":
+            return "value"
+        if self.formula_mode == "preset":
+            if not self.formula_type:
+                return "0"
+            return formula_tools.build_preset_expression(
+                self.formula_type, self._formula_slot_map()
+            )
+        return (self.formula_expression or "").strip()
+
+    def _allowed_names(self):
+        """Return every name a custom expression of this widget may reference."""
+        self.ensure_one()
+        names = set(formula_tools.ALL_SLOT_KEYS)
+        names |= set(formula_tools.IMPLICIT_NAMES)
+        names -= {"__count"}
+        names |= {key for key in self._source_measure_keys() if key != "__count"}
+        names |= {"widget_%s" % widget_id for widget_id in self._dependency_ids()}
+        return names
+
+    def _aggregate_requests(self):
+        """Return the de-duplicated ``(alias, measure_key, spec)`` triples to read.
+
+        The list is ordered consistently with the aggregate columns returned
+        by a single ``_read_group`` call, so index ``i + 1`` of a result row
+        belongs to ``requests[i]``.
+        """
+        self.ensure_one()
+        source = self.source_id
+        requests = []
+        seen = set()
+
+        def add(alias, measure_key):
+            if not measure_key:
+                return
+            spec = source._aggregate_spec(measure_key)
+            if not spec:
+                return
+            key = (alias, spec)
+            if key in seen:
+                return
+            seen.add(key)
+            requests.append((alias, measure_key, spec))
+
+        if self.formula_mode == "measure":
+            add("value", self.measure_key or "__count")
+            return requests
+
+        if self.formula_mode == "preset":
+            slots = self._formula_slot_map()
+            for slot_key in formula_tools.SLOT_KEYS:
+                measure_key = slots.get(slot_key)
+                if isinstance(measure_key, str):
+                    add(slot_key, measure_key)
+            return requests
+
+        # Custom mode: the names actually written in the expression are
+        # resolved one by one — a slot name (a-e) maps to the measure bound to
+        # it, count_records maps to the record count, any other name is a
+        # measure field of the whitelisted source.
+        slots = self._formula_slot_map()
+        measure_keys = self._source_measure_keys()
+        for name in sorted(formula_tools.expression_names(self.formula_expression)):
+            if name in formula_tools.WEIGHT_KEYS:
+                continue
+            if name in formula_tools.SLOT_KEYS:
+                measure_key = slots.get(name)
+            elif name == formula_tools.COUNT_ALIAS:
+                measure_key = "__count"
+            elif name in measure_keys:
+                measure_key = name
+            else:
+                continue
+            if isinstance(measure_key, str):
+                add(name, measure_key)
+        return requests
+
+    def _dependency_ids(self):
+        """Return the ids of the other widgets this widget reads.
+
+        A dependency comes from a status rule comparing with another widget and
+        from a ``widget_<id>`` name written in a custom expression.
+        """
+        self.ensure_one()
+        ids = set(self.rule_ids.filtered("active").mapped("compare_widget_id").ids)
+        for name in formula_tools.expression_names(self._effective_expression()):
+            if not name.startswith("widget_"):
+                continue
+            suffix = name[len("widget_") :]
+            if suffix.isdigit():
+                ids.add(int(suffix))
+        ids.discard(self.id)
+        return sorted(ids)
+
+    def _unresolved_names(self):
+        """Return the expression names that would have no value at read time."""
+        self.ensure_one()
+        available = set(formula_tools.IMPLICIT_NAMES)
+        available |= {
+            slot_key
+            for slot_key, value in self._formula_slot_map().items()
+            if isinstance(value, str)
+        }
+        available |= {"widget_%s" % widget_id for widget_id in self._dependency_ids()}
+        available |= {key for key in self._source_measure_keys() if key != "__count"}
+        used = formula_tools.expression_names(self._effective_expression())
+        return sorted(name for name in used if name not in available)
+
+    def _validate_formula_config(self):
+        """Validate the whole formula configuration and raise ``ValidationError``.
+
+        Called by ``create_widget`` / ``update_widget`` / ``preview_widget`` so
+        a broken formula is refused while the designer saves it instead of
+        failing soft later on the dashboard.
+        """
+        for widget in self:
+            expression = widget._effective_expression()
+            if widget.formula_mode == "preset":
+                if not widget.formula_type:
+                    raise ValidationError(_("Choose a preset formula."))
+                missing = [
+                    slot_key
+                    for slot_key in formula_tools.PRESET_REQUIRED_SLOTS.get(
+                        widget.formula_type, ()
+                    )
+                    if slot_key not in widget._formula_slot_map()
+                ]
+                if missing:
+                    raise ValidationError(
+                        _("The preset formula '%(formula)s' needs the slot(s): %(slots)s.")
+                        % {"formula": widget.formula_type, "slots": ", ".join(missing)}
+                    )
+            elif widget.formula_mode == "custom":
+                if not (widget.formula_expression or "").strip():
+                    raise ValidationError(_("Type the formula of this widget."))
+            else:
+                continue
+            formula_tools.validate_expression(expression, widget._allowed_names())
+            unresolved = widget._unresolved_names()
+            if unresolved:
+                raise ValidationError(
+                    _("The formula uses names without value: %s.") % ", ".join(unresolved)
+                )
+
     def _build_domain(self, date_range=None, date_from=None, date_to=None, previous=False):
         self.ensure_one()
         domain = []
