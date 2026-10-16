@@ -998,17 +998,18 @@ class Od19DashboardWidget(models.Model):
     def _date_bounds(self, range_key, date_from, date_to, shift=None):
         self.ensure_one()
         start, end, field_type = self._period_bounds(range_key, date_from, date_to, shift)
+        bounds = []
         if field_type == "date":
             if start:
-                return [(self.date_key, ">=", start.isoformat())]
+                bounds.append((self.date_key, ">=", start.isoformat()))
             if end:
-                return [(self.date_key, "<=", end.isoformat())]
-            return []
+                bounds.append((self.date_key, "<=", end.isoformat()))
+            return bounds
         if start:
-            return [(self.date_key, ">=", "%s 00:00:00" % start.isoformat())]
+            bounds.append((self.date_key, ">=", "%s 00:00:00" % start.isoformat()))
         if end:
-            return [(self.date_key, "<=", "%s 23:59:59" % end.isoformat())]
-        return []
+            bounds.append((self.date_key, "<=", "%s 23:59:59" % end.isoformat()))
+        return bounds
 
     def _compute_status(self, value):
         self.ensure_one()

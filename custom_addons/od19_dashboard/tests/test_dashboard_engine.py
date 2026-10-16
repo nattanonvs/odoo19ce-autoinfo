@@ -210,11 +210,15 @@ class TestDashboardRuleEngine(TransactionCase):
         self.assertEqual(self.widget_a._required_shifts(), set())
 
     def test_date_bounds_applies_previous_shift(self):
+        # ``apply_shift(..., "previous")`` uses inclusive bounds, so a 12 day
+        # window (2026-03-05 → 2026-03-16) shifts to 2026-02-21 → 2026-03-04.
+        # This mirrors ``test_shift_previous_keeps_period_length`` in
+        # ``test_dashboard_formula.py``.
         bounds = self.widget_a._date_bounds("this_year", "2026-03-05", "2026-03-16", shift="previous")
         self.assertEqual(
             bounds,
             [
-                ("date_order", ">=", "2026-02-22 00:00:00"),
+                ("date_order", ">=", "2026-02-21 00:00:00"),
                 ("date_order", "<=", "2026-03-04 23:59:59"),
             ],
         )
