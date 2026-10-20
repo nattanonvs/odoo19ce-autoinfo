@@ -1,14 +1,16 @@
 import re
 
-from odoo import api, fields, models
+from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
 
 
 # Mapping of project type to (type_prefix, sequence field name on hr.department)
 PROJECT_TYPE_SEQUENCE_MAP = {
     "job": ("J", "project_job_sequence_id"),
-    "server": ("SV", "project_server_sequence_id"),
     "pm": ("PM", "project_pm_sequence_id"),
     "service": ("S", "project_service_sequence_id"),
+    # 'sale' uses the salesperson sequence, not a department sequence (D1)
+    "sale": ("JS", None),
 }
 
 
@@ -33,21 +35,16 @@ class ProjectProject(models.Model):
     od19_project_type = fields.Selection(
         [
             ("job", "Job"),
-            ("server", "Server"),
             ("pm", "Preventive Maintenance"),
             ("service", "Service"),
+            ("sale", "Sales"),
         ],
         string="Project Type",
         default="job",
         required=True,
         tracking=True,
-        help="Determines the prefix used in the Job Number.",
-    )
-    od19_department_id = fields.Many2one(
-        comodel_name="hr.department",
-        string="OD19 Department",
-        tracking=True,
-        index=True,
+        help="Determines the prefix used in the Job Number. "
+             "od19_department_id is declared by od19_project_analytic.",
     )
     od19_sale_person_id = fields.Many2one(
         comodel_name="res.users",
@@ -67,8 +64,14 @@ class ProjectProject(models.Model):
         return res
 
     def _get_project_sequence(self):
-        """Return the ir.sequence for this project's type and department."""
+        """Return the ir.sequence for this project's type.
+
+        Sales-type projects use the salesperson's own sequence; the other
+        types use the department sequence for that project type.
+        """
         self.ensure_one()
+        if self.od19_project_type == "sale":
+            return self.od19_sale_person_id.project_sale_sequence_id or False
         if not self.od19_department_id:
             return False
         seq_field = PROJECT_TYPE_SEQUENCE_MAP.get(self.od19_project_type, (None, None))[1]
@@ -98,33 +101,61 @@ class ProjectProject(models.Model):
 
         return _insert_initials_before_year(generated, initials)
 
+    @staticmethod
+    def _od19_sequence_date(vals):
+        if vals.get("date_start"):
+            return fields.Date.to_date(vals["date_start"])
+        return None
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
             # Generate job number if not provided
-            if not vals.get("job_no"):
-                department_id = vals.get("od19_department_id")
-                project_type = vals.get("od19_project_type", "job")
-                if department_id and project_type in PROJECT_TYPE_SEQUENCE_MAP:
-                    department = self.env["hr.department"].browse(department_id)
-                    seq_field = PROJECT_TYPE_SEQUENCE_MAP[project_type][1]
-                    sequence = getattr(department, seq_field)
-                    if sequence:
-                        sale_person_id = vals.get("od19_sale_person_id")
-                        sale_person = (
-                            self.env["res.users"].browse(sale_person_id)
-                            if sale_person_id
-                            else False
+            if vals.get("job_no"):
+                continue
+            project_type = vals.get("od19_project_type", "job")
+            if project_type == "sale":
+                # Sales-type projects always take the number from the
+                # salesperson sequence; never fall back silently (DD-4).
+                sale_person = (
+                    self.env["res.users"].browse(vals["od19_sale_person_id"])
+                    if vals.get("od19_sale_person_id")
+                    else self.env["res.users"]
+                )
+                sequence = sale_person.project_sale_sequence_id
+                if not sequence:
+                    raise ValidationError(
+                        _("Set a Sale Project Job No. Sequence on the salesperson "
+                          "before creating a Sales-type project.")
+                    )
+                generated = sequence.next_by_id(
+                    sequence_date=self._od19_sequence_date(vals)
+                )
+                if generated:
+                    vals["job_no"] = _insert_initials_before_year(
+                        generated, sale_person.od19_initials or ""
+                    )
+                continue
+            department_id = vals.get("od19_department_id")
+            if department_id and project_type in PROJECT_TYPE_SEQUENCE_MAP:
+                department = self.env["hr.department"].browse(department_id)
+                seq_field = PROJECT_TYPE_SEQUENCE_MAP[project_type][1]
+                sequence = getattr(department, seq_field) if seq_field else False
+                if sequence:
+                    sale_person_id = vals.get("od19_sale_person_id")
+                    sale_person = (
+                        self.env["res.users"].browse(sale_person_id)
+                        if sale_person_id
+                        else False
+                    )
+                    initials = sale_person.od19_initials if sale_person else ""
+                    generated = sequence.next_by_id(
+                        sequence_date=self._od19_sequence_date(vals)
+                    )
+                    if generated:
+                        vals["job_no"] = _insert_initials_before_year(
+                            generated, initials
                         )
-                        initials = sale_person.od19_initials if sale_person else ""
-                        seq_date = None
-                        if vals.get("date_start"):
-                            seq_date = fields.Date.to_date(vals["date_start"])
-                        generated = sequence.next_by_id(sequence_date=seq_date)
-                        if generated:
-                            vals["job_no"] = _insert_initials_before_year(
-                                generated, initials
-                            )
         return super().create(vals_list)
 
     def write(self, vals):

@@ -32,7 +32,6 @@ class TestProjectContext(TransactionCase):
         vals = {
             "name": name,
             "job_no": job_no or f"JOB-{name[:4].upper()}-001",
-            "job_type": "construction",
         }
         if owner:
             vals["project_owner_id"] = owner.id

@@ -2,11 +2,13 @@
 {
     "name": "Project Document Sequence (OD19)",
     "version": "1.0.0",
-    "summary": "Job/Server/PM/Service numbering with dept + sales initials + year + sequence",
+    "summary": "Sale/Service/PM/Job numbering with dept + sales initials + year + sequence",
     "description": """
 Adds department-based document sequences for project documents.
 Job Number format: J + dept_code + sales_initials + year + sequence
-Same format for Server (SV), Preventive Maintenance (PM), Service (S).
+Same format for Sales (JS), Preventive Maintenance (PM), Service (S).
+Sales-type projects take their number from the salesperson sequence instead
+of a department sequence.
 Task Code format: T + dept_code + sales_initials + sequence.
     """,
     "author": "OD19 Custom",

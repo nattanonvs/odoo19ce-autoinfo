@@ -31,7 +31,6 @@ class TestProjectAnalytic(TransactionCase):
             {
                 "name": "Airport Expansion",
                 "job_no": "JOB-2026-001",
-                "job_type": "construction",
             }
         )
         self.assertTrue(
@@ -45,7 +44,6 @@ class TestProjectAnalytic(TransactionCase):
         project = self.env["project.project"].create(
             {
                 "name": "Core Module Project",
-                "job_type": "construction",
             }
         )
         self.assertFalse(project.job_no)
@@ -55,7 +53,6 @@ class TestProjectAnalytic(TransactionCase):
             {
                 "name": "First Project",
                 "job_no": "JOB-DUP-001",
-                "job_type": "construction",
             }
         )
         with self.assertRaises(ValidationError):
@@ -63,7 +60,6 @@ class TestProjectAnalytic(TransactionCase):
                 {
                     "name": "Second Project",
                     "job_no": "JOB-DUP-001",
-                    "job_type": "service",
                 }
             )
 
@@ -73,7 +69,6 @@ class TestProjectAnalytic(TransactionCase):
                 {
                     "name": "Invalid Owner Project",
                     "job_no": "JOB-OWNER-001",
-                    "job_type": "construction",
                     "project_owner_id": self.invalid_owner.id,
                 }
             )
@@ -84,25 +79,23 @@ class TestProjectAnalytic(TransactionCase):
                 {
                     "name": "Invalid Contractor Project",
                     "job_no": "JOB-CONTRACTOR-001",
-                    "job_type": "construction",
                     "contractor_ids": [(6, 0, self.invalid_contractor.ids)],
                 }
             )
 
     def test_valid_project_fields(self):
+        department = self.env["hr.department"].create({"name": "Engineering"})
         project = self.env["project.project"].create(
             {
                 "name": "Valid Project",
                 "job_no": "JOB-VALID-001",
-                "job_type": "service",
-                "department": "Engineering",
+                "od19_department_id": department.id,
                 "project_owner_id": self.owner.id,
                 "contractor_ids": [(6, 0, self.contractor.ids)],
             }
         )
         self.assertEqual(project.job_no, "JOB-VALID-001")
-        self.assertEqual(project.job_type, "service")
-        self.assertEqual(project.department, "Engineering")
+        self.assertEqual(project.od19_department_id, department)
         self.assertEqual(project.project_owner_id, self.owner)
         self.assertIn(self.contractor, project.contractor_ids)
         self.assertTrue(project.account_id)

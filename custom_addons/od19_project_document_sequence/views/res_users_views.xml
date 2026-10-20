@@ -9,6 +9,8 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='login']" position="after">
                     <field name="od19_initials"/>
+                    <field name="project_sale_sequence_id"
+                           groups="base.group_erp_manager"/>
                 </xpath>
             </field>
         </record>

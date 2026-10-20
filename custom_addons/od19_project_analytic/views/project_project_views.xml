@@ -9,8 +9,7 @@
                 <field name="job_no" placeholder="e.g. JOB-2026-001" required="1"/>
             </xpath>
             <xpath expr="//field[@name='partner_id']" position="after">
-                <field name="job_type"/>
-                <field name="department"/>
+                <field name="od19_department_id" options="{'no_create': True}"/>
                 <field name="project_owner_id" domain="[('od19_is_project_owner', '=', True)]"/>
                 <field name="contractor_ids" widget="many2many_tags" domain="[('od19_is_contractor', '=', True)]"/>
             </xpath>
@@ -26,7 +25,7 @@
                 <field name="job_no"/>
             </xpath>
             <xpath expr="//field[@name='partner_id']" position="after">
-                <field name="job_type" optional="show"/>
+                <field name="od19_department_id" optional="show"/>
             </xpath>
         </field>
     </record>

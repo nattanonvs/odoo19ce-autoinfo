@@ -8,7 +8,6 @@
             <field name="inherit_id" ref="project.edit_project"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='name']" position="after">
-                    <field name="job_no"/>
                     <field name="od19_project_type"/>
                     <field name="od19_department_id"/>
                     <field name="od19_sale_person_id"/>
@@ -22,7 +21,6 @@
             <field name="inherit_id" ref="project.view_project"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='name']" position="after">
-                    <field name="job_no" optional="hide"/>
                     <field name="od19_project_type" optional="hide"/>
                     <field name="od19_department_id" optional="hide"/>
                 </xpath>

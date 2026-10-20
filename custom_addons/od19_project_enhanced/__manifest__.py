@@ -22,6 +22,8 @@
         "views/project_project_views.xml",
         "views/project_task_views.xml",
         "views/project_risk_report_views.xml",
+        "views/project_pnl_report_views.xml",
+        "report/job_assignment_report.xml",
     ],
     "installable": True,
     "license": "LGPL-3",

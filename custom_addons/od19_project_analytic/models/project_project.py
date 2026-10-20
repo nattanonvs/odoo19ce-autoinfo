@@ -10,22 +10,19 @@ class ProjectProject(models.Model):
         copy=False,
         tracking=True,
         index=True,
+        help="Job number generated from department + project type + sales "
+             "initials + year + running number. Required at the UI level but "
+             "optional at the model level so core modules (e.g. sale_project) "
+             "can still create projects.",
     )
-    job_type = fields.Selection(
-        [
-            ("construction", "Construction"),
-            ("service", "Service"),
-            ("supply", "Supply"),
-            ("other", "Other"),
-        ],
-        string="Job Type",
-        required=True,
-        default="construction",
-        tracking=True,
-    )
-    department = fields.Char(
+    od19_department_id = fields.Many2one(
+        "hr.department",
         string="Department",
         tracking=True,
+        index=True,
+        ondelete="restrict",
+        help="Owning department. Drives the department-based document "
+             "sequence and department-level reporting.",
     )
     project_owner_id = fields.Many2one(
         "res.partner",

@@ -1,3 +1,4 @@
+from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
 from odoo.addons.od19_project_document_sequence.models.project_project import (
@@ -41,7 +42,6 @@ class TestProjectDocumentSequence(TransactionCase):
     def test_department_has_project_sequence_fields(self):
         department = self.env["hr.department"].create({"name": "Test Dept"})
         self.assertFalse(department.project_job_sequence_id)
-        self.assertFalse(department.project_server_sequence_id)
         self.assertFalse(department.project_pm_sequence_id)
         self.assertFalse(department.project_service_sequence_id)
 
@@ -53,3 +53,75 @@ class TestProjectDocumentSequence(TransactionCase):
         })
         self.assertEqual(project.od19_project_type, "job")
         self.assertEqual(project.od19_department_id, department)
+
+    def test_project_type_selection_matches_legacy(self):
+        # Legacy set: job, pm, service, sale - never 'server'
+        selection = dict(self.env["project.project"]._fields["od19_project_type"].selection)
+        self.assertEqual(
+            sorted(selection.keys()), ["job", "pm", "sale", "service"]
+        )
+
+    def _sale_sequence(self, prefix="JS%(y)s-"):
+        return self.env["ir.sequence"].create({
+            "name": "OD19 Sale Job No",
+            "code": "od19.sale.job",
+            "prefix": prefix,
+            "padding": 4,
+            "company_id": self.env.company.id,
+        })
+
+    def _sale_user(self, login, initials, sequence=None):
+        return self.env["res.users"].create({
+            "name": login,
+            "login": login,
+            "od19_initials": initials,
+            "project_sale_sequence_id": sequence.id if sequence else False,
+        })
+
+    def test_sale_project_uses_salesperson_sequence_with_initials(self):
+        user = self._sale_user("od19_sale_rep", "NV", self._sale_sequence())
+        project = self.env["project.project"].create({
+            "name": "Sale Direct Project",
+            "od19_project_type": "sale",
+            "od19_sale_person_id": user.id,
+        })
+        # prefix JS%(y)s- -> JS26-0001 -> initials inserted before the year
+        self.assertTrue(project.job_no.startswith("JSNV"))
+
+    def test_sale_project_without_sequence_raises(self):
+        user = self._sale_user("od19_sale_rep_noseq", "NS")
+        with self.assertRaises(ValidationError):
+            self.env["project.project"].create({
+                "name": "Sale Project No Seq",
+                "od19_project_type": "sale",
+                "od19_sale_person_id": user.id,
+            })
+
+    def test_sale_project_with_explicit_job_no_does_not_raise(self):
+        user = self._sale_user("od19_sale_rep_import", "IM")
+        project = self.env["project.project"].create({
+            "name": "Imported Sale Project",
+            "od19_project_type": "sale",
+            "od19_sale_person_id": user.id,
+            "job_no": "JSIM26-9999",
+        })
+        self.assertEqual(project.job_no, "JSIM26-9999")
+
+    def test_job_type_other_than_sale_does_not_require_sequence(self):
+        # No department and no sequence -> empty job number, no raise
+        project = self.env["project.project"].create({
+            "name": "No Dept Project",
+            "od19_project_type": "pm",
+        })
+        self.assertFalse(project.job_no)
+
+    def test_job_no_is_not_regenerated_on_write(self):
+        user = self._sale_user("od19_sale_rep_write", "WR", self._sale_sequence())
+        project = self.env["project.project"].create({
+            "name": "Sale Project Write",
+            "od19_project_type": "sale",
+            "od19_sale_person_id": user.id,
+        })
+        original = project.job_no
+        project.write({"od19_sale_person_id": self.env.uid})
+        self.assertEqual(project.job_no, original)

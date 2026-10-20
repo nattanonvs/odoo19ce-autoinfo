@@ -9,10 +9,14 @@
                 <field name="project_name"/>
                 <field name="contract_amount" sum="Total"/>
                 <field name="invoiced_amount" sum="Total"/>
+                <field name="revenue" sum="Total"/>
                 <field name="actual_cost" sum="Total"/>
+                <field name="gross_margin" sum="Total"/>
+                <field name="uncategorized_amount" sum="Total"/>
                 <field name="committed_cost" sum="Total"/>
                 <field name="overdue_ar" sum="Total"/>
                 <field name="margin_percent"/>
+                <field name="pnl_warning" decoration-danger="pnl_warning != False"/>
                 <field name="risk_score"/>
                 <field name="risk_level" decoration-danger="risk_level == 'high'"
                        decoration-warning="risk_level == 'medium'"
@@ -40,7 +44,9 @@
                 <field name="project_name" type="row"/>
                 <field name="risk_level" type="col"/>
                 <field name="contract_amount" type="measure"/>
+                <field name="revenue" type="measure"/>
                 <field name="actual_cost" type="measure"/>
+                <field name="gross_margin" type="measure"/>
                 <field name="overdue_ar" type="measure"/>
             </pivot>
         </field>

@@ -10,7 +10,6 @@
                 <xpath expr="//field[@name='po_sequence_id']/.." position="after">
                     <group string="Project Sequences">
                         <field name="project_job_sequence_id"/>
-                        <field name="project_server_sequence_id"/>
                         <field name="project_pm_sequence_id"/>
                         <field name="project_service_sequence_id"/>
                     </group>

@@ -3,3 +3,5 @@ access_od19_project_type_user,od19.project.type.user,model_od19_project_type,pro
 access_od19_project_type_manager,od19.project.type.manager,model_od19_project_type,project.group_project_manager,1,1,1,1
 access_od19_project_risk_report_user,od19.project.risk.report.user,model_od19_project_risk_report,project.group_project_user,1,0,0,0
 access_od19_project_risk_report_manager,od19.project.risk.report.manager,model_od19_project_risk_report,project.group_project_manager,1,0,0,0
+access_od19_project_pnl_report_user,od19.project.pnl.report.user,model_od19_project_pnl_report,project.group_project_user,1,1,1,1
+access_od19_project_pnl_report_line_user,od19.project.pnl.report.line.user,model_od19_project_pnl_report_line,project.group_project_user,1,1,1,1

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_od19_project_pnl_report_wizard_form" model="ir.ui.view">
+        <field name="name">od19.project.pnl.report.wizard.form</field>
+        <field name="model">od19.project.pnl.report</field>
+        <field name="arch" type="xml">
+            <form string="Project P&amp;L Report">
+                <group>
+                    <group>
+                        <field name="date_from"/>
+                        <field name="date_to"/>
+                    </group>
+                    <group>
+                        <field name="company_ids" widget="many2many_tags"/>
+                        <field name="project_ids" widget="many2many_tags"
+                               options="{'no_create': True}"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_generate" type="object"
+                            string="Generate" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_od19_project_pnl_report_line_tree" model="ir.ui.view">
+        <field name="name">od19.project.pnl.report.line.tree</field>
+        <field name="model">od19.project.pnl.report.line</field>
+        <field name="arch" type="xml">
+            <list string="Project P&amp;L" create="false" edit="false" delete="false">
+                <field name="project_id"/>
+                <field name="analytic_account_id"/>
+                <field name="revenue" sum="Total"/>
+                <field name="cost" sum="Total"/>
+                <field name="gross_margin" sum="Total"/>
+                <field name="margin_percent"/>
+                <field name="uncategorized_amount" sum="Total"/>
+                <field name="warning" decoration-danger="warning != False"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_od19_project_pnl_report" model="ir.actions.act_window">
+        <field name="name">Project P&amp;L Report</field>
+        <field name="res_model">od19.project.pnl.report</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem
+        id="menu_od19_project_pnl_report"
+        name="P&amp;L Report"
+        parent="project.menu_main_pm"
+        action="action_od19_project_pnl_report"
+        sequence="96"
+    />
+</odoo>

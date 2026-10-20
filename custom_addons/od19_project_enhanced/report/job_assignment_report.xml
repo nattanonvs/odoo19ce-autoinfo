@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2026 OD19 -->
+<!-- License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl). -->
+<odoo>
+
+    <!-- ============================================================ -->
+    # ใบมอบหมายงาน (Job Assignment Document)
+    # Prints the job assignment details captured on project.project:
+    # job no, customer, department, project category, responsible
+    # persons, coordinators, contractors, scope of work, document
+    # requirements and the linked sales order.
+    # Thai font comes from od19_thai_font_support.
+    <!-- ============================================================ -->
+    <template id="job_assignment_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family:'Sarabun','Noto Sans Thai','Tahoma',sans-serif;">
+                        <h2 class="text-center">ใบมอบหมายงาน</h2>
+                        <h3 class="text-center">JOB ASSIGNMENT</h3>
+
+                        <div class="row mt-3">
+                            <div class="col-6">
+                                <strong>เลขที่งาน / Job No: </strong>
+                                <span t-esc="o.job_no or '-'"/>
+                            </div>
+                            <div class="col-6 text-right">
+                                <strong>วันที่ / Date: </strong>
+                                <span t-field="o.date_start"/>
+                            </div>
+                        </div>
+
+                        <table class="table table-sm table-bordered mt-3">
+                            <tbody>
+                                <tr>
+                                    <th style="width:28%">ชื่อโครงการ / Project</th>
+                                    <td><span t-field="o.name"/></td>
+                                </tr>
+                                <tr>
+                                    <th>ลูกค้า / Customer</th>
+                                    <td><span t-field="o.partner_id"/></td>
+                                </tr>
+                                <tr>
+                                    <th>แผนก / Department</th>
+                                    <td><span t-field="o.od19_department_id"/></td>
+                                </tr>
+                                <tr>
+                                    <th>ประเภทโครงการ / Category</th>
+                                    <td><span t-field="o.od19_project_type_id"/></td>
+                                </tr>
+                                <tr>
+                                    <th>ผู้เป็นเจ้าของโครงการ / Project Owner</th>
+                                    <td><span t-field="o.project_owner_id"/></td>
+                                </tr>
+                                <tr>
+                                    <th>ผู้รับผิดชอบ / Responsible Persons</th>
+                                    <td>
+                                        <t t-if="o.od19_responsible_person_ids">
+                                            <t t-foreach="o.od19_responsible_person_ids" t-as="emp">
+                                                <div t-esc="emp.name"/>
+                                            </t>
+                                        </t>
+                                        <t t-else="">-</t>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>ผู้ประสานงาน / Coordinators</th>
+                                    <td>
+                                        <t t-if="o.od19_coordinator_ids">
+                                            <t t-foreach="o.od19_coordinator_ids" t-as="emp">
+                                                <div t-esc="emp.name"/>
+                                            </t>
+                                        </t>
+                                        <t t-else="">-</t>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>ผู้รับเหมา / Contractors</th>
+                                    <td>
+                                        <t t-if="o.contractor_ids">
+                                            <t t-foreach="o.contractor_ids" t-as="c">
+                                                <div t-esc="c.name"/>
+                                            </t>
+                                        </t>
+                                        <t t-else="">-</t>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>กำหนดเสร็จ / Deadline</th>
+                                    <td><span t-field="o.date"/></td>
+                                </tr>
+                                <tr>
+                                    <th>ใบสั่งขาย / Sales Order</th>
+                                    <td><span t-field="o.sale_order_id"/></td>
+                                </tr>
+                                <tr>
+                                    <th>บัญชีวิเคราะห์ / Analytic Account</th>
+                                    <td><span t-field="o.account_id"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="mt-3">
+                            <strong>ขอบเขตของงาน / Scope of Work</strong>
+                            <div class="border rounded p-2 mt-1">
+                                <span t-esc="o.od19_scope_of_work or '-'"/>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <strong>เอกสารที่ต้องส่งมอบ / Document Requirements</strong>
+                            <div class="border rounded p-2 mt-1">
+                                <span t-esc="o.od19_document_requirements or '-'"/>
+                            </div>
+                        </div>
+
+                        <div class="row mt-5">
+                            <div class="col-4 text-center">
+                                <div>__________________________</div>
+                                <div>ผู้มอบหมาย / Assigned by</div>
+                            </div>
+                            <div class="col-4 text-center">
+                                <div>__________________________</div>
+                                <div>ผู้รับมอบหมาย / Accepted by</div>
+                            </div>
+                            <div class="col-4 text-center">
+                                <div>__________________________</div>
+                                <div>ผู้อนุมัติ / Approved by</div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_job_assignment" model="ir.actions.report">
+        <field name="name">Job Assignment</field>
+        <field name="model">project.project</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">od19_project_enhanced.job_assignment_document</field>
+        <field name="report_file">od19_project_enhanced.job_assignment_document</field>
+        <field name="binding_model_id" ref="project.model_project_project"/>
+        <field name="binding_type">report</field>
+        <field name="print_report_name">'Job Assignment - %s' % (object.job_no or object.name)</field>
+    </record>
+
+</odoo>
