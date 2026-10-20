@@ -190,7 +190,7 @@ venv19\Scripts\python.exe odoo-bin -c odoo.conf -d odoo19 --http-port=8171 -u od
 from odoo.exceptions import ValidationError
 
 
-    def _sale_sequence(self, prefix="JS%(y)s-"):
+    def _sale_sequence(self, prefix="S%(y)s-"):
         return self.env["ir.sequence"].create({
             "name": "OD19 Sale Job No",
             "code": "od19.sale.job",
@@ -219,8 +219,8 @@ from odoo.exceptions import ValidationError
             "od19_project_type": "sale",
             "od19_sale_person_id": user.id,
         })
-        # prefix JS%(y)s- -> JS26-0001 -> insert initials before year -> JSNV26-0001
-        self.assertTrue(project.job_no.startswith("JSNV"))
+        # sale job number = S + initials + YY + running number -> SNV26-0001
+        self.assertTrue(project.job_no.startswith("SNV"))
 
     def test_sale_project_without_sequence_raises(self):
         user = self._sale_user("od19_sale_rep_noseq", "NS")
@@ -237,9 +237,9 @@ from odoo.exceptions import ValidationError
             "name": "Imported Sale Project",
             "od19_project_type": "sale",
             "od19_sale_person_id": user.id,
-            "job_no": "JSIM26-9999",
+            "job_no": "SIM26-9999",
         })
-        self.assertEqual(project.job_no, "JSIM26-9999")
+        self.assertEqual(project.job_no, "SIM26-9999")
 
     def test_job_type_other_than_sale_does_not_require_sequence(self):
         # ไม่มีแผนกและไม่มี sequence -> job_no ว่างได้ ไม่ raise (พฤติกรรมเดิม)
@@ -276,15 +276,34 @@ venv19\Scripts\python.exe odoo-bin -c odoo.conf -d odoo19 --http-port=8171 -u od
 class ResUsers(models.Model):
     _inherit = "res.users"
 
-    od19_initials = fields.Char(...)  # คงเดิม
+    od19_initials = fields.Char(...)  # คงเดิม (ใช้เป็น override ของอักษรย่อ)
 
     project_sale_sequence_id = fields.Many2one(
         "ir.sequence",
         string="Sale Project Job No. Sequence",
         check_company=True,
-        help="Sequence used to build the Job Number for Sales-type projects "
-             "(od19_project_type = 'sale'). Prefix is free-form, e.g. JS%(y)s-.",
+        help="Sequence that supplies the running counter for Sales-type project "
+             "job numbers. The job number itself is built as "
+             "S + initials + YY + running number, e.g. SNV26-0001, so the "
+             "sequence prefix is ignored.",
     )
+
+    def _od19_derive_initials(self):
+        """Return initials taken from the user name, e.g. NV for Nattanai Vinyangkoon."""
+        self.ensure_one()
+        parts = (self.name or "").split()
+        if not parts:
+            return ""
+        initials = parts[0][0]
+        if len(parts) > 1:
+            initials += parts[-1][0]
+        return initials.upper()
+
+    def _od19_job_no_initials(self):
+        """Return the initials used in job numbers: manual value wins when set."""
+        self.ensure_one()
+        manual = (self.od19_initials or "").strip().upper()
+        return manual or self._od19_derive_initials()
 ```
 
 - [ ] **Step 4: เพิ่ม type `sale` และ branch การสร้าง Job Number**
@@ -292,6 +311,8 @@ class ResUsers(models.Model):
 `models/project_project.py` — ปรับ 3 จุด:
 
 ```python
+import re
+
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
@@ -299,9 +320,27 @@ PROJECT_TYPE_SEQUENCE_MAP = {
     "job": ("J", "project_job_sequence_id"),
     "pm": ("PM", "project_pm_sequence_id"),
     "service": ("S", "project_service_sequence_id"),
-    # 'sale' ใช้ sequence ของ salesperson ไม่ใช่ sequence ของแผนก
-    "sale": ("JS", None),
+    # 'sale' ใช้ sequence ของ salesperson เป็นตัวนับ running number เท่านั้น
+    "sale": ("S", None),
 }
+
+# Sales-type job numbers are always built as S + initials + YY + running number,
+# so the prefix configured on the salesperson sequence is ignored.
+SALE_TYPE_PREFIX = "S"
+
+
+def _build_sale_job_no(generated, initials, sequence_date=None):
+    """Build a Sales-type job number: S + initials + YY + running number.
+
+    The salesperson sequence only supplies the running counter, so its own prefix
+    is ignored: 'JS26-0001' with initials NV becomes 'SNV26-0001'.
+    """
+    if not generated:
+        return generated
+    match = re.search(r'\d+\s*$', generated)
+    running = match.group(0) if match else generated
+    year = (sequence_date or fields.Date.today()).strftime("%y")
+    return "%s%s%s-%s" % (SALE_TYPE_PREFIX, initials or "", year, running)
 ```
 
 `od19_project_type` — ถอด `server` และเพิ่ม `sale`:
@@ -366,8 +405,10 @@ PROJECT_TYPE_SEQUENCE_MAP = {
                     sequence_date=self._od19_sequence_date(vals)
                 )
                 if generated:
-                    vals["job_no"] = _insert_initials_before_year(
-                        generated, sale_person.od19_initials or ""
+                    vals["job_no"] = _build_sale_job_no(
+                        generated,
+                        sale_person._od19_job_no_initials(),
+                        self._od19_sequence_date(vals),
                     )
                 continue
             department_id = vals.get("od19_department_id")

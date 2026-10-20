@@ -61,7 +61,7 @@ class TestProjectDocumentSequence(TransactionCase):
             sorted(selection.keys()), ["job", "pm", "sale", "service"]
         )
 
-    def _sale_sequence(self, prefix="JS%(y)s-"):
+    def _sale_sequence(self, prefix="S%(y)s-"):
         return self.env["ir.sequence"].create({
             "name": "OD19 Sale Job No",
             "code": "od19.sale.job",
@@ -70,42 +70,87 @@ class TestProjectDocumentSequence(TransactionCase):
             "company_id": self.env.company.id,
         })
 
-    def _sale_user(self, login, initials, sequence=None):
+    def _sale_user(self, login, initials=None, sequence=None, name=None):
         return self.env["res.users"].create({
-            "name": login,
+            "name": name or login,
             "login": login,
             "od19_initials": initials,
             "project_sale_sequence_id": sequence.id if sequence else False,
         })
 
-    def test_sale_project_uses_salesperson_sequence_with_initials(self):
-        user = self._sale_user("od19_sale_rep", "NV", self._sale_sequence())
-        project = self.env["project.project"].create({
-            "name": "Sale Direct Project",
+    def _create_sale_project(self, user, **vals):
+        return self.env["project.project"].create(dict({
+            "name": "Sale Project",
             "od19_project_type": "sale",
             "od19_sale_person_id": user.id,
-        })
-        # prefix JS%(y)s- -> JS26-0001 -> initials inserted before the year
-        self.assertTrue(project.job_no.startswith("JSNV"))
+        }, **vals))
+
+    def test_sale_job_no_uses_manual_initials(self):
+        user = self._sale_user(
+            "od19_sale_rep", "NV", self._sale_sequence(), name="Nattanai Vinyangkoon"
+        )
+        project = self._create_sale_project(user)
+        # S + initials + YY + running number
+        self.assertRegex(project.job_no, r"^SNV\d{2}-\d{4}$")
+
+    def test_sale_job_no_derives_initials_from_user_name(self):
+        # No manual initials -> first letter of the first and last name (NV)
+        user = self._sale_user(
+            "od19_sale_rep_name",
+            None,
+            self._sale_sequence(),
+            name="Nattanai Vinyangkoon",
+        )
+        project = self._create_sale_project(user)
+        self.assertRegex(project.job_no, r"^SNV\d{2}-\d{4}$")
+
+    def test_sale_job_no_manual_initials_override_derived(self):
+        user = self._sale_user(
+            "od19_sale_rep_override",
+            "xy",
+            self._sale_sequence(),
+            name="Nattanai Vinyangkoon",
+        )
+        project = self._create_sale_project(user)
+        self.assertTrue(project.job_no.startswith("SXY"))
+
+    def test_sale_job_no_ignores_sequence_prefix(self):
+        # The salesperson sequence only supplies the running number; S is fixed
+        user = self._sale_user(
+            "od19_sale_rep_prefix", "NV", self._sale_sequence(prefix="JS%(y)s-")
+        )
+        project = self._create_sale_project(user)
+        self.assertTrue(project.job_no.startswith("SNV"))
+        self.assertFalse(project.job_no.startswith("JS"))
+
+    def test_sale_job_no_uses_project_start_year(self):
+        user = self._sale_user(
+            "od19_sale_rep_year",
+            "NV",
+            self._sale_sequence(),
+            name="Nattanai Vinyangkoon",
+        )
+        project = self._create_sale_project(user, date_start="2027-03-01")
+        self.assertEqual(project.job_no, "SNV27-0001")
+
+    def test_sale_initials_derived_from_name_helpers(self):
+        user = self._sale_user(
+            "od19_sale_rep_helper", None, name="Nattanai Vinyangkoon"
+        )
+        self.assertEqual(user._od19_derive_initials(), "NV")
+        self.assertEqual(user._od19_job_no_initials(), "NV")
+        single_word = self._sale_user("od19_sale_rep_single", None, name="Somchai")
+        self.assertEqual(single_word._od19_derive_initials(), "S")
 
     def test_sale_project_without_sequence_raises(self):
-        user = self._sale_user("od19_sale_rep_noseq", "NS")
+        user = self._sale_user("od19_sale_rep_noseq", "NS", name="Somchai Jaidee")
         with self.assertRaises(ValidationError):
-            self.env["project.project"].create({
-                "name": "Sale Project No Seq",
-                "od19_project_type": "sale",
-                "od19_sale_person_id": user.id,
-            })
+            self._create_sale_project(user)
 
     def test_sale_project_with_explicit_job_no_does_not_raise(self):
-        user = self._sale_user("od19_sale_rep_import", "IM")
-        project = self.env["project.project"].create({
-            "name": "Imported Sale Project",
-            "od19_project_type": "sale",
-            "od19_sale_person_id": user.id,
-            "job_no": "JSIM26-9999",
-        })
-        self.assertEqual(project.job_no, "JSIM26-9999")
+        user = self._sale_user("od19_sale_rep_import", "IM", name="Somchai Jaidee")
+        project = self._create_sale_project(user, job_no="SIM26-9999")
+        self.assertEqual(project.job_no, "SIM26-9999")
 
     def test_job_type_other_than_sale_does_not_require_sequence(self):
         # No department and no sequence -> empty job number, no raise
@@ -117,11 +162,7 @@ class TestProjectDocumentSequence(TransactionCase):
 
     def test_job_no_is_not_regenerated_on_write(self):
         user = self._sale_user("od19_sale_rep_write", "WR", self._sale_sequence())
-        project = self.env["project.project"].create({
-            "name": "Sale Project Write",
-            "od19_project_type": "sale",
-            "od19_sale_person_id": user.id,
-        })
+        project = self._create_sale_project(user)
         original = project.job_no
         project.write({"od19_sale_person_id": self.env.uid})
         self.assertEqual(project.job_no, original)

@@ -190,11 +190,13 @@ Child spec นี้ออกแบบ `Project & Analytic Accounting` สำห
 
 รูปแบบ: `{TYPE_PREFIX}{DEPT_CODE}{INITIALS}{YY}-{RUNNING}` ตัวอย่าง `JBNV26-0001`
 
-- `TYPE_PREFIX`: `J` (Job), `PM` (Preventive Maintenance), `S` (Service), `JS` (Sales)
+- `TYPE_PREFIX`: `J` (Job), `PM` (Preventive Maintenance), `S` (Service), `S` (Sales)
 - `DEPT_CODE`: `hr.department.od19_dept_code` (เจ้าของ `od19_purchase_document_sequence`)
-- `INITIALS`: `res.users.od19_initials` ของ `od19_sale_person_id`
+- `INITIALS`: อักษรย่อของ `od19_sale_person_id` — ดึงอัตโนมัติจาก `name` (ตัวแรกของชื่อจริง + ตัวแรกของนามสกุล เช่น `Nattanai Vinyangkoon` → `NV`); ถ้ากรอก `res.users.od19_initials` ไว้ ให้ใช้ค่านั้นแทน (override)
 - `YY`: ปี 2 หลักของ `date_start`
 - Sequence ถูกกำหนดต่อแผนกต่อประเภท (`project_job_*`, `project_pm_*`, `project_service_*`); ประเภท `sale` ใช้ `res.users.project_sale_sequence_id` ของ salesperson ไม่ใช่ sequence ของแผนก
+
+> **Job Number ของประเภท `sale` (คำสั่งเจ้าของธุรกิจ 2026-10-20):** รูปแบบคือ `S{INITIALS}{YY}-{RUNNING}` โดย**ไม่มี** `DEPT_CODE` (เช่น `SNV26-0001`) — ใช้ `S` คงที่เสมอ และ **ไม่สนใจ prefix ที่ตั้งไว้บน sequence ของ salesperson** เพราะ sequence ทำหน้าที่เป็นตัวนับ running number เท่านั้น (นำ running number มาต่อท้าย `S + INITIALS + YY` เอง) ทำให้แยกจากประเภท Service ที่ได้ `S` + dept_code (เช่น `SB26-0001`) ได้ชัดเจน
 
 > **การถอด Job Type `server` (คำสั่งเจ้าของธุรกิจ 2026-10-20):** ชุด Job Type ของ Odoo 19 ต้องตรงกับ legacy คือ `job`, `pm`, `service`, `sale` เท่านั้น — `server` และ `project_server_sequence_id` / `project.server.*` ถูกถอดออกทั้งหมดในรอบนี้ (ตรวจ DB `odoo19_pdev` แล้ว: ไม่มีโครงการหรือแผนกใดใช้ type/sequence นี้)
 
@@ -346,7 +348,7 @@ KPI ขั้นต่ำ:
 
 | ID | คำตัดสิน | ผลบังคับต่อการ implement |
 | --- | --- | --- |
-| D1 | **เพิ่ม Job Type `sale` กลับ** ตาม legacy | เพิ่ม `('sale', 'Sales')` ใน `project.project.od19_project_type`; Job Number ของประเภท `sale` ใช้ sequence ของ salesperson (`res.users`/employee) ไม่ใช้ `hr.department.od19_dept_code`; ถ้าไม่มี salesperson หรือไม่มี sequence ต้อง raise ValidationError ให้ผู้ใช้ตั้งค่าก่อน (ห้าม fallback เงียบ) |
+| D1 | **เพิ่ม Job Type `sale` กลับ** ตาม legacy | เพิ่ม `('sale', 'Sales')` ใน `project.project.od19_project_type`; Job Number ของประเภท `sale` ใช้ sequence ของ salesperson (`res.users`/employee) เป็น**ตัวนับ running number เท่านั้น** ไม่ใช่ sequence ของแผนก (`hr.department.od19_dept_code`) และไม่สนใจ prefix ของ sequence — รูปแบบคือ `S{INITIALS}{YY}-{RUNNING}` (เช่น `SNV26-0001`) โดย `INITIALS` ดึงอัตโนมัติจาก `name` ของ salesperson (override ได้ด้วย `od19_initials`); ถ้าไม่มี salesperson หรือไม่มี sequence ต้อง raise ValidationError ให้ผู้ใช้ตั้งค่าก่อน (ห้าม fallback เงียบ) |
 | D2 | **แก้ risk threshold เป็น high ≥ 70, medium ≥ 40** | แก้ `_compute_risk_level` ใน `od19.project.risk.report`; ต้องมี test ครอบเส้นแบ่ง 39/40 และ 69/70; ต้องตรวจว่าไม่มีจุดอื่นที่ hardcode 60/30 |
 | D3 | **ไม่ผสม `job_no` นำหน้า name** (คงพฤติกรรมปัจจุบัน) | ห้ามแก้ `name` ของโครงการเป็น `job_no + ':' + name`; ให้ `display_name`/search ใช้ field `job_no` แยก |
 | D4 | **เอกสารบังคับก่อนเข้าพื้นที่ไม่อยู่ใน Wave 1** | ไม่ดึง ~25 ฟิลด์จาก `autoinfo_project_form` เข้ามาในรอบนี้; บันทึกเป็นงานค้าง Wave 3/4 |

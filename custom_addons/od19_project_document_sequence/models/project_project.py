@@ -10,8 +10,12 @@ PROJECT_TYPE_SEQUENCE_MAP = {
     "pm": ("PM", "project_pm_sequence_id"),
     "service": ("S", "project_service_sequence_id"),
     # 'sale' uses the salesperson sequence, not a department sequence (D1)
-    "sale": ("JS", None),
+    "sale": ("S", None),
 }
+
+# Sales-type job numbers are always built as S + initials + YY + running number,
+# so the prefix configured on the salesperson sequence is ignored.
+SALE_TYPE_PREFIX = "S"
 
 
 def _insert_initials_before_year(generated, initials):
@@ -27,6 +31,20 @@ def _insert_initials_before_year(generated, initials):
         pos = match.start()
         return generated[:pos] + initials + generated[pos:]
     return generated
+
+
+def _build_sale_job_no(generated, initials, sequence_date=None):
+    """Build a Sales-type job number: S + initials + YY + running number.
+
+    The salesperson sequence only supplies the running counter, so its own prefix
+    is ignored: 'JS26-0001' with initials NV becomes 'SNV26-0001'.
+    """
+    if not generated:
+        return generated
+    match = re.search(r'\d+\s*$', generated)
+    running = match.group(0) if match else generated
+    year = (sequence_date or fields.Date.today()).strftime("%y")
+    return "%s%s%s-%s" % (SALE_TYPE_PREFIX, initials or "", year, running)
 
 
 class ProjectProject(models.Model):
@@ -80,7 +98,7 @@ class ProjectProject(models.Model):
         return getattr(self.od19_department_id, seq_field)
 
     def _generate_job_no(self, sequence=None, sale_person=None):
-        """Generate the job number by inserting sales initials before the year."""
+        """Generate the job number of this project from its type sequence."""
         self.ensure_one()
         sequence = sequence or self._get_project_sequence()
         if not sequence:
@@ -93,12 +111,12 @@ class ProjectProject(models.Model):
         if not generated:
             return False
 
-        initials = ""
-        if sale_person:
-            initials = sale_person.od19_initials or ""
-        elif self.od19_sale_person_id:
-            initials = self.od19_sale_person_id.od19_initials or ""
+        sale_person = sale_person or self.od19_sale_person_id
+        if self.od19_project_type == "sale":
+            initials = sale_person._od19_job_no_initials() if sale_person else ""
+            return _build_sale_job_no(generated, initials, seq_date)
 
+        initials = (sale_person.od19_initials or "") if sale_person else ""
         return _insert_initials_before_year(generated, initials)
 
     @staticmethod
@@ -128,12 +146,11 @@ class ProjectProject(models.Model):
                         _("Set a Sale Project Job No. Sequence on the salesperson "
                           "before creating a Sales-type project.")
                     )
-                generated = sequence.next_by_id(
-                    sequence_date=self._od19_sequence_date(vals)
-                )
+                seq_date = self._od19_sequence_date(vals)
+                generated = sequence.next_by_id(sequence_date=seq_date)
                 if generated:
-                    vals["job_no"] = _insert_initials_before_year(
-                        generated, sale_person.od19_initials or ""
+                    vals["job_no"] = _build_sale_job_no(
+                        generated, sale_person._od19_job_no_initials(), seq_date
                     )
                 continue
             department_id = vals.get("od19_department_id")
