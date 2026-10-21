@@ -29,16 +29,19 @@ class StockPicking(models.Model):
         "and used in the picking reference (e.g. WH/IA/OUT/00001). "
         "Must match a code defined on an hr.department.",
         copy=False,
-        required=True,
+        # NOTE: not ``required=True`` on purpose.  The column is added to an
+        # already-populated ``stock.picking`` table (demo pickings exist when
+        # installing with demo data), and a NOT NULL column cannot be added
+        # while rows are still NULL - Odoo then logs a schema ERROR/WARNING.
+        # The field is still mandatory in the UI (view ``required="1"``) and
+        # enforced by ``_check_od19_department_code`` below.
     )
-    od19_project_id = fields.Many2one(
-        "project.project",
-        string="Project",
-        compute="_compute_od19_project_id",
-        store=True,
-        readonly=False,
-        help="Project copied from the linked sale order for the delivery label.",
-    )
+    # NOTE: the delivery Project reuses the standard ``project_id`` field that
+    # the core ``project_stock`` module adds to ``stock.picking`` (auto-installed
+    # whenever ``stock`` and ``project`` are both present). Declaring a second
+    # project field here duplicated the "Project" label and column, so the
+    # auto-fill from the linked sale order is applied in ``create``/``write``
+    # instead (see ``_apply_project_from_sale``).
 
     # ------------------------------------------------------------------
     # Delivery reasons (เหตุผลการส่ง)
@@ -75,14 +78,6 @@ class StockPicking(models.Model):
         help="Contact phone number for delivery.",
         copy=False,
     )
-
-    @api.depends("sale_id", "sale_id.od19_project_id")
-    def _compute_od19_project_id(self):
-        for picking in self:
-            if picking.sale_id and picking.sale_id.od19_project_id:
-                picking.od19_project_id = picking.sale_id.od19_project_id
-            elif not picking.od19_project_id:
-                picking.od19_project_id = False
 
     @api.depends(
         "od19_reason_claim",
@@ -208,6 +203,20 @@ class StockPicking(models.Model):
             if values_to_write:
                 super(StockPicking, picking).write(values_to_write)
 
+    def _apply_project_from_sale(self):
+        """Fill the delivery Project from the linked sale order when empty.
+
+        Uses the standard ``project_id`` field (added by the core
+        ``project_stock`` module) instead of a duplicated OD19 field.
+        """
+        for picking in self:
+            if (
+                picking.sale_id
+                and picking.sale_id.od19_project_id
+                and not picking.project_id
+            ):
+                picking.project_id = picking.sale_id.od19_project_id
+
     @api.model_create_multi
     def create(self, vals_list):
         # Auto-fill DEPT from the current user's department when not provided.
@@ -217,9 +226,7 @@ class StockPicking(models.Model):
                     self._default_od19_department_code()
                 )
         records = super().create(vals_list)
-        for record in records:
-            if record.sale_id and record.sale_id.od19_project_id:
-                record.od19_project_id = record.sale_id.od19_project_id
+        records._apply_project_from_sale()
         records._apply_delivery_contact_defaults()
         records._update_name_with_department()
         return records
@@ -228,6 +235,8 @@ class StockPicking(models.Model):
         result = super().write(vals)
         if "sale_id" in vals or "partner_id" in vals:
             self._apply_delivery_contact_defaults()
+        if "sale_id" in vals:
+            self._apply_project_from_sale()
         if "od19_department_code" in vals:
             self._update_name_with_department()
         return result
@@ -248,7 +257,7 @@ class StockPicking(models.Model):
     def _get_delivery_label_project_name(self):
         """Return the Project name for the delivery label."""
         self.ensure_one()
-        return self.od19_project_id.name or ""
+        return self.project_id.name or ""
 
     def _get_delivery_label_department_code(self):
         """Return the DEPT value for the delivery label."""

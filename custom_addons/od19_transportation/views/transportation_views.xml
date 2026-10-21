@@ -26,7 +26,7 @@
                 <field name="transport_cost"/>
                 <field name="state" widget="badge"
                        decoration-info="state == 'draft'"
-                       decoration-warning="state == 'confirmed'"
+                       decoration-warning="state in ('waiting_approval', 'confirmed')"
                        decoration-primary="state == 'in_transit'"
                        decoration-success="state == 'delivered'"
                        decoration-danger="state == 'cancelled'"/>
@@ -42,7 +42,8 @@
             <form string="Transport Order">
                 <header>
                     <button name="action_confirm" string="Confirm" type="object"
-                            class="btn-primary" invisible="state != 'draft'"/>
+                            class="btn-primary"
+                            invisible="state not in ('draft', 'waiting_approval')"/>
                     <button name="action_start_transit" string="Start Transit" type="object"
                             class="btn-primary" invisible="state != 'confirmed'"/>
                     <button name="action_deliver" string="Deliver" type="object"
@@ -50,7 +51,7 @@
                     <button name="action_cancel" string="Cancel" type="object"
                             invisible="state in ('delivered', 'cancelled')"/>
                     <field name="state" widget="statusbar"
-                           statusbar_visible="draft,confirmed,in_transit,delivered"/>
+                           statusbar_visible="draft,waiting_approval,confirmed,in_transit,delivered"/>
                 </header>
                 <sheet>
                     <group>
@@ -107,6 +108,7 @@
                 <field name="driver_id"/>
                 <field name="route_id"/>
                 <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Waiting Approval" name="waiting_approval" domain="[('state', '=', 'waiting_approval')]"/>
                 <filter string="Confirmed" name="confirmed" domain="[('state', '=', 'confirmed')]"/>
                 <filter string="In Transit" name="in_transit" domain="[('state', '=', 'in_transit')]"/>
                 <filter string="Delivered" name="delivered" domain="[('state', '=', 'delivered')]"/>

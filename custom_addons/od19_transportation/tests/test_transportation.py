@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from odoo.tests.common import TransactionCase
-from odoo import fields
+from odoo.tests.common import TransactionCase, new_test_user
+from odoo.exceptions import UserError
 
 
 class TestTransportation(TransactionCase):
@@ -27,8 +27,13 @@ class TestTransportation(TransactionCase):
         cls.employee = cls.env['hr.employee'].search([], limit=1)
         if not cls.employee:
             cls.employee = cls.env['hr.employee'].create({'name': 'Test Driver'})
+        cls.stock_manager = new_test_user(
+            cls.env,
+            login='od19_transport_stock_manager',
+            groups='stock.group_stock_manager',
+        )
 
-    def _create_transport_order(self):
+    def _create_transport_order(self, transport_cost=5000.0):
         return self.env['od19.transport.order'].create({
             'origin_location': 'Bangkok',
             'destination_location': 'Pattaya',
@@ -36,7 +41,7 @@ class TestTransportation(TransactionCase):
             'vehicle_id': self.vehicle.id,
             'driver_id': self.employee.id,
             'distance_km': 150.0,
-            'transport_cost': 5000.0,
+            'transport_cost': transport_cost,
         })
 
     def test_route_creation(self):
@@ -104,3 +109,41 @@ class TestTransportation(TransactionCase):
         order.action_deliver()
         with self.assertRaises(Exception):
             order.action_cancel()
+
+    def test_tier_definition_model_names_include_transport_order(self):
+        names = self.env['tier.definition']._get_tier_validation_model_names()
+        self.assertIn('od19.transport.order', names)
+
+    def test_low_cost_confirms_without_approval(self):
+        """Orders below the approval threshold confirm directly."""
+        order = self._create_transport_order(transport_cost=5000.0)
+        self.assertFalse(order.need_validation)
+        order.action_confirm()
+        self.assertEqual(order.state, 'confirmed')
+
+    def test_high_cost_requires_approval(self):
+        """Orders above the threshold route to waiting approval."""
+        order = self._create_transport_order(transport_cost=100000.0)
+        self.assertTrue(order.need_validation)
+        order.action_confirm()
+        self.assertEqual(order.state, 'waiting_approval')
+        self.assertTrue(order.review_ids)
+        self.assertIn(order.validation_status, ('pending', 'waiting'))
+
+    def test_cannot_confirm_before_approval(self):
+        """Confirming a waiting order before validation must raise."""
+        order = self._create_transport_order(transport_cost=100000.0)
+        order.action_confirm()
+        self.assertEqual(order.state, 'waiting_approval')
+        with self.assertRaises(UserError):
+            order.action_confirm()
+
+    def test_manager_approval_allows_confirm(self):
+        """After the stock manager validates, the order can be confirmed."""
+        order = self._create_transport_order(transport_cost=100000.0)
+        order.action_confirm()
+        self.assertEqual(order.state, 'waiting_approval')
+        order.with_user(self.stock_manager).validate_tier()
+        self.assertEqual(order.validation_status, 'validated')
+        order.action_confirm()
+        self.assertEqual(order.state, 'confirmed')

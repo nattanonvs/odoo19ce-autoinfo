@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!--
+    Transport Order Tier Validation Definition
+    ==========================================
+    Approval thresholds (company currency):
+      * transport_cost <  50,000 THB  -> no approval (confirm directly)
+      * transport_cost >= 50,000 THB  -> Stock Manager approval
+    -->
+    <record id="tier_definition_transport_order_manager" model="tier.definition">
+        <field name="name">Transport Order Approval (Stock Manager)</field>
+        <field name="model_id" ref="model_od19_transport_order"/>
+        <field name="review_type">group</field>
+        <field name="reviewer_group_id" ref="stock.group_stock_manager"/>
+        <field name="definition_type">domain</field>
+        <field name="definition_domain">[('transport_cost', '&gt;=', 50000)]</field>
+        <field name="sequence">10</field>
+        <field name="company_id" eval="False"/>
+        <field name="notify_on_create" eval="True"/>
+        <field name="notify_on_pending" eval="True"/>
+    </record>
+</odoo>

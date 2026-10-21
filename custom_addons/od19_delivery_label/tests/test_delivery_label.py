@@ -154,7 +154,7 @@ class TestDeliveryLabel(TransactionCase):
     # ------------------------------------------------------------------
     def test_project_field_exists(self):
         picking = self._create_delivery_picking(partner=self.customer)
-        self.assertTrue(hasattr(picking, "od19_project_id"))
+        self.assertTrue(hasattr(picking, "project_id"))
 
     def test_label_code_returns_picking_name(self):
         picking = self._create_delivery_picking(partner=self.customer)
@@ -178,7 +178,7 @@ class TestDeliveryLabel(TransactionCase):
 
     def test_label_project_name_returns_project_name(self):
         picking = self._create_delivery_picking(partner=self.customer)
-        picking.od19_project_id = self.project
+        picking.project_id = self.project
         self.assertEqual(
             picking._get_delivery_label_project_name(), "Delivery Label Project"
         )
@@ -206,7 +206,7 @@ class TestDeliveryLabel(TransactionCase):
         picking = order.picking_ids.filtered(
             lambda p: p.picking_type_code == "outgoing"
         ).ensure_one()
-        self.assertEqual(picking.od19_project_id, self.project)
+        self.assertEqual(picking.project_id, self.project)
         self.assertEqual(picking.od19_department_code, "IA")
 
     # ------------------------------------------------------------------

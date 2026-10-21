@@ -65,7 +65,7 @@
                         <!-- Project -->
                         <div style="display: flex; margin-bottom: 2px;">
                             <div style="font-weight: bold; width: 100px; flex-shrink: 0;">Project :</div>
-                            <div style="flex: 1; border-bottom: 1px dotted #000;" t-field="o.od19_project_id.name"/>
+                            <div style="flex: 1; border-bottom: 1px dotted #000;" t-field="o.project_id.name"/>
                         </div>
 
                         <!-- DEPT -->

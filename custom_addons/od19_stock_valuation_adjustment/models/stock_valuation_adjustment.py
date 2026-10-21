@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
 
 
 class StockValuationAdjustment(models.Model):
@@ -165,6 +165,12 @@ class StockValuationAdjustment(models.Model):
             rec.state = 'confirmed'
 
     def action_approve(self):
+        # Segregation of duties: only inventory managers may approve a
+        # valuation adjustment (it updates standard price and posts GL entries).
+        if not self.env.user.has_group('stock.group_stock_manager'):
+            raise AccessError(
+                _('Only inventory managers can approve stock valuation adjustments.')
+            )
         for rec in self:
             if rec.state != 'confirmed':
                 raise UserError(_('Only confirmed adjustments can be approved.'))

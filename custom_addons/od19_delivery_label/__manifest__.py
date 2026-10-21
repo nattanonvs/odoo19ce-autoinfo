@@ -18,7 +18,8 @@ as used in the warehouse shipment process.
 Fields added to stock.picking:
 * od19_department_code - Department code (DEPT) shown on the label
   and used in the picking reference (WH/{DEPT}/OUT/00001). Required.
-* od19_project_id - Project copied from the linked sale order.
+* project_id (standard, from project_stock) - Project copied from the
+  linked sale order for the delivery label.
 
 Fields added to hr.department:
 * code - Short department code (e.g. IA, BA, TA, DES, FA).
@@ -26,6 +27,7 @@ Fields added to hr.department:
     "depends": [
         "stock",
         "sale_stock",
+        "project_stock",
         "hr",
         "od19_sales_project_context",
         "od19_inventory_execution_control",

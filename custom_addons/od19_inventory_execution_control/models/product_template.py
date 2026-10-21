@@ -12,7 +12,7 @@ class ProductTemplate(models.Model):
     )
     od19_tracking_required_reason = fields.Char()
 
-    @api.depends("tracking", "cost_method")
+    @api.depends("tracking", "cost_method", "categ_id")
     def _compute_od19_tracking_required(self):
         for template in self:
             if template.cost_method == "fifo":
@@ -24,7 +24,11 @@ class ProductTemplate(models.Model):
                 template.od19_tracking_required = template.tracking != "none"
                 template.od19_tracking_required_reason = False
 
-    @api.constrains("tracking", "cost_method")
+    # ``cost_method`` is a non-stored computed field (it mirrors the product
+    # category's costing method), so it cannot be used in ``@api.constrains``.
+    # Constrain on its source field ``categ_id`` instead, which triggers the
+    # check whenever the costing method changes.
+    @api.constrains("tracking", "categ_id")
     def _check_fifo_requires_lot_tracking(self):
         """FIFO-costed products must be tracked by lot or serial number.
 

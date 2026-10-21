@@ -6,13 +6,22 @@ from odoo.exceptions import UserError, ValidationError
 class Od19TransportOrder(models.Model):
     _name = 'od19.transport.order'
     _description = 'Transport Order'
-    _inherit = ['mail.thread', 'mail.activity.mixin']
+    _inherit = ['mail.thread', 'mail.activity.mixin', 'tier.validation']
     _order = 'date desc, id desc'
+
+    # OCA tier validation: confirm requires approval when cost exceeds the
+    # threshold defined in data/transport_tier_definition.xml.
+    _state_field = 'state'
+    _state_from = ['draft', 'waiting_approval']
+    _state_to = ['confirmed']
+    _cancel_state = 'cancelled'
+    _tier_validation_manual_config = False
 
     name = fields.Char(string='Reference', default='/', readonly=True, copy=False)
     date = fields.Date(string='Date', default=fields.Date.context_today, required=True, tracking=True)
     state = fields.Selection([
         ('draft', 'Draft'),
+        ('waiting_approval', 'Waiting Approval'),
         ('confirmed', 'Confirmed'),
         ('in_transit', 'In Transit'),
         ('delivered', 'Delivered'),
@@ -55,11 +64,34 @@ class Od19TransportOrder(models.Model):
         return super().create(vals_list)
 
     def action_confirm(self):
+        """Confirm transport orders, routing through tier validation.
+
+        Orders whose cost requires approval are moved to the
+        ``waiting_approval`` state and a validation request is created
+        instead of being confirmed directly. Once every tier is validated
+        the order can be confirmed by pressing Confirm again.
+        """
+        awaiting = self.browse()
         for order in self:
             if not order.vehicle_id:
                 raise UserError(_('Please specify a vehicle.'))
             if not order.driver_id:
                 raise UserError(_('Please specify a driver.'))
+            if order.state == 'draft' and order.need_validation:
+                awaiting |= order
+            elif (
+                order.state == 'waiting_approval'
+                and order.validation_status != 'validated'
+            ):
+                raise UserError(
+                    _('This transport order is waiting for tier validation '
+                      'before it can be confirmed.')
+                )
+        if awaiting:
+            awaiting.write({'state': 'waiting_approval'})
+            awaiting.request_validation()
+        remaining = self - awaiting
+        for order in remaining:
             order.state = 'confirmed'
 
     def action_start_transit(self):

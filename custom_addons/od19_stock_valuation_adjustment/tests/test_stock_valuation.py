@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase
 
 
@@ -115,37 +116,46 @@ class TestStockValuationAdjustment(TransactionCase):
         })
         self.assertTrue(adj.name.startswith('SVA/'))
 
-    def test_approve_creates_valuation_layer(self):
-        """Approving should create a stock.valuation.layer for the difference."""
+    def test_approve_without_valuation_layer_model(self):
+        """Odoo 19 removed stock.valuation.layer; approving must still succeed
+        (the valuation-layer creation path is a guarded no-op)."""
         adj = self.env['od19.stock.valuation.adjustment'].create({
             'product_id': self.product.id,
             'quantity': 5.0,
             'new_value': 12.0,
             'adjustment_type': 'price_change',
-            'reason': 'SVL test',
+            'reason': 'SVL no-op test',
         })
         adj.action_confirm()
         adj.action_approve()
-        self.assertTrue(adj.valuation_layer_id)
-        self.assertEqual(adj.valuation_layer_id.product_id, self.product)
-        self.assertEqual(adj.valuation_layer_id.quantity, 5.0)
-        self.assertEqual(adj.valuation_layer_id.unit_cost, 2.0)
-        self.assertEqual(adj.valuation_layer_id.value, 10.0)
+        self.assertEqual(adj.state, 'done')
+        self.assertFalse(self.env.get('stock.valuation.layer'))
 
-    def test_approve_creates_valuation_layer_negative(self):
-        """A write-down should create a valuation layer with negative value."""
+    def test_approve_requires_stock_manager(self):
+        """Only inventory managers can approve a valuation adjustment."""
+        base_user_group = self.env.ref('base.group_user')
+        stock_user_group = self.env.ref('stock.group_stock_user')
+        stock_user = self.env['res.users'].with_context(
+            no_reset_password=True
+        ).create({
+            'name': 'SVA Stock User',
+            'login': 'sva.stock.user@example.com',
+            'email': 'sva.stock.user@example.com',
+            'company_id': self.env.company.id,
+            'company_ids': [(6, 0, [self.env.company.id])],
+            'group_ids': [(6, 0, [base_user_group.id, stock_user_group.id])],
+        })
         adj = self.env['od19.stock.valuation.adjustment'].create({
             'product_id': self.product.id,
             'quantity': 5.0,
-            'new_value': 8.0,
-            'adjustment_type': 'write_down',
-            'reason': 'SVL negative test',
+            'new_value': 12.0,
+            'adjustment_type': 'price_change',
+            'reason': 'Gate test',
         })
         adj.action_confirm()
-        adj.action_approve()
-        self.assertTrue(adj.valuation_layer_id)
-        self.assertEqual(adj.valuation_layer_id.value, -10.0)
-        self.assertEqual(adj.valuation_layer_id.unit_cost, -2.0)
+        with self.assertRaises(AccessError):
+            adj.with_user(stock_user).action_approve()
+        self.assertEqual(adj.state, 'confirmed')
 
     def test_cancel_reverts_price_change(self):
         """Cancelling a done price-change adjustment should revert standard_price."""
@@ -162,22 +172,6 @@ class TestStockValuationAdjustment(TransactionCase):
         adj.action_cancel()
         self.assertEqual(adj.state, 'cancelled')
         self.assertEqual(self.product.standard_price, 10.0)
-
-    def test_cancel_creates_reversal_valuation_layer(self):
-        """Cancelling a done adjustment should create a reversing valuation layer."""
-        adj = self.env['od19.stock.valuation.adjustment'].create({
-            'product_id': self.product.id,
-            'quantity': 5.0,
-            'new_value': 12.0,
-            'adjustment_type': 'price_change',
-            'reason': 'Reversal test',
-        })
-        adj.action_confirm()
-        adj.action_approve()
-        original_value = adj.valuation_layer_id.value
-        adj.action_cancel()
-        # The reversal layer should offset the original
-        self.assertEqual(adj.valuation_layer_id.value, -original_value)
 
     def test_reset_to_draft_from_cancelled(self):
         """A cancelled adjustment can be reset to draft."""

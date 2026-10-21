@@ -6,7 +6,7 @@
         <field name="inherit_id" ref="stock.view_picking_form"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='origin']" position="after">
-                <field name="od19_project_id" readonly="1"/>
+                <field name="project_id" readonly="1"/>
                 <field name="od19_department_code" required="1" placeholder="เช่น IA, BA, TA, DES, FA"/>
             </xpath>
             <!-- Add a notebook page for delivery label info -->
