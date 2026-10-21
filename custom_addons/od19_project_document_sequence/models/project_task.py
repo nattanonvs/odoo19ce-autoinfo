@@ -42,7 +42,11 @@ class ProjectTask(models.Model):
             if self.project_id.od19_department_id:
                 dept_code = self.project_id.od19_department_id.od19_dept_code or ""
             if self.project_id.od19_sale_person_id:
-                initials = self.project_id.od19_sale_person_id.od19_initials or ""
+                # Same initials rule as the project job number: manual
+                # od19_initials wins, otherwise derive from the user name.
+                initials = (
+                    self.project_id.od19_sale_person_id._od19_job_no_initials()
+                )
 
         # Insert dept_code + initials after the 'T' prefix (first char)
         return generated[:1] + dept_code + initials + generated[1:]

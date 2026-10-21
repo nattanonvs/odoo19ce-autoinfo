@@ -166,3 +166,25 @@ class TestProjectDocumentSequence(TransactionCase):
         original = project.job_no
         project.write({"od19_sale_person_id": self.env.uid})
         self.assertEqual(project.job_no, original)
+
+    def test_task_code_uses_derived_initials(self):
+        # Task code = T + dept_code + initials + running number -> TBANV0001.
+        # No manual initials: they follow the same rule as the job number.
+        department = self.env["hr.department"].create({
+            "name": "Task Code Dept",
+            "od19_dept_code": "BA",
+        })
+        user = self._sale_user(
+            "od19_sale_rep_task", None, name="Nattanai Vinyangkoon"
+        )
+        project = self.env["project.project"].create({
+            "name": "Task Code Project",
+            "od19_project_type": "job",
+            "od19_department_id": department.id,
+            "od19_sale_person_id": user.id,
+        })
+        task = self.env["project.task"].create({
+            "name": "Task Code Task",
+            "project_id": project.id,
+        })
+        self.assertTrue(task.od19_task_code.startswith("TBANV"))
