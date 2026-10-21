@@ -21,6 +21,7 @@
 - 2026-10-21: Cross-module flow gaps closed — Ticket→Invoice (idempotent, company-scoped), Claim→Repair (blocked for rejected/cancelled claims), Return→Picking/Credit Note (company-scoped, idempotent, refund price falls back to the invoice line).
 - 2026-10-21: Consolidated **After-Sales Service Dashboard** delivered with `od19_after_sales_reporting` (six KPI sources on one board) — closes the §13 dashboard unknown.
 - 2026-10-21: ผู้ใช้อนุมัติแนวทางเขียนสเปกตามสภาพจริงบนดิสก์ และให้อัปเดตเอกสารกำกับให้สอดคล้องพร้อมกัน
+- 2026-10-21: แก้ความไม่สอดคล้องใน §5 (Refactor) — ตัดข้อความ "ยังไม่ใช่ dashboard เต็มรูปแบบ" ออก หลัง **consolidated After-Sales Service Dashboard** ส่งมอบใน `od19_after_sales_reporting` (ตรงกับ §6.7 และ Approval Traceability ข้อ 22) และระบุว่า QC→NC / Warranty-RMA→credit note ปิดครบแล้ว
 
 ## Discovery Evidence
 - Current-state references:
@@ -134,8 +135,8 @@ Wave 3 มีการพัฒนาบนดิสก์ค่อนข้า�
   - OCA `helpdesk_mgmt`; core `addons/repair`
   - `od19_helpdesk_extension`, `od19_service_warranty`, `od19_service_card`, `od19_product_return`, `od19_quality_control`, `od19_document_sign`, `od19_internal_issue`, `od19_iso_customer_satisfaction`, `od19_after_sales_reporting`
 - Refactor
-  - รวม and intelligence ของ after-sales ให้มีมุมมอง/KPI รวม — **delivered** เป็นโมดูล read-only `od19_after_sales_reporting` (SQL views + pivot/graph/list) ยังไม่ใช่ dashboard เต็มรูปแบบ
-  - ตรวจสอบว่า QC ต่อกับ Nonconformity และ Warranty/RMA ต่อกับการเงิน (credit note) ไหลได้ครบ
+  - รวมข้อมูลและ intelligence ของ after-sales ให้มีมุมมอง/KPI รวม — **delivered** เป็นโมดูล read-only `od19_after_sales_reporting` (SQL views + pivot/graph/list) และ **consolidated After-Sales Service Dashboard** บน `od19_dashboard` (6 KPI sources, 2026-10-21)
+  - ตรวจสอบว่า QC ต่อกับ Nonconformity และ Warranty/RMA ต่อกับการเงิน (credit note) ไหลได้ครบ — **ปิดแล้ว 2026-10-21** (guard/idempotency/company scope ครบ ตามตาราง Cross-module flow gaps ใน §6.7)
 - Replace
   - Legacy `dtr_qc` → `od19_quality_control` (in-house QC workflow)
   - Legacy QC/signature dependencies → `od19_document_sign` (ใช้ signature infrastructure ของ Odoo 19 แทน OCA `sign_oca`)

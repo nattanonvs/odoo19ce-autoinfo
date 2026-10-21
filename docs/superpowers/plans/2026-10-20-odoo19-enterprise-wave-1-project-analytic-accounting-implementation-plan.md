@@ -1041,7 +1041,7 @@ git commit -m "feat(project): add sale job type and analytic-based project P&L"
 
 - [ ] **Step 4: รายงานผลต่อผู้ใช้**
 
-สรุป: ไฟล์ที่แก้, จำนวนเทสต์ที่ผ่าน, ค่า DD-1 ที่เลือก, และงานค้าง P1 (`i18n/th.po` ของ 4 โมดูล project — ไม่อยู่ในขอบเขตแผนนี้)
+สรุป: ไฟล์ที่แก้, จำนวนเทสต์ที่ผ่าน, ค่า DD-1 ที่เลือก, และงานค้าง P1 (`i18n/th.po` ของ 4 โมดูล project — ไม่อยู่ในขอบเขตแผนนี้; ส่งมอบแยกเมื่อ 2026-10-21, commit `30a6621f8b6`)
 
 ---
 
@@ -1069,7 +1069,7 @@ git commit -m "feat(project): add sale job type and analytic-based project P&L"
 - Project Site / Task Category / Timesheet (legacy `dtr_project`) — Wave 3/4
 - Project Revision / Locking / Approval workflow
 - Migration script สำหรับข้อมูลโครงการจาก Odoo 15 — migration workstream แยก (spec §9)
-- `i18n/th.po` ของโมดูล project (งานค้าง P1)
+- `i18n/th.po` ของโมดูล project (งานค้าง P1) — **ส่งมอบแล้ว 2026-10-21** (commit `30a6621f8b6`; 4 โมดูล: `od19_project_analytic`, `od19_project_document_sequence`, `od19_sales_project_context`, `od19_project_enhanced`)
 
 ## Risks และ Mitigation
 
