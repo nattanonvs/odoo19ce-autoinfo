@@ -109,7 +109,7 @@ class FleetVehicle(models.Model):
         partners = self.env['res.partner']
         if manager_group:
             users = self.env['res.users'].search([
-                ('groups_id', 'in', manager_group.id),
+                ('group_ids', 'in', manager_group.id),
                 ('share', '=', False),
             ])
             partners = users.mapped('partner_id')

@@ -5,7 +5,7 @@
     'version': '19.0.1.0.0',
     'category': 'Human Resources/Expenses',
     'summary': 'Thai HR expense extensions: cash reimbursement, multi-tier approval',
-    'depends': ['hr_expense'],
+    'depends': ['hr_expense', 'od19_hr_expense_enhanced'],
     'data': [
         'security/ir.model.access.csv',
         'views/hr_expense_views.xml',

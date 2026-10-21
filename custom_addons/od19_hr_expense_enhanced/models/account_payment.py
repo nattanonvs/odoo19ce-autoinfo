@@ -60,14 +60,14 @@ class AccountPayment(models.Model):
     def _default_is_expense_payment(self):
         """Default True when the payment is opened from an expense."""
         active_model = self.env.context.get('active_model')
-        if active_model in ('hr.expense', 'hr.expense.sheet'):
+        if active_model == 'hr.expense':
             return True
         # Also treat as expense payment when partner is an employee
         default_partner_id = self.env.context.get('default_partner_id')
         if default_partner_id:
             partner = self.env['res.partner'].browse(default_partner_id)
             if partner and self.env['hr.employee'].search(
-                [('address_home_id', '=', partner.id)], limit=1
+                [('work_contact_id', '=', partner.id)], limit=1
             ):
                 return True
         return False

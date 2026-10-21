@@ -9,14 +9,16 @@ class HrExpense(models.Model):
     # ------------------------------------------------------------------
     # 1. Department head as auto approver
     # ------------------------------------------------------------------
-    od19_first_approver_id = fields.Many2one(
-        'res.users',
-        string='First Approver (Dept Head) / หัวหน้าแผนก',
+    # The "First Approver" is the person expected to give the first level of
+    # approval (by default the employee's department manager). This module
+    # owns the field so the declaration and the auto-fill logic stay together;
+    # ``od19_hr_expense_thai`` reuses it for the two-tier approval workflow.
+    first_approver_id = fields.Many2one(
+        'hr.employee',
+        string='First Approver (Dept Head) / ผู้อนุมัติชั้นที่ 1',
         tracking=True,
-        help=(
-            'Auto-filled from the employee department manager. '
-            'Can be edited manually.'
-        ),
+        help="Employee expected to give the first approval. Auto-filled from "
+             "the employee's department manager and editable afterwards.",
     )
 
     # ------------------------------------------------------------------
@@ -66,20 +68,20 @@ class HrExpense(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
-            if 'od19_first_approver_id' not in vals or not vals.get('od19_first_approver_id'):
+            if not vals.get('first_approver_id'):
                 employee_id = vals.get('employee_id')
                 if employee_id:
                     approver = self._get_department_head_approver(employee_id)
                     if approver:
-                        vals['od19_first_approver_id'] = approver.id
+                        vals['first_approver_id'] = approver.id
         return super().create(vals_list)
 
     def write(self, vals):
-        if 'employee_id' in vals and 'od19_first_approver_id' not in vals:
+        if 'employee_id' in vals and 'first_approver_id' not in vals:
             employee_id = vals['employee_id']
             approver = self._get_department_head_approver(employee_id)
             if approver:
-                vals['od19_first_approver_id'] = approver.id
+                vals['first_approver_id'] = approver.id
         return super().write(vals)
 
     @api.onchange('employee_id')
@@ -87,18 +89,16 @@ class HrExpense(models.Model):
         if self.employee_id:
             approver = self._get_department_head_approver(self.employee_id.id)
             if approver:
-                self.od19_first_approver_id = approver
+                self.first_approver_id = approver
 
     @api.model
     def _get_department_head_approver(self, employee_id):
-        """Return the res.users of the employee's department manager."""
+        """Return the department manager (hr.employee) of the given employee."""
         employee = self.env['hr.employee'].browse(employee_id)
         if not employee:
-            return self.env['res.users']
+            return self.env['hr.employee']
         manager = employee.department_id.manager_id if employee.department_id else False
-        if manager and manager.user_id:
-            return manager.user_id
-        return self.env['res.users']
+        return manager or self.env['hr.employee']
 
     # ------------------------------------------------------------------
     # Cash state actions

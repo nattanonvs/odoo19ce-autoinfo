@@ -15,10 +15,6 @@ class HrExpense(models.Model):
         string='Reimbursement Date',
         help='Date when the employee was reimbursed.',
     )
-    first_approver_id = fields.Many2one(
-        'hr.employee', string='First Approver',
-        tracking=True,
-    )
     first_approval_date = fields.Date(
         string='First Approval Date', readonly=True,
     )

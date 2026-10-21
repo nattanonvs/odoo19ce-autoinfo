@@ -12,7 +12,6 @@
                 <field name="thai_expense_type"/>
             </field>
             <field name="employee_id" position="after">
-                <field name="first_approver_id"/>
                 <field name="first_approval_date"/>
                 <field name="second_approver_id"/>
                 <field name="second_approval_date"/>

@@ -95,6 +95,11 @@ class ExpenseReturnCash(models.TransientModel):
         if not credit_account:
             credit_account = debit_account
 
+        employee_partner = (
+            expense.employee_id.work_contact_id
+            or expense.employee_id.user_id.partner_id
+        )
+
         move_vals = {
             'date': self.return_date,
             'journal_id': self.journal_id.id,
@@ -103,8 +108,7 @@ class ExpenseReturnCash(models.TransientModel):
                 (0, 0, {
                     'name': _('Cash Return - %s') % expense.name,
                     'account_id': debit_account.id,
-                    'partner_id': expense.employee_id.address_home_id.id
-                    if expense.employee_id.address_home_id else False,
+                    'partner_id': employee_partner.id or False,
                     'currency_id': expense.currency_id.id,
                     'amount_currency': amount,
                     'debit': balance if balance > 0 else 0.0,
@@ -114,8 +118,7 @@ class ExpenseReturnCash(models.TransientModel):
                 (0, 0, {
                     'name': _('Cash Return - %s') % expense.name,
                     'account_id': credit_account.id,
-                    'partner_id': expense.employee_id.address_home_id.id
-                    if expense.employee_id.address_home_id else False,
+                    'partner_id': employee_partner.id or False,
                     'currency_id': expense.currency_id.id,
                     'amount_currency': -amount,
                     'debit': -balance if balance < 0 else 0.0,
