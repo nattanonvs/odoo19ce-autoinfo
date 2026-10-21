@@ -108,3 +108,57 @@ class ProjectProject(models.Model):
         if not plan:
             plan = self.env["account.analytic.plan"].search([], limit=1)
         return plan.id if plan else False
+
+    def _od19_get_pnl_values(self, date_from=None, date_to=None, company_ids=None):
+        """Return project P&L values read from posted analytic lines.
+
+        Single P&L contract for the whole domain (spec 6.6): revenue/cost are
+        derived from account.analytic.line.analytic_profitability, which Odoo 19
+        computes from the general account type. Never re-implement the
+        revenue/cost classification here.
+
+        Lives in this module (the shared project/analytic base) so both the
+        project P&L/risk reports (od19_project_enhanced) and the sale-order
+        cost & profit analysis wizard (od19_sales_project_context) reuse the
+        same contract without a heavyweight dependency between them.
+        """
+        self.ensure_one()
+        company_ids = company_ids or self.env.companies.ids
+        result = {
+            "analytic_account_id": self.account_id.id or False,
+            "has_analytic": bool(self.account_id),
+            "revenue": 0.0,
+            "cost": 0.0,
+            "gross_margin": 0.0,
+            "margin_percent": 0.0,
+            "uncategorized_amount": 0.0,
+        }
+        if not self.account_id:
+            return result
+        base_domain = [
+            ("account_id", "=", self.account_id.id),
+            ("company_id", "in", list(company_ids)),
+            ("move_line_id", "!=", False),
+            ("move_line_id.parent_state", "=", "posted"),
+        ]
+        if date_from:
+            base_domain.append(("date", ">=", date_from))
+        if date_to:
+            base_domain.append(("date", "<=", date_to))
+
+        def _sum(profitability):
+            lines = self.env["account.analytic.line"].search(
+                base_domain + [("analytic_profitability", "in", [profitability])]
+            )
+            return sum(lines.mapped("amount"))
+
+        revenue = _sum("revenue")
+        cost = -_sum("loss")
+        result.update(
+            revenue=revenue,
+            cost=cost,
+            gross_margin=revenue - cost,
+            margin_percent=(revenue - cost) / revenue * 100.0 if revenue else 0.0,
+            uncategorized_amount=_sum("uncategorized"),
+        )
+        return result
