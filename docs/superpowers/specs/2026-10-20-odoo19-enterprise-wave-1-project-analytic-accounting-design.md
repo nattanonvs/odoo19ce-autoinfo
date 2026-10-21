@@ -3,7 +3,7 @@
 ## Control Metadata
 - Child spec ID: W1-PROJECT-ANALYTIC
 - Wave: Wave 1 (Commercial and financial core)
-- Status: Approved — decisions D1–D7 confirmed by business owner 2026-10-20; ready for implementation plan
+- Status: Approved — decisions D1–D7 confirmed by business owner 2026-10-20; implemented 2026-10-20 (see implementation plan); awaiting business-owner verification on `odoo19_pdev`
 - Owner: Commercial domain lead
 - Reviewer: Technical supervisor
 - Approvers: Business owner; Technical supervisor

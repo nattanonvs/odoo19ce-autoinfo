@@ -1,5 +1,17 @@
 # Odoo 19 Dashboard — เฟส 2 (Presentation & Reuse) Design
 
+## Control Metadata
+- Child spec ID: W6-DASH-PHASE2
+- Wave: Cross-cutting reporting track (labeled Wave 6 — Internal Operations; outside the Wave 0–5 domain roadmap) — phase 2 ต่อจาก W6-DASH-FORMULA-RULES
+- Status: Implemented — delivered in module `od19_dashboard` (formula library, visibility/alert rules, conditional formatting, cross-source widgets)
+- Owner: Business owner (reporting consumer)
+- Reviewer: Technical supervisor
+- Approvers: Business owner; Technical supervisor
+- Target edition: Odoo 19 Community Edition (CE)
+- Target module: `od19_dashboard` (`custom_addons/od19_dashboard`)
+- Canonical path: `docs/superpowers/specs/2026-10-16-odoo19-dashboard-phase2-presentation-design.md`
+- Date: 2026-10-16
+
 ต่อเนื่องจากสเปกเฟส 1: `2026-10-16-odoo19-dashboard-formula-and-status-rules-design.md`
 
 สเปกเฟส 1 ส่งมอบ formula engine และ status rule engine สำหรับ widget ประเภท KPI

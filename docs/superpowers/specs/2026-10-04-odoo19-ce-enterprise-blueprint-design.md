@@ -357,6 +357,8 @@ Recommended sequence:
 
 Because the scope is company-wide, delivery should still be phased.
 
+> **Note (superseded scope):** This section is the original 2026-10-04 recommendation. The active, expanded wave scope is maintained in `docs/superpowers/programs/odoo19-enterprise/backlog/domain-wave-matrix.md`. Since this section was written, Wave 1 also includes **Project & Analytic Accounting**, and Wave 2/3/4/5 scope was expanded (WHT, Petty Cash, Fiscal Year &amp; Year-End Closing, Fixed Assets, Jasper Reports Foundation, Dual Report Format, Thai Localization modules, Payment Preparation วิธีที่ 3; Quality Control and Digital Signature; Stock Valuation Adjustment and Landed Cost). Where this section and the wave matrix differ, the wave matrix is authoritative.
+
 ### Wave 0
 
 - Foundation platform

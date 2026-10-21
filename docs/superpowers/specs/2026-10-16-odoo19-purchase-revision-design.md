@@ -1,11 +1,14 @@
 # Odoo 19 CE: Purchase Revision (Purchase Order)
 
 ## Control Metadata
-- Spec ID: OD19-PURCHASE-REVISION
-- Status: Approved (design) — รอ review เอกสาร
+- Child spec ID: W1-PURCHASE-REVISION
+- Wave: Wave 1 (Commercial and financial core)
+- Status: In review — design approved 2026-10-16; document review pending
 - Owner: Procurement domain lead
 - Reviewer: Technical supervisor
+- Approvers: Business owner; Technical supervisor
 - Canonical path: `docs/superpowers/specs/2026-10-16-odoo19-purchase-revision-design.md`
+- Source backlog row: `docs/superpowers/programs/odoo19-enterprise/backlog/domain-wave-matrix.md`
 - Date: 2026-10-16
 - Primary readers: ฝ่ายจัดซื้อ, ผู้อนุมัติ (Purchase Director), ฝ่ายบัญชี, ทีมเทคนิค
 

@@ -548,7 +548,7 @@ This section records the fit-gap decision after the Wave 1 Inventory baseline wa
 
 - Wave 1 Inventory baseline is considered implemented at the addon level through `od19_inventory_execution_control`, `od19_inventory_audit_count`, and `od19_inventory_reporting`.
 - The Inventory baseline now covers movement execution truth, count variance visibility, and first-line owner reporting.
-- Wave 1 is not yet considered complete at the program level because Accounting evidence and the Wave 1 Accounting child spec are still required.
+- Wave 1 is not yet considered complete at the program level: Accounting is merged and verified (35/35 tests, 2026-10-11) and Project &amp; Analytic Accounting was implemented 2026-10-20, but Project &amp; Analytic Accounting still needs business-owner verification on `odoo19_pdev` and the Wave 1 migration assumptions still need acceptance.
 - Legacy Odoo 15 inventory features are not migrated wholesale. They are screened using `Keep`, `Refactor`, `Replace`, and `Retire`.
 
 ### Legacy Inventory to New Coverage
@@ -570,7 +570,7 @@ This section records the fit-gap decision after the Wave 1 Inventory baseline wa
 | `dtr_goods_issue` dedicated issue document | No direct replacement yet | Replace with standard movement plus reason/evidence first; add wrapper only if still justified | Wave 4 |
 | Split picking custom convenience | No direct replacement yet | Retire unless standard Odoo proves insufficient | Wave 4 |
 | Inventory tier approval spread across legacy operations | No direct replacement yet | Replace with approval only for material variance and adjustment events | Wave 1 |
-| Stock requests and transportation-linked warehouse flows | Out of scope for Wave 1 Inventory baseline | Refactor into logistics extension scope | Wave 4 |
+| Stock requests and transportation-linked warehouse flows | Out of scope for Wave 1 Inventory baseline; internal stock request now covered by adopted OCA `stock_request` (2026-10-21) | Refactor into logistics extension scope | Wave 4 |
 | Service-linked returns, warranty-linked stock, repair stock effects | Out of scope for Wave 1 Inventory baseline | Refactor into after-sales scope | Wave 3 |
 | Jasper-heavy inventory report catalog | Not migrated | Retire direct migration; rebuild only decision-useful outputs | Wave 2 |
 
@@ -578,21 +578,27 @@ This section records the fit-gap decision after the Wave 1 Inventory baseline wa
 
 #### Wave 1 - Close Commercial Core
 
-- Merge `od19_inventory_execution_control`, `od19_inventory_audit_count`, and `od19_inventory_reporting` into `19.0`.
-- Verify install, upgrade, uninstall, and regression behavior after merge on the main branch.
+- Inventory merge into `19.0` is complete (`od19_inventory_execution_control`, `od19_inventory_audit_count`, `od19_inventory_reporting`), with install/upgrade/uninstall and regression behavior verified.
+- Accounting is merged to `19.0` mainline and verified (35/35 tests, 2026-10-11).
+- Project &amp; Analytic Accounting (W1-PROJECT-ANALYTIC) was implemented 2026-10-20 (65 domain tests pass); the remaining gate is business-owner verification on `odoo19_pdev`.
+- Purchase Revision (W1-PURCHASE-REVISION) is in review — design approved 2026-10-16; scope is the Purchase Order only and must not alter the existing ISO footer.
 - Fix the test environment so inventory addon tests can run cleanly in the target workspace.
 - Harden lot/serial policy into explicit business rules by product or product group.
 - Add review and approval semantics for material count variance and approved stock adjustments.
-- Finalize the Wave 1 Accounting child spec and confirm the boundary between inventory truth and accounting posting.
-- Define Wave 1 accounting baseline for valuation handoff, bill/invoice readiness, returns consequence, and essential account/tax mapping.
 - Add owner-facing commercial core KPIs that combine Sales, Purchase, Inventory, and Accounting baseline signals.
-- Update the program control documents so Wave 1 readiness clearly depends only on Accounting completion after Inventory baseline approval.
+- Confirm the Wave 1 migration assumptions with the business owner and close the wave in the program control documents.
 
 #### Wave 2 - Finance Controls and Reporting Expansion
 
 - Design and implement Advance controls.
 - Design and implement Cheque controls.
 - Design and implement Money In Analysis.
+- Design and implement Withholding Tax (WHT) on OCA `l10n_th_account_tax` (v19.0) instead of a custom WHT module.
+- Design and implement Petty Cash.
+- Replace `om_fiscal_year` with OCA `account_fiscal_year` (periods) and handle year-end closing as manual no-code on Odoo 19 core lock dates (`fiscalyear_lock_date` / `hard_lock_date` / `tax_lock_date` / `sale_lock_date` + `account.lock_exception`) — no custom `dtr_year_end` replacement module (decided 2026-10-21).
+- Replace `om_account_asset` and `dtr_fixed_assets` with OCA `account_asset_management` (`third_party/oca/account-financial-tools/`) or custom asset management.
+- Establish the Jasper Reports Foundation (JasperReports + jasperstarter) and the Dual Report Format for all printable reports.
+- Add the Wave 2 Thai Localization modules (`od19_accounting_reporting`, `od19_accounting_payment_voucher_reports`) and Payment Preparation วิธีที่ 3 (Odoo standard + OCA, ~300 lines custom) — **Payment Voucher/Receipt + PV/RV sequence delivered 2026-10-21** in `od19_accounting_payment_voucher_reports`.
 - Rebuild only the inventory and finance reports from Odoo 15 that still provide direct owner value, such as aging, dead stock, monthly stock, and related decision reports.
 - Expand management reporting by connecting commercial, inventory, and finance signals into clearer owner dashboards.
 
@@ -603,16 +609,30 @@ This section records the fit-gap decision after the Wave 1 Inventory baseline wa
 - Design and implement Warranty.
 - Design and implement Service Card.
 - Design and implement Product Return in the after-sales context.
+- Replace `dtr_qc` with an in-house QC workflow for incoming/outgoing inspection — delivered as custom module `od19_quality_control` (no OCA `quality_control_oca` exists in `third_party/oca`).
+- Consolidate Digital Signature on in-house `od19_document_sign` (delivered 2026-10-19) using Odoo 19 CE signature infrastructure.
 - Move service-linked return scenarios, warranty-linked stock effects, and repair-related stock implications out of Inventory core and into the after-sales domain.
 
 #### Wave 4 - Logistics Extensions and Non-Standard Warehouse Flows
 
-- Design and implement Stock Requests.
+- Adopt OCA `stock_request` for internal stock requests (ขอเบิก/ขอโอนสินค้าภายใน) — submodule `third_party/oca/stock-logistics-request` (branch 19.0) added 2026-10-21; purchase requisition stays on OCA `purchase_request*` + `od19_purchase_request_extend`.
 - Design and implement Transportation.
 - Design and implement Logistics extensions.
+- Replace `dtr_stock_valuation_adjustment` with Odoo 19 standard inventory value adjustments plus audit trail.
+- Enable standard `stock_landed_costs` for shipping and import cost allocation.
 - Decide whether `Goods Issue` remains a real business process after the new Inventory baseline is in production use.
 - If `Goods Issue` remains necessary, rebuild it as a logistics or warehouse UX layer on top of standard movement truth rather than copying the legacy model directly.
 - Revisit advanced warehouse convenience features, such as split-picking behavior, only if standard Odoo plus redesigned process is proven insufficient.
+
+#### Wave 5 - HR and Operational Enablement
+
+- Replace `autoinfo_hr_expense` and `autoinfo_hr_expense_cash_tracking` with Odoo 19 standard `hr_expense` plus custom cash reimbursement and multi-tier approval.
+- Replace `autoinfo_fleet` with the Odoo 19 standard `fleet` module; integrate with accounting and HR where needed.
+- Attendances + Time Off are enabled and ZKTeco device integration was delivered 2026-10-15; complete real-device commissioning and confirm the OT policy.
+
+#### Cross-Cutting Reporting Track (Outside Wave 0–5)
+
+- The dashboard/reporting enablement specs (`W6-DASH-FORMULA-RULES`, `W6-DASH-PHASE2`) build out the Wave 0 KPI and reporting baseline in module `od19_dashboard`. They are tracked as a cross-cutting track in `backlog/domain-wave-matrix.md` and `backlog/domain-spec-index.md`, not as a domain wave.
 
 ### Planning Rules After Inventory Review
 

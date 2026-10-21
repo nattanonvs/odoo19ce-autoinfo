@@ -1,15 +1,22 @@
 # Odoo 19 CE Wave 1 OCA Dependency Baseline
 
-วันที่: 2026-10-04
-สถานะ: Approved baseline
-รหัสสเปก: W1-OCA-BASELINE
-ผู้อ่านหลัก: ทีมเทคนิค + ผู้ตัดสินใจด้านสถาปัตยกรรม
-Target edition: Odoo 19 Community Edition (CE)
-Traceability note: filename/path และบาง program paths ยังใช้คำว่า `enterprise` เพื่อความต่อเนื่องของเอกสารเดิม แต่ baseline ที่อนุมัติแล้วของโครงการนี้คือ Odoo 19 CE
-อ้างอิงหลัก:
-- `docs/superpowers/programs/odoo19-enterprise/sales/oca-fit-gap.md`
-- `docs/superpowers/specs/2026-10-04-odoo19-enterprise-wave-1-sales-contract-core-design.md`
-- `custom_addons/od19_sales_oca_bridge_workflow/__manifest__.py`
+## Control Metadata
+- Child spec ID: W1-OCA-BASELINE
+- Wave: Wave 1 (Commercial and financial core)
+- Status: Approved — OCA dependency baseline locked for Wave 1
+- Owner: Commercial domain lead
+- Reviewer: Technical supervisor
+- Approvers: Business owner; Technical supervisor
+- Canonical path: `docs/superpowers/specs/2026-10-04-odoo19-wave1-oca-dependency-baseline-design.md`
+- Source backlog row: `docs/superpowers/programs/odoo19-enterprise/backlog/domain-wave-matrix.md`
+- Target edition: Odoo 19 Community Edition (CE)
+- Date: 2026-10-04
+- Primary readers: ทีมเทคนิค + ผู้ตัดสินใจด้านสถาปัตยกรรม
+- Traceability note: filename/path และบาง program paths ยังใช้คำว่า `enterprise` เพื่อความต่อเนื่องของเอกสารเดิม แต่ baseline ที่อนุมัติแล้วของโครงการนี้คือ Odoo 19 CE
+- Related:
+  - `docs/superpowers/programs/odoo19-enterprise/sales/oca-fit-gap.md`
+  - `docs/superpowers/specs/2026-10-04-odoo19-enterprise-wave-1-sales-contract-core-design.md`
+  - `custom_addons/od19_sales_oca_bridge_workflow/__manifest__.py`
 
 ## 1. เป้าหมาย
 

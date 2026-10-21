@@ -1,16 +1,23 @@
 # Odoo 19 CE Wave 1: Sales Contract Core
 
-วันที่: 2026-10-04
-สถานะ: User-approved Wave 1 baseline
-รหัสสเปก: W1-SALES-CONTRACT
-ผู้อ่านหลัก: ฝ่ายขาย + ผู้จัดการฝ่ายขาย + ฝ่ายปฏิบัติการ + ฝ่ายวางบิล + เจ้าของ/ผู้บริหาร + ทีมเทคนิค
-Target edition: Odoo 19 Community Edition (CE)
-Traceability note: filename/path และบาง program paths ยังใช้คำว่า `enterprise` เพื่อความต่อเนื่องของเอกสารเดิม แต่ baseline ที่อนุมัติแล้วของโครงการนี้คือ Odoo 19 CE
-อ้างอิงหลัก:
-- `docs/superpowers/specs/2026-10-04-odoo19-ce-enterprise-blueprint-design.md`
-- `docs/superpowers/specs/2026-10-04-odoo19-enterprise-wave-0-foundation-governance-design.md`
-- `Odoo15Backup/odoo15_oca_mapping.xlsx`
-- `docs/superpowers/programs/odoo19-enterprise/sales/oca-installation-recommendations.md`
+## Control Metadata
+- Child spec ID: W1-SALES-CONTRACT
+- Wave: Wave 1 (Commercial and financial core)
+- Status: Approved — user-approved Wave 1 baseline (2026-10-04)
+- Owner: Commercial domain lead
+- Reviewer: Technical supervisor
+- Approvers: Business owner; Technical supervisor
+- Canonical path: `docs/superpowers/specs/2026-10-04-odoo19-enterprise-wave-1-sales-contract-core-design.md`
+- Source backlog row: `docs/superpowers/programs/odoo19-enterprise/backlog/domain-wave-matrix.md`
+- Target edition: Odoo 19 Community Edition (CE)
+- Date: 2026-10-04
+- Primary readers: ฝ่ายขาย + ผู้จัดการฝ่ายขาย + ฝ่ายปฏิบัติการ + ฝ่ายวางบิล + เจ้าของ/ผู้บริหาร + ทีมเทคนิค
+- Traceability note: filename/path และบาง program paths ยังใช้คำว่า `enterprise` เพื่อความต่อเนื่องของเอกสารเดิม แต่ baseline ที่อนุมัติแล้วของโครงการนี้คือ Odoo 19 CE
+- Related:
+  - `docs/superpowers/specs/2026-10-04-odoo19-ce-enterprise-blueprint-design.md`
+  - `docs/superpowers/specs/2026-10-04-odoo19-enterprise-wave-0-foundation-governance-design.md`
+  - `Odoo15Backup/odoo15_oca_mapping.xlsx`
+  - `docs/superpowers/programs/odoo19-enterprise/sales/oca-installation-recommendations.md`
 
 ## Approval Traceability
 

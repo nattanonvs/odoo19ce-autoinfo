@@ -2,8 +2,8 @@
 
 ## Control Metadata
 - Child spec ID: W6-DASH-FORMULA-RULES
-- Wave: Wave 6 (Internal Operations) — reporting enablement
-- Status: Design approved — awaiting implementation plan
+- Wave: Cross-cutting reporting track (labeled Wave 6 — Internal Operations; outside the Wave 0–5 domain roadmap)
+- Status: Implemented — formula engine and status rule engine delivered in module `od19_dashboard` (see `2026-10-16-odoo19-dashboard-formula-and-status-rules-implementation-plan.md`)
 - Owner: Business owner (reporting consumer)
 - Reviewer: Technical supervisor
 - Approvers: Business owner; Technical supervisor

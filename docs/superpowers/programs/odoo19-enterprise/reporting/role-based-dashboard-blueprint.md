@@ -10,7 +10,7 @@
 | Required reviewers | Business sponsor, delivery lead, UX or reporting reviewer |
 | Artifact status | Active baseline |
 | Review cadence | Reconfirm before each dashboard build scope, after major role feedback, and when KPI priorities change materially |
-| Last updated | 2026-10-09 |
+| Last updated | 2026-10-21 |
 
 ## Purpose
 
@@ -22,6 +22,13 @@ Define the minimum role-based dashboard structure for Wave 0 so later domain wav
 - Applies to dashboard concepts that may later be implemented in Odoo views, BI tooling, or supporting reporting layers.
 - Does not prescribe final UI components, exact chart libraries, or production visualization tooling.
 - Remains a blueprint baseline only; example zones below describe expected structure, not a claim that the dashboards are already built.
+
+## Implementation Status
+
+- This blueprint stays the structural baseline. Dashboards built against it are tracked outside the Wave 0–5 domain roadmap, in the cross-cutting reporting track:
+  - [2026-10-16-odoo19-dashboard-formula-and-status-rules-design.md](../../../specs/2026-10-16-odoo19-dashboard-formula-and-status-rules-design.md) (W6-DASH-FORMULA-RULES) — implemented.
+  - [2026-10-16-odoo19-dashboard-phase2-presentation-design.md](../../../specs/2026-10-16-odoo19-dashboard-phase2-presentation-design.md) (W6-DASH-PHASE2) — implemented.
+- Both are delivered in module `od19_dashboard`; see `backlog/domain-wave-matrix.md` and `backlog/domain-spec-index.md` for the cross-cutting track.
 
 ## Owner Dashboard
 

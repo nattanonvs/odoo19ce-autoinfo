@@ -1,15 +1,22 @@
 # Odoo 19 CE Wave 0: Foundation, Technical Platform, and KPI Baseline
 
-วันที่: 2026-10-04
-สถานะ: อนุมัติแล้ว
-รหัสสเปก: W0-FOUNDATION
-ผู้อ่านหลัก: ทีมเทคนิค + เจ้าของ/ผู้อนุมัติ
-Target edition: Odoo 19 Community Edition (CE)
-Traceability note: filename/path และบาง program paths ยังใช้คำว่า `enterprise` เพื่อความต่อเนื่องของเอกสารเดิม แต่ baseline ที่อนุมัติแล้วของโครงการนี้คือ Odoo 19 CE
-อ้างอิงหลัก:
-- `docs/superpowers/specs/2026-10-04-odoo19-ce-enterprise-blueprint-design.md`
-- `docs/superpowers/programs/odoo19-enterprise/backlog/domain-wave-matrix.md`
-- `docs/superpowers/programs/odoo19-enterprise/backlog/domain-spec-index.md`
+## Control Metadata
+- Child spec ID: W0-FOUNDATION
+- Wave: Wave 0 (Foundation platform, governance, and KPI/reporting baseline)
+- Status: Approved — Thai Font & UI Localization scope added 2026-10-13
+- Owner: Program lead
+- Reviewer: Technical supervisor
+- Approvers: Business owner; Technical supervisor
+- Canonical path: `docs/superpowers/specs/2026-10-04-odoo19-enterprise-wave-0-foundation-governance-design.md`
+- Source backlog row: `docs/superpowers/programs/odoo19-enterprise/backlog/domain-wave-matrix.md`
+- Target edition: Odoo 19 Community Edition (CE)
+- Date: 2026-10-04
+- Primary readers: ทีมเทคนิค + เจ้าของ/ผู้อนุมัติ
+- Traceability note: filename/path และบาง program paths ยังใช้คำว่า `enterprise` เพื่อความต่อเนื่องของเอกสารเดิม แต่ baseline ที่อนุมัติแล้วของโครงการนี้คือ Odoo 19 CE
+- Related:
+  - `docs/superpowers/specs/2026-10-04-odoo19-ce-enterprise-blueprint-design.md`
+  - `docs/superpowers/programs/odoo19-enterprise/backlog/domain-wave-matrix.md`
+  - `docs/superpowers/programs/odoo19-enterprise/backlog/domain-spec-index.md`
 
 ## 1. สรุปสั้น ๆ
 
