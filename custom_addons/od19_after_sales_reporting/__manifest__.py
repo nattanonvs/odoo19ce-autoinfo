@@ -11,11 +11,13 @@
         "od19_product_return",
         "od19_quality_control",
         "od19_iso_customer_satisfaction",
+        "od19_dashboard",
     ],
     "data": [
         "security/ir.model.access.csv",
         "security/after_sales_reporting_security.xml",
         "views/report_after_sales_views.xml",
+        "data/after_sales_dashboard_data.xml",
     ],
     "installable": True,
     "license": "LGPL-3",

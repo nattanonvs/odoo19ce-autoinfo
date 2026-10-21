@@ -1,0 +1,586 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Consolidated after-sales dashboard.
+
+        The six KPI views delivered by this module are registered as dashboard
+        data sources so the dashboard builder can read them, then a single
+        "After-Sales Service Dashboard" gathers the six after-sales dimensions
+        (tickets, warranty, service cards, returns, quality, satisfaction) on
+        one page.
+
+        The KPI views are aggregated SQL views without a date column, so the
+        widgets run on the whole view and rely on their own domain filters.
+    -->
+
+    <!-- ===================== Data sources ===================== -->
+
+    <record id="source_after_sales_ticket" model="od19.dashboard.source">
+        <field name="name">After-Sales Tickets</field>
+        <field name="model_name">od19.report.after.sales.ticket</field>
+        <field name="description">Ticket volume by team, service type and stage.</field>
+        <field name="sequence">110</field>
+    </record>
+    <record id="source_after_sales_ticket_count" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_after_sales_ticket"/>
+        <field name="label">Tickets</field>
+        <field name="field_name">ticket_count</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_after_sales_ticket_team" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_after_sales_ticket"/>
+        <field name="label">Service Team</field>
+        <field name="field_name">team_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_after_sales_ticket_team_type" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_after_sales_ticket"/>
+        <field name="label">Team Type</field>
+        <field name="field_name">team_type</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_after_sales_ticket_service_type" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_after_sales_ticket"/>
+        <field name="label">Service Type</field>
+        <field name="field_name">service_type</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="source_after_sales_ticket_stage" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_after_sales_ticket"/>
+        <field name="label">Stage</field>
+        <field name="field_name">stage_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">40</field>
+    </record>
+
+    <record id="source_after_sales_warranty" model="od19.dashboard.source">
+        <field name="name">After-Sales Warranty Claims</field>
+        <field name="model_name">od19.report.after.sales.warranty.claim</field>
+        <field name="description">Warranty and RMA claims with average turnaround.</field>
+        <field name="sequence">120</field>
+    </record>
+    <record id="source_after_sales_warranty_count" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_after_sales_warranty"/>
+        <field name="label">Claims</field>
+        <field name="field_name">claim_count</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_after_sales_warranty_turnaround" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_after_sales_warranty"/>
+        <field name="label">Average Turnaround (Days)</field>
+        <field name="field_name">avg_turnaround_days</field>
+        <field name="kind">measure</field>
+        <field name="agg">avg</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_after_sales_warranty_claim_type" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_after_sales_warranty"/>
+        <field name="label">Claim Type</field>
+        <field name="field_name">claim_type</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_after_sales_warranty_state" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_after_sales_warranty"/>
+        <field name="label">Status</field>
+        <field name="field_name">state</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="source_after_sales_service_card" model="od19.dashboard.source">
+        <field name="name">After-Sales Service Cards</field>
+        <field name="model_name">od19.report.after.sales.service.card</field>
+        <field name="description">Preventive and corrective maintenance workload, due and overdue.</field>
+        <field name="sequence">130</field>
+    </record>
+    <record id="source_after_sales_service_card_count" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_after_sales_service_card"/>
+        <field name="label">Service Cards</field>
+        <field name="field_name">card_count</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_after_sales_service_card_sla" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_after_sales_service_card"/>
+        <field name="label">SLA Breaches</field>
+        <field name="field_name">sla_breach_count</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_after_sales_service_card_due" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_after_sales_service_card"/>
+        <field name="label">Due</field>
+        <field name="field_name">due_count</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="source_after_sales_service_card_overdue" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_after_sales_service_card"/>
+        <field name="label">Overdue</field>
+        <field name="field_name">overdue_count</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="source_after_sales_service_card_type" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_after_sales_service_card"/>
+        <field name="label">Service Type</field>
+        <field name="field_name">service_type</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_after_sales_service_card_state" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_after_sales_service_card"/>
+        <field name="label">Status</field>
+        <field name="field_name">state</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_after_sales_service_card_team" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_after_sales_service_card"/>
+        <field name="label">Department</field>
+        <field name="field_name">team_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <record id="source_after_sales_product_return" model="od19.dashboard.source">
+        <field name="name">After-Sales Product Returns</field>
+        <field name="model_name">od19.report.after.sales.product.return</field>
+        <field name="description">Returned products by reason with the refund value.</field>
+        <field name="sequence">140</field>
+    </record>
+    <record id="source_after_sales_product_return_count" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_after_sales_product_return"/>
+        <field name="label">Returns</field>
+        <field name="field_name">return_count</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_after_sales_product_return_qty" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_after_sales_product_return"/>
+        <field name="label">Quantity</field>
+        <field name="field_name">total_quantity</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_after_sales_product_return_refund" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_after_sales_product_return"/>
+        <field name="label">Refund Value</field>
+        <field name="field_name">total_refund_amount</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="source_after_sales_product_return_reason" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_after_sales_product_return"/>
+        <field name="label">Return Reason</field>
+        <field name="field_name">reason</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_after_sales_product_return_state" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_after_sales_product_return"/>
+        <field name="label">Status</field>
+        <field name="field_name">state</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="source_after_sales_qc" model="od19.dashboard.source">
+        <field name="name">After-Sales Quality Inspections</field>
+        <field name="model_name">od19.report.after.sales.qc.inspection</field>
+        <field name="description">Quality inspections with pass, fail and nonconformity counts.</field>
+        <field name="sequence">150</field>
+    </record>
+    <record id="source_after_sales_qc_count" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_after_sales_qc"/>
+        <field name="label">Inspections</field>
+        <field name="field_name">inspection_count</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_after_sales_qc_pass" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_after_sales_qc"/>
+        <field name="label">Passed</field>
+        <field name="field_name">pass_count</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_after_sales_qc_fail" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_after_sales_qc"/>
+        <field name="label">Failed</field>
+        <field name="field_name">fail_count</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="source_after_sales_qc_nc" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_after_sales_qc"/>
+        <field name="label">Nonconformities</field>
+        <field name="field_name">nc_count</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="source_after_sales_qc_type" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_after_sales_qc"/>
+        <field name="label">Inspection Type</field>
+        <field name="field_name">inspection_type</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_after_sales_qc_state" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_after_sales_qc"/>
+        <field name="label">Status</field>
+        <field name="field_name">state</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_after_sales_qc_result" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_after_sales_qc"/>
+        <field name="label">Result</field>
+        <field name="field_name">result</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <record id="source_after_sales_csat" model="od19.dashboard.source">
+        <field name="name">After-Sales Customer Satisfaction</field>
+        <field name="model_name">od19.report.after.sales.csat.period</field>
+        <field name="description">Customer satisfaction surveys aggregated per period.</field>
+        <field name="sequence">160</field>
+    </record>
+    <record id="source_after_sales_csat_surveys" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_after_sales_csat"/>
+        <field name="label">Surveys</field>
+        <field name="field_name">survey_count</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_after_sales_csat_completed" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_after_sales_csat"/>
+        <field name="label">Completed Surveys</field>
+        <field name="field_name">completed_count</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_after_sales_csat_score" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_after_sales_csat"/>
+        <field name="label">Average Score</field>
+        <field name="field_name">avg_score</field>
+        <field name="kind">measure</field>
+        <field name="agg">avg</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="source_after_sales_csat_value" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_after_sales_csat"/>
+        <field name="label">Average CSAT</field>
+        <field name="field_name">avg_csat</field>
+        <field name="kind">measure</field>
+        <field name="agg">avg</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="source_after_sales_csat_period" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_after_sales_csat"/>
+        <field name="label">Period</field>
+        <field name="field_name">period</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <!-- ===================== Dashboard ===================== -->
+
+    <record id="dashboard_after_sales" model="od19.dashboard">
+        <field name="name">After-Sales Service Dashboard</field>
+        <field name="audience">management</field>
+        <field name="description">Consolidated after-sales view: tickets, warranty, service cards, returns, quality and satisfaction.</field>
+        <field name="sequence">25</field>
+        <field name="is_default" eval="False"/>
+        <field name="default_date_range">all_time</field>
+        <field name="color">#9E2424</field>
+    </record>
+
+    <!-- Summary zone: one KPI per after-sales dimension -->
+    <record id="dashboard_after_sales_open_tickets" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_after_sales"/>
+        <field name="name">Open Service Tickets</field>
+        <field name="subtitle">Tickets that are not closed yet</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_after_sales_ticket"/>
+        <field name="measure_key">ticket_count</field>
+        <field name="date_range">all_time</field>
+        <field name="domain">[('closed', '=', False)]</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="4"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="10"/>
+    </record>
+    <record id="dashboard_after_sales_warranty" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_after_sales"/>
+        <field name="name">Warranty Claims</field>
+        <field name="subtitle">Warranty, RMA and repair claims</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_after_sales_warranty"/>
+        <field name="measure_key">claim_count</field>
+        <field name="date_range">all_time</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="4"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="20"/>
+    </record>
+    <record id="dashboard_after_sales_due_cards" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_after_sales"/>
+        <field name="name">Service Cards Due</field>
+        <field name="subtitle">Preventive maintenance reaching its next service date</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_after_sales_service_card"/>
+        <field name="measure_key">due_count</field>
+        <field name="date_range">all_time</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="4"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="30"/>
+        <field name="rule_ids" eval="[(0, 0, {'sequence': 10, 'name': 'Above the critical value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 10.0, 'status': 'red'}), (0, 0, {'sequence': 20, 'name': 'Above the warning value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 3.0, 'status': 'yellow'})]"/>
+    </record>
+    <record id="dashboard_after_sales_returns" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_after_sales"/>
+        <field name="name">Product Returns</field>
+        <field name="subtitle">Returned products awaiting or completed refund</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_after_sales_product_return"/>
+        <field name="measure_key">return_count</field>
+        <field name="date_range">all_time</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="4"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="40"/>
+    </record>
+    <record id="dashboard_after_sales_qc" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_after_sales"/>
+        <field name="name">Quality Inspections</field>
+        <field name="subtitle">Incoming, in-process and outgoing inspections</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_after_sales_qc"/>
+        <field name="measure_key">inspection_count</field>
+        <field name="date_range">all_time</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="4"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="50"/>
+    </record>
+    <record id="dashboard_after_sales_csat" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_after_sales"/>
+        <field name="name">Average Satisfaction Score</field>
+        <field name="subtitle">Mean overall score of the satisfaction surveys</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_after_sales_csat"/>
+        <field name="measure_key">avg_score</field>
+        <field name="date_range">all_time</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="4"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="60"/>
+    </record>
+
+    <!-- Alerts zone -->
+    <record id="dashboard_after_sales_overdue_cards" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_after_sales"/>
+        <field name="name">Overdue Service Cards</field>
+        <field name="subtitle">Past the next service date and still open</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_after_sales_service_card"/>
+        <field name="measure_key">overdue_count</field>
+        <field name="date_range">all_time</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="3"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="70"/>
+        <field name="rule_ids" eval="[(0, 0, {'sequence': 10, 'name': 'Above the critical value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 5.0, 'status': 'red'}), (0, 0, {'sequence': 20, 'name': 'Above the warning value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 1.0, 'status': 'yellow'})]"/>
+    </record>
+    <record id="dashboard_after_sales_sla_breach" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_after_sales"/>
+        <field name="name">SLA Breaches</field>
+        <field name="subtitle">Service cards that missed their SLA</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_after_sales_service_card"/>
+        <field name="measure_key">sla_breach_count</field>
+        <field name="date_range">all_time</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="3"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="80"/>
+        <field name="rule_ids" eval="[(0, 0, {'sequence': 10, 'name': 'Above the critical value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 5.0, 'status': 'red'}), (0, 0, {'sequence': 20, 'name': 'Above the warning value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 1.0, 'status': 'yellow'})]"/>
+    </record>
+    <record id="dashboard_after_sales_qc_nc" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_after_sales"/>
+        <field name="name">Nonconformities Raised</field>
+        <field name="subtitle">Inspections that produced a nonconformity</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_after_sales_qc"/>
+        <field name="measure_key">nc_count</field>
+        <field name="date_range">all_time</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="3"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="90"/>
+        <field name="rule_ids" eval="[(0, 0, {'sequence': 10, 'name': 'Above the critical value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 5.0, 'status': 'red'}), (0, 0, {'sequence': 20, 'name': 'Above the warning value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 1.0, 'status': 'yellow'})]"/>
+    </record>
+    <record id="dashboard_after_sales_refund_value" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_after_sales"/>
+        <field name="name">Refund Value</field>
+        <field name="subtitle">Refund amount requested on product returns</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">currency</field>
+        <field name="source_id" ref="source_after_sales_product_return"/>
+        <field name="measure_key">total_refund_amount</field>
+        <field name="date_range">all_time</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="3"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="100"/>
+    </record>
+
+    <!-- Detail zone: breakdowns -->
+    <record id="dashboard_after_sales_tickets_type" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_after_sales"/>
+        <field name="name">Tickets by Service Type</field>
+        <field name="widget_type">bar</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_after_sales_ticket"/>
+        <field name="measure_key">ticket_count</field>
+        <field name="groupby_key">service_type</field>
+        <field name="date_range">all_time</field>
+        <field name="limit" eval="8"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="110"/>
+    </record>
+    <record id="dashboard_after_sales_tickets_stage" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_after_sales"/>
+        <field name="name">Tickets by Stage</field>
+        <field name="widget_type">pie</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_after_sales_ticket"/>
+        <field name="measure_key">ticket_count</field>
+        <field name="groupby_key">stage_id</field>
+        <field name="date_range">all_time</field>
+        <field name="limit" eval="8"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="120"/>
+    </record>
+    <record id="dashboard_after_sales_warranty_state" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_after_sales"/>
+        <field name="name">Warranty Claims by Status</field>
+        <field name="widget_type">pie</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_after_sales_warranty"/>
+        <field name="measure_key">claim_count</field>
+        <field name="groupby_key">state</field>
+        <field name="date_range">all_time</field>
+        <field name="limit" eval="8"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="130"/>
+    </record>
+    <record id="dashboard_after_sales_cards_type" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_after_sales"/>
+        <field name="name">Service Cards by Type</field>
+        <field name="widget_type">bar</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_after_sales_service_card"/>
+        <field name="measure_key">card_count</field>
+        <field name="groupby_key">service_type</field>
+        <field name="date_range">all_time</field>
+        <field name="limit" eval="8"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="140"/>
+    </record>
+    <record id="dashboard_after_sales_returns_reason" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_after_sales"/>
+        <field name="name">Returns by Reason</field>
+        <field name="widget_type">bar</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_after_sales_product_return"/>
+        <field name="measure_key">return_count</field>
+        <field name="groupby_key">reason</field>
+        <field name="date_range">all_time</field>
+        <field name="limit" eval="8"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="150"/>
+    </record>
+    <record id="dashboard_after_sales_qc_result" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_after_sales"/>
+        <field name="name">Inspections by Result</field>
+        <field name="widget_type">pie</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_after_sales_qc"/>
+        <field name="measure_key">inspection_count</field>
+        <field name="groupby_key">result</field>
+        <field name="date_range">all_time</field>
+        <field name="limit" eval="8"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="160"/>
+    </record>
+    <record id="dashboard_after_sales_csat_period" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_after_sales"/>
+        <field name="name">Satisfaction Score by Period</field>
+        <field name="widget_type">bar</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_after_sales_csat"/>
+        <field name="measure_key">avg_score</field>
+        <field name="groupby_key">period</field>
+        <field name="date_range">all_time</field>
+        <field name="limit" eval="12"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="170"/>
+    </record>
+
+    <!-- ===================== Direct access ===================== -->
+
+    <record id="action_od19_after_sales_dashboard" model="ir.actions.client">
+        <field name="name">After-Sales Dashboard</field>
+        <field name="tag">od19_dashboard.builder</field>
+        <field name="target">current</field>
+        <field name="params" eval="{'dashboard_id': ref('dashboard_after_sales')}"/>
+    </record>
+
+    <menuitem id="menu_od19_after_sales_dashboard"
+              name="After-Sales Dashboard"
+              parent="menu_od19_after_sales_reporting_root"
+              action="action_od19_after_sales_dashboard"
+              sequence="5"/>
+
+</odoo>
