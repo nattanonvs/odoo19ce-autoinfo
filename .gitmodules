@@ -54,3 +54,7 @@
 	path = third_party/oca/currency
 	url = https://github.com/OCA/currency.git
 	branch = 19.0
+[submodule "third_party/oca/stock-logistics-request"]
+	path = third_party/oca/stock-logistics-request
+	url = https://github.com/OCA/stock-logistics-request.git
+	branch = 19.0
