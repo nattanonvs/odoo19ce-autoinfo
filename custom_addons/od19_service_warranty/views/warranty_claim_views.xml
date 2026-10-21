@@ -51,6 +51,8 @@
                         <group>
                             <field name="product_id"/>
                             <field name="lot_id"/>
+                            <field name="warranty_start_date"
+                                   invisible="lot_id and lot_id.warranty_start_date"/>
                             <field name="under_warranty" readonly="1"/>
                             <field name="user_id"/>
                         </group>

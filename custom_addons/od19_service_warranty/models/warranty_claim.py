@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from datetime import timedelta
+
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 
@@ -52,6 +54,11 @@ class WarrantyClaim(models.Model):
         string='Under Warranty', compute='_compute_under_warranty', store=True,
         help='Whether the product is still under warranty at claim date.',
     )
+    warranty_start_date = fields.Date(
+        string='Warranty Start Date',
+        help='Coverage start date. Used for product-level warranty when no '
+             'lot/serial is linked (usually the delivery/sale date).',
+    )
     repair_order_id = fields.Many2one(
         'repair.order', string='Repair Order',
         help='Linked repair order for this claim.',
@@ -62,13 +69,37 @@ class WarrantyClaim(models.Model):
         default=lambda self: self.env.user,
     )
 
-    @api.depends('lot_id.warranty_status', 'lot_id.warranty_end_date', 'claim_date')
+    @api.depends(
+        'lot_id.warranty_status',
+        'lot_id.warranty_end_date',
+        'claim_date',
+        'warranty_start_date',
+        'product_id.product_tmpl_id.warranty_duration',
+        'product_id.product_tmpl_id.warranty_type',
+    )
     def _compute_under_warranty(self):
         for claim in self:
-            if claim.lot_id and claim.lot_id.warranty_status == 'active':
-                claim.under_warranty = True
+            if claim.lot_id:
+                claim.under_warranty = claim.lot_id.warranty_status == 'active'
             else:
-                claim.under_warranty = False
+                # No lot/serial linked: fall back to the product template's
+                # warranty duration using the claim's warranty start date.
+                claim.under_warranty = claim._is_product_under_warranty()
+
+    def _is_product_under_warranty(self):
+        """Evaluate product-level warranty when no lot/serial is linked."""
+        self.ensure_one()
+        if not self.product_id or not self.warranty_start_date:
+            return False
+        days = self.product_id.product_tmpl_id._get_warranty_days()
+        if days <= 0:
+            return False
+        return (self.warranty_start_date + timedelta(days=days)) >= self.claim_date
+
+    @api.onchange('lot_id')
+    def _onchange_lot_id_warranty_start(self):
+        if self.lot_id and self.lot_id.warranty_start_date:
+            self.warranty_start_date = self.lot_id.warranty_start_date
 
     @api.model_create_multi
     def create(self, vals_list):

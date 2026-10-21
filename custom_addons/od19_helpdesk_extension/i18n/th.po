@@ -1,0 +1,27 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* od19_helpdesk_extension
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-20 00:00+0000\n"
+"PO-Revision-Date: 2026-10-20 00:00+0000\n"
+"Last-Translator: The Auto-Info Co., Ltd.\n"
+"Language-Team: Thai\n"
+"Language: th\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#. module: od19_helpdesk_extension
+#: model:res.groups,name:od19_helpdesk_extension.group_internal_helpdesk
+msgid "Internal Helpdesk User"
+msgstr "ผู้ใช้งาน Helpdesk ภายใน"
+
+#. module: od19_helpdesk_extension
+#: model:res.groups,name:od19_helpdesk_extension.group_sales_service
+msgid "Sales Services User"
+msgstr "ผู้ใช้งานฝ่ายบริการขาย"
