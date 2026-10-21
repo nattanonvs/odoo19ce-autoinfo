@@ -2031,6 +2031,44 @@ header .o_navlink_background .oi-search {
 .od19-badge-reserved { background: rgba(217, 130, 0, 0.16); color: #a86300; }
 .od19-badge-busy { background: rgba(179, 36, 36, 0.14); color: #b32424; }
 
+/* ============================================================
+   Website language switch (EN | ไทย) in the navbar
+   Colours inherit from the navbar so it works on light or dark.
+   ============================================================ */
+.od19-lang-switch {
+    display: flex;
+    align-items: center;
+    padding: 0.1rem 0.25rem;
+}
+.od19-lang-sep {
+    opacity: 0.4;
+    font-size: 0.8rem;
+    padding: 0 0.15rem;
+}
+.od19-lang-opt {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: inherit;
+    opacity: 0.85;
+    text-decoration: none;
+    transition: background 0.18s ease, color 0.18s ease, opacity 0.18s ease;
+}
+.od19-lang-opt:hover,
+.od19-lang-opt:focus {
+    background: rgba(158, 36, 36, 0.1);
+    color: var(--od19-primary);
+    opacity: 1;
+}
+.od19-lang-opt.active {
+    background: var(--od19-primary);
+    color: #fff;
+    opacity: 1;
+}
+
 .od19-booking-form {
     background: #fbf8f8;
     border: 1px solid #f0e8e8;

@@ -153,4 +153,25 @@
         </xpath>
     </template>
 
+    <!-- ============================================================ -->
+    <!-- Language switch (EN | ไทย): compact, one-click, always shown  -->
+    <!-- Both languages stay visible so visitors switch in one click.  -->
+    <!-- ============================================================ -->
+    <template id="od19_language_switch" name="Auto-Info Language Switch"
+              inherit_id="website.header_language_selector" priority="20">
+        <xpath expr="//t[@id='header_language_selector_call']" position="replace">
+            <div class="od19-lang-switch" t-if="len(frontend_languages) &gt; 1">
+                <t t-foreach="frontend_languages.values()" t-as="lg">
+                    <span t-if="not lg_first" class="od19-lang-sep">|</span>
+                    <a t-attf-class="od19-lang-opt js_change_lang #{'active' if lg.code == lang else ''}"
+                       t-att-href="url_localized(lang_code=lg.code, prefetch_langs=True, force_default_lang=True)"
+                       t-att-data-url_code="lg.url_code"
+                       t-att-title="lg.name.split('/').pop().split('(')[0].strip()">
+                        <t t-esc="lg.name.split('/').pop().split('(')[0].strip()"/>
+                    </a>
+                </t>
+            </div>
+        </xpath>
+    </template>
+
 </odoo>
