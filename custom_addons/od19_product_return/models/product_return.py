@@ -1,5 +1,5 @@
-from odoo import api, fields, models
-from odoo.exceptions import ValidationError
+from odoo import _, api, fields, models
+from odoo.exceptions import UserError, ValidationError
 
 
 class ProductReturn(models.Model):
@@ -157,14 +157,33 @@ class ProductReturn(models.Model):
         if self.state != "approved":
             return
         picking_type = self.env["stock.picking.type"].search(
-            [("code", "=", "incoming")], limit=1
+            [("code", "=", "incoming"), ("company_id", "=", self.company_id.id)],
+            limit=1,
         )
+        if not picking_type:
+            raise UserError(
+                _(
+                    "No incoming operation type is configured for company %s, "
+                    "so the returned goods cannot be received."
+                )
+                % self.company_id.display_name
+            )
+        source_location = picking_type.default_location_src_id
+        dest_location = picking_type.default_location_dest_id
+        if not source_location or not dest_location:
+            raise UserError(
+                _(
+                    "The incoming operation type %s is missing its default "
+                    "source or destination location."
+                )
+                % picking_type.display_name
+            )
         picking_vals = {
             "partner_id": self.partner_id.id,
             "picking_type_id": picking_type.id,
             "origin": self.name,
-            "location_id": picking_type.default_location_src_id.id,
-            "location_dest_id": picking_type.default_location_dest_id.id,
+            "location_id": source_location.id,
+            "location_dest_id": dest_location.id,
             "move_ids": [
                 (
                     0,
@@ -174,8 +193,8 @@ class ProductReturn(models.Model):
                         "product_id": self.product_id.id,
                         "product_uom_qty": self.quantity,
                         "product_uom": self.uom_id.id,
-                        "location_id": picking_type.default_location_src_id.id,
-                        "location_dest_id": picking_type.default_location_dest_id.id,
+                        "location_id": source_location.id,
+                        "location_dest_id": dest_location.id,
                     },
                 )
             ],
@@ -192,14 +211,34 @@ class ProductReturn(models.Model):
             "target": "current",
         }
 
+    def _get_refund_unit_price(self):
+        """Resolve the unit price to refund for this product.
+
+        Priority: the explicit refund amount, then the price on the linked
+        invoice line for the same product, and finally zero.
+        """
+        self.ensure_one()
+        if self.refund_amount:
+            return self.refund_amount
+        if self.invoice_id:
+            line = self.invoice_id.invoice_line_ids.filtered(
+                lambda inv_line: inv_line.product_id == self.product_id
+            )[:1]
+            if line:
+                return line.price_unit
+        return 0.0
+
     def action_refund(self):
         """Create a customer refund (credit note)."""
         self.ensure_one()
         if self.state not in ("returned", "approved"):
             return
+        if self.refund_move_id:
+            return self._open_refund_action(self.refund_move_id)
         refund_vals = {
             "move_type": "out_refund",
             "partner_id": self.partner_id.id,
+            "company_id": self.company_id.id,
             "invoice_origin": self.name,
             "invoice_line_ids": [
                 (
@@ -209,7 +248,7 @@ class ProductReturn(models.Model):
                         "name": f"Return: {self.product_id.display_name}",
                         "product_id": self.product_id.id,
                         "quantity": self.quantity,
-                        "price_unit": self.refund_amount or 0.0,
+                        "price_unit": self._get_refund_unit_price(),
                     },
                 )
             ],
@@ -217,6 +256,9 @@ class ProductReturn(models.Model):
         refund = self.env["account.move"].create(refund_vals)
         self.refund_move_id = refund.id
         self.write({"state": "refunded"})
+        return self._open_refund_action(refund)
+
+    def _open_refund_action(self, refund):
         return {
             "type": "ir.actions.act_window",
             "name": "Customer Refund",

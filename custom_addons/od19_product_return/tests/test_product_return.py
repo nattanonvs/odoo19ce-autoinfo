@@ -142,3 +142,63 @@ class TestProductReturn(TransactionCase):
         self.assertTrue(ret.refund_move_id)
         self.assertEqual(ret.refund_move_id.move_type, "out_refund")
         self.assertEqual(ret.refund_move_id.partner_id, self.partner)
+
+    def test_action_refund_is_idempotent(self):
+        """Re-running refund must reuse the existing credit note."""
+        ret = self._create_return(refund_amount=250.0)
+        ret.action_confirm()
+        ret.action_approve()
+        ret.action_refund()
+        first_refund = ret.refund_move_id
+        result = ret.action_refund()
+        self.assertEqual(ret.refund_move_id, first_refund)
+        self.assertEqual(result["res_id"], first_refund.id)
+        self.assertEqual(
+            self.env["account.move"].search_count(
+                [("partner_id", "=", self.partner.id), ("move_type", "=", "out_refund")]
+            ),
+            1,
+        )
+
+    def test_action_refund_falls_back_to_invoice_price(self):
+        """Without an explicit amount the linked invoice line price is used."""
+        invoice = self.env["account.move"].create(
+            {
+                "move_type": "out_invoice",
+                "partner_id": self.partner.id,
+                "invoice_line_ids": [
+                    (
+                        0,
+                        0,
+                        {
+                            "name": "Original sale",
+                            "product_id": self.product.id,
+                            "quantity": 1,
+                            "price_unit": 750.0,
+                        },
+                    )
+                ],
+            }
+        )
+        ret = self._create_return(invoice_id=invoice.id)
+        ret.action_confirm()
+        ret.action_approve()
+        ret.action_refund()
+        self.assertEqual(ret.refund_move_id.invoice_line_ids.price_unit, 750.0)
+        self.assertEqual(ret.refund_move_id.company_id, ret.company_id)
+
+    def test_action_return_uses_company_picking_type(self):
+        """The return picking must use the record's company operation type."""
+        ret = self._create_return()
+        ret.action_confirm()
+        ret.action_approve()
+        ret.action_return()
+        self.assertEqual(
+            ret.return_picking_id.picking_type_id.company_id,
+            ret.company_id,
+        )
+        self.assertEqual(ret.return_picking_id.move_ids.location_id, ret.return_picking_id.location_id)
+        self.assertEqual(
+            ret.return_picking_id.move_ids.location_dest_id,
+            ret.return_picking_id.location_dest_id,
+        )
