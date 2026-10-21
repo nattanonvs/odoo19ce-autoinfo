@@ -56,7 +56,7 @@
                                                           t-esc="dict(info='Info', warning='Warning', mandatory='Mandatory').get(ann.announcement_type, ann.announcement_type)"/>
                                                 </div>
                                                 <small class="text-muted" t-esc="ann.published_date and ann.published_date.strftime('%d %b %Y') or ''"/>
-                                                <div class="mt-1" t-raw="ann.body"/>
+                                                <div class="mt-1" t-out="ann.body"/>
                                             </div>
                                         </t>
                                     </t>
