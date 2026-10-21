@@ -85,6 +85,26 @@ registry.category("web_tour.tours").add("od19_money_in_report_tour", {
             tooltipPosition: "left",
             run: "click",
         },
+        // When no analysis line matches the filters, the wizard raises a
+        // UserError and leaves both itself and the error dialog open, which
+        // blocks the navbar. Close them before moving on. These steps must be
+        // unconditional: the error dialog opens asynchronously right after the
+        // click above, so an isActive guard would be evaluated before it
+        // renders and skip the step permanently.
+        {
+            trigger: ".o_error_dialog .modal-footer .o-default-button",
+            content: markup(_t("Close the warning dialog.")),
+            tooltipPosition: "left",
+            run: "click",
+            timeout: 20000,
+        },
+        {
+            trigger: ".o_dialog .modal-footer .btn-secondary",
+            content: markup(_t("Close the report wizard.")),
+            tooltipPosition: "left",
+            run: "click",
+            timeout: 20000,
+        },
 
         // --- Review Report Runs ---
         {
@@ -109,6 +129,9 @@ registry.category("web_tour.tours").add("od19_money_in_report_tour", {
             trigger: ".o_list_renderer .o_data_row:first",
             content: markup(_t("Open a report run to review the results.")),
             run: "click",
+            // A run is only persisted when analysis lines are produced; when
+            // the wizard raised a UserError no run exists and the list is empty.
+            isActive: [".o_list_renderer .o_data_row"],
         },
         ...stepUtils.discardForm(),
 

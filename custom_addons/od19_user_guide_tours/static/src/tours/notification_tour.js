@@ -125,14 +125,10 @@ registry.category("web_tour.tours").add("od19_notification_tour", {
         ...stepUtils.discardForm(),
 
         // --- Notification Queue ---
+        // Note: "Notification Queue" is a top-level entry of the Settings app
+        // (sibling of the "Notifications" menu), not a child of it.
         {
-            trigger: navSection("Notifications"),
-            content: markup(_t("Reopen the <b>Notifications</b> menu.")),
-            tooltipPosition: "bottom",
-            run: "click",
-        },
-        {
-            trigger: navItem("Queue"),
+            trigger: navSection("Notification Queue"),
             content: markup(_t(
                 "Open the <b>Notification Queue</b> to monitor outgoing notifications."
             )),

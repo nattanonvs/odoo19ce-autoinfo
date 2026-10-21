@@ -36,15 +36,14 @@ registry.category("web_tour.tours").add("od19_warranty_tour", {
         {
             trigger: ".o_field_widget[name='claim_date'] .o_input",
             content: _t("Set the claim date."),
-            run: "click",
         },
         {
             trigger: ".o_field_widget[name='partner_id'] input",
             content: _t("Select the customer."),
-            run: "click",
+            run: "edit Tesla",
         },
         {
-            trigger: ".o-autocomplete--dropdown-item",
+            trigger: ".o-autocomplete--dropdown-item:contains('Tesla, Inc.')",
             content: _t("Pick the customer from the suggestion list."),
             run: "click",
         },
@@ -106,6 +105,12 @@ registry.category("web_tour.tours").add("od19_warranty_tour", {
         {
             trigger: ".o_control_panel .o_back_button:visible",
             content: markup(_t("Go back to the warranty claim to complete it.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_renderer .o_data_row:first .o_data_cell:first",
+            content: markup(_t("Re-open the warranty claim from the list.")),
             tooltipPosition: "bottom",
             run: "click",
         },

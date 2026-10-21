@@ -60,7 +60,7 @@ registry.category("web_tour.tours").add("od19_hr_expense_enhanced_tour", {
             run: "edit 3000",
         },
         {
-            trigger: ".o_field_widget[name='od19_first_approver_id'] input",
+            trigger: ".o_field_widget[name='first_approver_id'] input",
             content: markup(_t(
                 "The <b>First Approver (Dept Head)</b> is auto-filled from the department manager, " +
                 "but can be changed manually."

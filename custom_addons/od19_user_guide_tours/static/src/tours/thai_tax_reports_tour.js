@@ -55,6 +55,22 @@ registry.category("web_tour.tours").add("od19_thai_tax_reports_tour", {
             tooltipPosition: "left",
             run: "click",
         },
+        // Printing leaves the wizard and an error dialog open when the report
+        // cannot be produced, blocking the navbar. Close them (when present).
+        {
+            trigger: ".o_error_dialog .modal-footer .o-default-button",
+            content: markup(_t("Close the warning dialog.")),
+            tooltipPosition: "left",
+            run: "click",
+            timeout: 20000,
+        },
+        {
+            trigger: ".o_dialog .modal-footer .btn-secondary",
+            content: markup(_t("Close the report wizard.")),
+            tooltipPosition: "left",
+            run: "click",
+            timeout: 20000,
+        },
 
         // --- VAT Purchase Register ---
         {
@@ -83,6 +99,20 @@ registry.category("web_tour.tours").add("od19_thai_tax_reports_tour", {
             tooltipPosition: "left",
             run: "click",
         },
+        {
+            trigger: ".o_error_dialog .modal-footer .o-default-button",
+            content: markup(_t("Close the warning dialog.")),
+            tooltipPosition: "left",
+            run: "click",
+            timeout: 20000,
+        },
+        {
+            trigger: ".o_dialog .modal-footer .btn-secondary",
+            content: markup(_t("Close the report wizard.")),
+            tooltipPosition: "left",
+            run: "click",
+            timeout: 20000,
+        },
 
         // --- WHT Register ---
         {
@@ -110,6 +140,20 @@ registry.category("web_tour.tours").add("od19_thai_tax_reports_tour", {
             content: markup(_t("Set the period and click <b>Print/Generate</b>.")),
             tooltipPosition: "left",
             run: "click",
+        },
+        {
+            trigger: ".o_error_dialog .modal-footer .o-default-button",
+            content: markup(_t("Close the warning dialog.")),
+            tooltipPosition: "left",
+            run: "click",
+            timeout: 20000,
+        },
+        {
+            trigger: ".o_dialog .modal-footer .btn-secondary",
+            content: markup(_t("Close the report wizard.")),
+            tooltipPosition: "left",
+            run: "click",
+            timeout: 20000,
         },
 
         {
