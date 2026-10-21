@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ===================== Portal home entry ===================== -->
+    <template id="portal_my_home_document" name="Portal My Home: documents" inherit_id="portal.portal_my_home" priority="25">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
+            <t t-set="portal_client_category_enable" t-value="True"/>
+        </xpath>
+        <div id="portal_client_category" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="title">เอกสารรอลงนาม</t>
+                <t t-set="text">ตรวจสอบและลงนามเอกสารที่ส่งถึงคุณ</t>
+                <t t-set="url" t-value="'/my/documents'"/>
+                <t t-set="placeholder_count" t-value="'document_count'"/>
+            </t>
+        </div>
+    </template>
+
+    <!-- ===================== My documents list ===================== -->
+    <template id="portal_my_documents" name="My Documents">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">เอกสารของฉัน</t>
+            </t>
+
+            <div t-if="not documents" class="alert alert-warning" role="alert">
+                ยังไม่มีเอกสารสำหรับบัญชีของคุณ
+            </div>
+
+            <t t-if="documents" t-call="portal.portal_table">
+                <thead>
+                    <tr class="active">
+                        <th>เลขที่เอกสาร</th>
+                        <th>อ้างอิง</th>
+                        <th class="text-end">กำหนดลงนาม</th>
+                        <th class="text-end">สถานะ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="documents" t-as="document">
+                        <td>
+                            <a t-attf-href="/my/documents/#{document.id}?{{ keep_query() }}">
+                                <t t-out="document.name"/>
+                            </a>
+                        </td>
+                        <td><t t-out="document.reference"/></td>
+                        <td class="text-end"><span t-field="document.date_deadline"/></td>
+                        <td class="text-end"><span t-field="document.state"/></td>
+                    </tr>
+                </tbody>
+            </t>
+        </t>
+    </template>
+
+    <!-- ===================== Document detail ===================== -->
+    <template id="portal_document_detail" name="Document Detail">
+        <t t-call="portal.portal_layout">
+            <div class="row g-4 mt-2">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="mb-3" t-out="document.name"/>
+                            <div t-if="document.reference" class="text-muted mb-3">
+                                <span>อ้างอิง: </span><span t-out="document.reference"/>
+                            </div>
+                            <div t-field="document.body_html"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="mb-3">ผู้ลงนาม</h5>
+                            <table class="table table-sm mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>บทบาท</th>
+                                        <th>ผู้ลงนาม</th>
+                                        <th class="text-end">สถานะ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="document.signer_ids" t-as="signer">
+                                        <td t-out="signer.role_name"/>
+                                        <td t-out="signer.partner_id.name"/>
+                                        <td class="text-end"><span t-field="signer.state"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="alert alert-info mt-3" role="alert">
+                        <span>สถานะเอกสาร: </span><strong t-field="document.state"/>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- ===================== Signing page ===================== -->
+    <template id="portal_document_sign" name="Sign Document">
+        <t t-call="portal.portal_layout">
+            <div class="row g-4 mt-2">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="mb-3" t-out="document.name"/>
+                            <div t-if="document.reference" class="text-muted mb-3">
+                                <span>อ้างอิง: </span><span t-out="document.reference"/>
+                            </div>
+                            <div t-field="document.body_html"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="mb-3">ลงนามในฐานะ</h5>
+                            <p class="mb-3" t-out="signer.role_name or 'ผู้ลงนาม'"/>
+
+                            <div t-if="signer.state == 'signed'" class="alert alert-success" role="alert">
+                                คุณได้ลงนามเอกสารนี้เรียบร้อยแล้ว
+                            </div>
+                            <div t-elif="signer.state == 'refused'" class="alert alert-danger" role="alert">
+                                คุณได้ปฏิเสธการลงนามเอกสารนี้
+                            </div>
+                            <div t-elif="document.state != 'sent'" class="alert alert-warning" role="alert">
+                                เอกสารนี้ไม่อยู่ในสถานะที่เปิดให้ลงนาม
+                            </div>
+                            <t t-else="">
+                                <form id="sign" method="POST" class="js_website_submit_form">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <t t-call="portal.signature_form">
+                                        <t t-set="call_url" t-value="'/my/documents/sign/%s/sign?access_token=%s' % (signer.id, signer.access_token or '')"/>
+                                        <t t-set="default_name" t-value="signer.partner_id.name"/>
+                                        <t t-set="send_label" t-value="'ลงนาม'"/>
+                                    </t>
+                                </form>
+                                <hr/>
+                                <form method="POST" t-attf-action="/my/documents/sign/#{signer.id}/refuse?access_token=#{signer.access_token or ''}">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <div class="mb-2">
+                                        <input type="text" name="refusal_reason" class="form-control" placeholder="เหตุผลที่ปฏิเสธ (ถ้ามี)"/>
+                                    </div>
+                                    <button type="submit" class="btn btn-link text-danger p-0">ปฏิเสธการลงนาม</button>
+                                </form>
+                            </t>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

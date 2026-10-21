@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem
+        id="menu_od19_document_sign_root"
+        name="Signing"
+        sequence="82"
+        groups="group_od19_document_sign_user"
+    />
+    <menuitem
+        id="menu_od19_document"
+        name="Documents"
+        parent="menu_od19_document_sign_root"
+        action="action_od19_document"
+        sequence="10"
+        groups="group_od19_document_sign_user"
+    />
+    <menuitem
+        id="menu_od19_document_template"
+        name="Templates"
+        parent="menu_od19_document_sign_root"
+        action="action_od19_document_template"
+        sequence="20"
+        groups="group_od19_document_sign_manager"
+    />
+</odoo>

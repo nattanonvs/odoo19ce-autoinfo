@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family:'Sarabun','Noto Sans Thai','Tahoma',sans-serif;">
+                        <h2 class="text-center">เอกสารลงนาม</h2>
+
+                        <div class="row mt-3">
+                            <div class="col-6">
+                                <strong>เลขที่เอกสาร: </strong><span t-out="o.name"/>
+                            </div>
+                            <div class="col-6 text-end">
+                                <strong>วันที่: </strong><span t-field="o.create_date" t-options='{"widget": "date"}'/>
+                            </div>
+                        </div>
+                        <div class="row" t-if="o.reference">
+                            <div class="col-12">
+                                <strong>อ้างอิง: </strong><span t-out="o.reference"/>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <t t-out="o.body_html"/>
+                        </div>
+
+                        <h3 class="mt-5">ลายมือชื่อ / Signatures</h3>
+                        <table class="table table-sm table-bordered">
+                            <thead>
+                                <tr>
+                                    <th style="width:22%">บทบาท</th>
+                                    <th style="width:26%">ผู้ลงนาม</th>
+                                    <th style="width:22%">วันที่ลงนาม</th>
+                                    <th>ลายมือชื่อ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="o.signer_ids" t-as="signer">
+                                    <td><span t-out="signer.role_name"/></td>
+                                    <td><span t-out="signer.partner_id.name"/></td>
+                                    <td><span t-field="signer.signed_on"/></td>
+                                    <td>
+                                        <img
+                                            t-if="signer.signature"
+                                            t-att-src="image_data_uri(signer.signature)"
+                                            style="max-height:60px;"
+                                            alt="signature"
+                                        />
+                                        <span t-else="" class="text-muted" t-out="signer.state"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_od19_document" model="ir.actions.report">
+        <field name="name">Signing Document</field>
+        <field name="model">od19.document</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">od19_document_sign.report_document</field>
+        <field name="report_file">od19_document_sign.report_document</field>
+        <field name="binding_model_id" ref="model_od19_document"/>
+        <field name="binding_type">report</field>
+        <field name="print_report_name">'Signing Document - %s' % (object.name)</field>
+    </record>
+
+</odoo>

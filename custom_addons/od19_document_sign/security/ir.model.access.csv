@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_od19_document_user,access.od19.document.user,model_od19_document,group_od19_document_sign_user,1,1,1,1
+access_od19_document_manager,access.od19.document.manager,model_od19_document,group_od19_document_sign_manager,1,1,1,1
+access_od19_document_signer_user,access.od19.document.signer.user,model_od19_document_signer,group_od19_document_sign_user,1,1,1,1
+access_od19_document_signer_manager,access.od19.document.signer.manager,model_od19_document_signer,group_od19_document_sign_manager,1,1,1,1
+access_od19_document_template_user,access.od19.document.template.user,model_od19_document_template,group_od19_document_sign_user,1,0,0,0
+access_od19_document_template_manager,access.od19.document.template.manager,model_od19_document_template,group_od19_document_sign_manager,1,1,1,1
+access_od19_document_template_role_user,access.od19.document.template.role.user,model_od19_document_template_role,group_od19_document_sign_user,1,0,0,0
+access_od19_document_template_role_manager,access.od19.document.template.role.manager,model_od19_document_template_role,group_od19_document_sign_manager,1,1,1,1
