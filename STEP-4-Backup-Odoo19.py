@@ -1,4 +1,4 @@
-"""Standalone Odoo 19 database backup runner (รันนอกเซิร์ฟเวอร์หลัก).
+"""STEP-4 : Standalone Odoo 19 database backup runner (รันนอกเซิร์ฟเวอร์หลัก).
 
 เหตุผลที่ต้องรันนอกเซิร์ฟเวอร์:
     odoo.conf ตั้งค่า ``list_db = False`` เพื่อความปลอดภัย
@@ -14,9 +14,11 @@
        - ลบไฟล์สำรองเก่าตาม days_to_keep
        - บันทึกผลสำเร็จ/ล้มเหลวลง chatter ของ record
 
+ข้อกำหนดของโปรเจกต์: ใช้ฐานข้อมูลเดียวคือ odoo19_pdev เท่านั้น
+
 ใช้งาน:
-    venv19\\Scripts\\python.exe backup_odoo19.py [--conf odoo.conf] [--db odoo19]
-หรือเรียกผ่านตัวห่อสำหรับ Task Scheduler: backup_odoo19.ps1
+    venv19\\Scripts\\python.exe STEP-4-Backup-Odoo19.py [--conf odoo.conf] [--db odoo19_pdev]
+หรือเรียกผ่านตัวห่อสำหรับ Task Scheduler: STEP-4-Backup-Odoo19.ps1
 """
 
 import argparse
@@ -29,13 +31,13 @@ if PROJECT_ROOT not in sys.path:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Odoo 19 standalone database backup runner")
+    parser = argparse.ArgumentParser(description="Odoo 19 standalone database backup runner (STEP-4)")
     parser.add_argument(
         "--conf",
         default=os.path.join(PROJECT_ROOT, "odoo.conf"),
         help="path to odoo.conf (default: <project>/odoo.conf)",
     )
-    parser.add_argument("--db", default="odoo19", help="database name (default: odoo19)")
+    parser.add_argument("--db", default="odoo19_pdev", help="database name (default: odoo19_pdev)")
     args = parser.parse_args()
 
     from odoo.tools import config as odoo_config

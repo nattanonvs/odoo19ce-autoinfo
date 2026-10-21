@@ -1,9 +1,17 @@
-# Cloudflare DDNS script for Odoo 19 PDEV
-# Updates pdev-erp.auto-info.com A record when public IP changes
-# Usage: .\cloudflare_ddns.ps1
-# Schedule via Windows Task Scheduler to run every 5 minutes
+﻿# STEP-DDNS : Cloudflare DDNS script for Odoo 19 PDEV
+# อัปเดต A record pdev-erp.auto-info.com เมื่อ public IP เปลี่ยน
+# เรียกจาก STEP-3-Start-Odoo19.ps1 อัตโนมัติ และจาก Task Scheduler
+#   (\Cloudflare DDNS - Odoo19 ทุก 5 นาที)
+# Usage: .\STEP-DDNS-Cloudflare-Odoo19.ps1
 
-$CloudflareToken = "cfut_GTzH4j492IWKUAwijoRfAyM09SVL7dNpC3uu7NKTbadfb6d6"
+# Token อ่านจาก environment variable เท่านั้น (ห้าม hardcode ลงใน repo)
+# ตั้งค่าแบบถาวรระดับ user:
+#   [Environment]::SetEnvironmentVariable('CLOUDFLARE_API_TOKEN','<your-token>','User')
+$CloudflareToken = $env:CLOUDFLARE_API_TOKEN
+if ([string]::IsNullOrWhiteSpace($CloudflareToken)) {
+    Write-Error "CLOUDFLARE_API_TOKEN is not set. ตั้งค่า environment variable ก่อนรันสคริปต์ (ห้าม hardcode token ใน repo)."
+    exit 1
+}
 $ZoneId = "f39fe4f71f19460344be4088c3223398"
 $RecordName = "pdev-erp.auto-info.com"
 $LogFile = "C:\odoo-dev\odoo19\ddns_update.log"

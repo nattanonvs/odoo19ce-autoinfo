@@ -1,12 +1,16 @@
-# ============================================================
-#  Odoo 19 Network Access Setup (Run as Administrator)
+﻿# ============================================================
+#  STEP-NETWORK : Odoo 19 Network Access Setup (Run as Administrator)
 #  Domain: http://pdev-erp.auto-info.com
 # ============================================================
+#  ใช้ครั้งเดียวต่อเครื่อง (one-time setup): เปิด firewall port 80
+#  และเพิ่ม entry ใน hosts file ของเครื่องนี้
+#  ไม่ใช่สคริปต์ที่ต้องรันทุกครั้งที่ start Odoo
+#
 #  Usage:
 #  1. Open PowerShell as Administrator
 #  2. Run:
 #     Set-ExecutionPolicy Bypass -Scope Process -Force
-#     & "C:\odoo-dev\odoo19\setup_network_access.ps1"
+#     & "C:\odoo-dev\odoo19\STEP-NETWORK-Setup-Odoo19.ps1"
 # ============================================================
 
 $ErrorActionPreference = "Stop"
@@ -74,7 +78,7 @@ if ($nginxRunning) {
     Write-Host "      nginx is running (PID: $($nginxRunning[0].Id))" -ForegroundColor Green
 } else {
     Write-Host "      [WARN] nginx is NOT running!" -ForegroundColor Red
-    Write-Host "      Run: cd C:\odoo-dev\odoo19\nginx\nginx-1.27.2 ; .\nginx.exe" -ForegroundColor Yellow
+    Write-Host "      ใช้สคริปต์ STEP-3-Start-Odoo19.ps1 เพื่อ start nginx" -ForegroundColor Yellow
 }
 
 # Test access via domain
