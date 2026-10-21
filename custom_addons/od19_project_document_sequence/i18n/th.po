@@ -1,0 +1,171 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* od19_project_document_sequence
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-21 11:07+0000\n"
+"PO-Revision-Date: 2026-10-21 11:07+0000\n"
+"Last-Translator: The Auto-Info Co., Ltd.\n"
+"Language-Team: Thai\n"
+"Language: th\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Auto-Info translation pipeline\n"
+
+#. module: od19_project_document_sequence
+#: model:ir.model,name:od19_project_document_sequence.model_hr_department
+msgid "Department"
+msgstr "แผนก"
+
+#. module: od19_project_document_sequence
+#: model:ir.model.fields,help:od19_project_document_sequence.field_project_project__od19_project_type
+msgid ""
+"Determines the prefix used in the Job Number. od19_department_id is declared"
+" by od19_project_analytic."
+msgstr ""
+"กำหนดคำนำหน้าที่ใช้ในเลขที่งาน โดย od19_department_id ถูกประกาศไว้ใน "
+"od19_project_analytic"
+
+#. module: od19_project_document_sequence
+#: model:ir.model.fields,field_description:od19_project_document_sequence.field_hr_department__display_name
+#: model:ir.model.fields,field_description:od19_project_document_sequence.field_res_users__display_name
+msgid "Display Name"
+msgstr "ชื่อที่แสดง"
+
+#. module: od19_project_document_sequence
+#: model:ir.model.fields,field_description:od19_project_document_sequence.field_hr_department__id
+#: model:ir.model.fields,field_description:od19_project_document_sequence.field_res_users__id
+msgid "ID"
+msgstr "ID"
+
+#. module: od19_project_document_sequence
+#: model:ir.model.fields,field_description:od19_project_document_sequence.field_res_users__od19_initials
+msgid "Initials"
+msgstr "อักษรย่อ"
+
+#. module: od19_project_document_sequence
+#: model:ir.model.fields.selection,name:od19_project_document_sequence.selection__project_project__od19_project_type__job
+msgid "Job"
+msgstr "งาน"
+
+#. module: od19_project_document_sequence
+#: model:ir.model.fields.selection,name:od19_project_document_sequence.selection__project_project__od19_project_type__pm
+msgid "Preventive Maintenance"
+msgstr "งานบำรุงรักษาเชิงป้องกัน"
+
+#. module: od19_project_document_sequence
+#: model:ir.model.fields,field_description:od19_project_document_sequence.field_hr_department__project_job_sequence_id
+msgid "Project Job No. Sequence"
+msgstr "ลำดับเลขที่งานโครงการ"
+
+#. module: od19_project_document_sequence
+#: model:ir.model.fields,field_description:od19_project_document_sequence.field_hr_department__project_pm_sequence_id
+msgid "Project PM No. Sequence"
+msgstr "ลำดับเลขที่งาน PM"
+
+#. module: od19_project_document_sequence
+#: model_terms:ir.ui.view,arch_db:od19_project_document_sequence.view_department_form_inherit_od19_project_seq
+msgid "Project Sequences"
+msgstr "ลำดับเลขที่เอกสารโครงการ"
+
+#. module: od19_project_document_sequence
+#: model:ir.model.fields,field_description:od19_project_document_sequence.field_hr_department__project_service_sequence_id
+msgid "Project Service No. Sequence"
+msgstr "ลำดับเลขที่งานบริการ"
+
+#. module: od19_project_document_sequence
+#: model:ir.model.fields,field_description:od19_project_document_sequence.field_project_project__od19_project_type
+msgid "Project Type"
+msgstr "ประเภทโครงการ"
+
+#. module: od19_project_document_sequence
+#: model:ir.model.fields,field_description:od19_project_document_sequence.field_res_users__project_sale_sequence_id
+msgid "Sale Project Job No. Sequence"
+msgstr "ลำดับเลขที่งานโครงการฝ่ายขาย"
+
+#. module: od19_project_document_sequence
+#: model:ir.model.fields.selection,name:od19_project_document_sequence.selection__project_project__od19_project_type__sale
+msgid "Sales"
+msgstr "งานขาย"
+
+#. module: od19_project_document_sequence
+#: model:ir.model.fields,field_description:od19_project_document_sequence.field_project_project__od19_sale_person_id
+msgid "Salesperson"
+msgstr "พนักงานขาย"
+
+#. module: od19_project_document_sequence
+#: model:ir.model.fields,help:od19_project_document_sequence.field_res_users__od19_initials
+msgid ""
+"Salesperson initials used in project job number (e.g. NV for Nattanai "
+"Vinyangkoon). Leave empty to derive them from the user name: first letter of"
+" the first name + first letter of the last name."
+msgstr ""
+"อักษรย่อของพนักงานขายที่ใช้ในเลขที่งานโครงการ (เช่น NV สำหรับ Nattanai "
+"Vinyangkoon) หากเว้นว่าง ระบบจะคำนวณจากชื่อผู้ใช้ให้อัตโนมัติ: "
+"อักษรตัวแรกของชื่อจริง + อักษรตัวแรกของนามสกุล"
+
+#. module: od19_project_document_sequence
+#: model:ir.model.fields,help:od19_project_document_sequence.field_hr_department__project_job_sequence_id
+msgid ""
+"Sequence for Job type projects. Prefix should be J + dept_code + %(y)s-"
+msgstr ""
+"ลำดับเลขที่สำหรับโครงการประเภทงาน (Job) โดยคำนำหน้าควรเป็น "
+"J + รหัสแผนก + %(y)s-"
+
+#. module: od19_project_document_sequence
+#: model:ir.model.fields,help:od19_project_document_sequence.field_hr_department__project_pm_sequence_id
+msgid ""
+"Sequence for Preventive Maintenance type projects. Prefix should be PM + "
+"dept_code + %(y)s-"
+msgstr ""
+"ลำดับเลขที่สำหรับโครงการประเภทงานบำรุงรักษาเชิงป้องกัน โดยคำนำหน้าควรเป็น "
+"PM + รหัสแผนก + %(y)s-"
+
+#. module: od19_project_document_sequence
+#: model:ir.model.fields,help:od19_project_document_sequence.field_hr_department__project_service_sequence_id
+msgid ""
+"Sequence for Service type projects. Prefix should be S + dept_code + %(y)s-"
+msgstr ""
+"ลำดับเลขที่สำหรับโครงการประเภทบริการ โดยคำนำหน้าควรเป็น "
+"S + รหัสแผนก + %(y)s-"
+
+#. module: od19_project_document_sequence
+#: model:ir.model.fields,help:od19_project_document_sequence.field_res_users__project_sale_sequence_id
+msgid ""
+"Sequence that supplies the running counter for Sales-type project job "
+"numbers (Project Type = Sales). The job number itself is built as S + "
+"initials + YY + running number, e.g. SNV26-0001, so the sequence prefix is "
+"ignored."
+msgstr ""
+"ลำดับที่ใช้สร้างเลขรันสำหรับเลขที่งานโครงการประเภทงานขาย "
+"(Project Type = Sales) ตัวเลขที่งานสร้างจาก S + อักษรย่อ + ปี 2 หลัก + "
+"เลขรัน เช่น SNV26-0001 ดังนั้นคำนำหน้าของลำดับจะไม่ถูกนำมาใช้"
+
+#. module: od19_project_document_sequence
+#: model:ir.model.fields.selection,name:od19_project_document_sequence.selection__project_project__od19_project_type__service
+msgid "Service"
+msgstr "บริการ"
+
+#. module: od19_project_document_sequence
+#. odoo-python
+#: code:addons/od19_project_document_sequence/models/project_project.py:0
+msgid ""
+"Set a Sale Project Job No. Sequence on the salesperson before creating a "
+"Sales-type project."
+msgstr ""
+"กรุณากำหนดลำดับเลขที่งานโครงการฝ่ายขายให้พนักงานขายก่อนสร้างโครงการประเภทงานขาย"
+
+#. module: od19_project_document_sequence
+#: model:ir.model.fields,field_description:od19_project_document_sequence.field_project_task__od19_task_code
+msgid "Task Code"
+msgstr "รหัสงาน"
+
+#. module: od19_project_document_sequence
+#: model:ir.model,name:od19_project_document_sequence.model_res_users
+msgid "User"
+msgstr "ผู้ใช้"

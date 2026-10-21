@@ -1,0 +1,198 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* od19_sales_project_context
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-21 11:07+0000\n"
+"PO-Revision-Date: 2026-10-21 11:07+0000\n"
+"Last-Translator: The Auto-Info Co., Ltd.\n"
+"Language-Team: Thai\n"
+"Language: th\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Auto-Info translation pipeline\n"
+
+#. module: od19_sales_project_context
+#: model_terms:ir.ui.view,arch_db:od19_sales_project_context.view_order_form_inherit_od19_project_context
+msgid ""
+"<span class=\"o_stat_text\">Cost &amp; Profit</span>\n"
+"                        <span class=\"o_stat_text\">Analysis</span>"
+msgstr ""
+"<span class=\"o_stat_text\">ต้นทุนและกำไร</span>\n"
+"                        <span class=\"o_stat_text\">การวิเคราะห์</span>"
+
+#. module: od19_sales_project_context
+#: model_terms:ir.ui.view,arch_db:od19_sales_project_context.view_od19_sale_order_pnl_analysis_form
+msgid "Close"
+msgstr "ปิด"
+
+#. module: od19_sales_project_context
+#: model:ir.model.fields.selection,name:od19_sales_project_context.selection__sale_order__od19_sale_mode__contract
+msgid "Contract-based"
+msgstr "ตามสัญญา"
+
+#. module: od19_sales_project_context
+#: model:ir.model.fields,field_description:od19_sales_project_context.field_od19_sale_order_pnl_analysis__cost
+msgid "Cost"
+msgstr "ต้นทุน"
+
+#. module: od19_sales_project_context
+#: model:ir.actions.act_window,name:od19_sales_project_context.action_od19_sale_order_pnl_analysis
+#: model_terms:ir.ui.view,arch_db:od19_sales_project_context.view_od19_sale_order_pnl_analysis_form
+#: model_terms:ir.ui.view,arch_db:od19_sales_project_context.view_order_form_inherit_od19_project_context
+msgid "Cost & Profit Analysis"
+msgstr "การวิเคราะห์ต้นทุนและกำไร"
+
+#. module: od19_sales_project_context
+#: model:ir.model.fields,field_description:od19_sales_project_context.field_od19_sale_order_pnl_analysis__create_uid
+msgid "Created by"
+msgstr "สร้างโดย"
+
+#. module: od19_sales_project_context
+#: model:ir.model.fields,field_description:od19_sales_project_context.field_od19_sale_order_pnl_analysis__create_date
+msgid "Created on"
+msgstr "สร้างเมื่อ"
+
+#. module: od19_sales_project_context
+#: model:ir.model.fields,field_description:od19_sales_project_context.field_od19_sale_order_pnl_analysis__currency_id
+msgid "Currency"
+msgstr "สกุลเงิน"
+
+#. module: od19_sales_project_context
+#: model:ir.model.fields,field_description:od19_sales_project_context.field_od19_sale_order_pnl_analysis__display_name
+#: model:ir.model.fields,field_description:od19_sales_project_context.field_sale_order__display_name
+msgid "Display Name"
+msgstr "ชื่อที่แสดง"
+
+#. module: od19_sales_project_context
+#: model:ir.model.fields,field_description:od19_sales_project_context.field_od19_sale_order_pnl_analysis__date_from
+msgid "From"
+msgstr "จาก"
+
+#. module: od19_sales_project_context
+#: model:ir.model.fields,field_description:od19_sales_project_context.field_od19_sale_order_pnl_analysis__gross_margin
+msgid "Gross Margin"
+msgstr "กำไรขั้นต้น"
+
+#. module: od19_sales_project_context
+#: model:ir.model.fields,field_description:od19_sales_project_context.field_od19_sale_order_pnl_analysis__has_analytic
+msgid "Has Analytic"
+msgstr "มีบัญชีวิเคราะห์"
+
+#. module: od19_sales_project_context
+#: model:ir.model.fields,field_description:od19_sales_project_context.field_od19_sale_order_pnl_analysis__id
+#: model:ir.model.fields,field_description:od19_sales_project_context.field_sale_order__id
+msgid "ID"
+msgstr "ID"
+
+#. module: od19_sales_project_context
+#: model:ir.model.fields,field_description:od19_sales_project_context.field_od19_sale_order_pnl_analysis__write_uid
+msgid "Last Updated by"
+msgstr "แก้ไขล่าสุดโดย"
+
+#. module: od19_sales_project_context
+#: model:ir.model.fields,field_description:od19_sales_project_context.field_od19_sale_order_pnl_analysis__write_date
+msgid "Last Updated on"
+msgstr "แก้ไขล่าสุดเมื่อ"
+
+#. module: od19_sales_project_context
+#: model:ir.model.fields,field_description:od19_sales_project_context.field_od19_sale_order_pnl_analysis__margin_percent
+msgid "Margin %"
+msgstr "อัตรากำไร %"
+
+#. module: od19_sales_project_context
+#. odoo-python
+#: code:addons/od19_sales_project_context/models/sale_order_pnl_analysis.py:0
+msgid "No recognized revenue on the project yet."
+msgstr "ยังไม่มีการรับรู้รายได้ในโครงการนี้"
+
+#. module: od19_sales_project_context
+#: model:ir.model.fields,field_description:od19_sales_project_context.field_od19_sale_order_pnl_analysis__note
+msgid "Note"
+msgstr "หมายเหตุ"
+
+#. module: od19_sales_project_context
+#: model:ir.model.fields,field_description:od19_sales_project_context.field_sale_order__od19_project_id
+msgid "OD19 Project"
+msgstr "โครงการ"
+
+#. module: od19_sales_project_context
+#: model:ir.model.fields,field_description:od19_sales_project_context.field_sale_order__od19_sale_mode
+msgid "Od19 Sale Mode"
+msgstr "รูปแบบการขาย"
+
+#. module: od19_sales_project_context
+#: model:ir.model.fields.selection,name:od19_sales_project_context.selection__sale_order__od19_sale_mode__one_time
+msgid "One-time"
+msgstr "ครั้งเดียว"
+
+#. module: od19_sales_project_context
+#: model:ir.model.fields,field_description:od19_sales_project_context.field_od19_sale_order_pnl_analysis__project_id
+msgid "Project"
+msgstr "โปรเจกต์"
+
+#. module: od19_sales_project_context
+#: model:ir.model.fields,field_description:od19_sales_project_context.field_sale_order__od19_project_owner_id
+msgid "Project Owner"
+msgstr "เจ้าของโครงการ"
+
+#. module: od19_sales_project_context
+#: model:ir.actions.act_window,name:od19_sales_project_context.action_od19_sales_project
+#: model:ir.ui.menu,name:od19_sales_project_context.menu_od19_sales_project
+msgid "Projects"
+msgstr "โครงการ"
+
+#. module: od19_sales_project_context
+#: model:ir.model.fields,field_description:od19_sales_project_context.field_od19_sale_order_pnl_analysis__revenue
+msgid "Revenue"
+msgstr "รายได้"
+
+#. module: od19_sales_project_context
+#: model:ir.model.fields,field_description:od19_sales_project_context.field_od19_sale_order_pnl_analysis__sale_order_id
+msgid "Sale Order"
+msgstr "ใบสั่งขาย"
+
+#. module: od19_sales_project_context
+#: model:ir.model,name:od19_sales_project_context.model_od19_sale_order_pnl_analysis
+msgid "Sale Order Cost & Profit Analysis"
+msgstr "การวิเคราะห์ต้นทุนและกำไรของใบสั่งขาย"
+
+#. module: od19_sales_project_context
+#: model:ir.model,name:od19_sales_project_context.model_sale_order
+msgid "Sales Order"
+msgstr "คำสั่งขาย"
+
+#. module: od19_sales_project_context
+#. odoo-python
+#: code:addons/od19_sales_project_context/models/sale_order_pnl_analysis.py:0
+msgid "Select a project on the sale order to analyse cost and profit."
+msgstr "เลือกโครงการในใบสั่งขายเพื่อวิเคราะห์ต้นทุนและกำไร"
+
+#. module: od19_sales_project_context
+#. odoo-python
+#: code:addons/od19_sales_project_context/models/sale_order_pnl_analysis.py:0
+msgid ""
+"The project has no analytic account - cost and profit cannot be analysed."
+msgstr ""
+"โครงการนี้ไม่มีบัญชีวิเคราะห์ จึงไม่สามารถวิเคราะห์ต้นทุนและกำไรได้"
+
+#. module: od19_sales_project_context
+#: model:ir.model.fields,field_description:od19_sales_project_context.field_od19_sale_order_pnl_analysis__date_to
+msgid "To"
+msgstr "ถึง"
+
+#. module: od19_sales_project_context
+#: model:ir.model.fields,field_description:od19_sales_project_context.field_od19_sale_order_pnl_analysis__uncategorized_amount
+msgid "Uncategorized"
+msgstr "ไม่จัดหมวดหมู่"
+
+#. module: od19_sales_project_context
+#. odoo-python
+#: code:addons/od19_sales_project_context/models/sale_order_pnl_analysis.py:0
+msgid "Uncategorized amounts must be reviewed."
+msgstr "ต้องตรวจสอบรายการที่ไม่จัดหมวดหมู่"

@@ -1,0 +1,68 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* od19_project_analytic
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-21 11:07+0000\n"
+"PO-Revision-Date: 2026-10-21 11:07+0000\n"
+"Last-Translator: The Auto-Info Co., Ltd.\n"
+"Language-Team: Thai\n"
+"Language: th\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Auto-Info translation pipeline\n"
+
+#. module: od19_project_analytic
+#: model:ir.model.fields,field_description:od19_project_analytic.field_project_project__contractor_ids
+msgid "Contractors"
+msgstr "ผู้รับเหมา"
+
+#. module: od19_project_analytic
+#: model:ir.model.fields,field_description:od19_project_analytic.field_project_project__od19_department_id
+msgid "Department"
+msgstr "แผนก"
+
+#. module: od19_project_analytic
+#: model:ir.model.constraint,message:od19_project_analytic.constraint_project_project_job_no_unique
+msgid "Job Number must be unique."
+msgstr "เลขที่งานต้องไม่ซ้ำกัน"
+
+#. module: od19_project_analytic
+#: model:ir.model.fields,field_description:od19_project_analytic.field_project_project__job_no
+msgid "Job Number"
+msgstr "เลขที่งาน"
+
+#. module: od19_project_analytic
+#: model:ir.model.fields,help:od19_project_analytic.field_project_project__job_no
+msgid ""
+"Job number generated from department + project type + sales initials + year "
+"+ running number. Required at the UI level but optional at the model level "
+"so core modules (e.g. sale_project) can still create projects."
+msgstr ""
+"เลขที่งานสร้างจาก แผนก + ประเภทโครงการ + อักษรย่อพนักงานขาย + ปี + เลขรัน "
+"กำหนดเป็นฟิลด์บังคับในระดับหน้าจอ แต่ไม่บังคับในระดับโมเดล "
+"เพื่อให้โมดูลหลัก (เช่น sale_project) ยังสร้างโครงการได้"
+
+#. module: od19_project_analytic
+#: model:ir.model.fields,help:od19_project_analytic.field_project_project__od19_department_id
+msgid ""
+"Owning department. Drives the department-based document sequence and "
+"department-level reporting."
+msgstr ""
+"แผนกเจ้าของโครงการ ใช้กำหนดลำดับเลขที่เอกสารตามแผนก "
+"และการรายงานในระดับแผนก"
+
+#. module: od19_project_analytic
+#: model:ir.model.fields,field_description:od19_project_analytic.field_project_project__project_owner_id
+msgid "Project Owner"
+msgstr "เจ้าของโครงการ"
+
+#. module: od19_project_analytic
+#: model_terms:ir.ui.view,arch_db:od19_project_analytic.view_project_project_form_inherit_od19
+msgid "e.g. JOB-2026-001"
+msgstr "เช่น JOB-2026-001"

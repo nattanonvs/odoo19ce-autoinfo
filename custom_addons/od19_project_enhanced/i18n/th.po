@@ -1,0 +1,659 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* od19_project_enhanced
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-21 11:07+0000\n"
+"PO-Revision-Date: 2026-10-21 11:07+0000\n"
+"Last-Translator: The Auto-Info Co., Ltd.\n"
+"Language-Team: Thai\n"
+"Language: th\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Auto-Info translation pipeline\n"
+
+#. module: od19_project_enhanced
+#: model:ir.actions.report,print_report_name:od19_project_enhanced.action_report_job_assignment
+msgid "'Job Assignment - %s' % (object.job_no or object.name)"
+msgstr "'ใบมอบหมายงาน - %s' % (object.job_no or object.name)"
+
+#. module: od19_project_enhanced
+#: model:mail.template,body_html:od19_project_enhanced.mail_template_task_deadline_notification
+msgid ""
+"<div style=\"margin: 0px; padding: 0px;\">\n"
+"    <p>Dear <t t-esc=\"ctx.get('od19_recipient_name', '')\"/>,</p>\n"
+"    <p>\n"
+"        This is a friendly reminder that the task\n"
+"        <strong>{{ object.name }}</strong>\n"
+"        <t t-if=\"object.project_id\">\n"
+"            in project <strong>{{ object.project_id.name }}</strong>\n"
+"        </t>\n"
+"        has a deadline on\n"
+"        <strong>{{ object._get_deadline_formatted() }}</strong>.\n"
+"    </p>\n"
+"    <p>Please make sure the task is completed on time.</p>\n"
+"    <p>\n"
+"        Best regards,<br/>\n"
+"        {{ object.company_id.name or user.company_id.name }}\n"
+"    </p>\n"
+"</div>\n"
+"        "
+msgstr ""
+"<div style=\"margin: 0px; padding: 0px;\">\n"
+"    <p>เรียน <t t-esc=\"ctx.get('od19_recipient_name', '')\"/>,</p>\n"
+"    <p>\n"
+"        ขอแจ้งเตือนว่างาน\n"
+"        <strong>{{ object.name }}</strong>\n"
+"        <t t-if=\"object.project_id\">\n"
+"            ในโครงการ <strong>{{ object.project_id.name }}</strong>\n"
+"        </t>\n"
+"        มีกำหนดส่งในวันที่\n"
+"        <strong>{{ object._get_deadline_formatted() }}</strong>\n"
+"    </p>\n"
+"    <p>กรุณาดำเนินการให้งานเสร็จตามกำหนด</p>\n"
+"    <p>\n"
+"        ขอแสดงความนับถือ<br/>\n"
+"        {{ object.company_id.name or user.company_id.name }}\n"
+"    </p>\n"
+"</div>\n"
+"        "
+
+#. module: od19_project_enhanced
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.job_assignment_document
+msgid "<strong>ขอบเขตของงาน / Scope of Work</strong>"
+msgstr "<strong>ขอบเขตของงาน</strong>"
+
+#. module: od19_project_enhanced
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.job_assignment_document
+msgid "<strong>วันที่ / Date: </strong>"
+msgstr "<strong>วันที่: </strong>"
+
+#. module: od19_project_enhanced
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.job_assignment_document
+msgid "<strong>เลขที่งาน / Job No: </strong>"
+msgstr "<strong>เลขที่งาน: </strong>"
+
+#. module: od19_project_enhanced
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.job_assignment_document
+msgid "<strong>เอกสารที่ต้องส่งมอบ / Document Requirements</strong>"
+msgstr "<strong>เอกสารที่ต้องส่งมอบ</strong>"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_risk_report__actual_cost
+msgid "Actual Cost"
+msgstr "ต้นทุนจริง"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_pnl_report_line__analytic_account_id
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_risk_report__analytic_account_id
+msgid "Analytic Account"
+msgstr "บัญชีวิเคราะห์"
+
+#. module: od19_project_enhanced
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.view_project_project_form_inherit_od19_enhanced
+msgid "Assignment"
+msgstr "การมอบหมาย"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,help:od19_project_enhanced.field_project_project__od19_project_type_id
+msgid ""
+"Business category of the project. The operational Sale/Service/PM/Job type "
+"(od19_project_type) is set by od19_project_document_sequence; the owning "
+"department (od19_department_id) is defined by od19_project_analytic."
+msgstr ""
+"หมวดหมู่ทางธุรกิจของโครงการ ประเภทการดำเนินงาน Sale/Service/PM/Job "
+"(od19_project_type) ถูกกำหนดโดย od19_project_document_sequence "
+"ส่วนแผนกเจ้าของโครงการ (od19_department_id) กำหนดโดย od19_project_analytic"
+
+#. module: od19_project_enhanced
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.view_od19_project_pnl_report_wizard_form
+msgid "Cancel"
+msgstr "ยกเลิก"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_type__child_ids
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.view_od19_project_type_form
+msgid "Child Types"
+msgstr "ประเภทย่อย"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_risk_report__committed_cost
+msgid "Committed Cost"
+msgstr "ต้นทุนผูกพัน"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_pnl_report__company_ids
+msgid "Companies"
+msgstr "บริษัท"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_risk_report__company_id
+msgid "Company"
+msgstr "บริษัท"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_type__complete_name
+msgid "Complete Name"
+msgstr "ชื่อแบบเต็ม"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_risk_report__contract_amount
+msgid "Contract Amount"
+msgstr "มูลค่าสัญญา"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_project_project__od19_coordinator_ids
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.view_project_project_form_inherit_od19_enhanced
+msgid "Coordinators"
+msgstr "ผู้ประสานงาน"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_pnl_report_line__cost
+msgid "Cost"
+msgstr "ต้นทุน"
+
+#. module: od19_project_enhanced
+#: model:ir.model,website_form_label:od19_project_enhanced.model_project_task
+msgid "Create a Task"
+msgstr "สร้างงาน"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_pnl_report__create_uid
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_pnl_report_line__create_uid
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_type__create_uid
+msgid "Created by"
+msgstr "สร้างโดย"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_pnl_report__create_date
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_pnl_report_line__create_date
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_type__create_date
+msgid "Created on"
+msgstr "สร้างเมื่อ"
+
+#. module: od19_project_enhanced
+#: model_terms:ir.actions.act_window,help:od19_project_enhanced.action_od19_project_type
+msgid "Define your project types"
+msgstr "กำหนดประเภทโครงการของคุณ"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_pnl_report__display_name
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_pnl_report_line__display_name
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_risk_report__display_name
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_type__display_name
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_project_project__display_name
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_project_task__display_name
+msgid "Display Name"
+msgstr "ชื่อที่แสดง"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_project_project__od19_document_requirements
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.view_project_project_form_inherit_od19_enhanced
+msgid "Document Requirements"
+msgstr "เอกสารที่ต้องส่งมอบ"
+
+#. module: od19_project_enhanced
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.view_project_project_form_inherit_od19_enhanced
+msgid "Documents"
+msgstr "เอกสาร"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_pnl_report__date_from
+msgid "From"
+msgstr "จาก"
+
+#. module: od19_project_enhanced
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.view_od19_project_pnl_report_wizard_form
+msgid "Generate"
+msgstr "สร้าง"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_pnl_report_line__gross_margin
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_risk_report__gross_margin
+msgid "Gross Margin"
+msgstr "กำไรขั้นต้น"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_pnl_report_line__has_analytic
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_risk_report__has_analytic
+msgid "Has Analytic Account"
+msgstr "มีบัญชีวิเคราะห์"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields.selection,name:od19_project_enhanced.selection__od19_project_risk_report__risk_level__high
+msgid "High"
+msgstr "สูง"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_pnl_report__id
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_pnl_report_line__id
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_risk_report__id
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_type__id
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_project_project__id
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_project_task__id
+msgid "ID"
+msgstr "ID"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,help:od19_project_enhanced.field_od19_project_type__project_ok
+msgid "If checked, this type can be selected on projects."
+msgstr "หากเลือก ประเภทนี้จะสามารถเลือกใช้กับโครงการได้"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,help:od19_project_enhanced.field_od19_project_type__task_ok
+msgid "If checked, this type can be selected on tasks."
+msgstr "หากเลือก ประเภทนี้จะสามารถเลือกใช้กับงานได้"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_risk_report__invoiced_amount
+msgid "Invoiced Amount"
+msgstr "มูลค่าที่ออกใบแจ้งหนี้แล้ว"
+
+#. module: od19_project_enhanced
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.job_assignment_document
+msgid "JOB ASSIGNMENT"
+msgstr "ใบมอบหมายงาน"
+
+#. module: od19_project_enhanced
+#: model:ir.actions.report,name:od19_project_enhanced.action_report_job_assignment
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.view_project_project_form_inherit_od19_enhanced
+msgid "Job Assignment"
+msgstr "ใบมอบหมายงาน"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_pnl_report__write_uid
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_pnl_report_line__write_uid
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_type__write_uid
+msgid "Last Updated by"
+msgstr "แก้ไขล่าสุดโดย"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_pnl_report__write_date
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_pnl_report_line__write_date
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_type__write_date
+msgid "Last Updated on"
+msgstr "แก้ไขล่าสุดเมื่อ"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,help:od19_project_enhanced.field_od19_project_pnl_report__project_ids
+msgid "Leave empty to process every project."
+msgstr "เว้นว่างเพื่อประมวลผลทุกโครงการ"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields.selection,name:od19_project_enhanced.selection__od19_project_risk_report__risk_level__low
+msgid "Low"
+msgstr "ต่ำ"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_pnl_report_line__margin_percent
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_risk_report__margin_percent
+msgid "Margin %"
+msgstr "อัตรากำไร %"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields.selection,name:od19_project_enhanced.selection__od19_project_risk_report__risk_level__medium
+msgid "Medium"
+msgstr "ปานกลาง"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_type__name
+msgid "Name"
+msgstr "ชื่อ"
+
+#. module: od19_project_enhanced
+#. odoo-python
+#: code:addons/od19_project_enhanced/models/project_pnl_report.py:0
+#: code:addons/od19_project_enhanced/models/project_risk_report.py:0
+msgid "No analytic account - P&L shows 0."
+msgstr "ไม่มีบัญชีวิเคราะห์ - กำไรขาดทุนแสดงเป็น 0"
+
+#. module: od19_project_enhanced
+#: model_terms:ir.actions.act_window,help:od19_project_enhanced.action_od19_project_risk_report
+msgid "No project risk data available yet."
+msgstr "ยังไม่มีข้อมูลความเสี่ยงของโครงการ"
+
+#. module: od19_project_enhanced
+#. odoo-python
+#: code:addons/od19_project_enhanced/models/project_risk_report.py:0
+msgid "No recognized revenue in the analytic lines yet."
+msgstr "ยังไม่มีการรับรู้รายได้ในรายการบัญชีวิเคราะห์"
+
+#. module: od19_project_enhanced
+#. odoo-python
+#: code:addons/od19_project_enhanced/models/project_pnl_report.py:0
+msgid "No recognized revenue yet."
+msgstr "ยังไม่มีการรับรู้รายได้"
+
+#. module: od19_project_enhanced
+#: model:ir.model,name:od19_project_enhanced.model_od19_project_risk_report
+msgid "OD19 Project Risk Report"
+msgstr "รายงานความเสี่ยงโครงการ"
+
+#. module: od19_project_enhanced
+#: model:ir.actions.server,name:od19_project_enhanced.ir_cron_task_deadline_notification_ir_actions_server
+#: model:mail.template,name:od19_project_enhanced.mail_template_task_deadline_notification
+msgid "OD19 Project Task Deadline Notification"
+msgstr "แจ้งเตือนกำหนดส่งงานโครงการ"
+
+#. module: od19_project_enhanced
+#: model:ir.model,name:od19_project_enhanced.model_od19_project_type
+msgid "OD19 Project Type"
+msgstr "ประเภทโครงการ"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_risk_report__overdue_ar
+msgid "Overdue AR"
+msgstr "ลูกหนี้ค้างชำระ"
+
+#. module: od19_project_enhanced
+#: model:ir.ui.menu,name:od19_project_enhanced.menu_od19_project_pnl_report
+msgid "P&L Report"
+msgstr "รายงานกำไรขาดทุน"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_risk_report__pnl_warning
+msgid "P&L Warning"
+msgstr "คำเตือนกำไรขาดทุน"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_type__parent_path
+msgid "Parent Path"
+msgstr "เส้นทางหลัก"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_type__parent_id
+msgid "Parent Type"
+msgstr "ประเภทหลัก"
+
+#. module: od19_project_enhanced
+#: model:ir.model,name:od19_project_enhanced.model_project_project
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_pnl_report_line__project_id
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_risk_report__project_id
+msgid "Project"
+msgstr "โปรเจกต์"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_project_project__od19_project_type_id
+msgid "Project Category"
+msgstr "หมวดหมู่โครงการ"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_risk_report__project_name
+msgid "Project Name"
+msgstr "ชื่อโครงการ"
+
+#. module: od19_project_enhanced
+#. odoo-python
+#: code:addons/od19_project_enhanced/models/project_pnl_report.py:0
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.view_od19_project_pnl_report_line_tree
+msgid "Project P&L"
+msgstr "กำไรขาดทุนโครงการ"
+
+#. module: od19_project_enhanced
+#: model:ir.actions.act_window,name:od19_project_enhanced.action_od19_project_pnl_report
+#: model:ir.model,name:od19_project_enhanced.model_od19_project_pnl_report
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.view_od19_project_pnl_report_wizard_form
+msgid "Project P&L Report"
+msgstr "รายงานกำไรขาดทุนโครงการ"
+
+#. module: od19_project_enhanced
+#: model:ir.model,name:od19_project_enhanced.model_od19_project_pnl_report_line
+msgid "Project P&L Report Line"
+msgstr "รายการรายงานกำไรขาดทุนโครงการ"
+
+#. module: od19_project_enhanced
+#: model:ir.actions.act_window,name:od19_project_enhanced.action_od19_project_risk_report
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.view_od19_project_risk_report_graph
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.view_od19_project_risk_report_pivot
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.view_od19_project_risk_report_tree
+msgid "Project Risk Report"
+msgstr "รายงานความเสี่ยงโครงการ"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_project_task__od19_project_type_id
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.view_od19_project_type_form
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.view_project_task_form_inherit_od19_enhanced
+msgid "Project Type"
+msgstr "ประเภทโครงการ"
+
+#. module: od19_project_enhanced
+#: model:ir.actions.act_window,name:od19_project_enhanced.action_od19_project_type
+#: model:ir.ui.menu,name:od19_project_enhanced.menu_od19_project_type
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.view_od19_project_type_tree
+msgid "Project Types"
+msgstr "ประเภทโครงการ"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_pnl_report__project_ids
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.view_project_project_kpi_list
+msgid "Projects"
+msgstr "โครงการ"
+
+#. module: od19_project_enhanced
+#: model:ir.actions.act_window,name:od19_project_enhanced.action_od19_project_without_analytic
+#: model:ir.ui.menu,name:od19_project_enhanced.menu_od19_project_without_analytic
+msgid "Projects without Analytic Account"
+msgstr "โครงการที่ไม่มีบัญชีวิเคราะห์"
+
+#. module: od19_project_enhanced
+#: model:ir.actions.act_window,name:od19_project_enhanced.action_od19_project_without_job_no
+#: model:ir.ui.menu,name:od19_project_enhanced.menu_od19_project_without_job_no
+msgid "Projects without Job Number"
+msgstr "โครงการที่ไม่มีเลขที่งาน"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_project_project__od19_responsible_person_ids
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.view_project_project_form_inherit_od19_enhanced
+msgid "Responsible Persons"
+msgstr "ผู้รับผิดชอบ"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_pnl_report__line_ids
+msgid "Results"
+msgstr "ผลลัพธ์"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_pnl_report_line__revenue
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_risk_report__revenue
+msgid "Revenue"
+msgstr "รายได้"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_risk_report__risk_level
+msgid "Risk Level"
+msgstr "ระดับความเสี่ยง"
+
+#. module: od19_project_enhanced
+#: model:ir.ui.menu,name:od19_project_enhanced.menu_od19_project_risk_report
+msgid "Risk Report"
+msgstr "รายงานความเสี่ยง"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_risk_report__risk_score
+msgid "Risk Score"
+msgstr "คะแนนความเสี่ยง"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_project_project__od19_scope_of_work
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.view_project_project_form_inherit_od19_enhanced
+msgid "Scope of Work"
+msgstr "ขอบเขตของงาน"
+
+#. module: od19_project_enhanced
+#: model:ir.model,name:od19_project_enhanced.model_project_task
+msgid "Task"
+msgstr "งาน"
+
+#. module: od19_project_enhanced
+#: model:mail.template,subject:od19_project_enhanced.mail_template_task_deadline_notification
+msgid "Task Deadline Reminder: {{ object.name }}"
+msgstr "แจ้งเตือนกำหนดส่งงาน: {{ object.name }}"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_pnl_report__date_to
+msgid "To"
+msgstr "ถึง"
+
+#. module: od19_project_enhanced
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.view_od19_project_pnl_report_line_tree
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.view_od19_project_risk_report_tree
+msgid "Total"
+msgstr "รวม"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_pnl_report_line__uncategorized_amount
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_risk_report__uncategorized_amount
+msgid "Uncategorized"
+msgstr "ไม่จัดหมวดหมู่"
+
+#. module: od19_project_enhanced
+#. odoo-python
+#: code:addons/od19_project_enhanced/models/project_pnl_report.py:0
+msgid "Uncategorized amounts must be reviewed."
+msgstr "ต้องตรวจสอบรายการที่ไม่จัดหมวดหมู่"
+
+#. module: od19_project_enhanced
+#. odoo-python
+#: code:addons/od19_project_enhanced/models/project_risk_report.py:0
+msgid "Uncategorized analytic amounts must be reviewed."
+msgstr "ต้องตรวจสอบรายการบัญชีวิเคราะห์ที่ไม่จัดหมวดหมู่"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_type__project_ok
+msgid "Usable on Projects"
+msgstr "ใช้ได้กับโครงการ"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_type__task_ok
+msgid "Usable on Tasks"
+msgstr "ใช้ได้กับงาน"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,help:od19_project_enhanced.field_project_task__display_name
+msgid ""
+"Use these keywords in the title to set new tasks:\n"
+"\n"
+"            #tags Set tags on the task\n"
+"            @user Assign the task to a user\n"
+"            ! Set the task a medium priority\n"
+"            !! Set the task a high priority\n"
+"            !!! Set the task a urgent priority\n"
+"\n"
+"            Make sure to use the right format and order e.g. Improve the configuration screen #feature #v16 @Mitchell !"
+msgstr ""
+"ใช้คีย์เวิร์ดเหล่านี้ในชื่อเรื่องเพื่อกำหนดงานใหม่:\n"
+"\n"
+"            #tags กำหนดแท็กให้งาน\n"
+"            @user มอบหมายงานให้ผู้ใช้\n"
+"            ! กำหนดงานให้มีความสำคัญปานกลาง\n"
+"            !! กำหนดงานให้มีความสำคัญสูง\n"
+"            !!! กำหนดงานให้มีความสำคัญเร่งด่วน\n"
+"\n"
+"            ตรวจสอบให้แน่ใจว่าใช้รูปแบบและลำดับที่ถูกต้อง เช่น Improve the configuration screen #feature #v16 @Mitchell !"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_pnl_report_line__warning
+msgid "Warning"
+msgstr "คำเตือน"
+
+#. module: od19_project_enhanced
+#: model:ir.model.fields,field_description:od19_project_enhanced.field_od19_project_pnl_report_line__wizard_id
+msgid "Wizard"
+msgstr "วิซาร์ด"
+
+#. module: od19_project_enhanced
+#. odoo-python
+#: code:addons/od19_project_enhanced/models/project_task.py:0
+msgid ""
+"You cannot move task '%(task)s' backward from stage '%(old)s' (sequence "
+"%(old_seq)s) to '%(new)s' (sequence %(new_seq)s). Only administrators can "
+"perform this action."
+msgstr ""
+"ไม่สามารถย้ายงาน '%(task)s' ย้อนกลับจากขั้น '%(old)s' (ลำดับ %(old_seq)s) "
+"ไปยัง '%(new)s' (ลำดับ %(new_seq)s) ได้ เฉพาะผู้ดูแลระบบเท่านั้นที่ทำรายการนี้ได้"
+
+#. module: od19_project_enhanced
+#. odoo-python
+#: code:addons/od19_project_enhanced/models/project_pnl_report.py:0
+msgid "id"
+msgstr "id"
+
+#. module: od19_project_enhanced
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.job_assignment_document
+msgid "กำหนดเสร็จ / Deadline"
+msgstr "กำหนดเสร็จ"
+
+#. module: od19_project_enhanced
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.job_assignment_document
+msgid "ชื่อโครงการ / Project"
+msgstr "ชื่อโครงการ"
+
+#. module: od19_project_enhanced
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.job_assignment_document
+msgid "บัญชีวิเคราะห์ / Analytic Account"
+msgstr "บัญชีวิเคราะห์"
+
+#. module: od19_project_enhanced
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.job_assignment_document
+msgid "ประเภทโครงการ / Category"
+msgstr "ประเภทโครงการ"
+
+#. module: od19_project_enhanced
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.job_assignment_document
+msgid "ผู้ประสานงาน / Coordinators"
+msgstr "ผู้ประสานงาน"
+
+#. module: od19_project_enhanced
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.job_assignment_document
+msgid "ผู้มอบหมาย / Assigned by"
+msgstr "ผู้มอบหมาย"
+
+#. module: od19_project_enhanced
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.job_assignment_document
+msgid "ผู้รับผิดชอบ / Responsible Persons"
+msgstr "ผู้รับผิดชอบ"
+
+#. module: od19_project_enhanced
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.job_assignment_document
+msgid "ผู้รับมอบหมาย / Accepted by"
+msgstr "ผู้รับมอบหมาย"
+
+#. module: od19_project_enhanced
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.job_assignment_document
+msgid "ผู้รับเหมา / Contractors"
+msgstr "ผู้รับเหมา"
+
+#. module: od19_project_enhanced
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.job_assignment_document
+msgid "ผู้อนุมัติ / Approved by"
+msgstr "ผู้อนุมัติ"
+
+#. module: od19_project_enhanced
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.job_assignment_document
+msgid "ผู้เป็นเจ้าของโครงการ / Project Owner"
+msgstr "ผู้เป็นเจ้าของโครงการ"
+
+#. module: od19_project_enhanced
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.job_assignment_document
+msgid "ลูกค้า / Customer"
+msgstr "ลูกค้า"
+
+#. module: od19_project_enhanced
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.job_assignment_document
+msgid "แผนก / Department"
+msgstr "แผนก"
+
+#. module: od19_project_enhanced
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.job_assignment_document
+msgid "ใบมอบหมายงาน"
+msgstr "ใบมอบหมายงาน"
+
+#. module: od19_project_enhanced
+#: model_terms:ir.ui.view,arch_db:od19_project_enhanced.job_assignment_document
+msgid "ใบสั่งขาย / Sales Order"
+msgstr "ใบสั่งขาย"
