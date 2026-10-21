@@ -20,12 +20,13 @@ class PurchaseRequest(models.Model):
         required=True,
         tracking=True,
     )
-    od19_requested_department_id = fields.Many2one(
+    department_id = fields.Many2one(
         comodel_name="hr.department",
         string="หน่วยงานที่ขอ / Requesting Department",
-        compute="_compute_od19_requested_department_id",
+        compute="_compute_department_id",
         store=True,
         readonly=False,
+        index=True,
         tracking=True,
     )
     od19_budget_year = fields.Char(
@@ -44,6 +45,15 @@ class PurchaseRequest(models.Model):
         compute="_compute_od19_justification_required",
     )
 
+    @api.model
+    def default_get(self, fields_list):
+        res = super().default_get(fields_list)
+        if not res.get("department_id"):
+            user = self.env["res.users"].browse(self.env.uid)
+            if user.employee_id and user.employee_id.department_id:
+                res["department_id"] = user.employee_id.department_id.id
+        return res
+
     @api.depends("od19_priority")
     def _compute_od19_justification_required(self):
         for rec in self:
@@ -53,14 +63,12 @@ class PurchaseRequest(models.Model):
             )
 
     @api.depends("requested_by")
-    def _compute_od19_requested_department_id(self):
+    def _compute_department_id(self):
         for rec in self:
             if rec.requested_by and rec.requested_by.employee_id:
-                rec.od19_requested_department_id = (
-                    rec.requested_by.employee_id.department_id
-                )
+                rec.department_id = rec.requested_by.employee_id.department_id
             else:
-                rec.od19_requested_department_id = False
+                rec.department_id = False
 
     def button_to_approve(self):
         for rec in self:

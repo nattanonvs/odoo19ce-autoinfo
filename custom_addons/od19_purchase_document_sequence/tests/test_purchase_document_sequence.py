@@ -46,3 +46,30 @@ class TestPurchaseDocumentSequence(TransactionCase):
         })
         # No department set, should return False
         self.assertFalse(order._get_purchase_sequence())
+
+    def test_purchase_request_uses_department_sequence(self):
+        sequence = self.env["ir.sequence"].create({
+            "name": "Test PR Dept Sequence",
+            "code": "purchase.request.test.dept",
+            "prefix": "PRT-",
+            "padding": 4,
+        })
+        department = self.env["hr.department"].create({
+            "name": "Test PR Seq Dept",
+            "od19_dept_code": "T",
+            "pr_sequence_id": sequence.id,
+        })
+        request = self.env["purchase.request"].create({
+            "department_id": department.id,
+        })
+        self.assertTrue(request.name.startswith("PRT-"))
+
+    def test_purchase_request_without_department_sequence_keeps_new(self):
+        department = self.env["hr.department"].create({
+            "name": "Test PR No Seq Dept",
+            "od19_dept_code": "N",
+        })
+        request = self.env["purchase.request"].create({
+            "department_id": department.id,
+        })
+        self.assertEqual(request.name, "New")

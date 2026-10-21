@@ -20,7 +20,6 @@ Each department can have its own Purchase Request and Purchase Order sequence
     "data": [
         "data/ir_sequence_data.xml",
         "views/hr_department_views.xml",
-        "views/purchase_request_views.xml",
         "views/purchase_order_views.xml",
     ],
     "installable": True,

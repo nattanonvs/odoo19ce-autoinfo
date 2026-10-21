@@ -2,6 +2,8 @@
 <odoo>
     <record id="group_purchase_director" model="res.groups">
         <field name="name">Purchase Director</field>
+        <field name="sequence">30</field>
+        <field name="privilege_id" ref="purchase.res_groups_privilege_purchase"/>
         <field name="implied_ids" eval="[(4, ref('purchase.group_purchase_manager'))]"/>
         <field name="comment">Can approve purchase orders above the director threshold.</field>
     </record>

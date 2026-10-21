@@ -10,7 +10,7 @@
             <xpath expr="//group[1]" position="inside">
                 <group string="Thai Info (OD19)">
                     <field name="od19_priority"/>
-                    <field name="od19_requested_department_id"/>
+                    <field name="department_id"/>
                     <field name="od19_budget_year"/>
                     <field name="od19_issue_id"/>
                 </group>
@@ -37,7 +37,7 @@
                 <field name="od19_priority" widget="badge"
                        decoration-danger="od19_priority == 'emergency'"
                        decoration-warning="od19_priority == 'urgent'"/>
-                <field name="od19_requested_department_id" optional="hide"/>
+                <field name="department_id" optional="hide"/>
             </xpath>
         </field>
     </record>
@@ -50,7 +50,7 @@
         <field name="arch" type="xml">
             <xpath expr="//search" position="inside">
                 <field name="od19_priority"/>
-                <field name="od19_requested_department_id"/>
+                <field name="department_id"/>
                 <field name="od19_budget_year"/>
                 <separator/>
                 <filter string="ด่วนพิเศษ / Emergency" name="filter_emergency"
@@ -64,7 +64,7 @@
                 <filter name="group_od19_priority" string="Priority" icon="fa-bolt"
                         domain="[]" context="{'group_by':'od19_priority'}"/>
                 <filter name="group_od19_department" string="Department" icon="fa-building"
-                        domain="[]" context="{'group_by':'od19_requested_department_id'}"/>
+                        domain="[]" context="{'group_by':'department_id'}"/>
             </xpath>
         </field>
     </record>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Print the combined OD19 purchase terms on the purchase order report.
+        The block is inserted right after the total summary so it appears
+        before the note and payment term sections.
+    -->
+    <template id="report_purchaseorder_document_od19_terms"
+              inherit_id="purchase.report_purchaseorder_document">
+        <xpath expr="//div[@id='total']" position="after">
+            <div t-if="o.od19_terms_text" class="mt-4" name="od19_purchase_terms">
+                <h5 class="mb-2">เงื่อนไขการสั่งซื้อ / Terms &amp; Conditions</h5>
+                <div style="white-space: pre-line; text-align: justify;">
+                    <t t-out="o.od19_terms_text"/>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+</odoo>

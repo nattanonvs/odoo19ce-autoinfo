@@ -4,22 +4,6 @@ from odoo import api, fields, models
 class PurchaseRequest(models.Model):
     _inherit = "purchase.request"
 
-    department_id = fields.Many2one(
-        comodel_name="hr.department",
-        string="Department",
-        tracking=True,
-        index=True,
-    )
-
-    @api.model
-    def default_get(self, fields_list):
-        res = super().default_get(fields_list)
-        if "department_id" not in res or not res.get("department_id"):
-            user = self.env["res.users"].browse(self.env.uid)
-            if user.employee_id and user.employee_id.department_id:
-                res["department_id"] = user.employee_id.department_id.id
-        return res
-
     @api.model
     def create(self, vals):
         if vals.get("name", "New") == "New":

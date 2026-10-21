@@ -49,6 +49,40 @@ class TestPurchaseRequestExtend(TransactionCase):
         self.assertEqual(request.od19_request_reason, "Machine breakdown")
 
     # ------------------------------------------------------------------
+    # department_id (canonical field merged from former
+    # od19_requested_department_id)
+    # ------------------------------------------------------------------
+    def _create_user_with_department(self, login, department):
+        user = self.env["res.users"].create({"name": login, "login": login})
+        self.env["hr.employee"].create(
+            {
+                "name": login,
+                "user_id": user.id,
+                "department_id": department.id,
+            }
+        )
+        return user
+
+    def test_department_is_editable(self):
+        request = self._create_request()
+        department = self.env["hr.department"].create({"name": "Manual Dept C6"})
+        request.department_id = department
+        self.assertEqual(request.department_id, department)
+
+    def test_department_computed_from_requested_by(self):
+        department = self.env["hr.department"].create({"name": "Test PR Dept"})
+        user = self._create_user_with_department("pr_requester_c6", department)
+        request = self._create_request()
+        request.requested_by = user
+        self.assertEqual(request.department_id, department)
+
+    def test_default_get_department_from_user_employee(self):
+        department = self.env["hr.department"].create({"name": "Default Dept C6"})
+        user = self._create_user_with_department("default_dept_user_c6", department)
+        defaults = self.Request.with_user(user).default_get(["department_id"])
+        self.assertEqual(defaults.get("department_id"), department.id)
+
+    # ------------------------------------------------------------------
     # button_to_approve guard
     # ------------------------------------------------------------------
     def test_button_to_approve_urgent_without_reason_raises(self):

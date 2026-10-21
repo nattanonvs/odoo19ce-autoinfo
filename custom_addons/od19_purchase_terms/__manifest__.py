@@ -20,6 +20,7 @@ This consolidates the five separate master report models into a single
         "security/ir.model.access.csv",
         "views/purchase_term_template_views.xml",
         "views/purchase_order_views.xml",
+        "report/purchase_order_report.xml",
     ],
     "installable": True,
     "license": "LGPL-3",
