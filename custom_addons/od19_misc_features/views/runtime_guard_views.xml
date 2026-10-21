@@ -44,7 +44,7 @@
     <record id="action_od19_runtime_guard" model="ir.actions.act_window">
         <field name="name">Runtime Guard Snapshots</field>
         <field name="res_model">od19.runtime.guard</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 No runtime snapshot yet.
