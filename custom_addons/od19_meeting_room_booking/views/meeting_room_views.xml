@@ -51,7 +51,7 @@
                         </group>
                     </group>
                     <group>
-                        <field name="booking_policy" placeholder="Room-specific rules or approval conditions..."/>
+                        <field name="booking_policy" placeholder="Room-specific rules or usage notes..."/>
                     </group>
                     <notebook>
                         <page string="Notes">
@@ -83,7 +83,7 @@
                 <filter string="Available" name="available" domain="[('availability_state', '=', 'available')]"/>
                 <filter string="Reserved" name="reserved" domain="[('availability_state', '=', 'reserved')]"/>
                 <filter string="In Use" name="in_use" domain="[('availability_state', '=', 'in_use')]"/>
-                <group name="group_by" domain="[]">
+                <group name="group_by">
                     <filter string="Building" name="group_building" context="{'group_by': 'building'}"/>
                     <filter string="Floor" name="group_floor" context="{'group_by': 'floor'}"/>
                 </group>

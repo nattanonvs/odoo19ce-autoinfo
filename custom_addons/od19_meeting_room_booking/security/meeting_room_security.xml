@@ -15,7 +15,7 @@
 
     <record id="group_meeting_room_manager" model="res.groups">
         <field name="name">Meeting Room Manager</field>
-        <field name="comment">Manage room master data and approve bookings.</field>
+        <field name="comment">Maintain the room catalog and manage all bookings.</field>
         <field name="privilege_id" ref="res_groups_privilege_meeting_room_booking"/>
         <field name="implied_ids" eval="[Command.link(ref('group_meeting_room_user'))]"/>
     </record>

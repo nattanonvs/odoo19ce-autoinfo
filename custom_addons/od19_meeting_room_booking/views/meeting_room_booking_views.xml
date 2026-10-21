@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Default view: calendar, so a user just picks a slot and saves. -->
     <record id="view_meeting_room_booking_calendar" model="ir.ui.view">
         <field name="name">od19.meeting.room.booking.calendar</field>
         <field name="model">od19.meeting.room.booking</field>
@@ -8,7 +9,8 @@
                       date_start="start_datetime"
                       date_stop="end_datetime"
                       color="room_id"
-                      mode="week">
+                      mode="week"
+                      quick_create="false">
                 <field name="name"/>
                 <field name="room_id"/>
                 <field name="organizer_id"/>
@@ -23,19 +25,17 @@
         <field name="model">od19.meeting.room.booking</field>
         <field name="arch" type="xml">
             <list>
-                <field name="reference"/>
+                <field name="start_datetime"/>
+                <field name="end_datetime"/>
                 <field name="name"/>
                 <field name="room_id"/>
                 <field name="organizer_id"/>
                 <field name="participant_count"/>
-                <field name="start_datetime"/>
-                <field name="end_datetime"/>
                 <field name="state" widget="badge"
-                       decoration-info="state == 'draft'"
-                       decoration-warning="state == 'submitted'"
-                       decoration-primary="state in ('approved', 'in_use')"
+                       decoration-info="state == 'booked'"
+                       decoration-warning="state == 'in_use'"
                        decoration-success="state == 'done'"
-                       decoration-danger="state in ('rejected', 'cancelled')"/>
+                       decoration-danger="state == 'cancelled'"/>
             </list>
         </field>
     </record>
@@ -46,24 +46,16 @@
         <field name="arch" type="xml">
             <form string="Meeting Room Booking">
                 <header>
-                    <button name="action_submit" string="Submit" type="object"
-                            class="btn-primary" invisible="state != 'draft'"/>
-                    <button name="action_approve" string="Approve" type="object"
-                            class="btn-primary" groups="od19_meeting_room_booking.group_meeting_room_manager"
-                            invisible="state != 'submitted'"/>
-                    <button name="action_reject" string="Reject" type="object"
-                            groups="od19_meeting_room_booking.group_meeting_room_manager"
-                            invisible="state != 'submitted'"/>
                     <button name="action_start_meeting" string="Start Meeting" type="object"
-                            invisible="state != 'approved'"/>
-                    <button name="action_complete" string="Complete" type="object"
-                            invisible="state not in ('approved', 'in_use')"/>
-                    <button name="action_cancel" string="Cancel" type="object"
-                            invisible="state in ('done', 'rejected', 'cancelled')"/>
-                    <button name="action_reset_draft" string="Reset to Draft" type="object"
-                            invisible="state not in ('rejected', 'cancelled')"/>
+                            class="btn-primary" invisible="state != 'booked'"/>
+                    <button name="action_complete" string="Finish" type="object"
+                            class="btn-primary" invisible="state != 'in_use'"/>
+                    <button name="action_cancel" string="Cancel Booking" type="object"
+                            invisible="state in ('done', 'cancelled')"/>
+                    <button name="action_reopen" string="Reopen" type="object"
+                            invisible="state not in ('done', 'cancelled')"/>
                     <field name="state" widget="statusbar"
-                           statusbar_visible="draft,submitted,approved,in_use,done"/>
+                           statusbar_visible="booked,in_use,done"/>
                 </header>
                 <sheet>
                     <div class="oe_title">
@@ -81,8 +73,6 @@
                             <field name="start_datetime"/>
                             <field name="end_datetime"/>
                             <field name="duration_hours" readonly="1"/>
-                            <field name="approved_by" readonly="1" invisible="not approved_by"/>
-                            <field name="approved_on" readonly="1" invisible="not approved_on"/>
                         </group>
                     </group>
                     <notebook>
@@ -90,9 +80,6 @@
                             <field name="purpose" placeholder="What is this meeting for?"/>
                             <field name="attendee_summary" placeholder="Teams, guests, or important attendees..."/>
                             <field name="equipment_request" placeholder="Projector, VC, whiteboard, refreshments, etc."/>
-                        </page>
-                        <page string="Approval Notes">
-                            <field name="approval_note" placeholder="Internal approval notes or conditions..."/>
                         </page>
                     </notebook>
                 </sheet>
@@ -115,17 +102,19 @@
                 <field name="room_id"/>
                 <field name="organizer_id"/>
                 <field name="start_datetime"/>
-                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
-                <filter string="Pending Approval" name="submitted" domain="[('state', '=', 'submitted')]"/>
-                <filter string="Approved" name="approved" domain="[('state', '=', 'approved')]"/>
+                <filter string="Booked" name="booked" domain="[('state', '=', 'booked')]"/>
                 <filter string="In Use" name="in_use" domain="[('state', '=', 'in_use')]"/>
                 <filter string="Done" name="done" domain="[('state', '=', 'done')]"/>
+                <filter string="Cancelled" name="cancelled" domain="[('state', '=', 'cancelled')]"/>
+                <separator/>
                 <filter string="Today" name="today"
                         domain="[('start_datetime', '&gt;=', context_today()), ('start_datetime', '&lt;', context_today() + relativedelta(days=1))]"/>
-                <group name="group_by" domain="[]">
+                <filter string="Upcoming" name="upcoming"
+                        domain="[('start_datetime', '&gt;=', context_today())]"/>
+                <group name="group_by">
                     <filter string="Room" name="group_room" context="{'group_by': 'room_id'}"/>
                     <filter string="Organizer" name="group_organizer" context="{'group_by': 'organizer_id'}"/>
-                    <filter string="State" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
                 </group>
             </search>
         </field>
@@ -136,11 +125,7 @@
         <field name="res_model">od19.meeting.room.booking</field>
         <field name="view_mode">calendar,list,form</field>
         <field name="search_view_id" ref="view_meeting_room_booking_search"/>
-        <field name="context">{'search_default_today': 1}</field>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                Plan, approve, and follow up meeting room bookings.
-            </p>
-        </field>
+        <field name="context">{'search_default_upcoming': 1}</field>
+        <field name="help" type="html"><p class="o_view_nocontent_smiling_face">Pick a room and a time slot, then save — your booking is confirmed right away.</p></field>
     </record>
 </odoo>

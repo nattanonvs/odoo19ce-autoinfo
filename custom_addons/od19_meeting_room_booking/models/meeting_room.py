@@ -42,6 +42,7 @@ class MeetingRoom(models.Model):
             ("in_use", "In Use"),
         ],
         compute="_compute_availability_state",
+        search="_search_availability_state",
     )
 
     @api.depends("booking_ids")
@@ -63,7 +64,7 @@ class MeetingRoom(models.Model):
             active_booking = Booking.search(
                 [
                     ("room_id", "=", room.id),
-                    ("state", "not in", ("draft", "cancelled", "rejected", "done")),
+                    ("state", "in", ("booked", "in_use")),
                     ("start_datetime", "<=", now),
                     ("end_datetime", ">", now),
                 ],
@@ -72,7 +73,7 @@ class MeetingRoom(models.Model):
             future_booking = Booking.search(
                 [
                     ("room_id", "=", room.id),
-                    ("state", "in", ("submitted", "approved")),
+                    ("state", "=", "booked"),
                     ("start_datetime", ">", now),
                 ],
                 limit=1,
@@ -83,6 +84,47 @@ class MeetingRoom(models.Model):
                 room.availability_state = "reserved"
             else:
                 room.availability_state = "available"
+
+    @api.model
+    def _search_availability_state(self, operator, value):
+        """Make the computed ``availability_state`` usable inside search domains."""
+        if operator in ("in", "not in"):
+            values = list(value or [])
+        else:
+            values = [value]
+        matching = self.env["od19.meeting.room"].search([]).filtered(
+            lambda room: room.availability_state in values
+        )
+        if operator in ("!=", "not in"):
+            return [("id", "not in", matching.ids)]
+        return [("id", "in", matching.ids)]
+
+    def _od19_current_booking(self):
+        """Return the booking that currently occupies the room, if any."""
+        self.ensure_one()
+        now = fields.Datetime.now()
+        return self.env["od19.meeting.room.booking"].search(
+            [
+                ("room_id", "=", self.id),
+                ("state", "in", ("booked", "in_use")),
+                ("start_datetime", "<=", now),
+                ("end_datetime", ">", now),
+            ],
+            limit=1,
+        )
+
+    def _od19_next_booking(self):
+        """Return the next upcoming booking of the room, if any."""
+        self.ensure_one()
+        return self.env["od19.meeting.room.booking"].search(
+            [
+                ("room_id", "=", self.id),
+                ("state", "=", "booked"),
+                ("start_datetime", ">", fields.Datetime.now()),
+            ],
+            order="start_datetime asc",
+            limit=1,
+        )
 
     def action_view_bookings(self):
         self.ensure_one()
