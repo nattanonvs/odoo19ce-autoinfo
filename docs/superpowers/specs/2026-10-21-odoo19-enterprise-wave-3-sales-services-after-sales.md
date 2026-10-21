@@ -3,7 +3,7 @@
 ## Control Metadata
 - Child spec ID: W3-AFTER-SALES
 - Wave: Wave 3 (Sales Services and after-sales)
-- Status: Largely implemented — Quality Control, Digital Signature, Service Card, Warranty, Product Return, Sales Services (helpdesk), and ISO Customer Satisfaction are present on disk; residual work is verification, after-sales KPI aggregation, and consolidation
+- Status: Implemented — Quality Control, Digital Signature, Service Card, Warranty, Product Return, Sales Services (helpdesk), ISO Customer Satisfaction, and the after-sales KPI aggregation (`od19_after_sales_reporting`) are present on disk; residual work is verification on `odoo19_pdev`
 - Owner: Service operations lead
 - Reviewer: Technical supervisor
 - Approvers: Business owner; Technical supervisor
@@ -17,6 +17,7 @@
 - Scope baseline (Sales Services, Claims, Warranty, Service Card, Product Return, Quality Control) approved in the Wave Control Register on 2026-10-12.
 - Scope expanded 2026-10-12 to include Quality Control and Digital Signature.
 - Quality Control implemented as `od19_quality_control`; Digital Signature delivered as `od19_document_sign` on 2026-10-19.
+- After-sales KPI aggregation delivered as `od19_after_sales_reporting` on 2026-10-21 (closes the §6.7 residual).
 - 2026-10-21: ผู้ใช้อนุมัติแนวทางเขียนสเปกตามสภาพจริงบนดิสก์ และให้อัปเดตเอกสารกำกับให้สอดคล้องพร้อมกัน
 
 ## Discovery Evidence
@@ -34,6 +35,7 @@
   - `custom_addons/od19_document_sign/` — `od19.document` + `od19.document.signer` + `od19.document.template` (state `draft → sent → signed / refused / expired`), portal controller, access tokens, expiry cron, QWeb PDF report; depends `mail, portal`
   - `custom_addons/od19_internal_issue/` — `helpdesk.ticket` extension for internal issues with `base_tier_validation` approval; depends `helpdesk_mgmt, base_tier_validation, hr, mail, od19_notification_multi_channel`
   - `custom_addons/od19_iso_customer_satisfaction/` — `od19.iso.customer.satisfaction` + survey items + period report (ISO 9001 clause 9.1.2)
+  - `custom_addons/od19_after_sales_reporting/` — read-only KPI aggregation (`_auto = False` SQL views): `od19.report.after.sales.ticket`, `.warranty.claim`, `.service.card`, `.product.return`, `.qc.inspection`, `.csat.period`; pivot/graph/list menus (2026-10-21)
   - `custom_addons/od19_delivery_label/` — delivery label (FM-PU-12); shared with Wave 4 logistics
   - OCA module present in `third_party/oca/`: `helpdesk_mgmt` (19.0.1.3.0, `third_party/oca/helpdesk/helpdesk_mgmt/`)
   - Core module present: `addons/repair/` (Repair Orders; depends `sale_stock, sale_management`)
@@ -44,7 +46,7 @@
 - Evidence coverage gaps:
   - Legacy Odoo 15 after-sales addon source (`dtr_qc`, legacy service/return flows) is not on disk for field-by-field mapping.
   - No signed SLA/OT policy document for service card SLA targets.
-  - No consolidated after-sales dashboard/KPI spec yet.
+  - No consolidated after-sales **dashboard** (chart/KPI board) yet; the underlying read-only KPI aggregation is delivered (`od19_after_sales_reporting`).
 
 ## Delivery Controls
 - Dependencies:
@@ -53,7 +55,7 @@
   - Wave 2 accounting operational-closure for refund/credit-note posting
 - Gate readiness:
   - Spec-ready: ✅ scope, boundary (service returns kept out of Inventory core), QC and signature scope defined
-  - Plan-ready: ✅ addon boundaries, state flows, security model defined; residual KPI aggregation to confirm
+  - Plan-ready: ✅ addon boundaries, state flows, security model defined; KPI aggregation delivered as `od19_after_sales_reporting`
   - Build-ready: ⏳ verify all Wave 3 modules install and pass tests on `odoo19_pdev`
 
 ---
@@ -128,9 +130,9 @@ Wave 3 มีการพัฒนาบนดิสก์ค่อนข้า�
 
 - Keep
   - OCA `helpdesk_mgmt`; core `addons/repair`
-  - `od19_helpdesk_extension`, `od19_service_warranty`, `od19_service_card`, `od19_product_return`, `od19_quality_control`, `od19_document_sign`, `od19_internal_issue`, `od19_iso_customer_satisfaction`
+  - `od19_helpdesk_extension`, `od19_service_warranty`, `od19_service_card`, `od19_product_return`, `od19_quality_control`, `od19_document_sign`, `od19_internal_issue`, `od19_iso_customer_satisfaction`, `od19_after_sales_reporting`
 - Refactor
-  - รวม and intelligence ของ after-sales ให้มีมุมมอง/KPI รวม (ยังไม่ใช่ dashboard เต็มรูปแบบ)
+  - รวม and intelligence ของ after-sales ให้มีมุมมอง/KPI รวม — **delivered** เป็นโมดูล read-only `od19_after_sales_reporting` (SQL views + pivot/graph/list) ยังไม่ใช่ dashboard เต็มรูปแบบ
   - ตรวจสอบว่า QC ต่อกับ Nonconformity และ Warranty/RMA ต่อกับการเงิน (credit note) ไหลได้ครบ
 - Replace
   - Legacy `dtr_qc` → `od19_quality_control` (in-house QC workflow)
@@ -160,12 +162,13 @@ Wave 3 มีการพัฒนาบนดิสก์ค่อนข้า�
 `od19.document` + `od19.document.signer` + `od19.document.template` ใช้ signature infrastructure ของ Odoo 19 CE (signature widget + portal) พร้อม access token, expiry cron และ QWeb PDF report — ไม่ต้องพึ่ง OCA `sign_oca`
 
 ### 6.7 Reporting/KPI งานบริการ
-- จำนวน/สถานะ ticket แยกทีม (internal/service) และแยก `service_type`
-- Warranty claim rate และ turnaround
-- Service card due/overdue และ SLA breach count
-- Product return rate แยก reason และ refund value
-- QC pass/fail rate และ NC ที่เกิดจาก QC
-- Customer satisfaction score (CSAT) ตาม period
+Delivered as the read-only module **`od19_after_sales_reporting`** (2026-10-21) — six `_auto = False` SQL view models exposed via pivot/graph/list menus under an "After-Sales Reporting" root menu (read-only; `base.group_user` read access, multi-company record rules):
+- จำนวน/สถานะ ticket แยกทีม (internal/service) และแยก `service_type` — `od19.report.after.sales.ticket`
+- Warranty claim rate และ turnaround — `od19.report.after.sales.warranty.claim`
+- Service card due/overdue และ SLA breach count — `od19.report.after.sales.service.card`
+- Product return rate แยก reason และ refund value — `od19.report.after.sales.product.return`
+- QC pass/fail rate และ NC ที่เกิดจาก QC — `od19.report.after.sales.qc.inspection`
+- Customer satisfaction score (CSAT) ตาม period — `od19.report.after.sales.csat.period`
 
 ## 7. Boundary กับโดเมนอื่น
 
@@ -219,13 +222,13 @@ Wave 3 มีการพัฒนาบนดิสก์ค่อนข้า�
 
 - โมดูล Wave 3 ทั้งหมดติดตั้งได้บน `odoo19_pdev` โดย log ไม่มี warning จากโมดูลเอง
 - ทุก flow หลัก (ticket → invoice, claim → repair, return → refund, QC → NC, signature) ทดสอบผ่าน
-- มีมุมมอง/KPI งานบริการตามที่นิยาม
+- มีมุมมอง/KPI งานบริการตามที่นิยาม — ✅ delivered as `od19_after_sales_reporting` (6 KPI views); ยังต้อง verify บน `odoo19_pdev`
 - ไม่มีการแก้ไขไฟล์ core ของ Odoo
 
 ## 15. Gate Readiness Summary
 
 - Spec-ready: ✅
-- Plan-ready: ✅
+- Plan-ready: ✅ (KPI aggregation delivered as `od19_after_sales_reporting`)
 - Build-ready: ⏳ (รอ verify การติดตั้ง/tests บน `odoo19_pdev`)
 
 ## 16. คำตัดสินของ Child Spec นี้
