@@ -75,9 +75,12 @@ class HelpdeskTicket(models.Model):
         self.ensure_one()
         if not self.partner_id:
             return
+        if self.invoice_id:
+            return self._open_invoice_action(self.invoice_id)
         invoice_vals = {
             "move_type": "out_invoice",
             "partner_id": self.partner_id.id,
+            "company_id": self.company_id.id,
             "invoice_origin": self.number,
             "invoice_line_ids": [
                 (
@@ -94,6 +97,9 @@ class HelpdeskTicket(models.Model):
         }
         invoice = self.env["account.move"].create(invoice_vals)
         self.invoice_id = invoice.id
+        return self._open_invoice_action(invoice)
+
+    def _open_invoice_action(self, invoice):
         return {
             "type": "ir.actions.act_window",
             "name": "Invoice",

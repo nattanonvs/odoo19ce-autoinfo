@@ -112,3 +112,28 @@ class TestHelpdeskExtension(TransactionCase):
         result = ticket.action_create_invoice()
         self.assertIsNone(result)
         self.assertFalse(ticket.invoice_id)
+
+    def test_action_create_invoice_is_idempotent(self):
+        """Calling the action twice must not create a second invoice."""
+        team = self._create_team(team_type="customer_service")
+        ticket = self._create_ticket(
+            team_id=team.id,
+            total_cost=1000.0,
+        )
+        ticket.action_create_invoice()
+        first_invoice = ticket.invoice_id
+        result = ticket.action_create_invoice()
+        self.assertEqual(ticket.invoice_id, first_invoice)
+        self.assertEqual(
+            self.env["account.move"].search_count(
+                [("partner_id", "=", self.partner.id)]
+            ),
+            1,
+        )
+        self.assertEqual(result["res_id"], first_invoice.id)
+
+    def test_action_create_invoice_uses_ticket_company(self):
+        team = self._create_team(team_type="customer_service")
+        ticket = self._create_ticket(team_id=team.id, total_cost=500.0)
+        ticket.action_create_invoice()
+        self.assertEqual(ticket.invoice_id.company_id, ticket.company_id)
