@@ -109,8 +109,12 @@ class TestSaleGate(CreditGateCommon):
         event_count_before = self.env["od19.credit.gate.event"].search_count(
             [("partner_id", "=", self.customer.id)]
         )
+        # A savepoint mirrors the real request: the blocked operation raises,
+        # the transaction is rolled back, and the gate event created in the
+        # same transaction disappears with it.
         with self.assertRaisesRegex(UserError, "Blacklist"):
-            self.env["sale.order"].create(self._quotation_vals(self.contact))
+            with self.env.cr.savepoint():
+                self.env["sale.order"].create(self._quotation_vals(self.contact))
         event_count_after = self.env["od19.credit.gate.event"].search_count(
             [("partner_id", "=", self.customer.id)]
         )

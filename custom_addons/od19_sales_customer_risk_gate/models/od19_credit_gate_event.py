@@ -7,7 +7,11 @@ class Od19CreditGateEvent(models.Model):
     _order = "create_date desc"
 
     partner_id = fields.Many2one(
-        "res.partner", string="Customer", required=True, ondelete="cascade", index=True
+        "res.partner",
+        string="Partner",
+        required=True,
+        ondelete="cascade",
+        index=True,
     )
     user_id = fields.Many2one(
         "res.users",
@@ -34,10 +38,13 @@ class Od19CreditGateEvent(models.Model):
             ("quotation_create", "Quotation Create"),
             ("quotation_write", "Quotation Write"),
             ("order_confirm", "Order Confirm"),
+            ("rfq_create", "RFQ Create"),
+            ("rfq_write", "RFQ Write"),
+            ("purchase_confirm", "Purchase Confirm"),
             ("credit_revalidation", "Credit Revalidation"),
         ],
         string="Stage",
         required=True,
         index=True,
     )
-    order_ref = fields.Char(string="Order Reference", readonly=True)
+    order_ref = fields.Char(string="Document Reference", readonly=True)

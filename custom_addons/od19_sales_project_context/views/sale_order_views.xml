@@ -16,6 +16,21 @@
                     domain="[('od19_is_project_owner', '=', True)]"
                 />
             </xpath>
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button
+                    name="action_open_project_pnl_analysis"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-line-chart"
+                    title="Cost &amp; Profit Analysis"
+                    invisible="not od19_project_id"
+                >
+                    <div class="o_stat_info">
+                        <span class="o_stat_text">Cost &amp; Profit</span>
+                        <span class="o_stat_text">Analysis</span>
+                    </div>
+                </button>
+            </xpath>
         </field>
     </record>
 </odoo>

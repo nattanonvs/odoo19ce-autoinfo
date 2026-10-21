@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_od19_sale_order_pnl_analysis_salesman,od19.sale.order.pnl.analysis.salesman,model_od19_sale_order_pnl_analysis,sales_team.group_sale_salesman,1,1,1,1

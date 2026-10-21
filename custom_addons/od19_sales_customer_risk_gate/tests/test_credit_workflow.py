@@ -75,3 +75,23 @@ class TestCreditWorkflow(CreditGateCommon):
         self.customer.with_user(self.sales_user).action_od19_request_credit()
         self.customer.with_user(self.reviewer).action_od19_approve_credit()
         self.assertTrue(self.contact.commercial_partner_id.od19_credit_sale_allowed)
+
+    def test_every_protected_field_is_blocked_for_non_reviewers(self):
+        """Policy: protected risk fields are writable only through the
+        sanctioned reviewer/request actions (which use sudo internally).
+        A direct write by a non-reviewer is always refused, for every field in
+        the protected set - this locks the set and the guard together."""
+        protected_fields = {
+            "od19_blacklist_status",
+            "od19_blacklist_reason",
+            "od19_credit_request_state",
+            "od19_credit_review_date",
+            "od19_credit_limit_amount",
+            "od19_credit_expiry_date",
+        }
+        self.assertEqual(
+            self.env["res.partner"]._OD19_PROTECTED_FIELDS, protected_fields
+        )
+        for field_name in protected_fields:
+            with self.assertRaises(AccessError, msg=field_name):
+                self.customer.with_user(self.sales_user).write({field_name: False})

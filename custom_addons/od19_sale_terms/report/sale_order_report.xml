@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Print the combined OD19 sale terms on the quotation / sale order
+        report. The block is inserted right after the total summary so it
+        appears before the signature and note sections, matching the
+        layout used by the Odoo 15 legacy quotation report.
+    -->
+    <template id="report_saleorder_document_od19_terms"
+              inherit_id="sale.report_saleorder_document">
+        <xpath expr="//div[@name='so_total_summary']" position="after">
+            <div t-if="doc.od19_terms_text" class="mt-4" name="od19_sale_terms">
+                <h5 class="mb-2">เงื่อนไขการขาย / Terms &amp; Conditions</h5>
+                <div style="white-space: pre-line; text-align: justify;">
+                    <t t-out="doc.od19_terms_text"/>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+</odoo>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_purchase_order_form_od19_risk_gate" model="ir.ui.view">
+        <field name="name">purchase.order.form.od19.risk.gate</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <div class="alert alert-danger"
+                     role="alert"
+                     invisible="not od19_gate_blocked_reason">
+                    <field name="od19_gate_blocked_reason" readonly="1"/>
+                </div>
+            </xpath>
+
+            <xpath expr="//page[@name='purchase_delivery_invoice']" position="inside">
+                <group string="Risk Gate">
+                    <field name="od19_risk_status_snapshot"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_purchase_order_search_od19_risk_gate" model="ir.ui.view">
+        <field name="name">purchase.order.search.od19.risk.gate</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.view_purchase_order_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='my_purchases']" position="after">
+                <filter string="Blacklisted vendor" name="od19_blacklisted_vendor"
+                        domain="[('od19_risk_status_snapshot','=','blacklisted')]"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

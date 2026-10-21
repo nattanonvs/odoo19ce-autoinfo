@@ -43,3 +43,27 @@ class SaleOrder(models.Model):
                 raise ValidationError(
                     "Project owner on sale order must match project owner on selected project."
                 )
+
+    @api.constrains("od19_project_owner_id", "od19_sale_mode")
+    def _check_project_owner_role(self):
+        """A project owner must be a contact flagged as Project Owner.
+
+        Enforced at model level so the rule holds regardless of the view
+        domain (API imports, data loads, automated flows).
+        """
+        for order in self:
+            owner = order.od19_project_owner_id
+            if owner and not owner.od19_is_project_owner:
+                raise ValidationError(
+                    "%s is not flagged as a Project Owner contact."
+                    % owner.display_name
+                )
+
+    def action_open_project_pnl_analysis(self):
+        """Open the pre-quote cost & profit analysis for the linked project."""
+        self.ensure_one()
+        action = self.env["ir.actions.act_window"]._for_xml_id(
+            "od19_sales_project_context.action_od19_sale_order_pnl_analysis"
+        )
+        action["context"] = {"default_sale_order_id": self.id}
+        return action

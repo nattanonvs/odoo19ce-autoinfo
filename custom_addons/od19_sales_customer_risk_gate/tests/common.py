@@ -34,6 +34,13 @@ class CreditGateCommon(TransactionCase):
                 "od19_is_commercial_customer": True,
             }
         )
+        cls.vendor = cls.env["res.partner"].create(
+            {
+                "name": "Gate Vendor",
+                "company_type": "company",
+                "email": "gate.vendor@example.com",
+            }
+        )
         cls.product = cls.env["product.product"].create(
             {"name": "Gate Service", "type": "service", "list_price": 100.0}
         )
@@ -43,4 +50,20 @@ class CreditGateCommon(TransactionCase):
             "partner_id": (partner or self.customer).id,
             "payment_term_id": term.id if term else False,
             "order_line": [(0, 0, {"product_id": self.product.id, "product_uom_qty": 1})],
+        }
+
+    def _rfq_vals(self, partner=None):
+        return {
+            "partner_id": (partner or self.vendor).id,
+            "order_line": [
+                (
+                    0,
+                    0,
+                    {
+                        "product_id": self.product.id,
+                        "product_qty": 1,
+                        "price_unit": 100.0,
+                    },
+                )
+            ],
         }

@@ -1,4 +1,5 @@
-from odoo import api, fields, models
+from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
 
 
 class SaleOrder(models.Model):
@@ -94,16 +95,24 @@ class SaleOrder(models.Model):
 
         Orders that require tier validation are moved to the
         ``waiting_approval`` state and a validation request is created
-        instead of being confirmed directly. Once all tiers are
-        validated the order can be confirmed normally.
+        instead of being confirmed directly. Orders already waiting for
+        approval can only be confirmed once every tier has been
+        validated.
         """
         awaiting_approval = self.browse()
         for order in self:
-            if (
-                order.state in ("draft", "sent")
-                and order.need_validation
-            ):
+            if order.state in ("draft", "sent") and order.need_validation:
                 awaiting_approval |= order
+            elif (
+                order.state == "waiting_approval"
+                and order.validation_status != "validated"
+            ):
+                raise ValidationError(
+                    _(
+                        "This sale order is waiting for tier validation "
+                        "before it can be confirmed."
+                    )
+                )
         if awaiting_approval:
             awaiting_approval.write({"state": "waiting_approval"})
             awaiting_approval.request_validation()
@@ -111,3 +120,15 @@ class SaleOrder(models.Model):
         if remaining:
             return super(SaleOrder, remaining).action_confirm()
         return True
+
+    def _confirmation_error_message(self):
+        """Let a fully validated order leave the ``waiting_approval`` state.
+
+        The tier validation engine already blocks the ``state = 'sale'``
+        write while a review is still open, so only the standard
+        draft/sent guard needs to be relaxed for validated orders.
+        """
+        self.ensure_one()
+        if self.state == "waiting_approval" and self.validation_status == "validated":
+            return False
+        return super()._confirmation_error_message()

@@ -52,7 +52,10 @@ class SaleOrder(models.Model):
 
     def _od19_check_customer_gate(self, stage):
         self.ensure_one()
-        commercial = self.partner_id.commercial_partner_id
+        # Risk fields are restricted to credit reviewers / partner managers,
+        # but the gate must run for every sales user.  Read them with sudo()
+        # so the check raises the intended UserError instead of AccessError.
+        commercial = self.partner_id.commercial_partner_id.sudo()
         if commercial.od19_blacklist_status == "blacklisted":
             return (
                 "blacklist",
@@ -115,6 +118,12 @@ class SaleOrder(models.Model):
         )
 
     def _od19_raise_if_blocked(self, stage):
+        # Demo data ships quotations for customers that are not credit-approved
+        # (e.g. sale_project demo).  Skip the gate while demo data is being
+        # installed so we do not break the standard demo records; the gate is
+        # fully active as soon as a real user creates a quotation.
+        if self.env.context.get("install_demo"):
+            return
         reason_code, message = self._od19_check_customer_gate(stage)
         if reason_code:
             self._od19_log_gate_event(
@@ -144,7 +153,7 @@ class SaleOrder(models.Model):
             order._od19_raise_if_blocked("order_confirm")
         res = super().action_confirm()
         for order in self:
-            commercial = order.partner_id.commercial_partner_id
+            commercial = order.partner_id.commercial_partner_id.sudo()
             order.write(
                 {
                     "od19_risk_status_snapshot": commercial.od19_blacklist_status,

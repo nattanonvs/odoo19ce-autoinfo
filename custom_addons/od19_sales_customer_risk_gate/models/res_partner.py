@@ -126,13 +126,16 @@ class ResPartner(models.Model):
     def _compute_od19_credit_sale_allowed(self):
         today = fields.Date.context_today(self)
         for partner in self:
-            is_approved = partner.od19_credit_request_state == "approved"
+            # Credit limit / expiry are restricted fields, but this stored
+            # compute runs for every user that touches the partner.  Read them
+            # with sudo() so the gate state stays accurate for all users.
+            commercial = partner.commercial_partner_id.sudo()
+            is_approved = commercial.od19_credit_request_state == "approved"
             not_expired = (
-                not partner.od19_credit_expiry_date
-                or partner.od19_credit_expiry_date >= today
+                not commercial.od19_credit_expiry_date
+                or commercial.od19_credit_expiry_date >= today
             )
             # Compute available credit on the fly to avoid stale stored data
-            commercial = partner.commercial_partner_id
             used = commercial.od19_credit_used_amount
             available = commercial.od19_credit_limit_amount - used
             has_available_credit = (
@@ -166,8 +169,11 @@ class ResPartner(models.Model):
     @api.depends("od19_credit_limit_amount", "od19_credit_used_amount")
     def _compute_od19_credit_available(self):
         for partner in self:
+            # Credit limit is a restricted field; read it with sudo() so the
+            # computed available credit is visible to every user that needs it.
             partner.od19_credit_available = (
-                partner.od19_credit_limit_amount - partner.od19_credit_used_amount
+                partner.sudo().od19_credit_limit_amount
+                - partner.od19_credit_used_amount
             )
 
     def _od19_is_credit_reviewer(self):
@@ -187,26 +193,27 @@ class ResPartner(models.Model):
         needs_reval = bool(reval_fields.intersection(vals))
         res = super().write(vals)
         if needs_reval:
-            self._od19_revalidate_confirmed_orders()
+            self._od19_revalidate_open_documents()
         return res
 
-    def _od19_revalidate_confirmed_orders(self):
-        """Revalidate all confirmed sale orders when risk fields change.
+    def _od19_revalidate_open_documents(self):
+        """Revalidate open sale and purchase documents when risk fields change.
 
         When blacklist status, credit state, expiry date or credit limit
-        changes, check every confirmed sale order of the commercial partner.
-        Orders that no longer pass the customer gate are flagged with a
-        warning activity so the sales team can review them.
+        changes, every open document of the commercial partner is re-checked.
+        Documents that no longer pass the gate are blocked from further
+        processing and a warning activity is scheduled so the responsible
+        user can review them.
         """
         for partner in self:
             commercial = partner.commercial_partner_id
-            confirmed_orders = self.env["sale.order"].sudo().search(
+            sale_orders = self.env["sale.order"].sudo().search(
                 [
                     ("partner_id.commercial_partner_id", "=", commercial.id),
-                    ("state", "=", "sale"),
+                    ("state", "in", ("draft", "sent", "sale")),
                 ]
             )
-            for order in confirmed_orders:
+            for order in sale_orders:
                 reason_code, message = order._od19_check_customer_gate(
                     "credit_revalidation"
                 )
@@ -214,17 +221,36 @@ class ResPartner(models.Model):
                     order._od19_log_gate_event(
                         commercial, reason_code, "credit_revalidation"
                     )
-                    owner = (
-                        commercial.od19_credit_review_owner_id
-                        or order.user_id
-                        or self.env.user
+                    self._od19_notify_gate_block(order, commercial, message)
+            purchase_orders = self.env["purchase.order"].sudo().search(
+                [
+                    ("partner_id.commercial_partner_id", "=", commercial.id),
+                    ("state", "in", ("draft", "sent", "to approve")),
+                ]
+            )
+            for order in purchase_orders:
+                reason_code, message = order._od19_check_partner_gate(
+                    "credit_revalidation"
+                )
+                if reason_code:
+                    order._od19_log_gate_event(
+                        commercial, reason_code, "credit_revalidation"
                     )
-                    order.activity_schedule(
-                        "mail.mail_activity_data_todo",
-                        user_id=owner.id,
-                        summary=_("Credit revalidation: review required"),
-                        note=message,
-                    )
+                    self._od19_notify_gate_block(order, commercial, message)
+
+    def _od19_notify_gate_block(self, document, commercial, message):
+        """Schedule a review activity on a document blocked by the risk gate."""
+        owner = (
+            commercial.sudo().od19_credit_review_owner_id
+            or document.user_id
+            or self.env.user
+        )
+        document.activity_schedule(
+            "mail.mail_activity_data_todo",
+            user_id=owner.id,
+            summary=_("Risk gate: review required"),
+            note=message,
+        )
 
     def action_od19_request_credit(self):
         for partner in self:

@@ -22,6 +22,7 @@ selection field.
         "security/ir.model.access.csv",
         "views/sale_term_template_views.xml",
         "views/sale_order_views.xml",
+        "report/sale_order_report.xml",
     ],
     "installable": True,
     "license": "LGPL-3",

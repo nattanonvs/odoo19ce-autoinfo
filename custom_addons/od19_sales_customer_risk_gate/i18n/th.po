@@ -1,0 +1,543 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* od19_sales_customer_risk_gate
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-20 08:59+0000\n"
+"PO-Revision-Date: 2026-10-20 08:59+0000\n"
+"Last-Translator: The Auto-Info Co., Ltd.\n"
+"Language-Team: Thai\n"
+"Language: th\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#. module: od19_sales_customer_risk_gate
+#. odoo-python
+#: code:addons/od19_sales_customer_risk_gate/models/res_partner.py:0
+msgid "A blacklist reason is required before blacklisting."
+msgstr "ต้องระบุเหตุผลการขึ้นบัญชีดำก่อนดำเนินการ"
+
+#. module: od19_sales_customer_risk_gate
+#: model_terms:ir.ui.view,arch_db:od19_sales_customer_risk_gate.view_partner_form_od19_credit_gate
+msgid "Approve Credit"
+msgstr "อนุมัติวงเงินสินเชื่อ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:res.groups,comment:od19_sales_customer_risk_gate.group_od19_credit_reviewer
+msgid "Approve/reject customer credit requests and manage customer Blacklist."
+msgstr "อนุมัติ/ปฏิเสธคำขอวงเงินสินเชื่อของคู่ค้า และจัดการบัญชีดำของคู่ค้า"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields.selection,name:od19_sales_customer_risk_gate.selection__res_partner__od19_credit_request_state__approved
+#: model:ir.model.fields.selection,name:od19_sales_customer_risk_gate.selection__sale_order__od19_credit_state_snapshot__approved
+msgid "Approved"
+msgstr "อนุมัติแล้ว"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields.selection,name:od19_sales_customer_risk_gate.selection__od19_credit_gate_event__reason_code__blacklist
+#: model_terms:ir.ui.view,arch_db:od19_sales_customer_risk_gate.view_od19_credit_gate_event_search
+#: model_terms:ir.ui.view,arch_db:od19_sales_customer_risk_gate.view_partner_form_od19_credit_gate
+msgid "Blacklist"
+msgstr "บัญชีดำ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_res_partner__od19_blacklist_reason
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_res_users__od19_blacklist_reason
+msgid "Blacklist Reason"
+msgstr "เหตุผลการขึ้นบัญชีดำ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_res_partner__od19_blacklist_status
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_res_users__od19_blacklist_status
+msgid "Blacklist Status"
+msgstr "สถานะบัญชีดำ"
+
+#. module: od19_sales_customer_risk_gate
+#. odoo-python
+#: code:addons/od19_sales_customer_risk_gate/models/sale_order.py:0
+msgid "Blacklist: customer %s is blacklisted and cannot be sold to."
+msgstr "บัญชีดำ: ลูกค้า %s ถูกขึ้นบัญชีดำ ไม่สามารถขายให้ได้"
+
+#. module: od19_sales_customer_risk_gate
+#. odoo-python
+#: code:addons/od19_sales_customer_risk_gate/models/purchase_order.py:0
+msgid "Blacklist: vendor %s is blacklisted and cannot be purchased from."
+msgstr "บัญชีดำ: ผู้ขาย %s ถูกขึ้นบัญชีดำ ไม่สามารถซื้อจากได้"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields.selection,name:od19_sales_customer_risk_gate.selection__purchase_order__od19_risk_status_snapshot__blacklisted
+#: model:ir.model.fields.selection,name:od19_sales_customer_risk_gate.selection__res_partner__od19_blacklist_status__blacklisted
+#: model:ir.model.fields.selection,name:od19_sales_customer_risk_gate.selection__sale_order__od19_risk_status_snapshot__blacklisted
+#: model_terms:ir.ui.view,arch_db:od19_sales_customer_risk_gate.view_partner_form_od19_credit_gate
+#: model_terms:ir.ui.view,arch_db:od19_sales_customer_risk_gate.view_res_partner_filter_od19_risk_gate
+msgid "Blacklisted"
+msgstr "ขึ้นบัญชีดำ"
+
+#. module: od19_sales_customer_risk_gate
+#: model_terms:ir.ui.view,arch_db:od19_sales_customer_risk_gate.view_purchase_order_search_od19_risk_gate
+msgid "Blacklisted vendor"
+msgstr "ผู้ขายที่ถูกขึ้นบัญชีดำ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.ui.menu,name:od19_sales_customer_risk_gate.menu_od19_credit_gate_events
+msgid "Blocked Documents"
+msgstr "เอกสารที่ถูกระงับ"
+
+#. module: od19_sales_customer_risk_gate
+#: model_terms:ir.ui.view,arch_db:od19_sales_customer_risk_gate.view_partner_form_od19_credit_gate
+msgid "Clear Blacklist"
+msgstr "ยกเลิกบัญชีดำ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_od19_credit_gate_event__company_id
+msgid "Company"
+msgstr "บริษัท"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model,name:od19_sales_customer_risk_gate.model_res_partner
+msgid "Contact"
+msgstr "ผู้ติดต่อ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_od19_credit_gate_event__create_uid
+msgid "Created by"
+msgstr "สร้างโดย"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_od19_credit_gate_event__create_date
+msgid "Created on"
+msgstr "สร้างเมื่อ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields.selection,name:od19_sales_customer_risk_gate.selection__od19_credit_gate_event__reason_code__credit
+#: model_terms:ir.ui.view,arch_db:od19_sales_customer_risk_gate.view_od19_credit_gate_event_search
+#: model_terms:ir.ui.view,arch_db:od19_sales_customer_risk_gate.view_partner_form_od19_credit_gate
+msgid "Credit"
+msgstr "สินเชื่อ"
+
+#. module: od19_sales_customer_risk_gate
+#: model_terms:ir.ui.view,arch_db:od19_sales_customer_risk_gate.view_partner_form_od19_credit_gate
+msgid "Credit & Risk"
+msgstr "สินเชื่อและความเสี่ยง"
+
+#. module: od19_sales_customer_risk_gate
+#: model_terms:ir.ui.view,arch_db:od19_sales_customer_risk_gate.view_order_form_od19_credit_gate
+msgid "Credit & Risk Gate"
+msgstr "การควบคุมสินเชื่อและความเสี่ยง"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_res_partner__od19_credit_available
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_res_users__od19_credit_available
+msgid "Credit Available"
+msgstr "วงเงินคงเหลือ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_res_partner__od19_credit_currency_id
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_res_users__od19_credit_currency_id
+msgid "Credit Currency"
+msgstr "สกุลเงินวงเงินสินเชื่อ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_res_partner__od19_credit_expiry_date
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_res_users__od19_credit_expiry_date
+msgid "Credit Expiry Date"
+msgstr "วันหมดอายุวงเงินสินเชื่อ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.ui.menu,name:od19_sales_customer_risk_gate.menu_od19_credit_gate
+msgid "Credit Gate"
+msgstr "การควบคุมวงเงินสินเชื่อ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_res_partner__od19_credit_limit_amount
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_res_users__od19_credit_limit_amount
+msgid "Credit Limit Amount"
+msgstr "วงเงินสินเชื่อ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.ui.menu,name:od19_sales_customer_risk_gate.menu_od19_credit_pending
+msgid "Credit Pending"
+msgstr "รออนุมัติวงเงินสินเชื่อ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.actions.act_window,name:od19_sales_customer_risk_gate.action_res_partner_credit_pending
+msgid "Credit Pending Customers"
+msgstr "คู่ค้าที่รออนุมัติวงเงินสินเชื่อ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_res_partner__od19_credit_request_state
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_res_users__od19_credit_request_state
+msgid "Credit Request State"
+msgstr "สถานะคำขอวงเงินสินเชื่อ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields.selection,name:od19_sales_customer_risk_gate.selection__od19_credit_gate_event__stage__credit_revalidation
+msgid "Credit Revalidation"
+msgstr "ตรวจสอบวงเงินซ้ำ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:res.groups,name:od19_sales_customer_risk_gate.group_od19_credit_reviewer
+msgid "Credit Reviewer"
+msgstr "ผู้ตรวจสอบวงเงินสินเชื่อ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_sale_order__od19_is_credit_sale
+msgid "Credit Sale"
+msgstr "ขายเชื่อ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_res_partner__od19_credit_sale_allowed
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_res_users__od19_credit_sale_allowed
+msgid "Credit Sale Allowed"
+msgstr "อนุญาตขายเชื่อ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_sale_order__od19_credit_state_snapshot
+msgid "Credit Snapshot"
+msgstr "ภาพรวมวงเงินสินเชื่อ ณ ขณะนั้น"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_account_payment_term__od19_is_credit_term
+msgid "Credit Term"
+msgstr "เงื่อนไขการชำระแบบเชื่อ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_res_partner__od19_credit_used_amount
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_res_users__od19_credit_used_amount
+msgid "Credit Used Amount"
+msgstr "วงเงินที่ใช้ไป"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,help:od19_sales_customer_risk_gate.field_res_partner__od19_credit_available
+#: model:ir.model.fields,help:od19_sales_customer_risk_gate.field_res_users__od19_credit_available
+msgid "Credit limit minus credit used."
+msgstr "วงเงินสินเชื่อหักด้วยวงเงินที่ใช้ไป"
+
+#. module: od19_sales_customer_risk_gate
+#. odoo-python
+#: code:addons/od19_sales_customer_risk_gate/models/res_partner.py:0
+msgid "Credit request %s."
+msgstr "คำขอวงเงินสินเชื่อ %s"
+
+#. module: od19_sales_customer_risk_gate
+#. odoo-python
+#: code:addons/od19_sales_customer_risk_gate/models/res_partner.py:0
+msgid "Credit request must be in 'Pending Review' state."
+msgstr "คำขอวงเงินสินเชื่อต้องอยู่ในสถานะ 'รอตรวจสอบ'"
+
+#. module: od19_sales_customer_risk_gate
+#: model_terms:ir.ui.view,arch_db:od19_sales_customer_risk_gate.view_order_search_od19_credit_gate
+msgid "Credit sale"
+msgstr "ขายเชื่อ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,help:od19_sales_customer_risk_gate.field_account_payment_term__od19_is_credit_term
+msgid ""
+"Credit terms require an approved customer credit request before selling. "
+"Defaults to True when any line is due after the invoice date; accounting may"
+" override."
+msgstr ""
+"เงื่อนไขการชำระแบบเชื่อต้องมีคำขอวงเงินสินเชื่อที่ได้รับอนุมัติก่อนการขาย "
+"ค่าเริ่มต้นเป็น True เมื่อมีรายการที่ครบกำหนดหลังวันออกใบแจ้งหนี้ ฝ่ายบัญชีสามารถแก้ไขได้"
+
+#. module: od19_sales_customer_risk_gate
+#. odoo-python
+#: code:addons/od19_sales_customer_risk_gate/models/res_partner.py:0
+msgid "Customer %s requested credit approval."
+msgstr "คู่ค้า %s ได้ส่งคำขออนุมัติวงเงินสินเชื่อ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:res.groups.privilege,name:od19_sales_customer_risk_gate.res_groups_privilege_od19_credit_gate
+msgid "Customer Credit Gate"
+msgstr "การควบคุมวงเงินสินเชื่อลูกค้า"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,help:od19_sales_customer_risk_gate.field_res_partner__od19_credit_sale_allowed
+#: model:ir.model.fields,help:od19_sales_customer_risk_gate.field_res_users__od19_credit_sale_allowed
+msgid "Customer is allowed to buy on credit terms."
+msgstr "คู่ค้าได้รับอนุญาตให้ซื้อแบบเชื่อ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,help:od19_sales_customer_risk_gate.field_res_partner__od19_credit_expiry_date
+#: model:ir.model.fields,help:od19_sales_customer_risk_gate.field_res_users__od19_credit_expiry_date
+msgid "Date when the credit approval expires."
+msgstr "วันที่การอนุมัติวงเงินสินเชื่อหมดอายุ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_account_payment_term__display_name
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_od19_credit_gate_event__display_name
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_purchase_order__display_name
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_res_partner__display_name
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_sale_order__display_name
+msgid "Display Name"
+msgstr "ชื่อที่แสดง"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_od19_credit_gate_event__order_ref
+msgid "Document Reference"
+msgstr "เอกสารอ้างอิง"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_purchase_order__od19_gate_blocked_reason
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_sale_order__od19_gate_blocked_reason
+msgid "Gate Blocked Reason"
+msgstr "เหตุผลที่ถูกระงับ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_account_payment_term__id
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_od19_credit_gate_event__id
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_purchase_order__id
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_res_partner__id
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_sale_order__id
+msgid "ID"
+msgstr "ID"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_od19_credit_gate_event__write_uid
+msgid "Last Updated by"
+msgstr "แก้ไขล่าสุดโดย"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_od19_credit_gate_event__write_date
+msgid "Last Updated on"
+msgstr "แก้ไขล่าสุดเมื่อ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,help:od19_sales_customer_risk_gate.field_res_partner__od19_credit_limit_amount
+#: model:ir.model.fields,help:od19_sales_customer_risk_gate.field_res_users__od19_credit_limit_amount
+msgid "Maximum credit amount allowed for this customer."
+msgstr "วงเงินสินเชื่อสูงสุดที่อนุญาตสำหรับคู่ค้ารายนี้"
+
+#. module: od19_sales_customer_risk_gate
+#: model_terms:ir.actions.act_window,help:od19_sales_customer_risk_gate.action_od19_credit_gate_event
+msgid "No blocked documents yet."
+msgstr "ยังไม่มีเอกสารที่ถูกระงับ"
+
+#. module: od19_sales_customer_risk_gate
+#: model_terms:ir.actions.act_window,help:od19_sales_customer_risk_gate.action_res_partner_credit_pending
+msgid "No customers pending credit review."
+msgstr "ไม่มีคู่ค้าที่รอตรวจสอบวงเงินสินเชื่อ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields.selection,name:od19_sales_customer_risk_gate.selection__purchase_order__od19_risk_status_snapshot__normal
+#: model:ir.model.fields.selection,name:od19_sales_customer_risk_gate.selection__res_partner__od19_blacklist_status__normal
+#: model:ir.model.fields.selection,name:od19_sales_customer_risk_gate.selection__sale_order__od19_risk_status_snapshot__normal
+msgid "Normal"
+msgstr "ปกติ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields.selection,name:od19_sales_customer_risk_gate.selection__res_partner__od19_credit_request_state__not_requested
+#: model:ir.model.fields.selection,name:od19_sales_customer_risk_gate.selection__sale_order__od19_credit_state_snapshot__not_requested
+msgid "Not Requested"
+msgstr "ยังไม่ขอ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model,name:od19_sales_customer_risk_gate.model_od19_credit_gate_event
+msgid "OD19 Credit Gate Blocked Event"
+msgstr "เหตุการณ์การถูกระงับโดยการควบคุมวงเงินสินเชื่อ"
+
+#. module: od19_sales_customer_risk_gate
+#. odoo-python
+#: code:addons/od19_sales_customer_risk_gate/models/res_partner.py:0
+msgid "Only credit reviewers can approve or reject credit requests."
+msgstr "เฉพาะผู้ตรวจสอบวงเงินสินเชื่อเท่านั้นที่สามารถอนุมัติหรือปฏิเสธคำขอวงเงินสินเชื่อได้"
+
+#. module: od19_sales_customer_risk_gate
+#. odoo-python
+#: code:addons/od19_sales_customer_risk_gate/models/res_partner.py:0
+msgid "Only credit reviewers can manage the blacklist."
+msgstr "เฉพาะผู้ตรวจสอบวงเงินสินเชื่อเท่านั้นที่สามารถจัดการบัญชีดำได้"
+
+#. module: od19_sales_customer_risk_gate
+#. odoo-python
+#: code:addons/od19_sales_customer_risk_gate/models/res_partner.py:0
+msgid "Only credit reviewers can modify customer risk fields."
+msgstr "เฉพาะผู้ตรวจสอบวงเงินสินเชื่อเท่านั้นที่สามารถแก้ไขข้อมูลความเสี่ยงของคู่ค้าได้"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields.selection,name:od19_sales_customer_risk_gate.selection__od19_credit_gate_event__stage__order_confirm
+msgid "Order Confirm"
+msgstr "ยืนยันคำสั่งขาย"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_od19_credit_gate_event__partner_id
+#: model_terms:ir.ui.view,arch_db:od19_sales_customer_risk_gate.view_od19_credit_gate_event_search
+msgid "Partner"
+msgstr "คู่ค้า"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model,name:od19_sales_customer_risk_gate.model_account_payment_term
+msgid "Payment Terms"
+msgstr "เงื่อนไขการชำระเงิน"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields.selection,name:od19_sales_customer_risk_gate.selection__res_partner__od19_credit_request_state__pending
+#: model:ir.model.fields.selection,name:od19_sales_customer_risk_gate.selection__sale_order__od19_credit_state_snapshot__pending
+msgid "Pending Review"
+msgstr "รอตรวจสอบ"
+
+#. module: od19_sales_customer_risk_gate
+#. odoo-python
+#: code:addons/od19_sales_customer_risk_gate/models/res_partner.py:0
+msgid "Please fill in the review note before deciding."
+msgstr "กรุณากรอกบันทึกการตรวจสอบก่อนตัดสินใจ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields.selection,name:od19_sales_customer_risk_gate.selection__od19_credit_gate_event__stage__purchase_confirm
+msgid "Purchase Confirm"
+msgstr "ยืนยันใบสั่งซื้อ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model,name:od19_sales_customer_risk_gate.model_purchase_order
+msgid "Purchase Order"
+msgstr "ใบสั่งซื้อ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields.selection,name:od19_sales_customer_risk_gate.selection__od19_credit_gate_event__stage__quotation_create
+msgid "Quotation Create"
+msgstr "สร้างใบเสนอราคา"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields.selection,name:od19_sales_customer_risk_gate.selection__od19_credit_gate_event__stage__quotation_write
+msgid "Quotation Write"
+msgstr "แก้ไขใบเสนอราคา"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields.selection,name:od19_sales_customer_risk_gate.selection__od19_credit_gate_event__stage__rfq_create
+msgid "RFQ Create"
+msgstr "สร้างใบขอซื้อ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields.selection,name:od19_sales_customer_risk_gate.selection__od19_credit_gate_event__stage__rfq_write
+msgid "RFQ Write"
+msgstr "แก้ไขใบขอซื้อ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_od19_credit_gate_event__reason_code
+#: model_terms:ir.ui.view,arch_db:od19_sales_customer_risk_gate.view_od19_credit_gate_event_search
+msgid "Reason"
+msgstr "เหตุผล"
+
+#. module: od19_sales_customer_risk_gate
+#: model_terms:ir.ui.view,arch_db:od19_sales_customer_risk_gate.view_partner_form_od19_credit_gate
+msgid "Reject Credit"
+msgstr "ปฏิเสธวงเงินสินเชื่อ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields.selection,name:od19_sales_customer_risk_gate.selection__res_partner__od19_credit_request_state__rejected
+#: model:ir.model.fields.selection,name:od19_sales_customer_risk_gate.selection__sale_order__od19_credit_state_snapshot__rejected
+msgid "Rejected"
+msgstr "ปฏิเสธแล้ว"
+
+#. module: od19_sales_customer_risk_gate
+#: model_terms:ir.ui.view,arch_db:od19_sales_customer_risk_gate.view_partner_form_od19_credit_gate
+msgid "Request Credit"
+msgstr "ขอวงเงินสินเชื่อ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_res_partner__od19_credit_requested_by
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_res_users__od19_credit_requested_by
+msgid "Requested By"
+msgstr "ผู้ขอ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_res_partner__od19_credit_request_date
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_res_users__od19_credit_request_date
+msgid "Requested On"
+msgstr "ขอเมื่อ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_res_partner__od19_credit_review_note
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_res_users__od19_credit_review_note
+msgid "Review Note"
+msgstr "บันทึกการตรวจสอบ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_res_partner__od19_credit_review_owner_id
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_res_users__od19_credit_review_owner_id
+msgid "Review Owner"
+msgstr "ผู้รับผิดชอบตรวจสอบ"
+
+#. module: od19_sales_customer_risk_gate
+#. odoo-python
+#: code:addons/od19_sales_customer_risk_gate/models/res_partner.py:0
+msgid "Review credit request"
+msgstr "ตรวจสอบคำขอวงเงินสินเชื่อ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_res_partner__od19_credit_review_date
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_res_users__od19_credit_review_date
+msgid "Reviewed On"
+msgstr "ตรวจสอบเมื่อ"
+
+#. module: od19_sales_customer_risk_gate
+#: model_terms:ir.ui.view,arch_db:od19_sales_customer_risk_gate.view_purchase_order_form_od19_risk_gate
+msgid "Risk Gate"
+msgstr "การควบคุมความเสี่ยง"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.actions.act_window,name:od19_sales_customer_risk_gate.action_od19_credit_gate_event
+msgid "Risk Gate Events"
+msgstr "เหตุการณ์การควบคุมความเสี่ยง"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_purchase_order__od19_risk_status_snapshot
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_sale_order__od19_risk_status_snapshot
+msgid "Risk Snapshot"
+msgstr "ภาพรวมความเสี่ยง ณ ขณะนั้น"
+
+#. module: od19_sales_customer_risk_gate
+#. odoo-python
+#: code:addons/od19_sales_customer_risk_gate/models/res_partner.py:0
+msgid "Risk gate: review required"
+msgstr "การควบคุมความเสี่ยง: ต้องตรวจสอบ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model,name:od19_sales_customer_risk_gate.model_sale_order
+msgid "Sales Order"
+msgstr "ใบสั่งขาย"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_od19_credit_gate_event__stage
+#: model_terms:ir.ui.view,arch_db:od19_sales_customer_risk_gate.view_od19_credit_gate_event_search
+msgid "Stage"
+msgstr "ขั้นตอน"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,help:od19_sales_customer_risk_gate.field_res_partner__od19_credit_used_amount
+#: model:ir.model.fields,help:od19_sales_customer_risk_gate.field_res_users__od19_credit_used_amount
+msgid "Sum of unpaid invoices and confirmed sale order amounts."
+msgstr "ผลรวมของใบแจ้งหนี้ที่ยังไม่ชำระและยอดใบสั่งขายที่ยืนยันแล้ว"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,help:od19_sales_customer_risk_gate.field_sale_order__od19_is_credit_sale
+msgid "This order uses a credit payment term."
+msgstr "คำสั่งซื้อนี้ใช้เงื่อนไขการชำระแบบเชื่อ"
+
+#. module: od19_sales_customer_risk_gate
+#: model:ir.model.fields,field_description:od19_sales_customer_risk_gate.field_od19_credit_gate_event__user_id
+msgid "User"
+msgstr "ผู้ใช้"
+
+#. module: od19_sales_customer_risk_gate
+#. odoo-python
+#: code:addons/od19_sales_customer_risk_gate/models/sale_order.py:0
+msgid ""
+"credit: customer %s has insufficient available credit (available %.2f, order"
+" %.2f)."
+msgstr ""
+"สินเชื่อ: คู่ค้า %s มีวงเงินคงเหลือไม่เพียงพอ (คงเหลือ %.2f, คำสั่งซื้อ %.2f)"
+
+#. module: od19_sales_customer_risk_gate
+#. odoo-python
+#: code:addons/od19_sales_customer_risk_gate/models/sale_order.py:0
+msgid ""
+"credit: customer %s is not approved for credit sales. Request credit "
+"approval or use a cash payment term."
+msgstr ""
+"สินเชื่อ: คู่ค้า %s ไม่ได้รับอนุมัติให้ขายแบบเชื่อ กรุณาขออนุมัติวงเงินสินเชื่อ หรือใช้เงื่อนไขการชำระแบบเงินสด"

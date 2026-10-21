@@ -24,8 +24,11 @@ class SaleOrder(models.Model):
     )
 
     def action_confirm(self):
-        """Capture the confirming user for the CONFIRMED stamp, then confirm."""
+        """Capture the confirming user and stamp date, then confirm."""
         for order in self:
-            if order.state in ("draft", "sent") and not order.confirmed_by_id:
-                order.confirmed_by_id = self.env.uid
+            if order.state in ("draft", "sent"):
+                if not order.confirmed_by_id:
+                    order.confirmed_by_id = self.env.uid
+                if not order.stamp_date:
+                    order.stamp_date = fields.Date.context_today(self)
         return super().action_confirm()

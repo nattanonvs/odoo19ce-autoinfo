@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_od19_sale_order_pnl_analysis_form" model="ir.ui.view">
+        <field name="name">od19.sale.order.pnl.analysis.form</field>
+        <field name="model">od19.sale.order.pnl.analysis</field>
+        <field name="arch" type="xml">
+            <form string="Cost &amp; Profit Analysis">
+                <group>
+                    <group>
+                        <field name="sale_order_id" invisible="1"/>
+                        <field name="currency_id" invisible="1"/>
+                        <field name="has_analytic" invisible="1"/>
+                        <field name="project_id"/>
+                    </group>
+                    <group>
+                        <field name="date_from"/>
+                        <field name="date_to"/>
+                    </group>
+                </group>
+                <group>
+                    <field name="revenue"/>
+                    <field name="cost"/>
+                    <field name="gross_margin"/>
+                    <field name="margin_percent"/>
+                    <field name="uncategorized_amount"/>
+                </group>
+                <field name="note" nolabel="1" readonly="1" class="text-muted"/>
+                <footer>
+                    <button string="Close" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_od19_sale_order_pnl_analysis" model="ir.actions.act_window">
+        <field name="name">Cost &amp; Profit Analysis</field>
+        <field name="res_model">od19.sale.order.pnl.analysis</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>
