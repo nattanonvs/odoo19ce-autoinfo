@@ -55,17 +55,18 @@ class ReportAfterSalesTicket(models.Model):
                     ticket.team_type AS team_type,
                     ticket.service_type AS service_type,
                     ticket.stage_id AS stage_id,
-                    ticket.closed AS closed,
+                    COALESCE(stage.closed, FALSE) AS closed,
                     ticket.company_id AS company_id,
                     COUNT(*) AS ticket_count
                 FROM helpdesk_ticket ticket
+                LEFT JOIN helpdesk_ticket_stage stage ON stage.id = ticket.stage_id
                 WHERE COALESCE(ticket.active, TRUE)
                 GROUP BY
                     ticket.team_id,
                     ticket.team_type,
                     ticket.service_type,
                     ticket.stage_id,
-                    ticket.closed,
+                    stage.closed,
                     ticket.company_id
             )
             """
