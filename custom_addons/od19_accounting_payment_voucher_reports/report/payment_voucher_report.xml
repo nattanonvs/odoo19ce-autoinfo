@@ -1,126 +1,241 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2026 OD19 -->
+<!-- License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl). -->
 <odoo>
 
+    <!-- ============================================================ -->
+    # ใบสำคัญจ่าย (Payment Voucher) - one document per supplier payment.
+    # Thai font comes from od19_thai_font_support.
+    <!-- ============================================================ -->
     <template id="payment_voucher_document">
         <t t-call="web.html_container">
-            <t t-call="web.external_layout">
-                <div class="page">
-                    <h2 class="text-center">ใบสำคัญจ่าย</h2>
-                    <h3 class="text-center">Payment Voucher</h3>
+            <t t-foreach="docs" t-as="payment">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family:'Sarabun','Noto Sans Thai','Tahoma',sans-serif;">
+                        <h2 class="text-center">ใบสำคัญจ่าย</h2>
+                        <h4 class="text-center">PAYMENT VOUCHER</h4>
 
-                    <div class="row mt-3">
-                        <div class="col-6">
-                            <strong>เลขที่เอกสาร:</strong>
-                            <span t-field="doc.pv_number"/>
+                        <div class="row mt-3">
+                            <div class="col-7">
+                                <div>
+                                    <strong>จ่ายให้ / Pay to: </strong>
+                                    <span t-field="payment.partner_id.name"/>
+                                </div>
+                                <div t-if="payment.partner_id.street" t-field="payment.partner_id.street"/>
+                                <div t-if="payment.partner_id.vat">
+                                    <strong>เลขประจำตัวผู้เสียภาษี / Tax ID: </strong>
+                                    <span t-field="payment.partner_id.vat"/>
+                                </div>
+                            </div>
+                            <div class="col-5 text-right">
+                                <div>
+                                    <strong>เลขที่ / Voucher No: </strong>
+                                    <span t-esc="payment.od19_voucher_no or payment.name"/>
+                                </div>
+                                <div>
+                                    <strong>วันที่ / Date: </strong>
+                                    <span t-field="payment.date"/>
+                                </div>
+                                <div t-if="payment.journal_id">
+                                    <strong>ช่องทาง / Method: </strong>
+                                    <span t-field="payment.journal_id.name"/>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-6 text-right">
-                            <strong>วันที่:</strong>
-                            <span t-field="doc.date"/>
+
+                        <table class="table table-sm table-bordered mt-4">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th class="text-center" style="width:8%">ลำดับ</th>
+                                    <th>รายการ / Description</th>
+                                    <th class="text-right" style="width:22%">จำนวนเงิน / Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="text-center">1</td>
+                                    <td>
+                                        <span>ชำระเงินให้ </span>
+                                        <span t-field="payment.partner_id.name"/>
+                                        <t t-if="payment.memo">
+                                            <span> — </span>
+                                            <span t-field="payment.memo"/>
+                                        </t>
+                                        <t t-if="payment.payment_reference">
+                                            <span> (</span>
+                                            <span t-field="payment.payment_reference"/>
+                                            <span>)</span>
+                                        </t>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-field="payment.amount"
+                                              t-options='{"widget": "monetary", "display_currency": payment.currency_id}'/>
+                                    </td>
+                                </tr>
+                                <tr class="font-weight-bold">
+                                    <td colspan="2" class="text-right">รวมทั้งสิ้น / Total</td>
+                                    <td class="text-right">
+                                        <span t-field="payment.amount"
+                                              t-options='{"widget": "monetary", "display_currency": payment.currency_id}'/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="row mt-2">
+                            <div class="col-12">
+                                <strong>จำนวนเงิน (ตัวอักษร): </strong>
+                                <span t-esc="payment.currency_id.with_context(lang='th_TH').amount_to_text(payment.amount)"/>
+                            </div>
+                        </div>
+
+                        <div class="row mt-5">
+                            <div class="col-3 text-center">
+                                <div>______________________</div>
+                                <div>ผู้จัดทำ / Prepared by</div>
+                            </div>
+                            <div class="col-3 text-center">
+                                <div>______________________</div>
+                                <div>ผู้อนุมัติ / Approved by</div>
+                            </div>
+                            <div class="col-3 text-center">
+                                <div>______________________</div>
+                                <div>ผู้จ่ายเงิน / Paid by</div>
+                            </div>
+                            <div class="col-3 text-center">
+                                <div>______________________</div>
+                                <div>ผู้รับเงิน / Received by</div>
+                            </div>
                         </div>
                     </div>
-
-                    <div class="row mt-2">
-                        <div class="col-6">
-                            <strong>ผู้รับเงิน:</strong>
-                            <span t-field="doc.partner_id.name"/>
-                        </div>
-                        <div class="col-6">
-                            <strong>ที่อยู่:</strong>
-                            <span t-field="doc.partner_id.street"/>
-                        </div>
-                    </div>
-
-                    <div class="row mt-2">
-                        <div class="col-6">
-                            <strong>เลขประจำตัวผู้เสียภาษี:</strong>
-                            <span t-field="doc.partner_id.vat"/>
-                        </div>
-                        <div class="col-6">
-                            <strong>สาขา:</strong>
-                            <span t-esc="doc.partner_id.branch_code or '00000'"/>
-                        </div>
-                    </div>
-
-                    <div class="row mt-2">
-                        <div class="col-12">
-                            <strong>รายการ:</strong>
-                            <span t-field="doc.ref"/>
-                        </div>
-                    </div>
-
-                    <div class="row mt-2">
-                        <div class="col-6">
-                            <strong>วิธีการชำระเงิน:</strong>
-                            <span t-esc="dict(doc._fields['payment_type'].selection).get(doc.payment_type, doc.payment_type)"/>
-                        </div>
-                        <div class="col-6">
-                            <strong>ธนาคาร:</strong>
-                            <span t-field="doc.journal_id.name"/>
-                        </div>
-                    </div>
-
-                    <table class="table table-sm table-bordered mt-4">
-                        <thead class="thead-light">
-                            <tr>
-                                <th class="text-center" style="width:10%">ลำดับ</th>
-                                <th class="text-center">รายละเอียด</th>
-                                <th class="text-right" style="width:20%">จำนวนเงิน</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="text-center">1</td>
-                                <td>
-                                    <t t-if="doc.ref"><span t-field="doc.ref"/></t>
-                                    <t t-else="">ชำระเงิน</t>
-                                </td>
-                                <td class="text-right">
-                                    <span t-esc="{:,.2f}'.format(doc.amount)"/>
-                                </td>
-                            </tr>
-                            <tr class="font-weight-bold">
-                                <td colspan="2" class="text-right">รวมทั้งสิ้น</td>
-                                <td class="text-right">
-                                    <span t-esc="{:,.2f}'.format(doc.amount)"/>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <div class="row mt-4">
-                        <div class="col-12">
-                            <strong>จำนวนเงิน (ตัวอักษร):</strong>
-                            <span t-esc="doc.currency_id.amount_to_text(doc.amount)"/>
-                        </div>
-                    </div>
-
-                    <div class="row mt-5">
-                        <div class="col-4 text-center">
-                            <div>__________________________</div>
-                            <div>ผู้จ่ายเงิน</div>
-                        </div>
-                        <div class="col-4 text-center">
-                            <div>__________________________</div>
-                            <div>ผู้รับเงิน</div>
-                        </div>
-                        <div class="col-4 text-center">
-                            <div>__________________________</div>
-                            <div>ผู้อนุมัติ</div>
-                        </div>
-                    </div>
-                </div>
+                </t>
             </t>
         </t>
     </template>
 
-    <record id="action_payment_voucher" model="ir.actions.report">
-        <field name="name">Payment Voucher</field>
+    <record id="action_report_payment_voucher" model="ir.actions.report">
+        <field name="name">ใบสำคัญจ่าย / Payment Voucher</field>
         <field name="model">account.payment</field>
         <field name="report_type">qweb-pdf</field>
-        <field name="report_name">od19_accounting_payment_voucher_reports.payment_voucher</field>
-        <field name="report_file">od19_accounting_payment_voucher_reports.payment_voucher</field>
+        <field name="report_name">od19_accounting_payment_voucher_reports.payment_voucher_document</field>
+        <field name="report_file">od19_accounting_payment_voucher_reports.payment_voucher_document</field>
         <field name="binding_model_id" ref="account.model_account_payment"/>
         <field name="binding_type">report</field>
+        <field name="domain">[('payment_type', '=', 'outbound')]</field>
+        <field name="print_report_name">'Payment Voucher - %s' % (object.od19_voucher_no or object.name)</field>
+    </record>
+
+    <!-- ============================================================ -->
+    # ใบสำคัญรับเงิน (Payment Receipt) - one document per customer receipt.
+    <!-- ============================================================ -->
+    <template id="payment_receipt_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="payment">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family:'Sarabun','Noto Sans Thai','Tahoma',sans-serif;">
+                        <h2 class="text-center">ใบสำคัญรับเงิน</h2>
+                        <h4 class="text-center">PAYMENT RECEIPT</h4>
+
+                        <div class="row mt-3">
+                            <div class="col-7">
+                                <div>
+                                    <strong>รับเงินจาก / Received from: </strong>
+                                    <span t-field="payment.partner_id.name"/>
+                                </div>
+                                <div t-if="payment.partner_id.street" t-field="payment.partner_id.street"/>
+                                <div t-if="payment.partner_id.vat">
+                                    <strong>เลขประจำตัวผู้เสียภาษี / Tax ID: </strong>
+                                    <span t-field="payment.partner_id.vat"/>
+                                </div>
+                            </div>
+                            <div class="col-5 text-right">
+                                <div>
+                                    <strong>เลขที่ / Receipt No: </strong>
+                                    <span t-esc="payment.od19_voucher_no or payment.name"/>
+                                </div>
+                                <div>
+                                    <strong>วันที่ / Date: </strong>
+                                    <span t-field="payment.date"/>
+                                </div>
+                                <div t-if="payment.journal_id">
+                                    <strong>ช่องทาง / Method: </strong>
+                                    <span t-field="payment.journal_id.name"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <table class="table table-sm table-bordered mt-4">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th class="text-center" style="width:8%">ลำดับ</th>
+                                    <th>รายการ / Description</th>
+                                    <th class="text-right" style="width:22%">จำนวนเงิน / Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="text-center">1</td>
+                                    <td>
+                                        <span>รับชำระเงินจาก </span>
+                                        <span t-field="payment.partner_id.name"/>
+                                        <t t-if="payment.memo">
+                                            <span> — </span>
+                                            <span t-field="payment.memo"/>
+                                        </t>
+                                        <t t-if="payment.payment_reference">
+                                            <span> (</span>
+                                            <span t-field="payment.payment_reference"/>
+                                            <span>)</span>
+                                        </t>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-field="payment.amount"
+                                              t-options='{"widget": "monetary", "display_currency": payment.currency_id}'/>
+                                    </td>
+                                </tr>
+                                <tr class="font-weight-bold">
+                                    <td colspan="2" class="text-right">รวมทั้งสิ้น / Total</td>
+                                    <td class="text-right">
+                                        <span t-field="payment.amount"
+                                              t-options='{"widget": "monetary", "display_currency": payment.currency_id}'/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="row mt-2">
+                            <div class="col-12">
+                                <strong>จำนวนเงิน (ตัวอักษร): </strong>
+                                <span t-esc="payment.currency_id.with_context(lang='th_TH').amount_to_text(payment.amount)"/>
+                            </div>
+                        </div>
+
+                        <div class="row mt-5">
+                            <div class="col-6 text-center">
+                                <div>______________________</div>
+                                <div>ผู้รับเงิน / Received by</div>
+                            </div>
+                            <div class="col-6 text-center">
+                                <div>______________________</div>
+                                <div>ผู้ออกใบสำคัญ / Issued by</div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_payment_receipt" model="ir.actions.report">
+        <field name="name">ใบสำคัญรับเงิน / Payment Receipt</field>
+        <field name="model">account.payment</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">od19_accounting_payment_voucher_reports.payment_receipt_document</field>
+        <field name="report_file">od19_accounting_payment_voucher_reports.payment_receipt_document</field>
+        <field name="binding_model_id" ref="account.model_account_payment"/>
+        <field name="binding_type">report</field>
+        <field name="domain">[('payment_type', '=', 'inbound')]</field>
+        <field name="print_report_name">'Payment Receipt - %s' % (object.od19_voucher_no or object.name)</field>
     </record>
 
 </odoo>

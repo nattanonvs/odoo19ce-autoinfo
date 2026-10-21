@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2026 OD19 -->
+<!-- License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl). -->
+<odoo>
+
+    <!-- ============================================================ -->
+    # ใบวางบิล (Billing Note) - lists the customer invoices being billed
+    # for one partner. Thai font comes from od19_thai_font_support.
+    <!-- ============================================================ -->
+    <template id="billing_note_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs.mapped('partner_id')" t-as="partner">
+                <t t-set="partner_docs"
+                   t-value="docs.filtered(lambda m: m.partner_id == partner)"/>
+                <t t-set="note_currency"
+                   t-value="partner_docs[:1].currency_id or partner_docs[:1].company_id.currency_id"/>
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family:'Sarabun','Noto Sans Thai','Tahoma',sans-serif;">
+                        <h2 class="text-center">ใบวางบิล</h2>
+                        <h3 class="text-center">BILLING NOTE</h3>
+
+                        <div class="row mt-3">
+                            <div class="col-7">
+                                <strong>ลูกค้า / Customer:</strong>
+                                <div t-field="partner.name"/>
+                                <div t-if="partner.street" t-field="partner.street"/>
+                                <div>
+                                    <span t-if="partner.street2" t-field="partner.street2"/>
+                                    <span t-if="partner.city" t-field="partner.city"/>
+                                </div>
+                                <div>
+                                    <span>เลขประจำตัวผู้เสียภาษี / Tax ID: </span>
+                                    <span t-field="partner.vat"/>
+                                    <span> สาขา / Branch: </span>
+                                    <span t-esc="partner.branch_code or '00000'"/>
+                                </div>
+                            </div>
+                            <div class="col-5 text-right">
+                                <div>
+                                    <strong>เลขที่วางบิล / Note No: </strong>
+                                    <span t-esc="partner_docs[:1].name"/>
+                                </div>
+                                <div>
+                                    <strong>วันที่ / Date: </strong>
+                                    <span t-field="partner_docs[:1].invoice_date"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <table class="table table-sm table-bordered mt-4">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th class="text-center" style="width:8%">ลำดับ</th>
+                                    <th>เลขที่ใบแจ้งหนี้ / Invoice No</th>
+                                    <th class="text-center" style="width:14%">วันที่ / Date</th>
+                                    <th class="text-center" style="width:14%">ครบกำหนด / Due</th>
+                                    <th class="text-right" style="width:18%">จำนวนเงิน / Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="partner_docs" t-as="inv">
+                                    <td class="text-center">
+                                        <t t-esc="inv_index + 1"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="inv.name"/>
+                                        <t t-if="inv.ref">
+                                            <span> (</span><span t-field="inv.ref"/><span>)</span>
+                                        </t>
+                                    </td>
+                                    <td class="text-center">
+                                        <span t-field="inv.invoice_date"/>
+                                    </td>
+                                    <td class="text-center">
+                                        <span t-field="inv.invoice_date_due"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-field="inv.amount_total"
+                                              t-options='{"widget": "monetary", "display_currency": inv.currency_id}'/>
+                                    </td>
+                                </tr>
+                                <tr class="font-weight-bold">
+                                    <td colspan="4" class="text-right">รวมทั้งสิ้น / Total</td>
+                                    <td class="text-right">
+                                        <span t-esc="sum(partner_docs.mapped('amount_total'))"
+                                              t-options='{"widget": "monetary", "display_currency": note_currency}'/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="row mt-2">
+                            <div class="col-12">
+                                <strong>จำนวนเงิน (ตัวอักษร): </strong>
+                                <span t-esc="note_currency.amount_to_text(sum(partner_docs.mapped('amount_total')))"/>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <strong>กำหนดชำระเงิน / Payment Due: </strong>
+                                <span t-field="partner_docs[:1].invoice_date_due"/>
+                            </div>
+                        </div>
+
+                        <div class="row mt-5">
+                            <div class="col-6 text-center">
+                                <div>__________________________</div>
+                                <div>ผู้วางบิล / Issued by</div>
+                            </div>
+                            <div class="col-6 text-center">
+                                <div>__________________________</div>
+                                <div>ผู้รับวางบิล / Received by</div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_billing_note" model="ir.actions.report">
+        <field name="name">Billing Note</field>
+        <field name="model">account.move</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">od19_accounting_features.billing_note_document</field>
+        <field name="report_file">od19_accounting_features.billing_note_document</field>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_type">report</field>
+        <field name="domain">[('move_type', 'in', ('out_invoice', 'out_refund'))]</field>
+        <field name="print_report_name">'Billing Note - %s' % (object.name)</field>
+    </record>
+
+</odoo>

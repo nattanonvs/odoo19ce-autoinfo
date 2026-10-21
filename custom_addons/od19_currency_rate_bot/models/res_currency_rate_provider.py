@@ -3,11 +3,14 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 import datetime
+import logging
 
 import requests
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError
+
+_logger = logging.getLogger(__name__)
 
 
 class ResCurrencyRateProviderBOT(models.Model):
@@ -140,7 +143,7 @@ class ResCurrencyRateProviderBOT(models.Model):
                 )
             )
         ICP = self.env["ir.config_parameter"].sudo()
-        bot_token = self.company_id.bot_token
+        bot_token = self.company_id.sudo().bot_token
         if not bot_token:
             raise UserError(self.env._("No bot.or.th credentials specified!"))
         hostname = ICP.get_param("hostname_TH_BOT")
@@ -162,8 +165,23 @@ class ResCurrencyRateProviderBOT(models.Model):
         content = {}
         for bot_currency in bot_currencies:
             url = f"{default_url}&currency={bot_currency.bot_currency_name}"
-            response = requests.get(url, headers=headers, timeout=15)
-            data_dict = response.json()
+            try:
+                response = requests.get(url, headers=headers, timeout=15)
+                data_dict = response.json()
+            except requests.exceptions.RequestException as error:
+                # Offline / network outage: fail with a clear message instead of
+                # a raw requests traceback so the cron degrades gracefully.
+                _logger.warning(
+                    "Bank of Thailand request failed for %s: %s",
+                    bot_currency.bot_currency_name,
+                    error,
+                )
+                raise UserError(
+                    self.env._(
+                        "Cannot reach the Bank of Thailand API. "
+                        "Please check the internet connection and try again."
+                    )
+                ) from error
             result = data_dict.get("result", False)
             if not result:
                 raise UserError(

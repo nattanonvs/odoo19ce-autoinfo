@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2026 OD19 -->
+<!-- License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl). -->
 <odoo>
 
-    <record id="view_account_payment_form_voucher" model="ir.ui.view">
-        <field name="name">account.payment.form.voucher</field>
+    <record id="view_account_payment_form_od19_voucher" model="ir.ui.view">
+        <field name="name">account.payment.form.od19.voucher</field>
         <field name="model">account.payment</field>
         <field name="inherit_id" ref="account.view_account_payment_form"/>
         <field name="arch" type="xml">
-            <field name="name" position="after">
-                <field name="pv_number" readonly="1"/>
+            <field name="memo" position="after">
+                <field name="od19_voucher_no"
+                       readonly="1"
+                       invisible="not od19_voucher_no"/>
             </field>
         </field>
     </record>

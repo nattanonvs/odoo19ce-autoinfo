@@ -37,6 +37,7 @@ Provides several accounting features for the Thai localization:
         "views/account_payment_views.xml",
         "report/wht_report_templates.xml",
         "report/wht_report_actions.xml",
+        "report/billing_note_report.xml",
     ],
     "installable": True,
     "license": "LGPL-3",

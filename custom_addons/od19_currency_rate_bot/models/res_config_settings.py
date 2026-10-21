@@ -12,4 +12,5 @@ class ResConfigSettings(models.TransientModel):
         string="BOT Token",
         related="company_id.bot_token",
         readonly=False,
+        groups="base.group_system",
     )

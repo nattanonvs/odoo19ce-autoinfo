@@ -300,7 +300,7 @@ def _autoinfo_update_company_rates(companies, force=False):
                 "for this company."
             )
         )
-    if not any(company.bot_token for company in companies):
+    if not any(company.bot_token for company in companies.sudo()):
         raise UserError(
             companies.env._("No bot.or.th credentials specified!")
         )

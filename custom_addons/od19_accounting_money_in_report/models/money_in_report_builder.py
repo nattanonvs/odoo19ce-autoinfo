@@ -84,10 +84,11 @@ class MoneyInReportBuilder(models.AbstractModel):
         )
 
     def _resolve_project_type_name(self, project):
-        project_type = self._get_optional_value(project, "type_id")
-        if project_type:
-            return project_type.display_name or project_type.name
-        return False
+        project_type = self._get_optional_value(project, "od19_project_type")
+        if not project_type:
+            return False
+        selection = project._fields["od19_project_type"].selection
+        return dict(selection).get(project_type, project_type)
 
     def _is_cost_reliable(self, product):
         return bool(product and product.standard_price > 0)
@@ -144,7 +145,7 @@ class MoneyInReportBuilder(models.AbstractModel):
         ):
             return False
         if wizard.job_type_values:
-            job_type = self._get_optional_value(project, "job_type") or "unknown"
+            job_type = self._get_optional_value(project, "od19_project_type") or "unknown"
             if job_type != wizard.job_type_values:
                 return False
         return True
@@ -181,7 +182,7 @@ class MoneyInReportBuilder(models.AbstractModel):
             "partner_id": invoice.partner_id.id,
             "salesperson_id": salesperson.id if salesperson else False,
             "project_id": project.id if project else False,
-            "project_job_type": self._get_optional_value(project, "job_type")
+            "project_job_type": self._get_optional_value(project, "od19_project_type")
             or "unknown",
             "project_type_name": project_type_name,
             "product_id": product.id,
@@ -340,7 +341,7 @@ class MoneyInReportBuilder(models.AbstractModel):
             "partner_id": invoice.partner_id.id,
             "salesperson_id": salesperson.id if salesperson else False,
             "project_id": project.id if project else False,
-            "project_job_type": self._get_optional_value(project, "job_type")
+            "project_job_type": self._get_optional_value(project, "od19_project_type")
             or "unknown",
             "project_type_name": project_type_name,
             "product_id": product.id if product else False,

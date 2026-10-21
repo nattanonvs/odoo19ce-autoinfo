@@ -24,7 +24,7 @@ class AccountPayment(models.Model):
             if pay.fee_amount < 0:
                 raise ValidationError(_("Payment fee cannot be negative."))
 
-    def _prepare_move_line_default_vals(self, write_off_line_vals=None):
+    def _prepare_move_line_default_vals(self, write_off_line_vals=None, force_balance=None):
         """Override to inject fee line and adjust liquidity amount.
 
         For customer payment with fee: bank receives (amount - fee)
@@ -32,7 +32,8 @@ class AccountPayment(models.Model):
         The fee is posted to fee_account_id.
         """
         res = super()._prepare_move_line_default_vals(
-            write_off_line_vals=write_off_line_vals
+            write_off_line_vals=write_off_line_vals,
+            force_balance=force_balance,
         )
         if not self.fee_amount or not self.fee_account_id:
             return res

@@ -8,7 +8,10 @@ from odoo import fields, models
 class ResCompany(models.Model):
     _inherit = "res.company"
 
-    bot_token = fields.Char(string="BOT Token")
+    bot_token = fields.Char(
+        string="BOT Token",
+        groups="base.group_system",
+    )
     autoinfo_currency_rate_last_update = fields.Datetime(
         string="Currency Rate Last Update",
         readonly=True,

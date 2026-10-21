@@ -10,6 +10,7 @@
         "sale_management",
         "project",
         "mail",
+        "od19_project_document_sequence",
     ],
     "data": [
         "security/ir.model.access.csv",
