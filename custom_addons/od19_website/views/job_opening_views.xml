@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- Job Opening - list                                            -->
+    <!-- ============================================================ -->
+    <record id="view_od19_job_opening_list" model="ir.ui.view">
+        <field name="name">od19.job.opening.list</field>
+        <field name="model">od19.job.opening</field>
+        <field name="arch" type="xml">
+            <list string="Job Openings" decoration-muted="not is_open">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="department"/>
+                <field name="job_type"/>
+                <field name="experience_level"/>
+                <field name="work_location" optional="show"/>
+                <field name="vacancies"/>
+                <field name="application_count" string="Applications"/>
+                <field name="publish_date" optional="hide"/>
+                <field name="closing_date"/>
+                <field name="is_published" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Job Opening - form                                            -->
+    <!-- ============================================================ -->
+    <record id="view_od19_job_opening_form" model="ir.ui.view">
+        <field name="name">od19.job.opening.form</field>
+        <field name="model">od19.job.opening</field>
+        <field name="arch" type="xml">
+            <form string="Job Opening">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_applications" type="object"
+                                class="oe_stat_button" icon="fa-users"
+                                invisible="application_count == 0">
+                            <div class="o_stat_info">
+                                <field name="application_count" class="o_stat_value"/>
+                                <span class="o_stat_text">Applications</span>
+                            </div>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Closed" bg_color="text-bg-danger"
+                            invisible="is_open"/>
+                    <div class="oe_title">
+                        <label for="name" string="Job Title"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Senior Automation Engineer"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group name="left" string="Position">
+                            <field name="department"/>
+                            <field name="job_type"/>
+                            <field name="experience_level"/>
+                            <field name="work_location"/>
+                        </group>
+                        <group name="right" string="Publication">
+                            <field name="vacancies"/>
+                            <field name="salary_range"/>
+                            <field name="publish_date"/>
+                            <field name="closing_date"/>
+                            <field name="is_published"/>
+                            <field name="is_open"/>
+                            <field name="sequence" groups="base.group_no_one"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Overview" name="overview">
+                            <field name="short_description"
+                                   placeholder="One or two lines shown on the careers listing page."/>
+                        </page>
+                        <page string="Job Description" name="description">
+                            <field name="description"/>
+                        </page>
+                        <page string="Responsibilities" name="responsibilities">
+                            <field name="responsibilities"/>
+                        </page>
+                        <page string="Qualifications" name="qualifications">
+                            <field name="qualifications"/>
+                        </page>
+                        <page string="Benefits &amp; Welfare" name="benefits">
+                            <field name="benefits"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Job Opening - search                                          -->
+    <!-- ============================================================ -->
+    <record id="view_od19_job_opening_search" model="ir.ui.view">
+        <field name="name">od19.job.opening.search</field>
+        <field name="model">od19.job.opening</field>
+        <field name="arch" type="xml">
+            <search string="Job Openings">
+                <field name="name" string="Job Title"/>
+                <field name="work_location"/>
+                <filter name="filter_published" string="Published" domain="[('is_published', '=', True)]"/>
+                <filter name="filter_closing" string="Closing Date" domain="[('closing_date', '!=', False)]"/>
+                <separator/>
+                <filter name="filter_industrial" string="Industrial" domain="[('department', '=', 'industrial')]"/>
+                <filter name="filter_building" string="Building" domain="[('department', '=', 'building')]"/>
+                <filter name="filter_terminal" string="Terminal" domain="[('department', '=', 'terminal')]"/>
+                <filter name="filter_support" string="Sales &amp; Administration" domain="[('department', '=', 'support')]"/>
+                <separator/>
+                <filter name="filter_archived" string="Archived" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter name="group_department" string="Department" domain="[]" context="{'group_by': 'department'}"/>
+                    <filter name="group_job_type" string="Employment Type" domain="[]" context="{'group_by': 'job_type'}"/>
+                    <filter name="group_experience" string="Experience Level" domain="[]" context="{'group_by': 'experience_level'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Job Opening - action & menu                                   -->
+    <!-- ============================================================ -->
+    <record id="action_od19_job_opening" model="ir.actions.act_window">
+        <field name="name">Job Openings</field>
+        <field name="res_model">od19.job.opening</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_od19_job_opening_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Publish your first job opening</p>
+            <p>Create a position here and it will appear on the public careers page.</p>
+        </field>
+    </record>
+
+    <record id="action_od19_job_opening_published" model="ir.actions.act_window">
+        <field name="name">Published Jobs</field>
+        <field name="res_model">od19.job.opening</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('is_open', '=', True)]</field>
+        <field name="context">{'search_default_filter_open': 1}</field>
+    </record>
+
+    <menuitem id="menu_od19_recruitment_root" name="Recruitment"
+              sequence="85" groups="base.group_user"/>
+    <menuitem id="menu_od19_job_opening" name="Job Openings"
+              parent="menu_od19_recruitment_root"
+              action="action_od19_job_opening" sequence="10"/>
+    <menuitem id="menu_od19_job_application" name="Applications"
+              parent="menu_od19_recruitment_root"
+              action="action_od19_job_application" sequence="20"/>
+    <menuitem id="menu_od19_recruitment_config" name="Configuration"
+              parent="menu_od19_recruitment_root"
+              sequence="90" groups="base.group_system"/>
+    <menuitem id="menu_od19_job_opening_published" name="Published Jobs"
+              parent="menu_od19_recruitment_config"
+              action="action_od19_job_opening_published" sequence="10"/>
+
+</odoo>

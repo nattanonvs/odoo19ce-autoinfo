@@ -1,135 +1,467 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Industrial Automation -->
+    <!-- ============================================================ -->
+    <!-- Reusable: closing call-to-action band                          -->
+    <!-- ============================================================ -->
+    <template id="od19_cta_section" name="CTA Section">
+        <section class="od19-pc-cta-section">
+            <div class="container">
+                <div class="od19-pc-cta-box">
+                    <div>
+                        <h2 t-esc="cta_title or 'Ready to start your project?'"/>
+                        <p t-esc="cta_text or 'Talk to our engineers and get a solution designed around your operation.'"/>
+                    </div>
+                    <a href="/contactus" class="btn btn-hero">
+                        Contact Us <i class="fa fa-arrow-right"/>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </template>
+
+    <!-- ============================================================ -->
+    <!-- Industrial Automation                                         -->
+    <!-- ============================================================ -->
     <template id="od19_industrial_page" name="Industrial Automation Page">
         <t t-call="website.layout">
             <div id="wrap" class="oe_structure oe_empty">
-                <section class="od19-hero" style="padding:50px 0;">
+                <t t-set="hero_img" t-value="'/od19_website/static/src/img/hero/industrial.jpg'"/>
+
+                <section class="od19-page-hero od19-pc-reveal" t-attf-style="background-image:url('#{hero_img}')">
+                    <div class="od19-page-hero-overlay"/>
                     <div class="container">
-                        <h1>Industrial Automation</h1>
-                        <p class="lead mb-0">System Migrations · SCADA · Preventive Maintenance · Service Contract</p>
+                        <span class="od19-eyebrow">Industrial Automation</span>
+                        <h1>Industrial Automation that keeps your plant running</h1>
+                        <p class="od19-lead">
+                            System migration, SCADA centralised information, preventive maintenance and
+                            service contracts — engineered for manufacturers that cannot afford downtime.
+                        </p>
+                        <div class="od19-hero-actions">
+                            <a href="/contactus" class="btn btn-hero">Request a Consultation <i class="fa fa-arrow-right"/></a>
+                            <a href="/products" class="btn btn-ghost-light">View Products</a>
+                        </div>
+                        <ul class="od19-hero-facts">
+                            <li><i class="fa fa-check-circle"/> PLC &amp; DCS migration</li>
+                            <li><i class="fa fa-check-circle"/> SCADA &amp; HMI</li>
+                            <li><i class="fa fa-check-circle"/> 24/7 service contract</li>
+                        </ul>
                     </div>
                 </section>
-                <section class="od19-section">
+
+                <!-- Overview -->
+                <section class="od19-split">
                     <div class="container">
-                        <div class="row">
-                            <div class="col-lg-8">
-                                <h3 style="color:var(--od19-dark);font-weight:700;">Overview</h3>
+                        <div class="row align-items-center g-5">
+                            <div class="col-lg-6">
+                                <h2>From legacy control systems to a connected plant</h2>
                                 <p>
-                                    We are an Automation Solution Provider with System Migrations,
-                                    SCADA Centralized Information, Preventive Maintenance and
-                                    Service Contract Provider. Our industrial automation solutions
-                                    help manufacturers improve efficiency, reduce downtime, and
-                                    ensure consistent product quality.
+                                    We are an automation solution provider specialising in system migration,
+                                    SCADA centralised information, preventive maintenance and service
+                                    contracts. Our industrial solutions help manufacturers improve
+                                    efficiency, reduce downtime and guarantee consistent product quality.
                                 </p>
-                                <h4 style="color:var(--od19-primary);margin-top:24px;">Key Capabilities</h4>
-                                <ul class="list-unstyled">
-                                    <li class="mb-2"><i class="fa fa-check-circle text-success me-2"/>PLC &amp; DCS System Design &amp; Migration</li>
-                                    <li class="mb-2"><i class="fa fa-check-circle text-success me-2"/>SCADA Centralized Information Systems</li>
-                                    <li class="mb-2"><i class="fa fa-check-circle text-success me-2"/>Preventive Maintenance Programs</li>
-                                    <li class="mb-2"><i class="fa fa-check-circle text-success me-2"/>Service &amp; Maintenance Contracts</li>
-                                    <li class="mb-2"><i class="fa fa-check-circle text-success me-2"/>HMI &amp; Visualization Systems</li>
+                                <ul class="od19-check-list mt-4">
+                                    <li><i class="fa fa-check-circle"/> Step-by-step migration with production-safe cut-over plans</li>
+                                    <li><i class="fa fa-check-circle"/> Centralised SCADA with real-time KPI and alarm management</li>
+                                    <li><i class="fa fa-check-circle"/> Spare-part stocking and rapid-response field service</li>
+                                    <li><i class="fa fa-check-circle"/> Documented, auditable service records for every intervention</li>
                                 </ul>
                             </div>
-                            <div class="col-lg-4">
-                                <div class="od19-contact-card">
-                                    <h4><i class="fa fa-info-circle me-2"/>Need a Quote?</h4>
-                                    <p>Contact our industrial automation team for a tailored solution.</p>
-                                    <a href="/contactus" class="btn btn-primary w-100">Contact Sales</a>
+                            <div class="col-lg-6">
+                                <div class="od19-img-frame od19-pc-reveal">
+                                    <img t-att-src="'/od19_website/static/src/img/content/industrial.jpg'"
+                                         alt="Industrial automation engineering" loading="lazy"/>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </section>
+
+                <!-- Capabilities -->
+                <section class="od19-section bg-light">
+                    <div class="container">
+                        <div class="od19-section-title">
+                            <h2>Key Capabilities</h2>
+                            <div class="od19-divider"/>
+                            <p class="od19-careers-lead">A complete service scope covering the full automation lifecycle.</p>
+                        </div>
+                        <div class="od19-cap-grid">
+                            <div class="od19-cap-card od19-pc-reveal">
+                                <div class="od19-cap-icon"><i class="fa fa-microchip"/></div>
+                                <h4>PLC &amp; DCS System Design</h4>
+                                <p>Control system architecture, hardware selection and panel design built to your process.</p>
+                            </div>
+                            <div class="od19-cap-card od19-pc-reveal">
+                                <div class="od19-cap-icon"><i class="fa fa-exchange"/></div>
+                                <h4>System Migration</h4>
+                                <p>Safe migration from obsolete controllers to modern platforms with minimal production impact.</p>
+                            </div>
+                            <div class="od19-cap-card od19-pc-reveal">
+                                <div class="od19-cap-icon"><i class="fa fa-desktop"/></div>
+                                <h4>SCADA Centralised Information</h4>
+                                <p>Plant-wide visualisation, historical data, trending and alarm management in one place.</p>
+                            </div>
+                            <div class="od19-cap-card od19-pc-reveal">
+                                <div class="od19-cap-icon"><i class="fa fa-wrench"/></div>
+                                <h4>Preventive Maintenance</h4>
+                                <p>Scheduled inspection and calibration programmes that stop failures before they happen.</p>
+                            </div>
+                            <div class="od19-cap-card od19-pc-reveal">
+                                <div class="od19-cap-icon"><i class="fa fa-file-text-o"/></div>
+                                <h4>Service &amp; Maintenance Contracts</h4>
+                                <p>Annual contracts with guaranteed response time, spare parts and on-site support.</p>
+                            </div>
+                            <div class="od19-cap-card od19-pc-reveal">
+                                <div class="od19-cap-icon"><i class="fa fa-graduation-cap"/></div>
+                                <h4>Operator Training</h4>
+                                <p>Hands-on training programmes so your team operates and maintains the system with confidence.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Process -->
+                <section class="od19-section">
+                    <div class="container">
+                        <div class="od19-section-title">
+                            <h2>How we deliver</h2>
+                            <div class="od19-divider"/>
+                        </div>
+                        <div class="od19-steps">
+                            <div class="od19-step od19-pc-reveal">
+                                <div class="od19-step-num">1</div>
+                                <h4>Survey &amp; Study</h4>
+                                <p>Site survey, system audit and gap analysis of your existing installation.</p>
+                            </div>
+                            <div class="od19-step od19-pc-reveal">
+                                <div class="od19-step-num">2</div>
+                                <h4>Design &amp; Proposal</h4>
+                                <p>Solution design, bill of materials and a clear implementation plan.</p>
+                            </div>
+                            <div class="od19-step od19-pc-reveal">
+                                <div class="od19-step-num">3</div>
+                                <h4>Implementation</h4>
+                                <p>Engineering, FAT/SAT, commissioning and production cut-over.</p>
+                            </div>
+                            <div class="od19-step od19-pc-reveal">
+                                <div class="od19-step-num">4</div>
+                                <h4>Support &amp; Service</h4>
+                                <p>Training, documentation, warranty and long-term maintenance contracts.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Stats -->
+                <section class="od19-stats">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-3 col-6"><div class="od19-stat-number">20+</div><div class="od19-stat-label">Years Experience</div></div>
+                            <div class="col-md-3 col-6"><div class="od19-stat-number">500+</div><div class="od19-stat-label">Projects Delivered</div></div>
+                            <div class="col-md-3 col-6"><div class="od19-stat-number">24/7</div><div class="od19-stat-label">Service Support</div></div>
+                            <div class="col-md-3 col-6"><div class="od19-stat-number">98%</div><div class="od19-stat-label">Customer Retention</div></div>
+                        </div>
+                    </div>
+                </section>
+
+                <t t-call="od19_website.od19_cta_section"
+                   cta_title.f="Let's modernise your control system"
+                   cta_text.f="Our engineers will assess your plant and propose a migration path that protects production."/>
             </div>
         </t>
     </template>
 
-    <!-- Building Automation -->
+    <!-- ============================================================ -->
+    <!-- Building Automation                                           -->
+    <!-- ============================================================ -->
     <template id="od19_building_page" name="Building Automation Page">
         <t t-call="website.layout">
             <div id="wrap" class="oe_structure oe_empty">
-                <section class="od19-hero" style="padding:50px 0;">
+                <t t-set="hero_img" t-value="'/od19_website/static/src/img/hero/building.jpg'"/>
+
+                <section class="od19-page-hero od19-pc-reveal" t-attf-style="background-image:url('#{hero_img}')">
+                    <div class="od19-page-hero-overlay"/>
                     <div class="container">
-                        <h1>Building Automation</h1>
-                        <p class="lead mb-0">GMP &amp; CSV Compliant Building Automation Systems</p>
+                        <span class="od19-eyebrow">Building Automation</span>
+                        <h1>GMP &amp; CSV compliant building automation</h1>
+                        <p class="od19-lead">
+                            Market leader in Thailand's life-science sector for Building Automation Systems —
+                            supplying products, services and validation that satisfy GMP and CSV requirements.
+                        </p>
+                        <div class="od19-hero-actions">
+                            <a href="/contactus" class="btn btn-hero">Talk to a Specialist <i class="fa fa-arrow-right"/></a>
+                            <a href="/products" class="btn btn-ghost-light">View Products</a>
+                        </div>
+                        <ul class="od19-hero-facts">
+                            <li><i class="fa fa-check-circle"/> GMP compliant</li>
+                            <li><i class="fa fa-check-circle"/> CSV documentation</li>
+                            <li><i class="fa fa-check-circle"/> Clean room &amp; HVAC</li>
+                        </ul>
                     </div>
                 </section>
-                <section class="od19-section">
+
+                <section class="od19-split">
                     <div class="container">
-                        <div class="row">
-                            <div class="col-lg-8">
-                                <h3 style="color:var(--od19-dark);font-weight:700;">Market Leader in Life Science Automation</h3>
+                        <div class="row align-items-center g-5">
+                            <div class="col-lg-6 order-lg-2">
+                                <h2>Validation-ready automation for regulated environments</h2>
                                 <p>
-                                    We are the market leader in Thailand's life science business
-                                    for Building Automation Systems. We supply products, services,
-                                    and validation to ensure full compliance with Good Manufacturing
-                                    Practice (GMP) and Computer System Validation (CSV) regulations.
+                                    We supply complete building automation for pharmaceutical, biotechnology
+                                    and life-science facilities — from HVAC and clean-room pressure control to
+                                    environmental monitoring — with the validation deliverables auditors expect.
                                 </p>
-                                <h4 style="color:var(--od19-primary);margin-top:24px;">Compliance &amp; Validation</h4>
-                                <ul class="list-unstyled">
-                                    <li class="mb-2"><i class="fa fa-check-circle text-success me-2"/>GMP Compliance</li>
-                                    <li class="mb-2"><i class="fa fa-check-circle text-success me-2"/>CSV (Computer System Validation)</li>
-                                    <li class="mb-2"><i class="fa fa-check-circle text-success me-2"/>HVAC &amp; Clean Room Control</li>
-                                    <li class="mb-2"><i class="fa fa-check-circle text-success me-2"/>Energy Management Systems</li>
-                                    <li class="mb-2"><i class="fa fa-check-circle text-success me-2"/>Environmental Monitoring</li>
+                                <ul class="od19-check-list mt-4">
+                                    <li><i class="fa fa-check-circle"/> IQ / OQ / PQ documentation packages</li>
+                                    <li><i class="fa fa-check-circle"/> 21 CFR Part 11 friendly audit trails</li>
+                                    <li><i class="fa fa-check-circle"/> Clean-room differential pressure and temperature control</li>
+                                    <li><i class="fa fa-check-circle"/> Energy management that lowers operating cost</li>
                                 </ul>
                             </div>
-                            <div class="col-lg-4">
-                                <div class="od19-contact-card">
-                                    <h4><i class="fa fa-flask me-2"/>Life Science Expertise</h4>
-                                    <p>Trusted by leading pharmaceutical and life science companies in Thailand.</p>
-                                    <a href="/contactus" class="btn btn-primary w-100">Contact Sales</a>
+                            <div class="col-lg-6 order-lg-1">
+                                <div class="od19-img-frame od19-pc-reveal">
+                                    <img t-att-src="'/od19_website/static/src/img/content/building.jpg'"
+                                         alt="Building automation in a life science facility" loading="lazy"/>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </section>
+
+                <section class="od19-section bg-light">
+                    <div class="container">
+                        <div class="od19-section-title">
+                            <h2>Compliance &amp; Validation</h2>
+                            <div class="od19-divider"/>
+                            <p class="od19-careers-lead">Everything needed to pass an audit and stay compliant.</p>
+                        </div>
+                        <div class="od19-cap-grid">
+                            <div class="od19-cap-card od19-pc-reveal">
+                                <div class="od19-cap-icon"><i class="fa fa-certificate"/></div>
+                                <h4>GMP Compliance</h4>
+                                <p>Systems designed and documented to Good Manufacturing Practice requirements.</p>
+                            </div>
+                            <div class="od19-cap-card od19-pc-reveal">
+                                <div class="od19-cap-icon"><i class="fa fa-check-square-o"/></div>
+                                <h4>CSV (Computer System Validation)</h4>
+                                <p>Validation master plan, risk assessment, protocols and traceability matrix.</p>
+                            </div>
+                            <div class="od19-cap-card od19-pc-reveal">
+                                <div class="od19-cap-icon"><i class="fa fa-snowflake-o"/></div>
+                                <h4>HVAC &amp; Clean Room Control</h4>
+                                <p>Temperature, humidity, pressure cascade and air-change control with alarms.</p>
+                            </div>
+                            <div class="od19-cap-card od19-pc-reveal">
+                                <div class="od19-cap-icon"><i class="fa fa-bolt"/></div>
+                                <h4>Energy Management Systems</h4>
+                                <p>Metering, dashboards and analytics to reduce energy consumption.</p>
+                            </div>
+                            <div class="od19-cap-card od19-pc-reveal">
+                                <div class="od19-cap-icon"><i class="fa fa-thermometer-half"/></div>
+                                <h4>Environmental Monitoring</h4>
+                                <p>Continuous monitoring of critical parameters with secure historical records.</p>
+                            </div>
+                            <div class="od19-cap-card od19-pc-reveal">
+                                <div class="od19-cap-icon"><i class="fa fa-fire-extinguisher"/></div>
+                                <h4>Life Safety &amp; Access</h4>
+                                <p>Fire alarm integration, access control and emergency response sequences.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="od19-section">
+                    <div class="container">
+                        <div class="od19-section-title">
+                            <h2>Validation lifecycle</h2>
+                            <div class="od19-divider"/>
+                        </div>
+                        <div class="od19-steps">
+                            <div class="od19-step od19-pc-reveal">
+                                <div class="od19-step-num">1</div>
+                                <h4>URS Review</h4>
+                                <p>We translate your user requirement specification into a compliant design.</p>
+                            </div>
+                            <div class="od19-step od19-pc-reveal">
+                                <div class="od19-step-num">2</div>
+                                <h4>Design &amp; Risk</h4>
+                                <p>Detailed design with risk assessment and traceability mapping.</p>
+                            </div>
+                            <div class="od19-step od19-pc-reveal">
+                                <div class="od19-step-num">3</div>
+                                <h4>IQ / OQ / PQ</h4>
+                                <p>Installation, operational and performance qualification executed and documented.</p>
+                            </div>
+                            <div class="od19-step od19-pc-reveal">
+                                <div class="od19-step-num">4</div>
+                                <h4>Change Control</h4>
+                                <p>Ongoing change control and periodic review to stay inspection-ready.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="od19-stats">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-3 col-6"><div class="od19-stat-number">20+</div><div class="od19-stat-label">Years Experience</div></div>
+                            <div class="col-md-3 col-6"><div class="od19-stat-number">100%</div><div class="od19-stat-label">GMP &amp; CSV Ready</div></div>
+                            <div class="col-md-3 col-6"><div class="od19-stat-number">50+</div><div class="od19-stat-label">Life-science Sites</div></div>
+                            <div class="col-md-3 col-6"><div class="od19-stat-number">0</div><div class="od19-stat-label">Audit Findings</div></div>
+                        </div>
+                    </div>
+                </section>
+
+                <t t-call="od19_website.od19_cta_section"
+                   cta_title.f="Building a regulated facility?"
+                   cta_text.f="Let us prepare the automation and validation documentation your auditors expect."/>
             </div>
         </t>
     </template>
 
-    <!-- Terminal Automation -->
+    <!-- ============================================================ -->
+    <!-- Terminal Automation                                           -->
+    <!-- ============================================================ -->
     <template id="od19_terminal_page" name="Terminal Automation Page">
         <t t-call="website.layout">
             <div id="wrap" class="oe_structure oe_empty">
-                <section class="od19-hero" style="padding:50px 0;">
+                <t t-set="hero_img" t-value="'/od19_website/static/src/img/hero/terminal.jpg'"/>
+
+                <section class="od19-page-hero od19-pc-reveal" t-attf-style="background-image:url('#{hero_img}')">
+                    <div class="od19-page-hero-overlay"/>
                     <div class="container">
-                        <h1>Terminal Automation</h1>
-                        <p class="lead mb-0">Tank Gauging · Loading System · Integrated Terminal System</p>
+                        <span class="od19-eyebrow">Terminal Automation</span>
+                        <h1>Best-in-class tank gauging and loading systems</h1>
+                        <p class="od19-lead">
+                            Integrated terminal solutions for tank gauging, loading systems and terminal
+                            management — improving inventory accuracy, throughput and safety.
+                        </p>
+                        <div class="od19-hero-actions">
+                            <a href="/contactus" class="btn btn-hero">Discuss Your Terminal <i class="fa fa-arrow-right"/></a>
+                            <a href="/products" class="btn btn-ghost-light">View Products</a>
+                        </div>
+                        <ul class="od19-hero-facts">
+                            <li><i class="fa fa-check-circle"/> Automatic tank gauging</li>
+                            <li><i class="fa fa-check-circle"/> Loading &amp; unloading</li>
+                            <li><i class="fa fa-check-circle"/> Overfill prevention</li>
+                        </ul>
                     </div>
                 </section>
-                <section class="od19-section">
+
+                <section class="od19-split">
                     <div class="container">
-                        <div class="row">
-                            <div class="col-lg-8">
-                                <h3 style="color:var(--od19-dark);font-weight:700;">Integrated Terminal Solutions</h3>
+                        <div class="row align-items-center g-5">
+                            <div class="col-lg-6">
+                                <h2>Integrated terminal automation from tank to truck</h2>
                                 <p>
-                                    We provide Best-in-Class products for Tank gauging, Loading
-                                    system and integrated terminal system for even better operational
-                                    efficiency. Our terminal automation solutions cover the full
-                                    spectrum from inventory management to load-out automation.
+                                    We provide best-in-class products for tank gauging, loading systems and
+                                    integrated terminal management — covering the full spectrum from
+                                    inventory management to load-out automation.
                                 </p>
-                                <h4 style="color:var(--od19-primary);margin-top:24px;">Solutions</h4>
-                                <ul class="list-unstyled">
-                                    <li class="mb-2"><i class="fa fa-check-circle text-success me-2"/>Automatic Tank Gauging (ATG)</li>
-                                    <li class="mb-2"><i class="fa fa-check-circle text-success me-2"/>Loading &amp; Unloading Systems</li>
-                                    <li class="mb-2"><i class="fa fa-check-circle text-success me-2"/>Terminal Management System (TMS)</li>
-                                    <li class="mb-2"><i class="fa fa-check-circle text-success me-2"/>Inventory Reconciliation</li>
-                                    <li class="mb-2"><i class="fa fa-check-circle text-success me-2"/>Safety &amp; Overfill Prevention</li>
+                                <ul class="od19-check-list mt-4">
+                                    <li><i class="fa fa-check-circle"/> Accurate inventory and reconciliation in real time</li>
+                                    <li><i class="fa fa-check-circle"/> Automated load-out with access control and metering</li>
+                                    <li><i class="fa fa-check-circle"/> Safety instrumented overfill protection</li>
+                                    <li><i class="fa fa-check-circle"/> Seamless integration with your ERP and billing systems</li>
                                 </ul>
                             </div>
-                            <div class="col-lg-4">
-                                <div class="od19-contact-card">
-                                    <h4><i class="fa fa-tint me-2"/>Terminal Projects</h4>
-                                    <p>Talk to our terminal automation specialists today.</p>
-                                    <a href="/contactus" class="btn btn-primary w-100">Contact Sales</a>
+                            <div class="col-lg-6">
+                                <div class="od19-img-frame od19-pc-reveal">
+                                    <img t-att-src="'/od19_website/static/src/img/content/terminal.jpg'"
+                                         alt="Terminal automation loading system" loading="lazy"/>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </section>
+
+                <section class="od19-section bg-light">
+                    <div class="container">
+                        <div class="od19-section-title">
+                            <h2>Solutions</h2>
+                            <div class="od19-divider"/>
+                            <p class="od19-careers-lead">A complete terminal automation stack.</p>
+                        </div>
+                        <div class="od19-cap-grid">
+                            <div class="od19-cap-card od19-pc-reveal">
+                                <div class="od19-cap-icon"><i class="fa fa-tachometer"/></div>
+                                <h4>Automatic Tank Gauging (ATG)</h4>
+                                <p>Precise level, temperature and density measurement for every tank.</p>
+                            </div>
+                            <div class="od19-cap-card od19-pc-reveal">
+                                <div class="od19-cap-icon"><i class="fa fa-truck"/></div>
+                                <h4>Loading &amp; Unloading Systems</h4>
+                                <p>Batch controllers, loading arms and metering for fast, safe load-out.</p>
+                            </div>
+                            <div class="od19-cap-card od19-pc-reveal">
+                                <div class="od19-cap-icon"><i class="fa fa-sitemap"/></div>
+                                <h4>Terminal Management System (TMS)</h4>
+                                <p>Centralised order, movement and inventory management across the terminal.</p>
+                            </div>
+                            <div class="od19-cap-card od19-pc-reveal">
+                                <div class="od19-cap-icon"><i class="fa fa-balance-scale"/></div>
+                                <h4>Inventory Reconciliation</h4>
+                                <p>Automated stock reconciliation that eliminates manual dips and paperwork.</p>
+                            </div>
+                            <div class="od19-cap-card od19-pc-reveal">
+                                <div class="od19-cap-icon"><i class="fa fa-shield"/></div>
+                                <h4>Safety &amp; Overfill Prevention</h4>
+                                <p>Independent high-level switches and interlocks protecting people and assets.</p>
+                            </div>
+                            <div class="od19-cap-card od19-pc-reveal">
+                                <div class="od19-cap-icon"><i class="fa fa-id-card-o"/></div>
+                                <h4>Access Control &amp; Billing</h4>
+                                <p>Driver identification, gate automation and automated invoicing data.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="od19-section">
+                    <div class="container">
+                        <div class="od19-section-title">
+                            <h2>Project approach</h2>
+                            <div class="od19-divider"/>
+                        </div>
+                        <div class="od19-steps">
+                            <div class="od19-step od19-pc-reveal">
+                                <div class="od19-step-num">1</div>
+                                <h4>Terminal Survey</h4>
+                                <p>Assessment of tanks, piping, loading bays and existing instrumentation.</p>
+                            </div>
+                            <div class="od19-step od19-pc-reveal">
+                                <div class="od19-step-num">2</div>
+                                <h4>System Design</h4>
+                                <p>Instrument selection, network design and control philosophy.</p>
+                            </div>
+                            <div class="od19-step od19-pc-reveal">
+                                <div class="od19-step-num">3</div>
+                                <h4>Install &amp; Commission</h4>
+                                <p>Installation, calibration, SAT and tie-in during planned shutdowns.</p>
+                            </div>
+                            <div class="od19-step od19-pc-reveal">
+                                <div class="od19-step-num">4</div>
+                                <h4>Operate &amp; Maintain</h4>
+                                <p>Training, spares and a long-term maintenance agreement.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="od19-stats">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-3 col-6"><div class="od19-stat-number">20+</div><div class="od19-stat-label">Years Experience</div></div>
+                            <div class="col-md-3 col-6"><div class="od19-stat-number">1,000+</div><div class="od19-stat-label">Tanks Instrumented</div></div>
+                            <div class="col-md-3 col-6"><div class="od19-stat-number">99.9%</div><div class="od19-stat-label">Measurement Accuracy</div></div>
+                            <div class="col-md-3 col-6"><div class="od19-stat-number">24/7</div><div class="od19-stat-label">Service Support</div></div>
+                        </div>
+                    </div>
+                </section>
+
+                <t t-call="od19_website.od19_cta_section"
+                   cta_title.f="Upgrade your terminal"
+                   cta_text.f="From tank gauging to load-out automation — let our specialists design the right architecture."/>
             </div>
         </t>
     </template>

@@ -40,6 +40,7 @@
                             <ul class="list-unstyled">
                                 <li><a href="/about-us">About Us</a></li>
                                 <li><a href="/products">Products</a></li>
+                                <li><a href="/careers">Careers</a></li>
                                 <li><a href="/blog">News &amp; Events</a></li>
                                 <li><a href="/contactus">Contact</a></li>
                             </ul>
@@ -86,11 +87,69 @@
     </template>
 
     <!-- ============================================================ -->
+    <!-- Search bar: friendlier placeholder + branded pill styling     -->
+    <!-- ============================================================ -->
+    <template id="od19_search_box" name="Auto-Info Search Box"
+              inherit_id="website.website_search_box" priority="20">
+        <xpath expr="//div[@role='search']" position="attributes">
+            <attribute name="t-attf-class" add="od19-search" separator=" "/>
+        </xpath>
+        <xpath expr="//t[@t-set='search_placeholder']" position="replace">
+            <t t-set="search_placeholder">Search products, services, pages&#8230;</t>
+        </xpath>
+    </template>
+
+    <!-- ============================================================ -->
+    <!-- Header search: inline, prominent search bar (no icon + modal)  -->
+    <!-- ============================================================ -->
+    <template id="od19_header_search_inline" name="Auto-Info Inline Header Search"
+              inherit_id="website.template_header_default" priority="30">
+        <xpath expr="//t[@t-call='website.placeholder_header_search_box']" position="attributes">
+            <attribute name="_layout.f">inline</attribute>
+            <attribute name="_item_class.f" add="od19-nav-search" separator=" "/>
+            <attribute name="_input_classes.f">od19-nav-search-input</attribute>
+            <attribute name="_submit_classes.f">od19-nav-search-btn</attribute>
+            <attribute name="default_style.f">True</attribute>
+            <attribute name="limit.f">8</attribute>
+            <attribute name="placeholder.f">Search products, services, pages&#8230;</attribute>
+        </xpath>
+    </template>
+
+    <!-- ============================================================ -->
+    <!-- Search results page: branded header + styled results          -->
+    <!-- ============================================================ -->
+    <template id="od19_search_results" name="Auto-Info Search Results"
+              inherit_id="website.list_hybrid" priority="20">
+        <xpath expr="//t[@t-call='website.website_search_box_input']" position="replace">
+            <div class="od19-search-band">
+                <h1 class="h3-fs">Search our website</h1>
+                <p class="od19-search-band-sub">
+                    Find products, services, pages and news across Auto-Info.
+                </p>
+                <t t-call="website.website_search_box_input"
+                   _classes.f=""
+                   search_type.f="all"
+                   action.f="/website/search"
+                   search.f="search"
+                   placeholder.f="Search products, services, pages&#8230;"/>
+            </div>
+        </xpath>
+        <xpath expr="//h1[hasclass('h3-fs')]" position="replace">
+            <h2 class="od19-jobs-title mb-4" t-if="results">
+                <span class="od19-search-count" t-esc="len(results)"/> result(s)
+                <t t-if="search">for &#8220;<t t-esc="search"/>&#8221;</t>
+            </h2>
+        </xpath>
+    </template>
+
+    <!-- ============================================================ -->
     <!-- Add favicon / brand meta from company                         -->
     <!-- ============================================================ -->
     <template id="od19_layout_assets" name="Auto-Info Layout Assets" inherit_id="website.layout">
         <xpath expr="//head" position="inside">
-            <link rel="icon" type="image/png" href="/od19_website/static/src/img/favicon.png"/>
+            <link rel="icon" type="image/svg+xml" href="/od19_website/static/src/img/favicon.svg"/>
+            <link rel="alternate icon" type="image/jpeg" href="/od19_website/static/src/img/autoinfo_logo.jpg"/>
+            <meta name="theme-color" content="#9E2424"/>
         </xpath>
     </template>
 

@@ -68,6 +68,38 @@
                     </div>
                 </section>
 
+                <!-- Why Auto-Info -->
+                <section class="od19-split">
+                    <div class="container">
+                        <div class="row align-items-center g-5">
+                            <div class="col-lg-6">
+                                <span class="od19-eyebrow" style="background:rgba(158,36,36,0.08);border-color:rgba(158,36,36,0.25);color:var(--od19-primary);">Why Auto-Info</span>
+                                <h2 class="mt-3">One partner from design to long-term service</h2>
+                                <p>
+                                    We are a total integrated automation solution provider. Our engineers
+                                    design, build, commission and maintain the systems that keep your
+                                    operation running — with documented, auditable service records.
+                                </p>
+                                <ul class="od19-check-list mt-4">
+                                    <li><i class="fa fa-check-circle"/> System design &amp; project management</li>
+                                    <li><i class="fa fa-check-circle"/> Turnkey implementation &amp; commissioning</li>
+                                    <li><i class="fa fa-check-circle"/> Training programmes for your operators</li>
+                                    <li><i class="fa fa-check-circle"/> Services &amp; maintenance contracts with SLAs</li>
+                                </ul>
+                                <a href="/about-us" class="btn btn-outline-primary mt-2">
+                                    More About Us <i class="fa fa-arrow-right"/>
+                                </a>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="od19-img-frame od19-pc-reveal">
+                                    <img t-att-src="'/od19_website/static/src/img/home/commissioning.jpg'"
+                                         alt="Auto-Info automation engineering" loading="lazy"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
                 <!-- Product Highlights -->
                 <section class="od19-section od19-pf">
                     <div class="container">
@@ -79,19 +111,19 @@
                         </div>
                         <t t-set="featured" t-value="[
                             {'dept': 'Industrial', 'brand': 'Schneider Electric', 'name': 'Modicon M580',
-                             'img': 'modern industrial PLC automation controller cabinet in a clean high-tech factory, professional product photography, cinematic lighting'},
+                             'img': 'home/featured-1.jpg'},
                             {'dept': 'Building', 'brand': 'Siemens', 'name': 'Desigo CC',
-                             'img': 'modern smart building management control room with large monitoring displays, professional photography, cinematic lighting'},
+                             'img': 'home/featured-2.jpg'},
                             {'dept': 'Terminal', 'brand': 'Emerson', 'name': 'Fusion 4 MSC-L',
-                             'img': 'fuel terminal loading control skid at an oil storage tank farm, industrial photography, cinematic lighting'},
+                             'img': 'home/featured-3.jpg'},
                             {'dept': 'Terminal', 'brand': 'Honeywell Enraf', 'name': 'Servo Gauge 854 ATG',
-                             'img': 'servo tank gauging level instrument mounted on a large oil storage tank, industrial photography, cinematic lighting'}
+                             'img': 'home/featured-4.jpg'}
                         ]"/>
                         <div class="od19-pf-grid">
                             <t t-foreach="featured" t-as="f">
                                 <a href="/products" class="od19-pf-card od19-pc-reveal">
                                     <div class="od19-pf-media">
-                                        <img t-att-src="'https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=' + f['img'].replace(' ', '%20') + '&amp;image_size=landscape_4_3'"
+                                        <img t-att-src="'/od19_website/static/src/img/' + f['img']"
                                              t-att-alt="f['name']" loading="lazy"/>
                                         <span class="od19-pc-chip" t-esc="f['dept']"/>
                                     </div>
@@ -105,6 +137,25 @@
                         </div>
                         <div class="od19-pf-more">
                             <a href="/products" class="btn btn-hero">Explore Full Catalog <i class="fa fa-arrow-right"/></a>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Partners -->
+                <section class="od19-section pt-0">
+                    <div class="container">
+                        <div class="od19-section-title">
+                            <h2>Technology Partners</h2>
+                            <div class="od19-divider"/>
+                        </div>
+                        <div class="od19-partner-strip">
+                            <span class="od19-partner-chip">Schneider Electric</span>
+                            <span class="od19-partner-chip">Siemens</span>
+                            <span class="od19-partner-chip">Emerson</span>
+                            <span class="od19-partner-chip">Honeywell</span>
+                            <span class="od19-partner-chip">ABB</span>
+                            <span class="od19-partner-chip">ISO 9001</span>
+                            <span class="od19-partner-chip">GMP / CSV</span>
                         </div>
                     </div>
                 </section>
@@ -175,6 +226,29 @@
                                         <h6 class="card-title mb-1">Auto Virtual Run 2026</h6>
                                         <small class="text-muted">Coming Soon</small>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Careers teaser -->
+                <section class="od19-section">
+                    <div class="container">
+                        <div class="od19-search-band">
+                            <div class="row align-items-center g-4">
+                                <div class="col-lg-8">
+                                    <span class="od19-eyebrow">Careers</span>
+                                    <h2 class="h3-fs mt-3 mb-2">Build your career with Auto-Info</h2>
+                                    <p class="od19-search-band-sub mb-0">
+                                        We are always looking for engineers, technicians and project
+                                        professionals who want to work on meaningful automation projects.
+                                    </p>
+                                </div>
+                                <div class="col-lg-4 text-lg-end">
+                                    <a href="/careers" class="btn btn-hero">
+                                        View Openings <i class="fa fa-arrow-right"/>
+                                    </a>
                                 </div>
                             </div>
                         </div>

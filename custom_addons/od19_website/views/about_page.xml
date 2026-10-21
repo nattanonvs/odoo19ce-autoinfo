@@ -1,59 +1,202 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- About Us Page -->
+    <!-- ============================================================ -->
+    <!-- About Us Page                                                 -->
+    <!-- ============================================================ -->
     <template id="od19_about_page" name="About Us Page">
         <t t-call="website.layout">
             <div id="wrap" class="oe_structure oe_empty">
-                <section class="od19-hero" style="padding:50px 0;">
+                <t t-set="hero_img" t-value="'/od19_website/static/src/img/about/hero.jpg'"/>
+
+                <!-- Hero -->
+                <section class="od19-page-hero od19-pc-reveal" t-attf-style="background-image:url('#{hero_img}')">
+                    <div class="od19-page-hero-overlay"/>
                     <div class="container">
-                        <h1>About Us</h1>
-                        <p class="lead mb-0">The Auto-Info Co., Ltd. — Total Integrated Automation Solutions</p>
+                        <span class="od19-eyebrow">About Us</span>
+                        <h1>The Auto-Info Co., Ltd.</h1>
+                        <p class="od19-lead">
+                            Total Integrated Automation Solutions — Industrial Automation (IA),
+                            Building Automation (BA) and Terminal Automation (TA).
+                        </p>
+                        <div class="od19-hero-actions">
+                            <a href="/contactus" class="btn btn-hero">Work With Us <i class="fa fa-arrow-right"/></a>
+                            <a href="/careers" class="btn btn-ghost-light">Join Our Team</a>
+                        </div>
                     </div>
                 </section>
-                <section class="od19-section">
+
+                <!-- Who we are -->
+                <section class="od19-split">
                     <div class="container">
-                        <div class="row align-items-center">
+                        <div class="row align-items-center g-5">
                             <div class="col-lg-6">
-                                <h3 style="color:var(--od19-dark);font-weight:700;">Who We Are</h3>
+                                <h2>Who We Are</h2>
                                 <p>
-                                    Auto-Info is dedicated to provide total integrated automation
-                                    solutions in the area of Industrial Automation (IA), Building
-                                    Automation (BA) and Terminal Automation (TA), etc.
+                                    Auto-Info is dedicated to providing total integrated automation solutions
+                                    in the areas of Industrial Automation (IA), Building Automation (BA) and
+                                    Terminal Automation (TA).
                                 </p>
                                 <p>
                                     Our offers include system design, project management, project
-                                    implementation, training program, services &amp; maintenance
-                                    contract, and product supplier.
+                                    implementation, training programmes, services &amp; maintenance contracts,
+                                    and product supply.
                                 </p>
+                                <ul class="od19-check-list mt-4">
+                                    <li><i class="fa fa-check-circle"/> Solution provider — not just a product supplier</li>
+                                    <li><i class="fa fa-check-circle"/> In-house engineering and project delivery teams</li>
+                                    <li><i class="fa fa-check-circle"/> Long-term service and maintenance partnerships</li>
+                                    <li><i class="fa fa-check-circle"/> Proven track record across three core domains</li>
+                                </ul>
                             </div>
                             <div class="col-lg-6">
-                                <div class="od19-stats" style="border-radius:12px;">
-                                    <div class="row">
-                                        <div class="col-6 mb-4">
-                                            <div class="od19-stat-number">20+</div>
-                                            <div class="od19-stat-label">Years of Experience</div>
-                                        </div>
-                                        <div class="col-6 mb-4">
-                                            <div class="od19-stat-number">3</div>
-                                            <div class="od19-stat-label">Core Domains</div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="od19-stat-number">100%</div>
-                                            <div class="od19-stat-label">GMP &amp; CSV Ready</div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="od19-stat-number">500+</div>
-                                            <div class="od19-stat-label">Projects Delivered</div>
-                                        </div>
-                                    </div>
+                                <div class="od19-img-frame od19-pc-reveal">
+                                    <img t-att-src="'/od19_website/static/src/img/about/team.jpg'"
+                                         alt="Auto-Info engineering team" loading="lazy"/>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </section>
 
+                <!-- Domains -->
                 <section class="od19-section bg-light">
+                    <div class="container">
+                        <div class="od19-section-title">
+                            <h2>Our Core Domains</h2>
+                            <div class="od19-divider"/>
+                            <p class="od19-careers-lead">Three specialised automation practices under one roof.</p>
+                        </div>
+                        <div class="od19-cap-grid">
+                            <div class="od19-cap-card od19-pc-reveal">
+                                <div class="od19-cap-icon"><i class="fa fa-industry"/></div>
+                                <h4>Industrial Automation</h4>
+                                <p>System migration, SCADA centralised information, preventive maintenance
+                                   and service contracts for manufacturing plants.</p>
+                            </div>
+                            <div class="od19-cap-card od19-pc-reveal">
+                                <div class="od19-cap-icon"><i class="fa fa-building"/></div>
+                                <h4>Building Automation</h4>
+                                <p>Market leader in Thailand's life-science sector for Building Automation
+                                   Systems with GMP &amp; CSV compliance.</p>
+                            </div>
+                            <div class="od19-cap-card od19-pc-reveal">
+                                <div class="od19-cap-icon"><i class="fa fa-tint"/></div>
+                                <h4>Terminal Automation</h4>
+                                <p>Best-in-class products for tank gauging, loading systems and integrated
+                                   terminal management.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Values -->
+                <section class="od19-section">
+                    <div class="container">
+                        <div class="od19-section-title">
+                            <h2>What We Stand For</h2>
+                            <div class="od19-divider"/>
+                        </div>
+                        <div class="row g-4">
+                            <div class="col-md-6 col-lg-3">
+                                <div class="od19-value">
+                                    <div class="od19-value-icon"><i class="fa fa-handshake-o"/></div>
+                                    <h4>Integrity</h4>
+                                    <p>Transparent engineering advice and honest project reporting at every stage.</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-3">
+                                <div class="od19-value">
+                                    <div class="od19-value-icon"><i class="fa fa-star"/></div>
+                                    <h4>Quality</h4>
+                                    <p>ISO 9001 aligned processes and GMP/CSV discipline in regulated environments.</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-3">
+                                <div class="od19-value">
+                                    <div class="od19-value-icon"><i class="fa fa-users"/></div>
+                                    <h4>Partnership</h4>
+                                    <p>We stay with our customers long after commissioning through service contracts.</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-3">
+                                <div class="od19-value">
+                                    <div class="od19-value-icon"><i class="fa fa-lightbulb-o"/></div>
+                                    <h4>Innovation</h4>
+                                    <p>Continuous adoption of IIoT, edge analytics and energy-saving technology.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Stats -->
+                <section class="od19-stats">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-3 col-6"><div class="od19-stat-number">20+</div><div class="od19-stat-label">Years of Experience</div></div>
+                            <div class="col-md-3 col-6"><div class="od19-stat-number">3</div><div class="od19-stat-label">Core Domains</div></div>
+                            <div class="col-md-3 col-6"><div class="od19-stat-number">500+</div><div class="od19-stat-label">Projects Delivered</div></div>
+                            <div class="col-md-3 col-6"><div class="od19-stat-number">100%</div><div class="od19-stat-label">GMP &amp; CSV Ready</div></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Milestones -->
+                <section class="od19-section">
+                    <div class="container">
+                        <div class="od19-section-title">
+                            <h2>Our Journey</h2>
+                            <div class="od19-divider"/>
+                        </div>
+                        <div class="od19-timeline">
+                            <div class="od19-tl-item od19-pc-reveal">
+                                <div class="od19-tl-year">FOUNDATION</div>
+                                <h4>Established in Bangkok</h4>
+                                <p>Auto-Info is founded as an automation solution provider serving Thai industry.</p>
+                            </div>
+                            <div class="od19-tl-item od19-pc-reveal">
+                                <div class="od19-tl-year">GROWTH</div>
+                                <h4>Industrial &amp; Terminal practices</h4>
+                                <p>Expansion into process control, SCADA and terminal load-out automation projects.</p>
+                            </div>
+                            <div class="od19-tl-item od19-pc-reveal">
+                                <div class="od19-tl-year">LEADERSHIP</div>
+                                <h4>Life-science &amp; GMP/CSV focus</h4>
+                                <p>Became a leading partner for Building Automation in Thailand's life-science sector.</p>
+                            </div>
+                            <div class="od19-tl-item od19-pc-reveal">
+                                <div class="od19-tl-year">TODAY</div>
+                                <h4>Total integrated automation</h4>
+                                <p>Delivering design, implementation, training and long-term service under one roof.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Partners / certifications -->
+                <section class="od19-section bg-light">
+                    <div class="container">
+                        <div class="od19-section-title">
+                            <h2>Technology &amp; Standards</h2>
+                            <div class="od19-divider"/>
+                            <p class="od19-careers-lead">We work with world-class platforms and international standards.</p>
+                        </div>
+                        <div class="od19-partner-strip">
+                            <span class="od19-partner-chip">ISO 9001</span>
+                            <span class="od19-partner-chip">GMP</span>
+                            <span class="od19-partner-chip">CSV</span>
+                            <span class="od19-partner-chip">Schneider Electric</span>
+                            <span class="od19-partner-chip">Siemens</span>
+                            <span class="od19-partner-chip">Emerson</span>
+                            <span class="od19-partner-chip">Honeywell</span>
+                            <span class="od19-partner-chip">ABB</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Locations -->
+                <section class="od19-section">
                     <div class="container">
                         <div class="od19-section-title">
                             <h2>Our Locations</h2>
@@ -84,6 +227,10 @@
                         </div>
                     </div>
                 </section>
+
+                <t t-call="od19_website.od19_cta_section"
+                   cta_title.f="Let's build something reliable together"
+                   cta_text.f="From a single control panel to a fully integrated plant — our team is ready."/>
             </div>
         </t>
     </template>
