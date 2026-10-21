@@ -1,11 +1,18 @@
 import base64
 import datetime
 import logging
+from urllib.parse import quote as url_quote
 
-from odoo import http
+import pytz
+
+from odoo import fields, http
+from odoo.exceptions import UserError, ValidationError
 from odoo.http import request
 
 _logger = logging.getLogger(__name__)
+
+# Default booking duration offered by the portal form (in minutes).
+DEFAULT_BOOKING_MINUTES = 60
 
 # Extensions accepted for uploaded documents (checked on the filename suffix).
 ALLOWED_DOC_EXT = (
@@ -32,7 +39,7 @@ class AutoInfoWebsite(http.Controller):
         website=True,
         sitemap=False,
     )
-    def employee_portal(self, **kwargs):
+    def employee_portal(self, booked=None, booking_error=None, **kwargs):
         """Employee portal homepage.
 
         Only authenticated internal users can access this page.
@@ -55,7 +62,91 @@ class AutoInfoWebsite(http.Controller):
                 "user": request.env.user,
                 "datetime": datetime,
                 "announcements": announcements,
+                "rooms": self._od19_room_overview(),
+                "today": today,
+                "now": fields.Datetime.now(),
+                "default_minutes": DEFAULT_BOOKING_MINUTES,
+                "booked": booked,
+                "booking_error": booking_error,
+                "my_bookings": self._od19_my_upcoming_bookings(),
             },
+        )
+
+    @http.route(
+        ["/employee-portal/book-room"],
+        type="http",
+        auth="user",
+        website=True,
+        methods=["POST"],
+        sitemap=False,
+    )
+    def portal_book_room(self, **post):
+        """Create a meeting-room booking straight from the portal form.
+
+        The booking is confirmed immediately; there is no approval step.
+        Any rule violation is reported back to the same page.
+        """
+        redirect_url = "/employee-portal"
+        try:
+            room_id = int(post.get("room_id") or 0)
+        except (TypeError, ValueError):
+            room_id = 0
+
+        values = {
+            "room_id": room_id,
+            "name": (post.get("name") or "").strip(),
+            "booking_date": (post.get("booking_date") or "").strip(),
+            "start_time": (post.get("start_time") or "").strip(),
+            "end_time": (post.get("end_time") or "").strip(),
+        }
+
+        def _fail(message):
+            return request.redirect(
+                "%s?booking_error=%s" % (redirect_url, url_quote(message))
+            )
+
+        if not values["room_id"] or not request.env["od19.meeting.room"].sudo().browse(
+            values["room_id"]
+        ).exists():
+            return _fail("กรุณาเลือกห้องประชุม")
+        if not values["name"]:
+            return _fail("กรุณากรอกหัวข้อการประชุม")
+        if not values["booking_date"] or not values["start_time"] or not values["end_time"]:
+            return _fail("กรุณาระบุวันที่และเวลาให้ครบถ้วน")
+
+        try:
+            start_dt = self._od19_to_utc(values["booking_date"], values["start_time"])
+            end_dt = self._od19_to_utc(values["booking_date"], values["end_time"])
+        except ValueError:
+            return _fail("รูปแบบวันที่หรือเวลาไม่ถูกต้อง")
+
+        try:
+            participant_count = int(post.get("participant_count") or 2)
+        except (TypeError, ValueError):
+            participant_count = 2
+
+        try:
+            booking = (
+                request.env["od19.meeting.room.booking"]
+                .sudo()
+                .create(
+                    {
+                        "name": values["name"],
+                        "room_id": values["room_id"],
+                        "organizer_id": request.env.user.id,
+                        "participant_count": max(participant_count, 1),
+                        "start_datetime": start_dt,
+                        "end_datetime": end_dt,
+                        "purpose": (post.get("purpose") or "").strip(),
+                    }
+                )
+            )
+        except (ValidationError, UserError) as exc:
+            message = getattr(exc, "args", [None])[0] or "ไม่สามารถจองห้องประชุมได้"
+            return _fail(str(message))
+
+        return request.redirect(
+            "%s?booked=%s" % (redirect_url, url_quote(booking.reference or ""))
         )
 
     # ------------------------------------------------------------------
@@ -260,6 +351,110 @@ class AutoInfoWebsite(http.Controller):
     # ------------------------------------------------------------------
     # Helpers
     # ------------------------------------------------------------------
+    @staticmethod
+    def _od19_room_overview():
+        """Return every active room with its live status and next slot.
+
+        Times are converted to the user's timezone so the portal shows local
+        hours and the room status is meaningful for everyone at a glance.
+        """
+        rooms = (
+            request.env["od19.meeting.room"]
+            .sudo()
+            .search([("active", "=", True)], order="sequence, name, id")
+        )
+        overview = []
+        for room in rooms:
+            current = room._od19_current_booking()
+            next_booking = room._od19_next_booking()
+            if current:
+                status, status_label = "busy", "กำลังใช้งาน"
+            elif next_booking:
+                status, status_label = "reserved", "ถูกจองแล้ว"
+            else:
+                status, status_label = "free", "ว่าง"
+            overview.append(
+                {
+                    "room": room,
+                    "current": current,
+                    "next": next_booking,
+                    "status": status,
+                    "status_label": status_label,
+                    "busy_until": (
+                        AutoInfoWebsite._od19_local(current.end_datetime, "%H:%M")
+                        if current
+                        else None
+                    ),
+                    "next_label": (
+                        AutoInfoWebsite._od19_local(
+                            next_booking.start_datetime, "%d/%m %H:%M"
+                        )
+                        if next_booking
+                        else None
+                    ),
+                }
+            )
+        return overview
+
+    @staticmethod
+    def _od19_local(dt, fmt="%d/%m/%Y %H:%M"):
+        """Format a UTC datetime in the current user's timezone."""
+        if not dt:
+            return ""
+        tz_name = request.env.user.tz or "UTC"
+        try:
+            tz = pytz.timezone(tz_name)
+        except pytz.UnknownTimeZoneError:
+            tz = pytz.UTC
+        return pytz.UTC.localize(dt).astimezone(tz).strftime(fmt)
+
+    @staticmethod
+    def _od19_my_upcoming_bookings():
+        """Return the current user's upcoming bookings, soonest first."""
+        bookings = (
+            request.env["od19.meeting.room.booking"]
+            .sudo()
+            .search(
+                [
+                    ("organizer_id", "=", request.env.user.id),
+                    ("state", "in", ("booked", "in_use")),
+                    ("end_datetime", ">=", fields.Datetime.now()),
+                ],
+                order="start_datetime asc",
+                limit=5,
+            )
+        )
+        state_labels = {"booked": "จองแล้ว", "in_use": "กำลังใช้"}
+        return [
+            {
+                "name": booking.name,
+                "room": booking.room_id.name,
+                "start": AutoInfoWebsite._od19_local(
+                    booking.start_datetime, "%d/%m %H:%M"
+                ),
+                "end": AutoInfoWebsite._od19_local(booking.end_datetime, "%H:%M"),
+                "state_label": state_labels.get(booking.state, booking.state),
+            }
+            for booking in bookings
+        ]
+
+    @staticmethod
+    def _od19_to_utc(date_str, time_str):
+        """Combine a date and a time entered in the user's timezone into UTC.
+
+        Odoo stores datetimes in UTC, so the browser input (which is local) has
+        to be converted. Falls back to UTC when the user has no timezone set.
+        """
+        naive = datetime.datetime.strptime(
+            "%s %s" % (date_str, time_str[:5]), "%Y-%m-%d %H:%M"
+        )
+        tz_name = request.env.user.tz or "UTC"
+        try:
+            tz = pytz.timezone(tz_name)
+        except pytz.UnknownTimeZoneError:
+            tz = pytz.UTC
+        return tz.localize(naive).astimezone(pytz.UTC).replace(tzinfo=None)
+
     @staticmethod
     def _od19_to_float(value):
         try:

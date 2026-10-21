@@ -68,6 +68,144 @@
                         </div>
                     </div>
 
+                    <!-- Meeting Room Booking (self-service, one screen) -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="od19-booking-panel">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+                                    <h5 class="mb-0" style="color:var(--od19-dark);font-weight:700;">
+                                        <i class="fa fa-calendar-check-o me-2" style="color:var(--od19-primary);"/>
+                                        จองห้องประชุม (Meeting Room Booking)
+                                    </h5>
+                                    <small class="text-muted">เลือกห้อง กรอกหัวข้อ และเวลา แล้วกดจองได้ทันที</small>
+                                </div>
+
+                                <t t-if="booked">
+                                    <div class="alert alert-success py-2 mb-3">
+                                        <i class="fa fa-check-circle me-1"/>จองห้องประชุมเรียบร้อยแล้ว เลขที่ <strong t-esc="booked"/>
+                                    </div>
+                                </t>
+                                <t t-if="booking_error">
+                                    <div class="alert alert-danger py-2 mb-3">
+                                        <i class="fa fa-exclamation-triangle me-1"/><span t-esc="booking_error"/>
+                                    </div>
+                                </t>
+
+                                <!-- Live status of every room -->
+                                <div class="row g-2 mb-3">
+                                    <t t-foreach="rooms" t-as="entry">
+                                        <div class="col-lg-3 col-md-6">
+                                            <div t-attf-class="od19-room-tile od19-room-#{entry['status']}">
+                                                <div class="d-flex justify-content-between align-items-start">
+                                                    <strong t-esc="entry['room'].name"/>
+                                                    <span t-attf-class="od19-room-badge od19-badge-#{entry['status']}" t-esc="entry['status_label']"/>
+                                                </div>
+                                                <div class="od19-room-meta">
+                                                    <i class="fa fa-users me-1"/><span t-esc="entry['room'].capacity"/> ที่นั่ง
+                                                    <t t-if="entry['room'].floor">
+                                                        <span class="mx-1">·</span><i class="fa fa-building-o me-1"/>ชั้น <span t-esc="entry['room'].floor"/>
+                                                    </t>
+                                                </div>
+                                                <div class="od19-room-icons">
+                                                    <i t-if="entry['room'].has_projector" class="fa fa-video-camera" title="โปรเจคเตอร์"/>
+                                                    <i t-if="entry['room'].has_video_conference" class="fa fa-wifi" title="ประชุมทางไกล"/>
+                                                    <i t-if="entry['room'].has_whiteboard" class="fa fa-pencil-square-o" title="ไวท์บอร์ด"/>
+                                                    <i t-if="entry['room'].has_display" class="fa fa-television" title="จอแสดงผล"/>
+                                                </div>
+                                                <div class="od19-room-note">
+                                                    <t t-if="entry['status'] == 'busy' and entry['busy_until']">
+                                                        ว่างอีกครั้ง <span t-esc="entry['busy_until']"/>
+                                                    </t>
+                                                    <t t-elif="entry['status'] == 'reserved' and entry['next_label']">
+                                                        จองถัดไป <span t-esc="entry['next_label']"/>
+                                                    </t>
+                                                    <t t-else="">
+                                                        พร้อมใช้งาน
+                                                    </t>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </t>
+                                </div>
+
+                                <!-- One-row booking form -->
+                                <form action="/employee-portal/book-room" method="post" class="od19-booking-form">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <div class="row g-2 align-items-end">
+                                        <div class="col-lg-3 col-md-6">
+                                            <label class="od19-field-label">ห้องประชุม</label>
+                                            <select name="room_id" class="form-control" required="required">
+                                                <option value="">-- เลือกห้อง --</option>
+                                                <t t-foreach="rooms" t-as="entry">
+                                                    <option t-att-value="entry['room'].id"
+                                                            t-att-disabled="entry['status'] == 'busy' or None"
+                                                            t-esc="entry['room'].name"/>
+                                                </t>
+                                            </select>
+                                        </div>
+                                        <div class="col-lg-3 col-md-6">
+                                            <label class="od19-field-label">หัวข้อการประชุม</label>
+                                            <input type="text" name="name" class="form-control"
+                                                   placeholder="เช่น ประชุมทีมขาย" required="required"/>
+                                        </div>
+                                        <div class="col-lg-2 col-md-4">
+                                            <label class="od19-field-label">วันที่</label>
+                                            <input type="date" name="booking_date" class="form-control"
+                                                   t-att-value="today.strftime('%Y-%m-%d')" required="required"/>
+                                        </div>
+                                        <div class="col-lg-1 col-md-4">
+                                            <label class="od19-field-label">เริ่ม</label>
+                                            <input type="time" name="start_time" class="form-control"
+                                                   value="09:00" required="required"/>
+                                        </div>
+                                        <div class="col-lg-1 col-md-4">
+                                            <label class="od19-field-label">ถึง</label>
+                                            <input type="time" name="end_time" class="form-control"
+                                                   value="10:00" required="required"/>
+                                        </div>
+                                        <div class="col-lg-2 col-md-6">
+                                            <label class="od19-field-label">ผู้เข้าร่วม</label>
+                                            <input type="number" name="participant_count" class="form-control"
+                                                   value="2" min="1"/>
+                                        </div>
+                                        <div class="col-lg-12">
+                                            <button type="submit" class="btn od19-btn-book mt-2">
+                                                <i class="fa fa-calendar-plus-o me-1"/>จองทันที
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+
+                                <!-- My upcoming bookings -->
+                                <div t-if="my_bookings" class="mt-4">
+                                    <div class="od19-subheading">การจองของฉัน (My Upcoming Bookings)</div>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm od19-my-bookings mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th>หัวข้อ</th>
+                                                    <th>ห้อง</th>
+                                                    <th>เริ่ม</th>
+                                                    <th>ถึง</th>
+                                                    <th>สถานะ</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr t-foreach="my_bookings" t-as="bk">
+                                                    <td t-esc="bk['name']"/>
+                                                    <td t-esc="bk['room']"/>
+                                                    <td t-esc="bk['start']"/>
+                                                    <td t-esc="bk['end']"/>
+                                                    <td><span class="od19-room-badge od19-badge-reserved" t-esc="bk['state_label']"/></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Quick Access -->
                     <div class="row mb-4">
                         <div class="col-12">

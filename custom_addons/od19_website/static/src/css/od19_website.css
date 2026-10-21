@@ -1967,3 +1967,123 @@ header .o_navlink_background .oi-search {
     .od19-split { padding: 52px 0; }
     .od19-split h2 { font-size: 1.5rem; }
 }
+
+/* ============================================================
+   Meeting Room Booking (Employee Portal)
+   Lightweight: flat colours, no images, no extra JS.
+   ============================================================ */
+.od19-booking-panel {
+    background: #fff;
+    border: 1px solid #efe6e6;
+    border-radius: 18px;
+    padding: 24px 26px 26px;
+    box-shadow: 0 10px 30px rgba(42, 26, 26, 0.06);
+}
+.od19-room-tile {
+    background: #fbfaf9;
+    border: 1px solid #efe6e6;
+    border-left: 4px solid #c9c2c2;
+    border-radius: 12px;
+    padding: 12px 14px;
+    height: 100%;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.od19-room-tile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(42, 26, 26, 0.09);
+}
+.od19-room-tile strong {
+    color: var(--od19-dark);
+    font-size: 0.98rem;
+}
+.od19-room-free { border-left-color: #148264; }
+.od19-room-reserved { border-left-color: #d98200; }
+.od19-room-busy { border-left-color: #b32424; background: #fdf6f6; }
+.od19-room-meta {
+    font-size: 0.8rem;
+    color: var(--od19-gray);
+    margin-top: 6px;
+}
+.od19-room-icons {
+    margin-top: 8px;
+    display: flex;
+    gap: 10px;
+    color: var(--od19-secondary);
+    font-size: 0.85rem;
+}
+.od19-room-note {
+    margin-top: 8px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #6b6262;
+}
+.od19-room-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    white-space: nowrap;
+    background: #efefef;
+    color: #555;
+}
+.od19-badge-free { background: rgba(20, 130, 100, 0.14); color: #148264; }
+.od19-badge-reserved { background: rgba(217, 130, 0, 0.16); color: #a86300; }
+.od19-badge-busy { background: rgba(179, 36, 36, 0.14); color: #b32424; }
+
+.od19-booking-form {
+    background: #fbf8f8;
+    border: 1px solid #f0e8e8;
+    border-radius: 14px;
+    padding: 18px 18px 14px;
+}
+.od19-field-label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #5b4a4a;
+    margin-bottom: 4px;
+}
+.od19-booking-form .form-control {
+    border-radius: 10px;
+    border-color: #e3d6d6;
+    font-size: 0.92rem;
+}
+.od19-booking-form .form-control:focus {
+    border-color: var(--od19-primary);
+    box-shadow: 0 0 0 3px rgba(158, 36, 36, 0.12);
+}
+.od19-btn-book {
+    background: var(--od19-primary);
+    border: none;
+    color: #fff;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 11px 30px;
+    transition: background 0.2s ease;
+}
+.od19-btn-book:hover {
+    background: var(--od19-primary-dark);
+    color: #fff;
+}
+.od19-subheading {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--od19-dark);
+    margin-bottom: 10px;
+}
+.od19-my-bookings thead th {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #8a7d7d;
+    border-top: none;
+}
+.od19-my-bookings td {
+    font-size: 0.88rem;
+    vertical-align: middle;
+    color: #4a4141;
+}
+@media (max-width: 768px) {
+    .od19-booking-panel { padding: 18px 16px 20px; }
+}
