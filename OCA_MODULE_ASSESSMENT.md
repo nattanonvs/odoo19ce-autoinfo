@@ -5,6 +5,10 @@
 **Evidence basis:** `odoo.conf`, `.gitmodules`, `custom_addons/*`, `third_party/oca/*` manifests, `docs/superpowers/**` governance artifacts, `OCA_MODULE_MATCHING.md`, `GAP_ANALYSIS_OD15_to_OD19.md`.
 **Assessment date:** 2026-10-15
 
+> ⚠️ **STATUS (อัปเดต 2026-10-19):** เอกสารนี้เป็น *การประเมินและข้อเสนอแนะ* ณ 2026-10-15 (ก่อนดำเนินการจริง)
+> สำหรับสถานะส่งมอบล่าสุด ให้ยึด [GAP_ANALYSIS_OD15_to_OD19.md](GAP_ANALYSIS_OD15_to_OD19.md) (หัวข้อ "สถานะจริง ณ 2026-10-19")
+> และผลการติดตั้งชุดเต็ม 251 โมดูล (custom 79 + OCA + core) ที่ผ่านความสะอาดของ log เมื่อ 2026-10-19
+
 > Compatibility note: every OCA submodule referenced below was verified to **declare a `19.0.x` manifest version on branch `19.0`** (291 manifests checked). This is *manifest-level* verification only. It does **not** prove runtime/functional correctness. Where runtime behavior could not be confirmed from source, entries are marked **COMPATIBILITY NOT VERIFIED (runtime)**.
 
 ---

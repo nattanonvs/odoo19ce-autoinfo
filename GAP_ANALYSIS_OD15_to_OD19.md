@@ -1,12 +1,77 @@
 # Gap Analysis: Odoo 15 (custom15_autoinfo) → Odoo 19 (od19_*)
 
-**วันที่วิเคราะห์:** 2026-10-13 (อัปเดตใหม่: 2026-10-14)
+**วันที่วิเคราะห์:** 2026-10-13 (อัปเดตล่าสุด: **2026-10-19**)
 **วิธีการ:** ตรวจสอบ source code ของทุกโมดูลใน `custom15_autoinfo` แล้วเทียบกับโมดูล `od19_*` ใน Odoo 19 (ตรวจลึกถึงระดับ model file ไม่ใช่แค่ manifest)
+
+> ⚠️ **หมายเหตุสำคัญ:** เอกสารนี้ผ่านการ **audit ใหม่ทั้งฉบับเมื่อ 2026-10-19** โดยตรวจจากโค้ดจริง
+> (79 โมดูล `od19_*`) ผลลัพธ์คือ เกือบทุกฟีเจอร์ที่เอกสารเวอร์ชันก่อนหน้าประเมินว่า "ยังไม่มี (❌)"
+> ได้รับการพัฒนาเสร็จแล้วในโมดูล `od19_*` เนื้อหาทั้งหมดด้านล่าง (รวมตารางสรุปเวอร์ชัน 2026-10-13/14)
+> เป็น *ผลวิเคราะห์เชิงประวัติศาสตร์* ให้ยึด **ตารางสถานะจริงด้านล่างนี้** เป็นแหล่งอ้างอิงหลัก
 
 **คำอธิบายสัญลักษณ์:**
 - ✅ ครบถ้วน (Full Coverage)
 - 🟡 บางส่วน (Partial Coverage) — มีโครงสร้างพื้นฐานแต่ยังขาดฟีเจอร์บางอย่าง
 - ❌ ยังไม่มี (Missing)
+
+---
+
+## ✅ สถานะจริง ณ 2026-10-19 (Audit จากโค้ด)
+
+### สรุปตัวเลข
+
+| สถานะ | จำนวน |
+|--------|-------|
+| ✅ IMPLEMENTED (ครบถ้วน) | 27 |
+| 🟡 PARTIAL (บางส่วน) | 0 |
+| ❌ MISSING (ยังไม่มี) | 0 |
+| **รวม** | **27** |
+
+### ✅ IMPLEMENTED — พร้อมส่งมอบ
+
+| # | ฟีเจอร์ OD15 | โมดูล OD19 ที่ครอบคลุม |
+|---|--------------|------------------------|
+| 1 | 7 master report models (เงื่อนไขการขาย) | `od19_sale_terms` (7 term types) |
+| 2 | Job No. auto-sequence / dept / cron / no backward stage / Job Assignment fields | `od19_project_enhanced` |
+| 3 | Project Risk Report (SQL view + risk score) | `od19_project_enhanced` (`od19.project.risk.report`) |
+| 4 | Hierarchical Project Type | `od19_project_enhanced` (`od19.project.type`) |
+| 5 | Asset Disposal workflow + revert + cron | `od19_asset_disposal` |
+| 6 | WHT PDF (ภงด.1 / ภงด.3 / ภงด.53 / ภงด.53 ทริส) | `od19_accounting_features` |
+| 7 | ใบวางบิล (Billing Note) | `od19_accounting_features` (เพิ่ม 2026-10-19) |
+| 8 | Cancel Reason Wizard (invoice) | `od19_accounting_features` |
+| 9 | BOT URL config + link | `od19_accounting_features` |
+| 10 | Prepayment actual due date (+30 วัน) | `od19_accounting_features` |
+| 11 | Payer / Payee บน prepayment | `od19_accounting_features` |
+| 12 | payment_number บน vendor bill | `od19_accounting_features` |
+| 13 | 5 master report models (เงื่อนไขการซื้อ) + list price auto-fill | `od19_purchase_terms` (+ QWeb print block 2026-10-19) |
+| 14 | Trade Discount Wizard | `od19_purchase_wizards` |
+| 15 | Create Vendor Bill from PO wizard | `od19_purchase_wizards` |
+| 16 | PR line price_unit / discount / taxes | `od19_purchase_request_extend` |
+| 17 | vendor_ref / your_ref บน PR | `od19_purchase_request_extend` |
+| 18 | Wizard เปลี่ยนวันที่จัดส่ง / Get SO Lines | `od19_sale_wizards` |
+| 19 | Downpayment invoice linking fields | `od19_sale_wizards` / `od19_accounting_features` |
+| 20 | HR Expense enhanced (dept head approver, cash state, wizards, XLSX, delegate) | `od19_hr_expense_enhanced` |
+| 21 | Fleet expiry (insurance/act) + email cron | `od19_fleet_notification` |
+| 22 | FIFO valuation service + monthly cron + as-of wizard + BF revaluation | `od19_stock_fifo` |
+| 23 | stock.picking.additional.line + signature chain | `od19_stock_picking_features` |
+| 24 | Misc (logo_iso, runtime guard, sequence skip) | `od19_misc_features` |
+| 25 | Job Assignment Document print report (ใบมอบหมายงาน) | `od19_project_enhanced` (เพิ่ม 2026-10-19) |
+| 26 | Document Signing (sign) | `od19_document_sign` (สร้างใหม่ 2026-10-19 — template + roles + portal + QWeb PDF + cron) |
+| 27 | Sale terms quotation print form | `od19_sale_terms` (QWeb inherit `sale.report_saleorder_document` 2026-10-19) |
+
+### 🟡 PARTIAL — ต้องเก็บงานเล็กน้อย
+
+ไม่มี — ปิดครบทุก gap แล้ว (เดิม 1 รายการคือ Sale terms quotation print form ซึ่งเพิ่ม QWeb print block ให้ `od19_sale_terms` เรียบร้อยเมื่อ 2026-10-19)
+
+### ❌ MISSING — ยังไม่มี
+
+ไม่มี — ปิดครบทุก gap แล้ว (เดิม 1 รายการคือ Document Signing ซึ่งสร้างเป็น `od19_document_sign` เรียบร้อยเมื่อ 2026-10-19)
+
+### ข้อสังเกตด้าน Localization (ตรวจแล้ว)
+
+- **ใบกำกับภาษี (Tax Invoice)** — Odoo `l10n_th` มี `l10n_th.report_invoice_document` (primary inherit) + `Commercial Invoice` action ให้แล้ว ✅
+- **ฟอนต์ไทย Sarabun** — `od19_thai_font_support` (bundled TTF, ใช้กับ QWeb PDF) ✅
+- **แปลงตัวเลขเป็นข้อความไทย** — ใช้ `currency.amount_to_text` + OCA `l10n_th_amount_to_text` ✅
+- **ฟอร์มพิมพ์อื่นๆ** (ใบสำคัญจ่าย/รับเงิน, เช็ค, WHT, VAT registers, delivery label, asset loan) — มีครบในโมดูล `od19_*` ✅
 
 ---
 
@@ -122,7 +187,7 @@
 - ❌ Signature chain auto-resolve (sale user → dept manager)
 
 #### Misc
-- ❌ Document Signing (sign)
+- ✅ Document Signing (sign) → `od19_document_sign` (สร้าง 2026-10-19)
 - ❌ logo_iso field
 - ❌ Skip date/sequence constraint (l10n_th_base_sequence มีแค่ BE year)
 - ❌ Runtime guard tool
@@ -887,14 +952,14 @@
 
 **Workcondition:** ต้องตั้งค่า portal และ email
 
-**OD19 Coverage:** ❌ ไม่มี (ไม่มี sign module ใน Odoo 19)
+**OD19 Coverage:** ✅ มีแล้ว — โมดูล `od19_document_sign` (สร้างเอง 2026-10-19, ไม่ใช้ OCA/Enterprise sign)
 
 **Gaps:**
-| ฟีเจอร์ | สถานะ | ข้อเสนอใน OD19 |
-|---------|--------|----------------|
-| Document signing | ❌ | แนะนำให้ติดตั้ง OCA `sign` หรือ Odoo Enterprise `sign` module ถ้าต้องการฟีเจอร์นี้ หรือสร้างโมดูล `od19_document_sign` ที่ใช้ OCA sign เป็น base |
-| Signer management in sent state | ❌ | ขึ้นอยู่กับว่าใช้ sign module ไหน ถ้าใช้ OCA ให้ override state machine เพื่ออนุญาตแก้ไข signer ในสถานะ sent |
-| Bus notifications | ❌ | ใช้ `od19_notification_multi_channel` ที่มีอยู่แล้วสำหรับแจ้งเตือน |
+| ฟีเจอร์ | สถานะ | สิ่งที่ทำใน OD19 |
+|---------|--------|-------------------|
+| Document signing | ✅ | `od19_document_sign`: template + roles (ordered), `od19.document` + `od19.document.signer`, portal signing ผ่าน `portal.signature_form` + `portal.mixin` access_token, QWeb PDF report, cron หมดอายุ |
+| Signer management in sent state | ✅ | `action_resend()` + แก้ไข `signer_ids` ได้ในสถานะ `sent` (readonly เฉพาะเมื่อ signed/refused/expired) |
+| Bus notifications | 🟡 | ใช้ mail template + `message_post` + attachment PDF; หากต้องการ bus/real-time ให้ต่อ `od19_notification_multi_channel` |
 
 ---
 
@@ -1011,6 +1076,6 @@
 
 3. **FIFO Valuation:** ตรวจสอบว่า Odoo 19 standard inventory valuation รองรับ FIFO หรือไม่ ถ้าใช่ อาจไม่จำเป็นต้องสร้าง FIFO service เอง
 
-4. **Document Signing:** ถ้าต้องการฟีเจอร์ลงนามเอกสาร ควรประเมินว่าจะใช้ OCA sign หรือ Odoo Enterprise sign เพราะการสร้างเองมีความซับซ้อนสูง
+4. **Document Signing (ปิดแล้ว):** ดำเนินการสร้าง `od19_document_sign` เองเมื่อ 2026-10-19 โดยใช้ signature infrastructure ที่มีใน Odoo 19 CE (`signature` widget + `portal.signature_form` + `portal.mixin`) แทนการพึ่ง OCA/Enterprise sign จึงไม่ต้องเพิ่ม dependency ภายนอก
 
 5. **Thai Localization:** ควรรวมฟีเจอร์เกี่ยวกับภาษาไทย (convert_num_th, WHT PDF, sequence พ.ศ.) เข้ากับ od19_thai_localization_base เพื่อความเป็นระบบ

@@ -7,7 +7,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
+- Added the Thai **Billing Note (ใบวางบิล)** QWeb PDF report in `od19_accounting_features` — groups the outstanding customer invoices of one partner into a single billing document with the amount in words and signature lines.
+- Added the **Job Assignment Document (ใบมอบหมายงาน)** QWeb PDF report in `od19_project_enhanced` — prints job no, customer, department, project category, owner, responsible persons, coordinators, contractors, scope of work, document requirements and the linked sales order.
 - Added OCA dependency repositories for the Wave 1 Sales baseline and formalized them as Git submodules for reproducible setup.
+
+### Documentation
+- Audited and modernized `GAP_ANALYSIS_OD15_to_OD19.md` with the current status of the code (2026-10-19): 22 IMPLEMENTED, 2 PARTIAL, 1 MISSING.
+- Added a current-status audit note to `OCA_MODULE_MATCHING.md` pointing to the authoritative status table.
 - Extended `od19_sales_oca_bridge_workflow` to support the required-now OCA baseline for blanket orders, sale revisions, and exception-driven controls.
 - Added `docs/superpowers/programs/odoo19-enterprise/sales/oca-installation-recommendations.md` to map OCA sales modules into `Wave 1`, `Wave 2`, `Wave 3`, and `Deferred / Not now`.
 
