@@ -2,6 +2,7 @@
 from datetime import timedelta
 
 from odoo import fields
+from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase
 
 
@@ -144,3 +145,30 @@ class TestWarranty(TransactionCase):
         self.assertTrue(claim.repair_order_id)
         self.assertEqual(claim.repair_order_id.partner_id, self.partner)
         self.assertEqual(action['res_model'], 'repair.order')
+
+    def test_create_repair_order_rejected_claim(self):
+        """A rejected claim must not spawn a repair order."""
+        claim = self.env['od19.warranty.claim'].create({
+            'partner_id': self.partner.id,
+            'product_id': self.product.id,
+            'claim_type': 'repair',
+            'description': 'Not covered',
+        })
+        claim.action_reject()
+        with self.assertRaises(UserError):
+            claim.action_create_repair_order()
+        self.assertFalse(claim.repair_order_id)
+
+    def test_create_repair_order_is_idempotent(self):
+        """Re-running the action must reuse the existing repair order."""
+        claim = self.env['od19.warranty.claim'].create({
+            'partner_id': self.partner.id,
+            'product_id': self.product.id,
+            'claim_type': 'repair',
+            'description': 'Needs repair',
+        })
+        claim.action_confirm()
+        claim.action_create_repair_order()
+        first_repair = claim.repair_order_id
+        claim.action_create_repair_order()
+        self.assertEqual(claim.repair_order_id, first_repair)

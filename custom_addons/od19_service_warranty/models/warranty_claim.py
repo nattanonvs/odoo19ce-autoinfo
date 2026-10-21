@@ -139,6 +139,10 @@ class WarrantyClaim(models.Model):
     def action_create_repair_order(self):
         """Create a repair.order from the warranty claim."""
         self.ensure_one()
+        if self.state in ('rejected', 'cancelled'):
+            raise UserError(
+                _('Cannot create a repair order for a %s claim.') % self.state
+            )
         if self.repair_order_id:
             return {
                 'type': 'ir.actions.act_window',
