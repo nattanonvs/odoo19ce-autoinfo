@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Generic report action used by ``jasper.report.action.action_print``.
+
+        The action is deliberately bound to a placeholder model: the actual
+        record model is supplied at print time through ``data['doc_model']``
+        and resolved by ``report.od19_reporting_jasper.generic_report`` (see
+        ``models/report_generic.py``).
+    -->
+    <record id="action_report_generic" model="ir.actions.report">
+        <field name="name">OD19 Generic Report</field>
+        <field name="model">res.partner</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">od19_reporting_jasper.generic_report</field>
+        <field name="report_file">od19_reporting_jasper.generic_report</field>
+    </record>
+
+    <template id="generic_report">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2 t-out="doc.display_name"/>
+                        <p class="text-muted">
+                            <t t-out="doc._description"/>
+                            <span> #</span>
+                            <span t-out="doc.id"/>
+                        </p>
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr t-foreach="doc.read()[0].items()" t-as="item">
+                                    <th class="text-start" style="width: 30%;">
+                                        <t t-out="doc._fields[item[0]].string"/>
+                                    </th>
+                                    <td>
+                                        <t t-out="item[1]"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>

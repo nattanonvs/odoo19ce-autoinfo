@@ -10,6 +10,7 @@
     ],
     "data": [
         "security/ir.model.access.csv",
+        "report/generic_report.xml",
         "views/jasper_report_template_views.xml",
         "views/jasper_report_action_views.xml",
     ],
