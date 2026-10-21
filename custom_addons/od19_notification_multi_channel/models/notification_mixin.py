@@ -132,12 +132,25 @@ class NotificationService(models.AbstractModel):
             "to": line_user_id,
             "messages": [{"type": "text", "text": message[:5000]}],
         }
-        response = requests.post(
-            urljoin(LINE_PUSH_ENDPOINT, ""),
-            headers=headers,
-            data=json.dumps(payload),
-            timeout=10,
-        )
+        try:
+            response = requests.post(
+                urljoin(LINE_PUSH_ENDPOINT, ""),
+                headers=headers,
+                data=json.dumps(payload),
+                timeout=10,
+            )
+        except requests.exceptions.RequestException as error:
+            # Offline / network outage: fail with a clear message instead of a
+            # raw requests traceback so the queue retry stays readable.
+            _logger.warning(
+                "LINE push failed for partner %s: %s", partner.id, error
+            )
+            raise UserError(
+                _(
+                    "Cannot reach the LINE Messaging API. "
+                    "Please check the internet connection and try again."
+                )
+            ) from error
         if response.status_code != 200:
             _logger.error(
                 "LINE push failed for partner %s: %s %s",

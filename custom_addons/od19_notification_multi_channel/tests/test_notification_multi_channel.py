@@ -1,6 +1,8 @@
 import json
 from unittest.mock import patch
 
+import requests
+
 from odoo.tests.common import TransactionCase
 
 
@@ -214,6 +216,21 @@ class TestNotificationMultiChannel(TransactionCase):
         self.assertEqual(queue.state, "failed")
         self.assertEqual(queue.retry_count, 1)
         self.assertTrue(queue.error_message)
+
+    @patch("requests.post")
+    def test_queue_offline_reports_readable_error(self, mock_post):
+        """A network outage must not leak a raw requests traceback."""
+        mock_post.side_effect = requests.exceptions.ConnectionError("no network")
+        queue = self.env["od19.notification.queue"].create(
+            {
+                "partner_id": self.partner.id,
+                "channel": "line",
+                "message": "Hello",
+            }
+        )
+        queue.action_send()
+        self.assertEqual(queue.state, "failed")
+        self.assertIn("LINE Messaging API", queue.error_message)
 
     @patch("requests.post")
     def test_cron_processes_pending_and_retries_failed(self, mock_post):
