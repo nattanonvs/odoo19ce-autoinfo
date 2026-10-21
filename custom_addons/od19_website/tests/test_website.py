@@ -69,6 +69,13 @@ class TestEmployeePortalBooking(HttpCase):
         # HttpCase patches the credential check, so only the login must exist.
         self.authenticate(tester.login, "test")
 
+        # The panel renders one live tile per active room, so seed one instead
+        # of relying on demo data being present in the test database.
+        self.env["od19.meeting.room"].create({
+            "name": "Portal Test Room",
+            "capacity": 6,
+        })
+
         html = self.url_open("/employee-portal").text
 
         # Live status tile per meeting room.
