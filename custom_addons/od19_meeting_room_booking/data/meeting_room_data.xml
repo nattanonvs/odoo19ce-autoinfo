@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="meeting_room_large_floor_2" model="od19.meeting.room">
+        <field name="name">ห้องใหญ่ ชั้น 2</field>
+        <field name="code">MR-201</field>
+        <field name="building">Head Office</field>
+        <field name="floor">2</field>
+        <field name="capacity">16</field>
+        <field name="color">2</field>
+        <field name="has_projector">1</field>
+        <field name="has_video_conference">1</field>
+        <field name="has_whiteboard">1</field>
+        <field name="has_display">1</field>
+    </record>
+
+    <record id="meeting_room_small_floor_2" model="od19.meeting.room">
+        <field name="name">ห้องเล็ก ชั้น 2</field>
+        <field name="code">MR-202</field>
+        <field name="building">Head Office</field>
+        <field name="floor">2</field>
+        <field name="capacity">8</field>
+        <field name="color">4</field>
+        <field name="has_whiteboard">1</field>
+        <field name="has_display">1</field>
+    </record>
+
+    <record id="meeting_room_special_floor_2" model="od19.meeting.room">
+        <field name="name">ห้องพิเศษ ชั้น 2</field>
+        <field name="code">MR-203</field>
+        <field name="building">Head Office</field>
+        <field name="floor">2</field>
+        <field name="capacity">6</field>
+        <field name="color">6</field>
+        <field name="has_whiteboard">1</field>
+        <field name="booking_policy">เฉพาะวันที่ห้องพร้อมใช้งานตามเงื่อนไขภายใน</field>
+    </record>
+
+    <record id="meeting_room_floor_4" model="od19.meeting.room">
+        <field name="name">ห้องประชุม ชั้น 4</field>
+        <field name="code">MR-401</field>
+        <field name="building">Head Office</field>
+        <field name="floor">4</field>
+        <field name="capacity">20</field>
+        <field name="color">9</field>
+        <field name="has_projector">1</field>
+        <field name="has_video_conference">1</field>
+        <field name="has_whiteboard">1</field>
+        <field name="has_display">1</field>
+    </record>
+</odoo>

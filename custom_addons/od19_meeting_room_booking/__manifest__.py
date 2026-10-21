@@ -1,0 +1,25 @@
+{
+    "name": "Meeting Room Booking",
+    "version": "19.0.1.0.0",
+    "category": "Productivity",
+    "summary": "Internal meeting room catalog and booking workflow",
+    "author": "The Auto-Info Co., Ltd.",
+    "website": "https://www.auto-info.co.th",
+    "license": "LGPL-3",
+    "depends": [
+        "calendar",
+        "mail",
+    ],
+    "data": [
+        "security/meeting_room_security.xml",
+        "security/ir.model.access.csv",
+        "data/meeting_room_sequence.xml",
+        "data/meeting_room_data.xml",
+        "views/meeting_room_views.xml",
+        "views/meeting_room_booking_views.xml",
+        "views/meeting_room_menus.xml",
+    ],
+    "installable": True,
+    "application": False,
+    "auto_install": False,
+}

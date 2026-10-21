@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_meeting_room_root"
+              name="Meeting Rooms"
+              parent="calendar.mail_menu_calendar"
+              sequence="40"
+              groups="od19_meeting_room_booking.group_meeting_room_user"/>
+
+    <menuitem id="menu_meeting_room_booking"
+              name="Bookings"
+              parent="menu_meeting_room_root"
+              action="action_meeting_room_booking"
+              sequence="10"
+              groups="od19_meeting_room_booking.group_meeting_room_user"/>
+
+    <menuitem id="menu_meeting_room_master"
+              name="Room Catalog"
+              parent="menu_meeting_room_root"
+              action="action_meeting_room_master"
+              sequence="20"
+              groups="od19_meeting_room_booking.group_meeting_room_manager"/>
+</odoo>

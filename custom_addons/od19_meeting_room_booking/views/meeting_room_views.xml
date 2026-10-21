@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_meeting_room_list" model="ir.ui.view">
+        <field name="name">od19.meeting.room.list</field>
+        <field name="model">od19.meeting.room</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="building"/>
+                <field name="floor"/>
+                <field name="capacity"/>
+                <field name="availability_state" widget="badge"
+                       decoration-success="availability_state == 'available'"
+                       decoration-warning="availability_state == 'reserved'"
+                       decoration-danger="availability_state == 'in_use'"/>
+                <field name="booking_count"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_meeting_room_form" model="ir.ui.view">
+        <field name="name">od19.meeting.room.form</field>
+        <field name="model">od19.meeting.room</field>
+        <field name="arch" type="xml">
+            <form string="Meeting Room">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_bookings" type="object" class="oe_stat_button" icon="fa-calendar">
+                            <field name="booking_count" string="Bookings" widget="statinfo"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Room name"/></h1>
+                        <div class="text-muted"><field name="code" placeholder="Room code"/></div>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="building"/>
+                            <field name="floor"/>
+                            <field name="capacity"/>
+                            <field name="availability_state" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="has_projector"/>
+                            <field name="has_video_conference"/>
+                            <field name="has_whiteboard"/>
+                            <field name="has_display"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="booking_policy" placeholder="Room-specific rules or approval conditions..."/>
+                    </group>
+                    <notebook>
+                        <page string="Notes">
+                            <field name="note" placeholder="Extra room details, directions, or setup notes..."/>
+                        </page>
+                        <page string="Image">
+                            <field name="image_1920" widget="image" class="oe_avatar"
+                                   options="{'preview_image': 'image_1920'}"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_meeting_room_search" model="ir.ui.view">
+        <field name="name">od19.meeting.room.search</field>
+        <field name="model">od19.meeting.room</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="building"/>
+                <field name="floor"/>
+                <filter string="Available" name="available" domain="[('availability_state', '=', 'available')]"/>
+                <filter string="Reserved" name="reserved" domain="[('availability_state', '=', 'reserved')]"/>
+                <filter string="In Use" name="in_use" domain="[('availability_state', '=', 'in_use')]"/>
+                <group name="group_by" domain="[]">
+                    <filter string="Building" name="group_building" context="{'group_by': 'building'}"/>
+                    <filter string="Floor" name="group_floor" context="{'group_by': 'floor'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_meeting_room_master" model="ir.actions.act_window">
+        <field name="name">Meeting Rooms</field>
+        <field name="res_model">od19.meeting.room</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_meeting_room_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create and maintain your meeting room catalog.
+            </p>
+        </field>
+    </record>
+</odoo>
