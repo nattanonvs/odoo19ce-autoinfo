@@ -155,6 +155,75 @@ class IsoAudit(models.Model):
             if rec.date_start and rec.date_end and rec.date_start > rec.date_end:
                 raise ValidationError(_("วันที่เริ่มต้นต้องไม่หลังวันที่สิ้นสุด"))
 
+    # ------------------------------------------------------------------
+    # Cron: planned audit reminders
+    # ------------------------------------------------------------------
+    def _has_open_activity(self, summary):
+        """True when an activity with the same summary already exists."""
+        self.ensure_one()
+        return bool(
+            self.env["mail.activity"].search_count(
+                [
+                    ("res_model", "=", self._name),
+                    ("res_id", "=", self.id),
+                    ("summary", "=", summary),
+                ]
+            )
+        )
+
+    def _create_reminder_activity(self, activity_type_xmlid, summary, note):
+        """Create a mail.activity for the lead auditor."""
+        self.ensure_one()
+        activity_type = self.env.ref(activity_type_xmlid, raise_if_not_found=False)
+        user = self.lead_auditor_id or self.env.user
+        if not user:
+            return False
+        return self.env["mail.activity"].sudo().create(
+            {
+                "activity_type_id": activity_type.id if activity_type else False,
+                "summary": summary,
+                "note": note,
+                "user_id": user.id,
+                "res_model_id": self.env["ir.model"]._get_id("od19.iso.audit"),
+                "res_id": self.id,
+                "date_deadline": fields.Date.today(),
+            }
+        )
+
+    @api.model
+    def _cron_audit_planned_reminder(self, days=7):
+        """Daily cron: remind the lead auditor about audits planned within
+        `days` that have not started yet.
+        """
+        today = fields.Date.today()
+        due_limit = fields.Date.add(today, days=days)
+        audits = self.search(
+            [
+                ("state", "in", ["draft", "planned"]),
+                ("date_planned", ">=", today),
+                ("date_planned", "<=", due_limit),
+            ]
+        )
+        for audit in audits:
+            summary = _("การตรวจสอบภายในใกล้ถึงกำหนด: %s") % audit.name
+            if audit._has_open_activity(summary):
+                continue
+            days_left = (audit.date_planned - today).days
+            note = _(
+                "การตรวจสอบ '%(title)s' (เลขที่ %(name)s) กำหนดเริ่มภายใน "
+                "%(days)s วัน (วันที่วางแผน: %(due)s) แผนก: %(dept)s"
+            ) % {
+                "title": audit.title,
+                "name": audit.name,
+                "days": days_left,
+                "due": audit.date_planned,
+                "dept": audit.auditee_department_id.name,
+            }
+            audit._create_reminder_activity(
+                "mail.mail_activity_data_todo", summary, note
+            )
+            audit.message_post(body=note)
+
 
 class IsoAuditFinding(models.Model):
     """ผลการตรวจสอบ / ข้อสังเกต (Audit Findings)"""
@@ -194,3 +263,107 @@ class IsoAuditFinding(models.Model):
 
     def action_open(self):
         self.write({"status": "open"})
+
+    # ------------------------------------------------------------------
+    # Cron: audit finding due reminders
+    # ------------------------------------------------------------------
+    def _get_reminder_user(self):
+        """User to be notified about the finding corrective action."""
+        self.ensure_one()
+        return self.responsible_id or self.audit_id.lead_auditor_id or self.env.user
+
+    def _has_open_activity(self, summary):
+        """True when an activity with the same summary already exists."""
+        self.ensure_one()
+        return bool(
+            self.env["mail.activity"].search_count(
+                [
+                    ("res_model", "=", self._name),
+                    ("res_id", "=", self.id),
+                    ("summary", "=", summary),
+                ]
+            )
+        )
+
+    def _create_reminder_activity(self, activity_type_xmlid, summary, note):
+        """Create a mail.activity for the finding owner."""
+        self.ensure_one()
+        activity_type = self.env.ref(activity_type_xmlid, raise_if_not_found=False)
+        user = self._get_reminder_user()
+        if not user:
+            return False
+        return self.env["mail.activity"].sudo().create(
+            {
+                "activity_type_id": activity_type.id if activity_type else False,
+                "summary": summary,
+                "note": note,
+                "user_id": user.id,
+                "res_model_id": self.env["ir.model"]._get_id(
+                    "od19.iso.audit.finding"
+                ),
+                "res_id": self.id,
+                "date_deadline": fields.Date.today(),
+            }
+        )
+
+    @api.model
+    def _cron_finding_due_reminder(self, days=7):
+        """Daily cron: remind the owner about findings due within `days`
+        and findings whose corrective action is overdue.
+        """
+        today = fields.Date.today()
+        due_limit = fields.Date.add(today, days=days)
+        open_status = ["open", "in_progress"]
+
+        # Findings due within `days`.
+        due_findings = self.search(
+            [
+                ("status", "in", open_status),
+                ("due_date", ">=", today),
+                ("due_date", "<=", due_limit),
+            ]
+        )
+        for finding in due_findings:
+            summary = _("ข้อบกพร่องจากการตรวจสอบใกล้ครบกำหนด: %s") % finding.name
+            if finding._has_open_activity(summary):
+                continue
+            days_left = (finding.due_date - today).days
+            note = _(
+                "ข้อบกพร่อง '%(title)s' (การตรวจสอบ %(audit)s) ต้องแก้ไข "
+                "ภายใน %(days)s วัน (วันครบกำหนด: %(due)s)"
+            ) % {
+                "title": finding.name,
+                "audit": finding.audit_id.name,
+                "days": days_left,
+                "due": finding.due_date,
+            }
+            finding._create_reminder_activity(
+                "mail.mail_activity_data_todo", summary, note
+            )
+            finding.message_post(body=note)
+
+        # Findings overdue.
+        overdue_findings = self.search(
+            [
+                ("status", "in", open_status),
+                ("due_date", "<", today),
+            ]
+        )
+        for finding in overdue_findings:
+            summary = _("ข้อบกพร่องจากการตรวจสอบเกินกำหนด: %s") % finding.name
+            if finding._has_open_activity(summary):
+                continue
+            overdue_days = (today - finding.due_date).days
+            note = _(
+                "ข้อบกพร่อง '%(title)s' (การตรวจสอบ %(audit)s) เกินกำหนดมาแล้ว "
+                "%(days)s วัน (วันครบกำหนด: %(due)s)"
+            ) % {
+                "title": finding.name,
+                "audit": finding.audit_id.name,
+                "days": overdue_days,
+                "due": finding.due_date,
+            }
+            finding._create_reminder_activity(
+                "mail.mail_activity_data_warning", summary, note
+            )
+            finding.message_post(body=note)

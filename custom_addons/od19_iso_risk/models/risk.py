@@ -193,6 +193,108 @@ class IsoRisk(models.Model):
     def action_reset_to_draft(self):
         self.write({"state": "draft"})
 
+    # ------------------------------------------------------------------
+    # Cron: due reminders
+    # ------------------------------------------------------------------
+    def _get_reminder_user(self):
+        """User to be notified about the risk treatment."""
+        self.ensure_one()
+        return self.treatment_responsible_id or self.risk_owner_id or self.env.user
+
+    def _has_open_activity(self, summary):
+        """True when an activity with the same summary already exists."""
+        self.ensure_one()
+        return bool(
+            self.env["mail.activity"].search_count(
+                [
+                    ("res_model", "=", self._name),
+                    ("res_id", "=", self.id),
+                    ("summary", "=", summary),
+                ]
+            )
+        )
+
+    def _create_reminder_activity(self, activity_type_xmlid, summary, note):
+        """Create a mail.activity for the responsible user."""
+        self.ensure_one()
+        activity_type = self.env.ref(activity_type_xmlid, raise_if_not_found=False)
+        user = self._get_reminder_user()
+        if not user:
+            return False
+        return self.env["mail.activity"].sudo().create(
+            {
+                "activity_type_id": activity_type.id if activity_type else False,
+                "summary": summary,
+                "note": note,
+                "user_id": user.id,
+                "res_model_id": self.env["ir.model"]._get_id("od19.iso.risk"),
+                "res_id": self.id,
+                "date_deadline": fields.Date.today(),
+            }
+        )
+
+    @api.model
+    def _cron_risk_due_reminder(self, days=7):
+        """Daily cron: remind the owner about treatment plans due within
+        `days` and risks whose treatment is overdue.
+        """
+        today = fields.Date.today()
+        due_limit = fields.Date.add(today, days=days)
+        open_states = ["identified", "analyzed", "evaluated", "treated", "monitored"]
+
+        # Treatment due within `days`.
+        due_risks = self.search(
+            [
+                ("state", "in", open_states),
+                ("due_date", ">=", today),
+                ("due_date", "<=", due_limit),
+            ]
+        )
+        for risk in due_risks:
+            summary = _("การจัดการความเสี่ยงใกล้ครบกำหนด: %s") % risk.name
+            if risk._has_open_activity(summary):
+                continue
+            days_left = (risk.due_date - today).days
+            note = _(
+                "ความเสี่ยง/โอกาส '%(title)s' (รหัส %(name)s) ต้องดำเนินการ "
+                "ภายใน %(days)s วัน (วันครบกำหนด: %(due)s)"
+            ) % {
+                "title": risk.title,
+                "name": risk.name,
+                "days": days_left,
+                "due": risk.due_date,
+            }
+            risk._create_reminder_activity(
+                "mail.mail_activity_data_todo", summary, note
+            )
+            risk.message_post(body=note)
+
+        # Treatment overdue.
+        overdue_risks = self.search(
+            [
+                ("state", "in", open_states),
+                ("due_date", "<", today),
+            ]
+        )
+        for risk in overdue_risks:
+            summary = _("การจัดการความเสี่ยงเกินกำหนด: %s") % risk.name
+            if risk._has_open_activity(summary):
+                continue
+            overdue_days = (today - risk.due_date).days
+            note = _(
+                "ความเสี่ยง/โอกาส '%(title)s' (รหัส %(name)s) เกินกำหนดมาแล้ว "
+                "%(days)s วัน (วันครบกำหนด: %(due)s)"
+            ) % {
+                "title": risk.title,
+                "name": risk.name,
+                "days": overdue_days,
+                "due": risk.due_date,
+            }
+            risk._create_reminder_activity(
+                "mail.mail_activity_data_warning", summary, note
+            )
+            risk.message_post(body=note)
+
 
 class IsoRiskAction(models.Model):
     """รายการดำเนินการจัดการความเสี่ยง"""

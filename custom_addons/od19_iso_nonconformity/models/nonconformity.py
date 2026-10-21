@@ -149,6 +149,108 @@ class IsoNonconformity(models.Model):
             if rec.state == "closed" and not rec.verification_date:
                 raise ValidationError(_("กรุณากรอกวันที่ตรวจสอบก่อนปิด"))
 
+    # ------------------------------------------------------------------
+    # Cron: due reminders
+    # ------------------------------------------------------------------
+    def _get_reminder_user(self):
+        """User to be notified about the CAPA due date."""
+        self.ensure_one()
+        return self.responsible_id or self.env.user
+
+    def _has_open_activity(self, summary):
+        """True when an activity with the same summary already exists."""
+        self.ensure_one()
+        return bool(
+            self.env["mail.activity"].search_count(
+                [
+                    ("res_model", "=", self._name),
+                    ("res_id", "=", self.id),
+                    ("summary", "=", summary),
+                ]
+            )
+        )
+
+    def _create_reminder_activity(self, activity_type_xmlid, summary, note):
+        """Create a mail.activity for the responsible user."""
+        self.ensure_one()
+        activity_type = self.env.ref(activity_type_xmlid, raise_if_not_found=False)
+        user = self._get_reminder_user()
+        if not user:
+            return False
+        return self.env["mail.activity"].sudo().create(
+            {
+                "activity_type_id": activity_type.id if activity_type else False,
+                "summary": summary,
+                "note": note,
+                "user_id": user.id,
+                "res_model_id": self.env["ir.model"]._get_id("od19.iso.nonconformity"),
+                "res_id": self.id,
+                "date_deadline": fields.Date.today(),
+            }
+        )
+
+    @api.model
+    def _cron_nc_due_reminder(self, days=7):
+        """Daily cron: remind the owner about CAPA due within `days` and
+        nonconformities whose corrective action is overdue.
+        """
+        today = fields.Date.today()
+        due_limit = fields.Date.add(today, days=days)
+        open_states = ["open", "analysis", "action", "verification"]
+
+        # CAPA due within `days`.
+        due_ncs = self.search(
+            [
+                ("state", "in", open_states),
+                ("due_date", ">=", today),
+                ("due_date", "<=", due_limit),
+            ]
+        )
+        for nc in due_ncs:
+            summary = _("การแก้ไขไม่สอดคล้องใกล้ครบกำหนด: %s") % nc.name
+            if nc._has_open_activity(summary):
+                continue
+            days_left = (nc.due_date - today).days
+            note = _(
+                "ความไม่สอดคล้อง '%(title)s' (เลขที่ %(name)s) ต้องดำเนินการแก้ไข "
+                "ภายใน %(days)s วัน (วันครบกำหนด: %(due)s)"
+            ) % {
+                "title": nc.title,
+                "name": nc.name,
+                "days": days_left,
+                "due": nc.due_date,
+            }
+            nc._create_reminder_activity(
+                "mail.mail_activity_data_todo", summary, note
+            )
+            nc.message_post(body=note)
+
+        # CAPA overdue.
+        overdue_ncs = self.search(
+            [
+                ("state", "in", open_states),
+                ("due_date", "<", today),
+            ]
+        )
+        for nc in overdue_ncs:
+            summary = _("การแก้ไขไม่สอดคล้องเกินกำหนด: %s") % nc.name
+            if nc._has_open_activity(summary):
+                continue
+            overdue_days = (today - nc.due_date).days
+            note = _(
+                "ความไม่สอดคล้อง '%(title)s' (เลขที่ %(name)s) เกินกำหนดมาแล้ว "
+                "%(days)s วัน (วันครบกำหนด: %(due)s)"
+            ) % {
+                "title": nc.title,
+                "name": nc.name,
+                "days": overdue_days,
+                "due": nc.due_date,
+            }
+            nc._create_reminder_activity(
+                "mail.mail_activity_data_warning", summary, note
+            )
+            nc.message_post(body=note)
+
 
 class IsoNcAction(models.Model):
     """รายการการดำเนินการในแผน CAPA"""

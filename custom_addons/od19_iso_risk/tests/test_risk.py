@@ -1,6 +1,7 @@
 # Copyright 2026 TRAE
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
 
+from odoo import fields
 from odoo.tests.common import TransactionCase
 
 
@@ -101,3 +102,40 @@ class TestIsoRisk(TransactionCase):
         action.action_done()
         self.assertEqual(action.status, "done")
         self.assertTrue(action.done_date)
+
+    def _risk_activities(self, risk):
+        return self.env["mail.activity"].search([
+            ("res_model", "=", "od19.iso.risk"),
+            ("res_id", "=", risk.id),
+        ])
+
+    def test_cron_due_reminder_creates_activity(self):
+        risk = self._create_risk()
+        risk.action_identified()
+        risk.due_date = fields.Date.add(fields.Date.today(), days=3)
+        self.env["od19.iso.risk"]._cron_risk_due_reminder()
+        self.assertTrue(self._risk_activities(risk))
+
+    def test_cron_overdue_reminder_creates_activity(self):
+        risk = self._create_risk()
+        risk.action_identified()
+        risk.due_date = fields.Date.add(fields.Date.today(), days=-2)
+        self.env["od19.iso.risk"]._cron_risk_due_reminder()
+        self.assertTrue(self._risk_activities(risk))
+
+    def test_cron_reminder_is_idempotent(self):
+        risk = self._create_risk()
+        risk.action_identified()
+        risk.due_date = fields.Date.add(fields.Date.today(), days=3)
+        Risk = self.env["od19.iso.risk"]
+        Risk._cron_risk_due_reminder()
+        count = len(self._risk_activities(risk))
+        Risk._cron_risk_due_reminder()
+        self.assertEqual(len(self._risk_activities(risk)), count)
+
+    def test_cron_ignores_closed_risk(self):
+        risk = self._create_risk()
+        risk.action_close()
+        risk.due_date = fields.Date.add(fields.Date.today(), days=3)
+        self.env["od19.iso.risk"]._cron_risk_due_reminder()
+        self.assertFalse(self._risk_activities(risk))

@@ -78,6 +78,48 @@ class TestIsoNonconformity(TransactionCase):
         self.assertTrue(nc.close_date)
         self.assertEqual(nc.closed_by_id, self.env.user)
 
+    def _nc_activities(self, nc):
+        return self.env["mail.activity"].search([
+            ("res_model", "=", "od19.iso.nonconformity"),
+            ("res_id", "=", nc.id),
+        ])
+
+    def test_cron_due_reminder_creates_activity(self):
+        nc = self._create_nc(
+            due_date=fields.Date.add(fields.Date.today(), days=3)
+        )
+        nc.action_open()
+        self.NC._cron_nc_due_reminder()
+        self.assertTrue(self._nc_activities(nc))
+
+    def test_cron_overdue_reminder_creates_activity(self):
+        nc = self._create_nc(
+            due_date=fields.Date.add(fields.Date.today(), days=-1)
+        )
+        nc.action_action()
+        self.NC._cron_nc_due_reminder()
+        self.assertTrue(self._nc_activities(nc))
+
+    def test_cron_reminder_is_idempotent(self):
+        nc = self._create_nc(
+            due_date=fields.Date.add(fields.Date.today(), days=3)
+        )
+        nc.action_open()
+        self.NC._cron_nc_due_reminder()
+        count = len(self._nc_activities(nc))
+        self.NC._cron_nc_due_reminder()
+        self.assertEqual(len(self._nc_activities(nc)), count)
+
+    def test_cron_ignores_closed_nc(self):
+        nc = self._create_nc(
+            due_date=fields.Date.add(fields.Date.today(), days=3)
+        )
+        nc.action_verification()
+        nc.verification_date = fields.Date.today()
+        nc.action_close()
+        self.NC._cron_nc_due_reminder()
+        self.assertFalse(self._nc_activities(nc))
+
 
 class TestIsoNcAction(TransactionCase):
     """Tests for CAPA action plan items."""

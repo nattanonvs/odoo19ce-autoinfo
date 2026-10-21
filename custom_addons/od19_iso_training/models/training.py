@@ -174,3 +174,104 @@ class IsoEmployeeCompetence(models.Model):
     )
     assessor_id = fields.Many2one("hr.employee", string="ผู้ประเมิน", tracking=True)
     note = fields.Text(string="หมายเหตุ", tracking=True)
+
+    # ------------------------------------------------------------------
+    # Cron: competence expiry reminders
+    # ------------------------------------------------------------------
+    def _get_reminder_user(self):
+        """User to be notified about the competence expiry."""
+        self.ensure_one()
+        return self.employee_id.user_id or self.env.user
+
+    def _has_open_activity(self, summary):
+        """True when an activity with the same summary already exists."""
+        self.ensure_one()
+        return bool(
+            self.env["mail.activity"].search_count(
+                [
+                    ("res_model", "=", self._name),
+                    ("res_id", "=", self.id),
+                    ("summary", "=", summary),
+                ]
+            )
+        )
+
+    def _create_reminder_activity(self, activity_type_xmlid, summary, note):
+        """Create a mail.activity for the employee's user."""
+        self.ensure_one()
+        activity_type = self.env.ref(activity_type_xmlid, raise_if_not_found=False)
+        user = self._get_reminder_user()
+        if not user:
+            return False
+        return self.env["mail.activity"].sudo().create(
+            {
+                "activity_type_id": activity_type.id if activity_type else False,
+                "summary": summary,
+                "note": note,
+                "user_id": user.id,
+                "res_model_id": self.env["ir.model"]._get_id(
+                    "od19.iso.employee.competence"
+                ),
+                "res_id": self.id,
+                "date_deadline": fields.Date.today(),
+            }
+        )
+
+    @api.model
+    def _cron_competence_expiry_reminder(self, days=30):
+        """Daily cron: remind about employee competences expiring within
+        `days` and competences already expired.
+        """
+        today = fields.Date.today()
+        due_limit = fields.Date.add(today, days=days)
+
+        # Competence expiring within `days`.
+        due_records = self.search(
+            [
+                ("valid_to", ">=", today),
+                ("valid_to", "<=", due_limit),
+            ]
+        )
+        for rec in due_records:
+            summary = _("ความสามารถใกล้หมดอายุ: %(emp)s") % {
+                "emp": rec.employee_id.name,
+            }
+            if rec._has_open_activity(summary):
+                continue
+            days_left = (rec.valid_to - today).days
+            note = _(
+                "ความสามารถ '%(comp)s' ของ %(emp)s จะหมดอายุภายใน %(days)s วัน "
+                "(วันหมดอายุ: %(due)s)"
+            ) % {
+                "comp": rec.competence_id.name,
+                "emp": rec.employee_id.name,
+                "days": days_left,
+                "due": rec.valid_to,
+            }
+            rec._create_reminder_activity(
+                "mail.mail_activity_data_todo", summary, note
+            )
+            rec.message_post(body=note)
+
+        # Competence already expired.
+        expired_records = self.search([("valid_to", "<", today)])
+        for rec in expired_records:
+            summary = _("ความสามารถหมดอายุแล้ว: %(emp)s") % {
+                "emp": rec.employee_id.name,
+            }
+            if rec._has_open_activity(summary):
+                continue
+            expired_days = (today - rec.valid_to).days
+            note = _(
+                "ความสามารถ '%(comp)s' ของ %(emp)s หมดอายุมาแล้ว %(days)s วัน "
+                "(วันหมดอายุ: %(due)s)"
+            ) % {
+                "comp": rec.competence_id.name,
+                "emp": rec.employee_id.name,
+                "days": expired_days,
+                "due": rec.valid_to,
+            }
+            rec._create_reminder_activity(
+                "mail.mail_activity_data_warning", summary, note
+            )
+            rec.message_post(body=note)

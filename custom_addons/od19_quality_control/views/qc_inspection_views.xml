@@ -40,6 +40,9 @@
                             invisible="state not in ('draft', 'in_progress')"/>
                     <button name="action_cancel" string="Cancel" type="object"
                             invisible="state in ('passed', 'failed', 'cancelled')"/>
+                    <button name="action_create_nonconformity"
+                            string="Create Nonconformity" type="object"
+                            invisible="result != 'fail' or nc_id"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,in_progress,passed"/>
                 </header>
                 <sheet>
@@ -79,6 +82,7 @@
                         <field name="result" widget="badge"
                                decoration-success="result == 'pass'"
                                decoration-danger="result == 'fail'"/>
+                        <field name="nc_id"/>
                         <field name="notes"/>
                     </group>
                 </sheet>

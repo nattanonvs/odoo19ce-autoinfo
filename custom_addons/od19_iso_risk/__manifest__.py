@@ -9,6 +9,7 @@
     "data": [
         "security/ir.model.access.csv",
         "data/risk_data.xml",
+        "data/ir_cron_data.xml",
         "views/risk_views.xml",
         "views/menu.xml",
     ],

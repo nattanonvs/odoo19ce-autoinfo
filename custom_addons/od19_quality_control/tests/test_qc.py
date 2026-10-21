@@ -126,3 +126,45 @@ class TestQcInspection(TransactionCase):
         })
         inspection.action_cancel()
         self.assertEqual(inspection.state, 'cancelled')
+
+    def test_create_nonconformity_from_failed_inspection(self):
+        """A failed inspection can raise a linked ISO nonconformity."""
+        inspection = self.env['od19.qc.inspection'].create({
+            'product_id': self.product.id,
+            'partner_id': self.partner.id,
+            'inspection_type': 'incoming',
+            'qty_tested': 5.0,
+            'qty_accepted': 2.0,
+        })
+        inspection.action_fail()
+        self.assertEqual(inspection.result, 'fail')
+        inspection.action_create_nonconformity()
+        self.assertTrue(inspection.nc_id)
+        self.assertEqual(inspection.nc_id.category, 'quality')
+        self.assertEqual(inspection.nc_id.source, 'incoming')
+
+    def test_create_nonconformity_skips_when_already_linked(self):
+        """Calling the action twice does not create a second nonconformity."""
+        inspection = self.env['od19.qc.inspection'].create({
+            'product_id': self.product.id,
+            'partner_id': self.partner.id,
+            'inspection_type': 'incoming',
+            'qty_tested': 5.0,
+            'qty_accepted': 2.0,
+        })
+        inspection.action_create_nonconformity()
+        nc = inspection.nc_id
+        inspection.action_create_nonconformity()
+        self.assertEqual(inspection.nc_id, nc)
+
+    def test_create_nonconformity_from_passed_inspection_raises(self):
+        """A passed inspection cannot raise a nonconformity."""
+        inspection = self.env['od19.qc.inspection'].create({
+            'product_id': self.product.id,
+            'partner_id': self.partner.id,
+            'inspection_type': 'incoming',
+            'qty_tested': 5.0,
+            'qty_accepted': 5.0,
+        })
+        with self.assertRaises(Exception):
+            inspection.action_create_nonconformity()

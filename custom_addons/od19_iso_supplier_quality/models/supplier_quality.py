@@ -83,11 +83,21 @@ class IsoSupplierEvaluation(models.Model):
         for rec in self:
             rec.max_score = sum(rec.criteria_ids.mapped("max_score"))
 
-    @api.depends("total_score", "max_score")
+    @api.depends(
+        "criteria_ids.score",
+        "criteria_ids.max_score",
+        "criteria_ids.weight",
+    )
     def _compute_percentage(self):
         for rec in self:
-            if rec.max_score:
-                rec.percentage = (rec.total_score / rec.max_score) * 100
+            total_weight = sum(rec.criteria_ids.mapped("weight"))
+            if total_weight:
+                weighted = sum(
+                    (criterion.score / criterion.max_score) * criterion.weight
+                    for criterion in rec.criteria_ids
+                    if criterion.max_score
+                )
+                rec.percentage = (weighted / total_weight) * 100
             else:
                 rec.percentage = 0.0
 

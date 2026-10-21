@@ -85,3 +85,42 @@ class TestIsoTraining(TransactionCase):
         })
         self.assertEqual(emp_comp.level, "3")
         self.assertEqual(emp_comp.department_id, self.employee.department_id)
+
+    def _create_employee_competence(self, name, valid_to):
+        competence = self.env["od19.iso.competence"].create({"name": name})
+        return self.env["od19.iso.employee.competence"].create({
+            "employee_id": self.employee.id,
+            "competence_id": competence.id,
+            "level": 3,
+            "valid_to": valid_to,
+        })
+
+    def _competence_activities(self, emp_comp):
+        return self.env["mail.activity"].search([
+            ("res_model", "=", "od19.iso.employee.competence"),
+            ("res_id", "=", emp_comp.id),
+        ])
+
+    def test_cron_competence_expiry_reminder(self):
+        emp_comp = self._create_employee_competence(
+            "Skill Expiring", fields.Date.add(fields.Date.today(), days=10)
+        )
+        self.env["od19.iso.employee.competence"]._cron_competence_expiry_reminder()
+        self.assertTrue(self._competence_activities(emp_comp))
+
+    def test_cron_competence_expired_reminder(self):
+        emp_comp = self._create_employee_competence(
+            "Skill Expired", fields.Date.add(fields.Date.today(), days=-5)
+        )
+        self.env["od19.iso.employee.competence"]._cron_competence_expiry_reminder()
+        self.assertTrue(self._competence_activities(emp_comp))
+
+    def test_cron_competence_reminder_is_idempotent(self):
+        emp_comp = self._create_employee_competence(
+            "Skill Idempotent", fields.Date.add(fields.Date.today(), days=10)
+        )
+        Competence = self.env["od19.iso.employee.competence"]
+        Competence._cron_competence_expiry_reminder()
+        count = len(self._competence_activities(emp_comp))
+        Competence._cron_competence_expiry_reminder()
+        self.assertEqual(len(self._competence_activities(emp_comp)), count)

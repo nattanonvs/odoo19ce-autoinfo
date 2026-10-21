@@ -63,6 +63,11 @@ class QcInspection(models.Model):
         ('fail', 'Fail'),
     ], string='Result', compute='_compute_result', store=True)
     notes = fields.Text(string='Inspection Notes')
+    nc_id = fields.Many2one(
+        'od19.iso.nonconformity', string='Nonconformity',
+        readonly=True, copy=False,
+        help='Nonconformity created from a failed inspection.',
+    )
     line_ids = fields.One2many(
         'od19.qc.inspection.line', 'inspection_id',
         string='Inspection Lines',
@@ -114,6 +119,36 @@ class QcInspection(models.Model):
             if rec.state in ('passed', 'failed'):
                 raise UserError(_('Cannot cancel a completed inspection.'))
             rec.state = 'cancelled'
+
+    def action_create_nonconformity(self):
+        """Create an ISO nonconformity (CAPA) from a failed inspection."""
+        for rec in self:
+            if rec.nc_id:
+                continue
+            if rec.result != 'fail':
+                raise UserError(
+                    _('Only failed inspections can raise a nonconformity.')
+                )
+            nc = self.env['od19.iso.nonconformity'].create({
+                'title': _('QC Inspection %s failed') % rec.name,
+                'severity': 'major',
+                'source': {
+                    'incoming': 'incoming',
+                    'outgoing': 'final',
+                    'in_process': 'process',
+                }.get(rec.inspection_type, 'other'),
+                'category': 'quality',
+                'description': _(
+                    'Product %(product)s: rejected %(rejected)s of '
+                    '%(tested)s tested.',
+                    product=rec.product_id.display_name,
+                    rejected=rec.qty_rejected,
+                    tested=rec.qty_tested,
+                ),
+                'partner_id': rec.partner_id.id,
+                'responsible_id': rec.inspector_id.id,
+            })
+            rec.nc_id = nc.id
 
 
 class QcInspectionLine(models.Model):

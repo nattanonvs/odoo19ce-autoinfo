@@ -5,7 +5,7 @@
     'version': '19.0.1.0.0',
     'category': 'Inventory/Quality',
     'summary': 'QC inspections for incoming and outgoing products',
-    'depends': ['stock', 'product'],
+    'depends': ['stock', 'product', 'od19_iso_nonconformity'],
     'data': [
         'data/sequence.xml',
         'security/ir.model.access.csv',

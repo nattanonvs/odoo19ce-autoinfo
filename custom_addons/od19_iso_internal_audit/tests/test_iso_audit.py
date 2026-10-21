@@ -114,6 +114,37 @@ class TestIsoAudit(TransactionCase):
         self.assertEqual(audit.program_id, program)
         self.assertIn(audit, program.audit_ids)
 
+    def _audit_activities(self, audit):
+        return self.env["mail.activity"].search([
+            ("res_model", "=", "od19.iso.audit"),
+            ("res_id", "=", audit.id),
+        ])
+
+    def test_cron_planned_reminder_creates_activity(self):
+        audit = self._create_audit(
+            date_planned=fields.Date.add(fields.Date.today(), days=3)
+        )
+        self.env["od19.iso.audit"]._cron_audit_planned_reminder()
+        self.assertTrue(self._audit_activities(audit))
+
+    def test_cron_planned_reminder_is_idempotent(self):
+        audit = self._create_audit(
+            date_planned=fields.Date.add(fields.Date.today(), days=3)
+        )
+        Audit = self.env["od19.iso.audit"]
+        Audit._cron_audit_planned_reminder()
+        count = len(self._audit_activities(audit))
+        Audit._cron_audit_planned_reminder()
+        self.assertEqual(len(self._audit_activities(audit)), count)
+
+    def test_cron_planned_reminder_ignores_started_audit(self):
+        audit = self._create_audit(
+            date_planned=fields.Date.add(fields.Date.today(), days=3)
+        )
+        audit.action_start()
+        self.env["od19.iso.audit"]._cron_audit_planned_reminder()
+        self.assertFalse(self._audit_activities(audit))
+
 
 class TestIsoAuditFinding(TransactionCase):
     """Tests for audit findings."""
@@ -167,3 +198,41 @@ class TestIsoAuditFinding(TransactionCase):
     def test_finding_linked_to_audit(self):
         finding = self._create_finding()
         self.assertIn(finding, self.audit.finding_ids)
+
+    def _finding_activities(self, finding):
+        return self.env["mail.activity"].search([
+            ("res_model", "=", "od19.iso.audit.finding"),
+            ("res_id", "=", finding.id),
+        ])
+
+    def test_cron_finding_due_reminder_creates_activity(self):
+        finding = self._create_finding(
+            due_date=fields.Date.add(fields.Date.today(), days=3)
+        )
+        self.env["od19.iso.audit.finding"]._cron_finding_due_reminder()
+        self.assertTrue(self._finding_activities(finding))
+
+    def test_cron_finding_overdue_reminder_creates_activity(self):
+        finding = self._create_finding(
+            due_date=fields.Date.add(fields.Date.today(), days=-2)
+        )
+        self.env["od19.iso.audit.finding"]._cron_finding_due_reminder()
+        self.assertTrue(self._finding_activities(finding))
+
+    def test_cron_finding_reminder_is_idempotent(self):
+        finding = self._create_finding(
+            due_date=fields.Date.add(fields.Date.today(), days=3)
+        )
+        Finding = self.env["od19.iso.audit.finding"]
+        Finding._cron_finding_due_reminder()
+        count = len(self._finding_activities(finding))
+        Finding._cron_finding_due_reminder()
+        self.assertEqual(len(self._finding_activities(finding)), count)
+
+    def test_cron_finding_reminder_ignores_closed(self):
+        finding = self._create_finding(
+            due_date=fields.Date.add(fields.Date.today(), days=3)
+        )
+        finding.action_close()
+        self.env["od19.iso.audit.finding"]._cron_finding_due_reminder()
+        self.assertFalse(self._finding_activities(finding))
