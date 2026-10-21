@@ -18,6 +18,8 @@
 - Scope expanded 2026-10-12 to include Quality Control and Digital Signature.
 - Quality Control implemented as `od19_quality_control`; Digital Signature delivered as `od19_document_sign` on 2026-10-19.
 - After-sales KPI aggregation delivered as `od19_after_sales_reporting` on 2026-10-21 (closes the §6.7 residual).
+- 2026-10-21: Cross-module flow gaps closed — Ticket→Invoice (idempotent, company-scoped), Claim→Repair (blocked for rejected/cancelled claims), Return→Picking/Credit Note (company-scoped, idempotent, refund price falls back to the invoice line).
+- 2026-10-21: Consolidated **After-Sales Service Dashboard** delivered with `od19_after_sales_reporting` (six KPI sources on one board) — closes the §13 dashboard unknown.
 - 2026-10-21: ผู้ใช้อนุมัติแนวทางเขียนสเปกตามสภาพจริงบนดิสก์ และให้อัปเดตเอกสารกำกับให้สอดคล้องพร้อมกัน
 
 ## Discovery Evidence
@@ -35,7 +37,7 @@
   - `custom_addons/od19_document_sign/` — `od19.document` + `od19.document.signer` + `od19.document.template` (state `draft → sent → signed / refused / expired`), portal controller, access tokens, expiry cron, QWeb PDF report; depends `mail, portal`
   - `custom_addons/od19_internal_issue/` — `helpdesk.ticket` extension for internal issues with `base_tier_validation` approval; depends `helpdesk_mgmt, base_tier_validation, hr, mail, od19_notification_multi_channel`
   - `custom_addons/od19_iso_customer_satisfaction/` — `od19.iso.customer.satisfaction` + survey items + period report (ISO 9001 clause 9.1.2)
-  - `custom_addons/od19_after_sales_reporting/` — read-only KPI aggregation (`_auto = False` SQL views): `od19.report.after.sales.ticket`, `.warranty.claim`, `.service.card`, `.product.return`, `.qc.inspection`, `.csat.period`; pivot/graph/list menus (2026-10-21)
+  - `custom_addons/od19_after_sales_reporting/` — read-only KPI aggregation (`_auto = False` SQL views): `od19.report.after.sales.ticket`, `.warranty.claim`, `.service.card`, `.product.return`, `.qc.inspection`, `.csat.period`; pivot/graph/list menus (2026-10-21) + the consolidated **After-Sales Service Dashboard** on the `od19_dashboard` builder (six KPI data sources, one board)
   - `custom_addons/od19_delivery_label/` — delivery label (FM-PU-12); shared with Wave 4 logistics
   - OCA module present in `third_party/oca/`: `helpdesk_mgmt` (19.0.1.3.0, `third_party/oca/helpdesk/helpdesk_mgmt/`)
   - Core module present: `addons/repair/` (Repair Orders; depends `sale_stock, sale_management`)
@@ -46,7 +48,7 @@
 - Evidence coverage gaps:
   - Legacy Odoo 15 after-sales addon source (`dtr_qc`, legacy service/return flows) is not on disk for field-by-field mapping.
   - No signed SLA/OT policy document for service card SLA targets.
-  - No consolidated after-sales **dashboard** (chart/KPI board) yet; the underlying read-only KPI aggregation is delivered (`od19_after_sales_reporting`).
+  - Consolidated after-sales dashboard delivered 2026-10-21 on `od19_dashboard` (six KPI sources); it still needs a visual check on `odoo19_pdev`.
 
 ## Delivery Controls
 - Dependencies:
@@ -55,7 +57,7 @@
   - Wave 2 accounting operational-closure for refund/credit-note posting
 - Gate readiness:
   - Spec-ready: ✅ scope, boundary (service returns kept out of Inventory core), QC and signature scope defined
-  - Plan-ready: ✅ addon boundaries, state flows, security model defined; KPI aggregation delivered as `od19_after_sales_reporting`
+  - Plan-ready: ✅ addon boundaries, state flows, security model defined; KPI aggregation delivered as `od19_after_sales_reporting`; consolidated dashboard delivered; cross-module flow gaps closed
   - Build-ready: ⏳ verify all Wave 3 modules install and pass tests on `odoo19_pdev`
 
 ---
@@ -170,6 +172,19 @@ Delivered as the read-only module **`od19_after_sales_reporting`** (2026-10-21) 
 - QC pass/fail rate และ NC ที่เกิดจาก QC — `od19.report.after.sales.qc.inspection`
 - Customer satisfaction score (CSAT) ตาม period — `od19.report.after.sales.csat.period`
 
+**Cross-module flow gaps ปิดแล้ว (2026-10-21)**
+
+| Flow | Gap เดิม | วิธีปิด |
+| --- | --- | --- |
+| Ticket → Invoice | ออกใบกำกับซ้ำได้ และไม่ผูก company | ตรวจ `invoice_id` ก่อนสร้าง (idempotent) และกำหนด `company_id` จาก ticket |
+| Claim → Repair Order | สร้าง repair จาก claim ที่ `rejected` / `cancelled` ได้ | raise `UserError` เมื่อสถานะไม่เอื้ออำนวย |
+| Return → Picking / Credit Note | picking type ไม่ scope company, location อาจว่าง, refund ซ้ำได้, ราคา refund อ้างแค่ `refund_amount` | scope `company_id`, raise เมื่อหา picking type/location ไม่ได้, ตรวจ `refund_move_id` (idempotent), เพิ่ม `_get_refund_unit_price()` fallback จาก invoice line |
+| QC → Nonconformity | (ตรวจแล้วถูกต้องอยู่แล้ว) | มี guard `result != 'fail'` และกัน NC ซ้ำอยู่แล้ว |
+
+**Consolidated dashboard**
+
+Delivered in the same module: an **After-Sales Service Dashboard** registered on the `od19_dashboard` builder. The six KPI views above are exposed as dashboard data sources, so one board shows the six after-sales dimensions together (tickets, warranty, service cards, returns, quality, satisfaction) with KPI cards, alert cards and breakdown charts, reachable from the "After-Sales Dashboard" menu item under the After-Sales Reporting root. The KPI views are aggregated SQL views without a date column, so the widgets read the full view and rely on their own domain filters (no date-range trend widget).
+
 ## 7. Boundary กับโดเมนอื่น
 
 - กับ Inventory (Wave 1/4): return/warranty stock behavior อยู่ใน Wave 3 ไม่ push กลับ Inventory core; การขนย้าย/โลจิสติกส์อยู่ Wave 4
@@ -214,21 +229,21 @@ Delivered as the read-only module **`od19_after_sales_reporting`** (2026-10-21) 
 
 ## 13. Known Unknowns
 
-- KPI/after-sales dashboard รวม จะสร้างเป็น report นอกขอบเขต printable หรือไม่
+- ~~KPI/after-sales dashboard รวม จะสร้างเป็น report นอกขอบเขต printable หรือไม่~~ — **ปิดแล้ว**: สร้างเป็น dashboard บน `od19_dashboard` (in-system, ไม่ใช่ printable report)
 - SLA target ที่ยืนยันเป็นลายลักษณ์อักษรจากฝ่ายบริการ
 - การยกยอด warranty คงเหลือจากระบบเดิม
 
 ## 14. Definition of Done ระดับสเปก
 
 - โมดูล Wave 3 ทั้งหมดติดตั้งได้บน `odoo19_pdev` โดย log ไม่มี warning จากโมดูลเอง
-- ทุก flow หลัก (ticket → invoice, claim → repair, return → refund, QC → NC, signature) ทดสอบผ่าน
-- มีมุมมอง/KPI งานบริการตามที่นิยาม — ✅ delivered as `od19_after_sales_reporting` (6 KPI views); ยังต้อง verify บน `odoo19_pdev`
+- ทุก flow หลัก (ticket → invoice, claim → repair, return → refund, QC → NC, signature) ทดสอบผ่าน — มี guard/idempotency/company scope และ unit tests ครบ (ยังต้องรันบน `odoo19_pdev`)
+- มีมุมมอง/KPI งานบริการตามที่นิยาม — ✅ delivered as `od19_after_sales_reporting` (6 KPI views) + consolidated After-Sales Service Dashboard บน `od19_dashboard`; ยังต้อง verify บน `odoo19_pdev`
 - ไม่มีการแก้ไขไฟล์ core ของ Odoo
 
 ## 15. Gate Readiness Summary
 
 - Spec-ready: ✅
-- Plan-ready: ✅ (KPI aggregation delivered as `od19_after_sales_reporting`)
+- Plan-ready: ✅ (KPI aggregation + consolidated dashboard delivered; cross-module flow gaps closed)
 - Build-ready: ⏳ (รอ verify การติดตั้ง/tests บน `odoo19_pdev`)
 
 ## 16. คำตัดสินของ Child Spec นี้
