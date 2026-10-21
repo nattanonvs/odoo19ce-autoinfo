@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================= -->
+    <!-- After-Sales Ticket KPI        -->
+    <!-- ============================= -->
+    <record id="view_od19_after_sales_ticket_list" model="ir.ui.view">
+        <field name="name">od19.report.after.sales.ticket.list</field>
+        <field name="model">od19.report.after.sales.ticket</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0">
+                <field name="team_id"/>
+                <field name="team_type"/>
+                <field name="service_type"/>
+                <field name="stage_id"/>
+                <field name="closed"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="ticket_count" sum="Tickets"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_od19_after_sales_ticket" model="ir.actions.act_window">
+        <field name="name">Service Tickets KPI</field>
+        <field name="res_model">od19.report.after.sales.ticket</field>
+        <field name="view_mode">pivot,graph,list</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No service tickets yet.
+            </p>
+        </field>
+    </record>
+
+    <!-- ============================= -->
+    <!-- Warranty Claim KPI            -->
+    <!-- ============================= -->
+    <record id="view_od19_after_sales_warranty_claim_list" model="ir.ui.view">
+        <field name="name">od19.report.after.sales.warranty.claim.list</field>
+        <field name="model">od19.report.after.sales.warranty.claim</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0">
+                <field name="claim_type"/>
+                <field name="state"/>
+                <field name="under_warranty"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="claim_count" sum="Claims"/>
+                <field name="avg_turnaround_days" widget="float" digits="[16,2]"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_od19_after_sales_warranty_claim" model="ir.actions.act_window">
+        <field name="name">Warranty Claims KPI</field>
+        <field name="res_model">od19.report.after.sales.warranty.claim</field>
+        <field name="view_mode">pivot,graph,list</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No warranty claims yet.
+            </p>
+        </field>
+    </record>
+
+    <!-- ============================= -->
+    <!-- Service Card KPI              -->
+    <!-- ============================= -->
+    <record id="view_od19_after_sales_service_card_list" model="ir.ui.view">
+        <field name="name">od19.report.after.sales.service.card.list</field>
+        <field name="model">od19.report.after.sales.service.card</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0">
+                <field name="service_type"/>
+                <field name="state"/>
+                <field name="team_id"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="card_count" sum="Service Cards"/>
+                <field name="sla_breach_count" sum="SLA Breaches"/>
+                <field name="due_count" sum="Due"/>
+                <field name="overdue_count" sum="Overdue"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_od19_after_sales_service_card" model="ir.actions.act_window">
+        <field name="name">Service Cards KPI</field>
+        <field name="res_model">od19.report.after.sales.service.card</field>
+        <field name="view_mode">pivot,graph,list</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No service cards yet.
+            </p>
+        </field>
+    </record>
+
+    <!-- ============================= -->
+    <!-- Product Return KPI            -->
+    <!-- ============================= -->
+    <record id="view_od19_after_sales_product_return_list" model="ir.ui.view">
+        <field name="name">od19.report.after.sales.product.return.list</field>
+        <field name="model">od19.report.after.sales.product.return</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0">
+                <field name="reason"/>
+                <field name="state"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="currency_id" groups="base.group_multi_currency" optional="hide"/>
+                <field name="return_count" sum="Returns"/>
+                <field name="total_quantity" sum="Quantity"/>
+                <field name="total_refund_amount" sum="Refund Value"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_od19_after_sales_product_return" model="ir.actions.act_window">
+        <field name="name">Product Returns KPI</field>
+        <field name="res_model">od19.report.after.sales.product.return</field>
+        <field name="view_mode">pivot,graph,list</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No product returns yet.
+            </p>
+        </field>
+    </record>
+
+    <!-- ============================= -->
+    <!-- QC Inspection KPI             -->
+    <!-- ============================= -->
+    <record id="view_od19_after_sales_qc_inspection_list" model="ir.ui.view">
+        <field name="name">od19.report.after.sales.qc.inspection.list</field>
+        <field name="model">od19.report.after.sales.qc.inspection</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0">
+                <field name="inspection_type"/>
+                <field name="state"/>
+                <field name="result"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="inspection_count" sum="Inspections"/>
+                <field name="pass_count" sum="Passed"/>
+                <field name="fail_count" sum="Failed"/>
+                <field name="nc_count" sum="Nonconformities"/>
+                <field name="tested_qty" sum="Tested"/>
+                <field name="rejected_qty" sum="Rejected"/>
+                <field name="pass_rate" widget="float" digits="[5,2]"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_od19_after_sales_qc_inspection" model="ir.actions.act_window">
+        <field name="name">QC Inspections KPI</field>
+        <field name="res_model">od19.report.after.sales.qc.inspection</field>
+        <field name="view_mode">pivot,graph,list</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No quality inspections yet.
+            </p>
+        </field>
+    </record>
+
+    <!-- ============================= -->
+    <!-- Customer Satisfaction KPI     -->
+    <!-- ============================= -->
+    <record id="view_od19_after_sales_csat_period_list" model="ir.ui.view">
+        <field name="name">od19.report.after.sales.csat.period.list</field>
+        <field name="model">od19.report.after.sales.csat.period</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0">
+                <field name="period"/>
+                <field name="survey_count" sum="Surveys"/>
+                <field name="completed_count" sum="Completed"/>
+                <field name="avg_score" widget="float" digits="[16,2]"/>
+                <field name="avg_csat" widget="float" digits="[16,2]"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_od19_after_sales_csat_period" model="ir.actions.act_window">
+        <field name="name">Customer Satisfaction KPI</field>
+        <field name="res_model">od19.report.after.sales.csat.period</field>
+        <field name="view_mode">pivot,graph,list</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No satisfaction surveys yet.
+            </p>
+        </field>
+    </record>
+
+    <!-- ============================= -->
+    <!-- Menu                          -->
+    <!-- ============================= -->
+    <menuitem id="menu_od19_after_sales_reporting_root"
+              name="After-Sales Reporting"
+              sequence="18"/>
+
+    <menuitem id="menu_od19_after_sales_ticket_kpi"
+              name="Service Tickets"
+              parent="menu_od19_after_sales_reporting_root"
+              action="action_od19_after_sales_ticket"
+              sequence="10"/>
+
+    <menuitem id="menu_od19_after_sales_warranty_kpi"
+              name="Warranty Claims"
+              parent="menu_od19_after_sales_reporting_root"
+              action="action_od19_after_sales_warranty_claim"
+              sequence="20"/>
+
+    <menuitem id="menu_od19_after_sales_service_card_kpi"
+              name="Service Cards"
+              parent="menu_od19_after_sales_reporting_root"
+              action="action_od19_after_sales_service_card"
+              sequence="30"/>
+
+    <menuitem id="menu_od19_after_sales_product_return_kpi"
+              name="Product Returns"
+              parent="menu_od19_after_sales_reporting_root"
+              action="action_od19_after_sales_product_return"
+              sequence="40"/>
+
+    <menuitem id="menu_od19_after_sales_qc_kpi"
+              name="Quality Control"
+              parent="menu_od19_after_sales_reporting_root"
+              action="action_od19_after_sales_qc_inspection"
+              sequence="50"/>
+
+    <menuitem id="menu_od19_after_sales_csat_kpi"
+              name="Customer Satisfaction"
+              parent="menu_od19_after_sales_reporting_root"
+              action="action_od19_after_sales_csat_period"
+              sequence="60"/>
+
+</odoo>

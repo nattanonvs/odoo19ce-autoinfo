@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <record id="od19_after_sales_ticket_company_rule" model="ir.rule">
+        <field name="name">After-Sales Ticket KPI: multi-company</field>
+        <field name="model_id" ref="model_od19_report_after_sales_ticket"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="od19_after_sales_warranty_claim_company_rule" model="ir.rule">
+        <field name="name">After-Sales Warranty Claim KPI: multi-company</field>
+        <field name="model_id" ref="model_od19_report_after_sales_warranty_claim"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="od19_after_sales_service_card_company_rule" model="ir.rule">
+        <field name="name">After-Sales Service Card KPI: multi-company</field>
+        <field name="model_id" ref="model_od19_report_after_sales_service_card"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="od19_after_sales_product_return_company_rule" model="ir.rule">
+        <field name="name">After-Sales Product Return KPI: multi-company</field>
+        <field name="model_id" ref="model_od19_report_after_sales_product_return"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="od19_after_sales_qc_inspection_company_rule" model="ir.rule">
+        <field name="name">After-Sales QC Inspection KPI: multi-company</field>
+        <field name="model_id" ref="model_od19_report_after_sales_qc_inspection"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+</odoo>

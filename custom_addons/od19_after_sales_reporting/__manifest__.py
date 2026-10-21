@@ -1,0 +1,22 @@
+{
+    "name": "OD19 After-Sales Reporting",
+    "author": "OD19",
+    "version": "19.0.1.0.0",
+    "category": "Services/After-Sales",
+    "summary": "Read-only after-sales KPI views: tickets, warranty, service cards, returns, QC and CSAT",
+    "depends": [
+        "od19_helpdesk_extension",
+        "od19_service_warranty",
+        "od19_service_card",
+        "od19_product_return",
+        "od19_quality_control",
+        "od19_iso_customer_satisfaction",
+    ],
+    "data": [
+        "security/ir.model.access.csv",
+        "security/after_sales_reporting_security.xml",
+        "views/report_after_sales_views.xml",
+    ],
+    "installable": True,
+    "license": "LGPL-3",
+}

@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_od19_report_after_sales_ticket_user,access.od19.report.after.sales.ticket.user,model_od19_report_after_sales_ticket,base.group_user,1,0,0,0
+access_od19_report_after_sales_warranty_claim_user,access.od19.report.after.sales.warranty.claim.user,model_od19_report_after_sales_warranty_claim,base.group_user,1,0,0,0
+access_od19_report_after_sales_service_card_user,access.od19.report.after.sales.service.card.user,model_od19_report_after_sales_service_card,base.group_user,1,0,0,0
+access_od19_report_after_sales_product_return_user,access.od19.report.after.sales.product.return.user,model_od19_report_after_sales_product_return,base.group_user,1,0,0,0
+access_od19_report_after_sales_qc_inspection_user,access.od19.report.after.sales.qc.inspection.user,model_od19_report_after_sales_qc_inspection,base.group_user,1,0,0,0
+access_od19_report_after_sales_csat_period_user,access.od19.report.after.sales.csat.period.user,model_od19_report_after_sales_csat_period,base.group_user,1,0,0,0
