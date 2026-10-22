@@ -567,7 +567,7 @@ This section records the fit-gap decision after the Wave 1 Inventory baseline wa
 | Movement backlog reporting | Covered at first level by `od19_inventory_reporting` | Keep | Wave 1 |
 | Inventory overview screens from legacy system | Not reproduced one-to-one | Replace with KPI-oriented views on canonical models | Wave 1 |
 | Monthly stock, aging, dead stock, FIFO as-of reports | Not yet covered in the new baseline | Refactor and rebuild only reports with owner value | Wave 2 |
-| `dtr_goods_issue` dedicated issue document | No direct replacement yet | Replace with standard movement plus reason/evidence first; add wrapper only if still justified | Wave 4 |
+| `dtr_goods_issue` dedicated issue document | Delivered as `od19_goods_issue` — a Thai document/UX layer (ใบเบิก/ใบหยิบสินค้า) on top of the adopted OCA `stock_request` (decided 2026-10-21) | Keep as document layer, do not copy the legacy model | Wave 4 |
 | Split picking custom convenience | No direct replacement yet | Retire unless standard Odoo proves insufficient | Wave 4 |
 | Inventory tier approval spread across legacy operations | No direct replacement yet | Replace with approval only for material variance and adjustment events | Wave 1 |
 | Stock requests and transportation-linked warehouse flows | Out of scope for Wave 1 Inventory baseline; internal stock request now covered by adopted OCA `stock_request` (2026-10-21) | Refactor into logistics extension scope | Wave 4 |
@@ -620,8 +620,8 @@ This section records the fit-gap decision after the Wave 1 Inventory baseline wa
 - Design and implement Logistics extensions.
 - Replace `dtr_stock_valuation_adjustment` with Odoo 19 standard inventory value adjustments plus audit trail.
 - Enable standard `stock_landed_costs` for shipping and import cost allocation.
-- Decide whether `Goods Issue` remains a real business process after the new Inventory baseline is in production use.
-- If `Goods Issue` remains necessary, rebuild it as a logistics or warehouse UX layer on top of standard movement truth rather than copying the legacy model directly.
+- `Goods Issue` remains a real business process — **decided 2026-10-21**: keep it as a logistics/warehouse document/UX layer (`od19_goods_issue`) on top of standard movement truth (OCA `stock_request`), rather than copying the legacy model directly and rather than retiring the process.
+- `od19_goods_issue` provides the Thai document layer: department (`hr.department`) / job (`project.project`) / reason fields on `stock.request.order`, a per-department sequence `GI/{DEPT}/` (fallback `GI/GEN/`), and printable ใบเบิกสินค้า (goods issue) + ใบหยิบสินค้า (pick list) QWeb reports.
 - Revisit advanced warehouse convenience features, such as split-picking behavior, only if standard Odoo plus redesigned process is proven insufficient.
 
 #### Wave 5 - HR and Operational Enablement
