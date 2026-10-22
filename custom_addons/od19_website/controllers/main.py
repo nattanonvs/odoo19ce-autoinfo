@@ -4,6 +4,7 @@ import logging
 from urllib.parse import quote as url_quote
 
 import pytz
+from dateutil.relativedelta import relativedelta
 
 from odoo import fields, http
 from odoo.exceptions import UserError, ValidationError
@@ -13,6 +14,18 @@ _logger = logging.getLogger(__name__)
 
 # Default booking duration offered by the portal form (in minutes).
 DEFAULT_BOOKING_MINUTES = 60
+
+# A room can be reserved this many months ahead. The room schedule popup looks
+# the same distance back, so both edges of the window line up.
+BOOKING_WINDOW_MONTHS = 6
+
+# Human readable booking states, used by the portal popup.
+BOOKING_STATE_LABELS = {
+    "booked": "จองแล้ว",
+    "in_use": "กำลังใช้",
+    "done": "เสร็จสิ้น",
+    "cancelled": "ยกเลิก",
+}
 
 # Extensions accepted for uploaded documents (checked on the filename suffix).
 ALLOWED_DOC_EXT = (
@@ -69,6 +82,10 @@ class AutoInfoWebsite(http.Controller):
                 "booked": booked,
                 "booking_error": booking_error,
                 "my_bookings": self._od19_my_upcoming_bookings(),
+                "min_booking_date": today,
+                "max_booking_date": today
+                + relativedelta(months=BOOKING_WINDOW_MONTHS),
+                "booking_window_months": BOOKING_WINDOW_MONTHS,
             },
         )
 
@@ -148,6 +165,30 @@ class AutoInfoWebsite(http.Controller):
         return request.redirect(
             "%s?booked=%s" % (redirect_url, url_quote(booking.reference or ""))
         )
+
+    @http.route(
+        ["/employee-portal/room-schedule"],
+        type="http",
+        auth="user",
+        website=True,
+        methods=["GET"],
+        sitemap=False,
+    )
+    def portal_room_schedule(self, room_id=None, **kwargs):
+        """Return when a room is already taken, as JSON.
+
+        The portal fetches this when a room tile is clicked, so the tiles stay
+        light and only the schedule the user actually looks at is loaded.
+        """
+        try:
+            room_id = int(room_id or 0)
+        except (TypeError, ValueError):
+            room_id = 0
+
+        schedule = self._od19_room_schedule(room_id)
+        if schedule is None:
+            return request.make_json_response({"error": "not_found"}, status=404)
+        return request.make_json_response(schedule)
 
     # ------------------------------------------------------------------
     # Careers
@@ -397,6 +438,67 @@ class AutoInfoWebsite(http.Controller):
         return overview
 
     @staticmethod
+    def _od19_room_schedule(room_id, months=BOOKING_WINDOW_MONTHS, limit=200):
+        """Return when a room is taken, from ``months`` back to ``months`` ahead.
+
+        Cancelled bookings are left out because they never held the room, and
+        times are converted to the user's timezone so the popup shows the same
+        local hours as the rest of the portal. ``None`` means the room is gone.
+        """
+        room = request.env["od19.meeting.room"].sudo().browse(room_id)
+        if not room.exists():
+            return None
+
+        now = fields.Datetime.now()
+        bookings = (
+            request.env["od19.meeting.room.booking"]
+            .sudo()
+            .search(
+                [
+                    ("room_id", "=", room.id),
+                    ("state", "!=", "cancelled"),
+                    ("start_datetime", ">=", now - relativedelta(months=months)),
+                    ("start_datetime", "<=", now + relativedelta(months=months)),
+                ],
+                order="start_datetime desc",
+                limit=limit,
+            )
+        )
+
+        history = []
+        upcoming = []
+        for booking in bookings:
+            entry = {
+                "reference": booking.reference or "",
+                "name": booking.name or "",
+                "organizer": booking.organizer_id.name or "",
+                "date": AutoInfoWebsite._od19_local(
+                    booking.start_datetime, "%d/%m/%Y"
+                ),
+                "start": AutoInfoWebsite._od19_local(booking.start_datetime, "%H:%M"),
+                "end": AutoInfoWebsite._od19_local(booking.end_datetime, "%H:%M"),
+                "state_label": BOOKING_STATE_LABELS.get(booking.state, booking.state),
+            }
+            if booking.end_datetime and booking.end_datetime > now:
+                upcoming.append(entry)
+            else:
+                history.append(entry)
+        upcoming.reverse()  # soonest booking first
+
+        return {
+            "room": {
+                "id": room.id,
+                "name": room.name,
+                "capacity": room.capacity,
+                "floor": room.floor or "",
+            },
+            "window_months": months,
+            "busy_now": bool(room._od19_current_booking()),
+            "history": history,
+            "upcoming": upcoming,
+        }
+
+    @staticmethod
     def _od19_local(dt, fmt="%d/%m/%Y %H:%M"):
         """Format a UTC datetime in the current user's timezone."""
         if not dt:
@@ -424,7 +526,6 @@ class AutoInfoWebsite(http.Controller):
                 limit=5,
             )
         )
-        state_labels = {"booked": "จองแล้ว", "in_use": "กำลังใช้"}
         return [
             {
                 "name": booking.name,
@@ -433,7 +534,7 @@ class AutoInfoWebsite(http.Controller):
                     booking.start_datetime, "%d/%m %H:%M"
                 ),
                 "end": AutoInfoWebsite._od19_local(booking.end_datetime, "%H:%M"),
-                "state_label": state_labels.get(booking.state, booking.state),
+                "state_label": BOOKING_STATE_LABELS.get(booking.state, booking.state),
             }
             for booking in bookings
         ]

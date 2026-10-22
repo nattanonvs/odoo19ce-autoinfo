@@ -141,8 +141,16 @@
         <field name="context">{'search_default_filter_open': 1}</field>
     </record>
 
+    <!--
+        The careers/recruitment menus are nested inside the standard "Website"
+        app instead of declaring a second top-level app.  The website root is
+        used (rather than the Recruitment app root) because the latter is
+        restricted to hr_recruitment groups, which would hide these menus from
+        regular internal users.
+    -->
     <menuitem id="menu_od19_recruitment_root" name="Recruitment"
-              sequence="85" groups="base.group_user"/>
+              parent="website.menu_website_configuration"
+              sequence="90" groups="base.group_user"/>
     <menuitem id="menu_od19_job_opening" name="Job Openings"
               parent="menu_od19_recruitment_root"
               action="action_od19_job_opening" sequence="10"/>

@@ -2730,7 +2730,6 @@ msgid "Keywords"
 msgstr "คำค้น"
 
 #. module: od19_knowledge_enhanced
-#: model:ir.ui.menu,name:od19_knowledge_enhanced.knowledge_main_menu
 #: model_terms:ir.ui.view,arch_db:od19_knowledge_enhanced.view_document_page_form_enhanced
 msgid "Knowledge"
 msgstr "คลังความรู้"

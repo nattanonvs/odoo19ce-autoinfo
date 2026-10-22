@@ -22,7 +22,10 @@
                             </p>
                         </div>
                         <div class="text-end">
-                            <small style="opacity:0.7;" t-esc="datetime.datetime.now().strftime('%A, %d %B %Y')"/>
+                            <small class="d-block mb-2" style="opacity:0.7;" t-esc="datetime.datetime.now().strftime('%A, %d %B %Y')"/>
+                            <a href="/web" class="btn btn-sm od19-portal-back">
+                                <i class="fa fa-th me-1"/>กลับหน้าหลังบ้าน
+                            </a>
                         </div>
                     </div>
                 </section>
@@ -91,11 +94,14 @@
                                     </div>
                                 </t>
 
-                                <!-- Live status of every room -->
+                                <!-- Live status of every room; click opens its schedule -->
                                 <div class="row g-2 mb-3">
                                     <t t-foreach="rooms" t-as="entry">
                                         <div class="col-lg-3 col-md-6">
-                                            <div t-attf-class="od19-room-tile od19-room-#{entry['status']}">
+                                            <a t-attf-class="od19-room-tile od19-room-#{entry['status']}"
+                                               t-att-href="'#od19-room-modal-%s' % entry['room'].id"
+                                               t-att-data-bs-target="'#od19-room-modal-%s' % entry['room'].id"
+                                               data-bs-toggle="modal">
                                                 <div class="d-flex justify-content-between align-items-start">
                                                     <strong t-esc="entry['room'].name"/>
                                                     <span t-attf-class="od19-room-badge od19-badge-#{entry['status']}" t-esc="entry['status_label']"/>
@@ -123,10 +129,86 @@
                                                         พร้อมใช้งาน
                                                     </t>
                                                 </div>
-                                            </div>
+                                                <div class="od19-room-hint">
+                                                    <i class="fa fa-clock-o me-1"/>ดูตารางการใช้ห้อง
+                                                </div>
+                                            </a>
                                         </div>
                                     </t>
                                 </div>
+
+                                <!-- Room schedule popup: what is taken, past and ahead -->
+                                <t t-foreach="rooms" t-as="entry">
+                                    <div class="modal fade od19-room-modal" tabindex="-1" aria-hidden="true"
+                                         t-att-id="'od19-room-modal-%s' % entry['room'].id">
+                                        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">
+                                                        <i class="fa fa-calendar-check-o me-2" style="color:var(--od19-primary);"/>
+                                                        <span t-esc="entry['room'].name"/>
+                                                        <small class="text-muted ms-2">
+                                                            <i class="fa fa-users me-1"/><span t-esc="entry['room'].capacity"/> ที่นั่ง
+                                                            <t t-if="entry['room'].floor">
+                                                                · ชั้น <span t-esc="entry['room'].floor"/>
+                                                            </t>
+                                                        </small>
+                                                    </h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"/>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p class="od19-schedule-note mb-2">
+                                                        <i class="fa fa-info-circle me-1"/>
+                                                        แสดงตารางการใช้ห้องย้อนหลัง <span t-esc="booking_window_months"/> เดือน
+                                                        และล่วงหน้า <span t-esc="booking_window_months"/> เดือน
+                                                    </p>
+                                                    <div class="od19-room-schedule" t-att-data-room-id="entry['room'].id">
+                                                        <p class="text-muted small mb-0">
+                                                            <i class="fa fa-spinner fa-spin me-1"/>กำลังโหลดตารางการใช้ห้อง…
+                                                        </p>
+                                                    </div>
+
+                                                    <!-- Book this room without leaving the popup -->
+                                                    <form action="/employee-portal/book-room" method="post" class="od19-booking-form mt-3">
+                                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                                        <input type="hidden" name="room_id" t-att-value="entry['room'].id"/>
+                                                        <div class="od19-subheading">จองห้องนี้</div>
+                                                        <div class="row g-2 align-items-end">
+                                                            <div class="col-lg-6">
+                                                                <label class="od19-field-label">หัวข้อการประชุม</label>
+                                                                <input type="text" name="name" class="form-control"
+                                                                       placeholder="เช่น ประชุมทีมขาย" required="required"/>
+                                                            </div>
+                                                            <div class="col-lg-2 col-md-4">
+                                                                <label class="od19-field-label">วันที่</label>
+                                                                <input type="date" name="booking_date" class="form-control"
+                                                                       t-att-value="today.strftime('%Y-%m-%d')"
+                                                                       t-att-min="min_booking_date.strftime('%Y-%m-%d')"
+                                                                       t-att-max="max_booking_date.strftime('%Y-%m-%d')"
+                                                                       required="required"/>
+                                                            </div>
+                                                            <div class="col-lg-2 col-md-4">
+                                                                <label class="od19-field-label">เริ่ม</label>
+                                                                <input type="time" name="start_time" class="form-control"
+                                                                       value="09:00" required="required"/>
+                                                            </div>
+                                                            <div class="col-lg-2 col-md-4">
+                                                                <label class="od19-field-label">ถึง</label>
+                                                                <input type="time" name="end_time" class="form-control"
+                                                                       value="10:00" required="required"/>
+                                                            </div>
+                                                            <div class="col-lg-12">
+                                                                <button type="submit" class="btn od19-btn-book mt-2">
+                                                                    <i class="fa fa-calendar-plus-o me-1"/>จองห้องนี้
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </t>
 
                                 <!-- One-row booking form -->
                                 <form action="/employee-portal/book-room" method="post" class="od19-booking-form">
@@ -151,7 +233,10 @@
                                         <div class="col-lg-2 col-md-4">
                                             <label class="od19-field-label">วันที่</label>
                                             <input type="date" name="booking_date" class="form-control"
-                                                   t-att-value="today.strftime('%Y-%m-%d')" required="required"/>
+                                                   t-att-value="today.strftime('%Y-%m-%d')"
+                                                   t-att-min="min_booking_date.strftime('%Y-%m-%d')"
+                                                   t-att-max="max_booking_date.strftime('%Y-%m-%d')"
+                                                   required="required"/>
                                         </div>
                                         <div class="col-lg-1 col-md-4">
                                             <label class="od19-field-label">เริ่ม</label>

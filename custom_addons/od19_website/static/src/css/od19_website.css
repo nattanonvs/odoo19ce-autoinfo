@@ -1988,6 +1988,17 @@ header .o_navlink_background .oi-search {
     height: 100%;
     transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
+/* A tile is a link: it opens the schedule popup for that room. */
+a.od19-room-tile {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+}
+a.od19-room-tile:hover,
+a.od19-room-tile:focus {
+    color: inherit;
+    text-decoration: none;
+}
 .od19-room-tile:hover {
     transform: translateY(-2px);
     box-shadow: 0 10px 22px rgba(42, 26, 26, 0.09);
@@ -2122,6 +2133,64 @@ header .o_navlink_background .oi-search {
     vertical-align: middle;
     color: #4a4141;
 }
+
+/* ---------- Room schedule popup ---------- */
+.od19-room-hint {
+    margin-top: 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--od19-primary);
+}
+.od19-room-modal .modal-header {
+    border-bottom: 1px solid #f0e8e8;
+}
+.od19-room-modal .modal-title {
+    color: var(--od19-dark);
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+.od19-schedule-note {
+    font-size: 0.8rem;
+    color: var(--od19-gray);
+}
+.od19-schedule-status {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+}
+.od19-schedule-status.is-free { background: rgba(20, 130, 100, 0.12); color: #148264; }
+.od19-schedule-status.is-busy { background: rgba(179, 36, 36, 0.12); color: #b32424; }
+.od19-schedule-section {
+    margin-bottom: 18px;
+}
+.od19-schedule-table thead th {
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #8a7d7d;
+    border-top: none;
+}
+.od19-schedule-table td {
+    font-size: 0.85rem;
+    vertical-align: middle;
+    color: #4a4141;
+}
+.od19-portal-back {
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    color: #fff;
+    border-radius: 999px;
+    font-weight: 600;
+}
+.od19-portal-back:hover {
+    background: #fff;
+    color: var(--od19-primary);
+}
+
 @media (max-width: 768px) {
     .od19-booking-panel { padding: 18px 16px 20px; }
+    .od19-schedule-table th,
+    .od19-schedule-table td { font-size: 0.78rem; }
 }
