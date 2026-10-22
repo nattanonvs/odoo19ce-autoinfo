@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Quotation Document Sequence (OD19)",
-    "version": "1.0.0",
+    "version": "19.0.1.0.0",
     "summary": "Department-based quotation sequences (QB/QT/QI/QD) and quotation revision",
     "description": """
 Adds department-based document sequences for quotations.

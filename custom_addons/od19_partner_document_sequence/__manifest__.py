@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Partner Document Sequence (OD19)",
-    "version": "1.0.0",
+    "version": "19.0.1.0.0",
     "summary": "Customer (C) and Vendor (V) reference numbering",
     "description": """
 Auto-generates partner reference codes:

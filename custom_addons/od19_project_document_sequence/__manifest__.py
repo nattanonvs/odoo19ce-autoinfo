@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Project Document Sequence (OD19)",
-    "version": "1.0.0",
+    "version": "19.0.1.0.0",
     "summary": "Sale/Service/PM/Job numbering with dept + sales initials + year + sequence",
     "description": """
 Adds department-based document sequences for project documents.

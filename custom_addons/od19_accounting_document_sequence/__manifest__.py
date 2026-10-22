@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Accounting Document Sequences (OD19)",
-    "version": "1.0.0",
+    "version": "19.0.1.0.0",
     "summary": "Voucher, billing, WHT, VAT, bank, petty cash, asset and more sequences",
     "description": """
 Pre-configured document sequences for accounting operations:

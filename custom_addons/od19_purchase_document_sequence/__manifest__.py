@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Purchase Document Sequence (OD19)",
-    "version": "1.0.0",
+    "version": "19.0.1.0.0",
     "summary": "ISO document numbering per department for Purchase Request and Purchase Order",
     "description": """
 Adds department-based document sequences for purchase documents.

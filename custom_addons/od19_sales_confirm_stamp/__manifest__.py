@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Sales Confirm Stamp (OD19)",
-    "version": "1.0.0",
+    "version": "19.0.1.0.0",
     "summary": "Red CONFIRMED stamp box on printed quotations, driven by stamp_date",
     "description": """
 Adds a Stamp Date field and supporting fields to sale orders.
