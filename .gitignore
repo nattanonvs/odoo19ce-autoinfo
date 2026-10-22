@@ -120,3 +120,14 @@ nginx/nginx-1.27.2/*
 !nginx/nginx-1.27.2/conf/
 nginx/nginx-1.27.2/conf/*
 !nginx/nginx-1.27.2/conf/nginx.conf
+
+# Agent Message Queue
+.agent-mail/
+.amqrc
+
+# ============================================================
+# Prebuilt Windows binaries & installers (not part of source)
+# ============================================================
+wkhtmltox_setup.exe
+/wkhtmltopdf/bin/
+upgrade_error.txt
