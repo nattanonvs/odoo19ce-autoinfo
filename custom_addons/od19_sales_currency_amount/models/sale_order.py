@@ -11,6 +11,14 @@ class SaleOrder(models.Model):
         store=True,
         help="Untaxed amount converted to the company currency with the order exchange rate.",
     )
+    amount_total_curr = fields.Monetary(
+        string="Total Amount (Company Currency)",
+        compute="_compute_amount_company",
+        currency_field="company_currency_id",
+        store=True,
+        help="Total amount converted to the company currency with the order "
+             "exchange rate.",
+    )
 
     @api.depends(
         "amount_untaxed",

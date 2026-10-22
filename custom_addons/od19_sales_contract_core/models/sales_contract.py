@@ -44,6 +44,12 @@ class Od19SalesContract(models.Model):
     amendment_ids = fields.One2many(
         "od19.sales.contract.amendment", "contract_id"
     )
+    sale_order_ids = fields.One2many(
+        "sale.order",
+        "od19_contract_id",
+        string="Sale Orders",
+        help="Sale orders linked to this contract (used to compute consumption).",
+    )
 
     @api.depends(
         "contract_activity_ids.amount_to_consume",
@@ -56,14 +62,11 @@ class Od19SalesContract(models.Model):
             )
             contract.consumed_amount = activity_amount + contract.consumed_from_orders
 
-    @api.depends()
+    @api.depends("sale_order_ids.amount_untaxed", "sale_order_ids.state")
     def _compute_consumed_from_orders(self):
         for contract in self:
-            orders = self.env["sale.order"].search(
-                [
-                    ("od19_contract_id", "=", contract.id),
-                    ("state", "=", "sale"),
-                ]
+            orders = contract.sale_order_ids.filtered(
+                lambda order: order.state == "sale"
             )
             contract.consumed_from_orders = sum(orders.mapped("amount_untaxed"))
 
