@@ -100,8 +100,8 @@ class Od19DashboardWidgetRule(models.Model):
                     % label
                 )
             try:
-                target.check_access_rights("read")
-                target.dashboard_id.check_access_rights("read")
+                target.check_access("read")
+                target.dashboard_id.check_access("read")
             except AccessError as error:
                 raise ValidationError(
                     _("You cannot read the widget '%(widget)s' this rule compares with (rule: %(rule)s).")

@@ -241,8 +241,7 @@ class Od19Dashboard(models.Model):
         dashboard = self.browse(dashboard_id).exists()
         if not dashboard:
             raise UserError(_("This dashboard does not exist or is no longer available."))
-        dashboard.check_access_rights("read")
-        dashboard.check_access_rule("read")
+        dashboard.check_access("read")
 
         widgets = []
         widget_values = {}
@@ -453,8 +452,7 @@ class Od19Dashboard(models.Model):
         dashboard = draft.dashboard_id
         wanted = set()
         if dashboard:
-            dashboard.check_access_rights("read")
-            dashboard.check_access_rule("read")
+            dashboard.check_access("read")
             wanted = dashboard._preview_dependency_ids(draft)
 
         effective_range = date_range or cleaned.get("date_range")
@@ -491,7 +489,7 @@ class Od19Dashboard(models.Model):
         dashboard = self.browse(dashboard_id).exists()
         if not dashboard:
             raise UserError(_("This dashboard does not exist or is no longer available."))
-        dashboard.check_access_rights("write")
+        dashboard.check_access("write")
         dashboard._check_edit_access()
 
         for item in layout or []:
@@ -513,7 +511,7 @@ class Od19Dashboard(models.Model):
         if not dashboard:
             raise UserError(_("This dashboard does not exist or is no longer available."))
         dashboard._check_edit_access()
-        dashboard.check_access_rights("write")
+        dashboard.check_access("write")
 
         values = dict(values or {})
         values["dashboard_id"] = dashboard.id
@@ -529,7 +527,7 @@ class Od19Dashboard(models.Model):
         if not widget:
             raise UserError(_("This widget does not exist or is no longer available."))
         widget.dashboard_id._check_edit_access()
-        widget.check_access_rights("write")
+        widget.check_access("write")
         widget.write(dict(values or {}))
         return {"id": widget.id, "config": widget._to_config()}
 
@@ -539,7 +537,7 @@ class Od19Dashboard(models.Model):
         if not widget:
             return True
         widget.dashboard_id._check_edit_access()
-        widget.check_access_rights("unlink")
+        widget.check_access("unlink")
         widget.unlink()
         return True
 
@@ -555,8 +553,7 @@ class Od19Dashboard(models.Model):
             raise UserError(_("This dashboard does not exist or is no longer available."))
         if not self.env.user.has_group("od19_dashboard.group_od19_dashboard_user"):
             raise AccessError(_("You need the Dashboard Designer role to copy a dashboard."))
-        dashboard.check_access_rights("read")
-        dashboard.check_access_rule("read")
+        dashboard.check_access("read")
         new_dashboard = dashboard.copy(
             {
                 "name": new_name or _("%s (copy)") % dashboard.name,
@@ -816,7 +813,7 @@ class Od19DashboardWidget(models.Model):
 
         model = self.env[source.model_name]
         try:
-            model.check_access_rights("read")
+            model.check_access("read")
         except AccessError:
             data["message"] = _("You do not have read access on %s.") % source.name
             return data
@@ -1098,7 +1095,7 @@ class Od19DashboardWidget(models.Model):
                 continue
             try:
                 model = self.env[source.model_name]
-                model.check_access_rights("read")
+                model.check_access("read")
                 rows = model._read_group([], [], [spec], limit=1)
             except (AccessError, UserError):
                 continue
