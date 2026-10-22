@@ -1,3 +1,5 @@
+import base64
+
 from lxml import etree
 
 from odoo import api
@@ -27,11 +29,15 @@ class TestAccountingARClosure(AccountTestInvoicingCommon):
                 "od19_is_project_owner": True,
             }
         )
-        cls.project = cls.env["project.project"].create(
-            {
-                "name": "AR Closure Project",
-                "project_owner_id": cls.owner.id,
-            }
+        cls.project = (
+            cls.env["project.project"]
+            .sudo()
+            .create(
+                {
+                    "name": "AR Closure Project",
+                    "project_owner_id": cls.owner.id,
+                }
+            )
         )
         cls.product = cls.env["product.product"].create(
             {
@@ -49,6 +55,19 @@ class TestAccountingARClosure(AccountTestInvoicingCommon):
             }
         )
         cls.sale_form_view = cls.env.ref("sale.view_order_form")
+        # Confirming a sale order creates a delivery pickings, where the
+        # delivery label module requires a department code resolved from the
+        # current user's employee record. Provide one so confirmation succeeds.
+        cls.department = cls.env["hr.department"].sudo().create(
+            {"name": "Internal Audit", "code": "IA"}
+        )
+        cls.employee = cls.env["hr.employee"].sudo().create(
+            {
+                "name": "AR Closure Employee",
+                "user_id": cls.env.uid,
+                "department_id": cls.department.id,
+            }
+        )
 
     def _fresh_sale_order(self, order):
         fresh_env = api.Environment(self.env.cr, self.env.uid, dict(self.env.context))
@@ -59,6 +78,15 @@ class TestAccountingARClosure(AccountTestInvoicingCommon):
             view_id=self.sale_form_view.id, view_type="form"
         )
         return etree.fromstring(view_data["arch"])
+
+    def _evidence_attachment(self):
+        """Create the attachment required to verify a billing evidence."""
+        return self.env["ir.attachment"].create(
+            {
+                "name": "billing-evidence.txt",
+                "datas": base64.b64encode(b"billing evidence").decode(),
+            }
+        )
 
     def _create_ready_sale_order(self, *, quantity=1.0, price_unit=100.0):
         sale_order_model = self.env["sale.order"].sudo()
@@ -88,6 +116,7 @@ class TestAccountingARClosure(AccountTestInvoicingCommon):
                 "sale_order_id": order.id,
                 "evidence_type_id": self.evidence_type.id,
                 "is_verified": True,
+                "attachment_ids": [(6, 0, self._evidence_attachment().ids)],
             }
         )
         order.action_confirm()

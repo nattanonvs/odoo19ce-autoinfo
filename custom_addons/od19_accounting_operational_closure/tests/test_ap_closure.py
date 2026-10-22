@@ -1,6 +1,6 @@
 from lxml import etree
 
-from odoo import api
+from odoo import api, fields
 from odoo.exceptions import UserError
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
@@ -30,6 +30,19 @@ class TestAccountingAPClosure(TransactionCase):
         )
         cls.purchase_form_view = cls.env.ref("purchase.purchase_order_form")
         cls.admin_user = cls.env.ref("base.user_admin")
+        # Receipt validation goes through ``stock.picking``, where the delivery
+        # label module requires a department code resolved from the current
+        # user's employee record. Provide one so the receipt can be validated.
+        cls.department = cls.env["hr.department"].create(
+            {"name": "Internal Audit", "code": "IA"}
+        )
+        cls.employee = cls.env["hr.employee"].create(
+            {
+                "name": "AP Closure Employee",
+                "user_id": cls.env.uid,
+                "department_id": cls.department.id,
+            }
+        )
 
     def _fresh_purchase_order(self, order):
         fresh_env = api.Environment(self.env.cr, self.env.uid, dict(self.env.context))
@@ -56,6 +69,18 @@ class TestAccountingAPClosure(TransactionCase):
             .create({"group_payment": True, **kwargs})
             ._create_payments()
         )
+
+    def _post_vendor_bill(self, bill):
+        """Post a vendor bill after supplying the Thai tax invoice details that
+        the purchase tax localization requires before posting."""
+        bill.tax_invoice_ids.write(
+            {
+                "tax_invoice_number": "TEST-TINV-001",
+                "tax_invoice_date": bill.invoice_date or fields.Date.today(),
+            }
+        )
+        bill.action_post()
+        return bill
 
     def _receive_full_order(self, order):
         picking = order.picking_ids[:1]
@@ -128,7 +153,7 @@ class TestAccountingAPClosure(TransactionCase):
 
         bill = self.env["account.move"].browse(order.action_create_invoice()["res_id"])
         bill.invoice_date = "2026-10-07"
-        bill.action_post()
+        self._post_vendor_bill(bill)
 
         order = self._fresh_purchase_order(order)
         bill = bill.browse(bill.id)
@@ -181,7 +206,7 @@ class TestAccountingAPClosure(TransactionCase):
         order = self._receive_full_order(order)
         bill = self.env["account.move"].browse(order.action_create_invoice()["res_id"])
         bill.invoice_date = "2026-10-07"
-        bill.action_post()
+        self._post_vendor_bill(bill)
 
         self._register_payment(bill, amount=bill.amount_total / 2)
         bill.action_toggle_block_payment()
@@ -199,7 +224,7 @@ class TestAccountingAPClosure(TransactionCase):
         bill = self.env["account.move"].browse(order.action_create_invoice()["res_id"])
         bill.invoice_line_ids.quantity = 1.0
         bill.invoice_date = "2026-10-07"
-        bill.action_post()
+        self._post_vendor_bill(bill)
 
         self._register_payment(bill, amount=bill.amount_total)
 

@@ -166,10 +166,10 @@ class TestAssetLoan(TransactionCase):
     def test_cannot_borrow_same_equipment_twice(self):
         loan1 = self._create_loan()
         loan1.action_confirm()
-        # Second loan with the same equipment should fail on confirm.
-        loan2 = self._create_loan()
+        # The double-borrow guard is evaluated when the line is created, so the
+        # second loan itself raises instead of waiting for confirmation.
         with self.assertRaises(UserError):
-            loan2.action_confirm()
+            self._create_loan()
 
     def test_can_borrow_again_after_return(self):
         loan1 = self._create_loan()

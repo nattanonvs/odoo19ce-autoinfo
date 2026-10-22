@@ -100,12 +100,21 @@ class AccountCheque(models.Model):
         readonly=True,
         copy=False,
     )
+    received_move_id = fields.Many2one(
+        "account.move",
+        string="Received Journal Entry",
+        readonly=True,
+        ondelete="cascade",
+        copy=False,
+        help="Customer cheque received entry (Dr Cheque Received / Cr AR).",
+    )
     deposited_move_id = fields.Many2one(
         "account.move",
         string="Deposit Journal Entry",
         readonly=True,
         ondelete="cascade",
         copy=False,
+        help="Customer cheque deposit entry (Dr Bank / Cr Cheque Received).",
     )
     issue_move_id = fields.Many2one(
         "account.move",
@@ -113,6 +122,15 @@ class AccountCheque(models.Model):
         readonly=True,
         ondelete="cascade",
         copy=False,
+        help="Supplier cheque issued entry (Dr AP / Cr Cheque Issued).",
+    )
+    paid_move_id = fields.Many2one(
+        "account.move",
+        string="Paid Journal Entry",
+        readonly=True,
+        ondelete="cascade",
+        copy=False,
+        help="Supplier cheque paid entry (Dr Cheque Issued / Cr Bank).",
     )
     paid_date = fields.Date(string="Paid Date", readonly=True)
     note = fields.Text(string="Notes")
@@ -195,6 +213,17 @@ class AccountCheque(models.Model):
             }])
             self.write({move_id_field: False})
 
+    def _reverse_cheque_moves(self, *move_id_fields, date=None):
+        """Reverse several cheque journal entries in one call.
+
+        Used by the bounce / cancel / reset flows so every GL entry that was
+        created during the cheque lifecycle is reversed, leaving no orphan
+        balance on the Cheque Received / Cheque Issued accounts.
+        """
+        self.ensure_one()
+        for move_id_field in move_id_fields:
+            self._reverse_cheque_move(move_id_field, date=date)
+
     @api.constrains("amount")
     def _check_amount(self):
         for cheque in self:
@@ -240,7 +269,7 @@ class AccountCheque(models.Model):
                         or cheque._get_bank_account_id(),
                         _("Customer Cheque Received: %s") % cheque.name,
                     )
-                    cheque.write({"state": "confirmed", "deposited_move_id": move.id})
+                    cheque.write({"state": "confirmed", "received_move_id": move.id})
                 else:
                     cheque.state = "confirmed"
 
@@ -297,7 +326,7 @@ class AccountCheque(models.Model):
                     cheque.write({
                         "state": "paid",
                         "paid_date": fields.Date.context_today(self),
-                        "deposited_move_id": move.id,
+                        "paid_move_id": move.id,
                     })
                 else:
                     cheque.write({
@@ -308,20 +337,25 @@ class AccountCheque(models.Model):
     def action_bounce(self):
         for cheque in self:
             if cheque.state in ("confirmed", "deposited", "cleared"):
-                # Reverse the deposit entry if any
-                if cheque.deposited_move_id:
-                    cheque._reverse_cheque_move("deposited_move_id")
+                # Reverse every entry created so far (receive + deposit) so the
+                # customer is debited again and the Cheque Received account is
+                # fully cleared.
+                cheque._reverse_cheque_moves(
+                    "deposited_move_id", "received_move_id"
+                )
                 cheque.state = "bounced"
 
     def action_cancel(self):
         for cheque in self:
             if cheque.state in ("cleared", "paid", "cancelled"):
                 continue
-            # Reverse any created entries
-            if cheque.deposited_move_id:
-                cheque._reverse_cheque_move("deposited_move_id")
-            if cheque.issue_move_id:
-                cheque._reverse_cheque_move("issue_move_id")
+            # Reverse any created entries (received, deposited, issued, paid).
+            cheque._reverse_cheque_moves(
+                "deposited_move_id",
+                "received_move_id",
+                "issue_move_id",
+                "paid_move_id",
+            )
             cheque.state = "cancelled"
 
     def action_draft(self):
@@ -332,6 +366,14 @@ class AccountCheque(models.Model):
     def action_back_to_available(self):
         for cheque in self:
             if cheque.state in ("confirmed", "cancelled") and cheque.cheque_book_id:
+                # A confirmed cheque already created GL entries; reverse them
+                # before clearing the cheque so no orphan balance is left.
+                cheque._reverse_cheque_moves(
+                    "deposited_move_id",
+                    "received_move_id",
+                    "issue_move_id",
+                    "paid_move_id",
+                )
                 cheque.write({
                     "state": "available",
                     "cheque_date": False,

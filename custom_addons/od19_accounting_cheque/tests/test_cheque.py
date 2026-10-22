@@ -36,6 +36,21 @@ class TestCheque(TransactionCase):
                 "account_type": "liability_current",
             }
         )
+        cls.bank_journal = cls.env["account.journal"].create(
+            {
+                "name": "Cheque Bank",
+                "code": "CHQB",
+                "type": "bank",
+                "company_id": cls.env.company.id,
+                "default_account_id": cls.cash_account.id,
+            }
+        )
+        cls.env.company.write(
+            {
+                "cheque_received_account_id": cls.cheque_receivable_account.id,
+                "cheque_paid_account_id": cls.cheque_payable_account.id,
+            }
+        )
 
     def test_create_customer_cheque(self):
         cheque = self.env["account.cheque"].create(
@@ -43,6 +58,7 @@ class TestCheque(TransactionCase):
                 "cheque_type": "customer",
                 "partner_id": self.customer.id,
                 "bank_id": self.bank.id,
+                "journal_id": self.bank_journal.id,
                 "amount": 100000.0,
                 "cheque_date": "2024-01-15",
                 "due_date": "2024-02-15",
@@ -100,6 +116,7 @@ class TestCheque(TransactionCase):
                 "cheque_type": "customer",
                 "partner_id": self.customer.id,
                 "bank_id": self.bank.id,
+                "journal_id": self.bank_journal.id,
                 "amount": 100000.0,
                 "cheque_date": "2024-01-15",
                 "due_date": "2024-02-15",
@@ -115,6 +132,7 @@ class TestCheque(TransactionCase):
                 "cheque_type": "customer",
                 "partner_id": self.customer.id,
                 "bank_id": self.bank.id,
+                "journal_id": self.bank_journal.id,
                 "amount": 100000.0,
                 "cheque_date": "2024-01-15",
                 "due_date": "2024-02-15",
@@ -131,6 +149,7 @@ class TestCheque(TransactionCase):
                 "cheque_type": "customer",
                 "partner_id": self.customer.id,
                 "bank_id": self.bank.id,
+                "journal_id": self.bank_journal.id,
                 "amount": 100000.0,
                 "cheque_date": "2024-01-15",
                 "due_date": "2024-02-15",
@@ -148,6 +167,7 @@ class TestCheque(TransactionCase):
                 "cheque_type": "customer",
                 "partner_id": self.customer.id,
                 "bank_id": self.bank.id,
+                "journal_id": self.bank_journal.id,
                 "amount": 100000.0,
                 "cheque_date": "2024-01-15",
                 "due_date": "2024-02-15",
@@ -164,6 +184,7 @@ class TestCheque(TransactionCase):
                 "cheque_type": "customer",
                 "partner_id": self.customer.id,
                 "bank_id": self.bank.id,
+                "journal_id": self.bank_journal.id,
                 "amount": 100000.0,
                 "cheque_date": "2024-01-15",
                 "due_date": "2024-02-15",

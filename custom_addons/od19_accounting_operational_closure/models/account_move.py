@@ -64,7 +64,9 @@ class AccountMove(models.Model):
             )
             if move.state != "posted":
                 move.od19_operational_closure_state = "draft"
-            elif move.payment_state in ("paid", "reversed"):
+            elif move.payment_state == "paid":
+                # "reversed" is intentionally excluded: a reversed payment
+                # means the invoice is no longer settled.
                 move.od19_operational_closure_state = "paid"
             elif move.payment_state in ("partial", "in_payment") or (
                 move.payment_state == "blocked" and has_partial_residual

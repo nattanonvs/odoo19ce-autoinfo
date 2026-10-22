@@ -85,7 +85,10 @@
                         </group>
                         <group>
                             <field name="payment_id" readonly="1"/>
+                            <field name="received_move_id" readonly="1"/>
                             <field name="deposited_move_id" readonly="1"/>
+                            <field name="issue_move_id" readonly="1"/>
+                            <field name="paid_move_id" readonly="1"/>
                             <field name="paid_date" readonly="1"/>
                         </group>
                     </group>

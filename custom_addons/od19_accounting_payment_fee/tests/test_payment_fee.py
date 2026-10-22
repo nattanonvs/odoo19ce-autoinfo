@@ -3,7 +3,11 @@ from odoo.exceptions import ValidationError
 from odoo.tests import tagged, TransactionCase
 
 
-@tagged("od19_accounting_payment_fee")
+# ``res.partner`` carries fields made required by other installed modules (for
+# instance ``group_rfq`` from ``purchase_stock``). While this module is being
+# installed the registry does not carry them yet, so the class runs during
+# ``post_install`` where the registry is complete.
+@tagged("post_install", "-at_install")
 class TestPaymentFee(TransactionCase):
     @classmethod
     def setUpClass(cls):
@@ -23,7 +27,7 @@ class TestPaymentFee(TransactionCase):
                 "company_id": cls.company.id,
             })
         cls.fee_account = cls.env["account.account"].search(
-            [("account_type", "=", "expense"), ("company_id", "=", cls.company.id)],
+            [("account_type", "=", "expense"), ("company_ids", "in", cls.company.id)],
             limit=1,
         )
 

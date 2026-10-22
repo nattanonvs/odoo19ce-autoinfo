@@ -41,7 +41,9 @@ class SaleOrder(models.Model):
         for order in self:
             invoices = order._od19_customer_invoice_moves()
             posted_invoices = invoices.filtered(lambda move: move.state == "posted")
-            if order.od19_billing_readiness_state != "ready":
+            # "billed" means the sale order is (fully) invoiced, so readiness is
+            # already cleared; any other non-ready state blocks the closure flow.
+            if order.od19_billing_readiness_state not in ("ready", "billed"):
                 order.od19_invoice_closure_state = "waiting_readiness"
             elif not posted_invoices:
                 order.od19_invoice_closure_state = "ready_to_invoice"

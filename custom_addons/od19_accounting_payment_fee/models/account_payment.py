@@ -30,6 +30,11 @@ class AccountPayment(models.Model):
         For customer payment with fee: bank receives (amount - fee)
         For vendor payment with fee: bank pays (amount + fee)
         The fee is posted to fee_account_id.
+
+        Odoo 19 prepares the payment journal items with ``balance`` and
+        ``amount_currency`` keys (the ``debit`` / ``credit`` keys used by
+        earlier versions no longer exist), and the liquidity line is booked on
+        the journal's outstanding account rather than its default account.
         """
         res = super()._prepare_move_line_default_vals(
             write_off_line_vals=write_off_line_vals,
@@ -44,52 +49,25 @@ class AccountPayment(models.Model):
             fee, company_currency, self.company_id, self.date
         )
 
-        # Determine which line is the liquidity line and adjust it
-        liquidity_account_id = self.journal_id.default_account_id.id
+        # Adjust the liquidity line: the bank receives less for an inbound
+        # payment and pays more for an outbound payment, so in both cases the
+        # liquidity balance is reduced by the fee.
+        liquidity_account_id = self.outstanding_account_id.id
         for line_vals in res:
             if line_vals.get("account_id") == liquidity_account_id:
-                # Adjust the liquidity amount by the fee
-                amount_currency = line_vals.get("amount_currency", 0.0)
-                if self.payment_type == "inbound":
-                    # Customer payment: bank gets less
-                    line_vals["amount_currency"] = amount_currency - fee
-                    if line_vals.get("debit", 0.0) > 0:
-                        line_vals["debit"] = max(0.0, line_vals["debit"] - fee_balance)
-                    else:
-                        line_vals["credit"] = line_vals.get("credit", 0.0) + fee_balance
-                else:
-                    # Vendor payment: bank pays more
-                    line_vals["amount_currency"] = amount_currency - fee
-                    if line_vals.get("credit", 0.0) > 0:
-                        line_vals["credit"] = line_vals["credit"] + fee_balance
-                    else:
-                        line_vals["debit"] = max(0.0, line_vals["debit"] - fee_balance)
+                line_vals["amount_currency"] = line_vals.get("amount_currency", 0.0) - fee
+                line_vals["balance"] = line_vals.get("balance", 0.0) - fee_balance
 
-        # Add the fee line
-        if self.payment_type == "inbound":
-            # Customer payment: fee is our expense -> Debit fee account
-            res.append({
-                "name": _("Payment fee: %s") % self.name,
-                "account_id": self.fee_account_id.id,
-                "partner_id": self.partner_id.id,
-                "currency_id": self.currency_id.id,
-                "amount_currency": fee,
-                "debit": fee_balance if fee_balance > 0 else 0.0,
-                "credit": -fee_balance if fee_balance < 0 else 0.0,
-                "date_maturity": self.date,
-            })
-        else:
-            # Vendor payment: fee is our expense -> Debit fee account
-            res.append({
-                "name": _("Payment fee: %s") % self.name,
-                "account_id": self.fee_account_id.id,
-                "partner_id": self.partner_id.id,
-                "currency_id": self.currency_id.id,
-                "amount_currency": fee,
-                "debit": fee_balance if fee_balance > 0 else 0.0,
-                "credit": -fee_balance if fee_balance < 0 else 0.0,
-                "date_maturity": self.date,
-            })
+        # Add the fee expense line (debit) so the journal entry stays balanced.
+        res.append({
+            "name": _("Payment fee: %s") % self.name,
+            "account_id": self.fee_account_id.id,
+            "partner_id": self.partner_id.id,
+            "currency_id": self.currency_id.id,
+            "amount_currency": fee,
+            "balance": fee_balance,
+            "date_maturity": self.date,
+        })
 
         return res
 

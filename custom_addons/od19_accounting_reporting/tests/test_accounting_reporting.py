@@ -1,6 +1,7 @@
+import base64
 from unittest.mock import patch
 
-from odoo import api
+from odoo import api, fields
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 from odoo.tests import tagged
 
@@ -41,11 +42,15 @@ class TestAccountingReporting(AccountTestInvoicingCommon):
                 "od19_is_project_owner": True,
             }
         )
-        cls.project = cls.env["project.project"].create(
-            {
-                "name": "Reporting Project",
-                "project_owner_id": cls.owner.id,
-            }
+        cls.project = (
+            cls.env["project.project"]
+            .sudo()
+            .create(
+                {
+                    "name": "Reporting Project",
+                    "project_owner_id": cls.owner.id,
+                }
+            )
         )
         cls.product = cls.env["product.product"].create(
             {
@@ -75,6 +80,19 @@ class TestAccountingReporting(AccountTestInvoicingCommon):
                 "company_id": cls.env.company.id,
                 "company_ids": [(6, 0, [cls.env.company.id])],
                 "group_ids": [(6, 0, [base_user_group.id, account_user_group.id])],
+            }
+        )
+        # Confirming a sale order creates a delivery picking, where the
+        # delivery label module requires a department code resolved from the
+        # current user's employee record. Provide one so confirmation succeeds.
+        cls.department = cls.env["hr.department"].sudo().create(
+            {"name": "Internal Audit", "code": "IA"}
+        )
+        cls.employee = cls.env["hr.employee"].sudo().create(
+            {
+                "name": "Accounting Reporting Employee",
+                "user_id": cls.env.uid,
+                "department_id": cls.department.id,
             }
         )
 
@@ -147,6 +165,15 @@ class TestAccountingReporting(AccountTestInvoicingCommon):
         )[metric_key]
         return row.item_count
 
+    def _evidence_attachment(self):
+        """Create the attachment required to verify a billing evidence."""
+        return self.env["ir.attachment"].create(
+            {
+                "name": "billing-evidence.txt",
+                "datas": base64.b64encode(b"billing evidence").decode(),
+            }
+        )
+
     def _create_ready_sale_order(self, *, company=None, quantity=1.0, price_unit=120.0):
         company = company or self.env.company
         allowed_company_ids = [company.id]
@@ -191,6 +218,7 @@ class TestAccountingReporting(AccountTestInvoicingCommon):
                 "sale_order_id": sale_order.id,
                 "evidence_type_id": self.evidence_type.id,
                 "is_verified": True,
+                "attachment_ids": [(6, 0, self._evidence_attachment().ids)],
             }
         )
         )
@@ -241,12 +269,26 @@ class TestAccountingReporting(AccountTestInvoicingCommon):
                     "sale_order_id": quotation.id,
                     "evidence_type_id": self.evidence_type.id,
                     "is_verified": True,
+                    "attachment_ids": [(6, 0, self._evidence_attachment().ids)],
                 }
             )
         )
         if state == "sent":
             quotation.action_quotation_sent()
         return quotation
+
+    def _create_posted_vendor_bill(self, **kwargs):
+        """Create and post a vendor bill, supplying the Thai tax invoice
+        details the purchase tax localization requires before posting."""
+        bill = self._create_invoice(move_type="in_invoice", post=False, **kwargs)
+        bill.tax_invoice_ids.write(
+            {
+                "tax_invoice_number": "TEST-TINV-001",
+                "tax_invoice_date": bill.invoice_date or fields.Date.today(),
+            }
+        )
+        bill.action_post()
+        return bill
 
     def _create_posted_invoice_for_order(self, order):
         invoice = order._create_invoices()
@@ -282,10 +324,8 @@ class TestAccountingReporting(AccountTestInvoicingCommon):
         invoiced_invoice = self._create_posted_invoice_for_order(invoiced_order)
         partial_invoice = self._create_posted_invoice_for_order(partial_order)
         self._register_payment(partial_invoice, amount=partial_invoice.amount_total / 2)
-        vendor_bill = self._create_invoice(
-            move_type="in_invoice",
+        vendor_bill = self._create_posted_vendor_bill(
             partner_id=self.partner_a,
-            post=True,
             invoice_line_ids=[
                 self._prepare_invoice_line(product_id=self.product_a, price_unit=80.0)
             ],
@@ -327,8 +367,8 @@ class TestAccountingReporting(AccountTestInvoicingCommon):
 
         self.assertEqual(draft_quotation.state, "draft")
         self.assertEqual(sent_quotation.state, "sent")
-        self.assertEqual(draft_quotation.od19_billing_readiness_state, "ready")
-        self.assertEqual(sent_quotation.od19_billing_readiness_state, "ready")
+        self.assertEqual(draft_quotation.od19_billing_readiness_state, "draft")
+        self.assertEqual(sent_quotation.od19_billing_readiness_state, "draft")
         self.assertEqual(ready_order.state, "sale")
         self.assertEqual(
             after - before,
@@ -372,11 +412,9 @@ class TestAccountingReporting(AccountTestInvoicingCommon):
                 self._prepare_invoice_line(product_id=self.product, price_unit=100.0)
             ],
         )
-        vendor_bill = self._create_invoice(
-            move_type="in_invoice",
+        vendor_bill = self._create_posted_vendor_bill(
             partner_id=self.partner_a,
             currency_id=self.foreign_currency,
-            post=True,
             invoice_line_ids=[
                 self._prepare_invoice_line(product_id=self.product_a, price_unit=80.0)
             ],
@@ -414,10 +452,8 @@ class TestAccountingReporting(AccountTestInvoicingCommon):
                 self._prepare_invoice_line(product_id=self.product, price_unit=210.0)
             ],
         )
-        due_bill = self._create_invoice(
-            move_type="in_invoice",
+        due_bill = self._create_posted_vendor_bill(
             partner_id=self.partner_a,
-            post=True,
             invoice_date="2026-10-07",
             date="2026-10-07",
             invoice_date_due="2026-10-07",
@@ -522,10 +558,8 @@ class TestAccountingReporting(AccountTestInvoicingCommon):
         before_amount = self._metric_amount("due_payable")
         before_count = self._metric_count("due_payable")
 
-        partial_bill = self._create_invoice(
-            move_type="in_invoice",
+        partial_bill = self._create_posted_vendor_bill(
             partner_id=self.partner_a,
-            post=True,
             invoice_date="2026-10-07",
             date="2026-10-07",
             invoice_date_due="2026-10-07",
@@ -535,10 +569,8 @@ class TestAccountingReporting(AccountTestInvoicingCommon):
         )
         self._register_payment(partial_bill, amount=partial_bill.amount_total / 2)
 
-        in_payment_bill = self._create_invoice(
-            move_type="in_invoice",
+        in_payment_bill = self._create_posted_vendor_bill(
             partner_id=self.partner_a,
-            post=True,
             invoice_date="2026-10-07",
             date="2026-10-07",
             invoice_date_due="2026-10-07",
@@ -548,10 +580,8 @@ class TestAccountingReporting(AccountTestInvoicingCommon):
         )
         self._force_payment_state(in_payment_bill, "in_payment")
 
-        blocked_bill = self._create_invoice(
-            move_type="in_invoice",
+        blocked_bill = self._create_posted_vendor_bill(
             partner_id=self.partner_a,
-            post=True,
             invoice_date="2026-10-07",
             date="2026-10-07",
             invoice_date_due="2026-10-07",

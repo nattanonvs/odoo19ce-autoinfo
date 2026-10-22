@@ -1,6 +1,6 @@
 from lxml import etree
 
-from odoo import api
+from odoo import api, fields
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 from odoo.tests import tagged
 
@@ -76,11 +76,19 @@ class TestAccountingCashReconciliation(AccountTestInvoicingCommon):
         bill = self._create_invoice(
             move_type="in_invoice",
             partner_id=self.partner_a,
-            post=True,
             invoice_line_ids=[
                 self._prepare_invoice_line(product_id=self.product_a, price_unit=200.0)
             ],
         )
+        # Thai purchase tax requires the vendor's tax invoice number and date
+        # before the bill can be posted.
+        bill.tax_invoice_ids.write(
+            {
+                "tax_invoice_number": "TEST-TINV-001",
+                "tax_invoice_date": bill.invoice_date or fields.Date.today(),
+            }
+        )
+        bill.action_post()
 
         self._register_payment(bill, amount=bill.amount_total / 2)
 
@@ -89,7 +97,7 @@ class TestAccountingCashReconciliation(AccountTestInvoicingCommon):
         self.assertEqual(bill.payment_state, "partial")
         self.assertEqual(bill.od19_operational_closure_state, "partially_paid")
 
-    def test_reversed_invoice_is_treated_as_operationally_closed(self):
+    def test_reversed_invoice_stays_open_in_operational_closure(self):
         invoice = self._create_invoice(
             move_type="out_invoice",
             partner_id=self.partner_a,
@@ -102,8 +110,10 @@ class TestAccountingCashReconciliation(AccountTestInvoicingCommon):
         self._reverse_invoice(invoice, is_modify=True, post=True)
 
         invoice = self._fresh_move(invoice)
+        # A reversed payment means the invoice is no longer settled, so the
+        # operational closure must report it as open rather than paid.
         self.assertEqual(invoice.payment_state, "reversed")
-        self.assertEqual(invoice.od19_operational_closure_state, "paid")
+        self.assertEqual(invoice.od19_operational_closure_state, "posted")
 
     def test_blocked_invoice_stays_open_in_operational_closure(self):
         invoice = self._create_invoice(
