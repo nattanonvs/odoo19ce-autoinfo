@@ -15,8 +15,10 @@ import { markup } from "@odoo/owl";
 registry.category("web_tour.tours").add("od19_knowledge_tour", {
     url: "/odoo",
     steps: () => [
+        // The OD19 knowledge articles are nested inside the OCA ``document_knowledge``
+        // "Knowledge" app (there is no dedicated OD19 "Knowledge" app anymore).
         ...stepUtils.goToAppSteps(
-            "od19_knowledge_enhanced.knowledge_main_menu",
+            "document_knowledge.menu_document_root",
             markup(_t("Let's manage <b>Knowledge Articles</b> for the company wiki."))
         ),
 

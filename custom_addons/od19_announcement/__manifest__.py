@@ -13,6 +13,7 @@
         "views/announcement_views.xml",
         "views/announcement_menus.xml",
     ],
+    "icon": "/od19_announcement/static/description/icon.svg",
     "installable": True,
     "application": True,
 }

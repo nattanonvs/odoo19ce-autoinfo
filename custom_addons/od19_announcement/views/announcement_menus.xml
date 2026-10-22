@@ -5,7 +5,7 @@
         id="announcement_main_menu"
         name="Announcements"
         sequence="75"
-        web_icon="od19_announcement,static/description/icon.png"
+        web_icon="od19_announcement,static/description/icon.svg"
     />
 
     <menuitem

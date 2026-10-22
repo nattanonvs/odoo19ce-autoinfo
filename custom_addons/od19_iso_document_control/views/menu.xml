@@ -4,7 +4,7 @@
     <!-- Top-level ISO menu -->
     <menuitem id="menu_iso_root"
               name="ISO Management"
-              web_icon="od19_iso_document_control,static/description/icon.png"
+              web_icon="od19_iso_document_control,static/description/icon.svg"
               sequence="90"/>
 
     <!-- Document Control submenu -->

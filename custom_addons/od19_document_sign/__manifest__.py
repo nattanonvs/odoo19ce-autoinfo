@@ -39,6 +39,7 @@ Features
         "views/portal_templates.xml",
         "views/menu_views.xml",
     ],
+    "icon": "/od19_document_sign/static/description/icon.svg",
     "installable": True,
     "application": True,
 }

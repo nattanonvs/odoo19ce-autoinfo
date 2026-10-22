@@ -30,6 +30,7 @@
         "views/menu.xml",
     ],
     "demo": [],
+    "icon": "/od19_iso_document_control/static/description/icon.svg",
     "installable": True,
     "application": True,
     "auto_install": False,

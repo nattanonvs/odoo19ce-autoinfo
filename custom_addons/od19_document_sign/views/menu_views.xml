@@ -5,6 +5,7 @@
         name="Signing"
         sequence="82"
         groups="group_od19_document_sign_user"
+        web_icon="od19_document_sign,static/description/icon.svg"
     />
     <menuitem
         id="menu_od19_document"

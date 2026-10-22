@@ -128,6 +128,7 @@ Tours can be started from:
             'od19_user_guide_tours/static/src/tours/stock_picking_features_tour.js',
         ],
     },
+    'icon': '/od19_user_guide_tours/static/description/icon.svg',
     'installable': True,
     'application': False,
     'license': 'LGPL-3',

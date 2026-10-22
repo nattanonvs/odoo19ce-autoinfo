@@ -13,15 +13,17 @@ import { markup } from "@odoo/owl";
 registry.category("web_tour.tours").add("od19_misc_features_tour", {
     url: "/odoo",
     steps: () => [
+        // The "Misc Features" toolbox is nested inside the standard Settings app
+        // (it is a technical module, not a standalone app).
         ...stepUtils.goToAppSteps(
-            "od19_misc_features.menu_od19_misc_features_root",
+            "base.menu_administration",
             markup(_t("Let's explore the <b>Misc Features</b>: Runtime Guard and Repeat Customer analysis."))
         ),
 
-        // --- Runtime Guard ---
+        // --- Runtime Guard (Settings > Misc Features > Runtime Guard) ---
         {
-            trigger: navSection("Runtime Guard"),
-            content: markup(_t("Open <b>Runtime Guard</b> to check the system health.")),
+            trigger: navSection("Misc Features"),
+            content: markup(_t("Open the <b>Misc Features</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
@@ -52,9 +54,15 @@ registry.category("web_tour.tours").add("od19_misc_features_tour", {
             run: "click",
         },
 
-        // --- Repeat Customer Enhanced ---
+        // --- Repeat Customer Enhanced (Settings > Misc Features) ---
         {
-            trigger: navSection("Repeat Customer Enhanced"),
+            trigger: navSection("Misc Features"),
+            content: markup(_t("Re-open the <b>Misc Features</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: navItem("Repeat Customer Enhanced"),
             content: markup(_t(
                 "Open <b>Repeat Customer Enhanced</b> to analyse repeat business."
             )),

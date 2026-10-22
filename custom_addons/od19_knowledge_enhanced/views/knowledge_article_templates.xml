@@ -1,19 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <menuitem
-        id="knowledge_main_menu"
-        name="Knowledge"
-        sequence="70"
-        web_icon="od19_knowledge_enhanced,static/description/icon.png"
-    />
-
+    <!--
+        The "Knowledge" app itself is provided by the OCA ``document_knowledge``
+        module. The OD19 knowledge articles are therefore nested inside that
+        existing app instead of declaring a second top-level "Knowledge" menu
+        (which used to show a duplicate app).
+    -->
     <menuitem
         id="knowledge_article_menu"
         name="Articles"
-        parent="knowledge_main_menu"
+        parent="document_knowledge.menu_document_root"
         action="knowledge_article_action"
-        sequence="10"
+        sequence="30"
     />
+
+    <!--
+        ``document_knowledge.menu_document_root`` is restricted to
+        ``document_knowledge.group_document_user``. Every internal user keeps
+        seeing the Knowledge app (as before the articles were nested), so the
+        group is made implied by ``base.group_user``.
+    -->
+    <record id="base.group_user" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('document_knowledge.group_document_user'))]"/>
+    </record>
 
 </odoo>

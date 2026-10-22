@@ -9,7 +9,8 @@
     <menuitem id="menu_od19_user_guide_root"
               name="User Guide"
               sequence="95"
-              groups="base.group_user"/>
+              groups="base.group_user"
+              web_icon="od19_user_guide_tours,static/description/icon.svg"/>
 
     <menuitem id="menu_od19_user_guide_tours"
               name="Interactive Tours"
