@@ -24,8 +24,13 @@
                     </setting>
                     <setting string="Communication Key" company_dependent="1"
                              invisible="not od19_zkteco_enabled"
-                             help="Optional key shared with the device. Leave empty to accept any key.">
+                             help="Shared key configured on the device as 'Comm Key'. A device must send the matching key to be accepted; requests without it are refused.">
                         <field name="od19_zkteco_comm_key" password="True"/>
+                    </setting>
+                    <setting string="Auto-register New Devices" company_dependent="1"
+                             invisible="not od19_zkteco_enabled"
+                             help="Automatically create a device record when an unknown terminal sends a valid communication key. Keep disabled to accept only preregistered devices.">
+                        <field name="od19_zkteco_allow_auto_register"/>
                     </setting>
                     <setting string="Check-out Grace" company_dependent="1"
                              invisible="not od19_zkteco_enabled"

@@ -12,8 +12,16 @@ class ResCompany(models.Model):
     )
     od19_zkteco_comm_key = fields.Char(
         string="ZKTeco Communication Key",
-        help="Optional shared key configured on the device as 'Comm Key'. "
-             "When set, the device must send the matching key to be accepted.",
+        help="Shared key configured on the device as 'Comm Key'. The device "
+             "must send this key to be accepted. Requests without a matching "
+             "key are refused.",
+    )
+    od19_zkteco_allow_auto_register = fields.Boolean(
+        string="Allow Auto-registration of Devices",
+        default=False,
+        help="When enabled, a terminal that sends a valid communication key "
+             "but is not yet registered is created automatically. Leave "
+             "disabled to accept only devices registered in advance.",
     )
     od19_zkteco_match_field = fields.Selection(
         selection=[

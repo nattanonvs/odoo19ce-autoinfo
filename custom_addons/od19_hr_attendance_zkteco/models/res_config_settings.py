@@ -14,6 +14,10 @@ class ResConfigSettings(models.TransientModel):
         related='company_id.od19_zkteco_comm_key',
         readonly=False,
     )
+    od19_zkteco_allow_auto_register = fields.Boolean(
+        related='company_id.od19_zkteco_allow_auto_register',
+        readonly=False,
+    )
     od19_zkteco_match_field = fields.Selection(
         related='company_id.od19_zkteco_match_field',
         readonly=False,

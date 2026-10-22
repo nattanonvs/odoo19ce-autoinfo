@@ -28,28 +28,71 @@ class ZKTecoController(http.Controller):
             headers=[('Content-Type', 'text/plain; charset=utf-8')],
         )
 
-    def _get_device(self, sn, auto_create=True):
+    @staticmethod
+    def _key_matches(expected_key, provided_key):
+        """Return True only when a key is configured and the values match.
+
+        Fail-closed: when no key is configured (``expected_key`` is empty)
+        the request is refused, so an administrator must set a shared
+        communication key before any terminal is accepted.
+        """
+        if not expected_key:
+            return False
+        return bool(provided_key) and provided_key == expected_key
+
+    def _authorize(self, sn, key, auto_create=True):
+        """Resolve and authenticate the device that issued the request.
+
+        A request is accepted only when the device is known and the
+        communication key (device level first, then company level) matches
+        the value sent by the terminal. Unknown serial numbers are rejected
+        unless auto-registration is explicitly enabled *and* the company key
+        matches.
+
+        :param sn: serial number reported by the device (``SN`` parameter).
+        :param key: communication key sent by the device (``key`` parameter).
+        :param auto_create: allow registering an unknown but authenticated
+                            device on the fly.
+        :return: the ``hr.attendance.device`` record, or ``None`` when the
+                 request must be refused.
+        """
         if not sn:
-            return request.env['hr.attendance.device'].sudo().browse()
+            _logger.warning("ZKTeco: request without SN; refused.")
+            return None
         Device = request.env['hr.attendance.device'].sudo()
         device = Device._get_device_by_serial(sn)
-        if not device and auto_create:
+        if device:
+            if not device.active:
+                _logger.warning("ZKTeco: archived device SN=%s; refused.", sn)
+                return None
+            expected_key = device.comm_key or device.company_id.od19_zkteco_comm_key
+            if not self._key_matches(expected_key, key):
+                _logger.warning(
+                    "ZKTeco: invalid or missing key for device SN=%s; refused.",
+                    sn,
+                )
+                return None
+        else:
             company = request.env.company
-            if company.od19_zkteco_enabled:
-                device = Device.create({
-                    'name': _("ZKTeco %s", sn),
-                    'serial_number': sn,
-                    'company_id': company.id,
-                })
-                _logger.info("ZKTeco: auto-registered device with SN %s", sn)
+            may_register = (
+                auto_create
+                and company.od19_zkteco_enabled
+                and company.od19_zkteco_allow_auto_register
+                and self._key_matches(company.od19_zkteco_comm_key, key)
+            )
+            if not may_register:
+                _logger.warning(
+                    "ZKTeco: unknown device SN=%s; refused.", sn,
+                )
+                return None
+            device = Device.create({
+                'name': _("ZKTeco %s", sn),
+                'serial_number': sn,
+                'company_id': company.id,
+            })
+            _logger.info("ZKTeco: auto-registered device with SN %s", sn)
+        device._touch()
         return device
-
-    def _check_comm_key(self, device, provided_key):
-        if not device or not device.comm_key:
-            return True
-        if not provided_key:
-            return True
-        return device.comm_key == provided_key
 
     def _handshake_body(self, sn, device):
         tz_offset = 7  # default Asia/Bangkok
@@ -136,16 +179,12 @@ class ZKTecoController(http.Controller):
                 methods=['GET', 'POST'], save_session=False)
     def iclock_cdata(self, SN=None, options=None, table=None, Stamp=None,
                      key=None, **kwargs):
-        device = self._get_device(SN)
+        # ``csrf=False`` is required: ZKTeco terminals cannot send a CSRF
+        # token. Authentication is enforced through the communication key
+        # validated in ``_authorize`` (fail-closed).
+        device = self._authorize(SN, key)
         if not device:
-            _logger.warning("ZKTeco: unknown device SN=%s on /iclock/cdata", SN)
-            return self._plain("OK")
-
-        if not self._check_comm_key(device, key):
-            _logger.warning("ZKTeco: invalid comm key for device %s", SN)
             return self._plain("ERROR")
-
-        device._touch()
 
         if request.httprequest.method == 'GET':
             # Handshake: the device asks for its configuration.
@@ -163,31 +202,30 @@ class ZKTecoController(http.Controller):
 
     @http.route('/iclock/getrequest', type='http', auth='public', csrf=False,
                 methods=['GET', 'POST'], save_session=False)
-    def iclock_getrequest(self, SN=None, **kwargs):
-        device = self._get_device(SN)
-        if device:
-            device._touch()
+    def iclock_getrequest(self, SN=None, key=None, **kwargs):
+        # Only a device that already completed the handshake may poll.
+        if not self._authorize(SN, key, auto_create=False):
+            return self._plain("ERROR")
         # No server-side command queue implemented: tell the device there is
         # nothing to do.
         return self._plain("OK")
 
     @http.route('/iclock/ping', type='http', auth='public', csrf=False,
                 methods=['GET', 'POST'], save_session=False)
-    def iclock_ping(self, SN=None, **kwargs):
-        device = self._get_device(SN)
-        if device:
-            device._touch()
+    def iclock_ping(self, SN=None, key=None, **kwargs):
+        if not self._authorize(SN, key, auto_create=False):
+            return self._plain("ERROR")
         return self._plain("OK")
 
     @http.route('/iclock/devicecmd', type='http', auth='public', csrf=False,
                 methods=['GET', 'POST'], save_session=False)
-    def iclock_devicecmd(self, SN=None, **kwargs):
-        device = self._get_device(SN)
-        if device:
-            device._touch()
+    def iclock_devicecmd(self, SN=None, key=None, **kwargs):
+        if not self._authorize(SN, key, auto_create=False):
+            return self._plain("ERROR")
         return self._plain("OK")
 
     @http.route('/iclock/test', type='http', auth='public', csrf=False,
                 methods=['GET', 'POST'], save_session=False)
-    def iclock_test(self, SN=None, **kwargs):
+    def iclock_test(self, SN=None, key=None, **kwargs):
+        # Connectivity probe only: no data is read or written.
         return self._plain("OK")
