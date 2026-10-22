@@ -9,10 +9,13 @@ This is **not** a cron job; it is meant to be triggered on demand by an
 administrator.
 """
 
+import logging
 import sys
 
 from odoo import fields, models
 from odoo.release import version_info
+
+_logger = logging.getLogger(__name__)
 
 
 class Od19RuntimeGuard(models.Model):
@@ -60,14 +63,21 @@ class Od19RuntimeGuard(models.Model):
             [("state", "=", "installed")]
         )
 
+        # Read-only diagnostic: PostgreSQL exposes the database size only
+        # through a server-side function, so there is no ORM equivalent.
+        # The query neither writes data nor commits the transaction.
         database_size_mb = 0.0
         try:
             self.env.cr.execute(
                 "SELECT pg_database_size(current_database()) / 1024.0 / 1024.0"
             )
-            database_size_mb = float(self.env.cr.fetchone()[0])
-        except Exception:
-            database_size_mb = 0.0
+            row = self.env.cr.fetchone()
+            if row and row[0] is not None:
+                database_size_mb = float(row[0])
+        except Exception as error:  # noqa: BLE001 - diagnostic only
+            _logger.warning(
+                "Runtime guard: could not read database size: %s", error
+            )
 
         odoo_version = ".".join(str(p) for p in version_info[:3])
 

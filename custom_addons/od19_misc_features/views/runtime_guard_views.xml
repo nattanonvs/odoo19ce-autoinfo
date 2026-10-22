@@ -86,8 +86,14 @@
     </record>
 
     <!-- ===================== Menus ===================== -->
+    <!--
+        "Misc Features" is a technical toolbox (runtime guard + repeat-customer
+        report), so it is nested inside the standard Settings app instead of
+        being declared as its own top-level app.
+    -->
     <menuitem id="menu_od19_misc_features_root"
               name="Misc Features"
+              parent="base.menu_administration"
               sequence="99"/>
 
     <menuitem id="menu_od19_runtime_guard"
