@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ===================== Paper Format (A4) ===================== -->
+    <record id="paperformat_od19_goods_issue" model="report.paperformat">
+        <field name="name">OD19 Goods Issue (A4)</field>
+        <field name="default" eval="False"/>
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">15</field>
+        <field name="margin_bottom">15</field>
+        <field name="margin_left">10</field>
+        <field name="margin_right">10</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">10</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <!-- ===================== Goods Issue Report Action ===================== -->
+    <record id="action_report_od19_goods_issue_document" model="ir.actions.report">
+        <field name="name">ใบเบิกสินค้า / Goods Issue</field>
+        <field name="model">stock.request.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">od19_goods_issue.report_od19_goods_issue_document</field>
+        <field name="report_file">od19_goods_issue.report_od19_goods_issue_document</field>
+        <field name="print_report_name">'Goods Issue - %s' % (object.name or '')</field>
+        <field name="attachment">'%s.pdf' % (object.name or 'GoodsIssue').replace('/', '_')</field>
+        <field name="binding_model_id" ref="stock_request.model_stock_request_order"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="paperformat_od19_goods_issue"/>
+        <field name="group_ids" eval="[(6, 0, [ref('stock_request.group_stock_request_user')])]"/>
+    </record>
+
+    <!-- ===================== Pick List Report Action ===================== -->
+    <record id="action_report_od19_goods_issue_picklist" model="ir.actions.report">
+        <field name="name">ใบหยิบสินค้า / Pick List</field>
+        <field name="model">stock.picking</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">od19_goods_issue.report_od19_goods_issue_picklist</field>
+        <field name="report_file">od19_goods_issue.report_od19_goods_issue_picklist</field>
+        <field name="print_report_name">'Pick List - %s' % (object.name or '')</field>
+        <field name="attachment">'%s.pdf' % (object.name or 'PickList').replace('/', '_')</field>
+        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="paperformat_od19_goods_issue"/>
+        <field name="group_ids" eval="[(6, 0, [ref('stock_request.group_stock_request_user')])]"/>
+    </record>
+
+    <!-- ===================== Goods Issue Template ===================== -->
+    <template id="report_od19_goods_issue_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page"
+                         style="font-family:'Sarabun','Noto Sans Thai',Tahoma,'Arial Unicode MS',sans-serif; font-size:13px;">
+                        <h2 class="text-center" style="color:#9E2424; margin-bottom:2px;">ใบเบิกสินค้า</h2>
+                        <h4 class="text-center" style="color:#9E2424; margin-top:0;">GOODS ISSUE</h4>
+
+                        <!-- Header -->
+                        <table class="table table-sm" style="margin-top:10px;">
+                            <tr>
+                                <td style="border:none; width:50%;">
+                                    <strong>เลขที่เอกสาร / Document No.: </strong>
+                                    <span t-field="o.name"/>
+                                </td>
+                                <td style="border:none;">
+                                    <strong>วันที่ / Date: </strong>
+                                    <span t-field="o.expected_date" t-options='{"widget": "date"}'/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="border:none;">
+                                    <strong>แผนกที่ขอเบิก / Department: </strong>
+                                    <span t-esc="o.department_id.display_name or '-'"/>
+                                </td>
+                                <td style="border:none;">
+                                    <strong>ผู้ขอเบิก / Requested By: </strong>
+                                    <span t-esc="o.od19_employee_id.display_name or (o.requested_by.name or '-')"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="border:none;">
+                                    <strong>งาน/โครงการ / Job: </strong>
+                                    <span t-esc="o.od19_job_id.display_name or '-'"/>
+                                </td>
+                                <td style="border:none;">
+                                    <strong>ประเภทการเบิก / Issue Type: </strong>
+                                    <span t-esc="o.od19_issue_type_id.display_name or '-'"/>
+                                </td>
+                            </tr>
+                            <tr t-if="o.od19_reason">
+                                <td colspan="2" style="border:none;">
+                                    <strong>เหตุผลการเบิก / Reason: </strong>
+                                    <span t-esc="o.od19_reason"/>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Lines -->
+                        <table class="table table-sm table-bordered" style="margin-top:8px;">
+                            <thead style="color:#9E2424;">
+                                <tr>
+                                    <th style="width:5%;">#</th>
+                                    <th>สินค้า / Product</th>
+                                    <th>รายละเอียด / Description</th>
+                                    <th class="text-end">ขอเบิก / Requested</th>
+                                    <th class="text-end">จ่ายจริง / Done</th>
+                                    <th>หน่วย / UoM</th>
+                                    <th>ต้นทาง / Source</th>
+                                    <th>ปลายทาง / Destination</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="idx" t-value="0"/>
+                                <t t-foreach="o.stock_request_ids" t-as="line">
+                                    <t t-set="idx" t-value="idx + 1"/>
+                                    <t t-set="mv" t-value="line.move_ids[:1]"/>
+                                    <tr>
+                                        <td><span t-esc="idx"/></td>
+                                        <td><span t-esc="line.product_id.display_name"/></td>
+                                        <td><span t-field="line.product_id.description"/></td>
+                                        <td class="text-end"><span t-esc="line.product_uom_qty"/></td>
+                                        <td class="text-end"><span t-esc="line.qty_done"/></td>
+                                        <td><span t-esc="line.product_uom_id.display_name or ''"/></td>
+                                        <td><span t-esc="mv.location_id.display_name if mv else (line.location_id.display_name or '-')"/></td>
+                                        <td><span t-esc="mv.location_dest_id.display_name if mv else (line.location_id.display_name or '-')"/></td>
+                                    </tr>
+                                </t>
+                                <tr t-if="not o.stock_request_ids">
+                                    <td colspan="8" class="text-center">ไม่พบรายการ / No items</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Signatures -->
+                        <table style="width:100%; margin-top:40px; text-align:center;">
+                            <tr>
+                                <td style="width:33%; padding-top:40px;">
+                                    ...............................................................
+                                    <div><strong>ผู้เบิก / Requester</strong></div>
+                                    <div>วันที่ / Date: ........./........./.........</div>
+                                </td>
+                                <td style="width:33%; padding-top:40px;">
+                                    ...............................................................
+                                    <div><strong>ผู้อนุมัติ / Approver</strong></div>
+                                    <div>วันที่ / Date: ........./........./.........</div>
+                                </td>
+                                <td style="width:33%; padding-top:40px;">
+                                    ...............................................................
+                                    <div><strong>ผู้จ่ายสินค้า / Storekeeper</strong></div>
+                                    <div>วันที่ / Date: ........./........./.........</div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- ===================== Pick List Template ===================== -->
+    <template id="report_od19_goods_issue_picklist">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page"
+                         style="font-family:'Sarabun','Noto Sans Thai',Tahoma,'Arial Unicode MS',sans-serif; font-size:13px;">
+                        <h2 class="text-center" style="color:#9E2424; margin-bottom:2px;">ใบหยิบสินค้า</h2>
+                        <h4 class="text-center" style="color:#9E2424; margin-top:0;">PICK LIST</h4>
+
+                        <!-- Header -->
+                        <table class="table table-sm" style="margin-top:10px;">
+                            <tr>
+                                <td style="border:none; width:50%;">
+                                    <strong>เลขที่ / Picking: </strong>
+                                    <span t-field="o.name"/>
+                                </td>
+                                <td style="border:none;">
+                                    <strong>เอกสารอ้างอิง / Origin: </strong>
+                                    <span t-esc="o.origin or '-'"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="border:none;">
+                                    <strong>กำหนดส่ง / Scheduled: </strong>
+                                    <span t-field="o.scheduled_date"/>
+                                </td>
+                                <td style="border:none;">
+                                    <strong>แผนกที่ขอเบิก / Department: </strong>
+                                    <span t-esc="o.od19_goods_issue_department_id.display_name or '-'"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="border:none;">
+                                    <strong>จาก / Source: </strong>
+                                    <span t-esc="o.location_id.display_name or '-'"/>
+                                </td>
+                                <td style="border:none;">
+                                    <strong>ไปยัง / Destination: </strong>
+                                    <span t-esc="o.location_dest_id.display_name or '-'"/>
+                                </td>
+                            </tr>
+                            <tr t-if="o.od19_goods_issue_reason">
+                                <td colspan="2" style="border:none;">
+                                    <strong>เหตุผลการเบิก / Reason: </strong>
+                                    <span t-esc="o.od19_goods_issue_reason"/>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Lines -->
+                        <table class="table table-sm table-bordered" style="margin-top:8px;">
+                            <thead style="color:#9E2424;">
+                                <tr>
+                                    <th style="width:5%;">#</th>
+                                    <th>สินค้า / Product</th>
+                                    <th>Lot/Serial</th>
+                                    <th class="text-end">ต้องการ / Demand</th>
+                                    <th class="text-end">จำนวน / Quantity</th>
+                                    <th>หน่วย / UoM</th>
+                                    <th>ต้นทาง / Source</th>
+                                    <th>ปลายทาง / Destination</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="idx" t-value="0"/>
+                                <t t-foreach="o.move_ids" t-as="move">
+                                    <t t-set="idx" t-value="idx + 1"/>
+                                    <tr>
+                                        <td><span t-esc="idx"/></td>
+                                        <td><span t-esc="move.product_id.display_name"/></td>
+                                        <td>
+                                            <t t-if="move.move_line_ids.mapped('lot_id')">
+                                                <span t-esc="', '.join(move.move_line_ids.mapped('lot_id').mapped('name'))"/>
+                                            </t>
+                                            <t t-else="">-</t>
+                                        </td>
+                                        <td class="text-end"><span t-esc="move.product_uom_qty"/></td>
+                                        <td class="text-end"><span t-esc="move.quantity"/></td>
+                                        <td><span t-esc="move.product_uom.display_name or ''"/></td>
+                                        <td><span t-esc="move.location_id.display_name or '-'"/></td>
+                                        <td><span t-esc="move.location_dest_id.display_name or '-'"/></td>
+                                    </tr>
+                                </t>
+                                <tr t-if="not o.move_ids">
+                                    <td colspan="8" class="text-center">ไม่พบรายการ / No items</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Signatures -->
+                        <table style="width:100%; margin-top:40px; text-align:center;">
+                            <tr>
+                                <td style="width:33%; padding-top:40px;">
+                                    ...............................................................
+                                    <div><strong>ผู้หยิบ / Picker</strong></div>
+                                    <div>วันที่ / Date: ........./........./.........</div>
+                                </td>
+                                <td style="width:33%; padding-top:40px;">
+                                    ...............................................................
+                                    <div><strong>ผู้ตรวจ / Checker</strong></div>
+                                    <div>วันที่ / Date: ........./........./.........</div>
+                                </td>
+                                <td style="width:33%; padding-top:40px;">
+                                    ...............................................................
+                                    <div><strong>ผู้รับสินค้า / Receiver</strong></div>
+                                    <div>วันที่ / Date: ........./........./.........</div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>

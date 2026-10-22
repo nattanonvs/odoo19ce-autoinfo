@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!--
+        Fallback Goods Issue sequence.
+        Used when an order has no requesting department. Per-department
+        sequences (code od19.goods.issue.<department_id>) are created on
+        demand from code, so no XML is needed for them.
+    -->
+    <record id="seq_od19_goods_issue" model="ir.sequence">
+        <field name="name">Goods Issue</field>
+        <field name="code">od19.goods.issue</field>
+        <field name="prefix">GI/GEN/</field>
+        <field name="padding">5</field>
+        <field name="number_next">1</field>
+        <field name="number_increment">1</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+</odoo>

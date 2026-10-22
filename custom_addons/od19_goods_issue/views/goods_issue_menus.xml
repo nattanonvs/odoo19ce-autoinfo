@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Dedicated action that defaults to the Goods Issue filter -->
+    <record id="action_od19_goods_issue" model="ir.actions.act_window">
+        <field name="name">ใบเบิกสินค้า / Goods Issue</field>
+        <field name="res_model">stock.request.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_od19_goods_issue': 1}</field>
+    </record>
+
+    <!-- Goods Issue menu under the OCA Stock Requests > Operations menu -->
+    <menuitem
+        id="menu_od19_goods_issue"
+        name="ใบเบิกสินค้า / Goods Issue"
+        parent="stock_request.menu_stock_request_operations"
+        action="action_od19_goods_issue"
+        groups="stock_request.group_stock_request_user,stock_request.group_stock_request_manager"
+        sequence="25"
+    />
+
+    <!-- Goods Issue Type menu under the OCA Stock Requests > Master Data menu -->
+    <menuitem
+        id="menu_od19_goods_issue_type"
+        name="ประเภทการเบิก / Issue Types"
+        parent="stock_request.menu_stock_request_master_data"
+        action="action_od19_goods_issue_type"
+        groups="stock_request.group_stock_request_manager"
+        sequence="25"
+    />
+
+</odoo>

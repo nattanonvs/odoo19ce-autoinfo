@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Extend the OCA stock.request.order form with the Goods Issue fields -->
+    <record id="view_stock_request_order_form_od19_goods_issue" model="ir.ui.view">
+        <field name="name">stock.request.order.form.od19.goods.issue</field>
+        <field name="model">stock.request.order</field>
+        <field name="inherit_id" ref="stock_request.stock_request_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('oe_title')]" position="after">
+                <group string="ข้อมูลการเบิก / Goods Issue Info">
+                    <group>
+                        <field name="od19_issue_type_id"/>
+                        <field name="department_id"/>
+                        <field name="od19_employee_id"/>
+                    </group>
+                    <group>
+                        <field name="od19_job_id"/>
+                    </group>
+                </group>
+                <field name="od19_reason" placeholder="ระบุเหตุผลการเบิก / Issue reason"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend the OCA stock.request.order list with optional Goods Issue columns -->
+    <record id="view_stock_request_order_list_od19_goods_issue" model="ir.ui.view">
+        <field name="name">stock.request.order.list.od19.goods.issue</field>
+        <field name="model">stock.request.order</field>
+        <field name="inherit_id" ref="stock_request.stock_request_order_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="department_id" optional="hide"/>
+                <field name="od19_job_id" optional="hide"/>
+                <field name="od19_employee_id" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend the OCA stock.request.order search view with a Goods Issue filter -->
+    <record id="view_stock_request_order_search_od19_goods_issue" model="ir.ui.view">
+        <field name="name">stock.request.order.search.od19.goods.issue</field>
+        <field name="model">stock.request.order</field>
+        <field name="inherit_id" ref="stock_request.stock_request_order_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <field name="department_id"/>
+                <field name="od19_issue_type_id"/>
+                <filter string="ใบเบิกสินค้า / Goods Issue" name="od19_goods_issue"
+                        domain="[('od19_issue_type_id','!=',False)]"/>
+                <group>
+                    <filter string="Department" name="group_od19_department"
+                            domain="[]" context="{'group_by':'department_id'}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
