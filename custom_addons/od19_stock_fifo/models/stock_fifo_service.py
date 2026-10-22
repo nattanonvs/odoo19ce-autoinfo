@@ -147,6 +147,11 @@ class StockFifoService(models.AbstractModel):
         Incoming moves (``is_in``) are appended to the FIFO queue.
         Outgoing moves (``is_out``) consume the oldest incoming layers
         first, proportionally reducing their remaining value.
+
+        When an outgoing move exceeds the quantity available on hand
+        (negative stock), the shortfall is recorded as a negative layer
+        instead of being silently discarded, so ``quantity_on_hand`` stays
+        accurate.
         """
         fifo_layers = []  # list of dicts: {'qty': float, 'value': float}
 
@@ -171,5 +176,10 @@ class StockFifoService(models.AbstractModel):
                         oldest['qty'] -= to_consume
                         oldest['value'] -= ratio * oldest['value']
                         to_consume = 0.0
+                if to_consume > 0:
+                    # Outgoing move exceeds on-hand stock: keep a negative
+                    # layer (no cost basis available) rather than dropping
+                    # the shortfall.
+                    fifo_layers.append({'qty': -to_consume, 'value': 0.0})
 
         return fifo_layers

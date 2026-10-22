@@ -1,3 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_od19_stock_count_session_user,access.od19.stock.count.session.user,model_od19_stock_count_session,stock.group_stock_user,1,1,1,1
-access_od19_stock_count_line_user,access.od19.stock.count.line.user,model_od19_stock_count_line,stock.group_stock_user,1,1,1,1
+access_od19_stock_count_session_user,access.od19.stock.count.session.user,model_od19_stock_count_session,stock.group_stock_user,1,1,1,0
+access_od19_stock_count_line_user,access.od19.stock.count.line.user,model_od19_stock_count_line,stock.group_stock_user,1,1,1,0
+access_od19_stock_count_session_manager,access.od19.stock.count.session.manager,model_od19_stock_count_session,stock.group_stock_manager,1,1,1,1
+access_od19_stock_count_line_manager,access.od19.stock.count.line.manager,model_od19_stock_count_line,stock.group_stock_manager,1,1,1,1
