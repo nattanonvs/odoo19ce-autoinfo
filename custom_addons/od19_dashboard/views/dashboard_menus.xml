@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!--
+        The OD19 builder is nested inside the standard "Dashboards" app
+        (spreadsheet_dashboard) instead of declaring a second top-level
+        "Dashboards" menu (which used to show a duplicate app).
+    -->
     <menuitem id="menu_od19_dashboard_root"
-              name="Dashboards"
-              sequence="15"
+              name="Custom Dashboards"
+              parent="spreadsheet_dashboard.spreadsheet_dashboard_menu_root"
+              sequence="20"
               groups="base.group_user"/>
 
     <menuitem id="menu_od19_dashboard_builder"

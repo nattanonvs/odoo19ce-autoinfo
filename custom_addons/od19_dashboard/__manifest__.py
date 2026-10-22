@@ -44,6 +44,7 @@ Features
         "stock",
         "project",
         "mail",
+        "spreadsheet_dashboard",
     ],
     "data": [
         "security/dashboard_security.xml",
@@ -63,6 +64,6 @@ Features
         ],
     },
     "installable": True,
-    "application": True,
+    "application": False,
     "license": "LGPL-3",
 }

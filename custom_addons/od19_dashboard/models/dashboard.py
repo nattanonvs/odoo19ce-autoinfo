@@ -863,6 +863,12 @@ class Od19DashboardWidget(models.Model):
         rows = model._read_group(domain, [], aggregates, limit=1)
         extra = self._formula_extra(model, domain, requests, date_range, date_from, date_to, widget_values)
         context = self._formula_context(rows[0] if rows else (), requests, extra)
+        # The operands and the record count are published before the value is
+        # evaluated: the builder must still list the operands it read when the
+        # formula cannot be evaluated (a division by zero on an empty period,
+        # for instance) and the value is reported as a message instead.
+        data["record_count"] = self._record_count(model, domain)
+        data["operands"] = self._operand_details(requests, context)
         value = self._evaluate_value(context)
         if self.formula_mode == "preset" and self.formula_type == "cumulative_change":
             value = self._cumulative_change_value(
@@ -874,8 +880,6 @@ class Od19DashboardWidget(models.Model):
 
         data["value"] = value
         data["value_text"] = self._value_text(value)
-        data["record_count"] = self._record_count(model, domain)
-        data["operands"] = self._operand_details(requests, context)
 
         rule_context = {
             "value": value,
