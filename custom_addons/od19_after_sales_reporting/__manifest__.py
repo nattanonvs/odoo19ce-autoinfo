@@ -12,6 +12,7 @@
         "od19_quality_control",
         "od19_iso_customer_satisfaction",
         "od19_dashboard",
+        "sale",
     ],
     "data": [
         "security/ir.model.access.csv",

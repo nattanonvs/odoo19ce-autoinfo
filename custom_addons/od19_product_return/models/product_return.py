@@ -136,12 +136,27 @@ class ProductReturn(models.Model):
                 raise ValidationError("Quantity must be greater than zero.")
 
     def action_confirm(self):
-        self.write({"state": "confirmed"})
+        for rec in self:
+            if rec.state != "draft":
+                raise UserError(
+                    _("Only draft returns can be confirmed.")
+                )
+            rec.write({"state": "confirmed"})
 
     def action_approve(self):
-        self.write({"state": "approved"})
+        for rec in self:
+            if rec.state != "confirmed":
+                raise UserError(
+                    _("Only confirmed returns can be approved.")
+                )
+            rec.write({"state": "approved"})
 
     def action_reject(self):
+        self.ensure_one()
+        if self.state in ("returned", "refunded", "rejected"):
+            raise UserError(
+                _("A %s return cannot be rejected.") % self.state
+            )
         return {
             "type": "ir.actions.act_window",
             "name": "Reject Return",
@@ -155,7 +170,9 @@ class ProductReturn(models.Model):
         """Create a stock picking to receive returned goods."""
         self.ensure_one()
         if self.state != "approved":
-            return
+            raise UserError(
+                _("Only approved returns can be received.")
+            )
         picking_type = self.env["stock.picking.type"].search(
             [("code", "=", "incoming"), ("company_id", "=", self.company_id.id)],
             limit=1,
@@ -200,6 +217,8 @@ class ProductReturn(models.Model):
             ],
         }
         picking = self.env["stock.picking"].create(picking_vals)
+        picking.action_confirm()
+        picking.action_assign()
         self.return_picking_id = picking.id
         self.write({"state": "returned"})
         return {
@@ -214,12 +233,13 @@ class ProductReturn(models.Model):
     def _get_refund_unit_price(self):
         """Resolve the unit price to refund for this product.
 
-        Priority: the explicit refund amount, then the price on the linked
-        invoice line for the same product, and finally zero.
+        Priority: the explicit refund amount (a total, converted to a unit
+        price), then the price on the linked invoice line for the same
+        product, and finally zero.
         """
         self.ensure_one()
-        if self.refund_amount:
-            return self.refund_amount
+        if self.refund_amount and self.quantity:
+            return self.refund_amount / self.quantity
         if self.invoice_id:
             line = self.invoice_id.invoice_line_ids.filtered(
                 lambda inv_line: inv_line.product_id == self.product_id
@@ -231,10 +251,14 @@ class ProductReturn(models.Model):
     def action_refund(self):
         """Create a customer refund (credit note)."""
         self.ensure_one()
-        if self.state not in ("returned", "approved"):
-            return
+        # An already created refund is re-opened on every call: the action stays
+        # idempotent, even once the record reached the ``refunded`` state.
         if self.refund_move_id:
             return self._open_refund_action(self.refund_move_id)
+        if self.state not in ("returned", "approved"):
+            raise UserError(
+                _("Only returned or approved returns can be refunded.")
+            )
         refund_vals = {
             "move_type": "out_refund",
             "partner_id": self.partner_id.id,

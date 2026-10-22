@@ -128,6 +128,10 @@ class WarrantyClaim(models.Model):
 
     def action_reject(self):
         for claim in self:
+            if claim.state in ('done', 'rejected', 'cancelled'):
+                raise UserError(
+                    _('Cannot reject a %s claim.') % claim.state
+                )
             claim.state = 'rejected'
 
     def action_cancel(self):

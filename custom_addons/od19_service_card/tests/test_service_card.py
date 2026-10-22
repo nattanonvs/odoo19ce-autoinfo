@@ -2,9 +2,15 @@
 from datetime import timedelta
 
 from odoo import fields
+from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
 
+# ``sale.order`` carries fields made required by other installed modules (for
+# instance ``od19_sale_mode`` from ``od19_sales_project_context``). While this
+# module is being installed the registry does not carry them yet, so the class
+# runs during ``post_install`` where the registry is complete.
+@tagged("post_install", "-at_install")
 class TestServiceCard(TransactionCase):
 
     @classmethod

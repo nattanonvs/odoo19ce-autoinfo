@@ -186,9 +186,14 @@
     <!-- ============================= -->
     <!-- Menu                          -->
     <!-- ============================= -->
+    <!--
+        After-sales KPIs are nested inside the standard "Sales" app
+        (sale.sale_menu_root) instead of declaring a separate top-level app.
+    -->
     <menuitem id="menu_od19_after_sales_reporting_root"
               name="After-Sales Reporting"
-              sequence="18"/>
+              parent="sale.sale_menu_root"
+              sequence="85"/>
 
     <menuitem id="menu_od19_after_sales_ticket_kpi"
               name="Service Tickets"

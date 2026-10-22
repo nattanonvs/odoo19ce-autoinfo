@@ -2,7 +2,7 @@
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
 
 from odoo import fields
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
 
@@ -109,7 +109,8 @@ class TestProductReturn(TransactionCase):
     # ------------------------------------------------------------------
     def test_action_return_requires_approved_state(self):
         ret = self._create_return()
-        self.assertIsNone(ret.action_return())
+        with self.assertRaises(UserError):
+            ret.action_return()
         self.assertFalse(ret.return_picking_id)
 
     def test_action_return_creates_picking(self):
@@ -130,7 +131,8 @@ class TestProductReturn(TransactionCase):
     # ------------------------------------------------------------------
     def test_action_refund_requires_valid_state(self):
         ret = self._create_return()
-        self.assertIsNone(ret.action_refund())
+        with self.assertRaises(UserError):
+            ret.action_refund()
         self.assertFalse(ret.refund_move_id)
 
     def test_action_refund_creates_credit_note(self):

@@ -19,11 +19,14 @@ class TestAfterSalesReporting(TransactionCase):
             {"name": "Report Sales Services Team", "team_type": "customer_service"}
         )
         for index in range(2):
+            # ``helpdesk_mgmt`` declares ``description`` as a required Html
+            # field without a default, so every ticket must carry one.
             self.env["helpdesk.ticket"].create(
                 {
                     "name": f"Report Ticket {index}",
                     "team_id": team.id,
                     "service_type": "repair",
+                    "description": f"<p>Report ticket {index}</p>",
                 }
             )
 

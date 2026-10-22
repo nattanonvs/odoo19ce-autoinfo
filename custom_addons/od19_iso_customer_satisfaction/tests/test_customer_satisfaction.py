@@ -3,9 +3,15 @@
 
 from odoo import fields
 from odoo.exceptions import ValidationError
+from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
 
+# ``res.partner`` carries fields made required by other installed modules (for
+# instance ``group_rfq`` from ``purchase_stock``). While this module is being
+# installed the registry does not carry them yet, so the class runs during
+# ``post_install`` where the registry is complete.
+@tagged("post_install", "-at_install")
 class TestIsoCustomerSatisfaction(TransactionCase):
     """Basic tests for ISO Customer Satisfaction surveys."""
 
