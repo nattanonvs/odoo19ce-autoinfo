@@ -165,6 +165,10 @@ msgid "The attendee count exceeds the room capacity (%(capacity)s)."
 msgstr "จำนวนผู้เข้าร่วมเกินความจุของห้อง (%(capacity)s ที่นั่ง)"
 
 #. module: od19_meeting_room_booking
+msgid "Meeting rooms can only be booked up to %(months)s months ahead."
+msgstr "จองห้องประชุมล่วงหน้าได้ไม่เกิน %(months)s เดือน"
+
+#. module: od19_meeting_room_booking
 msgid "New"
 msgstr "ใหม่"
 

@@ -1,8 +1,13 @@
+from dateutil.relativedelta import relativedelta
+
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
 
 # Bookings in these states no longer hold the room.
 RELEASED_STATES = ("cancelled",)
+
+# How far ahead a room can be reserved.
+BOOKING_HORIZON_MONTHS = 6
 
 
 class MeetingRoomBooking(models.Model):
@@ -112,32 +117,78 @@ class MeetingRoomBooking(models.Model):
         for booking in self:
             self._od19_check_period(booking.start_datetime, booking.end_datetime)
 
+    @api.model
+    def _od19_check_horizon(self, start_datetime):
+        """Reject a booking that reaches past the reservation horizon.
+
+        Called before the row is written for the same reason as the overlap
+        guard: the portal swallows the exception to show the message inline,
+        and the row must not survive that.
+        """
+        start = fields.Datetime.to_datetime(start_datetime)
+        if not start:
+            return
+        horizon = fields.Datetime.now() + relativedelta(
+            months=BOOKING_HORIZON_MONTHS
+        )
+        if start > horizon:
+            raise ValidationError(
+                _(
+                    "Meeting rooms can only be booked up to %(months)s months ahead.",
+                    months=BOOKING_HORIZON_MONTHS,
+                )
+            )
+
+    @api.constrains("start_datetime")
+    def _check_horizon(self):
+        for booking in self:
+            self._od19_check_horizon(booking.start_datetime)
+
+    @api.model
+    def _od19_check_overlap(
+        self, room_id, start_datetime, end_datetime, exclude_id=None
+    ):
+        """Reject a slot that already holds the room.
+
+        This runs *before* the row reaches the database. The ``@api.constrains``
+        guard below only fires after the INSERT (see ``BaseModel._create``), so a
+        caller that swallows the exception - the website portal does exactly
+        that to show a friendly message - would otherwise leave the duplicate
+        booking behind and make it appear twice on the calendar.
+        """
+        if not (room_id and start_datetime and end_datetime):
+            return
+        domain = [
+            ("room_id", "=", room_id),
+            ("state", "not in", RELEASED_STATES),
+            ("start_datetime", "<", end_datetime),
+            ("end_datetime", ">", start_datetime),
+        ]
+        if exclude_id:
+            domain.append(("id", "!=", exclude_id))
+        if self.search_count(domain):
+            room = self.env["od19.meeting.room"].browse(
+                room_id.id if hasattr(room_id, "id") else room_id
+            )
+            raise ValidationError(
+                _(
+                    "Meeting room %(room)s is already booked during the selected time.",
+                    room=room.display_name,
+                )
+            )
+
     @api.constrains("room_id", "start_datetime", "end_datetime", "state")
     def _check_overlapping_booking(self):
+        """Safety net for rows written through another code path (e.g. RPC)."""
         for booking in self:
-            if (
-                not booking.room_id
-                or not booking.start_datetime
-                or not booking.end_datetime
-                or booking.state in RELEASED_STATES
-            ):
+            if booking.state in RELEASED_STATES:
                 continue
-            overlapping = self.search_count(
-                [
-                    ("id", "!=", booking.id),
-                    ("room_id", "=", booking.room_id.id),
-                    ("state", "not in", RELEASED_STATES),
-                    ("start_datetime", "<", booking.end_datetime),
-                    ("end_datetime", ">", booking.start_datetime),
-                ]
+            self._od19_check_overlap(
+                booking.room_id,
+                booking.start_datetime,
+                booking.end_datetime,
+                exclude_id=booking.id,
             )
-            if overlapping:
-                raise ValidationError(
-                    _(
-                        "Meeting room %(room)s is already booked during the selected time.",
-                        room=booking.room_id.display_name,
-                    )
-                )
 
     @api.constrains("participant_count", "room_id")
     def _check_capacity(self):
@@ -164,6 +215,13 @@ class MeetingRoomBooking(models.Model):
             self._od19_check_period(
                 vals.get("start_datetime"), vals.get("end_datetime")
             )
+            self._od19_check_horizon(vals.get("start_datetime"))
+            if vals.get("state", "booked") not in RELEASED_STATES:
+                self._od19_check_overlap(
+                    vals.get("room_id"),
+                    vals.get("start_datetime"),
+                    vals.get("end_datetime"),
+                )
             if vals.get("reference", _("New")) == _("New"):
                 vals["reference"] = (
                     self.env["ir.sequence"].next_by_code("od19.meeting.room.booking")
@@ -175,9 +233,20 @@ class MeetingRoomBooking(models.Model):
     def write(self, vals):
         if "start_datetime" in vals or "end_datetime" in vals:
             for booking in self:
+                start = vals.get("start_datetime") or booking.start_datetime
                 self._od19_check_period(
+                    start, vals.get("end_datetime") or booking.end_datetime
+                )
+                self._od19_check_horizon(start)
+        if {"room_id", "start_datetime", "end_datetime", "state"} & set(vals):
+            for booking in self:
+                if vals.get("state", booking.state) in RELEASED_STATES:
+                    continue
+                self._od19_check_overlap(
+                    vals.get("room_id") or booking.room_id,
                     vals.get("start_datetime") or booking.start_datetime,
                     vals.get("end_datetime") or booking.end_datetime,
+                    exclude_id=booking.id,
                 )
         return super().write(vals)
 

@@ -52,6 +52,20 @@ class TestMeetingRoomBooking(TransactionCase):
         with self.assertRaises(ValidationError):
             self._create_booking(name="Conflicting Review")
 
+    def test_rejected_overlap_leaves_no_row_behind(self):
+        """A swallowed overlap error must not persist the duplicate booking.
+
+        The portal catches the error to show a friendly message; because the
+        ``@api.constrains`` guard runs *after* the INSERT, the row used to be
+        committed anyway and showed up twice on the calendar.
+        """
+        self._create_booking()
+        with self.assertRaises(ValidationError):
+            self._create_booking(name="Conflicting Review")
+        self.assertFalse(
+            self.Booking.search([("name", "=", "Conflicting Review")])
+        )
+
     def test_cancelled_booking_frees_the_room(self):
         first = self._create_booking()
         first.action_cancel()
@@ -104,3 +118,29 @@ class TestMeetingRoomBooking(TransactionCase):
                 [("id", "=", self.room.id), ("availability_state", "=", "available")]
             )
         )
+
+    def test_booking_beyond_horizon_is_rejected(self):
+        """A slot past the six-month window must be refused before the INSERT.
+
+        Rooms can only be reserved six months ahead. The guard runs before the
+        row is written, not through ``@api.constrains``, for the same reason as
+        the overlap check: the portal swallows the error to show it inline, so
+        a post-INSERT guard would leave the booking behind.
+        """
+        start_dt = fields.Datetime.now() + timedelta(days=200)
+        with self.assertRaises(ValidationError):
+            self._create_booking(
+                name="Too Far Ahead",
+                start_datetime=start_dt,
+                end_datetime=start_dt + timedelta(hours=1),
+            )
+        self.assertFalse(self.Booking.search([("name", "=", "Too Far Ahead")]))
+
+    def test_booking_inside_horizon_is_accepted(self):
+        start_dt = fields.Datetime.now() + timedelta(days=150)
+        booking = self._create_booking(
+            name="Well Ahead",
+            start_datetime=start_dt,
+            end_datetime=start_dt + timedelta(hours=1),
+        )
+        self.assertEqual(booking.state, "booked")
