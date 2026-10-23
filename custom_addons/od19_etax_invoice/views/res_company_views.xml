@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_company_form_etax" model="ir.ui.view">
+        <field name="name">res.company.form.etax</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="e-Tax Invoice" name="od19_etax">
+                    <group>
+                        <group string="e-Tax Invoice (RD)">
+                            <field name="od19_etax_enabled"/>
+                            <field name="od19_etax_certificate_id"
+                                   options="{'no_create': False}"
+                                   invisible="not od19_etax_enabled"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

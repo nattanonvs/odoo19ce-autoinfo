@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_move_form_etax" model="ir.ui.view">
+        <field name="name">account.move.form.etax</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_od19_view_etax_documents"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-file-text-o"
+                        invisible="move_type not in ('out_invoice', 'out_refund') or not od19_etax_document_count">
+                    <field name="od19_etax_document_count" widget="statinfo"
+                           string="e-Tax"/>
+                </button>
+            </xpath>
+            <xpath expr="//header" position="inside">
+                <button name="action_od19_create_etax_document"
+                        type="object"
+                        string="Create e-Tax Document"
+                        class="btn-primary"
+                        invisible="move_type not in ('out_invoice', 'out_refund') or state != 'posted' or od19_etax_document_count"/>
+            </xpath>
+            <xpath expr="//page[@id='other_tab_entry']" position="after">
+                <page string="e-Tax Invoice" name="od19_etax"
+                      invisible="move_type not in ('out_invoice', 'out_refund')">
+                    <group>
+                        <group>
+                            <field name="od19_etax_state" widget="badge"/>
+                        </group>
+                    </group>
+                    <field name="od19_etax_document_ids" readonly="1">
+                        <list create="false" edit="false" delete="false">
+                            <field name="name"/>
+                            <field name="document_type"/>
+                            <field name="issue_datetime"/>
+                            <field name="state" widget="badge"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

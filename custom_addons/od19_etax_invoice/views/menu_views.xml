@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_od19_etax_root"
+              name="e-Tax Invoice"
+              parent="account.menu_finance"
+              sequence="30"
+              groups="account.group_account_invoice"/>
+
+    <menuitem id="menu_od19_etax_document"
+              name="e-Tax Documents"
+              parent="menu_od19_etax_root"
+              action="action_od19_etax_document"
+              sequence="10"/>
+
+    <menuitem id="menu_od19_etax_certificate"
+              name="Signing Certificates"
+              parent="menu_od19_etax_root"
+              action="action_od19_etax_certificate"
+              sequence="20"/>
+
+</odoo>

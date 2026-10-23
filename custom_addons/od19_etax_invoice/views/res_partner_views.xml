@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_partner_form_etax" model="ir.ui.view">
+        <field name="name">res.partner.form.etax</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="od19_partner_thai_fields.view_partner_form_thai_fields"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='branch_code']" position="after">
+                <field name="od19_etax_city_code" placeholder="TISI city code"/>
+                <field name="od19_etax_subdivision_code" placeholder="TISI sub-division code"/>
+                <field name="od19_etax_province_code" placeholder="Province code"/>
+            </xpath>
+            <xpath expr="//field[@name='address_en']" position="after">
+                <field name="od19_etax_street_name" placeholder="Street name"/>
+                <field name="od19_etax_building_number" placeholder="Building number"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

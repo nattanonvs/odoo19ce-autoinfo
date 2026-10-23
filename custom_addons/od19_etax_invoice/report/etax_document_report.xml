@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_report_etax_document" model="ir.actions.report">
+        <field name="name">e-Tax Invoice / e-Receipt</field>
+        <field name="model">od19.etax.document</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">od19_etax_invoice.etax_document_report</field>
+        <field name="report_file">od19_etax_invoice.etax_document_report</field>
+        <field name="print_report_name">'%s' % (object.name or 'e-tax')</field>
+        <field name="binding_model_id" ref="model_od19_etax_document"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="etax_document_report">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-set="seller" t-value="doc.company_id.partner_id"/>
+                <t t-set="buyer" t-value="doc.move_id.commercial_partner_id"/>
+                <t t-set="cur" t-value="doc.move_id.currency_id"/>
+                <t t-set="cur_label" t-value="cur.symbol or cur.name"/>
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family: 'Sarabun', 'Noto Sans Thai', sans-serif;">
+
+                        <div t-if="doc.state != 'signed'"
+                             style="position: absolute; top: 35%; left: 0; right: 0; text-align: center; font-size: 90px; color: rgba(158, 36, 36, 0.12); font-weight: bold; transform: rotate(-20deg); pointer-events: none;">
+                            ฉบับร่าง
+                        </div>
+
+                        <h3 class="text-center" style="margin-bottom: 4px;">
+                            <span t-out="doc.get_document_type_label()"/>
+                        </h3>
+                        <p class="text-center" style="margin-bottom: 14px; font-size: 12px;">
+                            e-Tax Invoice / e-Receipt — ขมธอ.3-2560 (XML + XAdES)
+                        </p>
+
+                        <div class="row" style="border: 1px solid #9E2424; border-radius: 6px; padding: 8px 10px; margin-bottom: 10px;">
+                            <div class="col-8">
+                                <div style="font-size: 15px; font-weight: bold;">
+                                    <span t-out="seller.tax_name or seller.name"/>
+                                </div>
+                                <div style="font-size: 11px;">
+                                    <span>เลขประจำตัวผู้เสียภาษี: </span>
+                                    <span t-out="seller.vat or '-'" style="font-weight: bold;"/>
+                                    <span t-if="seller.branch_code" t-out="' (สาขา %s)' % seller.branch_code"/>
+                                </div>
+                                <div style="font-size: 11px;">
+                                    <span t-out="seller.street or ''"/>
+                                    <span t-out="seller.street2 or ''" t-if="seller.street2"/>
+                                </div>
+                                <div style="font-size: 11px;">
+                                    <span t-out="seller.city or ''"/>
+                                    <span t-out="seller.state_id.name or ''" t-if="seller.state_id"/>
+                                    <span t-out="seller.zip or ''" t-if="seller.zip"/>
+                                </div>
+                            </div>
+                            <div class="col-4 text-end">
+                                <div style="font-size: 11px;">
+                                    <span>เลขที่เอกสาร: </span>
+                                    <span t-out="doc.name" style="font-weight: bold;"/>
+                                </div>
+                                <div style="font-size: 11px;">
+                                    <span>วันที่ออกเอกสาร: </span>
+                                    <span t-out="(doc.issue_datetime + timedelta(hours=7)).strftime('%d/%m/%Y %H:%M')"/>
+                                </div>
+                                <div style="font-size: 11px;">
+                                    <span>อ้างอิง: </span>
+                                    <span t-out="doc.move_id.name"/>
+                                </div>
+                                <img t-att-src="doc.get_qr_data_uri()" t-if="doc.get_qr_data_uri()"
+                                     style="width: 96px; height: 96px; margin-top: 6px;"/>
+                            </div>
+                        </div>
+
+                        <div class="row" style="border: 1px solid #ddd; border-radius: 6px; padding: 8px 10px; margin-bottom: 10px;">
+                            <div class="col-12">
+                                <div style="font-size: 11px; color: #666;">ผู้ซื้อ / ลูกค้า</div>
+                                <div style="font-size: 13px; font-weight: bold;">
+                                    <span t-out="buyer.tax_name or buyer.name"/>
+                                </div>
+                                <div style="font-size: 11px;">
+                                    <span>เลขประจำตัวผู้เสียภาษี: </span>
+                                    <span t-out="buyer.vat or '-'"/>
+                                    <span t-if="buyer.branch_code" t-out="' (สาขา %s)' % buyer.branch_code"/>
+                                </div>
+                                <div style="font-size: 11px;">
+                                    <span t-out="buyer.street or ''"/>
+                                    <span t-out="buyer.street2 or ''" t-if="buyer.street2"/>
+                                    <span t-out="buyer.city or ''"/>
+                                    <span t-out="buyer.zip or ''" t-if="buyer.zip"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <table class="table table-sm" style="font-size: 11px; margin-bottom: 8px;">
+                            <thead>
+                                <tr style="background-color: #f4e6e6;">
+                                    <th style="width: 5%;">ลำดับ</th>
+                                    <th>รายการ</th>
+                                    <th class="text-end" style="width: 10%;">จำนวน</th>
+                                    <th class="text-end" style="width: 12%;">ราคาต่อหน่วย</th>
+                                    <th class="text-end" style="width: 14%;">มูลค่าก่อนภาษี</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="index" t-value="0"/>
+                                <tr t-foreach="doc.move_id.invoice_line_ids.filtered(lambda l: l.display_type == 'product' and l.quantity)" t-as="line">
+                                    <t t-set="index" t-value="index + 1"/>
+                                    <td t-out="index"/>
+                                    <td>
+                                        <span t-out="line.product_id.display_name or line.name"/>
+                                        <span t-if="line.name and line.product_id" style="color: #666;"
+                                              t-out="' — %s' % line.name"/>
+                                    </td>
+                                    <td class="text-end">
+                                        <span t-out="'{:,.2f}'.format(line.quantity)"/>
+                                        <span t-out="line.product_uom_id.name or ''"/>
+                                    </td>
+                                    <td class="text-end" t-out="'{:,.2f}'.format(line.price_unit)"/>
+                                    <td class="text-end" t-out="'{:,.2f}'.format(line.price_subtotal)"/>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="row">
+                            <div class="col-7" style="font-size: 11px;">
+                                <div t-if="doc.get_tax_summary()" style="border: 1px solid #ddd; border-radius: 6px; padding: 6px 8px;">
+                                    <div style="font-weight: bold; margin-bottom: 4px;">สรุปภาษีมูลค่าเพิ่ม</div>
+                                    <table class="table table-sm" style="font-size: 11px; margin-bottom: 0;">
+                                        <thead>
+                                            <tr>
+                                                <th>อัตราภาษี</th>
+                                                <th class="text-end">ฐานภาษี</th>
+                                                <th class="text-end">ภาษี</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr t-foreach="doc.get_tax_summary().items()" t-as="group">
+                                                <td t-out="'{:,.2f}%'.format(group[0])"/>
+                                                <td class="text-end" t-out="'{:,.2f}'.format(group[1]['base'])"/>
+                                                <td class="text-end" t-out="'{:,.2f}'.format(group[1]['amount'])"/>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div t-if="doc.note" style="margin-top: 6px;">
+                                    <span style="font-weight: bold;">หมายเหตุ: </span>
+                                    <span t-out="doc.note"/>
+                                </div>
+                            </div>
+                            <div class="col-5">
+                                <table class="table table-sm" style="font-size: 12px;">
+                                    <tr>
+                                        <td>มูลค่าสินค้า/บริการ</td>
+                                        <td class="text-end">
+                                            <span t-out="cur_label"/> <span t-out="'{:,.2f}'.format(doc.move_id.amount_untaxed)"/>
+                                        </td>
+                                    </tr>
+                                    <tr t-if="doc._compute_header_allowance()">
+                                        <td>ส่วนลด</td>
+                                        <td class="text-end">
+                                            <span t-out="cur_label"/> <span t-out="'{:,.2f}'.format(doc._compute_header_allowance())"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>ภาษีมูลค่าเพิ่ม</td>
+                                        <td class="text-end">
+                                            <span t-out="cur_label"/> <span t-out="'{:,.2f}'.format(doc.move_id.amount_tax)"/>
+                                        </td>
+                                    </tr>
+                                    <tr style="background-color: #f4e6e6; font-weight: bold;">
+                                        <td>รวมทั้งสิ้น</td>
+                                        <td class="text-end">
+                                            <span t-out="cur_label"/> <span t-out="'{:,.2f}'.format(doc.move_id.amount_total)"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div style="border-top: 1px solid #ddd; margin-top: 10px; padding-top: 6px; font-size: 10px; color: #555;">
+                            <div>
+                                เอกสารนี้จัดทำและจัดเก็บในรูปแบบอิเล็กทรอนิกส์ตามมาตรฐาน
+                                ขมธอ.3-2560 และลงลายมือชื่ออิเล็กทรอนิกส์ตาม ขมธอ.14-2560
+                                โดยมีเอกสาร XML แนบอยู่ในไฟล์ PDF นี้
+                            </div>
+                            <div t-if="doc.state == 'signed'">
+                                <span>ผู้ลงนาม: </span>
+                                <span t-out="doc.signer_subject or '-'"/>
+                                <span t-if="doc.signer_serial" t-out="' | Serial: %s' % doc.signer_serial"/>
+                                <span t-if="doc.signed_at" t-out="' | เวลาลงนาม: %s' % (doc.signed_at + timedelta(hours=7)).strftime('%d/%m/%Y %H:%M')"/>
+                            </div>
+                            <div t-if="doc.digest">
+                                <span>SHA-512: </span>
+                                <span t-out="doc.digest" style="word-break: break-all;"/>
+                            </div>
+                            <div t-else="">
+                                เอกสารฉบับนี้ยังไม่ผ่านการลงลายมือชื่ออิเล็กทรอนิกส์
+                                และไม่ถือเป็นต้นฉบับ e-Tax Invoice
+                            </div>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_od19_etax_certificate_list" model="ir.ui.view">
+        <field name="name">od19.etax.certificate.list</field>
+        <field name="model">od19.etax.certificate</field>
+        <field name="arch" type="xml">
+            <list string="e-Tax Signing Certificates">
+                <field name="name"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="subject"/>
+                <field name="valid_to"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'active'"
+                       decoration-warning="state == 'draft'"
+                       decoration-danger="state in ('expired', 'invalid')"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_od19_etax_certificate_form" model="ir.ui.view">
+        <field name="name">od19.etax.certificate.form</field>
+        <field name="model">od19.etax.certificate</field>
+        <field name="arch" type="xml">
+            <form string="e-Tax Signing Certificate">
+                <header>
+                    <button name="action_verify" type="object"
+                            string="Verify Certificate" class="btn-primary"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,active"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="e.g. RD e-Tax CA 2026"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Certificate">
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="subject" readonly="1"/>
+                            <field name="issuer" readonly="1"/>
+                            <field name="serial_number" readonly="1"/>
+                            <field name="active"/>
+                        </group>
+                        <group string="Validity">
+                            <field name="valid_from" readonly="1"/>
+                            <field name="valid_to" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Key Material" name="material">
+                            <group>
+                                <field name="certificate" widget="text"/>
+                                <field name="chain" widget="text"/>
+                                <field name="private_key" widget="text"
+                                       groups="base.group_system"/>
+                                <field name="passphrase" password="True"
+                                       groups="base.group_system"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_od19_etax_certificate" model="ir.actions.act_window">
+        <field name="name">Signing Certificates</field>
+        <field name="res_model">od19.etax.certificate</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add the certificate issued by your CA
+            </p>
+            <p>
+                Upload the PEM certificate and its private key. The certificate
+                is used to produce the XAdES signature required by
+                ขมธอ.14-2560.
+            </p>
+        </field>
+    </record>
+
+</odoo>
