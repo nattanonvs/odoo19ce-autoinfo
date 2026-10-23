@@ -13,16 +13,18 @@ Sales Contracts & Billing, Purchase Approval, Inventory Operations,
 Accounting, HR Expense, and Project & Analytic Accounting.
 
 Each tour is declared twice:
-  * as a web_tour.tour record (data/tour_data.xml) so that it is listed
-    in the database and can be started by users;
-  * as a web_tour.tours registry entry (static/src/tours/*.js) holding
-    the actual steps.
+
+* as a web_tour.tour record (data/tour_data.xml) so that it is listed
+  in the database and can be started by users;
+* as a web_tour.tours registry entry (``static/src/tours/*.js``) holding
+  the actual steps.
 
 Tours can be started from:
-  * the "User Guide" menu (any internal user);
-  * Settings > Technical > Tours (administrators);
-  * a direct link: /odoo?tour=<tour_name>;
-  * the Odoo onboarding flow for users with the Onboarding option enabled.
+
+* the "User Guide" menu (any internal user);
+* Settings > Technical > Tours (administrators);
+* a direct link: /odoo?tour=<tour_name>;
+* the Odoo onboarding flow for users with the Onboarding option enabled.
     """,
     'depends': [
         'web_tour',
@@ -76,6 +78,9 @@ Tours can be started from:
         'od19_sale_wizards',
         'od19_stock_fifo',
         'od19_stock_picking_features',
+        'od19_reporting_jasper',
+        'od19_hr_attendance_zkteco',
+        'od19_meeting_room_booking',
     ],
     'data': [
         'data/tour_data.xml',
@@ -126,6 +131,9 @@ Tours can be started from:
             'od19_user_guide_tours/static/src/tours/sale_wizards_tour.js',
             'od19_user_guide_tours/static/src/tours/stock_fifo_tour.js',
             'od19_user_guide_tours/static/src/tours/stock_picking_features_tour.js',
+            'od19_user_guide_tours/static/src/tours/jasper_report_tour.js',
+            'od19_user_guide_tours/static/src/tours/hr_attendance_zkteco_tour.js',
+            'od19_user_guide_tours/static/src/tours/meeting_room_booking_tour.js',
         ],
     },
     'icon': '/od19_user_guide_tours/static/description/icon.svg',

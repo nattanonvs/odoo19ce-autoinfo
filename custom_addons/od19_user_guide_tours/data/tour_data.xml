@@ -237,6 +237,26 @@
         <field name="custom">True</field>
     </record>
 
+    <!-- Newly installed modules -->
+    <record id="tour_od19_jasper_report" model="web_tour.tour">
+        <field name="name">od19_jasper_report_tour</field>
+        <field name="sequence">140</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_hr_attendance_zkteco" model="web_tour.tour">
+        <field name="name">od19_hr_attendance_zkteco_tour</field>
+        <field name="sequence">141</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_meeting_room_booking" model="web_tour.tour">
+        <field name="name">od19_meeting_room_booking_tour</field>
+        <field name="sequence">142</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+
     <!-- ISO -->
     <record id="tour_od19_iso_document_control" model="web_tour.tour">
         <field name="name">od19_iso_document_control_tour</field>
