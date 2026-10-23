@@ -1,7 +1,7 @@
 # Copyright 2026 OD19
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0)
 
-from odoo import fields, models
+from odoo import api, fields, models
 
 
 class PurchaseOrderLine(models.Model):
@@ -12,6 +12,7 @@ class PurchaseOrderLine(models.Model):
         compute="_compute_od19_pull_source_label",
     )
 
+    @api.depends("purchase_request_lines.request_id")
     def _compute_od19_pull_source_label(self):
         for line in self:
             requests = line.purchase_request_lines.mapped("request_id")
