@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        HR Attendance Board (Wave 5).
+
+        Summarises the daily attendance picture for HR: how many punches were
+        captured, hours worked and overtime, employees without a check-out, and
+        the time-off requests still waiting for approval. Punches come from the
+        ZKTeco terminals (see this module) but the same hr.attendance records
+        also cover manual entries, so the board is device-agnostic.
+    -->
+
+    <!-- ===================== Data sources ===================== -->
+
+    <record id="source_od19_hr_attendance" model="od19.dashboard.source">
+        <field name="name">Attendances</field>
+        <field name="model_name">hr.attendance</field>
+        <field name="description">Employee check-in / check-out punches and the hours worked.</field>
+        <field name="sequence">400</field>
+    </record>
+    <record id="source_od19_hr_attendance_worked_hours" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_hr_attendance"/>
+        <field name="label">Worked Hours</field>
+        <field name="field_name">worked_hours</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_od19_hr_attendance_overtime_hours" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_hr_attendance"/>
+        <field name="label">Overtime Hours</field>
+        <field name="field_name">overtime_hours</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_od19_hr_attendance_employee" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_hr_attendance"/>
+        <field name="label">Employee</field>
+        <field name="field_name">employee_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_od19_hr_attendance_department" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_hr_attendance"/>
+        <field name="label">Department</field>
+        <field name="field_name">department_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_od19_hr_attendance_date" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_hr_attendance"/>
+        <field name="label">Date</field>
+        <field name="field_name">date</field>
+        <field name="kind">date</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_od19_hr_attendance_month" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_hr_attendance"/>
+        <field name="label">Month</field>
+        <field name="field_name">date</field>
+        <field name="kind">groupby</field>
+        <field name="granularity">month</field>
+        <field name="sequence">90</field>
+    </record>
+
+    <record id="source_od19_hr_leave" model="od19.dashboard.source">
+        <field name="name">Time Off Requests</field>
+        <field name="model_name">hr.leave</field>
+        <field name="description">Employee time off requests with their approval status and type.</field>
+        <field name="sequence">410</field>
+    </record>
+    <record id="source_od19_hr_leave_days" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_hr_leave"/>
+        <field name="label">Days</field>
+        <field name="field_name">number_of_days</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_od19_hr_leave_state" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_hr_leave"/>
+        <field name="label">Status</field>
+        <field name="field_name">state</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_od19_hr_leave_type" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_hr_leave"/>
+        <field name="label">Time Off Type</field>
+        <field name="field_name">holiday_status_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_od19_hr_leave_department" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_hr_leave"/>
+        <field name="label">Department</field>
+        <field name="field_name">department_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="source_od19_hr_leave_employee" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_hr_leave"/>
+        <field name="label">Employee</field>
+        <field name="field_name">employee_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="source_od19_hr_leave_date_from" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_hr_leave"/>
+        <field name="label">Start Date</field>
+        <field name="field_name">date_from</field>
+        <field name="kind">date</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_od19_hr_leave_month" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_hr_leave"/>
+        <field name="label">Start Month</field>
+        <field name="field_name">date_from</field>
+        <field name="kind">groupby</field>
+        <field name="granularity">month</field>
+        <field name="sequence">90</field>
+    </record>
+
+    <!-- ===================== Dashboard ===================== -->
+
+    <record id="dashboard_hr_attendance" model="od19.dashboard">
+        <field name="name">HR Attendance Board</field>
+        <field name="audience">management</field>
+        <field name="description">Daily attendance, hours worked, overtime and time off control for HR.</field>
+        <field name="sequence">50</field>
+        <field name="is_default" eval="False"/>
+        <field name="default_date_range">this_month</field>
+        <field name="color">#9E2424</field>
+    </record>
+
+    <!-- Summary zone -->
+    <record id="dashboard_hr_attendance_punches_today" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_hr_attendance"/>
+        <field name="name">Punches Today</field>
+        <field name="subtitle">Check-in / check-out records captured today</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_od19_hr_attendance"/>
+        <field name="measure_key">__count</field>
+        <field name="date_key">date</field>
+        <field name="date_range">today</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="3"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="10"/>
+    </record>
+    <record id="dashboard_hr_attendance_hours_today" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_hr_attendance"/>
+        <field name="name">Worked Hours Today</field>
+        <field name="subtitle">Total hours worked across all employees today</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">hours</field>
+        <field name="source_id" ref="source_od19_hr_attendance"/>
+        <field name="measure_key">worked_hours</field>
+        <field name="date_key">date</field>
+        <field name="date_range">today</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="3"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="20"/>
+    </record>
+    <record id="dashboard_hr_attendance_overtime_today" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_hr_attendance"/>
+        <field name="name">Overtime Hours Today</field>
+        <field name="subtitle">Extra hours worked beyond the regular schedule today</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">hours</field>
+        <field name="source_id" ref="source_od19_hr_attendance"/>
+        <field name="measure_key">overtime_hours</field>
+        <field name="date_key">date</field>
+        <field name="date_range">today</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="3"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="30"/>
+    </record>
+    <record id="dashboard_hr_attendance_leave_pending" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_hr_attendance"/>
+        <field name="name">Time Off Pending Approval</field>
+        <field name="subtitle">Requests waiting for a manager decision</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_od19_hr_leave"/>
+        <field name="measure_key">__count</field>
+        <field name="date_range">all_time</field>
+        <field name="domain">[('state', 'in', ['confirm', 'validate1'])]</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="3"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="40"/>
+        <field name="rule_ids" eval="[(0, 0, {'sequence': 10, 'name': 'Above the critical value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 10.0, 'status': 'red'}), (0, 0, {'sequence': 20, 'name': 'Above the warning value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 5.0, 'status': 'yellow'})]"/>
+    </record>
+
+    <!-- Alert zone -->
+    <record id="dashboard_hr_attendance_missing_checkout" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_hr_attendance"/>
+        <field name="name">Missing Check-out (Today)</field>
+        <field name="subtitle">Employees who checked in but have not checked out yet</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_od19_hr_attendance"/>
+        <field name="measure_key">__count</field>
+        <field name="date_key">date</field>
+        <field name="date_range">today</field>
+        <field name="domain">[('check_out', '=', False)]</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="50"/>
+        <field name="rule_ids" eval="[(0, 0, {'sequence': 10, 'name': 'Above the critical value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 10.0, 'status': 'red'}), (0, 0, {'sequence': 20, 'name': 'Above the warning value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 3.0, 'status': 'yellow'})]"/>
+    </record>
+    <record id="dashboard_hr_attendance_overtime_month" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_hr_attendance"/>
+        <field name="name">Overtime This Month</field>
+        <field name="subtitle">Extra hours accumulated since the start of the month</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">hours</field>
+        <field name="source_id" ref="source_od19_hr_attendance"/>
+        <field name="measure_key">overtime_hours</field>
+        <field name="date_key">date</field>
+        <field name="date_range">this_month</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="60"/>
+        <field name="rule_ids" eval="[(0, 0, {'sequence': 10, 'name': 'Above the critical value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 200.0, 'status': 'red'}), (0, 0, {'sequence': 20, 'name': 'Above the warning value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 100.0, 'status': 'yellow'})]"/>
+    </record>
+
+    <!-- Detail zone -->
+    <record id="dashboard_hr_attendance_by_department" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_hr_attendance"/>
+        <field name="name">Worked Hours by Department</field>
+        <field name="widget_type">bar</field>
+        <field name="value_format">hours</field>
+        <field name="source_id" ref="source_od19_hr_attendance"/>
+        <field name="measure_key">worked_hours</field>
+        <field name="groupby_key">department_id</field>
+        <field name="date_range">this_month</field>
+        <field name="date_key">date</field>
+        <field name="limit" eval="8"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="70"/>
+    </record>
+    <record id="dashboard_hr_attendance_by_employee" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_hr_attendance"/>
+        <field name="name">Worked Hours by Employee</field>
+        <field name="widget_type">bar</field>
+        <field name="value_format">hours</field>
+        <field name="source_id" ref="source_od19_hr_attendance"/>
+        <field name="measure_key">worked_hours</field>
+        <field name="groupby_key">employee_id</field>
+        <field name="date_range">this_month</field>
+        <field name="date_key">date</field>
+        <field name="limit" eval="8"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="80"/>
+    </record>
+    <record id="dashboard_hr_attendance_trend" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_hr_attendance"/>
+        <field name="name">Worked Hours Trend</field>
+        <field name="widget_type">line</field>
+        <field name="value_format">hours</field>
+        <field name="source_id" ref="source_od19_hr_attendance"/>
+        <field name="measure_key">worked_hours</field>
+        <field name="groupby_key">date</field>
+        <field name="date_range">all_time</field>
+        <field name="limit" eval="12"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="90"/>
+    </record>
+    <record id="dashboard_hr_attendance_leave_state" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_hr_attendance"/>
+        <field name="name">Time Off by Status</field>
+        <field name="widget_type">pie</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_od19_hr_leave"/>
+        <field name="measure_key">number_of_days</field>
+        <field name="groupby_key">state</field>
+        <field name="date_range">all_time</field>
+        <field name="limit" eval="8"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="100"/>
+    </record>
+    <record id="dashboard_hr_attendance_leave_type" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_hr_attendance"/>
+        <field name="name">Time Off by Type</field>
+        <field name="widget_type">pie</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_od19_hr_leave"/>
+        <field name="measure_key">number_of_days</field>
+        <field name="groupby_key">holiday_status_id</field>
+        <field name="date_range">all_time</field>
+        <field name="limit" eval="8"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="110"/>
+    </record>
+    <record id="dashboard_hr_attendance_leave_department" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_hr_attendance"/>
+        <field name="name">Time Off by Department</field>
+        <field name="widget_type">bar</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_od19_hr_leave"/>
+        <field name="measure_key">number_of_days</field>
+        <field name="groupby_key">department_id</field>
+        <field name="date_range">all_time</field>
+        <field name="limit" eval="8"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="120"/>
+    </record>
+
+    <!-- ===================== Direct access ===================== -->
+
+    <record id="action_od19_hr_attendance_dashboard" model="ir.actions.client">
+        <field name="name">HR Attendance Board</field>
+        <field name="tag">od19_dashboard.builder</field>
+        <field name="target">current</field>
+        <field name="params" eval="{'dashboard_id': ref('dashboard_hr_attendance')}"/>
+    </record>
+
+    <menuitem id="menu_od19_hr_attendance_dashboard"
+              name="HR Attendance Board"
+              parent="hr_attendance.menu_hr_attendance_root"
+              action="action_od19_hr_attendance_dashboard"
+              groups="hr_attendance.group_hr_attendance_officer"
+              sequence="7"/>
+
+</odoo>

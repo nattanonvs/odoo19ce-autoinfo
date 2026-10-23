@@ -101,11 +101,33 @@ class TestZKTecoPunch(TransactionCase):
 
 @tagged('post_install', '-at_install', 'od19_zkteco')
 class TestZKTecoController(HttpCase):
-    """HTTP contract of the ADMS / iClock endpoints."""
+    """HTTP contract of the ADMS / iClock endpoints (fail-closed auth)."""
+
+    KEY = 'ZK-KEY-123'
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.company = cls.env.company
+        cls.company.write({
+            'od19_zkteco_enabled': True,
+            'od19_zkteco_comm_key': cls.KEY,
+        })
+        cls.device = cls.env['hr.attendance.device'].create({
+            'name': 'HTTP Test Terminal',
+            'serial_number': 'HTTP-SN-001',
+            'company_id': cls.company.id,
+        })
+
+    def test_cdata_without_key_is_refused(self):
+        response = self.url_open(
+            '/iclock/cdata?SN=HTTP-SN-001&options=all', timeout=60)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.text.strip(), 'ERROR')
 
     def test_cdata_handshake(self):
         response = self.url_open(
-            '/iclock/cdata?SN=HTTP-SN-001&options=all',
+            '/iclock/cdata?SN=HTTP-SN-001&options=all&key=%s' % self.KEY,
             timeout=60,
         )
         self.assertEqual(response.status_code, 200)
@@ -114,7 +136,8 @@ class TestZKTecoController(HttpCase):
     def test_cdata_attlog_upload(self):
         payload = '1001\t2026-10-15 08:30:12\t0\t1\t0\t0\t0\n'
         response = self.url_open(
-            '/iclock/cdata?SN=HTTP-SN-002&table=ATTLOG&Stamp=1',
+            '/iclock/cdata?SN=HTTP-SN-001&table=ATTLOG&Stamp=1&key=%s'
+            % self.KEY,
             data=payload,
             timeout=60,
             headers={'Content-Type': 'text/plain'},
@@ -123,9 +146,15 @@ class TestZKTecoController(HttpCase):
         self.assertTrue(response.text.startswith('OK'))
 
     def test_ping_and_getrequest(self):
-        for url in ('/iclock/ping?SN=HTTP-SN-003',
-                    '/iclock/getrequest?SN=HTTP-SN-003'):
+        for url in ('/iclock/ping?SN=HTTP-SN-001&key=%s' % self.KEY,
+                    '/iclock/getrequest?SN=HTTP-SN-001&key=%s' % self.KEY):
             response = self.url_open(url, timeout=60)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.text.strip(), 'OK')
+
+    def test_ping_refuses_unknown_device(self):
+        response = self.url_open(
+            '/iclock/ping?SN=UNKNOWN-SN&key=%s' % self.KEY, timeout=60)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.text.strip(), 'ERROR')
 

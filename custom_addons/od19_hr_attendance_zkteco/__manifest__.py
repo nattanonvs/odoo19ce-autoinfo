@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'HR Attendance - ZKTeco Device Integration',
-    'version': '19.0.1.0.0',
+    'version': '19.0.2.0.0',
     'category': 'Human Resources/Attendances',
     'summary': 'Receive attendance punches from ZKTeco face/fingerprint terminals (ADMS / iClock push protocol)',
     'description': """
@@ -28,6 +28,8 @@ The device then calls /iclock/cdata, /iclock/getrequest and /iclock/ping.
     'depends': [
         'hr',
         'hr_attendance',
+        'hr_holidays',
+        'od19_dashboard',
     ],
     'data': [
         'security/ir.model.access.csv',
@@ -36,6 +38,7 @@ The device then calls /iclock/cdata, /iclock/getrequest and /iclock/ping.
         'views/hr_attendance_device_log_views.xml',
         'views/res_config_settings_views.xml',
         'views/menu.xml',
+        'data/hr_attendance_dashboard_data.xml',
     ],
     'installable': True,
     'application': False,

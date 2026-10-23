@@ -28,8 +28,10 @@ class HrAttendanceDevice(models.Model):
     device_ip = fields.Char(string="Device IP")
     comm_key = fields.Char(
         string="Communication Key",
-        help="Leave empty to accept any key. Otherwise must match the "
-             "device communication key.",
+        help="Device-level communication key. When left empty, the "
+             "company-level key from Attendance settings is used instead. "
+             "The terminal must send the matching key or the request is "
+             "refused.",
     )
     location = fields.Char(
         string="Location",

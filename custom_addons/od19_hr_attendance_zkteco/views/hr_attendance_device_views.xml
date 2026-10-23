@@ -105,8 +105,10 @@
                 Add a ZKTeco attendance device
             </p>
             <p>
-                Configure the terminal with this server as "Cloud Server" and it
-                will appear here automatically after its first connection.
+                Register each terminal here with its serial number, then set this
+                server as the "Cloud Server" on the device. Enable
+                "Auto-register New Devices" in the Attendance settings if you
+                prefer devices to be created on their first connection.
             </p>
         </field>
     </record>
