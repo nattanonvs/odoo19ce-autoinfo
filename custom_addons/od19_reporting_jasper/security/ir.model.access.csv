@@ -13,3 +13,5 @@ access_ar_ap_aging_report_user,ar.ap.aging.report user,model_ar_ap_aging_report,
 access_ar_ap_aging_report_manager,ar.ap.aging.report manager,model_ar_ap_aging_report,account.group_account_manager,1,1,1,1
 access_general_ledger_report_user,general.ledger.report user,model_general_ledger_report,account.group_account_invoice,1,1,1,1
 access_general_ledger_report_manager,general.ledger.report manager,model_general_ledger_report,account.group_account_manager,1,1,1,1
+access_trial_balance_report_user,trial.balance.report user,model_trial_balance_report,account.group_account_invoice,1,1,1,1
+access_trial_balance_report_manager,trial.balance.report manager,model_trial_balance_report,account.group_account_manager,1,1,1,1

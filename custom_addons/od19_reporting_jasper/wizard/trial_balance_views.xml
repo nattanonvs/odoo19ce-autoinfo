@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Trial Balance (งบทดลอง).
+
+        Inherits the shared wizard layout (views/jasper_report_wizard.xml) and
+        replaces the placeholder <group name="parameters"/> with the fields
+        this report needs.  The wizard is reachable from Accounting > Reporting.
+    -->
+    <record id="view_trial_balance_report" model="ir.ui.view">
+        <field name="name">trial.balance.report</field>
+        <field name="model">trial.balance.report</field>
+        <field name="inherit_id" ref="view_jasper_report_wizard"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='parameters']" position="replace">
+                <group name="parameters" invisible="state != 'input'">
+                    <group>
+                        <field name="p_From_Date" required="1"/>
+                        <field name="p_To_Date" required="1"/>
+                        <field name="p_State" widget="radio" required="1"/>
+                        <field name="p_Show_Balance_Zero" widget="radio" required="1"/>
+                    </group>
+                    <group>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                        <field name="date_format" required="1"/>
+                        <field name="date_type" required="1"/>
+                        <field name="p_language" required="1"/>
+                    </group>
+                    <group colspan="4">
+                        <button type="object"
+                                name="action_clear_journal"
+                                string="Clear"
+                                class="oe_link oe_right"/>
+                        <field name="journal_ids" widget="many2many_tags"/>
+                    </group>
+                    <group colspan="4">
+                        <button type="object"
+                                name="action_clear_analytic"
+                                string="Clear"
+                                class="oe_link oe_right"/>
+                        <field name="analytic_account_ids" widget="many2many_tags"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_trial_balance_report" model="ir.actions.act_window">
+        <field name="name">Trial Balance</field>
+        <field name="res_model">trial.balance.report</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_trial_balance_report"/>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem
+        id="menu_trial_balance_report"
+        name="Trial Balance"
+        parent="account.menu_finance_reports"
+        action="action_trial_balance_report"
+        groups="account.group_account_user"
+        sequence="91"
+    />
+
+</odoo>

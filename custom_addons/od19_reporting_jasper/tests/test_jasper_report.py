@@ -211,3 +211,65 @@ class TestGeneralLedgerReport(TransactionCase):
         self.assertIn("aml.account_id in (%s)" % account.id, where)
         self.assertIn("am.journal_id in (%s)" % journal.id, where)
         self.assertNotIn("am.state = 'posted'", where)
+
+
+class TestTrialBalanceReport(TransactionCase):
+    def test_default_jasper_file_is_shipped(self):
+        report = self.env["trial.balance.report"].create({})
+        self.assertTrue(report.jasper_file.endswith("trial_balance_report.jasper"))
+
+    def test_parameters_follow_legacy_contract(self):
+        report = self.env["trial.balance.report"].create(
+            {"p_From_Date": "2026-01-01", "p_To_Date": "2026-10-23"}
+        )
+        parameters = report.get_parameters()
+        self.assertEqual(parameters["p_Show_Balance_Zero"], "N")
+        self.assertEqual(parameters["p_State"], "เฉพาะที่ผ่านรายการแล้ว")
+        self.assertEqual(parameters["p_JournalText"], "ทั้งหมด")
+        self.assertEqual(parameters["p_AnalyticAccountText"], "ทั้งหมด")
+        self.assertEqual(parameters["p_DateFormat"], "dd-MM-yyyy")
+        self.assertEqual(parameters["p_From_Date"], "2026-01-01")
+        self.assertEqual(parameters["p_To_Date"], "2026-10-23")
+        self.assertEqual(parameters["p_Company"], "%s" % report.company_id.id)
+        self.assertEqual(
+            parameters["p_Where"],
+            " and amd.state = 'posted' and amld.company_id = %s"
+            % report.company_id.id,
+        )
+        self.assertEqual(parameters["p_Print_By"], self.env.user.name)
+        self.assertEqual(parameters["p_language"], "thai")
+
+    def test_show_balance_zero_all_flag(self):
+        report = self.env["trial.balance.report"].create(
+            {"p_Show_Balance_Zero": "all"}
+        )
+        self.assertEqual(report.get_parameters()["p_Show_Balance_Zero"], "Y")
+
+    def test_date_text_follows_date_type(self):
+        report = self.env["trial.balance.report"].create(
+            {"p_From_Date": "2026-01-05", "p_To_Date": "2026-10-23"}
+        )
+        self.assertEqual(report.get_parameters()["p_From_Date_Text"], "05-01-2026")
+        report.date_type = "BE"
+        self.assertEqual(report.get_parameters()["p_From_Date_Text"], "05-01-2569")
+
+    def test_language_switches_labels(self):
+        report = self.env["trial.balance.report"].create({"p_language": "english"})
+        parameters = report.get_parameters()
+        self.assertEqual(parameters["p_language"], "english")
+        self.assertEqual(parameters["p_State"], "All posted entries")
+        self.assertEqual(parameters["p_JournalText"], "All")
+        self.assertEqual(parameters["p_AnalyticAccountText"], "All")
+
+    def test_where_follows_filters(self):
+        journal = self.env["account.journal"].search([], limit=1)
+        self.assertTrue(journal)
+        report = self.env["trial.balance.report"].create(
+            {
+                "journal_ids": [(6, 0, journal.ids)],
+                "p_State": "all_entries",
+            }
+        )
+        where = report.get_parameters()["p_Where"]
+        self.assertIn("amd.journal_id in (%s)" % journal.id, where)
+        self.assertNotIn("amd.state = 'posted'", where)
