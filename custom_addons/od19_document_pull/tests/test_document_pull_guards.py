@@ -37,3 +37,19 @@ class TestDocumentPullGuards(AccountTestInvoicingCommon):
         action = bill._od19_pull_action_open_remove_wizard()
         self.assertEqual(action["res_model"], "od19.document.pull.remove.wizard")
         self.assertEqual(action["context"]["default_res_id"], bill.id)
+
+    def test_source_lineage_fields_exist(self):
+        aml = self.env["account.move.line"]
+        self.assertIn("od19_source_move_line_id", aml._fields)
+        self.assertIn("od19_source_picking_id", aml._fields)
+        self.assertEqual(
+            aml._fields["od19_source_move_line_id"].comodel_name, "account.move.line"
+        )
+        self.assertEqual(
+            aml._fields["od19_source_picking_id"].comodel_name, "stock.picking"
+        )
+
+    def test_source_label_field_on_purchase_order_line(self):
+        self.assertIn(
+            "od19_pull_source_label", self.env["purchase.order.line"]._fields
+        )
