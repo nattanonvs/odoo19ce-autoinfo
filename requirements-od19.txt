@@ -1,0 +1,52 @@
+# ============================================================================
+#  requirements-od19.txt
+#  แพ็กเกจ Python ที่โปรเจกต์ OD19 ติดตั้ง "เพิ่มเอง" นอกเหนือจาก
+#  requirements.txt ของ Odoo 19 Core  (ห้ามแก้ requirements.txt ของ core)
+#
+#  จัดทำเมื่อ : 2026-10-23
+#  แหล่งข้อมูล : venv19  (C:\odoo-dev\odoo19\venv19)
+#  วิธีที่มาของรายการ :
+#      1) venv19\Scripts\python.exe -m pip freeze
+#      2) เทียบกับ requirements.txt (core) + transitive dependency ของ core
+#      3) ผลต่าง = รายการด้านล่าง
+#
+#  วิธีใช้บน Production (Linux /var/odoo หรือ /var/lib/odoo/odoovenv)
+#      pip install -r requirements.txt          # 1) core ก่อน
+#      pip install -r requirements-od19.txt     # 2) แล้วค่อยส่วนที่เพิ่มเอง
+# ============================================================================
+
+# ---------------------------------------------------------------------------
+# [1] จำเป็นต้องติดตั้ง — มีโค้ดจริงเรียกใช้
+# ---------------------------------------------------------------------------
+sentry-sdk==2.22.0        # OCA `sentry`          -> external_dependencies: sentry_sdk>=2.0.0,<=2.22.0
+paramiko==3.5.1           # OCA `auto_backup`     -> external_dependencies: paramiko<4.0.0
+pysftp==0.2.9             # OCA `auto_backup`     -> สำรอง DB อัตโนมัติผ่าน SFTP
+Pygments==2.21.0          # docutils              -> syntax highlight ใน .. code:: ของ description โมดูล
+pdfminer.six==20260107    # Odoo Core             -> attachment_indexation (index เนื้อหา PDF) + base tests
+packaging==26.3           # Odoo Core runtime     -> odoo/modules/module.py อ่าน packaging.requirements
+                          #                          (core ไม่ได้ประกาศไว้ใน requirements.txt)
+signxml==5.2.0            # od19_etax_invoice     -> ลงลายมือชื่อดิจิทัล XMLDSig/XAdES (ขมธอ.14-2560)
+                          #                          ใช้ signxml.xades.XAdESSigner; ต้องการ lxml + cryptography
+
+# ---------------------------------------------------------------------------
+# [2] ติดตั้งตามให้เองอัตโนมัติ เมื่อติดตั้งข้อ [1] — ไม่ต้องระบุเอง
+# ---------------------------------------------------------------------------
+#   bcrypt   5.0.0    <- paramiko (bcrypt>=3.2)
+#   PyNaCl   1.6.2    <- paramiko (pynacl>=1.5)
+
+# ---------------------------------------------------------------------------
+# [3] มีอยู่ใน venv19 แต่ "ไม่มีโค้ดใดเรียกใช้" — ไม่ต้องติดตั้งบน Production
+#     (เก็บไว้เป็นบันทึกกันลืม ไม่ต้องรันบรรทัดนี้)
+# ---------------------------------------------------------------------------
+# pymupdf==1.28.2           # ติดตั้งไว้ทดลอง ไม่พบ import fitz / pymupdf ที่ไหนในโปรเจกต์
+# psycopg2-binary==2.9.13   # ซ้ำซ้อน — Odoo import psycopg2 จาก pylibs\psycopg2 (vendored 2.9.13) แทน
+# defusedxml==0.7.1         # zeep >= 4.1.0 ไม่ใช้แล้ว (ดู odoo/_monkeypatches/xlrd.py)
+# pyparsing==3.3.3          # ไม่พบการอ้างอิงในโปรเจกต์
+
+# ---------------------------------------------------------------------------
+# หมายเหตุ
+# ---------------------------------------------------------------------------
+# * โฟลเดอร์ pylibs\ เป็นไลบรารีแบบ vendored (ใส่เข้า sys.path) ไม่ใช่ pip
+#   จึงไม่ต้องติดตั้งบน Production และไม่ควรคัดลอกข้ามแพลตฟอร์ม
+# * ไฟล์นี้เป็นบันทึกของ environment ฝั่งพัฒนา (Windows) เท่านั้น
+#   ถ้าเพิ่ม pip package ใหม่ในอนาคต ให้อัปเดตไฟล์นี้ด้วย
