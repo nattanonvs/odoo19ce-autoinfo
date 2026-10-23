@@ -25,7 +25,7 @@ class TestIsoRisk(TransactionCase):
         self.assertEqual(risk.state, "draft")
 
     def test_risk_score_computation(self):
-        risk = self._create_risk(likelihood=3, severity=4)
+        risk = self._create_risk(likelihood="3", severity="4")
         self.assertEqual(risk.risk_score, 12)
 
     def test_risk_score_zero_when_no_values(self):
@@ -33,27 +33,27 @@ class TestIsoRisk(TransactionCase):
         self.assertEqual(risk.risk_score, 0)
 
     def test_risk_level_critical(self):
-        risk = self._create_risk(likelihood=5, severity=5)
+        risk = self._create_risk(likelihood="5", severity="5")
         self.assertEqual(risk.risk_score, 25)
         self.assertEqual(risk.risk_level, "critical")
 
     def test_risk_level_high(self):
-        risk = self._create_risk(likelihood=3, severity=4)
+        risk = self._create_risk(likelihood="3", severity="4")
         self.assertEqual(risk.risk_score, 12)
         self.assertEqual(risk.risk_level, "high")
 
     def test_risk_level_medium(self):
-        risk = self._create_risk(likelihood=2, severity=3)
+        risk = self._create_risk(likelihood="2", severity="3")
         self.assertEqual(risk.risk_score, 6)
         self.assertEqual(risk.risk_level, "medium")
 
     def test_risk_level_low(self):
-        risk = self._create_risk(likelihood=1, severity=2)
+        risk = self._create_risk(likelihood="1", severity="2")
         self.assertEqual(risk.risk_score, 2)
         self.assertEqual(risk.risk_level, "low")
 
     def test_residual_score_computation(self):
-        risk = self._create_risk(residual_likelihood=2, residual_severity=2)
+        risk = self._create_risk(residual_likelihood="2", residual_severity="2")
         self.assertEqual(risk.residual_score, 4)
 
     def test_state_transitions(self):

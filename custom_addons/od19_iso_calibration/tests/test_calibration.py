@@ -22,13 +22,17 @@ class TestCalibrationCron(TransactionCase):
         )
 
     def _make_equipment(self, next_date, **overrides):
+        # ``next_calibration_date`` is a stored computed field (last date +
+        # interval), so it must be reached through its dependencies.
+        interval = overrides.pop("calibration_interval", 365)
         vals = {
             "name": "Test Caliper",
             "code": "EQ-001",
             "category": "dimensional",
             "owner_id": self.employee.id,
             "department_id": self.department.id,
-            "next_calibration_date": next_date,
+            "calibration_interval": interval,
+            "last_calibration_date": next_date - timedelta(days=interval),
         }
         vals.update(overrides)
         return self.Equipment.create(vals)

@@ -81,7 +81,7 @@ class TestIsoTraining(TransactionCase):
         emp_comp = self.env["od19.iso.employee.competence"].create({
             "employee_id": self.employee.id,
             "competence_id": competence.id,
-            "level": 3,
+            "level": "3",
         })
         self.assertEqual(emp_comp.level, "3")
         self.assertEqual(emp_comp.department_id, self.employee.department_id)
@@ -91,7 +91,7 @@ class TestIsoTraining(TransactionCase):
         return self.env["od19.iso.employee.competence"].create({
             "employee_id": self.employee.id,
             "competence_id": competence.id,
-            "level": 3,
+            "level": "3",
             "valid_to": valid_to,
         })
 

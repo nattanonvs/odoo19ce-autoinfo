@@ -453,11 +453,7 @@ class IsoDocument(models.Model):
         dept_id = vals.get("department_id")
         if dept_id:
             dept = self.env["hr.department"].browse(dept_id)
-            dept_code = (
-                (dept.code or dept.od19_dept_code or "")
-                .strip()
-                .upper()
-            )
+            dept_code = (dept.code or "").strip().upper()
         if not dept_code:
             dept_code = "XX"
         sequence = self.env.ref(
@@ -475,7 +471,15 @@ class IsoDocument(models.Model):
     def write(self, vals):
         if "category_id" in vals or "department_id" in vals:
             for doc in self:
-                if not doc.code or doc.code == "/":
+                current_code = doc.code or ""
+                # A code generated before the department was known carries the
+                # "XX" placeholder: regenerate it once the department is set.
+                needs_code = (
+                    not current_code
+                    or current_code == "/"
+                    or "-XX-" in current_code
+                )
+                if needs_code:
                     new_vals = dict(vals)
                     new_vals["category_id"] = vals.get(
                         "category_id", doc.category_id.id
