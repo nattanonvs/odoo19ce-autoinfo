@@ -112,7 +112,7 @@
                 <field name="partner_id"/>
                 <filter string="Signed" name="signed" domain="[('state', '=', 'signed')]"/>
                 <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
-                <group expand="0" string="Group By">
+                <group>
                     <filter string="Document Type" name="group_type"
                             context="{'group_by': 'document_type'}"/>
                     <filter string="Status" name="group_state"

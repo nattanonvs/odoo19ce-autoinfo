@@ -19,7 +19,7 @@ class AccountMove(models.Model):
         copy=False,
     )
     od19_etax_document_count = fields.Integer(
-        string="e-Tax Documents",
+        string="e-Tax Document Count",
         compute="_compute_od19_etax_document_count",
     )
     od19_etax_state = fields.Selection(

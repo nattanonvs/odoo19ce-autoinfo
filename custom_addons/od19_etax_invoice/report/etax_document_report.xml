@@ -61,7 +61,7 @@
                                 </div>
                                 <div style="font-size: 11px;">
                                     <span>วันที่ออกเอกสาร: </span>
-                                    <span t-out="(doc.issue_datetime + timedelta(hours=7)).strftime('%d/%m/%Y %H:%M')"/>
+                                    <span t-out="doc.get_issue_datetime_label()"/>
                                 </div>
                                 <div style="font-size: 11px;">
                                     <span>อ้างอิง: </span>
@@ -156,10 +156,10 @@
                                             <span t-out="cur_label"/> <span t-out="'{:,.2f}'.format(doc.move_id.amount_untaxed)"/>
                                         </td>
                                     </tr>
-                                    <tr t-if="doc._compute_header_allowance()">
+                                    <tr t-if="doc.get_header_allowance()">
                                         <td>ส่วนลด</td>
                                         <td class="text-end">
-                                            <span t-out="cur_label"/> <span t-out="'{:,.2f}'.format(doc._compute_header_allowance())"/>
+                                            <span t-out="cur_label"/> <span t-out="'{:,.2f}'.format(doc.get_header_allowance())"/>
                                         </td>
                                     </tr>
                                     <tr>
@@ -188,7 +188,7 @@
                                 <span>ผู้ลงนาม: </span>
                                 <span t-out="doc.signer_subject or '-'"/>
                                 <span t-if="doc.signer_serial" t-out="' | Serial: %s' % doc.signer_serial"/>
-                                <span t-if="doc.signed_at" t-out="' | เวลาลงนาม: %s' % (doc.signed_at + timedelta(hours=7)).strftime('%d/%m/%Y %H:%M')"/>
+                                <span t-if="doc.signed_at" t-out="' | เวลาลงนาม: %s' % doc.get_signed_at_label()"/>
                             </div>
                             <div t-if="doc.digest">
                                 <span>SHA-512: </span>

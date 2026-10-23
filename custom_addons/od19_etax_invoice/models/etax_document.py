@@ -146,13 +146,10 @@ class Od19EtaxDocument(models.Model):
     signer_subject = fields.Char(readonly=True, copy=False)
     signer_serial = fields.Char(readonly=True, copy=False)
 
-    _sql_constraints = [
-        (
-            "name_document_type_uniq",
-            "unique(name, document_type, company_id)",
-            "The document reference must be unique per document type and company.",
-        ),
-    ]
+    _name_document_type_uniq = models.Constraint(
+        "unique(name, document_type, company_id)",
+        "The document reference must be unique per document type and company.",
+    )
 
     # ------------------------------------------------------------------
     # Defaults and constraints
@@ -369,6 +366,29 @@ class Od19EtaxDocument(models.Model):
         return dict(self._fields["document_type"].selection).get(
             self.document_type, ""
         )
+
+    def get_header_allowance(self):
+        """Public wrapper used by the printed report."""
+        self.ensure_one()
+        return self._compute_header_allowance()
+
+    def _format_local_datetime(self, value):
+        """Render a naive UTC datetime in the current user's time zone."""
+        if not value:
+            return ""
+        return fields.Datetime.context_timestamp(self, value).strftime(
+            "%d/%m/%Y %H:%M"
+        )
+
+    def get_issue_datetime_label(self):
+        """Issue date time formatted for the printed report."""
+        self.ensure_one()
+        return self._format_local_datetime(self.issue_datetime)
+
+    def get_signed_at_label(self):
+        """Signing date time formatted for the printed report."""
+        self.ensure_one()
+        return self._format_local_datetime(self.signed_at)
 
     def get_qr_payload(self):
         """Compact verification payload encoded in the printed QR code."""

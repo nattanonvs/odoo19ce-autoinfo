@@ -1,0 +1,203 @@
+# Copyright 2026 OD19
+# License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0)
+
+"""Tests for the ขมธอ.3-2560 e-Tax Invoice & e-Receipt pipeline.
+
+Covered: document type codes, XSD validation of the unsigned XML, XAdES
+signing, the PDF/XML attachment round trip and the reporting helpers used by
+the printed report.
+"""
+
+import base64
+import datetime
+import io
+
+from lxml import etree
+
+from odoo.exceptions import UserError, ValidationError
+from odoo.tests import tagged
+
+from odoo.addons.account.tests.common import AccountTestInvoicingCommon
+
+from ..lib import pdf_embed, validator
+
+DS_NS = "http://www.w3.org/2000/09/xmldsig#"
+
+
+def _generate_self_signed_certificate():
+    """Return ``(key_pem, cert_pem)`` bytes for a throwaway RSA certificate."""
+    from cryptography import x509
+    from cryptography.hazmat.primitives import hashes, serialization
+    from cryptography.hazmat.primitives.asymmetric import rsa
+    from cryptography.x509.oid import NameOID
+
+    key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    name = x509.Name([
+        x509.NameAttribute(NameOID.COUNTRY_NAME, "TH"),
+        x509.NameAttribute(NameOID.ORGANIZATION_NAME, "OD19 Test"),
+        x509.NameAttribute(NameOID.COMMON_NAME, "OD19 e-Tax Test"),
+    ])
+    now = datetime.datetime.now(datetime.timezone.utc)
+    certificate = (
+        x509.CertificateBuilder()
+        .subject_name(name)
+        .issuer_name(name)
+        .public_key(key.public_key())
+        .serial_number(x509.random_serial_number())
+        .not_valid_before_utc(now - datetime.timedelta(days=1))
+        .not_valid_after_utc(now + datetime.timedelta(days=365))
+        .sign(key, hashes.SHA256())
+    )
+    key_pem = key.private_bytes(
+        serialization.Encoding.PEM,
+        serialization.PrivateFormat.PKCS8,
+        serialization.NoEncryption(),
+    )
+    return key_pem, certificate.public_bytes(serialization.Encoding.PEM)
+
+
+@tagged("post_install", "-at_install")
+class TestOd19EtaxDocument(AccountTestInvoicingCommon):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.company = cls.company_data["company"]
+        key_pem, cert_pem = _generate_self_signed_certificate()
+        cls.certificate = cls.env["od19.etax.certificate"].create({
+            "name": "OD19 Test Certificate",
+            "company_id": cls.company.id,
+            "private_key": key_pem.decode(),
+            "certificate": cert_pem.decode(),
+        })
+        cls.certificate.action_verify()
+        cls.company.od19_etax_certificate_id = cls.certificate.id
+
+    # ------------------------------------------------------------------
+    # Helpers
+    # ------------------------------------------------------------------
+    def _create_document(self, move_type="out_invoice", document_type="tax_invoice",
+                         post=True):
+        invoice = self._create_invoice(move_type=move_type, post=post)
+        return self.env["od19.etax.document"].create({
+            "move_id": invoice.id,
+            "document_type": document_type,
+        })
+
+    def _parse(self, binary_field):
+        return etree.fromstring(base64.b64decode(binary_field))
+
+    # ------------------------------------------------------------------
+    # Document types
+    # ------------------------------------------------------------------
+    def test_document_type_codes(self):
+        document = self._create_document()
+        self.assertEqual(document.type_code, "388")
+        self.assertEqual(document.purpose_code, "TIVC01")
+
+    def test_credit_note_document_type(self):
+        document = self._create_document(
+            move_type="out_refund", document_type="debit_credit_note"
+        )
+        self.assertEqual(document.type_code, "81")
+        self.assertEqual(document.purpose_code, "CDNG01")
+        document.action_generate_xml()
+        tree = self._parse(document.xml_file)
+        self.assertEqual(validator.validate(tree, "debit_credit_note"), [])
+
+    def test_only_customer_documents_allowed(self):
+        bill = self.env["account.move"].create({
+            "move_type": "in_invoice",
+            "partner_id": self.partner_a.id,
+        })
+        with self.assertRaises(ValidationError):
+            self.env["od19.etax.document"].create({
+                "move_id": bill.id,
+                "document_type": "tax_invoice",
+            })
+
+    # ------------------------------------------------------------------
+    # XML generation
+    # ------------------------------------------------------------------
+    def test_unsigned_xml_is_schema_valid(self):
+        document = self._create_document()
+        document.action_generate_xml()
+        self.assertEqual(document.state, "generated")
+        tree = self._parse(document.xml_file)
+        self.assertEqual(validator.validate(tree, document.document_type), [])
+
+    # ------------------------------------------------------------------
+    # Digital signature
+    # ------------------------------------------------------------------
+    def test_signing_produces_xades_signature(self):
+        document = self._create_document()
+        document.action_sign()
+        self.assertEqual(document.state, "signed")
+        tree = self._parse(document.signed_xml_file)
+        signature = tree.find("{%s}Signature" % DS_NS)
+        self.assertIsNotNone(signature)
+        method = signature.find(
+            "{%s}SignedInfo/{%s}SignatureMethod" % (DS_NS, DS_NS)
+        )
+        self.assertIn("rsa-sha512", method.get("Algorithm"))
+        self.assertTrue(document.digest)
+        self.assertEqual(document.signer_subject, self.certificate.subject)
+
+    def test_sign_requires_posted_move(self):
+        document = self._create_document(post=False)
+        with self.assertRaises(UserError):
+            document.action_sign()
+
+    def test_signed_document_cannot_be_cancelled(self):
+        document = self._create_document()
+        document.action_sign()
+        with self.assertRaises(UserError):
+            document.action_cancel()
+
+    def test_reset_to_draft_clears_generated_xml(self):
+        document = self._create_document()
+        document.action_generate_xml()
+        document.action_reset_to_draft()
+        self.assertEqual(document.state, "draft")
+        self.assertFalse(document.xml_file)
+
+    # ------------------------------------------------------------------
+    # Reporting helpers and PDF
+    # ------------------------------------------------------------------
+    def test_header_allowance_reflects_line_discount(self):
+        invoice = self._create_invoice()
+        invoice.invoice_line_ids[0].discount = 10.0
+        invoice.action_post()
+        document = self.env["od19.etax.document"].create({
+            "move_id": invoice.id,
+            "document_type": "tax_invoice",
+        })
+        self.assertAlmostEqual(document.get_header_allowance(), 100.0, places=2)
+
+    def test_tax_summary_and_qr(self):
+        document = self._create_document()
+        summary = document.get_tax_summary()
+        self.assertTrue(summary)
+        for values in summary.values():
+            self.assertIn("base", values)
+            self.assertIn("amount", values)
+        self.assertTrue(document.get_qr_data_uri().startswith("data:image/png;base64,"))
+
+    def test_pdf_embed_round_trip(self):
+        from PyPDF2 import PdfWriter
+
+        writer = PdfWriter()
+        writer.add_blank_page(width=200, height=200)
+        buffer = io.BytesIO()
+        writer.write(buffer)
+        xml = b"<?xml version='1.0' encoding='UTF-8'?><root/>"
+        embedded = pdf_embed.embed_xml(buffer.getvalue(), xml, "etax.xml")
+        self.assertEqual(pdf_embed.extract_xml(embedded, "etax.xml"), xml)
+
+    def test_report_template_renders(self):
+        document = self._create_document()
+        document.action_sign()
+        report = document._get_report()
+        html, _report_type = report._render_qweb_html(report, document.ids)
+        self.assertIn(b"e-Tax Invoice", html)
+        self.assertIn(b"SHA-512", html)
