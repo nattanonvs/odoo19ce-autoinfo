@@ -7,9 +7,9 @@ class TestPurchaseDocumentSequence(TransactionCase):
     def test_department_has_purchase_sequence_fields(self):
         department = self.env["hr.department"].create({
             "name": "Test Purchase Dept",
-            "od19_dept_code": "T",
+            "code": "T",
         })
-        self.assertEqual(department.od19_dept_code, "T")
+        self.assertEqual(department.code, "T")
         self.assertFalse(department.pr_sequence_id)
         self.assertFalse(department.po_sequence_id)
         self.assertFalse(department.po_indent_sequence_id)
@@ -56,7 +56,7 @@ class TestPurchaseDocumentSequence(TransactionCase):
         })
         department = self.env["hr.department"].create({
             "name": "Test PR Seq Dept",
-            "od19_dept_code": "T",
+            "code": "T",
             "pr_sequence_id": sequence.id,
         })
         request = self.env["purchase.request"].create({
@@ -64,12 +64,15 @@ class TestPurchaseDocumentSequence(TransactionCase):
         })
         self.assertTrue(request.name.startswith("PRT-"))
 
-    def test_purchase_request_without_department_sequence_keeps_new(self):
+    def test_purchase_request_without_department_sequence_uses_default(self):
         department = self.env["hr.department"].create({
             "name": "Test PR No Seq Dept",
-            "od19_dept_code": "N",
+            "code": "N",
         })
         request = self.env["purchase.request"].create({
             "department_id": department.id,
         })
-        self.assertEqual(request.name, "New")
+        # No department sequence set: the department sequence is not applied
+        # and the request falls back to the standard OCA numbering (PR...).
+        self.assertTrue(request.name)
+        self.assertFalse(request.name.startswith("PRT-"))

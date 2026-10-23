@@ -40,7 +40,7 @@ class ProjectTask(models.Model):
         initials = ""
         if self.project_id:
             if self.project_id.od19_department_id:
-                dept_code = self.project_id.od19_department_id.od19_dept_code or ""
+                dept_code = self.project_id.od19_department_id.code or ""
             if self.project_id.od19_sale_person_id:
                 # Same initials rule as the project job number: manual
                 # od19_initials wins, otherwise derive from the user name.

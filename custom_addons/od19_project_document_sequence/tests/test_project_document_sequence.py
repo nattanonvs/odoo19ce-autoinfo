@@ -172,7 +172,7 @@ class TestProjectDocumentSequence(TransactionCase):
         # No manual initials: they follow the same rule as the job number.
         department = self.env["hr.department"].create({
             "name": "Task Code Dept",
-            "od19_dept_code": "BA",
+            "code": "BA",
         })
         user = self._sale_user(
             "od19_sale_rep_task", None, name="Nattanai Vinyangkoon"

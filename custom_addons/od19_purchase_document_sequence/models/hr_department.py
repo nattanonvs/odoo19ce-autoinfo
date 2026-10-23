@@ -4,10 +4,11 @@ from odoo import fields, models
 class HrDepartment(models.Model):
     _inherit = "hr.department"
 
-    od19_dept_code = fields.Char(
-        string="OD19 Dept Code",
-        size=10,
-        help="Short code used in document numbering (e.g. B for BA, T for TA, I for IA, F for FA, D for F/DES).",
+    code = fields.Char(
+        string="Department Code",
+        copy=False,
+        help="Short code for the department used in document numbering "
+        "(e.g. IA, BA, TA, DES, FA).",
     )
     pr_sequence_id = fields.Many2one(
         "ir.sequence",

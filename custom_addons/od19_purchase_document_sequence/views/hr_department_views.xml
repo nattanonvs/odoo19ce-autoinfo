@@ -10,7 +10,7 @@
                 <xpath expr="//sheet/group" position="after">
                     <group string="Document Sequences">
                         <group string="Purchase">
-                            <field name="od19_dept_code"/>
+                            <field name="code"/>
                             <field name="pr_sequence_id"/>
                             <field name="po_sequence_id"/>
                             <field name="po_indent_sequence_id"/>

@@ -33,6 +33,10 @@ class TestPartnerDocumentSequence(TransactionCase):
         self.assertFalse(partner.is_customer_and_supplier)
 
     def test_customer_rank_synced_on_create(self):
+        # ``customer_rank`` is provided by the ``account`` module, which is not
+        # a dependency of this module: skip when it is not installed.
+        if "customer_rank" not in self.env["res.partner"]._fields:
+            self.skipTest("customer_rank requires the account module.")
         partner = self.env["res.partner"].create({
             "name": "Test Customer Rank",
             "customer": True,
@@ -40,6 +44,10 @@ class TestPartnerDocumentSequence(TransactionCase):
         self.assertGreaterEqual(partner.customer_rank, 1)
 
     def test_supplier_rank_synced_on_create(self):
+        # ``supplier_rank`` is provided by the ``account`` module, which is not
+        # a dependency of this module: skip when it is not installed.
+        if "supplier_rank" not in self.env["res.partner"]._fields:
+            self.skipTest("supplier_rank requires the account module.")
         partner = self.env["res.partner"].create({
             "name": "Test Vendor Rank",
             "supplier": True,
