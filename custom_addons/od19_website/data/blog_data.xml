@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- ============================================================ -->
+    <!-- News &amp; Events blog hub                                     -->
+    <!-- The blog, its tag category and its tags are created here so  -->
+    <!-- that they own stable XML IDs; the sample posts and all the   -->
+    <!-- Thai translations are created by od19_setup_blog() below.    -->
+    <!-- ============================================================ -->
+
+    <record id="blog_tag_category_topics" model="blog.tag.category">
+        <field name="name">Topics</field>
+    </record>
+
+    <record id="blog_tag_news" model="blog.tag">
+        <field name="name">News</field>
+        <field name="category_id" ref="blog_tag_category_topics"/>
+        <field name="color" eval="0"/>
+    </record>
+
+    <record id="blog_tag_events" model="blog.tag">
+        <field name="name">Events</field>
+        <field name="category_id" ref="blog_tag_category_topics"/>
+        <field name="color" eval="1"/>
+    </record>
+
+    <record id="blog_tag_articles" model="blog.tag">
+        <field name="name">Articles</field>
+        <field name="category_id" ref="blog_tag_category_topics"/>
+        <field name="color" eval="2"/>
+    </record>
+
+    <!-- The blog rename / tag translation / sample-post seeding runs from
+         data/setup_functions.xml: <function> tags inside a noupdate="1"
+         block are skipped on upgrade. -->
+
+</odoo>

@@ -374,8 +374,8 @@ msgstr "<i class=\"fa fa-clock-o me-2\"/>เวลาทำการ"
 
 #. module: od19_website
 #: model_terms:ir.ui.view,arch_db:od19_website.od19_contact_page
-msgid "<i class=\"fa fa-clock-o\"/> Mon–Fri 08:30–17:30 · Sat 08:30–12:00"
-msgstr "<i class=\"fa fa-clock-o\"/> จ.–ศ. 08:30–17:30 · ส. 08:30–12:00"
+msgid "<i class=\"fa fa-clock-o\"/> Monday–Friday 08:00–17:00 only"
+msgstr "<i class=\"fa fa-clock-o\"/> จันทร์–ศุกร์ 08:00–17:00 เท่านั้น"
 
 #. module: od19_website
 #: model_terms:ir.ui.view,arch_db:od19_website.od19_contact_page
@@ -802,18 +802,18 @@ msgstr ""
 
 #. module: od19_website
 #: model_terms:ir.ui.view,arch_db:od19_website.od19_contact_page
-msgid "<strong>Monday – Friday</strong><br/>08:30 – 17:30"
-msgstr "<strong>วันจันทร์ – วันศุกร์</strong><br/>08:30 – 17:30"
+msgid "<strong>Monday – Friday</strong><br/>08:00 – 17:00"
+msgstr "<strong>วันจันทร์ – วันศุกร์</strong><br/>08:00 – 17:00"
 
 #. module: od19_website
 #: model_terms:ir.ui.view,arch_db:od19_website.od19_contact_page
-msgid "<strong>Saturday</strong><br/>08:30 – 12:00"
-msgstr "<strong>วันเสาร์</strong><br/>08:30 – 12:00"
+msgid "<strong>Public Holiday</strong><br/>Closed"
+msgstr "<strong>วันหยุดนักขัตฤกษ์</strong><br/>ปิดทำการ"
 
 #. module: od19_website
 #: model_terms:ir.ui.view,arch_db:od19_website.od19_contact_page
-msgid "<strong>Sunday &amp; Public Holiday</strong><br/>Closed"
-msgstr "<strong>วันอาทิตย์ &amp; วันหยุดนักขัตฤกษ์</strong><br/>ปิดทำการ"
+msgid "<strong>Saturday – Sunday</strong><br/>Closed"
+msgstr "<strong>วันเสาร์ – วันอาทิตย์</strong><br/>ปิดทำการ"
 
 #. module: od19_website
 #: model_terms:ir.ui.view,arch_db:od19_website.od19_about_page
@@ -4774,10 +4774,10 @@ msgstr "sales@auto-info.co.th"
 
 #. module: od19_website
 #: model_terms:ir.ui.view,arch_db:od19_website.od19_contact_page
-msgid "service@auto-info.co.th"
-msgstr "service@auto-info.co.th"
+msgid "admin@auto-info.co.th"
+msgstr "admin@auto-info.co.th"
 
 #. module: od19_website
 #: model_terms:ir.ui.view,arch_db:od19_website.od19_contact_page
-msgid "spare@auto-info.co.th"
-msgstr "spare@auto-info.co.th"
+msgid "hr@auto-info.co.th"
+msgstr "hr@auto-info.co.th"

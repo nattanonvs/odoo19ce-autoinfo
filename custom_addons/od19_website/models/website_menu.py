@@ -4,9 +4,27 @@ from odoo import api, models
 
 _logger = logging.getLogger(__name__)
 
-# Default Odoo top-level menu names that duplicate our own navigation and
+# XML ID prefix of the menus declared by this module.
+_OUR_MODULE = "od19_website"
+
+# Default Odoo website menus (declared by the ``website``, ``website_blog``,
+# ``website_hr_recruitment`` ... modules) that duplicate our own navigation and
 # must therefore be removed from the website header.
-DEFAULT_MENU_NAMES = {"blog", "jobs", "contact us", "our job offers", "shop"}
+#
+# They are matched by *URL* and not by *name*: the record name is translatable
+# and is stored as "บล็อก" / "ติดต่อเรา" / "งาน" in a Thai database, so a
+# name-based filter silently fails.  The URL is language independent and is
+# also shared by the un-xmlided copies Odoo creates under the website's own top
+# menu, so a single check catches both the template and the copy.
+DEFAULT_MENU_URLS = {
+    "/blog",
+    "/jobs",
+    "/our-job-offers",
+    "/contactus",
+    "/shop",
+    "/events",
+    "/forum",
+}
 
 
 class WebsiteMenu(models.Model):
@@ -37,29 +55,49 @@ class WebsiteMenu(models.Model):
             return
 
         menu_model = self.env["website.menu"].sudo()
+        data_model = self.env["ir.model.data"].sudo()
         main_menu = self.env.ref("website.main_menu", raise_if_not_found=False)
 
-        # 1) Re-parent our own menus (declared under the shared main menu for
-        #    this website) onto the website's real top-level menu.
-        if main_menu:
-            ours = menu_model.search([
-                ("parent_id", "=", main_menu.id),
-                ("website_id", "=", website.id),
-            ])
-            if ours:
-                ours.write({"parent_id": top_menu.id})
-                _logger.info("Re-parented %d menu(s) to the website top menu.", len(ours))
+        # 1) Identify *our* menus through their XML ID.  This keeps working
+        #    whatever language the record names were translated to.
+        our_data = data_model.search([
+            ("model", "=", "website.menu"),
+            ("module", "=", _OUR_MODULE),
+        ])
+        our_menus = menu_model.browse([d.res_id for d in our_data]).exists()
+        our_ids = set(our_menus.ids)
 
-        # 2) Remove the default Odoo menus that would duplicate our navigation
-        #    (Blog / Jobs / Contact us ...).  Both possible parents are checked
-        #    because the defaults may still hang off the shared main menu.
+        # 2) Re-parent our own top-level menus that still hang off the shared
+        #    main menu onto the website's real top-level menu (e.g. "Careers").
+        #    Sub-menus (Industrial / Building / Terminal Automation) keep their
+        #    "Services" parent untouched.
+        if main_menu:
+            orphans = our_menus.filtered(lambda m: m.parent_id.id == main_menu.id)
+            if orphans:
+                orphans.write({"parent_id": top_menu.id})
+                _logger.info("Re-parented %d menu(s) to the website top menu.", len(orphans))
+
+        # 3) Remove the default Odoo menus that duplicate our navigation.  Both
+        #    the shared template records (under ``main_menu``) and the copies
+        #    hanging off the website top menu are removed.  Our own menus are
+        #    always skipped, whatever their URL, so a real page such as
+        #    "/blog" that we intentionally expose is never deleted.
         parent_ids = [top_menu.id]
         if main_menu:
             parent_ids.append(main_menu.id)
         candidates = menu_model.search([("parent_id", "in", parent_ids)])
         defaults = candidates.filtered(
-            lambda m: (m.name or "").strip().lower() in DEFAULT_MENU_NAMES
+            lambda m: m.id not in our_ids
+            and (m.url or "").strip().split("?")[0].rstrip("/") in DEFAULT_MENU_URLS
         )
         if defaults:
             _logger.info("Removed %d default website menu item(s).", len(defaults))
+            # ``website.menu.unlink()`` (website/models/website_menu.py) also
+            # deletes *every* menu sharing the same URL once one of its records
+            # is attached to the shared ``website.main_menu``.  Deleting the
+            # default "/blog" entry would therefore also sweep away our own
+            # "News & Events" menu pointing to the same page.  Detaching the
+            # duplicates from ``main_menu`` first disarms that cascade, so
+            # exactly the records selected above are removed.
+            defaults.write({"parent_id": False})
             defaults.unlink()

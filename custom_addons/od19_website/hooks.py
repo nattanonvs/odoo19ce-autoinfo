@@ -14,3 +14,8 @@ def post_init_hook(env):
         env["website.menu"].od19_configure_menus()
     except Exception:  # noqa: BLE001 - never break the installation
         _logger.exception("Failed to configure the website menus.")
+
+    try:
+        env["blog.blog"].od19_setup_blog()
+    except Exception:  # noqa: BLE001 - never break the installation
+        _logger.exception("Failed to set up the News & Events blog.")

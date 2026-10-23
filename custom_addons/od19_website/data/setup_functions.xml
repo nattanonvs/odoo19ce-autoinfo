@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- Idempotent setup / repair hooks                              -->
+    <!--                                                              -->
+    <!-- This file is intentionally NOT noupdate="1": Odoo skips      -->
+    <!-- <function> tags inside a noupdate="1" block on every         -->
+    <!-- upgrade (see odoo/tools/convert.py::_tag_function) and only  -->
+    <!-- runs them on a fresh install.  Keeping them here makes the   -->
+    <!-- menu clean-up and the blog setup replay on `-u`.             -->
+    <!--                                                              -->
+    <!-- Both methods are idempotent, so running them repeatedly is   -->
+    <!-- safe.                                                        -->
+    <!-- ============================================================ -->
+
+    <!-- Re-parent our menus onto the website top menu and remove the
+         duplicated default Odoo menu items (Blog / Jobs / Contact us). -->
+    <function model="website.menu" name="od19_configure_menus"/>
+
+    <!-- Rename the blog to "News &amp; Events", translate its tags and
+         seed the sample posts the first time the blog is still empty. -->
+    <function model="blog.blog" name="od19_setup_blog"/>
+
+</odoo>

@@ -331,7 +331,7 @@
                                     <div>
                                         Sorry, we could not submit your application. Please try again,
                                         or email your documents to
-                                        <a href="mailto:sales@auto-info.co.th">sales@auto-info.co.th</a>.
+                                        <a href="mailto:hr@auto-info.co.th">hr@auto-info.co.th</a>.
                                     </div>
                                 </div>
                                 <t t-if="not errors">

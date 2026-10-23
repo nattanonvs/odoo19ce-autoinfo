@@ -32,7 +32,9 @@
         "views/job_opening_views.xml",
         "data/job_opening_data.xml",
         "data/website_menus.xml",
+        "data/blog_data.xml",
         "data/website_pages.xml",
+        "data/setup_functions.xml",
     ],
     "assets": {
         "web.assets_frontend": [

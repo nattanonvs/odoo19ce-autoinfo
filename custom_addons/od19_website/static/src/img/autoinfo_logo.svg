@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- The Auto-Info Co., Ltd. — Logo mark (A + วงโคจร + ลูกกลม) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 520" width="520" height="520"
+     role="img" aria-labelledby="aiLogoTitle aiLogoDesc">
+    <title id="aiLogoTitle">The Auto-Info Co., Ltd.</title>
+    <desc id="aiLogoDesc">ตัวอักษร A สีแดงเลือดหมู พร้อมวงโคจรสีเงินและลูกกลมสีส้มโคจรรอบ</desc>
+
+    <defs>
+        <!-- สีหลักของตัว A: แดงเลือดหมูแบรนด์ #9E2424 -->
+        <linearGradient id="aiMaroon" gradientUnits="userSpaceOnUse" x1="138" y1="110" x2="422" y2="460">
+            <stop offset="0" stop-color="#B92E2E"/>
+            <stop offset="0.45" stop-color="#9E2424"/>
+            <stop offset="1" stop-color="#6F1616"/>
+        </linearGradient>
+
+        <!-- ไฮไลต์บางๆ ด้านซ้ายของตัว A ให้ดูมีมิติ -->
+        <linearGradient id="aiHighlight" gradientUnits="userSpaceOnUse" x1="152" y1="0" x2="248" y2="0">
+            <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.20"/>
+            <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+        </linearGradient>
+
+        <!-- เงาด้านขวาของตัว A ให้ดูเป็นโลหะ -->
+        <linearGradient id="aiShade" gradientUnits="userSpaceOnUse" x1="336" y1="0" x2="424" y2="0">
+            <stop offset="0" stop-color="#000000" stop-opacity="0"/>
+            <stop offset="1" stop-color="#000000" stop-opacity="0.22"/>
+        </linearGradient>
+
+        <!-- วงโคจรสีเงิน: ด้านหลังสว่าง ด้านหน้าเข้ม -->
+        <linearGradient id="aiRing" gradientUnits="userSpaceOnUse" x1="280" y1="166" x2="280" y2="414">
+            <stop offset="0" stop-color="#CBD0D8"/>
+            <stop offset="0.5" stop-color="#98A0AB"/>
+            <stop offset="1" stop-color="#6B7480"/>
+        </linearGradient>
+
+        <!-- ลูกกลมสีส้ม accent แบรนด์ #F39200 -->
+        <radialGradient id="aiBall" cx="0.35" cy="0.3" r="0.8">
+            <stop offset="0" stop-color="#FFC46B"/>
+            <stop offset="0.45" stop-color="#F39200"/>
+            <stop offset="1" stop-color="#C06A00"/>
+        </radialGradient>
+
+        <!-- ใช้แบ่งวงโคจรเป็นครึ่งหลัง/ครึ่งหน้า เพื่อให้ดูโคจรรอบตัว A จริง -->
+        <clipPath id="aiFrontClip" clipPathUnits="userSpaceOnUse">
+            <rect x="-80" y="290" width="720" height="520"/>
+        </clipPath>
+    </defs>
+
+    <g transform="translate(-27,-25)">
+
+        <!-- 1) วงโคจร ครึ่งหลัง (ซ่อนอยู่ด้านหลังตัว A) -->
+        <g transform="rotate(-24 280 290)">
+            <ellipse cx="280" cy="290" rx="210" ry="98" fill="none" stroke="url(#aiRing)" stroke-width="6"/>
+        </g>
+
+        <!-- 2) ตัว A แบบ serif คลาสสิก -->
+        <g fill="url(#aiMaroon)">
+            <path d="M280,110 L262,110 L152,430 L216,430 Z"/>
+            <path d="M280,110 L298,110 L408,430 L344,430 Z"/>
+            <path d="M204,300 L356,300 L356,338 L204,338 Z"/>
+            <path d="M248,110 L312,110 L312,134 L248,134 Z"/>
+            <path d="M138,430 L230,430 L230,460 L138,460 Z"/>
+            <path d="M330,430 L422,430 L422,460 L330,460 Z"/>
+        </g>
+
+        <!-- ไฮไลต์ซ้าย + เงาขวา -->
+        <path d="M280,110 L262,110 L152,430 L216,430 Z" fill="url(#aiHighlight)"/>
+        <g fill="url(#aiShade)">
+            <path d="M280,110 L298,110 L408,430 L344,430 Z"/>
+            <path d="M330,430 L422,430 L422,460 L330,460 Z"/>
+        </g>
+
+        <!-- 3) วงโคจร ครึ่งหน้า (พาดผ่านหน้าตัว A) -->
+        <g transform="rotate(-24 280 290)">
+            <g clip-path="url(#aiFrontClip)">
+                <ellipse cx="280" cy="290" rx="210" ry="98" fill="none" stroke="url(#aiRing)" stroke-width="6"/>
+            </g>
+        </g>
+
+        <!-- 4) ลูกกลมที่โคจรอยู่บนวง -->
+        <g transform="rotate(-24 280 290)">
+            <circle cx="452" cy="346.2" r="30" fill="url(#aiBall)"/>
+            <ellipse cx="442" cy="333" rx="9.5" ry="6.5" fill="#FFFFFF" opacity="0.6" transform="rotate(-35 442 333)"/>
+        </g>
+
+    </g>
+</svg>

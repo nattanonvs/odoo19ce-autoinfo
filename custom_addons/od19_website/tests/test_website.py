@@ -185,9 +185,15 @@ class TestEmployeeLoginRedirect(HttpCase):
             "password": login,
             "group_ids": [Command.link(self.env.ref("base.group_user").id)],
         }
+        user = self.env["res.users"].create(vals)
         if with_employee:
-            vals["employee_id"] = self.env["hr.employee"].create({"name": login}).id
-        return self.env["res.users"].create(vals)
+            # ``res.users.employee_id`` is a non-stored compute filled from the
+            # employees whose ``user_id`` points at the user, so the employee
+            # has to be created on that side (writing ``employee_id`` directly
+            # does nothing).
+            self.env["hr.employee"].create({"name": login, "user_id": user.id})
+            user.invalidate_recordset(["employee_id"])
+        return user
 
     def test_employee_login_lands_on_portal(self):
         user = self._make_user("od19_login_employee", with_employee=True)

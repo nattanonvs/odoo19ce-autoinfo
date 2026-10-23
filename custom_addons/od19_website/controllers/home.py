@@ -20,7 +20,10 @@ class Home(WebHome):
 
     def _login_redirect(self, uid, redirect=None):
         target = super()._login_redirect(uid, redirect=redirect)
-        if redirect or target != "/odoo":
+        # ``website`` turns the backend landing into ``/odoo?<query>``, so the
+        # prefix check also catches that variant (a bare ``== "/odoo"`` never
+        # matches it).
+        if redirect or not target.startswith("/odoo"):
             return target
 
         user = request.env["res.users"].sudo().browse(uid)

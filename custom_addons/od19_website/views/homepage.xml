@@ -184,9 +184,13 @@
                     </div>
                 </section>
 
-                <!-- News & Events -->
+                <!-- News & Events (sourced from the blog hub at /blog) -->
                 <section class="od19-section bg-light">
                     <div class="container">
+                        <t t-set="blog_tag_news" t-value="website.env.ref('od19_website.blog_tag_news', raise_if_not_found=False)"/>
+                        <t t-set="blog_tag_events" t-value="website.env.ref('od19_website.blog_tag_events', raise_if_not_found=False)"/>
+                        <t t-set="news_posts" t-value="website.env['blog.post'].sudo().search([('is_published','=',True)] + ([('tag_ids','in', blog_tag_news.ids)] if blog_tag_news else []), limit=3, order='post_date desc')"/>
+                        <t t-set="event_posts" t-value="website.env['blog.post'].sudo().search([('is_published','=',True)] + ([('tag_ids','in', blog_tag_events.ids)] if blog_tag_events else []), limit=3, order='post_date desc')"/>
                         <div class="row g-4">
                             <div class="col-md-6">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -195,15 +199,16 @@
                                     </h3>
                                     <a href="/blog" class="btn btn-sm btn-outline-primary">View More</a>
                                 </div>
-                                <t t-foreach="website.env['blog.post'].sudo().search([('is_published','=',True)], limit=3, order='published_date desc')" t-as="post">
-                                    <div class="card mb-3 border-0 shadow-sm">
+                                <div t-if="not news_posts" class="od19-empty-note">No news published yet.</div>
+                                <t t-foreach="news_posts" t-as="post">
+                                    <div class="card mb-3 border-0 shadow-sm od19-news-card">
                                         <div class="card-body">
                                             <h6 class="card-title mb-1">
-                                                <a t-att-href="'/blog/%s/post/%s' % (post.blog_id.id, post.id)" class="text-decoration-none" style="color:var(--od19-dark);">
+                                                <a t-att-href="post.website_url" class="text-decoration-none" style="color:var(--od19-dark);">
                                                     <t t-esc="post.name"/>
                                                 </a>
                                             </h6>
-                                            <small class="text-muted" t-esc="post.published_date and post.published_date.strftime('%d %B %Y') or ''"/>
+                                            <small class="text-muted" t-esc="post.post_date and post.post_date.strftime('%d %B %Y') or ''"/>
                                         </div>
                                     </div>
                                 </t>
@@ -215,18 +220,19 @@
                                     </h3>
                                     <a href="/blog" class="btn btn-sm btn-outline-primary">View More</a>
                                 </div>
-                                <div class="card mb-3 border-0 shadow-sm">
-                                    <div class="card-body">
-                                        <h6 class="card-title mb-1">AUTO TOGETHER 2025</h6>
-                                        <small class="text-muted">12 September 2026</small>
+                                <div t-if="not event_posts" class="od19-empty-note">No events published yet.</div>
+                                <t t-foreach="event_posts" t-as="post">
+                                    <div class="card mb-3 border-0 shadow-sm od19-news-card">
+                                        <div class="card-body">
+                                            <h6 class="card-title mb-1">
+                                                <a t-att-href="post.website_url" class="text-decoration-none" style="color:var(--od19-dark);">
+                                                    <t t-esc="post.name"/>
+                                                </a>
+                                            </h6>
+                                            <small class="text-muted" t-esc="post.post_date and post.post_date.strftime('%d %B %Y') or ''"/>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="card mb-3 border-0 shadow-sm">
-                                    <div class="card-body">
-                                        <h6 class="card-title mb-1">Auto Virtual Run 2026</h6>
-                                        <small class="text-muted">Coming Soon</small>
-                                    </div>
-                                </div>
+                                </t>
                             </div>
                         </div>
                     </div>
