@@ -24,7 +24,7 @@ class TestDocumentPullGuards(AccountTestInvoicingCommon):
         bill = self.init_invoice(
             "in_invoice", partner=self.partner_a, invoice_date="2026-01-01"
         )
-        action = bill._od19_pull_action_open_pull_wizard()
+        action = bill.od19_action_open_pull_wizard()
         self.assertEqual(action["res_model"], "od19.document.pull.wizard")
         self.assertEqual(action["target"], "new")
         self.assertEqual(action["context"]["default_res_id"], bill.id)
@@ -34,7 +34,7 @@ class TestDocumentPullGuards(AccountTestInvoicingCommon):
         bill = self.init_invoice(
             "in_invoice", partner=self.partner_a, invoice_date="2026-01-01"
         )
-        action = bill._od19_pull_action_open_remove_wizard()
+        action = bill.od19_action_open_remove_wizard()
         self.assertEqual(action["res_model"], "od19.document.pull.remove.wizard")
         self.assertEqual(action["context"]["default_res_id"], bill.id)
 

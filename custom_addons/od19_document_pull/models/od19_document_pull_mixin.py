@@ -119,7 +119,7 @@ class Od19DocumentPullMixin(models.AbstractModel):
             )
         return True
 
-    def _od19_pull_action_open_pull_wizard(self):
+    def od19_action_open_pull_wizard(self):
         """Open the pull wizard for the current document."""
         self.ensure_one()
         self._od19_pull_check_editable()
@@ -138,7 +138,7 @@ class Od19DocumentPullMixin(models.AbstractModel):
             },
         }
 
-    def _od19_pull_action_open_remove_wizard(self):
+    def od19_action_open_remove_wizard(self):
         """Open the remove-with-confirmation wizard for the document."""
         self.ensure_one()
         self._od19_pull_check_editable()

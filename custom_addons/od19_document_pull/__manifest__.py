@@ -20,7 +20,6 @@
         "security/ir.model.access.csv",
         "wizards/od19_document_pull_wizard_views.xml",
         "views/account_move_views.xml",
-        "views/purchase_order_views.xml",
     ],
     "installable": True,
     "application": False,
