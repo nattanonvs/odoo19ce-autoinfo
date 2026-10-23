@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Role Catalog — ครอบครัว G (Human Resources), H (ISO/Quality/Risk),
+        I (Reporting & Dashboard), J (Support & Collaboration)
+    -->
+    <data noupdate="1">
+
+        <!-- ============ G. Human Resources ============ -->
+
+        <!-- เจ้าหน้าที่บุคคล -->
+        <record id="role_hr_user" model="res.users.role">
+            <field name="name">เจ้าหน้าที่บุคคล</field>
+            <field name="sequence">70</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('hr.group_hr_user')),
+            ]"/>
+        </record>
+
+        <!-- ผู้จัดการบุคคล: เห็นข้อมูลทุกแผนก -->
+        <record id="role_hr_manager" model="res.users.role">
+            <field name="name">ผู้จัดการบุคคล</field>
+            <field name="sequence">71</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('hr.group_hr_manager')),
+                Command.link(ref('od19_security_roles.group_od19_department_all')),
+            ]"/>
+        </record>
+
+        <!-- ผู้ดูแลยานพาหนะ -->
+        <record id="role_fleet_manager" model="res.users.role">
+            <field name="name">ผู้ดูแลยานพาหนะ</field>
+            <field name="sequence">72</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('fleet.fleet_group_manager')),
+            ]"/>
+        </record>
+
+        <!-- ผู้ดูแลห้องประชุม -->
+        <record id="role_meeting_room_manager" model="res.users.role">
+            <field name="name">ผู้ดูแลห้องประชุม</field>
+            <field name="sequence">73</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('od19_meeting_room_booking.group_meeting_room_manager')),
+            ]"/>
+        </record>
+
+        <!-- ============ H. ISO / Quality / Risk ============ -->
+        <!--
+            หมายเหตุ: โมดูล ISO ปัจจุบันให้สิทธิ์ระดับผู้จัดการ (write/unlink) แก่
+            base.group_system ตาม ACL ที่มีอยู่จริง (ดู security/ir.model.access.csv
+            ของแต่ละโมดูล ISO) จึงต้อง imply ทั้ง base.group_user และ base.group_system
+        -->
+
+        <!-- ผู้ควบคุมเอกสาร ISO -->
+        <record id="role_document_controller" model="res.users.role">
+            <field name="name">ผู้ควบคุมเอกสาร ISO</field>
+            <field name="sequence">80</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('base.group_user')),
+                Command.link(ref('base.group_system')),
+            ]"/>
+        </record>
+
+        <!-- ผู้ตรวจประเมินภายใน -->
+        <record id="role_internal_auditor" model="res.users.role">
+            <field name="name">ผู้ตรวจประเมินภายใน</field>
+            <field name="sequence">81</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('base.group_user')),
+                Command.link(ref('base.group_system')),
+            ]"/>
+        </record>
+
+        <!-- ผู้รับผิดชอบความเสี่ยง -->
+        <record id="role_risk_owner" model="res.users.role">
+            <field name="name">ผู้รับผิดชอบความเสี่ยง</field>
+            <field name="sequence">82</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('base.group_user')),
+                Command.link(ref('base.group_system')),
+            ]"/>
+        </record>
+
+        <!-- กรรมการทบทวนฝ่ายบริหาร -->
+        <record id="role_management_review_member" model="res.users.role">
+            <field name="name">กรรมการทบทวนฝ่ายบริหาร</field>
+            <field name="sequence">83</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('base.group_user')),
+                Command.link(ref('base.group_system')),
+            ]"/>
+        </record>
+
+        <!-- ผู้ดูแลคุณภาพผู้ขาย -->
+        <record id="role_supplier_quality_officer" model="res.users.role">
+            <field name="name">ผู้ดูแลคุณภาพผู้ขาย</field>
+            <field name="sequence">84</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('base.group_user')),
+                Command.link(ref('base.group_system')),
+            ]"/>
+        </record>
+
+        <!-- ============ I. Reporting & Dashboard ============ -->
+
+        <!-- ผู้ใช้แดชบอร์ด -->
+        <record id="role_dashboard_user" model="res.users.role">
+            <field name="name">ผู้ใช้แดชบอร์ด</field>
+            <field name="sequence">90</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('od19_dashboard.group_od19_dashboard_user')),
+            ]"/>
+        </record>
+
+        <!-- ผู้จัดการแดชบอร์ด -->
+        <record id="role_dashboard_manager" model="res.users.role">
+            <field name="name">ผู้จัดการแดชบอร์ด</field>
+            <field name="sequence">91</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('od19_dashboard.group_od19_dashboard_manager')),
+            ]"/>
+        </record>
+
+        <!-- ผู้ดูรายงาน (Jasper) -->
+        <record id="role_reporting_viewer" model="res.users.role">
+            <field name="name">ผู้ดูรายงาน (Jasper)</field>
+            <field name="sequence">92</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('account.group_account_invoice')),
+            ]"/>
+        </record>
+
+        <!-- นักวิเคราะห์รายงาน: เห็นข้อมูลทุกแผนก -->
+        <record id="role_reporting_analyst" model="res.users.role">
+            <field name="name">นักวิเคราะห์รายงาน</field>
+            <field name="sequence">93</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('od19_security_roles.group_od19_department_all')),
+                Command.link(ref('account.group_account_invoice')),
+            ]"/>
+        </record>
+
+        <!-- ============ J. Support & Collaboration ============ -->
+
+        <!--
+            พนักงานทั่วไป: บทบาทพื้นฐานที่มอบให้ผู้ใช้ใหม่ทุกคนโดยอัตโนมัติ
+            (is_default = True) และถูกจำกัดขอบเขตด้วยแผนกของตนเอง
+        -->
+        <record id="role_employee_base" model="res.users.role">
+            <field name="name">พนักงานทั่วไป</field>
+            <field name="sequence">100</field>
+            <field name="is_default" eval="True"/>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('base.group_user')),
+                Command.link(ref('od19_security_roles.group_od19_department_scope')),
+            ]"/>
+        </record>
+
+        <!-- ผู้ใช้ห้องประชุม -->
+        <record id="role_meeting_room_user" model="res.users.role">
+            <field name="name">ผู้ใช้ห้องประชุม</field>
+            <field name="sequence">101</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('od19_meeting_room_booking.group_meeting_room_user')),
+            ]"/>
+        </record>
+
+        <!-- ผู้ใช้ Helpdesk ภายใน -->
+        <record id="role_helpdesk_internal" model="res.users.role">
+            <field name="name">ผู้ใช้ Helpdesk ภายใน</field>
+            <field name="sequence">102</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('od19_helpdesk_extension.group_internal_helpdesk')),
+            ]"/>
+        </record>
+
+        <!-- ผู้ใช้ Knowledge -->
+        <record id="role_knowledge_user" model="res.users.role">
+            <field name="name">ผู้ใช้ Knowledge</field>
+            <field name="sequence">103</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('base.group_user')),
+                Command.link(ref('document_knowledge.group_document_user')),
+            ]"/>
+        </record>
+
+    </data>
+</odoo>

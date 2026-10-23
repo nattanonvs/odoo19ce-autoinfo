@@ -166,11 +166,11 @@ Set-Location c:\odoo-dev\odoo19
 - Create: `data/od19_roles_governance.xml`, `data/od19_roles_operations.xml`, `data/od19_roles_backoffice.xml`
 - Test: `tests/test_role_catalog.py`
 
-- [ ] **Step 1: เขียน failing test** — role จาก matrix (§7 ของสเปก) โหลดครบ และ `implied_ids` ตรงตามที่ระบุ
-- [ ] **Step 2: เขียน data XML ทั้ง 40 บทบาท** ( `noupdate="1"`, `group_privilege_id` = `od19_role_privilege`)
-- [ ] **Step 3: ติดตั้ง + รันเทสต์ให้ผ่าน**
-- [ ] **Step 4: ตรวจ SoD** — เทสต์ว่าไม่มี role ใด imply ทั้ง `group_sale_salesman` และ `group_od19_credit_approver`
-- [ ] **Step 5: Commit** `feat(od19_role_catalog): add 40 business role definitions`
+- [x] **Step 1: เขียน failing test** — role จาก matrix (§7 ของสเปก) โหลดครบ และ `implied_ids` ตรงตามที่ระบุ
+- [x] **Step 2: เขียน data XML ทั้ง 43 บทบาท** ( `noupdate="1"`, `group_privilege_id` = `od19_role_privilege`)
+- [x] **Step 3: ติดตั้ง + รันเทสต์ให้ผ่าน** (7 tests, 0 failed/0 error)
+- [x] **Step 4: ตรวจ SoD** — เทสต์ว่าไม่มี role ใด imply ทั้ง `group_sale_salesman` และ `group_od19_credit_approver`
+- [x] **Step 5: Commit** `feat(od19_role_catalog): add 40 business role definitions`
 
 ---
 

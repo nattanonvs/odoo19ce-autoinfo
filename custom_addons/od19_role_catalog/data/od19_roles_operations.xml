@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Role Catalog — ครอบครัว D (Inventory & Logistics),
+        E (Accounting & Finance), F (After-Sales / Service)
+    -->
+    <data noupdate="1">
+
+        <!-- ============ D. Inventory & Logistics ============ -->
+
+        <!-- เจ้าหน้าที่คลัง -->
+        <record id="role_warehouse_user" model="res.users.role">
+            <field name="name">เจ้าหน้าที่คลัง</field>
+            <field name="sequence">40</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('stock.group_stock_user')),
+            ]"/>
+        </record>
+
+        <!-- ผู้จัดการคลัง: เห็นข้อมูลทุกแผนก -->
+        <record id="role_warehouse_manager" model="res.users.role">
+            <field name="name">ผู้จัดการคลัง</field>
+            <field name="sequence">41</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('stock.group_stock_manager')),
+                Command.link(ref('od19_security_roles.group_od19_department_all')),
+            ]"/>
+        </record>
+
+        <!-- เจ้าหน้าที่เบิกจ่ายสินค้า: ใช้กลุ่มจาก OCA stock_request -->
+        <record id="role_goods_issue_operator" model="res.users.role">
+            <field name="name">เจ้าหน้าที่เบิกจ่ายสินค้า</field>
+            <field name="sequence">42</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('stock_request.group_stock_request_user')),
+            ]"/>
+        </record>
+
+        <!-- เจ้าหน้าที่ขนส่ง -->
+        <record id="role_transportation_officer" model="res.users.role">
+            <field name="name">เจ้าหน้าที่ขนส่ง</field>
+            <field name="sequence">43</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('stock.group_stock_user')),
+            ]"/>
+        </record>
+
+        <!-- ผู้ตรวจสอบสต็อก -->
+        <record id="role_inventory_counter" model="res.users.role">
+            <field name="name">ผู้ตรวจสอบสต็อก</field>
+            <field name="sequence">44</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('stock.group_stock_user')),
+            ]"/>
+        </record>
+
+        <!-- ============ E. Accounting & Finance ============ -->
+
+        <!-- นักบัญชี: เห็นข้อมูลทุกแผนก -->
+        <record id="role_accountant" model="res.users.role">
+            <field name="name">นักบัญชี</field>
+            <field name="sequence">50</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('account.group_account_user')),
+                Command.link(ref('od19_security_roles.group_od19_department_all')),
+            ]"/>
+        </record>
+
+        <!--
+            ผู้จัดการการเงิน: บัญชีเท่านั้นที่อนุมัติวงเงินเครดิต (SoD §7.1)
+            ห้ามมอบพร้อม role_sales_* ให้บุคคลเดียวกัน
+        -->
+        <record id="role_finance_manager" model="res.users.role">
+            <field name="name">ผู้จัดการการเงิน</field>
+            <field name="sequence">51</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('account.group_account_manager')),
+                Command.link(ref('od19_security_roles.group_od19_department_all')),
+                Command.link(ref('od19_security_roles.group_od19_credit_approver')),
+            ]"/>
+        </record>
+
+        <!-- แคชเชียร์ / เงินสดย่อย -->
+        <record id="role_cashier" model="res.users.role">
+            <field name="name">แคชเชียร์ / เงินสดย่อย</field>
+            <field name="sequence">52</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('account.group_account_invoice')),
+                Command.link(ref('account.group_account_user')),
+            ]"/>
+        </record>
+
+        <!-- เจ้าหน้าที่เช็ค -->
+        <record id="role_cheque_officer" model="res.users.role">
+            <field name="name">เจ้าหน้าที่เช็ค</field>
+            <field name="sequence">53</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('account.group_account_invoice')),
+                Command.link(ref('account.group_account_user')),
+            ]"/>
+        </record>
+
+        <!-- เจ้าหน้าที่ภาษีหัก ณ ที่จ่าย -->
+        <record id="role_wht_officer" model="res.users.role">
+            <field name="name">เจ้าหน้าที่ภาษีหัก ณ ที่จ่าย</field>
+            <field name="sequence">54</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('base.group_user')),
+                Command.link(ref('account.group_account_user')),
+            ]"/>
+        </record>
+
+        <!-- ============ F. After-Sales / Service ============ -->
+
+        <!-- ที่ปรึกษาบริการ: เฉพาะตั๋วบริการลูกค้า (customer_service) -->
+        <record id="role_service_advisor" model="res.users.role">
+            <field name="name">ที่ปรึกษาบริการ</field>
+            <field name="sequence">60</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('od19_helpdesk_extension.group_sales_service')),
+            ]"/>
+        </record>
+
+        <!-- ผู้ตรวจสอบคุณภาพ (QC) -->
+        <record id="role_qc_inspector" model="res.users.role">
+            <field name="name">ผู้ตรวจสอบคุณภาพ (QC)</field>
+            <field name="sequence">61</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('base.group_user')),
+            ]"/>
+        </record>
+
+        <!-- ผู้ลงนามเอกสาร -->
+        <record id="role_document_signer" model="res.users.role">
+            <field name="name">ผู้ลงนามเอกสาร</field>
+            <field name="sequence">62</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('od19_document_sign.group_od19_document_sign_user')),
+            ]"/>
+        </record>
+
+        <!-- ผู้จัดการลงนามเอกสาร -->
+        <record id="role_document_signer_manager" model="res.users.role">
+            <field name="name">ผู้จัดการลงนามเอกสาร</field>
+            <field name="sequence">63</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('od19_document_sign.group_od19_document_sign_manager')),
+            ]"/>
+        </record>
+
+        <!-- ผู้จัดการสัญญาบริการ: ใช้กลุ่มจัดการของ account (ตาม ACL ของ service_card/warranty) -->
+        <record id="role_service_manager" model="res.users.role">
+            <field name="name">ผู้จัดการสัญญาบริการ</field>
+            <field name="sequence">64</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('base.group_user')),
+                Command.link(ref('account.group_account_manager')),
+            ]"/>
+        </record>
+
+    </data>
+</odoo>

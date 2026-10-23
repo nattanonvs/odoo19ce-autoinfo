@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Role Catalog — ครอบครัว A (Governance/IT), B (Sales), C (Purchase)
+
+        ทุก record เป็น res.users.role (Layer 2) และอยู่ใน privilege
+        od19_security_roles.od19_role_privilege เพื่อจัดกลุ่มในหน้าผู้ใช้
+        ใช้ noupdate="1" เพื่อให้ผู้ดูแลปรับแก้ใน UI ได้โดยไม่ถูกเขียนทับตอน upgrade
+    -->
+    <data noupdate="1">
+
+        <!-- ============ A. Governance / IT ============ -->
+
+        <!-- ผู้จัดการระบบ: ดูแลตั้งค่าทั้งระบบ เห็นทุกแผนก -->
+        <record id="role_system_manager" model="res.users.role">
+            <field name="name">ผู้จัดการระบบ</field>
+            <field name="sequence">10</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('base.group_system')),
+                Command.link(ref('base.group_erp_manager')),
+                Command.link(ref('od19_security_roles.group_od19_department_all')),
+            ]"/>
+        </record>
+
+        <!-- ผู้ดูแลสิทธิ์การเข้าถึง: จัดการบทบาท/ผู้ใช้ แต่ไม่ใช่ตั้งค่าระบบทั้งหมด -->
+        <record id="role_access_administrator" model="res.users.role">
+            <field name="name">ผู้ดูแลสิทธิ์การเข้าถึง</field>
+            <field name="sequence">11</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('od19_security_roles.group_od19_role_manager')),
+                Command.link(ref('base.group_user')),
+            ]"/>
+        </record>
+
+        <!-- ผู้ดูแลการเชื่อมต่อ: ดูแล bot/อุปกรณ์ (Currency Rate Bot) -->
+        <record id="role_integration_manager" model="res.users.role">
+            <field name="name">ผู้ดูแลการเชื่อมต่อ</field>
+            <field name="sequence">12</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('od19_currency_rate_bot.group_currency_rate_bar_viewer')),
+            ]"/>
+        </record>
+
+        <!-- ============ B. Sales ============ -->
+
+        <!-- พนักงานขาย -->
+        <record id="role_sales_user" model="res.users.role">
+            <field name="name">พนักงานขาย</field>
+            <field name="sequence">20</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('sales_team.group_sale_salesman')),
+            ]"/>
+        </record>
+
+        <!-- ผู้จัดการขาย -->
+        <record id="role_sales_manager" model="res.users.role">
+            <field name="name">ผู้จัดการขาย</field>
+            <field name="sequence">21</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('sales_team.group_sale_manager')),
+            ]"/>
+        </record>
+
+        <!-- ผู้อำนวยการขาย: อนุมัติ SO ที่มีมูลค่า >= วงเงิน Director -->
+        <record id="role_sales_director" model="res.users.role">
+            <field name="name">ผู้อำนวยการขาย</field>
+            <field name="sequence">22</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('od19_sales_oca_bridge_workflow.group_sale_director')),
+                Command.link(ref('sales_team.group_sale_manager')),
+            ]"/>
+        </record>
+
+        <!--
+            ผู้ตรวจสอบเครดิต (SoD): ห้ามมอบบทบาทนี้ให้พนักงานขายคนเดียวกัน
+            บทบาทนี้ไม่ imply sales group ใด ๆ — ดูเทสต์ test_no_sales_credit_overlap
+        -->
+        <record id="role_credit_reviewer" model="res.users.role">
+            <field name="name">ผู้ตรวจสอบเครดิต</field>
+            <field name="sequence">23</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('od19_sales_customer_risk_gate.group_od19_credit_reviewer')),
+                Command.link(ref('od19_security_roles.group_od19_credit_approver')),
+            ]"/>
+        </record>
+
+        <!-- เจ้าหน้าที่โครงการขาย: ใช้ทั้งฝั่งขายและฝั่งโครงการ -->
+        <record id="role_sales_project_officer" model="res.users.role">
+            <field name="name">เจ้าหน้าที่โครงการขาย</field>
+            <field name="sequence">24</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('project.group_project_user')),
+                Command.link(ref('sales_team.group_sale_salesman')),
+            ]"/>
+        </record>
+
+        <!-- ============ C. Purchase ============ -->
+
+        <!-- เจ้าหน้าที่จัดซื้อ -->
+        <record id="role_purchase_user" model="res.users.role">
+            <field name="name">เจ้าหน้าที่จัดซื้อ</field>
+            <field name="sequence">30</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('purchase.group_purchase_user')),
+            ]"/>
+        </record>
+
+        <!-- ผู้จัดการจัดซื้อ: อนุมัติ PO ที่มีมูลค่า < วงเงิน Director -->
+        <record id="role_purchase_manager" model="res.users.role">
+            <field name="name">ผู้จัดการจัดซื้อ</field>
+            <field name="sequence">31</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('purchase.group_purchase_manager')),
+            ]"/>
+        </record>
+
+        <!-- ผู้อำนวยการจัดซื้อ: อนุมัติ PO ที่มีมูลค่า >= วงเงิน Director -->
+        <record id="role_purchase_director" model="res.users.role">
+            <field name="name">ผู้อำนวยการจัดซื้อ</field>
+            <field name="sequence">32</field>
+            <field name="group_privilege_id" ref="od19_security_roles.od19_role_privilege"/>
+            <field name="implied_ids" eval="[
+                Command.link(ref('od19_purchase_procurement_core.group_purchase_director')),
+            ]"/>
+        </record>
+
+    </data>
+</odoo>
