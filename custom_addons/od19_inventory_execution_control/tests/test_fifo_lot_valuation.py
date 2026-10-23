@@ -13,7 +13,7 @@ class TestFifoLotTracking(TransactionCase):
             {
                 "name": "FIFO Category",
                 "property_cost_method": "fifo",
-                "property_valuation": "manual_periodic",
+                "property_valuation": "periodic",
             }
         )
         cls.lot_category = cls.env["product.category"].create(
@@ -101,7 +101,7 @@ class TestValuationByLotReport(TransactionCase):
             {
                 "name": "Test Category",
                 "property_cost_method": "standard",
-                "property_valuation": "manual_periodic",
+                "property_valuation": "periodic",
             }
         )
         cls.product = cls.env["product.product"].create(
@@ -117,7 +117,7 @@ class TestValuationByLotReport(TransactionCase):
         cls.location = cls.env.ref("stock.stock_location_stock")
 
     def test_report_aggregates_quantity_and_value_per_lot(self):
-        lot = self.env["stock.production.lot"].create(
+        lot = self.env["stock.lot"].create(
             {
                 "name": "LOT-001",
                 "product_id": self.product.id,

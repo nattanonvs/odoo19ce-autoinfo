@@ -6,11 +6,14 @@ class ProductTemplate(models.Model):
     _inherit = "product.template"
 
     od19_tracking_required = fields.Boolean(
+        string="Tracking Required",
         compute="_compute_od19_tracking_required",
         store=True,
         readonly=True,
     )
-    od19_tracking_required_reason = fields.Char()
+    od19_tracking_required_reason = fields.Char(
+        string="Tracking Requirement Reason",
+    )
 
     @api.depends("tracking", "cost_method", "categ_id")
     def _compute_od19_tracking_required(self):

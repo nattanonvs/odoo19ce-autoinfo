@@ -91,7 +91,7 @@ class TestStockBackdating(TransactionCase):
 
     def test_backdate_propagated_to_moves_on_validate(self):
         picking = self._create_picking(backdate="2026-01-01")
-        self.assertEqual(picking.backdate_date, "2026-01-01")
+        self.assertEqual(str(picking.backdate_date), "2026-01-01")
         # Simulate the propagation that happens during validation
         picking.move_ids.write({"backdate_date": picking.backdate_date})
         self.assertEqual(str(picking.move_ids.backdate_date), "2026-01-01")

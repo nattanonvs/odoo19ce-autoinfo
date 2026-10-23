@@ -6,6 +6,7 @@ class StockMove(models.Model):
     _inherit = "stock.move"
 
     od19_reference_document = fields.Char(
+        string="Reference Document",
         compute="_compute_od19_reference_document",
         store=True,
         readonly=True,

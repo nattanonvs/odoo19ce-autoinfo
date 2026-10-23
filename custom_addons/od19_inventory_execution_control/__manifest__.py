@@ -9,6 +9,10 @@
         "sale_stock",
         "od19_purchase_procurement_core",
         "od19_sales_project_context",
+        # Owns ``project.project.od19_project_type`` (NOT NULL). Without this
+        # dependency our tests may run before the field is registered, and any
+        # project creation would violate the not-null constraint.
+        "od19_project_document_sequence",
     ],
     "data": [
         "security/ir.model.access.csv",

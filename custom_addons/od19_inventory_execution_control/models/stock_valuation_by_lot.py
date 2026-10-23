@@ -34,11 +34,16 @@ class StockValuationByLot(models.Model):
     total_value = fields.Float(string="Total Value", readonly=True)
 
     def init(self):
-        # NOTE: In Odoo 19, `property_cost_method` and `standard_price` are
-        # company-dependent (stored in ir_property), and `stock.valuation.layer`
-        # was removed. The original SQL view cannot resolve these directly.
-        # We create a minimal schema-compatible view; per-lot valuation is
-        # recomputed at read time via the ORM when needed.
+        # NOTE: Odoo 19 removed `stock.valuation.layer`, and both
+        # `product.product.standard_price` and
+        # `product.category.property_cost_method` are company-dependent. In
+        # Odoo 17+ such fields are stored as a JSONB column keyed by company
+        # id (e.g. {"1": 10.0}).
+        #
+        # The company is taken from the location, not from `stock_quant`:
+        # `stock.quant.company_id` is a stored related field that is left
+        # NULL in the table (the related value only lives in the ORM cache),
+        # so reading it here would always yield a NULL company and a 0 cost.
         self.env.cr.execute(
             """
             DROP VIEW IF EXISTS od19_stock_valuation_by_lot;
@@ -49,11 +54,20 @@ class StockValuationByLot(models.Model):
                     pt.categ_id AS categ_id,
                     q.lot_id AS lot_id,
                     q.location_id AS location_id,
-                    q.company_id AS company_id,
+                    sl.company_id AS company_id,
                     q.quantity AS quantity,
-                    'standard'::text AS cost_method,
-                    0.0::double precision AS unit_cost,
-                    0.0::double precision AS total_value
+                    COALESCE(
+                        pc.property_cost_method ->> sl.company_id::text,
+                        'standard'
+                    ) AS cost_method,
+                    COALESCE(
+                        (pp.standard_price ->> sl.company_id::text)::double precision,
+                        0.0
+                    ) AS unit_cost,
+                    q.quantity * COALESCE(
+                        (pp.standard_price ->> sl.company_id::text)::double precision,
+                        0.0
+                    ) AS total_value
                 FROM stock_quant q
                 JOIN product_product pp ON pp.id = q.product_id
                 JOIN product_template pt ON pt.id = pp.product_tmpl_id

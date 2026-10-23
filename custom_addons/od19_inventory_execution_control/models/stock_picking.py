@@ -6,6 +6,7 @@ class StockPicking(models.Model):
     _inherit = "stock.picking"
 
     od19_flow_class = fields.Selection(
+        string="Flow Class",
         selection=[
             ("receipt", "Receipt"),
             ("delivery", "Delivery"),
@@ -17,6 +18,7 @@ class StockPicking(models.Model):
         readonly=True,
     )
     od19_execution_state = fields.Selection(
+        string="Execution State",
         selection=[
             ("waiting", "Waiting"),
             ("ready", "Ready"),
