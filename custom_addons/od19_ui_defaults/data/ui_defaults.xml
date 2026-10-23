@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Enable the standard Sales "Discounts" setting by default: grant
+        sale.group_discount_per_so_line to the Employee group so the Discount
+        field/column (and the Discount button) are available on quotations and
+        sales orders for every internal user. This is exactly what the
+        "Discounts" toggle in Sales > Configuration > Settings does.
+    -->
+    <record id="base.group_user" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('sale.group_discount_per_so_line'))]"/>
+    </record>
+
+    <!--
+        Keep the Configuration menu as the last menu of every app menu bar.
+        Re-applied on every install/upgrade so new or updated menus cannot push
+        it back into the middle of the bar.
+    -->
+    <function model="ir.ui.menu" name="_od19_place_configuration_menus_last"/>
+
+</odoo>
