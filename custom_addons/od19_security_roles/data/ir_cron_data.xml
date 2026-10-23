@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!--
+        Daily cron: repair the department mirror on res.users from hr.employee.
+        Runs every day at 03:00 as a safety net against drift introduced by
+        data imports or manual SQL-less writes that bypass the ORM hooks.
+    -->
+    <record id="cron_od19_department_mirror" model="ir.cron">
+        <field name="name">OD19: Repair Department Mirror (Users)</field>
+        <field name="model_id" ref="base.model_res_users"/>
+        <field name="state">code</field>
+        <field name="code">model._od19_cron_sync_all_departments()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active">True</field>
+        <field name="nextcall" eval="(DateTime.today() + relativedelta(days=1, hour=3, minute=0)).strftime('%Y-%m-%d %H:%M:%S')"/>
+    </record>
+
+</odoo>

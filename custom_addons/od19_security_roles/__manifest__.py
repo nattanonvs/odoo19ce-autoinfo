@@ -34,6 +34,7 @@ Business roles themselves live in ``od19_role_catalog`` (Layer 2).
         "security/od19_security_groups.xml",
         "security/ir.model.access.csv",
         "views/res_users_views.xml",
+        "data/ir_cron_data.xml",
     ],
     "installable": True,
     "application": False,

@@ -84,3 +84,14 @@ class TestDepartmentSync(TransactionCase):
         user = self._create_user("od19_sync_backlink")
         self._create_employee(user, self.department_a)
         self.assertIn(user, self.department_a.od19_member_user_ids)
+
+    def test_department_mirror_cron_exists(self):
+        """cron ซ่อม mirror แผนกต้องถูกสร้างและใช้งานได้"""
+        cron = self.env.ref(
+            "od19_security_roles.cron_od19_department_mirror",
+            raise_if_not_found=False,
+        )
+        self.assertTrue(cron, "ไม่พบ cron ซ่อม mirror แผนก")
+        self.assertTrue(cron.active)
+        self.assertEqual(cron.model_id.model, "res.users")
+        self.assertIn("_od19_cron_sync_all_departments", cron.code)
