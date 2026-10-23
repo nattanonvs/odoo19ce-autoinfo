@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Default Jasper database connection.
+
+        Only the name is set: host / port / database / username / password are
+        taken from the Odoo configuration file (odoo.conf) at creation time, so
+        no credentials are duplicated here.  The record can be edited (or a
+        dedicated read-only PostgreSQL role plugged in) from
+        Accounting > Configuration > Reports > Jasper Database Connection.
+    -->
+    <data noupdate="1">
+        <record id="jasper_db_default" model="od19.jasper.db">
+            <field name="name">Jasper Database Connection</field>
+        </record>
+    </data>
+
+</odoo>

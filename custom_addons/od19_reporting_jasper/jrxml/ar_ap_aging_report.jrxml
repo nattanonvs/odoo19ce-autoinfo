@@ -1,0 +1,1090 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.10.0.final using JasperReports Library version 6.10.0-unknown  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="AR-AP-Aging" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="8f72a463-64e4-4b71-ab9c-a3e1e7e0679e">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="181"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="819"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w1" value="604"/>
+	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w2" value="386"/>
+	<property name="com.jaspersoft.studio.report.description" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="133 bnb"/>
+	<style name="default_font" isBlankWhenNull="true" fontName="TH Sarabun New" fontSize="12"/>
+	<subDataset name="inv_detail" uuid="8f02bd52-a4c4-4491-9470-f21799a356a6">
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="133 bnb"/>
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="220"/>
+		<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="772"/>
+		<parameter name="p_Type" class="java.lang.String" isForPrompting="false">
+			<defaultValueExpression><![CDATA["ar"]]></defaultValueExpression>
+		</parameter>
+		<parameter name="p_Days" class="java.lang.Integer" isForPrompting="false">
+			<defaultValueExpression><![CDATA[30]]></defaultValueExpression>
+		</parameter>
+		<parameter name="p_DateFormat" class="java.lang.String" isForPrompting="false">
+			<defaultValueExpression><![CDATA["dd/MM/yyyy"]]></defaultValueExpression>
+		</parameter>
+		<parameter name="p_As_Date" class="java.lang.String" isForPrompting="false">
+			<defaultValueExpression><![CDATA["2023-02-01"]]></defaultValueExpression>
+		</parameter>
+		<parameter name="company_id" class="java.lang.Integer" isForPrompting="false">
+			<defaultValueExpression><![CDATA[1]]></defaultValueExpression>
+		</parameter>
+		<parameter name="account_ids" class="java.lang.String" isForPrompting="false"/>
+		<parameter name="partner_id" class="java.lang.Integer" isForPrompting="false">
+			<defaultValueExpression><![CDATA[3170]]></defaultValueExpression>
+		</parameter>
+		<parameter name="m_report_count" class="java.lang.Integer"/>
+		<queryString>
+			<![CDATA[SELECT
+     am.name as invoice_no,
+     coalesce(am.invoice_date, am.date) as date,
+     coalesce(am.invoice_date_due, am.date) as due_date,
+     case when coalesce(am.invoice_date_due, am.date) > $P{p_As_Date}::date then agl.res_amount else 0.0 end as undue_amount,
+     case when coalesce(am.invoice_date_due, am.date) between $P{p_As_Date}::date - (1*$P{p_Days}) and $P{p_As_Date}::date then agl.res_amount else 0.0 end as overdue1,
+     case when coalesce(am.invoice_date_due, am.date) between $P{p_As_Date}::date - (2*$P{p_Days}) and $P{p_As_Date}::date - (1*$P{p_Days}+1) then agl.res_amount else 0.0 end as overdue2,
+     case when coalesce(am.invoice_date_due, am.date) between $P{p_As_Date}::date - (3*$P{p_Days}) and $P{p_As_Date}::date - (2*$P{p_Days}+1) then agl.res_amount else 0.0 end as overdue3,
+     case when coalesce(am.invoice_date_due, am.date) between $P{p_As_Date}::date - (4*$P{p_Days}) and $P{p_As_Date}::date - (3*$P{p_Days}+1) then agl.res_amount else 0.0 end as overdue4,
+     case when coalesce(am.invoice_date_due, am.date) between $P{p_As_Date}::date - (5*$P{p_Days}) and $P{p_As_Date}::date - (4*$P{p_Days}+1) then agl.res_amount else 0.0 end as overdue5,
+     case when coalesce(am.invoice_date_due, am.date) < $P{p_As_Date}::date - (5*$P{p_Days}) then agl.res_amount else 0.0 end as overdue6
+FROM
+ (
+    SELECT
+        aml.move_id,
+        aml.id as move_line_id,
+        aml.partner_id,
+        aml.account_id,
+        case when '$P!{p_Type}' = 'ap' 
+            then (aml.credit - coalesce(sum(rcc.amount), 0)) - (aml.debit - coalesce(sum(rcd.amount), 0))
+            else (aml.debit - coalesce(sum(rcd.amount), 0)) - (aml.credit - coalesce(sum(rcc.amount), 0))
+        end as res_amount
+    FROM account_move am
+    JOIN account_move_line aml ON am.id = aml.move_id
+    JOIN account_account aa ON aml.account_id = aa.id
+    LEFT JOIN account_partial_reconcile rcd ON aml.id = rcd.debit_move_id and aml.debit > 0 and rcd.max_date <= $P{p_As_Date}::date
+    LEFT JOIN account_partial_reconcile rcc ON aml.id = rcc.credit_move_id and aml.credit > 0 and rcc.max_date <= $P{p_As_Date}::date
+    WHERE am.state = 'posted' and am.company_id = $P{company_id}
+    and aa.account_type = case when '$P!{p_Type}' = 'ap' then 'liability_payable' else 'asset_receivable' end
+    and (aml.account_id = any($P!{account_ids}) or $P!{account_ids} is null)
+	and (aml.partner_id = $P!{partner_id})
+    and (
+        (am.move_type = 'entry' and am.date <= $P{p_As_Date}::date)
+        OR (am.move_type != 'entry' and am.invoice_date <= $P{p_As_Date}::date)
+    )
+    GROUP BY aml.move_id, aml.id, aml.partner_id, aml.account_id, aml.debit, aml.credit
+	HAVING aml.debit > coalesce(sum(round(rcd.amount,2)), 0) or aml.credit > coalesce(sum(round(rcc.amount,2)), 0)
+) agl
+join account_move am on agl.move_id = am.id
+order by am.name, am.date, am.invoice_date, am.invoice_date_due]]>
+		</queryString>
+		<field name="invoice_no" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="invoice_no"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="account_move"/>
+			<property name="com.jaspersoft.studio.field.name" value="invoice_no"/>
+		</field>
+		<field name="date" class="java.sql.Date">
+			<property name="com.jaspersoft.studio.field.name" value="date"/>
+			<property name="com.jaspersoft.studio.field.label" value="date"/>
+		</field>
+		<field name="due_date" class="java.sql.Date">
+			<property name="com.jaspersoft.studio.field.name" value="due_date"/>
+			<property name="com.jaspersoft.studio.field.label" value="due_date"/>
+		</field>
+		<field name="undue_amount" class="java.math.BigDecimal">
+			<property name="com.jaspersoft.studio.field.label" value="undue_amount"/>
+			<property name="com.jaspersoft.studio.field.name" value="undue_amount"/>
+		</field>
+		<field name="overdue1" class="java.math.BigDecimal">
+			<property name="com.jaspersoft.studio.field.label" value="overdue1"/>
+			<property name="com.jaspersoft.studio.field.name" value="overdue1"/>
+		</field>
+		<field name="overdue2" class="java.math.BigDecimal">
+			<property name="com.jaspersoft.studio.field.label" value="overdue2"/>
+			<property name="com.jaspersoft.studio.field.name" value="overdue2"/>
+		</field>
+		<field name="overdue3" class="java.math.BigDecimal">
+			<property name="com.jaspersoft.studio.field.label" value="overdue3"/>
+			<property name="com.jaspersoft.studio.field.name" value="overdue3"/>
+		</field>
+		<field name="overdue4" class="java.math.BigDecimal">
+			<property name="com.jaspersoft.studio.field.label" value="overdue4"/>
+			<property name="com.jaspersoft.studio.field.name" value="overdue4"/>
+		</field>
+		<field name="overdue5" class="java.math.BigDecimal">
+			<property name="com.jaspersoft.studio.field.label" value="overdue5"/>
+			<property name="com.jaspersoft.studio.field.name" value="overdue5"/>
+		</field>
+		<field name="overdue6" class="java.math.BigDecimal">
+			<property name="com.jaspersoft.studio.field.label" value="overdue6"/>
+			<property name="com.jaspersoft.studio.field.name" value="overdue6"/>
+		</field>
+	</subDataset>
+	<parameter name="p_Days" class="java.lang.Integer" isForPrompting="false">
+		<defaultValueExpression><![CDATA[30]]></defaultValueExpression>
+	</parameter>
+	<parameter name="p_Detail" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["True"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="p_AccountCodeText" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="p_DateText" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="p_DateFormat" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["dd/MM/yyyy"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="p_As_Date" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["2023-12-31"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="p_Type" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["ar"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="p_Print_By" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="company_id" class="java.lang.Integer" isForPrompting="false">
+		<defaultValueExpression><![CDATA[1]]></defaultValueExpression>
+	</parameter>
+	<parameter name="company_name" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["COMPANY NAME"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="account_ids" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["null"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="partner_ids" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["null"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="partner_type" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["customer"]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+    p.id as partner_id,
+    p.ref as partner_ref,
+    p.name,
+    sum(case when coalesce(am.invoice_date_due, am.date) > $P{p_As_Date}::date then agl.res_amount else 0.0 end) as sum_undue_amount,
+    sum(case when coalesce(am.invoice_date_due, am.date) between $P{p_As_Date}::date - (1*$P{p_Days}) and $P{p_As_Date}::date then agl.res_amount else 0.0 end) as sum_overdue1,
+    sum(case when coalesce(am.invoice_date_due, am.date) between $P{p_As_Date}::date - (2*$P{p_Days}) and $P{p_As_Date}::date - (1*$P{p_Days}+1) then agl.res_amount else 0.0 end) as sum_overdue2,
+    sum(case when coalesce(am.invoice_date_due, am.date) between $P{p_As_Date}::date - (3*$P{p_Days}) and $P{p_As_Date}::date - (2*$P{p_Days}+1) then agl.res_amount else 0.0 end) as sum_overdue3,
+    sum(case when coalesce(am.invoice_date_due, am.date) between $P{p_As_Date}::date - (4*$P{p_Days}) and $P{p_As_Date}::date - (3*$P{p_Days}+1) then agl.res_amount else 0.0 end) as sum_overdue4,
+    sum(case when coalesce(am.invoice_date_due, am.date) between $P{p_As_Date}::date - (5*$P{p_Days}) and $P{p_As_Date}::date - (4*$P{p_Days}+1) then agl.res_amount else 0.0 end) as sum_overdue5,
+    sum(case when coalesce(am.invoice_date_due, am.date) < $P{p_As_Date}::date - (5*$P{p_Days}) then agl.res_amount else 0.0 end) as sum_overdue6,
+    sum(agl.res_amount) as sum_total
+FROM
+ (
+    SELECT
+        aml.move_id,
+        aml.id as move_line_id,
+        aml.partner_id,
+        aml.account_id,
+        case when '$P!{p_Type}' = 'ap' 
+            then (aml.credit - coalesce(sum(rcc.amount), 0)) - (aml.debit - coalesce(sum(rcd.amount), 0))
+            else (aml.debit - coalesce(sum(rcd.amount), 0)) - (aml.credit - coalesce(sum(rcc.amount), 0))
+        end as res_amount
+    FROM account_move am
+    JOIN account_move_line aml ON am.id = aml.move_id
+    JOIN account_account aa ON aml.account_id = aa.id
+    LEFT JOIN account_partial_reconcile rcd ON aml.id = rcd.debit_move_id and aml.debit > 0 and rcd.max_date <= $P{p_As_Date}::date
+    LEFT JOIN account_partial_reconcile rcc ON aml.id = rcc.credit_move_id and aml.credit > 0 and rcc.max_date <= $P{p_As_Date}::date
+    LEFT JOIN res_partner rp ON aml.partner_id = rp.id
+	WHERE am.state = 'posted' and am.company_id = $P{company_id}
+    and aa.account_type = case when '$P!{p_Type}' = 'ap' then 'liability_payable' else 'asset_receivable' end
+    and (aml.account_id = any($P!{account_ids}) or $P!{account_ids} is null)
+    and (aml.partner_id = any($P!{partner_ids}) or $P!{partner_ids} is null)
+	and (case when '$P!{p_Type}' = 'ap' then rp.supplier_rank > 0 else rp.customer_rank > 0 end)
+    and (
+        (am.move_type = 'entry' and am.date <= $P{p_As_Date}::date)
+        OR (am.move_type != 'entry' and am.invoice_date <= $P{p_As_Date}::date)
+    )
+    GROUP BY aml.move_id, aml.id, aml.partner_id, aml.account_id, aml.debit, aml.credit
+    HAVING aml.debit > coalesce(sum(round(rcd.amount,2)), 0) or aml.credit > coalesce(sum(round(rcc.amount,2)), 0)
+) as agl
+JOIN account_move am on agl.move_id = am.id
+JOIN res_partner p on agl.partner_id = p.id
+GROUP BY p.id, p.ref, p.name
+ORDER BY p.ref, p.name]]>
+	</queryString>
+	<field name="partner_id" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="partner_id"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="res_partner"/>
+		<property name="com.jaspersoft.studio.field.name" value="partner_id"/>
+	</field>
+	<field name="partner_ref" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="partner_ref"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="res_partner"/>
+		<property name="com.jaspersoft.studio.field.name" value="partner_ref"/>
+	</field>
+	<field name="name" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="name"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="res_partner"/>
+		<property name="com.jaspersoft.studio.field.name" value="name"/>
+	</field>
+	<field name="sum_undue_amount" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="sum_undue_amount"/>
+		<property name="com.jaspersoft.studio.field.name" value="sum_undue_amount"/>
+	</field>
+	<field name="sum_overdue1" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="sum_overdue1"/>
+		<property name="com.jaspersoft.studio.field.name" value="sum_overdue1"/>
+	</field>
+	<field name="sum_overdue2" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="sum_overdue2"/>
+		<property name="com.jaspersoft.studio.field.name" value="sum_overdue2"/>
+	</field>
+	<field name="sum_overdue3" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="sum_overdue3"/>
+		<property name="com.jaspersoft.studio.field.name" value="sum_overdue3"/>
+	</field>
+	<field name="sum_overdue4" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="sum_overdue4"/>
+		<property name="com.jaspersoft.studio.field.name" value="sum_overdue4"/>
+	</field>
+	<field name="sum_overdue5" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="sum_overdue5"/>
+		<property name="com.jaspersoft.studio.field.name" value="sum_overdue5"/>
+	</field>
+	<field name="sum_overdue6" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="sum_overdue6"/>
+		<property name="com.jaspersoft.studio.field.name" value="sum_overdue6"/>
+	</field>
+	<field name="sum_total" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="sum_total"/>
+		<property name="com.jaspersoft.studio.field.label" value="sum_total"/>
+	</field>
+	<variable name="v_sum_undue_amount" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{sum_undue_amount}]]></variableExpression>
+	</variable>
+	<variable name="v_sum_overdue" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{sum_overdue1}]]></variableExpression>
+	</variable>
+	<variable name="v_sum_overdue_1" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{sum_overdue1}]]></variableExpression>
+	</variable>
+	<variable name="v_sum_overdue_2" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{sum_overdue2}]]></variableExpression>
+	</variable>
+	<variable name="v_sum_overdue_3" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{sum_overdue3}]]></variableExpression>
+	</variable>
+	<variable name="v_sum_overdue_4" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{sum_overdue4}]]></variableExpression>
+	</variable>
+	<variable name="v_sum_overdue_5" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{sum_overdue5}]]></variableExpression>
+	</variable>
+	<variable name="v_sum_overdue_6" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{sum_overdue6}]]></variableExpression>
+	</variable>
+	<title>
+		<band height="91" splitType="Stretch">
+			<textField isStretchWithOverflow="true">
+				<reportElement x="0" y="25" width="802" height="19" backcolor="#FFFFFF" uuid="60112171-4792-45ae-82ab-e35d31a57b02">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<box leftPadding="0" bottomPadding="0">
+					<pen lineColor="#FFFFFF"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="14" isBold="true"/>
+					<paragraph lineSpacing="Fixed" lineSpacingSize="10.0"/>
+				</textElement>
+				<textFieldExpression><![CDATA[IF($P{p_Type}.toString().equals("ar")
+	,"รายงานอายุลูกหนี้"
+	,"รายงานอายุเจ้าหนี้"
+)]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="0" width="802" height="30" uuid="4df8dcfc-a1fd-4697-8acc-a672e0a6bea1">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box leftPadding="1" bottomPadding="1">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="16" isBold="true"/>
+					<paragraph rightIndent="0"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{company_name}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="652" y="-16" width="120" height="20" uuid="6b75b1a1-0ddd-41e8-8059-4562f35f775b">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER} == 1]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font fontName="TH Sarabun New" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["หน้าที่ " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="MMMMM dd, yyyy">
+				<reportElement x="0" y="-16" width="399" height="20" uuid="ce073f11-013c-4cdf-95bf-11a196378c83">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER} == 1]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Bottom">
+					<font fontName="TH Sarabun New" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["วัน-เวลาพิมพ์ : " + new SimpleDateFormat($P{p_DateFormat} + " HH:mm:ss").format(new java.util.Date().getTime() + 7 * 3600*1000) + "\r" + "พิมพ์โดย : " + $P{p_Print_By}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="0" y="43" width="802" height="19" backcolor="#FFFFFF" uuid="c73a8eda-18b5-411e-960c-08cadaa59364">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<box leftPadding="0" bottomPadding="0">
+					<pen lineColor="#FFFFFF"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="14" isBold="true"/>
+					<paragraph lineSpacing="Fixed" lineSpacingSize="10.0"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{p_DateText}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="0" y="63" width="802" height="19" backcolor="#FFFFFF" uuid="9f1669cf-09e2-4540-a754-d6104ce932f0">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<box leftPadding="0" bottomPadding="0">
+					<pen lineColor="#FFFFFF"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="14" isBold="true"/>
+					<paragraph lineSpacing="Fixed" lineSpacingSize="10.0"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{p_AccountCodeText}]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement x="772" y="-16" width="30" height="20" uuid="518ee563-7916-44eb-b362-bfc26d3c36a1">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER} == 1]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Bottom">
+					<font fontName="TH Sarabun New" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" of " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="35" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<textField>
+				<reportElement mode="Opaque" x="0" y="14" width="312" height="20" backcolor="#FFFFFF" uuid="d907abc9-3e98-4fe5-a63a-8dcf87c813aa">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12" isBold="true"/>
+					<paragraph leftIndent="3"/>
+				</textElement>
+				<textFieldExpression><![CDATA[IF($P{p_Type}.toString().equals("ar")
+        ,"ลูกหนี้"
+        ,"เจ้าหนี้"
+ )]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement mode="Opaque" x="112" y="14" width="80" height="20" backcolor="#FFFFFF" uuid="44fb30a6-f6b8-4472-8e87-b067de25e56b">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<printWhenExpression><![CDATA[$P{p_Detail}.equals("True")]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12" isBold="true"/>
+					<paragraph leftIndent="3"/>
+				</textElement>
+				<textFieldExpression><![CDATA["เลขที่เอกสาร"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement mode="Opaque" x="192" y="14" width="60" height="20" backcolor="#FFFFFF" uuid="a44d6175-fb61-45c7-a13e-8b97ff726a9a">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<printWhenExpression><![CDATA[$P{p_Detail}.equals("True")]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12" isBold="true"/>
+					<paragraph leftIndent="3"/>
+				</textElement>
+				<textFieldExpression><![CDATA["วันที่"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement mode="Opaque" x="252" y="14" width="60" height="20" backcolor="#FFFFFF" uuid="c4dd0ba5-e0df-4b0c-95e4-e87d2ee1af64">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<printWhenExpression><![CDATA[$P{p_Detail}.equals("True")]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12" isBold="true"/>
+					<paragraph leftIndent="3"/>
+				</textElement>
+				<textFieldExpression><![CDATA["ครบกำหนด"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="false">
+				<reportElement mode="Opaque" x="495" y="14" width="61" height="20" backcolor="#FFFFFF" uuid="ace43805-f9ad-403a-a7ee-2266893d87ee">
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12" isBold="true"/>
+					<paragraph rightIndent="3"/>
+				</textElement>
+				<textFieldExpression><![CDATA[(($P{p_Days}*2)+1) +" - " +($P{p_Days}*3) + " วัน"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="false">
+				<reportElement mode="Opaque" x="678" y="14" width="61" height="20" backcolor="#FFFFFF" uuid="9dc3da9d-506e-40a4-bbe1-7747aea98bfd">
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12" isBold="true"/>
+					<paragraph rightIndent="3"/>
+				</textElement>
+				<textFieldExpression><![CDATA[("มากกว่า " + ($P{p_Days}*5)) + " วัน"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="false">
+				<reportElement mode="Opaque" x="434" y="14" width="61" height="20" backcolor="#FFFFFF" uuid="53fe39fd-3112-46a3-bcda-78bee8f7fc1b">
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12" isBold="true"/>
+					<paragraph rightIndent="3"/>
+				</textElement>
+				<textFieldExpression><![CDATA[(($P{p_Days}*1)+1) +" - " +($P{p_Days}*2) + " วัน"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="false">
+				<reportElement mode="Opaque" x="556" y="14" width="61" height="20" backcolor="#FFFFFF" uuid="7b40d6a6-3fd7-4090-a20e-371aed3532ad">
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12" isBold="true"/>
+					<paragraph rightIndent="3"/>
+				</textElement>
+				<textFieldExpression><![CDATA[(($P{p_Days}*3)+1) +" - " +($P{p_Days}*4) + " วัน"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="false">
+				<reportElement mode="Opaque" x="617" y="14" width="61" height="20" backcolor="#FFFFFF" uuid="db51973c-b0f6-4cbb-bdab-b66a2eb5668e">
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12" isBold="true"/>
+					<paragraph rightIndent="3"/>
+				</textElement>
+				<textFieldExpression><![CDATA[(($P{p_Days}*4)+1) +" - " +($P{p_Days}*5) + " วัน"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="false">
+				<reportElement mode="Opaque" x="373" y="14" width="61" height="20" backcolor="#FFFFFF" uuid="cfb4cd28-aecb-4c85-9039-1a8238b81b04">
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12" isBold="true"/>
+					<paragraph rightIndent="3"/>
+				</textElement>
+				<textFieldExpression><![CDATA[(0*1)+1+" - " +($P{p_Days}*1) + " วัน"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="MMMMM dd, yyyy">
+				<reportElement x="0" y="-16" width="399" height="20" uuid="4de40fed-9b3a-4cc4-b9ae-750b27469be0">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER} > 1]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Bottom">
+					<font fontName="TH Sarabun New" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["วัน-เวลาพิมพ์ : " + new SimpleDateFormat($P{p_DateFormat} + " HH:mm:ss").format(new java.util.Date().getTime() + 7 * 3600*1000) + "\r" + "พิมพ์โดย : " + $P{p_Print_By}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="652" y="-16" width="120" height="20" uuid="fd80bb1f-c3a7-4ab6-ada1-2b155d6787b5">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER} > 1]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font fontName="TH Sarabun New" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Page " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement x="772" y="-16" width="30" height="20" uuid="93f7a9bc-a385-4b00-b0bc-d479656c3803">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER} > 1]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Bottom">
+					<font fontName="TH Sarabun New" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" of " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="false">
+				<reportElement mode="Opaque" x="312" y="14" width="61" height="20" backcolor="#FFFFFF" uuid="cb34439f-27ed-44fb-aa59-94b8199d3297">
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12" isBold="true"/>
+					<paragraph rightIndent="3"/>
+				</textElement>
+				<textFieldExpression><![CDATA["ยังไม่ครบกำหนด"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="false">
+				<reportElement mode="Opaque" x="739" y="14" width="63" height="20" backcolor="#FFFFFF" uuid="2345cb90-1635-4f50-8aec-c568969ed4d3">
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12" isBold="true"/>
+					<paragraph rightIndent="3"/>
+				</textElement>
+				<textFieldExpression><![CDATA["รวม"]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<detail>
+		<band height="40">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<textField isStretchWithOverflow="true">
+				<reportElement mode="Opaque" x="0" y="0" width="312" height="20" backcolor="#FFFFFF" uuid="6bd3306f-4c78-4eb0-8326-c96f740ab047">
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12" isBold="true"/>
+					<paragraph leftIndent="3"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{REPORT_COUNT}+" )   "+($F{partner_ref} != null ? $F{partner_ref}+": " : "") + $F{name}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="312" y="0" width="61" height="20" uuid="55078edf-e7c1-4f30-b404-25c8a1fd773f">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph rightIndent="3"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sum_undue_amount}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="373" y="0" width="61" height="20" uuid="9cdc69ea-6156-40fa-9f93-2a23cb3158bc">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph rightIndent="3"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sum_overdue1}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="434" y="0" width="61" height="20" uuid="9bc9a963-b7c4-42a5-97f9-7f301e7cd0e8">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph rightIndent="3"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sum_overdue2}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="495" y="0" width="61" height="20" uuid="1437a537-ccfa-42a6-8966-981d0a402204">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph rightIndent="3"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sum_overdue3}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="556" y="0" width="61" height="20" uuid="48ba8215-2ffd-48fc-990b-508dd531e70b">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph rightIndent="3"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sum_overdue4}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="617" y="0" width="61" height="20" uuid="2d74ce14-88d2-4a45-8a44-13324a54fbd4">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph rightIndent="3"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sum_overdue5}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="678" y="0" width="61" height="20" uuid="15288060-e47b-4b9b-a1b0-1c07a09cb83d">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph rightIndent="3"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sum_overdue6}]]></textFieldExpression>
+			</textField>
+			<componentElement>
+				<reportElement x="0" y="20" width="802" height="20" isRemoveLineWhenBlank="true" uuid="d465789f-02c3-4300-a56f-7765ae0ea2f8">
+					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+					<property name="com.jaspersoft.studio.table.style.table_header" value="Table_TH"/>
+					<property name="com.jaspersoft.studio.table.style.column_header" value="Table_CH"/>
+					<property name="com.jaspersoft.studio.table.style.detail" value="Table_TD"/>
+					<printWhenExpression><![CDATA[$P{p_Detail}.equals("True")]]></printWhenExpression>
+				</reportElement>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="inv_detail" uuid="ae6562ac-8697-4128-9931-6746697fb2f9">
+						<datasetParameter name="account_ids">
+							<datasetParameterExpression><![CDATA[$P{account_ids}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="company_id">
+							<datasetParameterExpression><![CDATA[$P{company_id}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="partner_id">
+							<datasetParameterExpression><![CDATA[$F{partner_id}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="p_As_Date">
+							<datasetParameterExpression><![CDATA[$P{p_As_Date}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="p_Days">
+							<datasetParameterExpression><![CDATA[$P{p_Days}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="p_DateFormat">
+							<datasetParameterExpression><![CDATA[$P{p_DateFormat}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="m_report_count">
+							<datasetParameterExpression><![CDATA[$V{REPORT_COUNT}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="p_Type">
+							<datasetParameterExpression><![CDATA[$P{p_Type}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:column width="312" uuid="8a085e86-9641-488b-ac25-20e8598abf57">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+						<jr:detailCell height="20">
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+							<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+							<textField>
+								<reportElement mode="Opaque" x="0" y="0" width="112" height="20" forecolor="#969696" backcolor="#FFFFFF" uuid="76e1dd7e-e1ab-4679-9157-e81531a3b263">
+									<property name="com.jaspersoft.studio.unit.height" value="px"/>
+									<property name="com.jaspersoft.studio.unit.width" value="px"/>
+									<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+								</reportElement>
+								<box>
+									<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									<bottomPen lineStyle="Solid" lineColor="#000000"/>
+									<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								</box>
+								<textElement textAlignment="Left" verticalAlignment="Middle">
+									<font fontName="TH Sarabun New" size="12" isBold="false"/>
+									<paragraph leftIndent="3"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$P{m_report_count}+" )   "+$V{REPORT_COUNT}]]></textFieldExpression>
+							</textField>
+							<textField>
+								<reportElement mode="Opaque" x="112" y="0" width="80" height="20" backcolor="#FFFFFF" uuid="f4a6ce63-1dd1-43c3-b635-0e2ca860976e">
+									<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+									<property name="com.jaspersoft.studio.unit.y" value="px"/>
+									<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								</reportElement>
+								<box>
+									<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								</box>
+								<textElement textAlignment="Left" verticalAlignment="Middle">
+									<font fontName="TH Sarabun New" size="12" isBold="true"/>
+									<paragraph leftIndent="3"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{invoice_no}]]></textFieldExpression>
+							</textField>
+							<textField isStretchWithOverflow="true" pattern="yyyy-MM-dd" isBlankWhenNull="true">
+								<reportElement stretchType="ElementGroupBottom" x="192" y="0" width="60" height="20" uuid="162c6d91-e45b-4363-9d4a-43f270682917">
+									<property name="com.jaspersoft.studio.unit.y" value="px"/>
+									<property name="com.jaspersoft.studio.unit.height" value="px"/>
+									<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								</reportElement>
+								<textElement textAlignment="Left" verticalAlignment="Middle">
+									<font fontName="TH Sarabun New" size="12"/>
+									<paragraph firstLineIndent="0" leftIndent="3" spacingBefore="0"/>
+								</textElement>
+								<textFieldExpression><![CDATA[new SimpleDateFormat($P{p_DateFormat}).format($F{date})]]></textFieldExpression>
+							</textField>
+							<textField isStretchWithOverflow="true" pattern="yyyy-MM-dd" isBlankWhenNull="true">
+								<reportElement stretchType="ElementGroupBottom" x="252" y="0" width="60" height="20" uuid="573ee3ea-b4d2-4589-bb8c-af2977e1f335">
+									<property name="com.jaspersoft.studio.unit.y" value="px"/>
+									<property name="com.jaspersoft.studio.unit.height" value="px"/>
+									<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+									<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								</reportElement>
+								<textElement textAlignment="Left" verticalAlignment="Middle">
+									<font fontName="TH Sarabun New" size="12" isBold="false"/>
+									<paragraph firstLineIndent="0" leftIndent="3" spacingBefore="0"/>
+								</textElement>
+								<textFieldExpression><![CDATA[new SimpleDateFormat($P{p_DateFormat}).format($F{due_date})]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="490" uuid="35d25367-7c52-4914-a575-36e86991105f">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+						<jr:detailCell height="20">
+							<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+							<textField pattern="#,##0.00">
+								<reportElement x="0" y="0" width="61" height="20" uuid="fa39a330-bc58-44d9-92f3-cdfe170e6240">
+									<property name="com.jaspersoft.studio.unit.height" value="px"/>
+									<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+									<property name="com.jaspersoft.studio.unit.width" value="px"/>
+									<property name="com.jaspersoft.studio.unit.x" value="px"/>
+								</reportElement>
+								<textElement textAlignment="Right">
+									<font fontName="TH Sarabun New" size="12"/>
+									<paragraph rightIndent="3"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{undue_amount}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00">
+								<reportElement x="61" y="0" width="61" height="20" uuid="3745863d-7938-48cd-beb3-72589bd14926">
+									<property name="com.jaspersoft.studio.unit.height" value="px"/>
+									<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+									<property name="com.jaspersoft.studio.unit.x" value="px"/>
+								</reportElement>
+								<textElement textAlignment="Right">
+									<font fontName="TH Sarabun New" size="12"/>
+									<paragraph rightIndent="3"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{overdue1}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00">
+								<reportElement x="122" y="0" width="61" height="20" uuid="14d70efa-a79b-4c06-b621-3201c65aea17">
+									<property name="com.jaspersoft.studio.unit.height" value="px"/>
+									<property name="com.jaspersoft.studio.unit.width" value="px"/>
+									<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+								</reportElement>
+								<textElement textAlignment="Right">
+									<font fontName="TH Sarabun New" size="12"/>
+									<paragraph rightIndent="3"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{overdue2}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00">
+								<reportElement x="183" y="0" width="61" height="20" uuid="2d723c52-ef61-4597-b6bc-6cf6995d3f04">
+									<property name="com.jaspersoft.studio.unit.height" value="px"/>
+									<property name="com.jaspersoft.studio.unit.width" value="px"/>
+									<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+								</reportElement>
+								<textElement textAlignment="Right">
+									<font fontName="TH Sarabun New" size="12"/>
+									<paragraph rightIndent="3"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{overdue3}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00">
+								<reportElement x="244" y="0" width="61" height="20" uuid="414c9d5e-bf28-4511-9e01-7aa9988b58bc">
+									<property name="com.jaspersoft.studio.unit.height" value="px"/>
+									<property name="com.jaspersoft.studio.unit.width" value="px"/>
+									<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+								</reportElement>
+								<textElement textAlignment="Right">
+									<font fontName="TH Sarabun New" size="12"/>
+									<paragraph rightIndent="3"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{overdue4}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00">
+								<reportElement x="305" y="0" width="61" height="20" uuid="29ccd414-2658-4bcd-bbc7-a053d1e2c2bf">
+									<property name="com.jaspersoft.studio.unit.height" value="px"/>
+									<property name="com.jaspersoft.studio.unit.width" value="px"/>
+									<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+								</reportElement>
+								<textElement textAlignment="Right">
+									<font fontName="TH Sarabun New" size="12"/>
+									<paragraph rightIndent="3"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{overdue5}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00">
+								<reportElement x="366" y="0" width="61" height="20" uuid="5d7c14d1-f978-42d3-8859-4e1607b52ba0">
+									<property name="com.jaspersoft.studio.unit.height" value="px"/>
+									<property name="com.jaspersoft.studio.unit.width" value="px"/>
+									<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+								</reportElement>
+								<textElement textAlignment="Right">
+									<font fontName="TH Sarabun New" size="12"/>
+									<paragraph rightIndent="3"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{overdue6}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00">
+								<reportElement x="427" y="0" width="63" height="20" uuid="e8f927f2-2ba9-44f3-bf82-1089c8aa7f8a">
+									<property name="com.jaspersoft.studio.unit.height" value="px"/>
+									<property name="com.jaspersoft.studio.unit.width" value="px"/>
+									<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+								</reportElement>
+								<textElement textAlignment="Right">
+									<font fontName="TH Sarabun New" size="12"/>
+									<paragraph rightIndent="3"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{undue_amount}.add($F{overdue1}).add($F{overdue2}).add($F{overdue3}).add($F{overdue4}).add($F{overdue5}).add($F{overdue6})]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+			<textField pattern="#,##0.00">
+				<reportElement x="739" y="0" width="63" height="20" uuid="e3c9cd81-b773-4265-bb55-705a875840d2">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph rightIndent="3"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sum_undue_amount}.add($F{sum_overdue1}).add($F{sum_overdue2}).add($F{sum_overdue3}).add($F{sum_overdue4}).add($F{sum_overdue5}).add($F{sum_overdue6})]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="25">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement stretchType="ContainerHeight" mode="Transparent" x="0" y="5" width="312" height="20" backcolor="#F7F5F5" uuid="ad8e5653-3e88-44db-95ce-931172344f40">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+					<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0" lineStyle="Double"/>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12" isBold="true"/>
+					<paragraph rightIndent="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA["ยอดรวมทั้งหมด"]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="312" y="5" width="61" height="20" uuid="d3f213eb-081e-456f-b0e6-a5e27f481d09">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph rightIndent="3"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{v_sum_undue_amount}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="373" y="5" width="61" height="20" uuid="3d1b0c13-44f8-42ba-840f-eea85d350fd8">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph rightIndent="3"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{v_sum_overdue_1}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="434" y="5" width="61" height="20" uuid="81e5ca71-2d35-4dcc-b328-ada1e7020d98">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph rightIndent="3"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{v_sum_overdue_2}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="495" y="5" width="61" height="20" uuid="c08662b5-8e82-41cf-b4d2-2e779184aa0b">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph rightIndent="3"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{v_sum_overdue_3}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="556" y="5" width="61" height="20" uuid="33c88e56-ff9f-4b4c-bf51-2c801461ad25">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph rightIndent="3"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{v_sum_overdue_4}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="617" y="5" width="61" height="20" uuid="446cd022-bc68-43b6-8f83-a276dc141a3c">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph rightIndent="3"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{v_sum_overdue_5}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="678" y="5" width="61" height="20" uuid="d9ee0edc-dbdd-4020-a8fc-44aa7c01578b">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph rightIndent="3"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{v_sum_overdue_6}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="739" y="5" width="63" height="20" uuid="0329f5b1-e01b-4bfa-aded-9d2956cb8561">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph rightIndent="3"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{v_sum_undue_amount}.add($V{v_sum_overdue_1}).add($V{v_sum_overdue_2}).add($V{v_sum_overdue_3}).add($V{v_sum_overdue_4}).add($V{v_sum_overdue_5}).add($V{v_sum_overdue_6})]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

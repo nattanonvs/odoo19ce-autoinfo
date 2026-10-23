@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        R-AC-011 AR/AP Aging.
+
+        Inherits the shared wizard layout (views/jasper_report_wizard.xml) and
+        replaces the placeholder <group name="parameters"/> with the fields
+        this report needs.  Unlike the invoice form the wizard is not bound to
+        a document, so it is reachable from the Accounting > Reporting menu.
+    -->
+    <record id="view_ar_ap_aging_report" model="ir.ui.view">
+        <field name="name">ar.ap.aging.report</field>
+        <field name="model">ar.ap.aging.report</field>
+        <field name="inherit_id" ref="view_jasper_report_wizard"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='parameters']" position="replace">
+                <group name="parameters" invisible="state != 'input'">
+                    <group>
+                        <field name="p_Type" required="1"/>
+                        <field name="as_date" required="1"/>
+                        <field name="date_type" required="1"/>
+                        <field name="date_format" required="1"/>
+                        <field name="p_Days" required="1"/>
+                        <field name="p_Detail"/>
+                    </group>
+                    <group>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                        <field name="account_ids" widget="many2many_tags"/>
+                        <field name="customer_ids" widget="many2many_tags"
+                               invisible="p_Type != 'ar'"/>
+                        <field name="vendor_ids" widget="many2many_tags"
+                               invisible="p_Type != 'ap'"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_ar_ap_aging_report" model="ir.actions.act_window">
+        <field name="name">AR/AP Aging</field>
+        <field name="res_model">ar.ap.aging.report</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_ar_ap_aging_report"/>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem
+        id="menu_ar_ap_aging_report"
+        name="AR/AP Aging"
+        parent="account.menu_finance_reports"
+        action="action_ar_ap_aging_report"
+        groups="account.group_account_user"
+        sequence="91"
+    />
+
+</odoo>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Shared wizard layout for every Jasper print form.
+
+        A concrete form (e.g. invoice.form) inherits this view and replaces the
+        placeholder <group name="parameters"/> with its own fields.  The same
+        dialog shows either the parameter form (state = input) or the generated
+        files (state = output), so Re-Print keeps the entered parameters.
+    -->
+    <record id="view_jasper_report_wizard" model="ir.ui.view">
+        <field name="name">od19.jasper.report.wizard</field>
+        <field name="model">od19.jasper.report</field>
+        <field name="arch" type="xml">
+            <form string="Print Form">
+                <field name="name" invisible="1"/>
+                <field name="iso_no" invisible="1"/>
+                <field name="name_pdf" invisible="1"/>
+                <field name="name_xlsx" invisible="1"/>
+                <field name="state" invisible="1"/>
+                <field name="jasper_file" invisible="1"/>
+                <field name="can_send_email" invisible="1"/>
+                <field name="email_template_id" invisible="1"/>
+                <field name="partner_ids" invisible="1"/>
+                <field name="email_to" invisible="1"/>
+                <field name="email_subject" invisible="1"/>
+                <field name="email_document_number" invisible="1"/>
+                <group name="parameters" invisible="state != 'input'"/>
+                <group name="result" invisible="state != 'output'">
+                    <field name="output_pdf" filename="name_pdf" readonly="1"/>
+                    <field name="output_xlsx" filename="name_xlsx" readonly="1"/>
+                </group>
+                <footer>
+                    <button name="show_report"
+                            type="object"
+                            string="Generate"
+                            class="btn-primary"
+                            invisible="state != 'input'"/>
+                    <button name="reprint"
+                            type="object"
+                            string="Re-Print"
+                            invisible="state != 'output'"/>
+                    <button name="action_send_email"
+                            type="object"
+                            string="Send by Email"
+                            class="btn-primary"
+                            invisible="state != 'output' or not can_send_email"/>
+                    <button string="Close" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>
