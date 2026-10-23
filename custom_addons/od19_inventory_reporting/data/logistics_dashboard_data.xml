@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Logistics Board (Wave 4).
+
+        Tracks the warehouse execution chain: goods issue (ใบเบิกสินค้า) requests
+        waiting for approval or fulfilment, transfers still open or late, and
+        landed costs not yet applied. The transfer widgets reuse the
+        stock.picking data source already whitelisted by od19_dashboard.
+    -->
+
+    <!-- ===================== Data sources ===================== -->
+
+    <record id="source_od19_log_goods_issue" model="od19.dashboard.source">
+        <field name="name">Goods Issue Requests</field>
+        <field name="model_name">stock.request.order</field>
+        <field name="description">Goods issue (ใบเบิกสินค้า) requests with their department and issue type.</field>
+        <field name="sequence">300</field>
+    </record>
+    <record id="source_od19_log_goods_issue_state" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_log_goods_issue"/>
+        <field name="label">Status</field>
+        <field name="field_name">state</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_od19_log_goods_issue_department" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_log_goods_issue"/>
+        <field name="label">Department</field>
+        <field name="field_name">department_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_od19_log_goods_issue_type" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_log_goods_issue"/>
+        <field name="label">Issue Type</field>
+        <field name="field_name">od19_issue_type_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="source_od19_log_goods_issue_warehouse" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_log_goods_issue"/>
+        <field name="label">Warehouse</field>
+        <field name="field_name">warehouse_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="source_od19_log_goods_issue_requested_by" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_log_goods_issue"/>
+        <field name="label">Requested By</field>
+        <field name="field_name">requested_by</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">50</field>
+    </record>
+    <record id="source_od19_log_goods_issue_expected_date" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_log_goods_issue"/>
+        <field name="label">Expected Date</field>
+        <field name="field_name">expected_date</field>
+        <field name="kind">date</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_od19_log_goods_issue_month" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_log_goods_issue"/>
+        <field name="label">Expected Month</field>
+        <field name="field_name">expected_date</field>
+        <field name="kind">groupby</field>
+        <field name="granularity">month</field>
+        <field name="sequence">90</field>
+    </record>
+
+    <record id="source_od19_log_landed_cost" model="od19.dashboard.source">
+        <field name="name">Landed Costs</field>
+        <field name="model_name">stock.landed.cost</field>
+        <field name="description">Landed costs not yet applied to the stock valuation.</field>
+        <field name="sequence">310</field>
+    </record>
+    <record id="source_od19_log_landed_cost_total" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_log_landed_cost"/>
+        <field name="label">Total Cost</field>
+        <field name="field_name">amount_total</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_od19_log_landed_cost_state" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_log_landed_cost"/>
+        <field name="label">Status</field>
+        <field name="field_name">state</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_od19_log_landed_cost_date" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_log_landed_cost"/>
+        <field name="label">Date</field>
+        <field name="field_name">date</field>
+        <field name="kind">date</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <!-- ===================== Dashboard ===================== -->
+
+    <record id="dashboard_logistics" model="od19.dashboard">
+        <field name="name">Logistics Board</field>
+        <field name="audience">operational</field>
+        <field name="description">Goods issue requests, warehouse transfers and landed costs for the warehouse team.</field>
+        <field name="sequence">40</field>
+        <field name="is_default" eval="False"/>
+        <field name="default_date_range">this_month</field>
+        <field name="color">#9E2424</field>
+    </record>
+
+    <!-- Summary zone -->
+    <record id="dashboard_logistics_gi_approval" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_logistics"/>
+        <field name="name">Goods Issues Awaiting Approval</field>
+        <field name="subtitle">Draft goods issue requests not submitted yet</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_od19_log_goods_issue"/>
+        <field name="measure_key">__count</field>
+        <field name="date_range">all_time</field>
+        <field name="domain">[('state', '=', 'draft')]</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="3"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="10"/>
+        <field name="rule_ids" eval="[(0, 0, {'sequence': 10, 'name': 'Above the critical value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 10.0, 'status': 'red'}), (0, 0, {'sequence': 20, 'name': 'Above the warning value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 3.0, 'status': 'yellow'})]"/>
+    </record>
+    <record id="dashboard_logistics_gi_fulfil" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_logistics"/>
+        <field name="name">Goods Issues To Fulfil</field>
+        <field name="subtitle">Goods issue requests in progress and not delivered yet</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_od19_log_goods_issue"/>
+        <field name="measure_key">__count</field>
+        <field name="date_range">all_time</field>
+        <field name="domain">[('state', '=', 'open')]</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="3"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="20"/>
+    </record>
+    <record id="dashboard_logistics_pending_transfers" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_logistics"/>
+        <field name="name">Pending Transfers</field>
+        <field name="subtitle">Receipts, deliveries and internal transfers still open</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="od19_dashboard.source_stock_picking"/>
+        <field name="measure_key">__count</field>
+        <field name="date_range">all_time</field>
+        <field name="domain">[('state', 'not in', ['done', 'cancel'])]</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="3"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="30"/>
+    </record>
+    <record id="dashboard_logistics_landed_pending" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_logistics"/>
+        <field name="name">Landed Costs To Apply</field>
+        <field name="subtitle">Landed cost documents still in draft</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_od19_log_landed_cost"/>
+        <field name="measure_key">__count</field>
+        <field name="date_range">all_time</field>
+        <field name="domain">[('state', '=', 'draft')]</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="3"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="40"/>
+    </record>
+
+    <!-- Alert zone -->
+    <record id="dashboard_logistics_late_transfers" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_logistics"/>
+        <field name="name">Late Transfers</field>
+        <field name="subtitle">Transfers past their scheduled date and still open</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="od19_dashboard.source_stock_picking"/>
+        <field name="measure_key">__count</field>
+        <field name="date_key">scheduled_date</field>
+        <field name="date_range">overdue</field>
+        <field name="domain">[('state', 'not in', ['done', 'cancel'])]</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="50"/>
+        <field name="rule_ids" eval="[(0, 0, {'sequence': 10, 'name': 'Above the critical value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 10.0, 'status': 'red'}), (0, 0, {'sequence': 20, 'name': 'Above the warning value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 3.0, 'status': 'yellow'})]"/>
+    </record>
+    <record id="dashboard_logistics_landed_amount" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_logistics"/>
+        <field name="name">Open Landed Cost Value</field>
+        <field name="subtitle">Landed costs not yet applied to valuation</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">currency</field>
+        <field name="source_id" ref="source_od19_log_landed_cost"/>
+        <field name="measure_key">amount_total</field>
+        <field name="date_range">all_time</field>
+        <field name="domain">[('state', 'not in', ['done', 'cancel'])]</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="60"/>
+    </record>
+
+    <!-- Detail zone -->
+    <record id="dashboard_logistics_gi_state" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_logistics"/>
+        <field name="name">Goods Issues by Status</field>
+        <field name="widget_type">bar</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_od19_log_goods_issue"/>
+        <field name="measure_key">__count</field>
+        <field name="groupby_key">state</field>
+        <field name="date_range">all_time</field>
+        <field name="limit" eval="8"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="70"/>
+    </record>
+    <record id="dashboard_logistics_gi_department" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_logistics"/>
+        <field name="name">Goods Issues by Department</field>
+        <field name="subtitle">Requests grouped by the requesting department</field>
+        <field name="widget_type">bar</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_od19_log_goods_issue"/>
+        <field name="measure_key">__count</field>
+        <field name="groupby_key">department_id</field>
+        <field name="date_range">all_time</field>
+        <field name="limit" eval="8"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="80"/>
+    </record>
+    <record id="dashboard_logistics_gi_type" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_logistics"/>
+        <field name="name">Goods Issues by Issue Type</field>
+        <field name="widget_type">pie</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_od19_log_goods_issue"/>
+        <field name="measure_key">__count</field>
+        <field name="groupby_key">od19_issue_type_id</field>
+        <field name="date_range">all_time</field>
+        <field name="limit" eval="8"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="90"/>
+    </record>
+    <record id="dashboard_logistics_picking_type" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_logistics"/>
+        <field name="name">Open Transfers by Operation Type</field>
+        <field name="widget_type">bar</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="od19_dashboard.source_stock_picking"/>
+        <field name="measure_key">__count</field>
+        <field name="groupby_key">picking_type_id</field>
+        <field name="date_range">all_time</field>
+        <field name="domain">[('state', 'not in', ['done', 'cancel'])]</field>
+        <field name="limit" eval="8"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="100"/>
+    </record>
+    <record id="dashboard_logistics_landed_state" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_logistics"/>
+        <field name="name">Landed Costs by Status</field>
+        <field name="widget_type">pie</field>
+        <field name="value_format">currency</field>
+        <field name="source_id" ref="source_od19_log_landed_cost"/>
+        <field name="measure_key">amount_total</field>
+        <field name="groupby_key">state</field>
+        <field name="date_range">all_time</field>
+        <field name="limit" eval="8"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="110"/>
+    </record>
+    <record id="dashboard_logistics_gi_trend" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_logistics"/>
+        <field name="name">Goods Issues by Month</field>
+        <field name="widget_type">line</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_od19_log_goods_issue"/>
+        <field name="measure_key">__count</field>
+        <field name="groupby_key">expected_date</field>
+        <field name="date_range">all_time</field>
+        <field name="limit" eval="12"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="120"/>
+    </record>
+
+    <!-- ===================== Direct access ===================== -->
+
+    <record id="action_od19_logistics_dashboard" model="ir.actions.client">
+        <field name="name">Logistics Board</field>
+        <field name="tag">od19_dashboard.builder</field>
+        <field name="target">current</field>
+        <field name="params" eval="{'dashboard_id': ref('dashboard_logistics')}"/>
+    </record>
+
+    <menuitem id="menu_od19_logistics_dashboard"
+              name="Logistics Board"
+              parent="stock.menu_stock_root"
+              action="action_od19_logistics_dashboard"
+              sequence="21"/>
+
+</odoo>

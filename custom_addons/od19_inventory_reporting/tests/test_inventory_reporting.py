@@ -24,6 +24,20 @@ class TestInventoryReporting(TransactionCase):
                 "quantity": 10.0,
             }
         )
+        # The delivery-label flow requires a DEPT code on stock.picking and
+        # auto-fills it from the current user's department. Give the test user
+        # a department so the pickings created below satisfy that constraint.
+        self.department = self.env["hr.department"].create(
+            {"name": "Inventory Reporting", "code": "INV"}
+        )
+        employee = self.env["hr.employee"].search(
+            [("user_id", "=", self.env.uid)], limit=1
+        )
+        if not employee:
+            employee = self.env["hr.employee"].create(
+                {"name": "Inventory Reporting Tester", "user_id": self.env.uid}
+            )
+        employee.department_id = self.department
 
     def _create_picking(self, picking_type, state="draft", origin=None):
         picking = self.env["stock.picking"].create(
@@ -58,7 +72,7 @@ class TestInventoryReporting(TransactionCase):
             {
                 "name": "Cycle Count A",
                 "location_id": self.location.id,
-                "state": "variance",
+                "state": "adjusted",
             }
         )
         self.env["od19.stock.count.line"].create(
@@ -74,7 +88,7 @@ class TestInventoryReporting(TransactionCase):
         )
 
         self.assertEqual(len(report_line), 1)
-        self.assertEqual(report_line.state, "variance")
+        self.assertEqual(report_line.state, "adjusted")
         self.assertEqual(report_line.line_count, 1)
         self.assertEqual(report_line.variance_line_count, 1)
         self.assertEqual(report_line.total_variance_qty, -2.0)
