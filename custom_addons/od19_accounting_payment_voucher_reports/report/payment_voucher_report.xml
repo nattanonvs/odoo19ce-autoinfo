@@ -3,15 +3,19 @@
 <!-- License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl). -->
 <odoo>
 
-    <!-- ============================================================ -->
-    # ใบสำคัญจ่าย (Payment Voucher) - one document per supplier payment.
-    # Thai font comes from od19_thai_font_support.
-    <!-- ============================================================ -->
+    <!-- ============================================================
+         ใบสำคัญจ่าย (Payment Voucher) - one document per supplier payment.
+         Thai font comes from od19_thai_font_support.
+         ============================================================ -->
     <template id="payment_voucher_document">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="payment">
                 <t t-call="web.external_layout">
                     <div class="page" style="font-family:'Sarabun','Noto Sans Thai','Tahoma',sans-serif;">
+                        <div t-if="not payment.od19_voucher_no"
+                             style="position:absolute;top:38%;left:0;right:0;text-align:center;font-size:90px;font-weight:bold;color:rgba(158,36,36,0.12);transform:rotate(-25deg);">
+                            ร่าง / DRAFT
+                        </div>
                         <h2 class="text-center">ใบสำคัญจ่าย</h2>
                         <h4 class="text-center">PAYMENT VOUCHER</h4>
 
@@ -30,7 +34,7 @@
                             <div class="col-5 text-right">
                                 <div>
                                     <strong>เลขที่ / Voucher No: </strong>
-                                    <span t-esc="payment.od19_voucher_no or payment.name"/>
+                                    <span t-esc="payment.od19_voucher_no or payment.name or '—'"/>
                                 </div>
                                 <div>
                                     <strong>วันที่ / Date: </strong>
@@ -125,14 +129,18 @@
         <field name="print_report_name">'Payment Voucher - %s' % (object.od19_voucher_no or object.name)</field>
     </record>
 
-    <!-- ============================================================ -->
-    # ใบสำคัญรับเงิน (Payment Receipt) - one document per customer receipt.
-    <!-- ============================================================ -->
+    <!-- ============================================================
+         ใบสำคัญรับเงิน (Payment Receipt) - one document per customer receipt.
+         ============================================================ -->
     <template id="payment_receipt_document">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="payment">
                 <t t-call="web.external_layout">
                     <div class="page" style="font-family:'Sarabun','Noto Sans Thai','Tahoma',sans-serif;">
+                        <div t-if="not payment.od19_voucher_no"
+                             style="position:absolute;top:38%;left:0;right:0;text-align:center;font-size:90px;font-weight:bold;color:rgba(158,36,36,0.12);transform:rotate(-25deg);">
+                            ร่าง / DRAFT
+                        </div>
                         <h2 class="text-center">ใบสำคัญรับเงิน</h2>
                         <h4 class="text-center">PAYMENT RECEIPT</h4>
 
@@ -151,7 +159,7 @@
                             <div class="col-5 text-right">
                                 <div>
                                     <strong>เลขที่ / Receipt No: </strong>
-                                    <span t-esc="payment.od19_voucher_no or payment.name"/>
+                                    <span t-esc="payment.od19_voucher_no or payment.name or '—'"/>
                                 </div>
                                 <div>
                                     <strong>วันที่ / Date: </strong>
