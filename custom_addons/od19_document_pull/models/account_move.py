@@ -196,3 +196,14 @@ class AccountMove(models.Model):
                     (source, len(self._od19_pull_lines_of_source(source)))
                 )
         return found
+
+    def _od19_pull_preview_lines(self, source):
+        self.ensure_one()
+        return [
+            {
+                "name": line.name,
+                "product_id": line.product_id.id,
+                "quantity": line.quantity,
+            }
+            for line in self._od19_pull_lines_of_source(source)
+        ]

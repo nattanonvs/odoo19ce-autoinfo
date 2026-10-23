@@ -65,6 +65,15 @@ class Od19DocumentPullMixin(models.AbstractModel):
         """Return [(source_record, line_count)] currently bound to self."""
         raise NotImplementedError
 
+    def _od19_pull_preview_lines(self, source):  # pragma: no cover
+        """Return the destination lines linked to source (list of dicts).
+
+        Implement in the destination model. The dicts feed
+        od19.document.pull.remove.line:
+            {"name": str, "product_id": int, "quantity": float}
+        """
+        raise NotImplementedError
+
     # ------------------------------------------------------------------
     # Shared helpers
     # ------------------------------------------------------------------

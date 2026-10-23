@@ -3,4 +3,5 @@
 
 from . import test_document_pull_guards
 from . import test_document_pull_wizard
+from . import test_document_pull_remove
 from . import test_module_install
