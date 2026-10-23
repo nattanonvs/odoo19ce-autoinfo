@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Finance Control Board (Wave 2).
+
+        Aggregates the finance signals an accountant / controller watches every
+        day: open receivables and payables, cheques approaching their due date,
+        petty cash spend and the accounting entry flow. All data sources are
+        registered against the od19_dashboard whitelist so the builder can read
+        them without ever querying an arbitrary model.
+    -->
+
+    <!-- ===================== Data sources ===================== -->
+
+    <record id="source_od19_fin_move_line" model="od19.dashboard.source">
+        <field name="name">Accounting Entries (AR / AP)</field>
+        <field name="model_name">account.move.line</field>
+        <field name="description">Journal items used for receivable / payable exposure and entry flow.</field>
+        <field name="sequence">200</field>
+    </record>
+    <record id="source_od19_fin_move_line_residual" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_fin_move_line"/>
+        <field name="label">Open Amount</field>
+        <field name="field_name">amount_residual</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_od19_fin_move_line_debit" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_fin_move_line"/>
+        <field name="label">Debit</field>
+        <field name="field_name">debit</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_od19_fin_move_line_credit" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_fin_move_line"/>
+        <field name="label">Credit</field>
+        <field name="field_name">credit</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="source_od19_fin_move_line_partner" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_fin_move_line"/>
+        <field name="label">Partner</field>
+        <field name="field_name">partner_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_od19_fin_move_line_account" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_fin_move_line"/>
+        <field name="label">Account</field>
+        <field name="field_name">account_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_od19_fin_move_line_journal" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_fin_move_line"/>
+        <field name="label">Journal</field>
+        <field name="field_name">journal_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="source_od19_fin_move_line_date" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_fin_move_line"/>
+        <field name="label">Accounting Date</field>
+        <field name="field_name">date</field>
+        <field name="kind">date</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_od19_fin_move_line_maturity" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_fin_move_line"/>
+        <field name="label">Due Date</field>
+        <field name="field_name">date_maturity</field>
+        <field name="kind">date</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_od19_fin_move_line_month" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_fin_move_line"/>
+        <field name="label">Accounting Month</field>
+        <field name="field_name">date</field>
+        <field name="kind">groupby</field>
+        <field name="granularity">month</field>
+        <field name="sequence">90</field>
+    </record>
+
+    <record id="source_od19_fin_cheque" model="od19.dashboard.source">
+        <field name="name">Cheques</field>
+        <field name="model_name">account.cheque</field>
+        <field name="description">Customer and supplier cheques with their clearing status.</field>
+        <field name="sequence">210</field>
+    </record>
+    <record id="source_od19_fin_cheque_amount" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_fin_cheque"/>
+        <field name="label">Cheque Amount</field>
+        <field name="field_name">amount</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_od19_fin_cheque_state" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_fin_cheque"/>
+        <field name="label">Status</field>
+        <field name="field_name">state</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_od19_fin_cheque_type" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_fin_cheque"/>
+        <field name="label">Cheque Type</field>
+        <field name="field_name">cheque_type</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_od19_fin_cheque_partner" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_fin_cheque"/>
+        <field name="label">Partner</field>
+        <field name="field_name">partner_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="source_od19_fin_cheque_due_date" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_fin_cheque"/>
+        <field name="label">Due Date</field>
+        <field name="field_name">due_date</field>
+        <field name="kind">date</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="source_od19_fin_petty_cash" model="od19.dashboard.source">
+        <field name="name">Petty Cash Transactions</field>
+        <field name="model_name">petty.cash.transaction</field>
+        <field name="description">Petty cash expenses and replenishments per fund.</field>
+        <field name="sequence">220</field>
+    </record>
+    <record id="source_od19_fin_petty_cash_amount" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_fin_petty_cash"/>
+        <field name="label">Amount</field>
+        <field name="field_name">amount</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_od19_fin_petty_cash_type" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_fin_petty_cash"/>
+        <field name="label">Type</field>
+        <field name="field_name">transaction_type</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_od19_fin_petty_cash_state" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_fin_petty_cash"/>
+        <field name="label">Status</field>
+        <field name="field_name">state</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_od19_fin_petty_cash_date" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_fin_petty_cash"/>
+        <field name="label">Date</field>
+        <field name="field_name">date</field>
+        <field name="kind">date</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <!-- ===================== Dashboard ===================== -->
+
+    <record id="dashboard_finance_control" model="od19.dashboard">
+        <field name="name">Finance Control Board</field>
+        <field name="audience">management</field>
+        <field name="description">Receivables, payables, cheque position and petty cash control for the accounting team.</field>
+        <field name="sequence">30</field>
+        <field name="is_default" eval="False"/>
+        <field name="default_date_range">this_month</field>
+        <field name="color">#9E2424</field>
+    </record>
+
+    <!-- Summary zone -->
+    <record id="dashboard_finance_control_ar" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_finance_control"/>
+        <field name="name">Receivables Outstanding</field>
+        <field name="subtitle">Open customer balances not yet reconciled</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">currency</field>
+        <field name="source_id" ref="source_od19_fin_move_line"/>
+        <field name="measure_key">amount_residual</field>
+        <field name="date_range">all_time</field>
+        <field name="domain">[('account_id.account_type', '=', 'asset_receivable'), ('parent_state', '=', 'posted'), ('reconciled', '=', False)]</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="3"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="10"/>
+    </record>
+    <record id="dashboard_finance_control_ap" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_finance_control"/>
+        <field name="name">Payables Outstanding</field>
+        <field name="subtitle">Open vendor balances not yet reconciled</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">currency</field>
+        <field name="source_id" ref="source_od19_fin_move_line"/>
+        <field name="measure_key">amount_residual</field>
+        <field name="date_range">all_time</field>
+        <field name="domain">[('account_id.account_type', '=', 'liability_payable'), ('parent_state', '=', 'posted'), ('reconciled', '=', False)]</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="3"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="20"/>
+    </record>
+    <record id="dashboard_finance_control_cheques" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_finance_control"/>
+        <field name="name">Cheques in Hand</field>
+        <field name="subtitle">Cheques issued or received, not yet cleared</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">currency</field>
+        <field name="source_id" ref="source_od19_fin_cheque"/>
+        <field name="measure_key">amount</field>
+        <field name="date_range">all_time</field>
+        <field name="domain">[('state', 'not in', ['cleared', 'cancelled', 'bounced'])]</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="3"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="30"/>
+    </record>
+    <record id="dashboard_finance_control_petty" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_finance_control"/>
+        <field name="name">Petty Cash Spend</field>
+        <field name="subtitle">Posted petty cash expenses</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">currency</field>
+        <field name="source_id" ref="source_od19_fin_petty_cash"/>
+        <field name="measure_key">amount</field>
+        <field name="date_range">all_time</field>
+        <field name="domain">[('transaction_type', '=', 'expense'), ('state', '=', 'posted')]</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="3"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="40"/>
+    </record>
+
+    <!-- Alert zone -->
+    <record id="dashboard_finance_control_cheques_due" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_finance_control"/>
+        <field name="name">Cheques Due (Next 7 Days)</field>
+        <field name="subtitle">Cheques reaching their due date within a week</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">currency</field>
+        <field name="source_id" ref="source_od19_fin_cheque"/>
+        <field name="measure_key">amount</field>
+        <field name="date_key">due_date</field>
+        <field name="date_range">next_7_days</field>
+        <field name="domain">[('state', 'not in', ['cleared', 'cancelled', 'bounced'])]</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="50"/>
+        <field name="rule_ids" eval="[(0, 0, {'sequence': 10, 'name': 'Above the critical value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 500000.0, 'status': 'red'}), (0, 0, {'sequence': 20, 'name': 'Above the warning value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 100000.0, 'status': 'yellow'})]"/>
+    </record>
+    <record id="dashboard_finance_control_cheques_overdue" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_finance_control"/>
+        <field name="name">Overdue Cheques</field>
+        <field name="subtitle">Cheques past their due date and still open</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">currency</field>
+        <field name="source_id" ref="source_od19_fin_cheque"/>
+        <field name="measure_key">amount</field>
+        <field name="date_key">due_date</field>
+        <field name="date_range">overdue</field>
+        <field name="domain">[('state', 'not in', ['cleared', 'cancelled', 'bounced'])]</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="60"/>
+        <field name="rule_ids" eval="[(0, 0, {'sequence': 10, 'name': 'Above the critical value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 100000.0, 'status': 'red'}), (0, 0, {'sequence': 20, 'name': 'Above the warning value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 1.0, 'status': 'yellow'})]"/>
+    </record>
+
+    <!-- Detail zone -->
+    <record id="dashboard_finance_control_cheques_state" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_finance_control"/>
+        <field name="name">Cheques by Status</field>
+        <field name="widget_type">bar</field>
+        <field name="value_format">currency</field>
+        <field name="source_id" ref="source_od19_fin_cheque"/>
+        <field name="measure_key">amount</field>
+        <field name="groupby_key">state</field>
+        <field name="date_range">all_time</field>
+        <field name="limit" eval="12"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="70"/>
+    </record>
+    <record id="dashboard_finance_control_cheques_type" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_finance_control"/>
+        <field name="name">Cheques by Type</field>
+        <field name="widget_type">pie</field>
+        <field name="value_format">currency</field>
+        <field name="source_id" ref="source_od19_fin_cheque"/>
+        <field name="measure_key">amount</field>
+        <field name="groupby_key">cheque_type</field>
+        <field name="date_range">all_time</field>
+        <field name="limit" eval="8"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="80"/>
+    </record>
+    <record id="dashboard_finance_control_ar_partner" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_finance_control"/>
+        <field name="name">Receivables by Customer</field>
+        <field name="widget_type">bar</field>
+        <field name="value_format">currency</field>
+        <field name="source_id" ref="source_od19_fin_move_line"/>
+        <field name="measure_key">amount_residual</field>
+        <field name="groupby_key">partner_id</field>
+        <field name="date_range">all_time</field>
+        <field name="domain">[('account_id.account_type', '=', 'asset_receivable'), ('parent_state', '=', 'posted'), ('reconciled', '=', False)]</field>
+        <field name="limit" eval="8"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="90"/>
+    </record>
+    <record id="dashboard_finance_control_ap_partner" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_finance_control"/>
+        <field name="name">Payables by Vendor</field>
+        <field name="widget_type">bar</field>
+        <field name="value_format">currency</field>
+        <field name="source_id" ref="source_od19_fin_move_line"/>
+        <field name="measure_key">amount_residual</field>
+        <field name="groupby_key">partner_id</field>
+        <field name="date_range">all_time</field>
+        <field name="domain">[('account_id.account_type', '=', 'liability_payable'), ('parent_state', '=', 'posted'), ('reconciled', '=', False)]</field>
+        <field name="limit" eval="8"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="100"/>
+    </record>
+    <record id="dashboard_finance_control_petty_type" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_finance_control"/>
+        <field name="name">Petty Cash by Type</field>
+        <field name="widget_type">pie</field>
+        <field name="value_format">currency</field>
+        <field name="source_id" ref="source_od19_fin_petty_cash"/>
+        <field name="measure_key">amount</field>
+        <field name="groupby_key">transaction_type</field>
+        <field name="date_range">all_time</field>
+        <field name="limit" eval="8"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="110"/>
+    </record>
+    <record id="dashboard_finance_control_entries_trend" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_finance_control"/>
+        <field name="name">Accounting Entries by Month</field>
+        <field name="widget_type">line</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_od19_fin_move_line"/>
+        <field name="measure_key">__count</field>
+        <field name="groupby_key">date</field>
+        <field name="date_range">all_time</field>
+        <field name="domain">[('parent_state', '=', 'posted')]</field>
+        <field name="limit" eval="12"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="120"/>
+    </record>
+
+    <!-- ===================== Direct access ===================== -->
+
+    <record id="action_od19_finance_control_dashboard" model="ir.actions.client">
+        <field name="name">Finance Control Board</field>
+        <field name="tag">od19_dashboard.builder</field>
+        <field name="target">current</field>
+        <field name="params" eval="{'dashboard_id': ref('dashboard_finance_control')}"/>
+    </record>
+
+    <menuitem id="menu_od19_finance_control_dashboard"
+              name="Finance Control Board"
+              parent="account.menu_finance"
+              action="action_od19_finance_control_dashboard"
+              sequence="0"/>
+
+</odoo>

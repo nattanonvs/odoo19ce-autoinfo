@@ -1,0 +1,23 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* od19_accounting_reporting
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: th\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#. module: od19_accounting_reporting
+#: model:ir.ui.menu,name:account.menu_finance
+msgid "Accounting"
+msgstr "การบัญชี"
+
+#. module: od19_accounting_reporting
+#: model:ir.ui.menu,name:account.menu_finance_entries
+msgid "Accounting Entries"
+msgstr "รายการบัญชี"
