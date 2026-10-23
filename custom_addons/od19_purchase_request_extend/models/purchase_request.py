@@ -49,9 +49,11 @@ class PurchaseRequest(models.Model):
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
         if not res.get("department_id"):
-            user = self.env["res.users"].browse(self.env.uid)
-            if user.employee_id and user.employee_id.department_id:
-                res["department_id"] = user.employee_id.department_id.id
+            employee = self.env["hr.employee"].sudo().search(
+                [("user_id", "=", self.env.uid)], limit=1
+            )
+            if employee.department_id:
+                res["department_id"] = employee.department_id.id
         return res
 
     @api.depends("od19_priority")

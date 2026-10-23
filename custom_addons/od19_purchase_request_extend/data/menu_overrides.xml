@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Purchase Requests is operated as a standalone app by a separate team,
+        but the purchasing team also needs a shortcut from the Purchase app.
+
+        The menu is redefined here (instead of leaving it to OCA) so that the
+        shortcut is restricted to the Purchase Request groups and therefore is
+        not exposed to regular Purchase users. ``forcecreate`` keeps the menu
+        working even if it was previously removed from the database.
+    -->
+    <record id="purchase_request.menu_purchase_request_pro_mgt" model="ir.ui.menu" forcecreate="true">
+        <field name="name">Purchase Requests</field>
+        <field name="parent_id" ref="purchase.menu_procurement_management"/>
+        <field name="action" eval="'ir.actions.act_window,%d' % ref('purchase_request.purchase_request_form_action')"/>
+        <field name="group_ids" eval="[(6, 0, [ref('purchase_request.group_purchase_request_user'), ref('purchase_request.group_purchase_request_manager')])]"/>
+    </record>
+
+    <!-- Use the OD19 branded icon for the Purchase Requests app tile. -->
+    <record id="purchase_request.parent_menu_purchase_request" model="ir.ui.menu">
+        <field name="web_icon">od19_purchase_request_extend,static/description/icon.png</field>
+    </record>
+
+</odoo>

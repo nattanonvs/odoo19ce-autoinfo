@@ -1,0 +1,28 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* od19_purchase_request_extend
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: th\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#. module: od19_purchase_request_extend
+#: model:ir.ui.menu,name:purchase_request.parent_menu_purchase_request
+#: model:ir.ui.menu,name:purchase_request.menu_purchase_request
+#: model:ir.ui.menu,name:purchase_request.menu_purchase_request_pro_mgt
+msgid "Purchase Requests"
+msgstr "คำขอซื้อ"
+
+#. module: od19_purchase_request_extend
+msgid "Purchase Request"
+msgstr "คำขอซื้อ"
+
+#. module: od19_purchase_request_extend
+msgid "Purchase Request Lines"
+msgstr "รายการคำขอซื้อ"
