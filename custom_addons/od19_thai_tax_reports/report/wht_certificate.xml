@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- หนังสือรับรองการหักภาษี ณ ที่จ่าย (มาตรา 50 ทวิ)                    -->
+    <!-- Printed from the OCA model `withholding.tax.cert` so the amounts  -->
+    <!-- come from the real withholding lines (wht_tax_id), not advisory  -->
+    <!-- values computed on the payment.                                   -->
+    <!-- ============================================================ -->
+    <template id="wht_certificate_style">
+        <style type="text/css">
+            .whtc {
+                font-family: 'Sarabun', 'Noto Sans Thai', 'Tahoma', sans-serif;
+                font-size: 11pt;
+                color: #000;
+            }
+            .whtc table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            .whtc table.bordered th,
+            .whtc table.bordered td {
+                border: 1px solid #000;
+                padding: 4px 6px;
+                vertical-align: top;
+            }
+            .whtc table.plain td {
+                border: none;
+                padding: 2px 4px;
+                vertical-align: top;
+            }
+            .whtc .whtc-title {
+                text-align: center;
+                font-size: 15pt;
+                font-weight: bold;
+            }
+            .whtc .whtc-sub {
+                text-align: center;
+                font-size: 11pt;
+                margin-bottom: 10px;
+            }
+            .whtc .whtc-section {
+                font-weight: bold;
+                margin-top: 8px;
+            }
+            .whtc .num {
+                text-align: right;
+            }
+            .whtc .ctr {
+                text-align: center;
+            }
+            .whtc .whtc-sign {
+                margin-top: 40px;
+            }
+        </style>
+    </template>
+
+    <template id="wht_certificate_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page whtc">
+                        <t t-call="od19_thai_tax_reports.wht_certificate_style"/>
+                        <t t-set="form_labels" t-value="{'pnd1': 'ภ.ง.ด.1', 'pnd2': 'ภ.ง.ด.2', 'pnd3': 'ภ.ง.ด.3', 'pnd3a': 'ภ.ง.ด.3a', 'pnd53': 'ภ.ง.ด.53'}"/>
+                        <t t-set="payer" t-value="o.company_partner_id"/>
+                        <t t-set="payee" t-value="o.partner_id"/>
+
+                        <div class="whtc-title">หนังสือรับรองการหักภาษี ณ ที่จ่าย</div>
+                        <div class="whtc-sub">
+                            ตามมาตรา 50 ทวิ แห่งประมวลรัษฎากร<br/>
+                            <span t-if="o.income_tax_form">
+                                แบบแสดงรายการ
+                                <span t-esc="form_labels.get(o.income_tax_form, '')"/>
+                            </span>
+                        </div>
+
+                        <table class="plain">
+                            <tr>
+                                <td style="width:75%"/>
+                                <td class="num">
+                                    <strong>เลขที่:</strong>
+                                    <span t-esc="o.number or ''"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="num" colspan="2">
+                                    <strong>วันที่ออกหนังสือรับรอง:</strong>
+                                    <span t-field="o.date"/>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <table class="plain" style="margin-top:10px">
+                            <tr>
+                                <td style="width:50%">
+                                    <div class="whtc-section">ผู้จ่ายเงิน / Payer</div>
+                                    <div>
+                                        <strong>ชื่อ:</strong>
+                                        <span t-esc="payer.name or ''"/>
+                                    </div>
+                                    <div>
+                                        <strong>เลขประจำตัวผู้เสียภาษีอากร:</strong>
+                                        <span t-esc="payer.vat or o.company_vat or ''"/>
+                                    </div>
+                                    <div>
+                                        <strong>ที่อยู่:</strong>
+                                        <span t-esc="', '.join([s for s in [payer.street, payer.street2, payer.city, payer.zip] if s])"/>
+                                    </div>
+                                </td>
+                                <td style="width:50%">
+                                    <div class="whtc-section">ผู้รับเงิน / Payee</div>
+                                    <div>
+                                        <strong>ชื่อ:</strong>
+                                        <span t-esc="payee.name or ''"/>
+                                    </div>
+                                    <div>
+                                        <strong>เลขประจำตัวผู้เสียภาษีอากร:</strong>
+                                        <span t-esc="payee.vat or ''"/>
+                                    </div>
+                                    <div>
+                                        <strong>ที่อยู่:</strong>
+                                        <span t-esc="', '.join([s for s in [payee.street, payee.street2, payee.city, payee.zip] if s])"/>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <table class="bordered" style="margin-top:12px">
+                            <thead>
+                                <tr>
+                                    <th class="ctr" style="width:7%">ลำดับ</th>
+                                    <th>ประเภทเงินได้พึงประเมินที่จ่าย</th>
+                                    <th class="ctr" style="width:20%">จำนวนเงินที่จ่าย (บาท)</th>
+                                    <th class="ctr" style="width:12%">อัตราภาษี</th>
+                                    <th class="ctr" style="width:20%">ภาษีที่หักและนำส่ง (บาท)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="seq" t-value="0"/>
+                                <tr t-foreach="o.wht_line" t-as="l">
+                                    <td class="ctr">
+                                        <t t-set="seq" t-value="seq + 1"/>
+                                        <span t-esc="seq"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="l.wht_cert_income_desc or l.wht_cert_income_type or ''"/>
+                                    </td>
+                                    <td class="num">
+                                        <span t-esc="'{:,.2f}'.format(l.base or 0.0)"/>
+                                    </td>
+                                    <td class="ctr">
+                                        <span t-esc="'{:,.2f}%'.format(l.wht_percent or 0.0)"/>
+                                    </td>
+                                    <td class="num">
+                                        <span t-esc="'{:,.2f}'.format(l.amount or 0.0)"/>
+                                    </td>
+                                </tr>
+                                <tr class="font-weight-bold">
+                                    <td class="num" colspan="2">รวมทั้งสิ้น / Total</td>
+                                    <td class="num">
+                                        <span t-esc="'{:,.2f}'.format(sum(o.wht_line.mapped('base')))"/>
+                                    </td>
+                                    <td/>
+                                    <td class="num">
+                                        <span t-esc="'{:,.2f}'.format(sum(o.wht_line.mapped('amount')))"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <table class="plain" style="margin-top:8px">
+                            <tr>
+                                <td>
+                                    <strong>จำนวนเงินภาษีที่หักและนำส่ง (ตัวอักษร): </strong>
+                                    <span t-esc="o.currency_id.with_context(lang='th_TH').amount_to_text(sum(o.wht_line.mapped('amount')))"/>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <div class="whtc-sign">
+                            <table class="plain">
+                                <tr>
+                                    <td class="ctr" style="width:50%">
+                                        <div>ลงชื่อ ............................................</div>
+                                        <div>ผู้จ่ายเงิน / Authorized Payer</div>
+                                        <div t-if="payer.name">( <span t-esc="payer.name"/> )</div>
+                                    </td>
+                                    <td class="ctr" style="width:50%">
+                                        <div>ลงชื่อ ............................................</div>
+                                        <div>ผู้รับเงิน / Payee</div>
+                                        <div t-if="payee.name">( <span t-esc="payee.name"/> )</div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="mt-4" style="font-size:9pt">
+                            หมายเหตุ: หนังสือรับรองนี้ใช้สำหรับผู้ถูกหักภาษี ณ ที่จ่าย ใช้แนบพร้อมกับแบบแสดงรายการภาษีเงินได้
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_wht_certificate" model="ir.actions.report">
+        <field name="name">หนังสือรับรองการหักภาษี ณ ที่จ่าย / WHT Certificate</field>
+        <field name="model">withholding.tax.cert</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">od19_thai_tax_reports.wht_certificate_document</field>
+        <field name="report_file">od19_thai_tax_reports.wht_certificate_document</field>
+        <field name="binding_model_id" ref="l10n_th_account_tax.model_withholding_tax_cert"/>
+        <field name="binding_type">report</field>
+        <field name="print_report_name">'WHT-Cert-%s' % (object.number or object.name)</field>
+    </record>
+
+</odoo>
