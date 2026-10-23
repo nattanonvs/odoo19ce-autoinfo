@@ -1,5 +1,5 @@
 from odoo import fields
-from odoo.tests.common import TransactionCase
+from odoo.tests.common import TransactionCase, new_test_user
 
 
 class TestSalesConfirmStamp(TransactionCase):
@@ -13,6 +13,11 @@ class TestSalesConfirmStamp(TransactionCase):
             "name": "Test Stamp Product",
             "type": "consu",
         })
+        cls.other_user = new_test_user(
+            cls.env,
+            login="od19_stamp_other_user",
+            groups="sales_team.group_sale_manager",
+        )
 
     def _create_sale_order(self, **overrides):
         vals = {
@@ -33,10 +38,10 @@ class TestSalesConfirmStamp(TransactionCase):
         self.assertEqual(order.confirmed_by_id, self.env.user)
 
     def test_stamp_fields_are_writable(self):
-        order = self._create_sale_order({
-            "stamp_date": fields.Date.today(),
-            "stamp_code": "JOB-001",
-        })
+        order = self._create_sale_order(
+            stamp_date=fields.Date.today(),
+            stamp_code="JOB-001",
+        )
         self.assertEqual(order.stamp_date, fields.Date.today())
         self.assertEqual(order.stamp_code, "JOB-001")
 
@@ -44,6 +49,11 @@ class TestSalesConfirmStamp(TransactionCase):
         order = self._create_sale_order()
         order.action_confirm()
         first_confirmer = order.confirmed_by_id
-        # Calling action_confirm again should not change confirmed_by_id
-        order.action_confirm()
+        self.assertTrue(first_confirmer)
+        # Odoo core refuses to confirm an order that is already confirmed, so
+        # reproduce a legitimate re-confirmation (cancel -> draft -> confirm)
+        # performed by a different user: the original confirmer must stay.
+        order.action_cancel()
+        order.action_draft()
+        order.with_user(self.other_user).action_confirm()
         self.assertEqual(order.confirmed_by_id, first_confirmer)

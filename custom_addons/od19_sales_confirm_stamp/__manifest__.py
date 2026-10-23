@@ -7,12 +7,14 @@
 Adds a Stamp Date field and supporting fields to sale orders.
 When a quotation is confirmed and Stamp Date is filled, the printed
 quotation displays a red CONFIRMED stamp box containing:
-  - SIGN  : handwritten signature image of the user who confirmed the order
-            (falls back to the user's name if no signature is uploaded)
-  - DATE  : Stamp Date
-  - DELIVERY ON : commitment date
-  - JOB   : linked project job number
-  - CODE  : stamp code (free text)
+
+- SIGN  : handwritten signature image of the user who confirmed the order
+  (falls back to the user's name if no signature is uploaded)
+- DATE  : Stamp Date
+- DELIVERY ON : commitment date
+- JOB   : linked project job number
+- CODE  : stamp code (free text)
+
 Also renames the legacy x_stamp_date signal to stamp_date.
     """,
     "author": "OD19 Custom",

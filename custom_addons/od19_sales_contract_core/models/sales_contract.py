@@ -9,7 +9,12 @@ class Od19SalesContract(models.Model):
 
     name = fields.Char(required=True, tracking=True)
     partner_id = fields.Many2one("res.partner", required=True, tracking=True)
-    od19_project_id = fields.Many2one("project.project", required=True, tracking=True)
+    od19_project_id = fields.Many2one(
+        "project.project",
+        string="Project",
+        required=True,
+        tracking=True,
+    )
     state = fields.Selection(
         [
             ("draft", "Draft"),

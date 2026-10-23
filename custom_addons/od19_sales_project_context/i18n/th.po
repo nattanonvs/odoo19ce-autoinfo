@@ -118,12 +118,12 @@ msgstr "หมายเหตุ"
 
 #. module: od19_sales_project_context
 #: model:ir.model.fields,field_description:od19_sales_project_context.field_sale_order__od19_project_id
-msgid "OD19 Project"
+msgid "Linked Project"
 msgstr "โครงการ"
 
 #. module: od19_sales_project_context
 #: model:ir.model.fields,field_description:od19_sales_project_context.field_sale_order__od19_sale_mode
-msgid "Od19 Sale Mode"
+msgid "Sale Mode"
 msgstr "รูปแบบการขาย"
 
 #. module: od19_sales_project_context

@@ -101,18 +101,20 @@ class SaleOrder(models.Model):
         """
         awaiting_approval = self.browse()
         for order in self:
-            if order.state in ("draft", "sent") and order.need_validation:
-                awaiting_approval |= order
-            elif (
-                order.state == "waiting_approval"
-                and order.validation_status != "validated"
-            ):
-                raise ValidationError(
-                    _(
-                        "This sale order is waiting for tier validation "
-                        "before it can be confirmed."
+            # ``need_validation`` is a non-stored computed field, so its cached
+            # value may still be the one computed before a review was created
+            # or validated. Drop it so the checks below see the current state.
+            order.invalidate_recordset(["need_validation"])
+            if order.state == "waiting_approval":
+                if order.validation_status != "validated":
+                    raise ValidationError(
+                        _(
+                            "This sale order is waiting for tier validation "
+                            "before it can be confirmed."
+                        )
                     )
-                )
+            elif order.state in ("draft", "sent") and order.need_validation:
+                awaiting_approval |= order
         if awaiting_approval:
             awaiting_approval.write({"state": "waiting_approval"})
             awaiting_approval.request_validation()

@@ -12,10 +12,15 @@ class SaleOrder(models.Model):
             ("ready", "Ready"),
             ("billed", "Billed"),
         ],
+        string="Billing Readiness",
         compute="_compute_od19_billing_readiness_state",
         store=True,
     )
-    od19_evidence_ids = fields.One2many("od19.billing.evidence", "sale_order_id")
+    od19_evidence_ids = fields.One2many(
+        "od19.billing.evidence",
+        "sale_order_id",
+        string="Billing Evidence",
+    )
 
     @api.depends(
         "state",

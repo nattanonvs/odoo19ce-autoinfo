@@ -7,13 +7,14 @@ class SaleOrder(models.Model):
 
     od19_sale_mode = fields.Selection(
         [("one_time", "One-time"), ("contract", "Contract-based")],
+        string="Sale Mode",
         default="one_time",
         required=True,
         tracking=True,
     )
     od19_project_id = fields.Many2one(
         "project.project",
-        string="OD19 Project",
+        string="Linked Project",
         tracking=True,
     )
     od19_project_owner_id = fields.Many2one(

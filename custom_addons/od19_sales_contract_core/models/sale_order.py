@@ -5,7 +5,11 @@ from odoo.exceptions import UserError
 class SaleOrder(models.Model):
     _inherit = "sale.order"
 
-    od19_contract_id = fields.Many2one("od19.sales.contract", tracking=True)
+    od19_contract_id = fields.Many2one(
+        "od19.sales.contract",
+        string="Sales Contract",
+        tracking=True,
+    )
 
     def action_confirm(self):
         for order in self:
