@@ -152,3 +152,68 @@ class TestArApAgingReport(TransactionCase):
         self.assertEqual(
             report.get_parameters()["partner_ids"], "array[%s]" % vendor.id
         )
+
+
+class TestGeneralLedgerReport(TransactionCase):
+    def test_default_jasper_file_is_shipped(self):
+        report = self.env["general.ledger.report"].create({})
+        self.assertTrue(report.jasper_file.endswith("general_ledger.jasper"))
+
+    def test_parameters_follow_legacy_contract(self):
+        report = self.env["general.ledger.report"].create(
+            {"p_From_Date": "2026-01-01", "p_To_Date": "2026-10-23"}
+        )
+        parameters = report.get_parameters()
+        self.assertEqual(parameters["p_State"], "เฉพาะที่ผ่านรายการแล้ว")
+        self.assertEqual(parameters["p_AccountCodeText"], "ทั้งหมด")
+        self.assertEqual(parameters["p_JournalText"], "ทั้งหมด")
+        self.assertEqual(parameters["p_AnalyticAccountText"], "ทั้งหมด")
+        self.assertEqual(parameters["p_DateFormat"], "dd-MM-yyyy")
+        self.assertEqual(parameters["p_From_Date"], "2026-01-01")
+        self.assertEqual(parameters["p_To_Date"], "2026-10-23")
+        self.assertEqual(
+            parameters["p_Where"],
+            " and aml.company_id = %s and am.state = 'posted'" % report.company_id.id,
+        )
+        self.assertEqual(parameters["p_Print_By"], self.env.user.name)
+
+    def test_sort_follows_selection(self):
+        report = self.env["general.ledger.report"].create({})
+        self.assertIn("aa.code_store", report.get_parameters()["p_Sort"])
+        self.assertEqual(report.get_parameters()["p_SortingText"], "รหัสบัญชี")
+        report.p_Sort = "date"
+        self.assertTrue(
+            report.get_parameters()["p_Sort"].startswith(" order by aml.date")
+        )
+        self.assertEqual(report.get_parameters()["p_SortingText"], "วันที่")
+
+    def test_date_text_follows_locale(self):
+        report = self.env["general.ledger.report"].create(
+            {"p_From_Date": "2026-01-05", "p_To_Date": "2026-10-23"}
+        )
+        self.assertEqual(report.get_parameters()["p_From_Date_Text"], "05-01-2569")
+        report.locale = "en_EN"
+        self.assertEqual(report.get_parameters()["p_From_Date_Text"], "05-01-2026")
+
+    def test_where_follows_filters(self):
+        account = self.env["account.account"].create(
+            {
+                "name": "GL Test Account",
+                "account_type": "asset_current",
+                "code": "999999",
+            }
+        )
+        journal = self.env["account.journal"].create(
+            {"name": "GL Test Journal", "code": "GLT", "type": "general"}
+        )
+        report = self.env["general.ledger.report"].create(
+            {
+                "account_ids": [(6, 0, account.ids)],
+                "journal_ids": [(6, 0, journal.ids)],
+                "p_State": "all_entries",
+            }
+        )
+        where = report.get_parameters()["p_Where"]
+        self.assertIn("aml.account_id in (%s)" % account.id, where)
+        self.assertIn("am.journal_id in (%s)" % journal.id, where)
+        self.assertNotIn("am.state = 'posted'", where)

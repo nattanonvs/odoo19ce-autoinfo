@@ -19,6 +19,7 @@
         "views/jasper_report_wizard.xml",
         "wizard/invoice_form_views.xml",
         "wizard/ar_ap_aging_views.xml",
+        "wizard/general_ledger_views.xml",
     ],
     "installable": True,
     "license": "LGPL-3",
