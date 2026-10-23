@@ -9,6 +9,12 @@
         <field name="inherit_id" ref="account.res_config_settings_view_form"/>
         <field name="arch" type="xml">
             <xpath expr="//app[@name='account']" position="inside">
+                <block title="Accounts Payable (ทำจ่าย)" id="od19_ap_bill_first">
+                    <setting string="Require Vendor Bill before Payment"
+                             help="When enabled, a vendor (outbound) payment cannot be posted unless it is generated from a Vendor Bill (ตั้งหนี้). Standalone vendor payments that are not linked to any bill are blocked.">
+                        <field name="od19_require_vendor_bill_for_payment"/>
+                    </setting>
+                </block>
                 <block title="Revenue Department (BOT)" id="od19_bot">
                     <setting string="BOT URL" help="Base URL of the Revenue Department (BOT) e-Tax invoice lookup. The invoice number is appended as ?id=invoice_name.">
                         <div class="content-group">

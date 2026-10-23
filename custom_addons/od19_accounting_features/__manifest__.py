@@ -3,11 +3,12 @@
 
 {
     "name": "OD19 Accounting Features",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.3.0",
     "author": "OD19",
     "category": "Accounting/Localizations",
     "summary": "Cancel reason wizard, payer/payee, BOT URL, prepayment due date, "
-    "payment number, WHT base computed, and WHT PDF reports",
+    "payment number, WHT base computed, and AP bill-first gate "
+    "(require Vendor Bill before payment)",
     "description": """
 OD19 Accounting Features
 ========================
@@ -20,8 +21,11 @@ Provides several accounting features for the Thai localization:
 * Prepayment actual due date (invoice date + 30 days).
 * Payment number displayed on vendor bills.
 * Withholding tax (WHT) base amount computed from selected invoices.
-* Thai WHT PDF reports: ภงด.1 (PND1), ภงด.3 (PND3),
-  ภงด.53 (PND53) and ภงด.53 ทริส (PND53 Tris).
+
+The advisory WHT Certificate PDFs that used to be printed from
+``account.payment`` were retired in favour of the GL-accurate
+certificate printed from the OCA model ``withholding.tax.cert``
+(see module ``od19_thai_tax_reports``).
     """,
     "depends": [
         "account",
@@ -35,8 +39,6 @@ Provides several accounting features for the Thai localization:
         "views/res_config_settings_views.xml",
         "views/account_move_views.xml",
         "views/account_payment_views.xml",
-        "report/wht_report_templates.xml",
-        "report/wht_report_actions.xml",
         "report/billing_note_report.xml",
     ],
     "installable": True,

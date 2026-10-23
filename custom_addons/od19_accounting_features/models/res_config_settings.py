@@ -14,3 +14,11 @@ class ResConfigSettings(models.TransientModel):
         help="Base URL of the Revenue Department (BOT) e-Tax invoice lookup. "
         "The invoice number is appended as ?id=<invoice_name>.",
     )
+
+    od19_require_vendor_bill_for_payment = fields.Boolean(
+        related="company_id.od19_require_vendor_bill_for_payment",
+        readonly=False,
+        string="บังคับตั้งหนี้ก่อนจ่าย (AP)",
+        help="Require a Vendor Bill (ตั้งหนี้) before an outbound payment can be "
+        "posted.",
+    )
