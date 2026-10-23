@@ -1263,10 +1263,10 @@ class TestDocumentPullRemove(AccountTestInvoicingCommon):
         )
         self.assertEqual(wizard.state, "choose")
         self.assertEqual(len(wizard.source_ids), 1)
-        wizard.source_id = wizard.source_ids.source_id
+        wizard.source_id = "purchase.order,%s" % self.po.id
         wizard.action_select_source()
         self.assertEqual(wizard.state, "confirm")
-        self.assertEqual(len(wizard.line_ids), 1)
+        self.assertEqual(len(wizard.source_line_ids), 1)
         wizard.action_remove()
         self.assertFalse(bill.invoice_line_ids)
         self.assertEqual(bill.od19_pull_source_label, False)
@@ -1295,7 +1295,7 @@ class TestDocumentPullRemove(AccountTestInvoicingCommon):
             {
                 "res_model": "account.move",
                 "res_id": bill.id,
-                "source_id": self.po.id,
+                "source_id": "purchase.order,%s" % self.po.id,
             }
         )
         wizard.action_select_source()
@@ -1313,7 +1313,7 @@ class TestDocumentPullRemove(AccountTestInvoicingCommon):
             wizard.action_select_source()
 ```
 
-> หมายเหตุ: `source_ids` / `source_id` ต้องเป็น Reference field ไม่ใช่ Many2one เพราะเอกสารต้นทางต่างชนิดกัน — ปรับ test ให้ตรงกับ implementation ใน Step 3 (`wizard.source_id = wizard.source_ids.source_id`)
+> หมายเหตุ: `source_id` เป็น Reference field (เก็บค่าเป็น string `"model,id"`) จึงกำหนดค่าในเทสต์ด้วย `"purchase.order,%s" % self.po.id` โดยตรง ส่วน `source_ids` เป็น One2many แสดงรายการเอกสารต้นทางที่ผูกอยู่ (informational) และ `source_line_ids` เป็น One2many ของบรรทัดที่จะลบ
 
 - [ ] **Step 2: รันเทสต์ให้เห็นว่า fail**
 
@@ -1330,13 +1330,31 @@ Expected: FAIL — model `od19.document.pull.remove.wizard` ไม่มี
 from odoo import fields, models
 
 
+class Od19DocumentPullRemoveSource(models.TransientModel):
+    """Informational row: one source document currently bound to the target."""
+
+    _name = "od19.document.pull.remove.source"
+    _description = "OD19 Document Pull Remove Source"
+
+    wizard_id = fields.Many2one(
+        comodel_name="od19.document.pull.remove.wizard",
+        string="Wizard / วิซาร์ด",
+        required=True,
+        ondelete="cascade",
+    )
+    source_ref = fields.Char(
+        string="Source Reference / อ้างอิงเอกสารต้นทาง", readonly=True
+    )
+    name = fields.Char(string="Source Document / เอกสารต้นทาง", readonly=True)
+
+
 class Od19DocumentPullRemoveLine(models.TransientModel):
     _name = "od19.document.pull.remove.line"
     _description = "OD19 Document Pull Remove Line"
 
     wizard_id = fields.Many2one(
         comodel_name="od19.document.pull.remove.wizard",
-        string="Wizard",
+        string="Wizard / วิซาร์ด",
         required=True,
         ondelete="cascade",
     )
@@ -1362,14 +1380,19 @@ class Od19DocumentPullRemoveLine(models.TransientModel):
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
+from odoo.fields import Command
 
 
 class Od19DocumentPullRemoveWizard(models.TransientModel):
     _name = "od19.document.pull.remove.wizard"
     _description = "OD19 Document Pull Remove Wizard"
 
-    res_model = fields.Char(string="Destination Model", required=True)
-    res_id = fields.Integer(string="Destination ID", required=True)
+    res_model = fields.Char(
+        string="Destination Model / โมเดลปลายทาง", required=True
+    )
+    res_id = fields.Integer(
+        string="Destination ID / รหัสเอกสารปลายทาง", required=True
+    )
     state = fields.Selection(
         selection=[
             ("choose", "Choose the source / เลือกเอกสารต้นทาง"),
@@ -1380,7 +1403,7 @@ class Od19DocumentPullRemoveWizard(models.TransientModel):
         required=True,
     )
     source_ids = fields.One2many(
-        comodel_name="od19.document.pull.remove.line",
+        comodel_name="od19.document.pull.remove.source",
         inverse_name="wizard_id",
         string="Source Documents / เอกสารต้นทาง",
     )
@@ -1408,17 +1431,23 @@ class Od19DocumentPullRemoveWizard(models.TransientModel):
 
     @api.model
     def _selection_source_id(self):
-        if not self:
-            return []
-        wizard = self[:1]
-        if not wizard.res_model or not wizard.res_id:
-            return []
-        target = wizard._od19_get_target().exists()
-        if not target:
-            return []
+        # Static and context-independent: the ORM evaluates a Reference
+        # selection on an empty recordset both when rendering the widget and
+        # when validating the stored value.
         return [
-            (spec["model"], spec["label"]) for spec in target._od19_pull_source_specs()
+            ("purchase.order", _("Purchase Order / ใบสั่งซื้อ")),
+            ("sale.order", _("Sale Order / ใบสั่งขาย")),
+            ("account.move", _("Invoice/Bill / ใบแจ้งหนี้/ใบวางบิล")),
+            ("purchase.request", _("Purchase Request / ใบขอซื้อ")),
+            ("stock.picking", _("Transfer / ใบรับ-ส่งสินค้า")),
         ]
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        wizards = super().create(vals_list)
+        for wizard in wizards:
+            wizard._od19_build_bound_sources()
+        return wizards
 
     @api.onchange("res_model", "res_id")
     def _onchange_target(self):
@@ -1426,18 +1455,20 @@ class Od19DocumentPullRemoveWizard(models.TransientModel):
 
     def _od19_build_bound_sources(self):
         self.ensure_one()
-        self.source_ids = [(5, 0, 0)]
-        if not self.res_model or not self.res_id:
-            return
-        target = self._od19_get_target().exists()
-        if not target:
-            return
         commands = []
-        for source, count in target._od19_pull_bound_sources():
-            commands.append(
-                (0, 0, {"res_model": source._name, "res_id": source.id, "name": "%s (%s)" % (source.display_name, count)})
-            )
-        self.source_ids = commands
+        if self.res_model and self.res_id:
+            target = self._od19_get_target().exists()
+            if target:
+                commands = [
+                    Command.create(
+                        {
+                            "source_ref": "%s,%s" % (source._name, source.id),
+                            "name": "%s (%s)" % (source.display_name, count),
+                        }
+                    )
+                    for source, count in target._od19_pull_bound_sources()
+                ]
+        self.source_ids = [Command.clear()] + commands
 
     @api.depends("source_line_ids", "source_id")
     def _compute_remove_summary(self):
@@ -1452,6 +1483,15 @@ class Od19DocumentPullRemoveWizard(models.TransientModel):
             else:
                 wizard.remove_summary = False
 
+    def _od19_push_preview_lines(self, target, source):
+        self.ensure_one()
+        commands = [
+            Command.create(dict(vals, wizard_id=self.id))
+            for vals in target._od19_pull_preview_lines(source)
+        ]
+        self.source_line_ids = [Command.clear()] + commands
+        return self.source_line_ids
+
     # ------------------------------------------------------------------
     # Actions
     # ------------------------------------------------------------------
@@ -1464,10 +1504,14 @@ class Od19DocumentPullRemoveWizard(models.TransientModel):
         if not self.source_id:
             raise UserError(_("Please select the source document to remove."))
         source = self.source_id
+        target._od19_pull_check_source(source)
         lines = self._od19_push_preview_lines(target, source)
         if not lines:
             raise UserError(
-                _("There is no line linked to %s in this document.", source.display_name)
+                _(
+                    "There is no line linked to %(name)s in this document.",
+                    name=source.display_name,
+                )
             )
         self.state = "confirm"
         return {
@@ -1481,7 +1525,7 @@ class Od19DocumentPullRemoveWizard(models.TransientModel):
     def action_back(self):
         self.ensure_one()
         self.state = "choose"
-        self.source_line_ids = [(5, 0, 0)]
+        self.source_line_ids = [Command.clear()]
         return {
             "type": "ir.actions.act_window",
             "res_model": self._name,
@@ -1497,21 +1541,31 @@ class Od19DocumentPullRemoveWizard(models.TransientModel):
         target._od19_pull_check_editable()
         if not self.source_id:
             raise UserError(_("No source document selected."))
-        count = target._od19_pull_remove(self.source_id)
+        target._od19_pull_remove(self.source_id)
         return {"type": "ir.actions.act_window_close"}
 ```
 
-> **`_od19_push_preview_lines`** เพิ่มเป็น helper ใน mixin (Task 5 Step 5) เพราะต้องอ่าน lineage เฉพาะของแต่ละปลายทาง
+> **หมายเหตุสำคัญ (Odoo 19)**: การ clear One2many ต้องห่อ command ด้วย list เสมอ — ใช้ `self.source_line_ids = [Command.clear()]` ไม่ใช่ `self.source_line_ids = Command.clear()` เพราะ `Command.clear()` คืน tuple `(5, 0, 0)` ซึ่ง `convert_to_cache()` จะ iterate เป็น 3 command แยก (ดู `fields_relational.py`)
+>
+> **`_od19_push_preview_lines`** เป็น helper ของ remove wizard เอง (ไม่ใช่ของ mixin) เพราะอ่าน lineage เฉพาะของแต่ละปลายทางผ่าน `_od19_pull_preview_lines(source)`
 
 `security/ir.model.access.csv` เติม:
 
 ```csv
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_od19_document_pull_wizard,od19.document.pull.wizard,model_od19_document_pull_wizard,base.group_user,1,1,1,1
-access_od19_document_pull_wizard_line,od19.document.pull.wizard.line,model_od19_document_pull_wizard_line,base.group_user,1,1,1,1
-access_od19_document_pull_remove_wizard,od19.document.pull.remove.wizard,model_od19_document_pull_remove_wizard,base.group_user,1,1,1,1
-access_od19_document_pull_remove_line,od19.document.pull.remove.line,model_od19_document_pull_remove_line,base.group_user,1,1,1,1
+access_od19_document_pull_remove_wizard_user,od19.document.pull.remove.wizard user,model_od19_document_pull_remove_wizard,base.group_user,1,1,1,1
+access_od19_document_pull_remove_source_user,od19.document.pull.remove.source user,model_od19_document_pull_remove_source,base.group_user,1,1,1,1
+access_od19_document_pull_remove_line_user,od19.document.pull.remove.line user,model_od19_document_pull_remove_line,base.group_user,1,1,1,1
 ```
+
+> ต้องเพิ่ม `tests/__init__.py`: `from . import test_document_pull_remove` และเพิ่ม import ของ 2 ไฟล์โมดูลใหม่ใน `wizards/__init__.py`
+>
+> `wizards/__init__.py` เติม:
+>
+> ```python
+> from . import od19_document_pull_remove_line
+> from . import od19_document_pull_remove_wizard
+> ```
 
 - [ ] **Step 4: implement preview helper + remove implementation**
 
@@ -1557,19 +1611,7 @@ access_od19_document_pull_remove_line,od19.document.pull.remove.line,model_od19_
         ]
 ```
 
-เพิ่มใน remove wizard ใน Step 3 (แทน placeholder):
-
-```python
-    def _od19_push_preview_lines(self, target, source):
-        self.ensure_one()
-        self.source_line_ids = [(5, 0, 0)]
-        vals_list = [
-            dict(vals, wizard_id=self.id)
-            for vals in target._od19_pull_preview_lines(source)
-        ]
-        self.source_line_ids = [(0, 0, vals) for vals in vals_list]
-        return self.source_line_ids
-```
+> `_od19_push_preview_lines` อยู่ใน remove wizard แล้วใน Step 3 — ไม่ต้องเพิ่มซ้ำ
 
 - [ ] **Step 5: รันเทสต์ให้เห็นว่าผ่าน**
 
@@ -1625,7 +1667,7 @@ class TestDocumentPullViews(TransactionCase):
     def test_invoice_line_source_column_is_optional(self):
         arch = self._view_arch("od19_document_pull.view_move_form_od19_document_pull")
         self.assertIn('optional="show"', arch)
-        self.assertIn("od19_pull_source_column", arch)
+        self.assertIn("od19_source_pull_label", arch)
 ```
 
 - [ ] **Step 2: รันเทสต์ให้เห็นว่า fail**
@@ -1752,8 +1794,7 @@ Expected: FAIL — `missing view od19_document_pull.view_move_form_od19_document
             <xpath expr="//field[@name='invoice_line_ids']/list/field[@name='name']" position="before">
                 <field name="od19_source_pull_label"
                        string="Source Document / เอกสารต้นทาง"
-                       optional="show"
-                       name="od19_pull_source_column"/>
+                       optional="show"/>
             </xpath>
         </field>
     </record>
@@ -1793,6 +1834,21 @@ Expected: FAIL — `missing view od19_document_pull.view_move_form_od19_document
     </record>
 </odoo>
 ```
+
+- [ ] **Step 4b: อัปเดต `__manifest__.py` ให้โหลด views ใหม่**
+
+`data` ต้องมี (ลำดับ: security ก่อน views):
+
+```python
+    "data": [
+        "security/ir.model.access.csv",
+        "wizards/od19_document_pull_wizard_views.xml",
+        "views/account_move_views.xml",
+        "views/purchase_order_views.xml",
+    ],
+```
+
+เพิ่ม `tests/__init__.py`: `from . import test_document_pull_views`
 
 - [ ] **Step 5: เพิ่ม computed label ระดับบรรทัดของ invoice**
 

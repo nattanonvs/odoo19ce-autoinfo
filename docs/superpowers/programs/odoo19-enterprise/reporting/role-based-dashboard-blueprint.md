@@ -132,7 +132,8 @@ Define the minimum role-based dashboard structure for Wave 0 so later domain wav
 
 ## Deferred Topics
 
-- Final screen layout and wireframe polish
-- Exact chart selection
-- Real-time streaming behavior
-- Permission model implementation for dashboard access
+- Final screen layout and wireframe polish — addressed per domain board in `W6-DASH-PHASE3` (§3/§4)
+- Exact chart selection — addressed per domain board in `W6-DASH-PHASE3` (§4/P2)
+- Real-time streaming behavior — **remains deferred** (requires websocket/bus; conflicts with the low-resource principle)
+
+> Permission model implementation for dashboard access is **closed**: record rules were added in phase 2 (`od19_dashboard/security/dashboard_security.xml`, spec `W6-DASH-PHASE2`), so the item was removed from this list.

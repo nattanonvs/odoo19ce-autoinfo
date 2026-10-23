@@ -166,20 +166,37 @@ The template is incomplete unless the report owner states a quality cue that tel
 
 | ส่วน | วิธีทำ | โมดูลที่ใช้ | พัฒนาเองหรือไม่ |
 | --- | --- | --- | --- |
-| ตั้งหนี้ (A/P, A/R) | ใช้ Vendor Bill / Customer Invoice มาตรฐาน | Odoo standard `account` | ไม่ต้องพัฒนา |
+| ตั้งหนี้ (A/P, A/R) | ใช้ Vendor Bill / Customer Invoice มาตรฐาน + **AP bill-first gate** (ฝั่งทำจ่ายต้องตั้งหนี้ก่อนจ่าย) | Odoo standard `account` + `od19_accounting_features` | ไม่ต้องพัฒนา (ใช้ setting `od19_require_vendor_bill_for_payment`) |
 | จัดกลุ่มใบแจ้งหนี้เพื่อจ่าย | ใช้ `account.payment.register` (รองรับ partner เดียวกัน) | Odoo standard `account` | ไม่ต้องพัฒนา |
 | WHT คำนวณอัตโนมัติ | WHT บนบรรทัดใบแจ้งหนี้, auto-calc ตอนจ่าย | OCA `l10n_th_account_tax` (v19.0) | ไม่ต้องพัฒนา |
 | Tax Invoice | มี `tax_invoice_number`, `tax_invoice_date` | OCA `l10n_th_account_tax` | ไม่ต้องพัฒนา |
 | PND (PND3/PND53) | CSV export สำหรับส่ง Revenue Department | Odoo standard `l10n_th` | ไม่ต้องพัฒนา |
-| ใบสำคัญจ่าย (Payment Voucher) | รายงานพิมพ์รูปแบบ QWeb | Custom | **พัฒนา (QWeb report)** |
-| ใบสำคัญรับเงิน (Payment Receipt) | รายงานพิมพ์รูปแบบ QWeb | Custom | **พัฒนา (QWeb report)** |
-| เลขที่เอกสารไทย (PV-2569-0001) | sequence field บน `account.payment` | Custom | **พัฒนา (sequence)** |
+| ใบสำคัญจ่าย (Payment Voucher) | รายงานพิมพ์รูปแบบ QWeb | Custom | **พัฒนาแล้ว — `od19_accounting_payment_voucher_reports`** |
+| ใบสำคัญรับเงิน (Payment Receipt) | รายงานพิมพ์รูปแบบ QWeb | Custom | **พัฒนาแล้ว — `od19_accounting_payment_voucher_reports`** |
+| เลขที่เอกสารไทย (PV-2569-0001) | sequence field บน `account.payment` | Custom | **พัฒนาแล้ว — `od19_voucher_no` (sequence `account.voucher.vendor.payment` / `account.voucher.customer.payment`)** |
+| ขั้นเตรียมจ่าย / อนุมัติ (Prepare / Approve) | ฟิลด์สถานะ + audit fields บน `account.payment` (แนวทาง A) | Custom (`od19_accounting_payment_voucher_reports`) | **พัฒนาแล้ว — `od19_prepare_state`, `od19_prepared_by/date`, `od19_approved_by/date`** |
+| หนังสือรับรองการหักภาษี ณ ที่จ่าย (50 ทวิ) | QWeb PDF พิมพ์จาก `withholding.tax.cert` (OCA) | Custom `od19_thai_tax_reports` + OCA `l10n_th_account_tax` | **พัฒนาแล้ว — `action_wht_certificate`** |
+
+### การตัดสินใจ: Prepare Payment (แนวทาง A) — 2026-10-23
+
+เดิมระบบออกเลขที่ PV/RV ตอน `action_post()` เท่านั้น ทำให้เอกสาร `draft` พิมพ์ใบสำคัญจ่ายได้แต่ **ไม่มีเลขที่** และเมื่อ post แล้วเลขเพิ่งจะเกิด — ตรวจสอบย้อนหลังขั้น "เตรียมจ่าย" ไม่ได้เลย
+
+จึงเปลี่ยนเป็น **ออกเลขตั้งแต่ขั้น "เตรียมจ่าย" + เก็บ audit fields** บน `account.payment` โดยตรง (ไม่สร้างโมเดลใหม่):
+
+- `od19_prepare_state`: `draft` → `prepared` → `approved` (tracking เปิดใช้ จึงมีประวัติใน chatter ของ `account.payment`)
+- `od19_prepared_by` / `od19_prepared_date` — ผู้จัดทำ + เวลาที่กด "เตรียมจ่าย"
+- `od19_approved_by` / `od19_approved_date` — ผู้อนุมัติ + เวลาที่อนุมัติ
+- `od19_voucher_no` ถูกออกตอนกด "เตรียมจ่าย" (และ guard ใน `action_post()` กันเลขซ้ำ/เลขหาย)
+- รายงานใบสำคัญจ่ายแสดงลายน้ำ "ร่าง / DRAFT" เมื่อยังไม่มีเลขที่ และใช้ `'—'` เป็น fallback
+- **บังคับใช้กับเอกสารใหม่เท่านั้น** — ไม่ migration เลข PV/RV ย้อนหลังให้เอกสารเก่า
+- **จุดเข้าใช้งาน**: Register Payment wizard มี checkbox `od19_prepare_payment` ("เตรียมจ่าย (ไม่ Post ทันที)", เฉพาะฝั่งขายออก) — สร้าง payment เป็น `draft` โดยเก็บรายการตั้งหนี้ที่จะตัดจ่ายไว้ที่ `od19_pending_reconcile_line_ids` แล้ว replay การ reconcile ตอน `action_post()`
+
+เหตุผลที่ไม่เลือก OCA `account_payment_order` (แนวทาง B): เอกสาร 1 ใบต่อ 1 คู่สัญญาเพียงพอต่อกระบวนการปัจจุบัน, ได้ chatter/tracking ครบโดยไม่เพิ่ม dependency, และความเสี่ยงต่องานที่ส่งมอบแล้ว (PV sequence, AP bill-first gate, รายงาน) ต่ำกว่า — B ยังคงเป็น upgrade path ในอนาคตหากต้องการจัดกลุ่มหลาย partner + อนุมัติหลายชั้น
 
 ### Optional (ถ้าต้องการ)
 
-- อนุมัติก่อนชำระ (Approval): ใช้ OCA `base_tier_validation` (ประมาณ 50 บรรทัด config)
+- อนุมัติก่อนชำระแบบหลายชั้น (Multi-tier): ใช้ OCA `base_tier_validation` (ประมาณ 50 บรรทัด config)
 - จัดกลุ่มหลาย partner: ใช้ OCA `account_payment_order` (ประมาณ 100 บรรทัดปรับให้เข้ากับไทย)
-- WHT Certificate PDF: พัฒนา custom (ประมาณ 200 บรรทัด)
 
 ### OCA Modules ที่ใช้เป็นฐาน (ไม่พัฒนาเอง)
 
@@ -232,7 +249,7 @@ The template is incomplete unless the report owner states a quality cue that tel
 
 ## Deferred Topics
 
-- Final dashboard UI implementation
+- Final dashboard UI implementation — tracked in `W6-DASH-PHASE3` (per-domain boards: Finance, Logistics, HR)
 - Final warehouse or ETL architecture
 - Automated threshold tuning
-- Full metric dictionary for every future business domain
+- Full metric dictionary for every future business domain — delivered per domain as each board is built (see `W6-DASH-PHASE3` §3)

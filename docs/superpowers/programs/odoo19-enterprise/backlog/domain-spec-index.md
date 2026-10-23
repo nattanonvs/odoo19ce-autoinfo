@@ -66,6 +66,7 @@ The dashboard/reporting enablement specs are **not** domain waves in the Wave 0�
 | --- | --- | --- | --- | --- |
 | Internal Operations / reporting enablement | W6-DASH-FORMULA-RULES | [2026-10-16-odoo19-dashboard-formula-and-status-rules-design.md](../../../specs/2026-10-16-odoo19-dashboard-formula-and-status-rules-design.md) | Implemented | Extends module `od19_dashboard`; implements the Wave 0 reporting baseline, no domain-wave scope |
 | Internal Operations / reporting enablement | W6-DASH-PHASE2 | [2026-10-16-odoo19-dashboard-phase2-presentation-design.md](../../../specs/2026-10-16-odoo19-dashboard-phase2-presentation-design.md) | Implemented — phase 2 continuation of W6-DASH-FORMULA-RULES | Adds visibility/alert rules, conditional formatting, formula library, cross-source widgets |
+| Internal Operations / reporting enablement | W6-DASH-PHASE3 | [2026-10-22-odoo19-dashboard-phase3-completion-design.md](../../../specs/2026-10-22-odoo19-dashboard-phase3-completion-design.md) | Draft — phase 3 continuation of W6-DASH-PHASE2 | `check_access()` cleanup, After-Sales verify closure, per-domain boards (Finance/Logistics/HR), blueprint/KPI doc sync |
 
 ## Wave Sequencing Notes
 

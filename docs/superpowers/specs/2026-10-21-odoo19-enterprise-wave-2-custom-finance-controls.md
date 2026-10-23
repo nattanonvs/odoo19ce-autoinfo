@@ -3,7 +3,7 @@
 ## Control Metadata
 - Child spec ID: W2-FINANCE-CONTROLS
 - Wave: Wave 2 (Custom finance controls)
-- Status: Implemented — core finance control modules (Advance, Cheque, Money In, WHT, Petty Cash, Fixed Assets, Jasper foundation) are present on disk; Payment Preparation (Payment Voucher/Receipt + PV/RV sequence) built as `od19_accounting_payment_voucher_reports`; Year-End Closing decided as manual no-code on core lock dates (no custom module)
+- Status: Implemented — core finance control modules (Advance, Cheque, Money In, WHT, Petty Cash, Fixed Assets, Jasper foundation) are present on disk; Payment Preparation (Payment Voucher/Receipt + PV/RV sequence) built as `od19_accounting_payment_voucher_reports`; WHT Certificate PDF (มาตรา 50 ทวิ) built in `od19_thai_tax_reports` printed from OCA `withholding.tax.cert` (advisory payment-based certs retired 2026-10-23); Year-End Closing decided as manual no-code on core lock dates (no custom module)
 - Owner: Finance controls lead
 - Reviewer: Technical supervisor
 - Approvers: Business owner; Technical supervisor
@@ -31,8 +31,8 @@
   - `custom_addons/od19_accounting_advance/` — model `account.advance` (customer/supplier), JE posting, states `draft → posted → reconciled / cancel`, sequence `account.advance`, post-install tests
   - `custom_addons/od19_accounting_cheque/` — `account.cheque` + `account.cheque.book`, sequence data, cheque print report, tests; depends `account`, `od19_partner_thai_fields`
   - `custom_addons/od19_accounting_money_in_report/` — snapshot report (`od19.money.in.report.run` / `.line` / `.builder`) with project integration, tests
-  - `custom_addons/od19_accounting_features/` — WHT advisory fields on `account.payment` (base/rate/type/amount compute), payer/payee, BOT URL, PND1/PND3/PND53 PDF reports, Billing Note report; depends OCA `l10n_th_account_tax`
-  - `custom_addons/od19_thai_tax_reports/` — WHT Register + VAT Sales/Purchase Register reports; depends OCA `l10n_th_account_tax`
+  - `custom_addons/od19_accounting_features/` — WHT advisory fields on `account.payment` (base/rate/type/amount compute), payer/payee, BOT URL, Billing Note report, AP bill-first gate; depends OCA `l10n_th_account_tax` (WHT Certificate PDFs (PND1/PND3/PND53/PND53 Tris) **retired 2026-10-23**)
+  - `custom_addons/od19_thai_tax_reports/` — WHT Register + VAT Sales/Purchase Register reports + WHT Certificate (มาตรา 50 ทวิ) พิมพ์จาก OCA `withholding.tax.cert`; depends OCA `l10n_th_account_tax`
   - `custom_addons/od19_accounting_petty_cash/` — `petty.cash.fund` + `petty.cash.transaction`
   - `custom_addons/od19_accounting_payment_fee/` — payment fee (bank charge) field + journal line generation on `account.payment`
   - `custom_addons/od19_reporting_jasper/` — Jasper/QWeb report foundation (`jasper.report.template`, `jasper.report.action`, generic model-agnostic report), tests
@@ -107,7 +107,7 @@ Child spec นี้ออกแบบแกน `Custom Finance Controls` ขอ
 - Advance: เงินรับ/จ่ายล่วงหน้า + การตัดใช้ + JE posting
 - Cheque: lifecycle เช็ค + สมุดเช็ค + รายงานพิมพ์เช็ค
 - Money In Analysis: snapshot report ของเงินรับเข้า
-- WHT: GL จาก OCA `l10n_th_account_tax` + ฟิลด์ advisory + PND1/PND3/PND53 + WHT/VAT Register
+- WHT: GL จาก OCA `l10n_th_account_tax` + ฟิลด์ advisory + WHT Certificate (มาตรา 50 ทวิ จาก `withholding.tax.cert`) + WHT/VAT Register
 - Petty Cash: เงินสดย่อย + การเบิกใช้/เติมเงิน
 - Fiscal Year: ช่วงปีบัญชีผ่าน OCA `account_fiscal_year`
 - Year-End Closing: แนวทางปิดบัญชีปลายปี = **Manual no-code** บน core lock dates (ตัดสินใจแล้ว 2026-10-21) — ไม่สร้างโมดูลอัตโนมัติ
@@ -177,7 +177,10 @@ Snapshot report (`od19.money.in.report.run` / `.line`) สร้างจาก 
 ### 6.4 WHT
 - GL: OCA `l10n_th_account_tax` สร้าง WHT JE ตอน post/จ่าย (`_handle_withholding_taxes()`)
 - Advisory: `od19_accounting_features` แสดง WHT base/rate/type/amount (compute-only, ไม่สร้าง JE ซ้ำ)
-- รายงาน: PND1/PND3/PND53 PDF + WHT Register/VAT Register จาก `od19_thai_tax_reports`
+- Certificate: หนังสือรับรองการหักภาษี ณ ที่จ่าย (มาตรา 50 ทวิ) พิมพ์จากโมเดล OCA **`withholding.tax.cert`** ใน `od19_thai_tax_reports` — ยอดมาจาก `wht_line` (base/wht_percent/amount) ตรง GL 100%
+  - โฟลว์การสร้าง: ตั้ง `wht_cert_income_type` บน `wht_move_ids` ของบิล/payment → กด **"⇒ Create withholding tax cert."** (OCA) → ได้ `withholding.tax.cert` (sequence `WHT/%(year)s/`) → พิมพ์ PDF
+- รายงานอื่น: WHT Register/VAT Sales/Purchase Register จาก `od19_thai_tax_reports`
+- **Retired (2026-10-23)**: รายงาน WHT Certificate 4 ฟอร์มเดิม (`PND1/PND3/PND53/PND53 Tris`) ที่พิมพ์จาก `account.payment` ด้วยยอด advisory — ลบออกจาก `od19_accounting_features` แล้ว เพราะซ้ำซ้อนและอาจไม่ตรง GL
 
 ### 6.5 Petty Cash
 `petty.cash.fund` (วงเงิน/ยอดคงเหลือ) + `petty.cash.transaction` (เบิก/เติม) พร้อม JE และการกระทบยอดกับเงินสดในมือ
@@ -208,20 +211,30 @@ Snapshot report (`od19.money.in.report.run` / `.line`) สร้างจาก 
 ### 6.10 Payment Preparation (วิธีที่ 3) — **Implemented**
 | ส่วน | ใช้/พัฒนา | โมดูล |
 | --- | --- | --- |
-| ตั้งหนี้ | Odoo standard | `account` |
+| ตั้งหนี้ | Odoo standard + **AP bill-first gate** | `account` + `od19_accounting_features` |
 | จัดกลุ่มใบแจ้งหนี้ | Odoo standard `account.payment.register` | `account` |
 | WHT คำนวณอัตโนมัติ | OCA | `l10n_th_account_tax` |
 | Tax Invoice | OCA | `l10n_th_account_tax` |
 | PND (PND3/PND53) | Odoo standard `l10n_th` | `l10n_th` |
 | ใบสำคัญจ่าย (Payment Voucher) | ✅ **พัฒนาแล้ว (QWeb)** | `od19_accounting_payment_voucher_reports` |
 | ใบสำคัญรับเงิน (Payment Receipt) | ✅ **พัฒนาแล้ว (QWeb)** | `od19_accounting_payment_voucher_reports` |
-| เลขที่เอกสารไทยบน `account.payment` | ✅ **พัฒนาแล้ว** (`od19_voucher_no` + `action_post()` → `ir.sequence`) | `od19_accounting_payment_voucher_reports` ใช้ sequence จาก `od19_accounting_document_sequence` |
+| หนังสือรับรองการหักภาษี ณ ที่จ่าย (WHT Certificate) | ✅ **พัฒนาแล้ว (QWeb, พิมพ์จาก `withholding.tax.cert`)** | `od19_thai_tax_reports` (โมเดลจาก OCA `l10n_th_account_tax`) |
+| เลขที่เอกสารไทยบน `account.payment` | ✅ **พัฒนาแล้ว** (`od19_voucher_no` ออกตอน "เตรียมจ่าย" + guard ใน `action_post()` → `ir.sequence`) | `od19_accounting_payment_voucher_reports` ใช้ sequence จาก `od19_accounting_document_sequence` |
+| ขั้นเตรียมจ่าย / อนุมัติ (Prepare / Approve) | ✅ **พัฒนาแล้ว (แนวทาง A, 2026-10-23)** — ฟิลด์ + audit fields บน `account.payment` + chatter tracking | `od19_accounting_payment_voucher_reports` |
 - Implementation notes:
   - Field `od19_voucher_no` (Char, copy=False, readonly) บน `account.payment`
-  - `action_post()` override เรียก `_od19_assign_voucher_number()` — outbound → `account.voucher.vendor.payment` (PV), inbound → `account.voucher.customer.payment` (RV)
+  - `action_od19_prepare()` (Draft-only) ออกเลขผ่าน `_od19_assign_voucher_number()` — outbound → `account.voucher.vendor.payment` (PV), inbound → `account.voucher.customer.payment` (RV) แล้ว set `od19_prepare_state = 'prepared'` + `od19_prepared_by/date`
+  - `action_od19_approve()` ต้องผ่าน `prepared` ก่อน → set `od19_prepare_state = 'approved'` + `od19_approved_by/date`
+  - `action_post()` override เรียก `_od19_assign_voucher_number()` เป็น guard (ถ้ามีเลขแล้วจะไม่เปลี่ยน)
+  - ทุกฟิลด์ขั้นเตรียมจ่าย/อนุมัติเปิด `tracking=True` → ประวัติตรวจสอบได้ใน chatter ของ `account.payment`
+  - รายงานใบสำคัญจ่ายแสดงลายน้ำ "ร่าง / DRAFT" เมื่อยังไม่มีเลขที่; `print_report_name` ใช้ `od19_voucher_no or name`
+  - **ตัวเลือกใน Register Payment wizard (2026-10-23)**: checkbox `od19_prepare_payment` ("เตรียมจ่าย (ไม่ Post ทันที)", แสดงเฉพาะฝั่งขายออก/outbound) — override hook `_post_payments()`/`_reconcile_payments()` ของ `account.payment.register` ให้คง payment ไว้สถานะ `draft` และเก็บรายการตั้งหนี้ที่จะตัดจ่ายไว้ที่ `od19_pending_reconcile_line_ids`; เมื่อ `action_post()` จะ replay การ reconcile (คัดลอก domain/reconcile/`matched_payment_ids` จาก core) ให้เสร็จในจังหวะเดียว
+  - **บังคับใช้กับเอกสารใหม่เท่านั้น** — ไม่ migration เลข PV/RV ย้อนหลัง
   - `ir.actions.report` 2 ตัว (`report_type=qweb-pdf`) ผูก `binding_model_id = account.model_account_payment` พร้อม `domain` แยก `payment_type`
   - ใช้ `amount_to_text(lang='th_TH')` และฟอนต์ Sarabun/Noto Sans Thai
-- Optional (ยังไม่ทำ): อนุมัติก่อนชำระ (OCA `base_tier_validation`); WHT Certificate PDF (custom)
+- **AP bill-first rule (บังคับ, 2026-10-23)**: ฝั่งทำจ่าย (outbound payment) ต้องตั้งหนี้ (Vendor Bill ที่ post แล้ว) ก่อนเข้าสู่ payment — `od19_accounting_features` override `account.payment.action_post()` เพื่อบล็อก standalone vendor payment ที่ไม่ผูก Vendor Bill (ตั้งค่าได้ที่ `res.company.od19_require_vendor_bill_for_payment`, default True) Register Payment wizard bypass ผ่าน context `od19_skip_vendor_bill_check`; expense reimbursement ยกเว้น
+- WHT Certificate PDF (2026-10-23): พิมพ์จากโมเดล OCA `withholding.tax.cert` (ไม่ใช่ advisory จาก payment) — `ir.actions.report` ใน `od19_thai_tax_reports` model `withholding.tax.cert`, binding ไปที่ `l10n_th_account_tax.model_withholding_tax_cert`, `print_report_name` = `WHT-Cert-%s` ตามเลขที่ cert
+- Optional (ยังไม่ทำ): อนุมัติก่อนชำระแบบหลายชั้น (OCA `base_tier_validation`); จัดกลุ่มหลาย partner ต่อ payment ครั้งเดียว (OCA `account_payment_order` — upgrade path ของแนวทาง A)
 
 ## 7. Boundary กับโดเมนอื่น
 
@@ -233,7 +246,7 @@ Snapshot report (`od19.money.in.report.run` / `.line`) สร้างจาก 
 ## 8. Reporting และ KPI Needs
 
 - AR/AP Aging, Trial Balance, P&L, Balance Sheet (พิมพ์ออกมา → ต้องมี Dual Format)
-- WHT Register + VAT Sales/Purchase Register + PND1/PND3/PND53
+- WHT Register + VAT Sales/Purchase Register + WHT Certificate (หนังสือรับรองการหักภาษี ณ ที่จ่าย)
 - Cheque register และรายงานเช็ครวมธนาคาร
 - Advance balance report (ยอดคงเหลือเงินล่วงหน้าตาม partner)
 - Petty cash reconciliation report (ยอดคงเหลือ vs วงเงิน)
@@ -276,12 +289,12 @@ Snapshot report (`od19.money.in.report.run` / `.line`) สร้างจาก 
 - ~~แนวทาง Year-End Closing: manual (no-code) หรือ automated module~~ → **ปิดแล้ว (2026-10-21): Manual no-code + core lock dates**
 - การเปิดใช้ OCA `account_financial_report` (ยังไม่มีใน `third_party/oca`) สำหรับรายงานทางการเงินมาตรฐาน
 - ต้นฉบับ Jasper layout ของ Odoo 15 สำหรับรายงานการเงินแต่ละตัว
-- ขอบเขต WHT Certificate PDF และการอนุมัติก่อนชำระ (optional) — ยังไม่ทำในรอบนี้
+- ~~ขอบเขต WHT Certificate PDF และการอนุมัติก่อนชำระ (optional) — ยังไม่ทำในรอบนี้~~ → **WHT Certificate PDF ปิดแล้ว (2026-10-23): พิมพ์จาก OCA `withholding.tax.cert` ใน `od19_thai_tax_reports`**; เหลือเฉพาะการอนุมัติก่อนชำระ (optional)
 
 ## 14. Definition of Done ระดับสเปก
 
 - โมดูล Wave 2 ทั้งหมดติดตั้งได้บน `odoo19_pdev` โดย log ไม่มี warning จากโมดูลเอง
-- ฟังก์ชันที่ปิดช่องว่างครบ: ✅ Payment Voucher + Payment Receipt (QWeb) และเลขที่เอกสาร PV/RV บน `account.payment` (`od19_accounting_payment_voucher_reports`); ✅ Year-End Closing ตัดสินใจแล้ว (Manual no-code + core lock dates)
+- ฟังก์ชันที่ปิดช่องว่างครบ: ✅ Payment Voucher + Payment Receipt (QWeb) และเลขที่เอกสาร PV/RV บน `account.payment` (`od19_accounting_payment_voucher_reports`); ✅ WHT Certificate PDF (มาตรา 50 ทวิ) พิมพ์จาก OCA `withholding.tax.cert` (`od19_thai_tax_reports`); ✅ Year-End Closing ตัดสินใจแล้ว (Manual no-code + core lock dates)
 - ทุกรายงานพิมพ์ในขอบเขตมีทั้ง QWeb และ Jasper และผ่านการเทียบ layout กับ Odoo 15
 - มีชุดทดสอบผ่านตามเกณฑ์ที่กำหนด (รันโดยผู้ใช้)
 - ไม่มีการแก้ไขไฟล์ core ของ Odoo

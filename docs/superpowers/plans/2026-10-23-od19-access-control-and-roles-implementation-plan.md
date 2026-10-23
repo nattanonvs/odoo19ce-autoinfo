@@ -1,0 +1,218 @@
+# OD19 Access Control & User Roles — Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** สร้างโครงสร้างสิทธิ์การเข้าถึง Odoo 19 ด้วยสองแกน (บทบาท = `res.users.role` จาก OCA, แผนก = record rule) โดยแยกเป็น 2 โมดูลเพื่อตัด dependency วน
+
+**Architecture:** Layer 1 `od19_security_roles` (privilege + กลุ่มกลาง 4 ตัว + `res.users.od19_department_id` + cron mirror + ไม่รู้จักโมดูลธุรกิจ) → Layer 2 `od19_role_catalog` (สร้าง `res.users.role` ~40 บทบาทเป็น data เท่านั้น และผูก `implied_ids` กับกลุ่มธุรกิจ) → โมดูลธุรกิจเพิ่ม department record rule (เฟส B)
+
+**Tech Stack:** Odoo 19 Enterprise, Python 3.12, OCA `base_user_role` 19.0.1.3.1, XML data, `TransactionCase` tests
+
+**Spec:** [2026-10-23-od19-access-control-and-roles-design.md](file:///c:/odoo-dev/odoo19/docs/superpowers/specs/2026-10-23-od19-access-control-and-roles-design.md)
+
+**Decisions ที่ยืนยันแล้ว:** D1 เฟส A→B→C · D2 บทบาท=หน้าที่/แผนก=rule · D3 hr.employee เป็นแหล่งความจริง · D4 Role Matrix §7 ของสเปก · D5 rule เฉพาะ 11 โมเดล · D6 ไม่ auto-map · D7 แยก 2 โมดูล · D8 วงเงินบน res.company · D9 แผนกของตัวเอง
+
+---
+
+## Test / Run Convention
+
+- Python venv: `c:\odoo-dev\odoo19\venv19\Scripts\python.exe`
+- Odoo binary: `c:\odoo-dev\odoo19\odoo-bin`
+- Config: `c:\odoo-dev\odoo19\odoo.conf` · DB: `odoo19_pdev` (เดียวเท่านั้น)
+
+ติดตั้ง + รันเทสต์ Layer 1:
+
+```powershell
+Set-Location c:\odoo-dev\odoo19
+.\venv19\Scripts\python.exe odoo-bin -c odoo.conf -d odoo19_pdev `
+  -i od19_security_roles --test-enable --test-tags /od19_security_roles `
+  --stop-after-init --no-http
+```
+
+ติดตั้ง Layer 2 (ต้องมีโมดูลธุรกิจครบก่อน):
+
+```powershell
+.\venv19\Scripts\python.exe odoo-bin -c odoo.conf -d odoo19_pdev `
+  -i od19_role_catalog --stop-after-init --no-http
+```
+
+> **ข้อควรระวัง:** ก่อนรันทุกครั้งให้ปิด Odoo service ที่รันอยู่ เพื่อไม่ให้แย่ง DB
+
+---
+
+## File Structure
+
+**สร้างใหม่ — `custom_addons/od19_security_roles/`**
+
+| ไฟล์ | หน้าที่ |
+|---|---|
+| `__manifest__.py` | depends `["base", "base_user_role", "hr"]` + data list |
+| `__init__.py` | import models |
+| `models/__init__.py` | import ลำดับ model |
+| `models/res_users.py` | `od19_department_id`, `od19_department_code`, sync + guard |
+| `models/hr_employee.py` | hook mirror แผนกไปยัง user |
+| `models/hr_department.py` | `od19_member_user_ids` |
+| `data/od19_security_role_privilege.xml` | privilege "บทบาท OD19" |
+| `data/ir_cron_data.xml` | cron ตรวจสอบ/ซ่อม mirror แผนก |
+| `security/od19_security_groups.xml` | กลุ่มกลาง 4 ตัว |
+| `security/ir.model.access.csv` | ACL ของโมดูล |
+| `views/res_users_views.xml` | เพิ่มฟิลด์แผนกในหน้าผู้ใช้ |
+| `views/role_menus.xml` | เมนู Settings → Roles |
+| `tests/__init__.py` | import test |
+| `tests/common.py` | helper สร้างแผนก/พนักงาน/ผู้ใช้ |
+| `tests/test_roles_install.py` | ตรวจ privilege + กลุ่มกลาง |
+| `tests/test_department_sync.py` | ตรวจ mirror + cron |
+| `tests/test_role_assignment.py` | ตรวจการมอบ/ถอน role |
+| `i18n/th.po` | คำแปลไทย |
+
+**สร้างใหม่ — `custom_addons/od19_role_catalog/`**
+
+| ไฟล์ | หน้าที่ |
+|---|---|
+| `__manifest__.py` | depends ทุกโมดูลธุรกิจที่ถูกอ้าง + `od19_security_roles` |
+| `data/od19_roles_governance.xml` | ครอบครัว A/B/C |
+| `data/od19_roles_operations.xml` | ครอบครัว D/E/F |
+| `data/od19_roles_backoffice.xml` | ครอบครัว G/H/I/J |
+| `tests/test_role_catalog.py` | ตรวจว่า role ทุกตัวโหลดได้ + implied group ตรง matrix |
+
+---
+
+## สัญญากลาง (Freeze ก่อนเริ่มทุก task)
+
+| องค์ประกอบ | ชื่อที่ล็อก |
+|---|---|
+| Privilege | `od19_security_roles.od19_role_privilege` |
+| กลุ่ม scope แผนก | `od19_security_roles.group_od19_department_scope` |
+| กลุ่มเห็นทุกแผนก | `od19_security_roles.group_od19_department_all` |
+| กลุ่มจัดการบทบาท | `od19_security_roles.group_od19_role_manager` |
+| กลุ่มอนุมัติเครดิต | `od19_security_roles.group_od19_credit_approver` |
+| ฟิลด์แผนกบนผู้ใช้ | `res.users.od19_department_id` |
+| ชื่อ role xml id | `role_<family>_<role>` ใน namespace ของ `od19_role_catalog` |
+
+---
+
+# เฟส A — โมดูล Layer 1 + Layer 2
+
+## Task 1: Scaffolding `od19_security_roles` + ติดตั้งผ่าน
+
+**Files:**
+- Create: `custom_addons/od19_security_roles/__manifest__.py`
+- Create: `custom_addons/od19_security_roles/__init__.py`
+- Create: `custom_addons/od19_security_roles/models/__init__.py`
+- Create: `custom_addons/od19_security_roles/security/ir.model.access.csv`
+- Create: `custom_addons/od19_security_roles/tests/__init__.py`
+- Test: `custom_addons/od19_security_roles/tests/test_roles_install.py`
+
+- [ ] **Step 1: เขียน failing test** — ตรวจว่าติดตั้งแล้วมี privilege + กลุ่มกลางครบ
+- [ ] **Step 2: รันเทสต์ให้เห็น fail** (`-u od19_security_roles --test-tags /od19_security_roles`)
+- [ ] **Step 3: เขียน `__manifest__.py` + `__init__.py` ให้ติดตั้งผ่าน**
+- [ ] **Step 4: รันเทสต์ให้ผ่าน**
+- [ ] **Step 5: Commit** `feat(od19_security_roles): scaffold access-control layer`
+
+## Task 2: กลุ่มกลาง 4 ตัว + privilege
+
+**Files:**
+- Create: `security/od19_security_groups.xml`
+- Create: `data/od19_security_role_privilege.xml`
+
+- [ ] **Step 1: เขียน XML** — privilege `od19_role_privilege` + 4 กลุ่ม โดย `group_od19_department_scope.implied_ids = base.group_user`
+- [ ] **Step 2: รันเทสต์** ให้ผ่าน (`test_roles_install`)
+- [ ] **Step 3: Commit** `feat(od19_security_roles): add central groups and role privilege`
+
+## Task 3: `res.users.od19_department_id` + mirror จากพนักงาน
+
+**Files:**
+- Create: `models/res_users.py`, `models/hr_employee.py`, `models/hr_department.py`
+- Create: `views/res_users_views.xml`
+- Test: `tests/test_department_sync.py`
+
+- [ ] **Step 1: เขียน failing test** — สร้างแผนก + พนักงาน + ผู้ใช้ แล้วตรวจว่า `od19_department_id` ตรง; ย้ายแผนกพนักงานแล้วผู้ใช้ตามไป
+- [ ] **Step 2: รันเทสต์ให้เห็น fail**
+- [ ] **Step 3: เขียนโค้ด**
+  - `res.users`: ฟิลด์ stored M2o + `_od19_sync_department_from_employee()` เรียกใน `create`/`write`
+  - `hr.employee`: `write()` ถ้า `department_id` เปลี่ยน → อัปเดต user ที่ผูก
+  - `hr.department`: One2many ย้อนกลับ
+- [ ] **Step 4: เพิ่มฟิลด์ในหน้าผู้ใช้ (readonly)**
+- [ ] **Step 5: รันเทสต์ให้ผ่าน**
+- [ ] **Step 6: Commit** `feat(od19_security_roles): mirror employee department onto users`
+
+## Task 4: cron ตรวจสอบ/ซ่อม mirror
+
+**Files:**
+- Create: `data/ir_cron_data.xml`
+- Modify: `models/res_users.py` (เพิ่ม `_od19_cron_sync_all_departments`)
+
+- [ ] **Step 1: เขียนเทสต์** — ตั้งค่าแผนกไม่ตรงด้วย SQL-less write (ข้าม hook) แล้วสั่ง cron แล้วตรวจว่าตรง
+- [ ] **Step 2: เขียน cron + เมธอดกวาด (`search` ผู้ใช้ที่มี employee แล้ว `write` ค่าให้ตรง)**
+- [ ] **Step 3: รันเทสต์ให้ผ่าน**
+- [ ] **Step 4: Commit** `feat(od19_security_roles): add daily department mirror cron`
+
+## Task 5: ตัวช่วย record rule + เมนูผู้ดูแล
+
+**Files:**
+- Create: `views/role_menus.xml` (เมนู Settings → Users & Companies → Roles)
+- Modify: `security/ir.model.access.csv` (ให้ `group_od19_role_manager` เข้าถึง `res.users.role`)
+- Test: `tests/test_role_assignment.py`
+
+- [ ] **Step 1: เขียน failing test** — ผู้ใช้ที่มี `group_od19_role_manager` เห็นและแก้ `res.users.role` ได้; ผู้ใช้ทั่วไปแก้ไม่ได้
+- [ ] **Step 2: เขียน ACL + เมนู**
+- [ ] **Step 3: รันเทสต์ให้ผ่าน**
+- [ ] **Step 4: Commit** `feat(od19_security_roles): role manager ACL and menu`
+
+## Task 6: โมดูล `od19_role_catalog` — โครง + data บทบาททั้งหมด
+
+**Files:**
+- Create: `custom_addons/od19_role_catalog/__manifest__.py`, `__init__.py`, `tests/__init__.py`
+- Create: `data/od19_roles_governance.xml`, `data/od19_roles_operations.xml`, `data/od19_roles_backoffice.xml`
+- Test: `tests/test_role_catalog.py`
+
+- [ ] **Step 1: เขียน failing test** — role จาก matrix (§7 ของสเปก) โหลดครบ และ `implied_ids` ตรงตามที่ระบุ
+- [ ] **Step 2: เขียน data XML ทั้ง 40 บทบาท** ( `noupdate="1"`, `group_privilege_id` = `od19_role_privilege`)
+- [ ] **Step 3: ติดตั้ง + รันเทสต์ให้ผ่าน**
+- [ ] **Step 4: ตรวจ SoD** — เทสต์ว่าไม่มี role ใด imply ทั้ง `group_sale_salesman` และ `group_od19_credit_approver`
+- [ ] **Step 5: Commit** `feat(od19_role_catalog): add 40 business role definitions`
+
+---
+
+# เฟส B — Department record rule (11 โมเดล)
+
+> **หมายเหตุ:** แต่ละโมดูลต้องเพิ่ม `od19_security_roles` ใน `depends` + สร้าง `security/od19_department_rule.xml` และลงทะเบียนใน `data` list
+
+- [ ] **Task B1** `od19_goods_issue` → `stock.request.order.department_id`
+- [ ] **Task B2** `od19_project_analytic` → `project.project.od19_department_id`
+- [ ] **Task B3** `od19_iso_document_control` → `od19.iso.document.department_id`
+- [ ] **Task B4** `od19_iso_nonconformity` → `od19.iso.nonconformity.department_id`
+- [ ] **Task B5** `od19_iso_risk` → `od19.risk.department_id`
+- [ ] **Task B6** `od19_iso_training` → `od19.training.department_id`
+- [ ] **Task B7** `od19_iso_calibration` → `od19.calibration.department_id`
+- [ ] **Task B8** `od19_iso_internal_audit` → `od19.audit.auditee_department_id`
+- [ ] **Task B9** `od19_internal_issue` → `helpdesk.ticket.department_id`
+- [ ] **Task B10** `od19_announcement` → `od19.announcement.department_id`
+- [ ] **Task B11** `od19_fleet_accounting` → `fleet.vehicle.department_id`
+- [ ] **Task B12** เทสต์รวม: ผู้ใช้แผนก A เห็นเฉพาะเอกสาร A + เอกสารที่ไม่มีแผนก; ผู้มี `group_od19_department_all` เห็นทั้งหมด
+
+---
+
+# เฟส C — Role Matrix สำหรับ migration (เอกสาร)
+
+- [ ] **Task C1** สร้างตาราง `docs/superpowers/programs/odoo19-enterprise/discovery/role-matrix.md` (พนักงาน ↔ บทบาท) จาก Role Matrix §7
+- [ ] **Task C2** ระบุผู้ใช้ Odoo 15 ที่ได้ `group_od19_department_all` (บัญชี/คลัง/ผู้บริหาร)
+
+---
+
+# เฟส D — วงเงินอนุมัติบน `res.company` (D8)
+
+- [ ] **Task D1** เพิ่มฟิลด์ `res.company`: `od19_so_manager_approval_threshold`, `od19_so_director_approval_threshold` (และคง `od19_po_director_approval_threshold` เดิม)
+- [ ] **Task D2** ปรับ `od19_sales_oca_bridge_workflow` ให้สร้าง `tier.definition` จากค่าบริษัท (hook `post_init`/`_create_tier_definitions`) แทน domain ฮาร์ดโค้ด
+- [ ] **Task D3** เพิ่มฟิลด์ตั้งค่าใน Settings → Companies
+- [ ] **Task D4** เทสต์: เปลี่ยนวงเงินแล้ว tier เปลี่ยนตาม
+
+---
+
+## Verification
+
+- [ ] ติดตั้ง `od19_security_roles` + รันเทสต์ผ่านทั้ง 4 ไฟล์
+- [ ] ติดตั้ง `od19_role_catalog` + รันเทสต์ผ่าน
+- [ ] Upgrade ทุกโมดูลที่แก้ในเฟส B ด้วย `-u all` แล้วไม่มี warning
+- [ ] ตรวจด้วยตา: Settings → Users → เลือกผู้ใช้ → tab Roles แสดงบทบาทครบ
+- [ ] ตรวจด้วยตา: Settings → Roles แสดง 40 บทบาท grouped by privilege

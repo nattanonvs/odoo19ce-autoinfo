@@ -100,19 +100,28 @@
 - Rebuild only the finance and inventory reports that still carry decision value from the Odoo 15 legacy system.
 - **WHT**: ใช้ **OCA `l10n_th_account_tax` (v19.0)** เป็นฐานสำหรับ WHT (ภาษีหัก ณ ที่จ่าย) และ VAT — ไม่ต้องพัฒนาเอง โมดูลนี้รองรับ WHT บนบรรทัดใบแจ้งหนี้, คำนวณอัตโนมัติตอนจ่าย, Tax Invoice Number/Date, Undue VAT (VAT ตอนจ่าย), PIT (Personal Income Tax)
 - **Payment Preparation (Prepare Payment) — วิธีที่ 3 (ตัดสินใจ 2026-10-13)**: **ไม่สร้างโมเดล `account.payment.voucher` เอง** แต่ใช้ Odoo standard + OCA เป็นหลัก เพื่อลดงานพัฒนาและง่ายต่อการอัปเกรด:
-  - **ตั้งหนี้**: ใช้ Vendor Bill / Customer Invoice (Odoo standard) — ไม่ต้องพัฒนา
+  - **ตั้งหนี้**: ใช้ Vendor Bill / Customer Invoice (Odoo standard) — ไม่ต้องพัฒนา model ใหม่
+    - **AP bill-first rule (บังคับ, 2026-10-23)**: ฝั่งทำจ่าย (outbound / vendor payment) **ต้องตั้งหนี้ (Vendor Bill ที่ post แล้ว) ก่อนจึงจะเข้าสู่ payment ได้** — ระบบบล็อกการ post standalone vendor payment ที่ไม่ผูกกับ Vendor Bill ผ่าน `action_post()` override ในโมดูล `od19_accounting_features` ปิด/เปิดได้ด้วย setting `od19_require_vendor_bill_for_payment` (default เปิด) ที่ Settings → Accounting; Register Payment wizard และ expense reimbursement ยกเว้นการบล็อกนี้
   - **จัดกลุ่มใบแจ้งหนี้**: ใช้ Odoo standard `account.payment.register` (จัดกลุ่มได้ partner เดียวกัน ซึ่งเป็นกรณีส่วนใหญ่) — ไม่ต้องพัฒนา
   - **WHT คำนวณอัตโนมัติ**: ใช้ OCA `l10n_th_account_tax` — ไม่ต้องพัฒนา
   - **Tax Invoice**: ใช้ OCA `l10n_th_account_tax` (มี `tax_invoice_number`, `tax_invoice_date`) — ไม่ต้องพัฒนา
   - **PND (PND3/PND53)**: ใช้ Odoo 19 standard `l10n_th` (มี CSV export สำหรับ RD) — ไม่ต้องพัฒนา
+  - **WHT Certificate (หนังสือรับรองการหักภาษี ณ ที่จ่าย มาตรา 50 ทวิ)** (✅ พัฒนาแล้ว 2026-10-23 ในโมดูล `od19_thai_tax_reports`): พิมพ์ PDF จากโมเดล OCA **`withholding.tax.cert`** โดยตรง (ยอดจาก `wht_line` = base/wht_percent/amount ตรง GL 100%) — **ไม่สร้างโมเดลเอง** ใช้การสร้าง cert ของ OCA (ตั้ง `wht_cert_income_type` → กด "⇒ Create withholding tax cert.")
+    - รายงาน WHT Certificate 4 ฟอร์มเดิมที่พิมพ์ advisory จาก `account.payment` (PND1/PND3/PND53/PND53 Tris ใน `od19_accounting_features`) ถูก **retire 2026-10-23** เพราะซ้ำซ้อนและอาจไม่ตรง GL
   - **Custom ที่ต้องพัฒนาเพียงอย่างเดียว** (✅ พัฒนาแล้ว 2026-10-21 ในโมดูล `od19_accounting_payment_voucher_reports`):
     1. รายงานใบสำคัญจ่าย (Payment Voucher) — QWeb report
     2. รายงานใบสำคัญรับเงิน (Payment Receipt) — QWeb report
-    3. เลขที่เอกสารไทยสำหรับ payment (PV-2569-0001) — sequence field `od19_voucher_no` บน `account.payment` (รัน PV/RV ตอน `action_post()` ผ่าน sequence จาก `od19_accounting_document_sequence`)
+    3. เลขที่เอกสารไทยสำหรับ payment (PV-2569-0001) — sequence field `od19_voucher_no` บน `account.payment` (sequence จาก `od19_accounting_document_sequence`)
+    4. **ขั้นเตรียมจ่าย / อนุมัติ (Prepare / Approve)** — ✅ พัฒนาแล้ว 2026-10-23: ฟิลด์ `od19_prepare_state` (`draft` → `prepared` → `approved`) + audit fields `od19_prepared_by/date`, `od19_approved_by/date` บน `account.payment` โดยตรง (มี chatter tracking) — **ไม่สร้างโมเดลใหม่**
+       - เลขที่ `od19_voucher_no` ถูกออกตอนกด "เตรียมจ่าย" (เดิมออกตอน `action_post()` ทำให้เอกสาร draft พิมพ์ได้แต่ไม่มีเลขที่) และ `action_post()` มี guard กันเลขซ้ำ
+       - รายงานใบสำคัญจ่ายแสดงลายน้ำ "ร่าง / DRAFT" เมื่อยังไม่มีเลขที่ และ fallback `'—'`
+       - **บังคับใช้กับเอกสารใหม่เท่านั้น** — ไม่ migration เลขย้อนหลัง
+       - **Register Payment wizard**: checkbox `od19_prepare_payment` ("เตรียมจ่าย (ไม่ Post ทันที)") ให้สร้าง payment เป็น draft + เก็บรายการตั้งหนี้ไว้ตัดจ่ายตอน `action_post()`
+       - เหตุผลที่ไม่เลือก OCA `account_payment_order` (แนวทาง B): 1 เอกสารต่อ 1 คู่สัญญาเพียงพอ, ได้ chatter/tracking ครบโดยไม่เพิ่ม dependency, ความเสี่ยงต่องานที่ส่งมอบแล้วต่ำ — B เป็น upgrade path อนาคตถ้าต้องจัดกลุ่มหลาย partner + อนุมัติหลายชั้น
   - **Optional (ถ้าต้องการ)**:
     - อนุมัติก่อนชำระ (Approval): ใช้ OCA `base_tier_validation` (~50 บรรทัด config)
     - จัดกลุ่มหลาย partner: ใช้ OCA `account_payment_order` (~100 บรรทัดปรับให้เข้ากับไทย)
-    - WHT Certificate PDF: พัฒนา custom (~200 บรรทัด)
+    - ~~WHT Certificate PDF: พัฒนา custom (~200 บรรทัด)~~ → **ทำแล้ว 2026-10-23** (พิมพ์จาก OCA `withholding.tax.cert`)
   - **เหตุผล**: วิธีนี้พัฒนาน้อยที่สุด (~300 บรรทัด custom) และง่ายต่อการอัปเกรดที่สุด เพราะใช้ OCA + Odoo standard เป็นหลัก โค้ด custom น้อยมาก
 - **Petty Cash**: Build a dedicated petty cash workflow separate from HR Expense, with cash box management, replenishment, and reconciliation.
 - **Fiscal Year & Year-End**: Replace `om_fiscal_year` with OCA `account_fiscal_year` (periods) and handle year-end closing as **Manual no-code** on Odoo 19 core lock dates (`fiscalyear_lock_date` / `hard_lock_date` / `tax_lock_date` / `sale_lock_date` + `account.lock_exception`) — **no custom closing module** (decided 2026-10-21; replaces `dtr_year_end`).
@@ -124,7 +133,7 @@
   - **Wave 0**: `od19_thai_font_support` (ติดตั้งฟอนต์ Sarabun/Noto Sans Thai + CSS สำหรับ Web UI และ QWeb), `od19_thai_localization_base` (ฐานสำหรับ localization ของไทย: menu, term, config)
   - **Wave 1**: `od19_partner_thai_fields` (ฟิลด์ไทยสำหรับ partner: เลขประจำตัวผู้เสียภาษี, สาขา, หมายเลขสำนักงานใหญ่), `od19_document_sequence` (เลขที่เอกสารไทย: INV, PO, SO, PV ตามปีงบประมาณ), `od19_thai_tax_reports` (VAT Register, WHT Register, PND export — ขยายจาก OCA `l10n_th_account_tax`), `od19_accounting_dncn` (Debit Note / Credit Note / Remaster Invoice), `od19_accounting_cheque` (เช็ค: รายการเช็ค, เงื่อนไข, รายงานพิมพ์เช็ครวมธนาคาร)
   - **Wave 2**: `od19_accounting_reporting` (รายงานทางการเงินทั้งหมด: AR/AP Aging, Trial Balance, P&L, Balance Sheet — QWeb), `od19_accounting_payment_voucher_reports` (รายงานใบสำคัญจ่าย/ใบสำคัญรับเงิน — **reports only, ไม่สร้าง model ใหม่** ตาม Payment Preparation วิธีที่ 3)
-  - **หมายเหตุ**: ไม่มีโมดูล custom `od19_accounting_wht` บนดิสก์ — WHT GL สร้างโดย OCA `l10n_th_account_tax` (`_handle_withholding_taxes()`) และฟิลด์แสดงผล (advisory) อยู่ใน `od19_accounting_features` (compute-only) จึงไม่ต้องพัฒนาโมดูล WHT แยก
+  - **หมายเหตุ**: ไม่มีโมดูล custom `od19_accounting_wht` บนดิสก์ — WHT GL สร้างโดย OCA `l10n_th_account_tax` (`_handle_withholding_taxes()`) และฟิลด์แสดงผล (advisory) อยู่ใน `od19_accounting_features` (compute-only) จึงไม่ต้องพัฒนาโมดูล WHT แยก; **WHT Certificate PDF (มาตรา 50 ทวิ)** พิมพ์จากโมเดล OCA `withholding.tax.cert` อยู่ใน `od19_thai_tax_reports` (2026-10-23)
 - **OCA Modules ที่จะใช้เป็นฐาน (ไม่พัฒนาเอง)**: `l10n_th` (มาตรฐาน Odoo: CoA, VAT 7%, WHT types, PND3/PND53 CSV, PromptPay QR, Tax Invoice PDF), `l10n_th_account_tax` (WHT บนบรรทัดใบแจ้งหนี้, auto-calc ตอนจ่าย, Tax Invoice Number/Date, Undue VAT, PIT), `base_tier_validation` (approval workflow รวมศูนย์เดียว), `account_financial_report` (รายงานทางการเงินมาตรฐาน)
 
 ### Wave 3 Focus
@@ -170,6 +179,7 @@ Dashboard and reporting enablement work is **not** a domain wave in the Wave 0�
 | --- | --- | --- | --- |
 | Internal Operations / reporting enablement | W6-DASH-FORMULA-RULES | Implemented | `docs/superpowers/specs/2026-10-16-odoo19-dashboard-formula-and-status-rules-design.md`; extends module `od19_dashboard` |
 | Internal Operations / reporting enablement | W6-DASH-PHASE2 | Implemented | `docs/superpowers/specs/2026-10-16-odoo19-dashboard-phase2-presentation-design.md` |
+| Internal Operations / reporting enablement | W6-DASH-PHASE3 | Draft | `docs/superpowers/specs/2026-10-22-odoo19-dashboard-phase3-completion-design.md`; `check_access()` cleanup + per-domain boards (D1 Finance / D2 Logistics / D3 HR) + doc sync |
 
 Keep this track aligned with the `## Cross-Cutting Reporting Track` section in `backlog/domain-spec-index.md`.
 
