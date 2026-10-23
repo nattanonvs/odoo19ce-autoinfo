@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_od19_document_pull_wizard_form" model="ir.ui.view">
+        <field name="name">od19.document.pull.wizard.form</field>
+        <field name="model">od19.document.pull.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Pull Lines from Source / ดึงรายการจากเอกสารต้นทาง">
+                <group>
+                    <group>
+                        <field name="res_model" invisible="1"/>
+                        <field name="res_id" invisible="1"/>
+                        <field name="partner_id"/>
+                    </group>
+                    <group>
+                        <field name="source_ref"
+                               options="{'no_create': True}"/>
+                        <field name="mode" widget="radio"/>
+                    </group>
+                </group>
+                <field name="line_ids" invisible="mode != 'select'">
+                    <list create="false" delete="false" editable="bottom">
+                        <field name="selected"/>
+                        <field name="source_name"/>
+                        <field name="product_id"/>
+                        <field name="name"/>
+                        <field name="qty_to_pull"/>
+                        <field name="product_uom_id" optional="show"/>
+                        <field name="price_unit"/>
+                        <field name="res_model" column_invisible="1"/>
+                        <field name="res_id" column_invisible="1"/>
+                    </list>
+                </field>
+                <div class="alert alert-info" role="alert" invisible="not source_ref">
+                    All lines are pulled in document order. Choose
+                    "Select lines" to pick individual lines.
+                </div>
+                <footer>
+                    <button name="action_pull" type="object" string="Pull Lines"
+                            class="btn-primary"/>
+                    <button string="Cancel" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_od19_document_pull_remove_wizard_form" model="ir.ui.view">
+        <field name="name">od19.document.pull.remove.wizard.form</field>
+        <field name="model">od19.document.pull.remove.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Manage/Remove Source / จัดการ/ลบเอกสารต้นทาง">
+                <field name="res_model" invisible="1"/>
+                <field name="res_id" invisible="1"/>
+                <field name="state" invisible="1"/>
+                <field name="source_ids" invisible="1"/>
+                <group invisible="state != 'choose'">
+                    <field name="source_id" options="{'no_create': True}"/>
+                </group>
+                <div invisible="state != 'confirm'">
+                    <div class="alert alert-warning" role="alert">
+                        <field name="remove_summary" nolabel="1"/>
+                    </div>
+                    <field name="source_line_ids" nolabel="1">
+                        <list create="false" delete="false">
+                            <field name="product_id"/>
+                            <field name="name"/>
+                            <field name="quantity"/>
+                        </list>
+                    </field>
+                </div>
+                <footer>
+                    <button name="action_select_source" type="object"
+                            string="Continue" class="btn-primary"
+                            invisible="state != 'choose'"/>
+                    <button name="action_remove" type="object"
+                            string="Confirm Removal / ยืนยันการลบ" class="btn-danger"
+                            invisible="state != 'confirm'"/>
+                    <button name="action_back" type="object"
+                            string="Back / ย้อนกลับ" class="btn-secondary"
+                            invisible="state != 'confirm'"/>
+                    <button string="Cancel" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>
