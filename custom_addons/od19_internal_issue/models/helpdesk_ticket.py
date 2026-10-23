@@ -66,6 +66,19 @@ class HelpdeskTicket(models.Model):
         index=True,
     )
 
+    def _get_under_validation_exceptions(self):
+        """Allow the ticket workflow to move its own state under validation.
+
+        ``action_submit`` sets the intermediate ``submitted`` state right after
+        ``request_validation`` created the open review. Without this exception
+        OCA would block the ``state`` write as "not allowed under validation".
+        """
+        return super()._get_under_validation_exceptions() + ["state"]
+
+    def _get_after_validation_exceptions(self):
+        """Allow the ticket state machine to keep moving after validation."""
+        return super()._get_after_validation_exceptions() + ["state"]
+
     @api.depends("state", "review_ids")
     def _compute_need_validation(self):
         """Tickets in draft state that have tier definitions need validation."""
@@ -134,6 +147,10 @@ class HelpdeskTicket(models.Model):
     def action_validate(self):
         """Approve the current tier review."""
         for rec in self:
+            # ``can_review`` is a non-stored computed field; when the workflow
+            # mutates ``state`` right after ``request_validation`` the cached
+            # value can be stale. Recompute it before trusting it.
+            rec.invalidate_recordset(["can_review", "review_ids"])
             if not rec.can_review:
                 raise UserError(_("คุณไม่มีสิทธิ์ตรวจสอบปัญหานี้"))
             rec.validate_tier()

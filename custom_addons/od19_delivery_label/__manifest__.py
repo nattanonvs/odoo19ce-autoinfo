@@ -16,12 +16,14 @@ Adds a printable delivery cover sheet (FM-PU-12) to stock.picking
 as used in the warehouse shipment process.
 
 Fields added to stock.picking:
+
 * od19_department_code - Department code (DEPT) shown on the label
   and used in the picking reference (WH/{DEPT}/OUT/00001). Required.
 * project_id (standard, from project_stock) - Project copied from the
   linked sale order for the delivery label.
 
 Fields added to hr.department:
+
 * code - Short department code (e.g. IA, BA, TA, DES, FA).
 """,
     "depends": [

@@ -77,16 +77,18 @@ class Od19TransportOrder(models.Model):
                 raise UserError(_('Please specify a vehicle.'))
             if not order.driver_id:
                 raise UserError(_('Please specify a driver.'))
-            if order.state == 'draft' and order.need_validation:
+            # ``need_validation`` is a non-stored computed field, so it can
+            # still hold the value cached before the validation request was
+            # created. Drop that stale value so the check below is accurate.
+            order.invalidate_recordset(['need_validation'])
+            if order.review_ids:
+                if order.validation_status != 'validated':
+                    raise UserError(
+                        _('This transport order is waiting for tier validation '
+                          'before it can be confirmed.')
+                    )
+            elif order.need_validation:
                 awaiting |= order
-            elif (
-                order.state == 'waiting_approval'
-                and order.validation_status != 'validated'
-            ):
-                raise UserError(
-                    _('This transport order is waiting for tier validation '
-                      'before it can be confirmed.')
-                )
         if awaiting:
             awaiting.write({'state': 'waiting_approval'})
             awaiting.request_validation()

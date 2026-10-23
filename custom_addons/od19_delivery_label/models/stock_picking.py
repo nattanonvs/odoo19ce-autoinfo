@@ -101,13 +101,20 @@ class StockPicking(models.Model):
     # ------------------------------------------------------------------
     @api.model
     def _get_current_user_department_code(self):
-        """Return the department code of the current user's employee, or False."""
+        """Return the department code of the current user's employee, or False.
+
+        Only employees that actually carry a department code are considered,
+        so a department-less employee cannot shadow the right one when the
+        user has several employee records.
+        """
         employee = self.env["hr.employee"].search(
-            [("user_id", "=", self.env.uid)], limit=1
+            [
+                ("user_id", "=", self.env.uid),
+                ("department_id.code", "!=", False),
+            ],
+            limit=1,
         )
-        if employee and employee.department_id and employee.department_id.code:
-            return employee.department_id.code
-        return False
+        return employee.department_id.code or False
 
     @api.model
     def _default_od19_department_code(self):
@@ -116,13 +123,24 @@ class StockPicking(models.Model):
 
     @api.constrains("od19_department_code")
     def _check_od19_department_code(self):
-        """Ensure the department code matches an existing hr.department code."""
+        """Validate DEPT against the codes defined on hr.department.
+
+        DEPT is mandatory on outgoing delivery orders: it is printed on the
+        delivery label (FM-PU-12) and used in the picking reference
+        (``WH/{DEPT}/OUT/00001``).  Other operations (receipts created by
+        ``purchase_stock`` as the superuser, internal transfers, ...) are
+        created automatically by the stock rules, where no department can be
+        resolved, so the code is optional there - but it must still be valid
+        whenever it is provided.
+        """
         for picking in self:
             code = (picking.od19_department_code or "").strip()
             if not code:
-                raise ValidationError(
-                    _("DEPT (Department Code) is required on the delivery order.")
-                )
+                if picking.picking_type_code == "outgoing":
+                    raise ValidationError(
+                        _("DEPT (Department Code) is required on the delivery order.")
+                    )
+                continue
             department = self.env["hr.department"].search(
                 [("code", "=", code)], limit=1
             )

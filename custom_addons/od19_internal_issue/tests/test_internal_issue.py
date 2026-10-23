@@ -123,8 +123,11 @@ class TestInternalIssue(TransactionCase):
         ticket = self._create_ticket()
         ticket.action_submit()
         self.assertEqual(ticket.state, "submitted")
-        # Admin can review
-        ticket.action_validate()
+        # The tier definitions assign review to base.group_system. The test
+        # env runs as the superuser, which is not a member of that group, so
+        # the review must be approved by an actual reviewer (admin).
+        ticket.with_user(self.user_admin).action_validate()
+        ticket.invalidate_recordset()
         self.assertEqual(ticket.state, "validated")
         ticket.action_start_work()
         self.assertEqual(ticket.state, "in_progress")

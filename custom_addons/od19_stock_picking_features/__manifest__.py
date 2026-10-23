@@ -21,7 +21,9 @@ Receipts / Internal Transfers):
    are intended to be printed together with the standard operations.
 
 2. Signature chain auto-resolve
+
    Two new fields are added to stock.picking:
+
    * ``od19_sale_user_id``   - the salesperson from the linked SO.
    * ``od19_dept_manager_id`` - the department manager of that
      salesperson (``hr.department.manager_id.user_id``).
