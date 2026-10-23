@@ -173,7 +173,8 @@ class TestGeneralLedgerReport(TransactionCase):
         self.assertEqual(parameters["p_To_Date"], "2026-10-23")
         self.assertEqual(
             parameters["p_Where"],
-            " and aml.company_id = %s and am.state = 'posted'" % report.company_id.id,
+            " and am.state = 'posted' and aml.company_id = %s"
+            % report.company_id.id,
         )
         self.assertEqual(parameters["p_Print_By"], self.env.user.name)
 
@@ -196,16 +197,9 @@ class TestGeneralLedgerReport(TransactionCase):
         self.assertEqual(report.get_parameters()["p_From_Date_Text"], "05-01-2026")
 
     def test_where_follows_filters(self):
-        account = self.env["account.account"].create(
-            {
-                "name": "GL Test Account",
-                "account_type": "asset_current",
-                "code": "999999",
-            }
-        )
-        journal = self.env["account.journal"].create(
-            {"name": "GL Test Journal", "code": "GLT", "type": "general"}
-        )
+        account = self.env["account.account"].search([], limit=1)
+        journal = self.env["account.journal"].search([], limit=1)
+        self.assertTrue(account and journal)
         report = self.env["general.ledger.report"].create(
             {
                 "account_ids": [(6, 0, account.ids)],
