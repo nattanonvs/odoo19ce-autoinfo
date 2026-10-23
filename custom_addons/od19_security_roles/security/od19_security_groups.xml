@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        กลุ่มความปลอดภัยกลางของ OD19 (Layer 1)
+        กลุ่มเหล่านี้ไม่ผูกกับโมดูลธุรกิจใด ๆ จึงติดตั้งได้ก่อนโมดูลธุรกิจทั้งหมด
+        และถูกอ้างอิงจาก od19_role_catalog (Layer 2) เป็นหลัก
+
+        group_od19_department_scope : ทุกบทบาท imply กลุ่มนี้ เพื่อถูกจำกัดขอบเขตด้วยแผนก
+        group_od19_department_all   : เห็นข้อมูลทุกแผนก (ไม่ถูกจำกัดด้วย scope rule)
+        group_od19_role_manager     : จัดการบทบาทและมอบหมายบทบาทให้ผู้ใช้
+        group_od19_credit_approver  : อนุมัติวงเงินเครดิต (No Credit Approval, No Credit Sale)
+    -->
+
+    <!-- ขอบเขตตามแผนก: ทุกบทบาทธุรกิจต้อง imply กลุ่มนี้ -->
+    <record id="group_od19_department_scope" model="res.groups">
+        <field name="name">OD19 Department Scope</field>
+        <field name="comment">ถูกจำกัดการมองเห็นข้อมูลตามแผนกของตนเอง</field>
+        <field name="privilege_id" ref="od19_role_privilege"/>
+        <field name="implied_ids" eval="[Command.link(ref('base.group_user'))]"/>
+    </record>
+
+    <!-- เห็นทุกแผนก: ไม่ถูกจำกัดด้วย scope rule (บัญชี / คลัง / ผู้บริหาร / ผู้ดูแลระบบ) -->
+    <record id="group_od19_department_all" model="res.groups">
+        <field name="name">OD19 All Departments</field>
+        <field name="comment">เห็นข้อมูลของทุกแผนก ไม่ถูกจำกัดด้วยขอบเขตแผนก</field>
+        <field name="privilege_id" ref="od19_role_privilege"/>
+        <field name="implied_ids" eval="[Command.link(ref('base.group_user'))]"/>
+    </record>
+
+    <!-- ผู้จัดการบทบาท: เข้าถึง Settings -> Users &amp; Companies เพื่อบริหารบทบาท -->
+    <record id="group_od19_role_manager" model="res.groups">
+        <field name="name">OD19 Role Manager</field>
+        <field name="comment">จัดการบทบาท (res.users.role) และมอบหมายบทบาทให้ผู้ใช้</field>
+        <field name="privilege_id" ref="od19_role_privilege"/>
+        <field name="implied_ids" eval="[Command.link(ref('base.group_erp_manager'))]"/>
+    </record>
+
+    <!-- ผู้อนุมัติเครดิต: ใช้ร่วมกับ od19_sales_customer_risk_gate -->
+    <record id="group_od19_credit_approver" model="res.groups">
+        <field name="name">OD19 Credit Approver</field>
+        <field name="comment">อนุมัติวงเงินเครดิตของลูกค้า (Right to Approve)</field>
+        <field name="privilege_id" ref="od19_role_privilege"/>
+        <field name="implied_ids" eval="[Command.link(ref('base.group_user'))]"/>
+    </record>
+
+    <!-- ผู้ดูแลระบบได้กลุ่มจัดการบทบาทและสิทธิ์เห็นทุกแผนกโดยอัตโนมัติ -->
+    <record id="base.group_system" model="res.groups">
+        <field name="implied_ids" eval="[Command.link(ref('group_od19_role_manager')), Command.link(ref('group_od19_department_all'))]"/>
+    </record>
+</odoo>

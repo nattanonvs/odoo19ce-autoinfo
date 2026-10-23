@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- แสดงแผนก (ขอบเขตข้อมูล) ในหน้าผู้ใช้ แบบอ่านอย่างเดียว
+         เพราะค่าถูก mirror มาจากแผนกของพนักงานอัตโนมัติ -->
+    <record id="view_users_form_od19_department" model="ir.ui.view">
+        <field name="name">res.users.form.od19.department</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='access_rights']//field[@name='company_id']" position="after">
+                <field name="od19_department_id" readonly="1" options="{'no_create': True}"/>
+                <field name="od19_department_code" invisible="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_users_tree_od19_department" model="ir.ui.view">
+        <field name="name">res.users.list.od19.department</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='role']" position="after">
+                <field name="od19_department_id" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

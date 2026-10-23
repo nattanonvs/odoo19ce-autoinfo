@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Privilege: จัดกลุ่ม role และกลุ่มความปลอดภัยกลางของ OD19 ทั้งหมดไว้ใต้
+        หมวด "User roles" (มาจาก OCA base_user_role) เพื่อให้แสดงในแท็บ
+        Access Rights ของหน้าผู้ใช้ได้อย่างเป็นระเบียบ
+    -->
+    <record id="od19_role_privilege" model="res.groups.privilege">
+        <field name="name">OD19 Roles</field>
+        <field name="description">บทบาทและกลุ่มความปลอดภัยกลางของระบบ OD19</field>
+        <field name="category_id" ref="base_user_role.ir_module_category_role"/>
+        <field name="sequence">10</field>
+    </record>
+</odoo>
