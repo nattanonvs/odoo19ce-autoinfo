@@ -7,11 +7,17 @@ class ResCompany(models.Model):
 
     od19_analytic_required_account_ids = fields.Many2many(
         "account.account",
+        "company_od19_analytic_required_account_rel",
+        "company_id",
+        "account_id",
         string="Accounts Requiring Analytic",
         help="Journal items on these accounts must have an analytic account.",
     )
     od19_analytic_require_journal_ids = fields.Many2many(
         "account.journal",
+        "company_od19_analytic_require_journal_rel",
+        "company_id",
+        "journal_id",
         string="Journals Requiring Analytic",
         help="Journal entries in these journals must have analytic accounts "
              "on all lines. Leave empty to check by account only.",

@@ -52,9 +52,13 @@ class AccountMove(models.Model):
 
     @api.constrains("dncn", "reason_id")
     def _check_dncn_reason(self):
-        """DN/CN/Remaster invoices must have a reason."""
+        """Posted DN/CN/Remaster invoices must keep their reason.
+
+        Draft documents may be saved without one so the user can complete the
+        form; :meth:`action_post` blocks the posting until a reason is set.
+        """
         for move in self:
-            if move.dncn and not move.reason_id:
+            if move.state == "posted" and move.dncn and not move.reason_id:
                 raise ValidationError(_(
                     "A reason is required for %s documents."
                 ) % move._get_dncn_label())

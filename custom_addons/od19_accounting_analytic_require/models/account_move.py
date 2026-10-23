@@ -35,8 +35,8 @@ class AccountMove(models.Model):
         journal_requires_analytic = self.journal_id.id in required_journal_ids
 
         for line in self.line_ids:
-            # Skip liquidity / counterpart lines that Odoo auto-creates
-            if line.display_type:
+            # Sections and notes never carry an accounting entry.
+            if line.display_type in ("line_section", "line_note"):
                 continue
             account_requires = line.account_id.id in required_account_ids
             if not account_requires and not journal_requires_analytic:

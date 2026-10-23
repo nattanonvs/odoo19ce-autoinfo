@@ -10,22 +10,27 @@ class TestAnalyticRequire(TransactionCase):
         super().setUpClass()
         cls.company = cls.env.company
 
-        cls.expense_account = cls.env["account.account"].search(
-            [("account_type", "=", "expense"), ("company_id", "=", cls.company.id)],
-            limit=1,
+        # In Odoo 19 ``account.account`` has no ``company_id``: accounts are
+        # shared between companies through ``company_ids``.  Reuse the accounts
+        # coming from the installed chart template instead of creating new
+        # ones.
+        account_domain = cls.env["account.account"]._check_company_domain(cls.company)
+        AccountAccount = cls.env["account.account"]
+        cls.expense_account = AccountAccount.search(
+            [*account_domain, ("account_type", "=", "expense")], limit=1
         )
-        cls.cash_account = cls.env["account.account"].search(
-            [("account_type", "=", "asset_cash"), ("company_id", "=", cls.company.id)],
-            limit=1,
+        cls.cash_account = AccountAccount.search(
+            [*account_domain, ("account_type", "=", "asset_cash")], limit=1
         )
+
         cls.journal = cls.env["account.journal"].search(
             [("type", "=", "general"), ("company_id", "=", cls.company.id)],
             limit=1,
         )
+        analytic_plan = cls.env["account.analytic.plan"].search([], limit=1)
         cls.analytic_account = cls.env["account.analytic.account"].create({
-            "name": "Test Analytic",
-            "plan_id": cls.env["account.analytic.plan"].search([], limit=1).id
-            or cls.env["account.analytic.plan"].create({"name": "Default"}).id,
+            "name": "Analytic Require Test",
+            "plan_id": analytic_plan.id,
         })
 
     def _create_move(self, with_analytic=False):
@@ -34,6 +39,7 @@ class TestAnalyticRequire(TransactionCase):
         )
         return self.env["account.move"].create({
             "journal_id": self.journal.id,
+            "company_id": self.company.id,
             "line_ids": [
                 (0, 0, {
                     "name": "Test expense",
