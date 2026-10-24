@@ -1631,8 +1631,11 @@ git commit -m "feat(od19_document_pull): add remove wizard with mandatory confir
 **Files:**
 - Create: `custom_addons/od19_document_pull/wizards/od19_document_pull_wizard_views.xml`
 - Create: `custom_addons/od19_document_pull/views/account_move_views.xml`
-- Create: `custom_addons/od19_document_pull/views/purchase_order_views.xml`
 - Test: `custom_addons/od19_document_pull/tests/test_document_pull_views.py` (สร้าง, import)
+
+> `views/purchase_order_views.xml` ย้ายไป Task 7 เพราะปุ่มต้องเรียกเมธอดบน `purchase.order` ซึ่งจะ inherit mixin ใน Task 7 เท่านั้น
+
+> ปุ่มใน view ต้องเรียกเมธอด **public** (`od19_action_open_*`) เพราะ Odoo 19 ห้ามปุ่มเรียกเมธอดที่ขึ้นต้นด้วย `_`
 
 - [ ] **Step 1: เขียน failing test**
 
@@ -1655,14 +1658,8 @@ class TestDocumentPullViews(TransactionCase):
 
     def test_invoice_form_has_pull_buttons(self):
         arch = self._view_arch("od19_document_pull.view_move_form_od19_document_pull")
-        self.assertIn("_od19_pull_action_open_pull_wizard", arch)
-        self.assertIn("_od19_pull_action_open_remove_wizard", arch)
-
-    def test_purchase_order_form_has_pull_buttons(self):
-        arch = self._view_arch(
-            "od19_document_pull.view_order_form_od19_document_pull"
-        )
-        self.assertIn("_od19_pull_action_open_pull_wizard", arch)
+        self.assertIn("od19_action_open_pull_wizard", arch)
+        self.assertIn("od19_action_open_remove_wizard", arch)
 
     def test_invoice_line_source_column_is_optional(self):
         arch = self._view_arch("od19_document_pull.view_move_form_od19_document_pull")
@@ -1694,7 +1691,6 @@ Expected: FAIL — `missing view od19_document_pull.view_move_form_od19_document
                     </group>
                     <group>
                         <field name="source_ref"
-                               domain="[('partner_id', '=', partner_id)]"
                                options="{'no_create': True}"/>
                         <field name="mode" widget="radio"/>
                     </group>
@@ -1742,7 +1738,7 @@ Expected: FAIL — `missing view od19_document_pull.view_move_form_od19_document
                         <field name="remove_summary" nolabel="1"/>
                     </div>
                     <field name="source_line_ids" nolabel="1">
-                        <list create="false" delete="false" editable="false">
+                        <list create="false" delete="false">
                             <field name="product_id"/>
                             <field name="name"/>
                             <field name="quantity"/>
@@ -1767,7 +1763,7 @@ Expected: FAIL — `missing view od19_document_pull.view_move_form_od19_document
 </odoo>
 ```
 
-- [ ] **Step 4: เขียน form views ของปลายทาง**
+- [ ] **Step 4: เขียน form views ของปลายทาง (account.move เท่านั้น)**
 
 `views/account_move_views.xml`:
 
@@ -1780,12 +1776,12 @@ Expected: FAIL — `missing view od19_document_pull.view_move_form_od19_document
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
             <xpath expr="//header" position="inside">
-                <button name="_od19_pull_action_open_pull_wizard"
+                <button name="od19_action_open_pull_wizard"
                         type="object"
                         string="Pull Lines from Source / ดึงรายการจากเอกสารต้นทาง"
                         class="btn-secondary"
                         invisible="state != 'draft' or move_type not in ('in_invoice', 'out_invoice')"/>
-                <button name="_od19_pull_action_open_remove_wizard"
+                <button name="od19_action_open_remove_wizard"
                         type="object"
                         string="Manage/Remove Source / จัดการ/ลบเอกสารต้นทาง"
                         class="btn-secondary"
@@ -1803,37 +1799,7 @@ Expected: FAIL — `missing view od19_document_pull.view_move_form_od19_document
 
 > ต้องมีฟิลด์ `account.move.line.od19_source_pull_label` (computed) เพิ่มใน Task 6 Step 5 เพื่อป้อนคอลัมน์นี้
 
-`views/purchase_order_views.xml`:
-
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <record id="view_order_form_od19_document_pull" model="ir.ui.view">
-        <field name="name">purchase.order.form.od19.document.pull</field>
-        <field name="model">purchase.order</field>
-        <field name="inherit_id" ref="purchase.purchase_order_form"/>
-        <field name="arch" type="xml">
-            <xpath expr="//header" position="inside">
-                <button name="_od19_pull_action_open_pull_wizard"
-                        type="object"
-                        string="Pull Lines from Source / ดึงรายการจากเอกสารต้นทาง"
-                        class="btn-secondary"
-                        invisible="state not in ('draft', 'sent')"/>
-                <button name="_od19_pull_action_open_remove_wizard"
-                        type="object"
-                        string="Manage/Remove Source / จัดการ/ลบเอกสารต้นทาง"
-                        class="btn-secondary"
-                        invisible="state not in ('draft', 'sent')"/>
-            </xpath>
-            <xpath expr="//field[@name='order_line']/list/field[@name='product_id']" position="before">
-                <field name="od19_pull_source_label"
-                       string="Source Document / เอกสารต้นทาง"
-                       optional="show"/>
-            </xpath>
-        </field>
-    </record>
-</odoo>
-```
+> `views/purchase_order_views.xml` (ปุ่ม pull/remove + คอลัมน์ `od19_pull_source_label` บน `order_line`) สร้างใน Task 7 หลัง `purchase.order` inherit mixin แล้ว
 
 - [ ] **Step 4b: อัปเดต `__manifest__.py` ให้โหลด views ใหม่**
 
@@ -1844,7 +1810,6 @@ Expected: FAIL — `missing view od19_document_pull.view_move_form_od19_document
         "security/ir.model.access.csv",
         "wizards/od19_document_pull_wizard_views.xml",
         "views/account_move_views.xml",
-        "views/purchase_order_views.xml",
     ],
 ```
 
@@ -1891,7 +1856,11 @@ git commit -m "feat(od19_document_pull): wizard and form views with bilingual bu
 ## Task 7: Flow 4 — `purchase.order` ← `purchase.request`
 
 **Files:**
-- Modify: `custom_addons/od19_document_pull/models/purchase_order.py`
+- Create: `custom_addons/od19_document_pull/models/purchase_order.py`
+- Create: `custom_addons/od19_document_pull/views/purchase_order_views.xml`
+- Modify: `custom_addons/od19_document_pull/models/__init__.py` (import `purchase_order`)
+- Modify: `custom_addons/od19_document_pull/__manifest__.py` (เพิ่ม `views/purchase_order_views.xml`)
+- Modify: `custom_addons/od19_document_pull/tests/test_document_pull_views.py` (เพิ่ม test ปุ่มบน PO form)
 - Test: `custom_addons/od19_document_pull/tests/test_document_pull_purchase_request.py` (สร้าง, import)
 
 - [ ] **Step 1: เขียน failing test**
@@ -2146,15 +2115,62 @@ class PurchaseOrder(models.Model):
 
 > `remove.line` preview model มีฟิลด์ `name` เป็น Char — `_od19_pull_preview_lines` ของ PO คืน `name` (description) จึงเข้ากันได้
 
-- [ ] **Step 4: ให้ `purchase_order_line.py` มี label column (ทำแล้วใน Task 3) และตรวจ import**
+- [ ] **Step 4: เขียน form view ของ `purchase.order` (ย้ายมาจาก Task 6)**
 
-แก้ `models/__init__.py` ให้ import `purchase_order_line` ก่อน `purchase_order` (มีอยู่แล้วใน Task 1)
+`views/purchase_order_views.xml`:
 
-- [ ] **Step 5: รันเทสต์ให้เห็นว่าผ่าน**
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_order_form_od19_document_pull" model="ir.ui.view">
+        <field name="name">purchase.order.form.od19.document.pull</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="od19_action_open_pull_wizard"
+                        type="object"
+                        string="Pull Lines from Source / ดึงรายการจากเอกสารต้นทาง"
+                        class="btn-secondary"
+                        invisible="state not in ('draft', 'sent')"/>
+                <button name="od19_action_open_remove_wizard"
+                        type="object"
+                        string="Manage/Remove Source / จัดการ/ลบเอกสารต้นทาง"
+                        class="btn-secondary"
+                        invisible="state not in ('draft', 'sent')"/>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list/field[@name='product_id']" position="before">
+                <field name="od19_pull_source_label"
+                       string="Source Document / เอกสารต้นทาง"
+                       optional="show"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+```
+
+อัปเดต `__manifest__.py` ให้เพิ่ม `"views/purchase_order_views.xml"` ต่อท้าย `views/account_move_views.xml`
+
+เพิ่มใน `tests/test_document_pull_views.py`:
+
+```python
+    def test_purchase_order_form_has_pull_buttons(self):
+        arch = self._view_arch(
+            "od19_document_pull.view_order_form_od19_document_pull"
+        )
+        self.assertIn("od19_action_open_pull_wizard", arch)
+        self.assertIn("od19_action_open_remove_wizard", arch)
+```
+
+- [ ] **Step 5: ให้ `purchase_order_line.py` มี label column (ทำแล้วใน Task 3) และตรวจ import**
+
+แก้ `models/__init__.py` ให้ import `purchase_order_line` ก่อน `purchase_order`
+
+- [ ] **Step 6: รันเทสต์ให้เห็นว่าผ่าน**
 
 Expected: PASS
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
 git add custom_addons/od19_document_pull

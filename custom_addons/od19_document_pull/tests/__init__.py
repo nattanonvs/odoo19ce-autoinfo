@@ -7,4 +7,5 @@ from . import test_document_pull_remove
 from . import test_document_pull_views
 from . import test_document_pull_purchase_request
 from . import test_document_pull_sale
+from . import test_purchase_create_vendor_bill_filter
 from . import test_module_install

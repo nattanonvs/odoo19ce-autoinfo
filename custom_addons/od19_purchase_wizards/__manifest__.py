@@ -3,7 +3,7 @@
 
 {
     "name": "OD19 Purchase Wizards",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "category": "Purchase Management",
     "summary": "Trade discount wizard, PR line pricing, vendor/your ref on PR, "
     "and create vendor bill from PO wizard.",

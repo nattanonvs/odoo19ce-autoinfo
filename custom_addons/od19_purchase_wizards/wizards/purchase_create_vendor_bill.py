@@ -63,6 +63,10 @@ class Od19PurchaseCreateVendorBill(models.TransientModel):
             if line.display_type in ("line_section", "line_subsection"):
                 pending_section = line
                 continue
+            if line.qty_to_invoice <= 0:
+                # Skip lines with nothing left to bill, so a partially billed
+                # order is not billed twice.
+                continue
             if pending_section:
                 section_vals = pending_section._prepare_account_move_line()
                 section_vals.update({"sequence": sequence})
