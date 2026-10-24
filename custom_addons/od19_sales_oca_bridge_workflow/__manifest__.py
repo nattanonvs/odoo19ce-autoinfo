@@ -1,7 +1,7 @@
 {
     "name": "OD19 Sales OCA Workflow Bridge",
     "author": "OD19",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "depends": [
         "sale_delivery_state",
         "base_revision",
@@ -15,6 +15,7 @@
         "security/sale_director_security.xml",
         "data/od19_sale_tier_definition.xml",
         "views/sale_order_bridge_views.xml",
+        "views/res_company_views.xml",
     ],
     "installable": True,
     "license": "LGPL-3",

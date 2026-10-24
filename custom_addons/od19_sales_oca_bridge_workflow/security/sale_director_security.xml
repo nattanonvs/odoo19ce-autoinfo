@@ -5,6 +5,6 @@
         <field name="sequence">40</field>
         <field name="privilege_id" ref="sales_team.res_groups_privilege_sales"/>
         <field name="implied_ids" eval="[(4, ref('sales_team.group_sale_manager'))]"/>
-        <field name="comment">Can approve sale orders at or above the director approval threshold (500,000 THB).</field>
+        <field name="comment">Can approve sale orders at or above the director approval threshold configured on the company (res.company.od19_so_director_approval_threshold).</field>
     </record>
 </odoo>

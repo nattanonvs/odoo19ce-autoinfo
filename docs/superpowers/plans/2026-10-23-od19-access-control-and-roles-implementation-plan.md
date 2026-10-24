@@ -213,10 +213,24 @@ Set-Location c:\odoo-dev\odoo19
 
 # เฟส D — วงเงินอนุมัติบน `res.company` (D8)
 
-- [ ] **Task D1** เพิ่มฟิลด์ `res.company`: `od19_so_manager_approval_threshold`, `od19_so_director_approval_threshold` (และคง `od19_po_director_approval_threshold` เดิม)
-- [ ] **Task D2** ปรับ `od19_sales_oca_bridge_workflow` ให้สร้าง `tier.definition` จากค่าบริษัท (hook `post_init`/`_create_tier_definitions`) แทน domain ฮาร์ดโค้ด
-- [ ] **Task D3** เพิ่มฟิลด์ตั้งค่าใน Settings → Companies
-- [ ] **Task D4** เทสต์: เปลี่ยนวงเงินแล้ว tier เปลี่ยนตาม
+- [x] **Task D1** เพิ่มฟิลด์ `res.company`: `od19_so_manager_approval_threshold`, `od19_so_director_approval_threshold` (และคง `od19_po_director_approval_threshold` เดิม)
+- [x] **Task D2** ปรับ `od19_sales_oca_bridge_workflow` ให้สร้าง `tier.definition` จากค่าบริษัท (hook `post_init`/`_create_tier_definitions`) แทน domain ฮาร์ดโค้ด
+- [x] **Task D3** เพิ่มฟิลด์ตั้งค่าใน Settings → Companies
+- [x] **Task D4** เทสต์: เปลี่ยนวงเงินแล้ว tier เปลี่ยนตาม
+
+> **แก้ไขระหว่างพัฒนา (D1–D4):** `tier.definition.definition_domain` เป็น Char ที่เครื่องยนต์
+> tier validation ประเมินด้วย `literal_eval()` ⇒ domain ต้องเป็น string ของ Python literal
+> และต้อง **สร้างใหม่** ทุกครั้งที่วงเงินเปลี่ยน (ทำ dynamic ไม่ได้)
+>
+> แนวทางที่ใช้:
+> - เก็บวงเงินไว้ที่ `res.company` (2 ฟิลด์ใหม่; ค่าเริ่มต้น manager 100,000 / director 500,000 ตามเดิม)
+> - `res.company._od19_sync_sale_tier_definitions()` สร้าง/ปรับปรุง tier definition **แยกตามบริษัท**
+>   (`company_id = company`) ให้ตรงกับวงเงินปัจจุบัน พร้อมลบ record แบบเดิมที่ `company_id = False`
+> - เรียก sync จาก (1) `<function>` ใน `data/od19_sale_tier_definition.xml` (ไม่ใส่ `noupdate`
+>   เพื่อให้รันทั้งตอน install และ upgrade — `<function>` ในบล็อก noupdate จะถูกข้ามตอน upgrade),
+>   (2) override `res.company.write()` เมื่อวงเงินเปลี่ยน, (3) override `res.company.create()`
+>   สำหรับบริษัทใหม่
+> - ยังคงค่าเริ่มต้น 100,000/500,000 เพื่อให้เทสต์เดิมใน `test_oca_bridge.py` ผ่านโดยไม่ต้องแก้
 
 ---
 

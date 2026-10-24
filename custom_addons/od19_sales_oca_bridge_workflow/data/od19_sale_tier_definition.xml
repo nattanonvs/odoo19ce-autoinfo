@@ -1,32 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo noupdate="1">
+<odoo>
     <!--
     Sale Order Tier Validation Definitions
     ======================================
-    Approval thresholds (THB):
-      * amount_total < 100,000       -> no approval (auto-confirm)
-      * 100,000 <= amount < 500,000  -> Sales Manager approval
-      * amount_total >= 500,000      -> Sales Director approval
-    -->
-    <record id="od19_sale_tier_definition_manager" model="tier.definition">
-        <field name="name">Sale Order Approval (Sales Manager)</field>
-        <field name="model_id" ref="sale.model_sale_order"/>
-        <field name="review_type">group</field>
-        <field name="reviewer_group_id" ref="sales_team.group_sale_manager"/>
-        <field name="definition_type">domain</field>
-        <field name="definition_domain">[('amount_total', '&gt;=', 100000), ('amount_total', '&lt;', 500000)]</field>
-        <field name="sequence">10</field>
-        <field name="company_id" eval="False"/>
-    </record>
+    วงเงินอนุมัติถูกเก็บไว้ที่ res.company (Settings -> Companies) เพื่อให้แต่ละ
+    บริษัทปรับแต่งได้เอง
 
-    <record id="od19_sale_tier_definition_director" model="tier.definition">
-        <field name="name">Sale Order Approval (Sales Director)</field>
-        <field name="model_id" ref="sale.model_sale_order"/>
-        <field name="review_type">group</field>
-        <field name="reviewer_group_id" ref="od19_sales_oca_bridge_workflow.group_sale_director"/>
-        <field name="definition_type">domain</field>
-        <field name="definition_domain">[('amount_total', '&gt;=', 500000)]</field>
-        <field name="sequence">20</field>
-        <field name="company_id" eval="False"/>
-    </record>
+    ฟิลด์ tier.definition.definition_domain เป็น Char ที่เครื่องยนต์ tier
+    validation ประเมินด้วย literal_eval จึงต้องสร้าง domain ใหม่ทุกครั้งที่วงเงิน
+    เปลี่ยน ฟังก์ชันด้านล่างจะ sync นิยามให้ทุกบริษัททั้งตอนติดตั้งและตอน upgrade
+    (หมายเหตุ: <function> ในบล็อก noupdate จะไม่ถูกเรียกตอน upgrade จึงไม่ใส่ noupdate)
+    -->
+    <function name="_od19_sync_all_sale_tier_definitions" model="res.company"/>
 </odoo>
