@@ -1,7 +1,7 @@
 {
     "name": "OD19 Security Roles (Access Control Layer)",
     "author": "OD19",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "category": "Administration",
     "summary": "Central access-control layer: role privilege, department scope groups and employee-to-user department mirror",
     "description": """
