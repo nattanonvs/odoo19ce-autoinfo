@@ -206,8 +206,8 @@ Set-Location c:\odoo-dev\odoo19
 
 # เฟส C — Role Matrix สำหรับ migration (เอกสาร)
 
-- [ ] **Task C1** สร้างตาราง `docs/superpowers/programs/odoo19-enterprise/discovery/role-matrix.md` (พนักงาน ↔ บทบาท) จาก Role Matrix §7
-- [ ] **Task C2** ระบุผู้ใช้ Odoo 15 ที่ได้ `group_od19_department_all` (บัญชี/คลัง/ผู้บริหาร)
+- [x] **Task C1** สร้างตาราง `docs/superpowers/programs/odoo19-enterprise/discovery/role-matrix.md` (พนักงาน ↔ บทบาท) จาก Role Matrix §7
+- [x] **Task C2** ระบุผู้ใช้ Odoo 15 ที่ได้ `group_od19_department_all` (บัญชี/คลัง/ผู้บริหาร) — เกณฑ์คัดเลือก (ทางตรง/ทางอ้อม) + ทะเบียนลงทะเบียนอยู่ใน role-matrix.md §5; **รายชื่อจริงรอข้อมูลผู้ใช้ Odoo 15** (ยังไม่มี dump ในเครื่องนี้)
 
 ---
 
