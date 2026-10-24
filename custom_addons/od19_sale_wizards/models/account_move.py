@@ -4,8 +4,7 @@
 Stores the originating Sale Order or Purchase Order name on downpayment
 invoices so users can trace back where an advance payment came from.
 """
-from odoo import _, fields, models
-from odoo.exceptions import UserError
+from odoo import fields, models
 
 
 class AccountMove(models.Model):
@@ -35,26 +34,12 @@ class AccountMove(models.Model):
     )
 
     def action_open_get_sale_lines(self):
-        """Open the Get Sale Order Lines wizard for the current invoice."""
+        """Open the central document pull wizard (flow 3).
+
+        Kept for backward compatibility: the former dedicated wizard
+        (``od19.account.invoice.get.sale.lines``) is replaced by the shared
+        ``od19_document_pull`` mechanism, so all "source document" pulls now
+        behave (and are audited) the same way.
+        """
         self.ensure_one()
-        if self.state != "draft":
-            raise UserError(_(
-                "You can only get sale order lines on a draft invoice."
-            ))
-        if self.move_type != "out_invoice":
-            raise UserError(_(
-                "This action is only available on customer invoices."
-            ))
-        return {
-            "type": "ir.actions.act_window",
-            "name": _("Get Sale Order Lines / ดึงรายการจากใบสั่งขาย"),
-            "res_model": "od19.account.invoice.get.sale.lines",
-            "view_mode": "form",
-            "target": "new",
-            "context": {
-                "default_invoice_id": self.id,
-                "active_id": self.id,
-                "active_ids": self.ids,
-                "active_model": "account.move",
-            },
-        }
+        return self.od19_action_open_pull_wizard()

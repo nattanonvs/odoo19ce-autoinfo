@@ -1,21 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Add "Get Sale Order Lines" button to the invoice form header.
-         Only visible for draft customer invoices. -->
-    <record id="view_move_form_od19_get_sale_lines" model="ir.ui.view">
-        <field name="name">account.move.form.od19.get.sale.lines</field>
-        <field name="model">account.move</field>
-        <field name="inherit_id" ref="account.view_move_form"/>
-        <field name="arch" type="xml">
-            <xpath expr="//header" position="inside">
-                <button name="action_open_get_sale_lines"
-                        type="object"
-                        string="Get Sale Order Lines"
-                        class="btn-secondary"
-                        invisible="state != 'draft' or move_type != 'out_invoice'"/>
-            </xpath>
-        </field>
-    </record>
+    <!-- The "get sale order lines" entry point now goes through the shared
+         od19_document_pull mechanism, which already adds the pull/remove
+         buttons to the invoice form, so no extra button is declared here. -->
 
     <!-- Add "Downpayment Info" group to the Other Info tab of invoices. -->
     <record id="view_move_form_od19_downpayment_info" model="ir.ui.view">
