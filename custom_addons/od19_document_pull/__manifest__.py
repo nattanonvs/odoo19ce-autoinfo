@@ -3,7 +3,7 @@
 
 {
     "name": "OD19 Document Pull",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "author": "OD19",
     "category": "Accounting",
     "summary": "Central mechanism to pull source document lines into a "

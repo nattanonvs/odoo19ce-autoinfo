@@ -1,0 +1,477 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* od19_document_pull
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-24 00:29+0000\n"
+"PO-Revision-Date: 2026-10-24 00:29+0000\n"
+"Last-Translator: OD19\n"
+"Language-Team: Thai\n"
+"Language: th\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#. module: od19_document_pull
+#. odoo-python
+#: code:addons/od19_document_pull/models/od19_document_pull_mixin.py:0
+#, python-format
+msgid "%(source)s is not a valid source document for this document."
+msgstr "%(source)s ไม่ใช่เอกสารต้นทางที่ใช้ได้สำหรับเอกสารนี้"
+
+#. module: od19_document_pull
+#: model:ir.model.fields.selection,name:od19_document_pull.selection__od19_document_pull_wizard__mode__all_order
+msgid "All lines (document order) / ทั้งหมดตามลำดับเอกสาร"
+msgstr "ทั้งหมดตามลำดับเอกสาร / All lines (document order)"
+
+#. module: od19_document_pull
+#: model_terms:ir.ui.view,arch_db:od19_document_pull.view_od19_document_pull_wizard_form
+msgid ""
+"All lines are pulled in document order. Choose\n"
+"                    \"Select lines\" to pick individual lines."
+msgstr ""
+"ระบบจะดึงทุกรายการตามลำดับเอกสาร หากต้องการเลือกรายบรรทัด\n"
+"                    ให้เลือก \"เลือกรายบรรทัด\""
+
+#. module: od19_document_pull
+#: model_terms:ir.ui.view,arch_db:od19_document_pull.view_od19_document_pull_remove_wizard_form
+msgid "Back / ย้อนกลับ"
+msgstr "ย้อนกลับ / Back"
+
+#. module: od19_document_pull
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_wizard_line__qty_to_pull
+msgid "Billable Qty / จำนวนที่วางบิลได้"
+msgstr "จำนวนที่วางบิลได้ / Billable Qty"
+
+#. module: od19_document_pull
+#: model_terms:ir.ui.view,arch_db:od19_document_pull.view_od19_document_pull_remove_wizard_form
+#: model_terms:ir.ui.view,arch_db:od19_document_pull.view_od19_document_pull_wizard_form
+msgid "Cancel"
+msgstr "ยกเลิก"
+
+#. module: od19_document_pull
+#: model:ir.model.fields.selection,name:od19_document_pull.selection__od19_document_pull_remove_wizard__state__choose
+msgid "Choose the source / เลือกเอกสารต้นทาง"
+msgstr "เลือกเอกสารต้นทาง / Choose the source"
+
+#. module: od19_document_pull
+#: model_terms:ir.ui.view,arch_db:od19_document_pull.view_od19_document_pull_remove_wizard_form
+msgid "Confirm Removal / ยืนยันการลบ"
+msgstr "ยืนยันการลบ / Confirm Removal"
+
+#. module: od19_document_pull
+#: model:ir.model.fields.selection,name:od19_document_pull.selection__od19_document_pull_remove_wizard__state__confirm
+msgid "Confirm the removal / ยืนยันการลบ"
+msgstr "ยืนยันการลบ / Confirm the removal"
+
+#. module: od19_document_pull
+#: model_terms:ir.ui.view,arch_db:od19_document_pull.view_od19_document_pull_remove_wizard_form
+msgid "Continue"
+msgstr "ดำเนินการต่อ"
+
+#. module: od19_document_pull
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_line__create_uid
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_source__create_uid
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_wizard__create_uid
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_wizard__create_uid
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_wizard_line__create_uid
+msgid "Created by"
+msgstr "สร้างโดย"
+
+#. module: od19_document_pull
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_line__create_date
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_source__create_date
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_wizard__create_date
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_wizard__create_date
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_wizard_line__create_date
+msgid "Created on"
+msgstr "สร้างเมื่อ"
+
+#. module: od19_document_pull
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_wizard_line__name
+msgid "Description / รายละเอียด"
+msgstr "รายละเอียด / Description"
+
+#. module: od19_document_pull
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_wizard__res_id
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_wizard__res_id
+msgid "Destination ID / รหัสเอกสารปลายทาง"
+msgstr "รหัสเอกสารปลายทาง / Destination ID"
+
+#. module: od19_document_pull
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_wizard__res_model
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_wizard__res_model
+msgid "Destination Model / โมเดลปลายทาง"
+msgstr "โมเดลปลายทาง / Destination Model"
+
+#. module: od19_document_pull
+#: model:ir.model.fields,field_description:od19_document_pull.field_account_move__display_name
+#: model:ir.model.fields,field_description:od19_document_pull.field_account_move_line__display_name
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_mixin__display_name
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_line__display_name
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_source__display_name
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_wizard__display_name
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_wizard__display_name
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_wizard_line__display_name
+#: model:ir.model.fields,field_description:od19_document_pull.field_purchase_order__display_name
+#: model:ir.model.fields,field_description:od19_document_pull.field_purchase_order_line__display_name
+msgid "Display Name"
+msgstr "ชื่อที่แสดง"
+
+#. module: od19_document_pull
+#. odoo-python
+#: code:addons/od19_document_pull/wizards/od19_document_pull_remove_wizard.py:0
+#, python-format
+msgid "Document %(name)s will have %(count)s line(s) removed."
+msgstr "เอกสาร %(name)s จะถูกลบรายการจำนวน %(count)s รายการ"
+
+#. module: od19_document_pull
+#: model:ir.model.fields,field_description:od19_document_pull.field_account_move__id
+#: model:ir.model.fields,field_description:od19_document_pull.field_account_move_line__id
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_mixin__id
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_line__id
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_source__id
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_wizard__id
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_wizard__id
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_wizard_line__id
+#: model:ir.model.fields,field_description:od19_document_pull.field_purchase_order__id
+#: model:ir.model.fields,field_description:od19_document_pull.field_purchase_order_line__id
+msgid "ID"
+msgstr "ID"
+
+#. module: od19_document_pull
+#. odoo-python
+#: code:addons/od19_document_pull/wizards/od19_document_pull_remove_wizard.py:0
+#: code:addons/od19_document_pull/wizards/od19_document_pull_wizard.py:0
+msgid "Invoice/Bill / ใบแจ้งหนี้/ใบวางบิล"
+msgstr "ใบแจ้งหนี้/ใบวางบิล / Invoice/Bill"
+
+#. module: od19_document_pull
+#: model:ir.model,name:od19_document_pull.model_account_move
+msgid "Journal Entry"
+msgstr "รายการสมุดรายวัน"
+
+#. module: od19_document_pull
+#: model:ir.model,name:od19_document_pull.model_account_move_line
+msgid "Journal Item"
+msgstr "รายการสมุดรายวัน"
+
+#. module: od19_document_pull
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_line__write_uid
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_source__write_uid
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_wizard__write_uid
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_wizard__write_uid
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_wizard_line__write_uid
+msgid "Last Updated by"
+msgstr "แก้ไขล่าสุดโดย"
+
+#. module: od19_document_pull
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_line__write_date
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_source__write_date
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_wizard__write_date
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_wizard__write_date
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_wizard_line__write_date
+msgid "Last Updated on"
+msgstr "แก้ไขล่าสุดเมื่อ"
+
+#. module: od19_document_pull
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_line__name
+msgid "Line / รายการ"
+msgstr "รายการ / Line"
+
+#. module: od19_document_pull
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_wizard__line_ids
+msgid "Lines / รายการ"
+msgstr "รายการ / Lines"
+
+#. module: od19_document_pull
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_wizard__source_line_ids
+msgid "Lines to remove / รายการที่จะลบ"
+msgstr "รายการที่จะลบ / Lines to remove"
+
+#. module: od19_document_pull
+#. odoo-python
+#: code:addons/od19_document_pull/models/od19_document_pull_mixin.py:0
+#: model_terms:ir.ui.view,arch_db:od19_document_pull.view_move_form_od19_document_pull
+#: model_terms:ir.ui.view,arch_db:od19_document_pull.view_od19_document_pull_remove_wizard_form
+#: model_terms:ir.ui.view,arch_db:od19_document_pull.view_order_form_od19_document_pull
+msgid "Manage/Remove Source / จัดการ/ลบเอกสารต้นทาง"
+msgstr "จัดการ/ลบเอกสารต้นทาง / Manage/Remove Source"
+
+#. module: od19_document_pull
+#. odoo-python
+#: code:addons/od19_document_pull/wizards/od19_document_pull_remove_wizard.py:0
+msgid "No source document selected."
+msgstr "ยังไม่ได้เลือกเอกสารต้นทาง"
+
+#. module: od19_document_pull
+#: model:ir.model,name:od19_document_pull.model_od19_document_pull_mixin
+msgid "OD19 Document Pull Mixin"
+msgstr "ตัวช่วยดึงเอกสารต้นทาง OD19"
+
+#. module: od19_document_pull
+#: model:ir.model,name:od19_document_pull.model_od19_document_pull_remove_line
+msgid "OD19 Document Pull Remove Line"
+msgstr "รายการลบเอกสารต้นทาง OD19"
+
+#. module: od19_document_pull
+#: model:ir.model,name:od19_document_pull.model_od19_document_pull_remove_source
+msgid "OD19 Document Pull Remove Source"
+msgstr "เอกสารต้นทางที่ต้องการลบ OD19"
+
+#. module: od19_document_pull
+#: model:ir.model,name:od19_document_pull.model_od19_document_pull_remove_wizard
+msgid "OD19 Document Pull Remove Wizard"
+msgstr "วิซาร์ดลบเอกสารต้นทาง OD19"
+
+#. module: od19_document_pull
+#: model:ir.model,name:od19_document_pull.model_od19_document_pull_wizard
+msgid "OD19 Document Pull Wizard"
+msgstr "วิซาร์ดดึงเอกสารต้นทาง OD19"
+
+#. module: od19_document_pull
+#: model:ir.model,name:od19_document_pull.model_od19_document_pull_wizard_line
+msgid "OD19 Document Pull Wizard Line"
+msgstr "รายการในวิซาร์ดดึงเอกสารต้นทาง OD19"
+
+#. module: od19_document_pull
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_wizard__partner_id
+msgid "Partner / คู่ค้า"
+msgstr "คู่ค้า / Partner"
+
+#. module: od19_document_pull
+#. odoo-python
+#: code:addons/od19_document_pull/models/od19_document_pull_mixin.py:0
+msgid "Please select a source document."
+msgstr "กรุณาเลือกเอกสารต้นทาง"
+
+#. module: od19_document_pull
+#. odoo-python
+#: code:addons/od19_document_pull/wizards/od19_document_pull_remove_wizard.py:0
+msgid "Please select the source document to remove."
+msgstr "กรุณาเลือกเอกสารต้นทางที่ต้องการลบ"
+
+#. module: od19_document_pull
+#. odoo-python
+#: code:addons/od19_document_pull/models/account_move.py:0
+msgid "Previous Vendor Bill / ใบวางบิลเดิม"
+msgstr "ใบวางบิลเดิม / Previous Vendor Bill"
+
+#. module: od19_document_pull
+#: model:ir.model.fields,help:od19_document_pull.field_account_move_line__od19_source_move_line_id
+msgid "Previous vendor bill line this line was pulled from (flow 2)."
+msgstr "บรรทัดใบวางบิลเดิมที่เป็นต้นทางของรายการนี้ (โฟลว์ 2)"
+
+#. module: od19_document_pull
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_line__product_id
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_wizard_line__product_id
+msgid "Product / สินค้า"
+msgstr "สินค้า / Product"
+
+#. module: od19_document_pull
+#: model_terms:ir.ui.view,arch_db:od19_document_pull.view_od19_document_pull_wizard_form
+msgid "Pull Lines"
+msgstr "ดึงรายการ"
+
+#. module: od19_document_pull
+#. odoo-python
+#: code:addons/od19_document_pull/models/od19_document_pull_mixin.py:0
+#: model_terms:ir.ui.view,arch_db:od19_document_pull.view_move_form_od19_document_pull
+#: model_terms:ir.ui.view,arch_db:od19_document_pull.view_od19_document_pull_wizard_form
+#: model_terms:ir.ui.view,arch_db:od19_document_pull.view_order_form_od19_document_pull
+msgid "Pull Lines from Source / ดึงรายการจากเอกสารต้นทาง"
+msgstr "ดึงรายการจากเอกสารต้นทาง / Pull Lines from Source"
+
+#. module: od19_document_pull
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_wizard__mode
+msgid "Pull Mode / โหมดการดึง"
+msgstr "โหมดการดึง / Pull Mode"
+
+#. module: od19_document_pull
+#: model:ir.model,name:od19_document_pull.model_purchase_order
+msgid "Purchase Order"
+msgstr "ใบสั่งซื้อ"
+
+#. module: od19_document_pull
+#. odoo-python
+#: code:addons/od19_document_pull/models/account_move.py:0
+#: code:addons/od19_document_pull/wizards/od19_document_pull_remove_wizard.py:0
+#: code:addons/od19_document_pull/wizards/od19_document_pull_wizard.py:0
+msgid "Purchase Order / ใบสั่งซื้อ"
+msgstr "ใบสั่งซื้อ / Purchase Order"
+
+#. module: od19_document_pull
+#: model:ir.model,name:od19_document_pull.model_purchase_order_line
+msgid "Purchase Order Line"
+msgstr "ไลน์คำสั่งซื้อ"
+
+#. module: od19_document_pull
+#. odoo-python
+#: code:addons/od19_document_pull/models/purchase_order.py:0
+#: code:addons/od19_document_pull/wizards/od19_document_pull_remove_wizard.py:0
+#: code:addons/od19_document_pull/wizards/od19_document_pull_wizard.py:0
+msgid "Purchase Request / ใบขอซื้อ"
+msgstr "ใบขอซื้อ / Purchase Request"
+
+#. module: od19_document_pull
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_line__quantity
+msgid "Quantity / จำนวน"
+msgstr "จำนวน / Quantity"
+
+#. module: od19_document_pull
+#: model:ir.model.fields,help:od19_document_pull.field_account_move_line__od19_source_picking_id
+msgid ""
+"Receipt / delivery the quantity of this line was pulled from (style B: bill "
+"by receipt / delivery)."
+msgstr ""
+"ใบรับ/ใบส่งที่ใช้เป็นต้นทางของจำนวนในรายการนี้ (สไตล์ B: วางบิลตามใบรับ/ใบส่ง)"
+
+#. module: od19_document_pull
+#. odoo-python
+#: code:addons/od19_document_pull/models/account_move.py:0
+#: code:addons/od19_document_pull/wizards/od19_document_pull_remove_wizard.py:0
+#: code:addons/od19_document_pull/wizards/od19_document_pull_wizard.py:0
+msgid "Sale Order / ใบสั่งขาย"
+msgstr "ใบสั่งขาย / Sale Order"
+
+#. module: od19_document_pull
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_wizard_line__selected
+msgid "Select / เลือก"
+msgstr "เลือก / Select"
+
+#. module: od19_document_pull
+#: model:ir.model.fields.selection,name:od19_document_pull.selection__od19_document_pull_wizard__mode__select
+msgid "Select lines / เลือกรายบรรทัด"
+msgstr "เลือกรายบรรทัด / Select lines"
+
+#. module: od19_document_pull
+#. odoo-python
+#: code:addons/od19_document_pull/wizards/od19_document_pull_wizard.py:0
+msgid "Selected lines must come from a single source document."
+msgstr "รายการที่เลือกต้องมาจากเอกสารต้นทางเดียวกัน"
+
+#. module: od19_document_pull
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_wizard_line__source_name
+msgid "Source / เอกสารต้นทาง"
+msgstr "เอกสารต้นทาง / Source"
+
+#. module: od19_document_pull
+#: model:ir.model.fields,field_description:od19_document_pull.field_account_move_line__od19_source_move_line_id
+msgid "Source Bill Line / บรรทัดใบวางบิลต้นทาง"
+msgstr "บรรทัดใบวางบิลต้นทาง / Source Bill Line"
+
+#. module: od19_document_pull
+#: model:ir.model.fields,field_description:od19_document_pull.field_account_move_line__od19_source_pull_label
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_source__name
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_wizard__source_id
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_wizard__source_ref
+#: model:ir.model.fields,field_description:od19_document_pull.field_purchase_order_line__od19_pull_source_label
+#: model_terms:ir.ui.view,arch_db:od19_document_pull.view_move_form_od19_document_pull
+#: model_terms:ir.ui.view,arch_db:od19_document_pull.view_order_form_od19_document_pull
+msgid "Source Document / เอกสารต้นทาง"
+msgstr "เอกสารต้นทาง / Source Document"
+
+#. module: od19_document_pull
+#: model:ir.model.fields,field_description:od19_document_pull.field_account_bank_statement_line__od19_pull_source_label
+#: model:ir.model.fields,field_description:od19_document_pull.field_account_move__od19_pull_source_label
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_wizard__source_ids
+#: model:ir.model.fields,field_description:od19_document_pull.field_purchase_order__od19_pull_source_label
+msgid "Source Documents / เอกสารต้นทาง"
+msgstr "เอกสารต้นทาง / Source Documents"
+
+#. module: od19_document_pull
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_wizard_line__res_id
+msgid "Source Line ID / รหัสบรรทัดต้นทาง"
+msgstr "รหัสบรรทัดต้นทาง / Source Line ID"
+
+#. module: od19_document_pull
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_wizard_line__res_model
+msgid "Source Model / โมเดลต้นทาง"
+msgstr "โมเดลต้นทาง / Source Model"
+
+#. module: od19_document_pull
+#: model:ir.model.fields,field_description:od19_document_pull.field_account_move_line__od19_source_picking_id
+msgid "Source Picking / ใบรับ-ส่งต้นทาง"
+msgstr "ใบรับ-ส่งต้นทาง / Source Picking"
+
+#. module: od19_document_pull
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_source__source_ref
+msgid "Source Reference / อ้างอิงเอกสารต้นทาง"
+msgstr "อ้างอิงเอกสารต้นทาง / Source Reference"
+
+#. module: od19_document_pull
+#. odoo-python
+#: code:addons/od19_document_pull/models/od19_document_pull_mixin.py:0
+#, python-format
+msgid ""
+"Source document lines can only be managed on a draft document (current "
+"state: %(state)s)."
+msgstr ""
+"จัดการรายการจากเอกสารต้นทางได้เฉพาะเอกสารที่ยังเป็นฉบับร่าง "
+"(สถานะปัจจุบัน: %(state)s)"
+
+#. module: od19_document_pull
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_wizard__state
+msgid "Step / ขั้นตอน"
+msgstr "ขั้นตอน / Step"
+
+#. module: od19_document_pull
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_wizard__remove_summary
+msgid "Summary / สรุป"
+msgstr "สรุป / Summary"
+
+#. module: od19_document_pull
+#. odoo-python
+#: code:addons/od19_document_pull/wizards/od19_document_pull_wizard.py:0
+msgid "The destination document no longer exists."
+msgstr "ไม่พบเอกสารปลายทางแล้ว"
+
+#. module: od19_document_pull
+#. odoo-python
+#: code:addons/od19_document_pull/models/od19_document_pull_mixin.py:0
+msgid ""
+"The selected source document does not match this document (check the partner"
+" or the state)."
+msgstr ""
+"เอกสารต้นทางที่เลือกไม่ตรงกับเอกสารนี้ (โปรดตรวจสอบคู่ค้าหรือสถานะ)"
+
+#. module: od19_document_pull
+#. odoo-python
+#: code:addons/od19_document_pull/wizards/od19_document_pull_remove_wizard.py:0
+#, python-format
+msgid "There is no line linked to %(name)s in this document."
+msgstr "ไม่มีรายการที่เชื่อมโยงกับ %(name)s ในเอกสารนี้"
+
+#. module: od19_document_pull
+#. odoo-python
+#: code:addons/od19_document_pull/wizards/od19_document_pull_wizard.py:0
+msgid "There is no line to pull from this document."
+msgstr "ไม่มีรายการให้ดึงจากเอกสารนี้"
+
+#. module: od19_document_pull
+#. odoo-python
+#: code:addons/od19_document_pull/wizards/od19_document_pull_remove_wizard.py:0
+#: code:addons/od19_document_pull/wizards/od19_document_pull_wizard.py:0
+msgid "Transfer / ใบรับ-ส่งสินค้า"
+msgstr "ใบรับ-ส่งสินค้า / Transfer"
+
+#. module: od19_document_pull
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_wizard_line__price_unit
+msgid "Unit Price / ราคาต่อหน่วย"
+msgstr "ราคาต่อหน่วย / Unit Price"
+
+#. module: od19_document_pull
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_wizard_line__product_uom_id
+msgid "UoM / หน่วย"
+msgstr "หน่วย / UoM"
+
+#. module: od19_document_pull
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_line__wizard_id
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_source__wizard_id
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_wizard_line__wizard_id
+msgid "Wizard / วิซาร์ด"
+msgstr "วิซาร์ด / Wizard"
