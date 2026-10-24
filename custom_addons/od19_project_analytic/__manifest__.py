@@ -8,9 +8,11 @@
         "project",
         "hr",
         "od19_contacts_partner_roles",
+        "od19_security_roles",
         "purchase_stock",
     ],
     "data": [
+        "security/od19_department_rule.xml",
         "views/project_project_views.xml",
     ],
     "installable": True,

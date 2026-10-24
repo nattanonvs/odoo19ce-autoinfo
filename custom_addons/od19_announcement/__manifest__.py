@@ -5,9 +5,10 @@
     "summary": "Company announcements with read receipts and multi-channel push",
     "author": "OD19",
     "license": "LGPL-3",
-    "depends": ["base", "mail", "hr", "base_user_role", "od19_notification_multi_channel"],
+    "depends": ["base", "mail", "hr", "base_user_role", "od19_notification_multi_channel", "od19_security_roles"],
     "data": [
         "security/ir.model.access.csv",
+        "security/od19_department_rule.xml",
         "security/announcement_security.xml",
         "data/announcement_cron.xml",
         "views/announcement_views.xml",

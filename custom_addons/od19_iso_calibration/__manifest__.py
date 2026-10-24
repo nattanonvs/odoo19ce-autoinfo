@@ -5,9 +5,10 @@
     "summary": "ISO 9001 / ISO 14001 Calibration and Monitoring Equipment Control",
     "author": "TRAE",
     "license": "LGPL-3",
-    "depends": ["od19_iso_document_control", "hr", "maintenance"],
+    "depends": ["od19_iso_document_control", "hr", "maintenance", "od19_security_roles"],
     "data": [
         "security/ir.model.access.csv",
+        "security/od19_department_rule.xml",
         "data/calibration_data.xml",
         "data/ir_cron_data.xml",
         "views/calibration_views.xml",

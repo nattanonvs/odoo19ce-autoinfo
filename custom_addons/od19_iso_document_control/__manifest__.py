@@ -14,9 +14,11 @@
         "mail",
         "hr",
         "web",
+        "od19_security_roles",
     ],
     "data": [
         "security/ir.model.access.csv",
+        "security/od19_department_rule.xml",
         "data/iso_document_category_data.xml",
         "data/iso_standard_data.xml",
         "data/iso_document_seed_data.xml",

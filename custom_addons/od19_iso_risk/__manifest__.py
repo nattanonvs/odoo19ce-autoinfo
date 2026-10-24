@@ -5,9 +5,10 @@
     "summary": "ISO 9001 / ISO 14001 Risk and Opportunity Management",
     "author": "TRAE",
     "license": "LGPL-3",
-    "depends": ["od19_iso_document_control", "hr"],
+    "depends": ["od19_iso_document_control", "hr", "od19_security_roles"],
     "data": [
         "security/ir.model.access.csv",
+        "security/od19_department_rule.xml",
         "data/risk_data.xml",
         "data/ir_cron_data.xml",
         "views/risk_views.xml",

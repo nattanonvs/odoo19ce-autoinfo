@@ -5,9 +5,10 @@
     "summary": "ISO 9001 / ISO 14001 Nonconformity and Corrective Action (CAPA)",
     "author": "TRAE",
     "license": "LGPL-3",
-    "depends": ["od19_iso_document_control", "od19_iso_internal_audit", "hr"],
+    "depends": ["od19_iso_document_control", "od19_iso_internal_audit", "hr", "od19_security_roles"],
     "data": [
         "security/ir.model.access.csv",
+        "security/od19_department_rule.xml",
         "data/nonconformity_data.xml",
         "data/ir_cron_data.xml",
         "views/nonconformity_views.xml",

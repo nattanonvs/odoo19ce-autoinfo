@@ -178,18 +178,29 @@ Set-Location c:\odoo-dev\odoo19
 
 > **หมายเหตุ:** แต่ละโมดูลต้องเพิ่ม `od19_security_roles` ใน `depends` + สร้าง `security/od19_department_rule.xml` และลงทะเบียนใน `data` list
 
-- [ ] **Task B1** `od19_goods_issue` → `stock.request.order.department_id`
-- [ ] **Task B2** `od19_project_analytic` → `project.project.od19_department_id`
-- [ ] **Task B3** `od19_iso_document_control` → `od19.iso.document.department_id`
-- [ ] **Task B4** `od19_iso_nonconformity` → `od19.iso.nonconformity.department_id`
-- [ ] **Task B5** `od19_iso_risk` → `od19.risk.department_id`
-- [ ] **Task B6** `od19_iso_training` → `od19.training.department_id`
-- [ ] **Task B7** `od19_iso_calibration` → `od19.calibration.department_id`
-- [ ] **Task B8** `od19_iso_internal_audit` → `od19.audit.auditee_department_id`
-- [ ] **Task B9** `od19_internal_issue` → `helpdesk.ticket.department_id`
-- [ ] **Task B10** `od19_announcement` → `od19.announcement.department_id`
-- [ ] **Task B11** `od19_fleet_accounting` → `fleet.vehicle.department_id`
-- [ ] **Task B12** เทสต์รวม: ผู้ใช้แผนก A เห็นเฉพาะเอกสาร A + เอกสารที่ไม่มีแผนก; ผู้มี `group_od19_department_all` เห็นทั้งหมด
+- [x] **Task B1** `od19_goods_issue` → `stock.request.order.department_id`
+- [x] **Task B2** `od19_project_analytic` → `project.project.od19_department_id`
+- [x] **Task B3** `od19_iso_document_control` → `od19.iso.document.department_id`
+- [x] **Task B4** `od19_iso_nonconformity` → `od19.iso.nonconformity.department_id`
+- [x] **Task B5** `od19_iso_risk` → `od19.risk.department_id`
+- [x] **Task B6** `od19_iso_training` → `od19.training.department_id`
+- [x] **Task B7** `od19_iso_calibration` → `od19.calibration.department_id`
+- [x] **Task B8** `od19_iso_internal_audit` → `od19.audit.auditee_department_id`
+- [x] **Task B9** `od19_internal_issue` → `helpdesk.ticket.department_id`
+- [x] **Task B10** `od19_announcement` → `od19.announcement.department_id`
+- [x] **Task B11** `od19_fleet_accounting` → `fleet.vehicle.department_id`
+- [x] **Task B12** เทสต์รวม: ผู้ใช้แผนก A เห็นเฉพาะเอกสาร A + เอกสารที่ไม่มีแผนก; ผู้มี `group_od19_department_all` เห็นทั้งหมด
+
+> **แก้ไขระหว่างพัฒนา (B11/B12):** แต่ละโมดูลมี **2 rule** ต่อโมเดล —
+> (1) scope rule สำหรับ `group_od19_department_scope` (domain ตาม §8.1)
+> (2) **all rule** สำหรับ `group_od19_department_all` (domain `[(1, '=', 1)]`)
+>
+> **เหตุผล:** `role_employee_base` เป็น `is_default=True` และ imply `group_od19_department_scope`
+> → ผู้ใช้ใหม่ทุกคนติด scope group แม้จะได้บทบาทระดับบริหาร/บัญชี/คลังที่ imply
+> `group_od19_department_all` มาด้วย (ทำให้ §8.1 ข้อสันนิษฐาน "dept-all ไม่อยู่ใน scope group"
+> ไม่เป็นจริงในทางปฏิบัติ) เนื่องจากกฎระดับกลุ่มถูก **OR** กัน การเพิ่ม all rule ทำให้
+> กลุ่ม `group_od19_department_all` ชนะ scope rule เสมอ → เห็นข้อมูลทุกแผนกได้จริง
+> โดยไม่ลดทอนการจำกัดของผู้ใช้ที่เป็นพนักงานทั่วไป
 
 ---
 

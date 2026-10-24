@@ -13,9 +13,11 @@
         "hr",
         "project",
         "od19_iso_document_control",
+        "od19_security_roles",
     ],
     "data": [
         "security/ir.model.access.csv",
+        "security/od19_department_rule.xml",
         "security/od19_goods_issue_security.xml",
         "data/od19_goods_issue_data.xml",
         "views/goods_issue_type_views.xml",

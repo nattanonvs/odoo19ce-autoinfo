@@ -22,10 +22,12 @@ Extends OCA helpdesk_mgmt with:
         "hr",
         "mail",
         "od19_notification_multi_channel",
+        "od19_security_roles",
     ],
     "data": [
         "security/internal_issue_security.xml",
         "security/ir.model.access.csv",
+        "security/od19_department_rule.xml",
         "data/internal_issue_data.xml",
         "views/helpdesk_ticket_views.xml",
         "views/helpdesk_ticket_category_views.xml",

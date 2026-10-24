@@ -320,7 +320,21 @@ Layer 0   base_user_role (OCA) / hr / base
 
 **กติกา:**
 - เอกสารที่ `department_id = False` (ยังไม่ระบุแผนก) → ทุกคนเห็น (Fail-safe, ไม่ทำให้ข้อมูลหาย)
-- ผู้ที่อยู่ `group_od19_department_all` ไม่อยู่ใน `group_od19_department_scope` → ไม่ถูกจำกัด
+- ผู้ที่อยู่ `group_od19_department_all` ไม่ถูกจำกัด → แต่ละโมดูลจึงมี **all rule** คู่กันเสมอ:
+
+```xml
+<record id="rule_<model>_od19_department_all" model="ir.rule">
+    <field name="name">&lt;Model&gt;: ทุกแผนก / All Departments</field>
+    <field name="model_id" ref="model_<model>"/>
+    <field name="domain_force">[(1, '=', 1)]</field>
+    <field name="groups" eval="[(4, ref('od19_security_roles.group_od19_department_all'))]"/>
+</record>
+```
+
+> **ทำไมต้องมี all rule แยก:** `role_employee_base` เป็น `is_default=True` และ imply
+> `group_od19_department_scope` → ผู้ใช้ใหม่ทุกคนติด scope group แม้จะได้บทบาทที่ imply
+> `group_od19_department_all` (บัญชี/คลัง/บริหาร) มาด้วย เนื่องจากกฎระดับกลุ่มถูก **OR** กัน
+> all rule จึงทำให้กลุ่ม `group_od19_department_all` ชนะ scope rule เสมอ
 
 ### 8.2 โมเดลเป้าหมายในเฟส B
 

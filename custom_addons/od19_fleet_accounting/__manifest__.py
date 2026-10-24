@@ -12,9 +12,10 @@ Fleet Accounting Integration
 - Integration with fleet vehicle log services
     """,
     'author': 'OD19',
-    'depends': ['fleet', 'account_fleet', 'hr', 'analytic'],
+    'depends': ['fleet', 'account_fleet', 'hr', 'analytic', 'od19_security_roles'],
     'data': [
         'security/ir.model.access.csv',
+        'security/od19_department_rule.xml',
         'views/fleet_vehicle_views.xml',
         'views/fleet_vehicle_log_services_views.xml',
         'views/od19_vehicle_expense_category_views.xml',

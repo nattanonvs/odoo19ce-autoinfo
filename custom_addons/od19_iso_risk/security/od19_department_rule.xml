@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ขอบเขตแผนก: ผู้ใช้ที่มี role_employee_base จะเห็นเฉพาะเอกสารของแผนกตัวเอง
+         และเอกสารที่ยังไม่ระบุแผนก (Fail-safe) -->
+    <record id="rule_od19_iso_risk_od19_department" model="ir.rule">
+        <field name="name">ISO Risk: เฉพาะแผนกของตัวเอง / Own Department</field>
+        <field name="model_id" ref="model_od19_iso_risk"/>
+        <field name="domain_force">['|', ('department_id', '=', user.od19_department_id.id), ('department_id', '=', False)]</field>
+        <field name="groups" eval="[(4, ref('od19_security_roles.group_od19_department_scope'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <!-- เห็นทุกแผนก: กฎระดับกลุ่มถูก OR กัน → กลุ่มนี้ชนะ scope rule เสมอ
+         รองรับผู้ใช้ที่มี role_employee_base (scope) ควบคู่กับบทบาทระดับบริหาร/บัญชี/คลัง -->
+    <record id="rule_od19_iso_risk_od19_department_all" model="ir.rule">
+        <field name="name">ISO Risk: ทุกแผนก / All Departments</field>
+        <field name="model_id" ref="model_od19_iso_risk"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('od19_security_roles.group_od19_department_all'))]"/>
+    </record>
+</odoo>
