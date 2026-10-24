@@ -236,8 +236,8 @@ Set-Location c:\odoo-dev\odoo19
 
 ## Verification
 
-- [ ] ติดตั้ง `od19_security_roles` + รันเทสต์ผ่านทั้ง 4 ไฟล์
-- [ ] ติดตั้ง `od19_role_catalog` + รันเทสต์ผ่าน
-- [ ] Upgrade ทุกโมดูลที่แก้ในเฟส B ด้วย `-u all` แล้วไม่มี warning
+- [x] ติดตั้ง `od19_security_roles` + รันเทสต์ผ่านทั้ง 4 ไฟล์ — 30 tests, 0 failed/0 error
+- [x] ติดตั้ง `od19_role_catalog` + รันเทสต์ผ่าน — 9 tests, 0 failed/0 error
+- [ ] Upgrade ทุกโมดูลที่แก้ในเฟส B ด้วย `-u all` แล้วไม่มี warning (upgrade เฉพาะ `od19_sales_oca_bridge_workflow`, `od19_security_roles`, `od19_role_catalog` ผ่านแล้วโดยไม่มี warning; การรัน `-u all` ทั้งระบบยังไม่ได้ทำในรอบนี้)
 - [ ] ตรวจด้วยตา: Settings → Users → เลือกผู้ใช้ → tab Roles แสดงบทบาทครบ
 - [ ] ตรวจด้วยตา: Settings → Roles แสดง 40 บทบาท grouped by privilege
