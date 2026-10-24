@@ -33,6 +33,14 @@ class TestDocumentPullViews(TransactionCase):
         )
         self.assertIn("action_pull", arch)
 
+    def test_purchase_order_form_has_pull_buttons(self):
+        arch = self._view_arch(
+            "od19_document_pull.view_order_form_od19_document_pull"
+        )
+        self.assertIn("od19_action_open_pull_wizard", arch)
+        self.assertIn("od19_action_open_remove_wizard", arch)
+        self.assertIn("od19_pull_source_label", arch)
+
     def test_remove_wizard_view_has_confirmation_buttons(self):
         arch = self._view_arch(
             "od19_document_pull.view_od19_document_pull_remove_wizard_form"
