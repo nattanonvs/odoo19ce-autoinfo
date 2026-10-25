@@ -9,9 +9,16 @@ import ast
 import calendar
 from datetime import timedelta
 
-from odoo import _
 from odoo.exceptions import ValidationError
 from odoo.tools.safe_eval import safe_eval
+from odoo.tools.translate import LazyTranslate
+
+#: This module never touches the ORM, so ``_()`` cannot resolve a language from
+#: the calling frame and would log "no translation language detected" for every
+#: rejected formula. A lazy translator with an ``en_US`` fallback is the same
+#: pattern the core uses for ORM-free helpers (``phone_validation``,
+#: ``base_iban``): the message is still translated when called from a request.
+_lt = LazyTranslate(__name__, default_lang="en_US")
 
 #: Preset formula labels exposed to the builder.
 FORMULA_TYPES = [
@@ -127,7 +134,7 @@ def build_preset_expression(formula_type, slots):
         return bound[0] if bound else "0"
     expression = PRESET_EXPRESSIONS.get(formula_type)
     if expression is None:
-        raise ValidationError(_("Unknown preset formula '%s'.") % formula_type)
+        raise ValidationError(_lt("Unknown preset formula '%s'.", formula_type))
     return expression
 
 
@@ -161,15 +168,17 @@ def validate_expression(expression, allowed_names):
         tree = ast.parse(expression or "", mode="eval")
     except SyntaxError as error:
         raise ValidationError(
-            _("The formula is not a valid expression: %s") % error
+            _lt("The formula is not a valid expression: %s", error)
         ) from error
 
     for node in ast.walk(tree):
         if isinstance(node, ast.Call):
             if not isinstance(node.func, ast.Name) or node.func.id not in ALLOWED_CALLS:
                 raise ValidationError(
-                    _("Only the functions %s can be used in a formula.")
-                    % ", ".join(sorted(ALLOWED_CALLS))
+                    _lt(
+                        "Only the functions %s can be used in a formula.",
+                        ", ".join(sorted(ALLOWED_CALLS)),
+                    )
                 )
             continue
         if isinstance(node, ast.Name):
@@ -177,14 +186,17 @@ def validate_expression(expression, allowed_names):
                 continue
             if node.id not in allowed_names:
                 raise ValidationError(
-                    _("Unknown name '%s' in the formula. Allowed names: %s.")
-                    % (node.id, ", ".join(sorted(allowed_names)))
+                    _lt(
+                        "Unknown name '%s' in the formula. Allowed names: %s.",
+                        node.id,
+                        ", ".join(sorted(allowed_names)),
+                    )
                 )
             continue
         if isinstance(node, ALLOWED_NODES):
             continue
         raise ValidationError(
-            _("The formula uses an unsupported construct: %s.") % type(node).__name__
+            _lt("The formula uses an unsupported construct: %s.", type(node).__name__)
         )
     return tree
 
