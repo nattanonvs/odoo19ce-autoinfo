@@ -158,6 +158,10 @@ class MeetingRoomBooking(models.Model):
         """
         if not (room_id and start_datetime and end_datetime):
             return
+        # Callers pass either an id (``create``/``write`` payload) or a record
+        # (a stored value on an existing booking); a domain value must be
+        # normalized to an id, otherwise the ORM logs a warning.
+        room_id = room_id.id if hasattr(room_id, "id") else room_id
         domain = [
             ("room_id", "=", room_id),
             ("state", "not in", RELEASED_STATES),
@@ -167,9 +171,7 @@ class MeetingRoomBooking(models.Model):
         if exclude_id:
             domain.append(("id", "!=", exclude_id))
         if self.search_count(domain):
-            room = self.env["od19.meeting.room"].browse(
-                room_id.id if hasattr(room_id, "id") else room_id
-            )
+            room = self.env["od19.meeting.room"].browse(room_id)
             raise ValidationError(
                 _(
                     "Meeting room %(room)s is already booked during the selected time.",
