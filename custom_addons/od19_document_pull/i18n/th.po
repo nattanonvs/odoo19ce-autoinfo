@@ -323,6 +323,12 @@ msgid "Quantity / จำนวน"
 msgstr "จำนวน / Quantity"
 
 #. module: od19_document_pull
+#. odoo-python
+#: code:addons/od19_document_pull/models/account_move.py:0
+msgid "Receipt/Delivery / ใบรับ-ใบส่งของ"
+msgstr "ใบรับ-ใบส่งของ / Receipt/Delivery"
+
+#. module: od19_document_pull
 #: model:ir.model.fields,help:od19_document_pull.field_account_move_line__od19_source_picking_id
 msgid ""
 "Receipt / delivery the quantity of this line was pulled from (style B: bill "
