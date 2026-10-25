@@ -55,8 +55,13 @@ def _el(parent, ns, local, text=None, attrs=None):
 
 
 def _text(value, limit=None):
-    """Normalise free text and optionally clamp it to the XSD max length."""
-    if value is None:
+    """Normalise free text and optionally clamp it to the XSD max length.
+
+    Odoo character fields return ``False`` (not ``""``) when empty and a bare
+    ``str(False)`` would leak the literal ``"False"`` into the document, so
+    every false-y value is normalised to an empty string here.
+    """
+    if not value:
         return ""
     text = str(value).strip()
     if limit and len(text) > limit:
@@ -225,11 +230,34 @@ class EtaxXmlBuilder:
         if origin:
             ref = _el(agreement, self.ram, "BuyerOrderReferencedDocument")
             _el(ref, self.ram, "IssuerAssignedID", origin)
+        reference = self._referenced_document()
+        if reference:
+            name, type_code = reference
+            ref = _el(agreement, self.ram, "AdditionalReferencedDocument")
+            _el(ref, self.ram, "IssuerAssignedID", name)
+            _el(ref, self.ram, "ReferenceTypeCode", type_code)
+
+    def _referenced_document(self):
+        """Return ``(name, type_code)`` of the document this one refers to.
+
+        Debit and credit notes (and cancellation notes) must always carry an
+        ``AdditionalReferencedDocument``, so the note's own reference is used
+        as a last resort when the source document is not linked.
+        """
         source = self.document.source_document_id
         if source and source.name:
-            ref = _el(agreement, self.ram, "AdditionalReferencedDocument")
-            _el(ref, self.ram, "IssuerAssignedID", _text(source.name, 35))
-            _el(ref, self.ram, "ReferenceTypeCode", "T06")
+            return (
+                _text(source.name, 35),
+                source.type_code or namespaces.REFERENCE_TYPE_TAX_INVOICE,
+            )
+        origin = self.move.reversed_entry_id
+        if origin and origin.name:
+            return _text(origin.name, 35), namespaces.REFERENCE_TYPE_TAX_INVOICE
+        if namespaces.requires_original_reference(self.type_key):
+            name = _text(self.move.name, 35)
+            if name:
+                return name, namespaces.REFERENCE_TYPE_TAX_INVOICE
+        return None
 
     def _build_party(self, parent, tag, partner, is_seller=False):
         if not partner:
@@ -244,7 +272,8 @@ class EtaxXmlBuilder:
         if len(global_id) == 13:
             _el(
                 node, self.ram, "GlobalID", global_id,
-                {"schemeID": "TXID", "schemeAgencyID": "GS1"},
+                {"schemeID": namespaces.SCHEME_TAX_ID,
+                 "schemeAgencyID": namespaces.SCHEME_AGENCY_RD},
             )
         name = _text(
             getattr(partner, "tax_name", "") or partner.name, 256
@@ -271,9 +300,11 @@ class EtaxXmlBuilder:
             return
         node = _el(party, self.ram, "DefinedTradeContact")
         if email:
-            comm = _el(node, self.ram, "EmailURIUniversalCommunication")
+            element, complete_number = namespaces.contact_email_element(self.type_key)
+            comm = _el(node, self.ram, element)
             _el(comm, self.ram, "URIID", "mailto:%s" % email, {"schemeID": "SMTP"})
-            _el(comm, self.ram, "CompleteNumber", email)
+            if complete_number:
+                _el(comm, self.ram, "CompleteNumber", email)
         if phone:
             comm = _el(node, self.ram, "TelephoneUniversalCommunication")
             _el(comm, self.ram, "CompleteNumber", phone)
@@ -381,12 +412,47 @@ class EtaxXmlBuilder:
         currency = {"currencyID": move.currency_id.name}
         gross = self.document._compute_gross_line_total()
         allowance = self.document._compute_header_allowance()
+        # Debit/credit and cancellation notes use a different summation type
+        # (``TradeSettlementMonetaryHeaderSummationType``) which additionally
+        # requires the original and the difference amounts.
+        note = namespaces.requires_original_reference(self.type_key)
+        if note:
+            _el(
+                node, self.ram, "OriginalInformationAmount",
+                self._amount(self._original_document_amount()), currency,
+            )
         _el(node, self.ram, "LineTotalAmount", self._amount(gross), currency)
+        if note:
+            _el(
+                node, self.ram, "DifferenceInformationAmount",
+                self._amount(move.amount_total), currency,
+            )
         if allowance > 0:
             _el(node, self.ram, "AllowanceTotalAmount", self._amount(allowance), currency)
         _el(node, self.ram, "TaxBasisTotalAmount", self._amount(move.amount_untaxed), currency)
         _el(node, self.ram, "TaxTotalAmount", self._amount(move.amount_tax), currency)
         _el(node, self.ram, "GrandTotalAmount", self._amount(move.amount_total), currency)
+
+    def _original_document_amount(self):
+        """Return the total of the document referenced by a note.
+
+        The reference comes from the linked e-Tax document, else from the
+        reversal relationship, and finally from the note itself so the
+        mandatory ``OriginalInformationAmount`` is never left empty.
+        """
+        source = self.document.source_document_id
+        origin = source.move_id if source and source.move_id else self.move.reversed_entry_id
+        if not origin:
+            return self.move.amount_total
+        amount = abs(origin.amount_total)
+        if origin.currency_id != self.move.currency_id:
+            amount = origin.currency_id._convert(
+                amount,
+                self.move.currency_id,
+                self.company,
+                origin.invoice_date or origin.date or fields.Date.today(),
+            )
+        return amount
 
     # ------------------------------------------------------------------
     # Line items

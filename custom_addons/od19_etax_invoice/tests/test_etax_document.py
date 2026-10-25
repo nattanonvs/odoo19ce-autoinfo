@@ -14,6 +14,7 @@ import io
 
 from lxml import etree
 
+from odoo import Command
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests import tagged
 
@@ -44,8 +45,8 @@ def _generate_self_signed_certificate():
         .issuer_name(name)
         .public_key(key.public_key())
         .serial_number(x509.random_serial_number())
-        .not_valid_before_utc(now - datetime.timedelta(days=1))
-        .not_valid_after_utc(now + datetime.timedelta(days=365))
+        .not_valid_before(now - datetime.timedelta(days=1))
+        .not_valid_after(now + datetime.timedelta(days=365))
         .sign(key, hashes.SHA256())
     )
     key_pem = key.private_bytes(
@@ -72,6 +73,25 @@ class TestOd19EtaxDocument(AccountTestInvoicingCommon):
         })
         cls.certificate.action_verify()
         cls.company.od19_etax_certificate_id = cls.certificate.id
+
+    @classmethod
+    def setup_independent_user(cls):
+        """Create the accounting test user with its full default group set.
+
+        ``AccountTestInvoicingCommon`` relies on ``stock``/``purchase``/
+        ``account`` manager groups to build the invoicing fixtures. Those
+        groups are stripped again as soon as the user is created because
+        ``base_user_role`` replaces a new user's groups with the ones implied
+        by its role lines, and ``od19_role_catalog`` grants a default role to
+        every new user. Dropping the role lines keeps the accounting groups so
+        the shared fixtures (contact, company, journals) can be created.
+        """
+        user = super().setup_independent_user()
+        user.sudo().role_line_ids.unlink()
+        user.sudo().write({
+            "group_ids": [Command.set(cls.get_default_groups().ids)],
+        })
+        return user
 
     # ------------------------------------------------------------------
     # Helpers

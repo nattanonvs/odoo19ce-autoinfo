@@ -143,6 +143,40 @@ DOCUMENT_TYPE_SELECTION = [
     (key, value["label"]) for key, value in DOCUMENT_TYPES.items()
 ]
 
+#: ``DefinedTradeContact`` email communication differs across the six document
+#: families, even though the six XSDs are generated from the same model:
+#:
+#: * TaxInvoice / Receipt / Invoice / AbbreviatedTaxInvoice expose
+#:   ``EmailURIUniversalCommunication`` (``ram:UniversalCommunicationType``)
+#:   which carries both ``URIID`` and ``CompleteNumber``.
+#: * DebitCreditNote exposes ``EmailURIUniversalCommunication``
+#:   (``ram:EmailUniversalCommunicationType``) with ``URIID`` only.
+#: * CancellationNote exposes ``EmailURICIUniversalCommunication``
+#:   (``ram:EmailUniversalCommunicationType``) with ``URIID`` only.
+_CONTACT_EMAIL_DEFAULT = ("EmailURIUniversalCommunication", True)
+_CONTACT_EMAIL = {
+    "debit_credit_note": ("EmailURIUniversalCommunication", False),
+    "cancellation_note": ("EmailURICIUniversalCommunication", False),
+}
+
+#: Document families that must reference the original document through a
+#: mandatory ``AdditionalReferencedDocument`` and report
+#: ``OriginalInformationAmount`` / ``DifferenceInformationAmount``.
+_ORIGINAL_REFERENCE_REQUIRED = frozenset({"debit_credit_note", "cancellation_note"})
+
+#: UN/ECE 1153 reference type code of the original tax invoice.
+REFERENCE_TYPE_TAX_INVOICE = "388"
+
+
+def contact_email_element(document_type):
+    """Return ``(local_name, include_complete_number)`` for the contact email."""
+    return _CONTACT_EMAIL.get(document_type, _CONTACT_EMAIL_DEFAULT)
+
+
+def requires_original_reference(document_type):
+    """Return ``True`` when the family must reference the original document."""
+    return document_type in _ORIGINAL_REFERENCE_REQUIRED
+
 
 def rsm_namespace(document_type):
     """Return the root namespace for a document type key."""

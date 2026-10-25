@@ -15,6 +15,7 @@ normalise on write and strip insignificant trailing zeros so the produced
 document stays compact and deterministic.
 """
 
+import datetime
 import decimal
 import re
 
@@ -83,6 +84,10 @@ def format_datetime(value, tz_name=None):
         value = fields.Datetime.now()
     if isinstance(value, str):
         value = fields.Datetime.to_datetime(value)
+    if not isinstance(value, datetime.datetime):
+        # A plain ``date`` (e.g. ``invoice_date_due``) has no time component and
+        # no timezone, so it is reported as local midnight and left unshifted.
+        return "%sT00:00:00.0" % value.strftime("%Y-%m-%d")
     value = _localize(value, tz_name)
     return "%s.%s" % (value.strftime("%Y-%m-%dT%H:%M:%S"), value.microsecond // 100000)
 
