@@ -8,6 +8,14 @@ import requests
 
 from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase, tagged
+from odoo.tools import mute_logger
+
+# ``requests`` is mocked, so the "cannot reach the Bank of Thailand API" trace
+# written by the provider is the behaviour under test: keep it out of the log.
+BOT_LOGGERS = (
+    "odoo.addons.od19_currency_rate_bot.models.res_currency_rate_provider",
+    "odoo.addons.currency_rate_update.models.res_currency_rate_provider",
+)
 
 
 @tagged("post_install", "-at_install")
@@ -64,6 +72,7 @@ class TestCurrencyRateBotOffline(TransactionCase):
     # ------------------------------------------------------------------
     # Network outage
     # ------------------------------------------------------------------
+    @mute_logger(*BOT_LOGGERS)
     @patch("requests.get")
     def test_connection_error_raises_friendly_user_error(self, mock_get):
         mock_get.side_effect = requests.exceptions.ConnectionError("no network")
@@ -71,6 +80,7 @@ class TestCurrencyRateBotOffline(TransactionCase):
             self._obtain()
         self.assertIn("Bank of Thailand API", str(cm.exception))
 
+    @mute_logger(*BOT_LOGGERS)
     @patch("requests.get")
     def test_timeout_raises_friendly_user_error(self, mock_get):
         mock_get.side_effect = requests.exceptions.Timeout("timed out")
@@ -78,6 +88,7 @@ class TestCurrencyRateBotOffline(TransactionCase):
             self._obtain()
         self.assertIn("Bank of Thailand API", str(cm.exception))
 
+    @mute_logger(*BOT_LOGGERS)
     @patch("requests.get")
     def test_scheduled_update_does_not_crash_when_offline(self, mock_get):
         """The cron path swallows provider failures instead of raising."""

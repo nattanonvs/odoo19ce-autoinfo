@@ -1,5 +1,13 @@
 from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase, new_test_user
+from odoo.tools import mute_logger
+
+# ``_visible_menu_ids`` walks every action stored in the database. During an
+# incremental ``-u <module>`` run, the actions of modules which have not been
+# loaded yet are still in ``ir.actions`` while their model is absent from the
+# registry, so ``ir.model.access.check`` logs "Missing model" once per action.
+# That is unrelated to the visibility asserted here, hence the noise is muted.
+MENU_SCAN_LOGGER = "odoo.addons.base.models.ir_model"
 
 
 class TestPurchaseRequestAppAccess(TransactionCase):
@@ -50,14 +58,14 @@ class TestPurchaseRequestAppAccess(TransactionCase):
 
     def test_purchase_request_shortcut_visibility_follows_groups(self):
         menu = self.env.ref("purchase_request.menu_purchase_request_pro_mgt")
-        self.assertIn(
-            menu.id,
-            self.env["ir.ui.menu"].with_user(self.pr_user)._visible_menu_ids(),
-        )
-        self.assertNotIn(
-            menu.id,
-            self.env["ir.ui.menu"].with_user(self.plain_user)._visible_menu_ids(),
-        )
+        Menu = self.env["ir.ui.menu"]
+        with mute_logger(MENU_SCAN_LOGGER):
+            visible_to_pr_user = Menu.with_user(self.pr_user)._visible_menu_ids()
+            visible_to_plain_user = (
+                Menu.with_user(self.plain_user)._visible_menu_ids()
+            )
+        self.assertIn(menu.id, visible_to_pr_user)
+        self.assertNotIn(menu.id, visible_to_plain_user)
 
     def test_purchase_request_app_menu_uses_own_icon(self):
         menu = self.env.ref("purchase_request.parent_menu_purchase_request")

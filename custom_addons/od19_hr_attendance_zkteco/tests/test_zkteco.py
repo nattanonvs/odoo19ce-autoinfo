@@ -2,6 +2,11 @@
 
 from odoo.tests import tagged
 from odoo.tests.common import HttpCase, TransactionCase
+from odoo.tools import mute_logger
+
+# The controller logs a warning whenever it refuses a terminal. Two tests below
+# exercise those refusals on purpose, so the warning is expected output there.
+CONTROLLER_LOGGER = 'odoo.addons.od19_hr_attendance_zkteco.controllers.main'
 
 
 @tagged('post_install', '-at_install', 'od19_zkteco')
@@ -119,6 +124,7 @@ class TestZKTecoController(HttpCase):
             'company_id': cls.company.id,
         })
 
+    @mute_logger(CONTROLLER_LOGGER)
     def test_cdata_without_key_is_refused(self):
         response = self.url_open(
             '/iclock/cdata?SN=HTTP-SN-001&options=all', timeout=60)
@@ -152,6 +158,7 @@ class TestZKTecoController(HttpCase):
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.text.strip(), 'OK')
 
+    @mute_logger(CONTROLLER_LOGGER)
     def test_ping_refuses_unknown_device(self):
         response = self.url_open(
             '/iclock/ping?SN=UNKNOWN-SN&key=%s' % self.KEY, timeout=60)

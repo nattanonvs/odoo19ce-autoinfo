@@ -4,6 +4,14 @@ from unittest.mock import patch
 import requests
 
 from odoo.tests.common import TransactionCase
+from odoo.tools import mute_logger
+
+# The LINE client is mocked, so the failure trace written by the service and by
+# the queue is the behaviour under test, not a problem: keep it out of the log.
+LINE_LOGGERS = (
+    "odoo.addons.od19_notification_multi_channel.models.notification_mixin",
+    "odoo.addons.od19_notification_multi_channel.models.notification_queue",
+)
 
 
 class TestNotificationMultiChannel(TransactionCase):
@@ -195,6 +203,7 @@ class TestNotificationMultiChannel(TransactionCase):
         queue.action_send()
         self.assertEqual(queue.state, "sent")
 
+    @mute_logger(*LINE_LOGGERS)
     @patch("requests.post")
     def test_queue_failure_increments_retry(self, mock_post):
         self.Preference.create(
@@ -217,6 +226,7 @@ class TestNotificationMultiChannel(TransactionCase):
         self.assertEqual(queue.retry_count, 1)
         self.assertTrue(queue.error_message)
 
+    @mute_logger(*LINE_LOGGERS)
     @patch("requests.post")
     def test_queue_offline_reports_readable_error(self, mock_post):
         """A network outage must not leak a raw requests traceback."""
