@@ -18,6 +18,7 @@ class AccountMove(models.Model):
         "invoice_line_ids.purchase_line_id",
         "invoice_line_ids.sale_line_ids",
         "invoice_line_ids.od19_source_move_line_id",
+        "invoice_line_ids.od19_source_picking_id",
     )
     def _compute_od19_pull_source_label(self):
         for move in self:
@@ -33,8 +34,9 @@ class AccountMove(models.Model):
 
     def _od19_pull_source_specs(self):
         self.ensure_one()
+        specs = []
         if self.move_type == "in_invoice":
-            return [
+            specs += [
                 {
                     "model": "purchase.order",
                     "label": _("Purchase Order / ใบสั่งซื้อ"),
@@ -54,8 +56,8 @@ class AccountMove(models.Model):
                     ],
                 },
             ]
-        if self.move_type == "out_invoice":
-            return [
+        elif self.move_type == "out_invoice":
+            specs += [
                 {
                     "model": "sale.order",
                     "label": _("Sale Order / ใบสั่งขาย"),
@@ -65,7 +67,51 @@ class AccountMove(models.Model):
                     ],
                 },
             ]
-        return []
+        picking_types = self._od19_pull_picking_types()
+        if picking_types:
+            specs.append(
+                {
+                    "model": "stock.picking",
+                    "label": _("Receipt/Delivery / ใบรับ-ใบส่งของ"),
+                    "domain": [
+                        ("partner_id", "=", self.partner_id.id),
+                        ("picking_type_code", "in", picking_types),
+                        ("state", "=", "done"),
+                    ],
+                }
+            )
+        return specs
+
+    # ------------------------------------------------------------------
+    # Style B — bill by receipt / delivery
+    # ------------------------------------------------------------------
+
+    def _od19_pull_picking_types(self):
+        """Return the picking types allowed as a source for this document."""
+        self.ensure_one()
+        if self.move_type == "in_invoice":
+            return ("incoming",)
+        if self.move_type == "out_invoice":
+            return ("outgoing",)
+        return ()
+
+    def _od19_pull_picking_source_lines(self, picking):
+        """Return the order lines whose stock moves belong to picking."""
+        self.ensure_one()
+        if self.move_type == "in_invoice":
+            return picking.move_ids.purchase_line_id
+        if self.move_type == "out_invoice":
+            return picking.move_ids.sale_line_id
+        return self.env["account.move.line"].browse()
+
+    def _od19_pull_picking_line_filter(self, picking, line):
+        """Return True when an order line is billable through this picking."""
+        self.ensure_one()
+        if picking.state != "done":
+            return False
+        if not line.move_ids.filtered(lambda m: m.picking_id == picking):
+            return False
+        return line.qty_to_invoice > 0
 
     def _od19_pull_candidate_lines(self, source):
         self.ensure_one()
@@ -88,11 +134,17 @@ class AccountMove(models.Model):
             return source.invoice_line_ids.filtered(
                 lambda l: l.display_type == "product" and l.id not in taken
             )
+        if source._name == "stock.picking":
+            if source.id in self.invoice_line_ids.od19_source_picking_id.ids:
+                return self.env["account.move.line"].browse()
+            return self._od19_pull_picking_source_lines(source).filtered(
+                lambda l: self._od19_pull_picking_line_filter(source, l)
+            )
         return self.env["account.move.line"].browse()
 
     def _od19_pull_line_info(self, source, line):
         self.ensure_one()
-        if source._name in ("purchase.order", "sale.order"):
+        if source._name in ("purchase.order", "sale.order", "stock.picking"):
             return {
                 "res_model": line._name,
                 "res_id": line.id,
@@ -148,6 +200,17 @@ class AccountMove(models.Model):
                 vals.pop("move_id", None)
                 commands.append(Command.create(vals))
                 sequence += 10
+        elif source._name == "stock.picking":
+            for order_line in lines.sorted("sequence"):
+                if order_line._name == "purchase.order.line":
+                    vals = order_line._prepare_account_move_line(self)
+                else:
+                    vals = order_line._prepare_invoice_line()
+                    vals["move_id"] = self.id
+                vals["sequence"] = sequence
+                vals["od19_source_picking_id"] = source.id
+                commands.append(Command.create(vals))
+                sequence += 10
         if not commands:
             return 0
         self.write({"invoice_line_ids": commands})
@@ -172,6 +235,10 @@ class AccountMove(models.Model):
             return self.invoice_line_ids.filtered(
                 lambda l: l.od19_source_move_line_id.move_id == source
             )
+        if source._name == "stock.picking":
+            return self.invoice_line_ids.filtered(
+                lambda l: l.od19_source_picking_id == source
+            )
         return self.env["account.move.line"].browse()
 
     def _od19_pull_remove(self, source):
@@ -189,6 +256,7 @@ class AccountMove(models.Model):
             self.invoice_line_ids.purchase_line_id.order_id,
             self.invoice_line_ids.od19_source_move_line_id.move_id,
             self.invoice_line_ids.sale_line_ids.order_id,
+            self.invoice_line_ids.od19_source_picking_id,
         )
         for sources in groups:
             for source in sources:
