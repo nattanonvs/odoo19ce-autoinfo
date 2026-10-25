@@ -3,7 +3,7 @@
 
 {
     "name": "OD19 Document Pull",
-    "version": "19.0.1.2.0",
+    "version": "19.0.1.3.0",
     "author": "OD19",
     "category": "Accounting",
     "summary": "Central mechanism to pull source document lines into a "
@@ -22,6 +22,7 @@
         "wizards/od19_document_pull_wizard_views.xml",
         "views/account_move_views.xml",
         "views/purchase_order_views.xml",
+        "report/grni_report_views.xml",
     ],
     "installable": True,
     "application": False,

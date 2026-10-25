@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_od19_grni_report_list" model="ir.ui.view">
+        <field name="name">od19.grni.report.list</field>
+        <field name="model">purchase.order.line</field>
+        <field name="arch" type="xml">
+            <list string="GRNI / ของรับแล้วยังไม่วางบิล" create="false" edit="false">
+                <field name="order_id"/>
+                <field name="partner_id"/>
+                <field name="date_planned"/>
+                <field name="product_id"/>
+                <field name="name"/>
+                <field name="product_qty"/>
+                <field name="qty_received"/>
+                <field name="qty_invoiced"/>
+                <field name="qty_to_invoice" string="GRNI Qty / คงค้าง"/>
+                <field name="price_unit"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_od19_grni_report" model="ir.actions.act_window">
+        <field name="name">GRNI (Received Not Invoiced) / ของรับแล้วยังไม่วางบิล</field>
+        <field name="res_model">purchase.order.line</field>
+        <field name="view_mode">list,pivot,form</field>
+        <field name="view_id" ref="view_od19_grni_report_list"/>
+        <field name="domain">[('order_id.state', 'in', ('purchase', 'done')), ('qty_received', '&gt;', 0), ('qty_to_invoice', '&gt;', 0), ('display_type', '=', False)]</field>
+        <field name="context">{'search_default_groupby_supplier': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No received-but-unbilled purchase line.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_od19_grni_report"
+              name="GRNI / ของรับแล้วยังไม่วางบิล"
+              parent="purchase.purchase_report_main"
+              action="action_od19_grni_report"
+              sequence="90"/>
+</odoo>

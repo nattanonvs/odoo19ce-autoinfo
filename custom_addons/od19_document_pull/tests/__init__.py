@@ -9,4 +9,5 @@ from . import test_document_pull_purchase_request
 from . import test_document_pull_sale
 from . import test_document_pull_picking
 from . import test_purchase_create_vendor_bill_filter
+from . import test_grni_report
 from . import test_module_install

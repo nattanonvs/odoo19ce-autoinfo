@@ -130,6 +130,22 @@ msgid "Document %(name)s will have %(count)s line(s) removed."
 msgstr "เอกสาร %(name)s จะถูกลบรายการจำนวน %(count)s รายการ"
 
 #. module: od19_document_pull
+#: model:ir.actions.act_window,name:od19_document_pull.action_od19_grni_report
+msgid "GRNI (Received Not Invoiced) / ของรับแล้วยังไม่วางบิล"
+msgstr "ของรับแล้วยังไม่วางบิล / GRNI (Received Not Invoiced)"
+
+#. module: od19_document_pull
+#: model:ir.ui.menu,name:od19_document_pull.menu_od19_grni_report
+#: model_terms:ir.ui.view,arch_db:od19_document_pull.view_od19_grni_report_list
+msgid "GRNI / ของรับแล้วยังไม่วางบิล"
+msgstr "ของรับแล้วยังไม่วางบิล / GRNI"
+
+#. module: od19_document_pull
+#: model_terms:ir.ui.view,arch_db:od19_document_pull.view_od19_grni_report_list
+msgid "GRNI Qty / คงค้าง"
+msgstr "คงค้าง / GRNI Qty"
+
+#. module: od19_document_pull
 #: model:ir.model.fields,field_description:od19_document_pull.field_account_move__id
 #: model:ir.model.fields,field_description:od19_document_pull.field_account_move_line__id
 #: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_mixin__id
@@ -201,6 +217,11 @@ msgstr "รายการที่จะลบ / Lines to remove"
 #: model_terms:ir.ui.view,arch_db:od19_document_pull.view_order_form_od19_document_pull
 msgid "Manage/Remove Source / จัดการ/ลบเอกสารต้นทาง"
 msgstr "จัดการ/ลบเอกสารต้นทาง / Manage/Remove Source"
+
+#. module: od19_document_pull
+#: model_terms:ir.actions.act_window,help:od19_document_pull.action_od19_grni_report
+msgid "No received-but-unbilled purchase line."
+msgstr "ไม่มีรายการสั่งซื้อที่รับของแล้วแต่ยังไม่วางบิล"
 
 #. module: od19_document_pull
 #. odoo-python
