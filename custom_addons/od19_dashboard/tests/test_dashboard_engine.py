@@ -6,6 +6,11 @@ from odoo import fields
 from odoo.exceptions import AccessError, ValidationError
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
+from odoo.tools import mute_logger
+
+# ``_compute_order`` logs a warning when a cycle forces it to fall back to
+# sequence order. One test below builds such a cycle on purpose.
+DASHBOARD_LOGGER = "odoo.addons.od19_dashboard.models.dashboard"
 
 
 class TestDashboardFormulaEngine(TransactionCase):
@@ -422,6 +427,7 @@ class TestDashboardOrdering(TransactionCase):
         ordered = self.dashboard._compute_order()
         self.assertLess(ordered.index(self.widget_a), ordered.index(self.widget_c))
 
+    @mute_logger(DASHBOARD_LOGGER)
     def test_compute_order_survives_a_cycle(self):
         # The ORM refuses to store a cycle by design (``_check_dependency_cycle``
         # raises ``ValidationError``), so the cycle has to be written straight

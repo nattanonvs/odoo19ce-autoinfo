@@ -8,6 +8,11 @@ from odoo.tools import mute_logger
 # exercise those refusals on purpose, so the warning is expected output there.
 CONTROLLER_LOGGER = 'odoo.addons.od19_hr_attendance_zkteco.controllers.main'
 
+# A duplicate serial number makes PostgreSQL raise a unique violation, which the
+# Odoo cursor reports through ``odoo.sql_db`` before the exception propagates.
+# The test below asserts that behaviour on purpose.
+SQL_LOGGER = 'odoo.sql_db'
+
 
 @tagged('post_install', '-at_install', 'od19_zkteco')
 class TestZKTecoPunch(TransactionCase):
@@ -43,6 +48,7 @@ class TestZKTecoPunch(TransactionCase):
         vals.update(kwargs)
         return self.env['hr.attendance.device.log'].create(vals)
 
+    @mute_logger(SQL_LOGGER)
     def test_serial_number_is_unique(self):
         with self.assertRaises(Exception):
             self.env['hr.attendance.device'].create({
