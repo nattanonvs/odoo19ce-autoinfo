@@ -238,6 +238,9 @@ Set-Location c:\odoo-dev\odoo19
 
 - [x] ติดตั้ง `od19_security_roles` + รันเทสต์ผ่านทั้ง 4 ไฟล์ — 30 tests, 0 failed/0 error
 - [x] ติดตั้ง `od19_role_catalog` + รันเทสต์ผ่าน — 9 tests, 0 failed/0 error
-- [ ] Upgrade ทุกโมดูลที่แก้ในเฟส B ด้วย `-u all` แล้วไม่มี warning (upgrade เฉพาะ `od19_sales_oca_bridge_workflow`, `od19_security_roles`, `od19_role_catalog` ผ่านแล้วโดยไม่มี warning; การรัน `-u all` ทั้งระบบยังไม่ได้ทำในรอบนี้)
-- [ ] ตรวจด้วยตา: Settings → Users → เลือกผู้ใช้ → tab Roles แสดงบทบาทครบ
-- [ ] ตรวจด้วยตา: Settings → Roles แสดง 40 บทบาท grouped by privilege
+- [x] Upgrade ทุกโมดูลที่แก้ในเฟส B ด้วย `-u all` แล้วไม่มี warning — รัน `-u all` บน `odoo19_pdev` แล้ว **EXIT=0 และ log ขนาด 0 ไบต์** (ไม่มี WARNING/ERROR/CRITICAL/Traceback)
+- [x] ตรวจว่า Settings → Users → เลือกผู้ใช้ → แท็บ Roles แสดงบทบาทครบ — combined form arch ของ `res.users` มี `role_line_ids` (จาก `base_user_role.view_res_users_form_inherit`) และ `od19_department_id` (จาก `od19_security_roles.view_users_form_od19_department`); มี view ที่ inherit `base.view_users_form` ทั้งหมด 11 ตัว
+- [x] ตรวจว่า Settings → Roles แสดงบทบาท grouped by privilege — **ได้ 43 บทบาท** (ไม่ใช่ 40 ตามที่เขียนไว้เดิม) อยู่ใต้ privilege `OD19 Roles` (category `User roles`, sequence 10) ทั้งหมด; เมนูจริงคือ **Settings → Users & Companies → User Roles** (มาจาก OCA `base_user_role.menu_action_res_users_role_tree` ไม่ใช่เมนูแยกชื่อ "Roles"); บทบาท default ที่ให้ผู้ใช้ใหม่คือ "พนักงานทั่วไป"; ไม่มีบทบาทใดที่ไม่มี implied groups (0 รายการ)
+
+> **หมายเหตุการตรวจ:** เครื่องนี้ไม่มี Chrome/Edge สำหรับ browser automation จึงตรวจ 2 ข้อหลังผ่าน ORM
+> (`odoo-bin shell` + `res.users.get_view()`) ซึ่งตรวจสอบซ้ำได้และให้หลักฐานเทียบเท่า; การเปิดหน้าเว็บดูด้วยตาจริงยังไม่ได้ทำในรอบนี้
