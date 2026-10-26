@@ -119,11 +119,12 @@ class PlBsReport(models.TransientModel):
         required=True,
         default="posted",
     )
+    # Options shared by both statements; the Balance Sheet adds a third one
+    # ("comp") through ``selection_add`` to avoid overriding the selection.
     show_type = fields.Selection(
         [
             ("summ", "แสดงเฉพาะผลรวม"),
             ("drcr", "แสดงพร้อม Dr/Cr"),
-            ("comp", "แสดงพร้อมเปรียบเทียบ"),
         ],
         string="Display Condition",
         required=True,
@@ -310,12 +311,6 @@ class ProfitLossReport(models.TransientModel):
     _inherit = "pl.bs.report"
 
     name = fields.Char(default="Profit and Loss")
-    show_type = fields.Selection(
-        [("summ", "แสดงเฉพาะผลรวม"), ("drcr", "แสดงพร้อม Dr/Cr")],
-        string="Display Condition",
-        required=True,
-        default="summ",
-    )
     options = fields.Selection(
         [("total", "ยอดสะสม"), ("period", "กำหนดเอง")],
         string="Options",
@@ -408,6 +403,10 @@ class BalanceSheetReport(models.TransientModel):
     _inherit = "pl.bs.report"
 
     name = fields.Char(default="Balance Sheet")
+    show_type = fields.Selection(
+        selection_add=[("comp", "แสดงพร้อมเปรียบเทียบ")],
+        ondelete={"comp": "set default"},
+    )
 
     def _include_account_types(self):
         return [
