@@ -17,6 +17,12 @@ class TestAccountMenuStructure(TransactionCase):
         menu = self.env.ref("account.menu_finance_entries")
         self.assertEqual(menu.name, "Accounting Entries")
 
+    def test_settings_account_app_label_renamed(self):
+        view = self.env.ref("account.res_config_settings_view_form")
+        app = view._get_combined_arch().find(".//app[@name='account']")
+        self.assertIsNotNone(app)
+        self.assertEqual(app.get("string"), "Accounting")
+
     def test_finance_control_board_is_first_menu(self):
         board = self.env.ref(
             "od19_accounting_reporting.menu_od19_finance_control_dashboard"

@@ -40,4 +40,24 @@
     <function model="ir.ui.menu" name="update_field_translations"
               eval="[ref('account.menu_finance_entries'), 'name', {'th_TH': 'รายการบัญชี'}]"/>
 
+    <!--
+        The Settings page renders one collapsible section per app and takes the
+        section header from the "string" attribute of the <app> element in the
+        res.config.settings form. Odoo core hardcodes it as "Invoicing"
+        (Thai: "ออกใบแจ้งหนี้"), so the Accounting team still saw the old name in
+        Settings even though the app menu itself was renamed to "Accounting".
+        Override the label here instead of touching the Odoo core view.
+    -->
+    <record id="view_res_config_settings_account_app_label" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.account.app.label</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='account']" position="attributes">
+                <attribute name="string">Accounting</attribute>
+                <attribute name="data-string">Accounting</attribute>
+            </xpath>
+        </field>
+    </record>
+
 </odoo>

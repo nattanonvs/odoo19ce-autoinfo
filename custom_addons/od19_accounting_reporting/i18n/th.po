@@ -14,6 +14,7 @@ msgstr ""
 
 #. module: od19_accounting_reporting
 #: model:ir.ui.menu,name:account.menu_finance
+#: model_terms:ir.ui.view,arch_db:od19_accounting_reporting.view_res_config_settings_account_app_label
 msgid "Accounting"
 msgstr "การบัญชี"
 
