@@ -1,3 +1,4 @@
+from odoo import fields
 from odoo.tests.common import TransactionCase
 
 
@@ -273,3 +274,116 @@ class TestTrialBalanceReport(TransactionCase):
         where = report.get_parameters()["p_Where"]
         self.assertIn("amd.journal_id in (%s)" % journal.id, where)
         self.assertNotIn("amd.state = 'posted'", where)
+
+
+class TestPlBsReport(TransactionCase):
+    def test_default_jasper_file_is_shipped(self):
+        for model in ("pl.bs.report", "profit.loss.report", "balance.sheet.report"):
+            report = self.env[model].create({})
+            self.assertTrue(report.jasper_file.endswith("pl_bs.jasper"))
+
+    def test_profit_loss_parameters_follow_legacy_contract(self):
+        report = self.env["profit.loss.report"].create(
+            {"rpt_month": "10", "rpt_year": "2026"}
+        )
+        parameters = report.get_parameters()
+        self.assertEqual(parameters["report_name"], "Profit and Loss")
+        self.assertEqual(parameters["company_id"], "%s" % report.company_id.id)
+        self.assertEqual(parameters["p_Level"], "3")
+        self.assertEqual(parameters["p_language"], "thai")
+        self.assertEqual(parameters["p_Print_By"], self.env.user.name)
+        self.assertEqual(parameters["show_dr_cr"], "0")
+        self.assertEqual(parameters["show_comp"], "0")
+        self.assertEqual(parameters["report_date"], "ประจำงวด มกราคม - ตุลาคม 2569")
+        self.assertIn("b.date >= '2026-01-01'", parameters["move_criteria"])
+        self.assertIn("b.date <= date '2026-10-31'", parameters["move_criteria"])
+        self.assertIn("a.state = 'posted'", parameters["move_criteria"])
+        self.assertIn(
+            "b.company_id = %s" % report.company_id.id, parameters["move_criteria"]
+        )
+
+    def test_report_template_maps_to_level(self):
+        report = self.env["profit.loss.report"].create({})
+        self.assertEqual(report.get_parameters()["p_Level"], "3")
+        report.report_template = "pl_bs_lvl4"
+        self.assertEqual(report.get_parameters()["p_Level"], "4")
+        report.report_template = "pl_bs"
+        self.assertEqual(report.get_parameters()["p_Level"], "5")
+
+    def test_report_name_falls_back_to_wizard_name(self):
+        report = self.env["profit.loss.report"].create({"rpt_nm": "งบกำไรขาดทุน"})
+        self.assertEqual(report.get_parameters()["report_name"], "งบกำไรขาดทุน")
+
+    def test_account_criteria_scope_by_statement(self):
+        profit_loss = self.env["profit.loss.report"].create({})
+        criteria = profit_loss.get_parameters()["account_criteria"]
+        self.assertIn("aa.account_type in (", criteria)
+        self.assertIn("'income'", criteria)
+        self.assertIn("'expense_direct_cost'", criteria)
+        self.assertNotIn("'asset_current'", criteria)
+
+        balance_sheet = self.env["balance.sheet.report"].create({})
+        criteria = balance_sheet.get_parameters()["account_criteria"]
+        self.assertIn("'asset_current'", criteria)
+        self.assertIn("'equity_unaffected'", criteria)
+        self.assertIn("aa.account_type = 'equity_unaffected'", criteria)
+        self.assertNotIn("'income'", criteria)
+
+    def test_comparison_criteria_only_when_comparing(self):
+        report = self.env["balance.sheet.report"].create(
+            {"rpt_month": "10", "rpt_year": "2026", "cmp_month": "10", "cmp_year": "2025"}
+        )
+        parameters = report.get_parameters()
+        self.assertIn("where 1 = 0", parameters["comp_criteria"])
+        self.assertEqual(parameters["show_comp"], "0")
+
+        report.show_type = "comp"
+        parameters = report.get_parameters()
+        self.assertIn("b.date <= date '2025-10-31'", parameters["comp_criteria"])
+        self.assertEqual(parameters["show_comp"], "1")
+        self.assertEqual(parameters["show_dr_cr"], "0")
+
+    def test_display_condition_dr_cr(self):
+        report = self.env["profit.loss.report"].create({"show_type": "drcr"})
+        parameters = report.get_parameters()
+        self.assertEqual(parameters["show_dr_cr"], "1")
+        self.assertEqual(parameters["show_comp"], "0")
+
+    def test_language_switches_labels(self):
+        today = fields.Date.context_today(self.env["balance.sheet.report"])
+        report = self.env["balance.sheet.report"].create(
+            {
+                "p_language": "english",
+                "rpt_month": str(today.month),
+                "rpt_year": str(today.year),
+            }
+        )
+        parameters = report.get_parameters()
+        self.assertEqual(parameters["p_language"], "english")
+        self.assertEqual(parameters["report_name"], "Balance Sheet")
+        self.assertTrue(parameters["report_date"].startswith("As at "))
+        report.p_language = "thai"
+        self.assertEqual(report.get_parameters()["report_name"], "Balance Sheet")
+        self.assertTrue(report.get_parameters()["report_date"].startswith("ณ วันที่ "))
+
+    def test_period_options_use_explicit_dates(self):
+        report = self.env["profit.loss.report"].create(
+            {
+                "options": "period",
+                "period_start": "2026-03-01",
+                "period_end": "2026-03-31",
+            }
+        )
+        parameters = report.get_parameters()
+        self.assertIn("b.date >= '2026-03-01'", parameters["move_criteria"])
+        self.assertIn("b.date <= '2026-03-31'", parameters["move_criteria"])
+        self.assertIn("where 1 = 0", parameters["comp_criteria"])
+
+    def test_balance_sheet_injects_current_year_earnings(self):
+        report = self.env["balance.sheet.report"].create(
+            {"rpt_month": "10", "rpt_year": "2026"}
+        )
+        parameters = report.get_parameters()
+        self.assertIsInstance(parameters["pl_dr"], str)
+        self.assertIsInstance(parameters["pl_balance"], str)
+        self.assertIsInstance(parameters["pl_cmp_balance"], str)

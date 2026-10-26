@@ -15,3 +15,9 @@ access_general_ledger_report_user,general.ledger.report user,model_general_ledge
 access_general_ledger_report_manager,general.ledger.report manager,model_general_ledger_report,account.group_account_manager,1,1,1,1
 access_trial_balance_report_user,trial.balance.report user,model_trial_balance_report,account.group_account_invoice,1,1,1,1
 access_trial_balance_report_manager,trial.balance.report manager,model_trial_balance_report,account.group_account_manager,1,1,1,1
+access_pl_bs_report_user,pl.bs.report user,model_pl_bs_report,account.group_account_invoice,1,1,1,1
+access_pl_bs_report_manager,pl.bs.report manager,model_pl_bs_report,account.group_account_manager,1,1,1,1
+access_profit_loss_report_user,profit.loss.report user,model_profit_loss_report,account.group_account_invoice,1,1,1,1
+access_profit_loss_report_manager,profit.loss.report manager,model_profit_loss_report,account.group_account_manager,1,1,1,1
+access_balance_sheet_report_user,balance.sheet.report user,model_balance_sheet_report,account.group_account_invoice,1,1,1,1
+access_balance_sheet_report_manager,balance.sheet.report manager,model_balance_sheet_report,account.group_account_manager,1,1,1,1

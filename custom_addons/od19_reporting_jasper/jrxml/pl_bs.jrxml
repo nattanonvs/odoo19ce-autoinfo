@@ -1,0 +1,567 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="PL_BS" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="b2f6c1de-6a2c-4f3b-9d1e-6f0a2c3b4d5e">
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Localhost"/>
+	<parameter name="report_name" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["Financial Statement"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="report_date" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="report_analytic" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="company_id" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["1"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="p_Level" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["5"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="show_dr_cr" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["0"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="show_comp" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["0"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="move_criteria" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["where 1 = 1"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="comp_criteria" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["where 1 = 0"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="account_criteria" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="rpt_label" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="cmp_label" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="pl_dr" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["0.00"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="pl_cr" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["0.00"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="pl_balance" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["0.00"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="pl_cmp_balance" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["0.00"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="p_Print_By" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["admin"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="p_language" class="java.lang.String" isForPrompting="false">
+		<parameterDescription><![CDATA[thai,english]]></parameterDescription>
+		<defaultValueExpression><![CDATA["thai"]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[;WITH ACC AS (
+    SELECT aa.id,
+           aa.code_store->>'$P!{company_id}' AS account_code,
+           split_part(aa.account_type, '_', 1) AS internal_group,
+           aa.account_type,
+           CASE split_part(aa.account_type, '_', 1)
+                WHEN 'asset' THEN 1
+                WHEN 'liability' THEN 2
+                WHEN 'equity' THEN 3
+                WHEN 'income' THEN 4
+                WHEN 'expense' THEN 5
+                ELSE 6
+           END AS group_order,
+           CASE split_part(aa.account_type, '_', 1)
+                WHEN 'asset' THEN 'Assets'
+                WHEN 'liability' THEN 'Liabilities'
+                WHEN 'equity' THEN 'Equity'
+                WHEN 'income' THEN 'Income'
+                WHEN 'expense' THEN 'Expenses'
+                WHEN 'off' THEN 'Off-Balance Sheet'
+                ELSE split_part(aa.account_type, '_', 1)
+           END AS group_name_en,
+           CASE split_part(aa.account_type, '_', 1)
+                WHEN 'asset' THEN 'สินทรัพย์'
+                WHEN 'liability' THEN 'หนี้สิน'
+                WHEN 'equity' THEN 'ส่วนของเจ้าของ'
+                WHEN 'income' THEN 'รายได้'
+                WHEN 'expense' THEN 'ค่าใช้จ่าย'
+                WHEN 'off' THEN 'บัญชีนอกงบดุล'
+                ELSE split_part(aa.account_type, '_', 1)
+           END AS group_name_th,
+           CASE aa.account_type
+                WHEN 'asset_receivable' THEN 'Receivable'
+                WHEN 'asset_cash' THEN 'Bank and Cash'
+                WHEN 'asset_current' THEN 'Current Assets'
+                WHEN 'asset_non_current' THEN 'Non-current Assets'
+                WHEN 'asset_prepayments' THEN 'Prepayments'
+                WHEN 'asset_fixed' THEN 'Fixed Assets'
+                WHEN 'liability_payable' THEN 'Payable'
+                WHEN 'liability_credit_card' THEN 'Credit Card'
+                WHEN 'liability_current' THEN 'Current Liabilities'
+                WHEN 'liability_non_current' THEN 'Non-current Liabilities'
+                WHEN 'equity' THEN 'Equity'
+                WHEN 'equity_unaffected' THEN 'Current Year Earnings'
+                WHEN 'income' THEN 'Income'
+                WHEN 'income_other' THEN 'Other Income'
+                WHEN 'expense' THEN 'Expenses'
+                WHEN 'expense_other' THEN 'Other Expenses'
+                WHEN 'expense_depreciation' THEN 'Depreciation'
+                WHEN 'expense_direct_cost' THEN 'Cost of Revenue'
+                WHEN 'off_balance' THEN 'Off-Balance Sheet'
+                ELSE aa.account_type
+           END AS account_type_name_en,
+           CASE aa.account_type
+                WHEN 'asset_receivable' THEN 'ลูกหนี้การค้า'
+                WHEN 'asset_cash' THEN 'เงินสดและธนาคาร'
+                WHEN 'asset_current' THEN 'สินทรัพย์หมุนเวียน'
+                WHEN 'asset_non_current' THEN 'สินทรัพย์ไม่หมุนเวียน'
+                WHEN 'asset_prepayments' THEN 'ค่าใช้จ่ายล่วงหน้า'
+                WHEN 'asset_fixed' THEN 'สินทรัพย์ถาวร'
+                WHEN 'liability_payable' THEN 'เจ้าหนี้การค้า'
+                WHEN 'liability_credit_card' THEN 'บัตรเครดิต'
+                WHEN 'liability_current' THEN 'หนี้สินหมุนเวียน'
+                WHEN 'liability_non_current' THEN 'หนี้สินไม่หมุนเวียน'
+                WHEN 'equity' THEN 'ส่วนของเจ้าของ'
+                WHEN 'equity_unaffected' THEN 'กำไร(ขาดทุน)ปีปัจจุบัน'
+                WHEN 'income' THEN 'รายได้'
+                WHEN 'income_other' THEN 'รายได้อื่น'
+                WHEN 'expense' THEN 'ค่าใช้จ่าย'
+                WHEN 'expense_other' THEN 'ค่าใช้จ่ายอื่น'
+                WHEN 'expense_depreciation' THEN 'ค่าเสื่อมราคา'
+                WHEN 'expense_direct_cost' THEN 'ต้นทุนขาย'
+                WHEN 'off_balance' THEN 'บัญชีนอกงบดุล'
+                ELSE aa.account_type
+           END AS account_type_name_th,
+           COALESCE(aa.name->>'en_US', aa.name->>'th_TH') AS account_name_en,
+           COALESCE(aa.name->>'th_TH', aa.name->>'en_US') AS account_name_th,
+           c.name AS company_name
+      FROM account_account aa
+      LEFT JOIN res_company c ON c.id = $P!{company_id}
+     WHERE aa.code_store->>'$P!{company_id}' IS NOT NULL
+), MV AS (
+    SELECT b.account_id,
+           SUM(b.debit) AS debit,
+           SUM(b.credit) AS credit,
+           SUM(b.debit - b.credit) AS balance
+      FROM account_move a
+      JOIN account_move_line b ON b.move_id = a.id
+      $P!{move_criteria}
+     GROUP BY b.account_id
+), CMP AS (
+    SELECT b.account_id,
+           SUM(b.debit - b.credit) AS balance
+      FROM account_move a
+      JOIN account_move_line b ON b.move_id = a.id
+      $P!{comp_criteria}
+     GROUP BY b.account_id
+)
+SELECT aa.account_code, aa.internal_group, aa.account_type, aa.group_order,
+       aa.group_name_en, aa.group_name_th,
+       aa.account_type_name_en, aa.account_type_name_th,
+       aa.account_name_en, aa.account_name_th, aa.company_name,
+       CASE WHEN aa.account_type = 'equity_unaffected' THEN CAST($P!{pl_dr} AS numeric) ELSE COALESCE(line.debit, 0) END AS debit,
+       CASE WHEN aa.account_type = 'equity_unaffected' THEN CAST($P!{pl_cr} AS numeric) ELSE COALESCE(line.credit, 0) END AS credit,
+       CASE WHEN aa.account_type = 'equity_unaffected' THEN CAST($P!{pl_balance} AS numeric) ELSE COALESCE(line.balance, 0) END AS balance,
+       CASE WHEN aa.account_type = 'equity_unaffected' THEN CAST($P!{pl_cmp_balance} AS numeric) ELSE COALESCE(cmp.balance, 0) END AS cmp_balance
+  FROM ACC aa
+  LEFT JOIN MV line ON line.account_id = aa.id
+  LEFT JOIN CMP cmp ON cmp.account_id = aa.id
+ WHERE 1 = 1
+   $P!{account_criteria}
+ ORDER BY aa.group_order, aa.account_type, aa.account_code]]>
+	</queryString>
+	<field name="internal_group" class="java.lang.String"/>
+	<field name="account_type" class="java.lang.String"/>
+	<field name="group_order" class="java.lang.Integer"/>
+	<field name="group_name_en" class="java.lang.String"/>
+	<field name="group_name_th" class="java.lang.String"/>
+	<field name="account_type_name_en" class="java.lang.String"/>
+	<field name="account_type_name_th" class="java.lang.String"/>
+	<field name="account_code" class="java.lang.String"/>
+	<field name="account_name_en" class="java.lang.String"/>
+	<field name="account_name_th" class="java.lang.String"/>
+	<field name="company_name" class="java.lang.String"/>
+	<field name="debit" class="java.math.BigDecimal"/>
+	<field name="credit" class="java.math.BigDecimal"/>
+	<field name="balance" class="java.math.BigDecimal"/>
+	<field name="cmp_balance" class="java.math.BigDecimal"/>
+	<variable name="v_Type_Balance" class="java.lang.Double" resetType="Group" resetGroup="grpType" calculation="Sum">
+		<variableExpression><![CDATA[$F{balance}]]></variableExpression>
+	</variable>
+	<variable name="v_Type_Cmp" class="java.lang.Double" resetType="Group" resetGroup="grpType" calculation="Sum">
+		<variableExpression><![CDATA[$F{cmp_balance}]]></variableExpression>
+	</variable>
+	<variable name="v_Group_Balance" class="java.lang.Double" resetType="Group" resetGroup="grpGroup" calculation="Sum">
+		<variableExpression><![CDATA[$F{balance}]]></variableExpression>
+	</variable>
+	<variable name="v_Group_Cmp" class="java.lang.Double" resetType="Group" resetGroup="grpGroup" calculation="Sum">
+		<variableExpression><![CDATA[$F{cmp_balance}]]></variableExpression>
+	</variable>
+	<variable name="v_Total_Balance" class="java.lang.Double" calculation="Sum">
+		<variableExpression><![CDATA[$F{balance}]]></variableExpression>
+	</variable>
+	<variable name="v_Total_Cmp" class="java.lang.Double" calculation="Sum">
+		<variableExpression><![CDATA[$F{cmp_balance}]]></variableExpression>
+	</variable>
+	<variable name="v_Total_Debit" class="java.lang.Double" calculation="Sum">
+		<variableExpression><![CDATA[$F{debit}]]></variableExpression>
+	</variable>
+	<variable name="v_Total_Credit" class="java.lang.Double" calculation="Sum">
+		<variableExpression><![CDATA[$F{credit}]]></variableExpression>
+	</variable>
+	<group name="grpGroup">
+		<groupExpression><![CDATA[$F{internal_group}]]></groupExpression>
+		<groupHeader>
+			<band height="22">
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="0" y="2" width="235" height="20" uuid="a1000000-0000-0000-0000-000000000001"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="TH Sarabun New" size="12" isBold="true"/>
+						<paragraph leftIndent="0"/>
+					</textElement>
+					<textFieldExpression><![CDATA[IF(EXACT($P{p_language}, "english"), $F{group_name_en}, $F{group_name_th})]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="20">
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="0" y="0" width="235" height="20" uuid="a1000000-0000-0000-0000-000000000002"/>
+					<box>
+						<topPen lineWidth="0.5"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="TH Sarabun New" size="12" isBold="true"/>
+						<paragraph leftIndent="3"/>
+					</textElement>
+					<textFieldExpression><![CDATA[IF(EXACT($P{p_language}, "english"), "Total " + $F{group_name_en}, "รวม" + $F{group_name_th})]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+					<reportElement x="385" y="0" width="85" height="20" uuid="a1000000-0000-0000-0000-000000000003"/>
+					<box>
+						<topPen lineWidth="0.5"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="TH Sarabun New" size="12" isBold="true"/>
+						<paragraph rightIndent="3"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{v_Group_Balance}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+					<reportElement x="470" y="0" width="85" height="20" uuid="a1000000-0000-0000-0000-000000000004">
+						<printWhenExpression><![CDATA[EXACT($P{show_comp}, "1")]]></printWhenExpression>
+					</reportElement>
+					<box>
+						<topPen lineWidth="0.5"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="TH Sarabun New" size="12" isBold="true"/>
+						<paragraph rightIndent="3"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{v_Group_Cmp}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+	<group name="grpType">
+		<groupExpression><![CDATA[$F{account_type}]]></groupExpression>
+		<groupHeader>
+			<band height="20">
+				<printWhenExpression><![CDATA[!EXACT($P{p_Level}, "3")]]></printWhenExpression>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="0" y="0" width="235" height="20" uuid="a2000000-0000-0000-0000-000000000001"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="TH Sarabun New" size="12" isBold="true" isItalic="true"/>
+						<paragraph leftIndent="10"/>
+					</textElement>
+					<textFieldExpression><![CDATA[IF(EXACT($P{p_language}, "english"), $F{account_type_name_en}, $F{account_type_name_th})]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="20">
+				<printWhenExpression><![CDATA[!EXACT($P{p_Level}, "3")]]></printWhenExpression>
+				<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+					<reportElement x="385" y="0" width="85" height="20" uuid="a2000000-0000-0000-0000-000000000002"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="TH Sarabun New" size="12" isBold="true"/>
+						<paragraph rightIndent="3"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{v_Type_Balance}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+					<reportElement x="470" y="0" width="85" height="20" uuid="a2000000-0000-0000-0000-000000000003">
+						<printWhenExpression><![CDATA[EXACT($P{show_comp}, "1")]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="TH Sarabun New" size="12" isBold="true"/>
+						<paragraph rightIndent="3"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{v_Type_Cmp}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+	<title>
+		<band height="120" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="555" height="30" uuid="c0000000-0000-0000-0000-000000000001"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="16" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{company_name}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="0" y="32" width="555" height="20" uuid="c0000000-0000-0000-0000-000000000002"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{report_name}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="0" y="52" width="555" height="20" uuid="c0000000-0000-0000-0000-000000000003"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{report_date}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="0" y="72" width="555" height="20" uuid="c0000000-0000-0000-0000-000000000004">
+					<printWhenExpression><![CDATA[$P{report_analytic} != ""]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
+					<font fontName="TH Sarabun New" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["<style isBold='true'>" + IF(EXACT($P{p_language}, "english"), "Analytic Accounts : ", "วิเคราะห์ : ") + "</style>" + $P{report_analytic}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="0" y="-15" width="300" height="20" uuid="c0000000-0000-0000-0000-000000000005">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER} == 1]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Bottom">
+					<font fontName="TH Sarabun New" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[msg(IF(EXACT($P{p_language}, "english"), "Print date : {0}\rPrint by : {1}", "วัน-เวลาพิมพ์ : {0}\rพิมพ์โดย : {1}").toString(),
+    new SimpleDateFormat("dd-MM-yyyy HH:mm:ss",
+        (Locale) IF(EXACT($P{p_language}, "english"), new Locale("en", "US"), new Locale("th", "th"))
+    ).format(new java.util.Date().getTime() + 7 * 3600*1000),
+    $P{p_Print_By})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="405" y="-15" width="120" height="20" uuid="c0000000-0000-0000-0000-000000000006">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER} == 1]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font fontName="TH Sarabun New" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[msg(IF(EXACT($P{p_language}, "english"), "Page {0}", "หน้าที่ {0}").toString(), $V{PAGE_NUMBER})]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement x="525" y="-15" width="30" height="20" uuid="c0000000-0000-0000-0000-000000000007">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER} == 1]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Bottom">
+					<font fontName="TH Sarabun New" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" of " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="40" splitType="Stretch">
+			<frame>
+				<reportElement x="0" y="0" width="555" height="40" uuid="d0000000-0000-0000-0000-000000000001"/>
+				<box>
+					<topPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+				</box>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="0" y="0" width="55" height="40" uuid="d0000000-0000-0000-0000-000000000002"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="TH Sarabun New" size="12" isBold="true"/>
+						<paragraph leftIndent="3"/>
+					</textElement>
+					<textFieldExpression><![CDATA[IF(EXACT($P{p_language}, "english"), "Code", "รหัสบัญชี")]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="55" y="0" width="180" height="40" uuid="d0000000-0000-0000-0000-000000000003"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="TH Sarabun New" size="12" isBold="true"/>
+						<paragraph leftIndent="3"/>
+					</textElement>
+					<textFieldExpression><![CDATA[IF(EXACT($P{p_language}, "english"), "Account Name", "ชื่อบัญชี")]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="235" y="0" width="75" height="40" uuid="d0000000-0000-0000-0000-000000000004">
+						<printWhenExpression><![CDATA[EXACT($P{show_dr_cr}, "1")]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="TH Sarabun New" size="12" isBold="true"/>
+						<paragraph rightIndent="3"/>
+					</textElement>
+					<textFieldExpression><![CDATA[IF(EXACT($P{p_language}, "english"), "Debit", "เดบิต")]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="310" y="0" width="75" height="40" uuid="d0000000-0000-0000-0000-000000000005">
+						<printWhenExpression><![CDATA[EXACT($P{show_dr_cr}, "1")]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="TH Sarabun New" size="12" isBold="true"/>
+						<paragraph rightIndent="3"/>
+					</textElement>
+					<textFieldExpression><![CDATA[IF(EXACT($P{p_language}, "english"), "Credit", "เครดิต")]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="385" y="0" width="85" height="40" uuid="d0000000-0000-0000-0000-000000000006"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="TH Sarabun New" size="12" isBold="true"/>
+						<paragraph rightIndent="3"/>
+					</textElement>
+					<textFieldExpression><![CDATA[IF(EXACT($P{p_language}, "english"), "Balance", "ยอดคงเหลือ")]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="470" y="0" width="85" height="40" uuid="d0000000-0000-0000-0000-000000000007">
+						<printWhenExpression><![CDATA[EXACT($P{show_comp}, "1")]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="TH Sarabun New" size="12" isBold="true"/>
+						<paragraph rightIndent="3"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{cmp_label}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<printWhenExpression><![CDATA[EXACT($P{p_Level}, "5")]]></printWhenExpression>
+			<frame>
+				<reportElement x="0" y="0" width="555" height="20" uuid="e0000000-0000-0000-0000-000000000001"/>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="0" y="0" width="55" height="20" uuid="e0000000-0000-0000-0000-000000000002"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="TH Sarabun New" size="12"/>
+						<paragraph leftIndent="3"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{account_code}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="55" y="0" width="180" height="20" uuid="e0000000-0000-0000-0000-000000000003"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="TH Sarabun New" size="12"/>
+						<paragraph leftIndent="18"/>
+					</textElement>
+					<textFieldExpression><![CDATA[IF(EXACT($P{p_language}, "english"), $F{account_name_en}, $F{account_name_th})]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+					<reportElement x="235" y="0" width="75" height="20" uuid="e0000000-0000-0000-0000-000000000004">
+						<printWhenExpression><![CDATA[EXACT($P{show_dr_cr}, "1")]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="TH Sarabun New" size="12"/>
+						<paragraph rightIndent="3"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{debit}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+					<reportElement x="310" y="0" width="75" height="20" uuid="e0000000-0000-0000-0000-000000000005">
+						<printWhenExpression><![CDATA[EXACT($P{show_dr_cr}, "1")]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="TH Sarabun New" size="12"/>
+						<paragraph rightIndent="3"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{credit}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+					<reportElement x="385" y="0" width="85" height="20" uuid="e0000000-0000-0000-0000-000000000006"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="TH Sarabun New" size="12"/>
+						<paragraph rightIndent="3"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{balance}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+					<reportElement x="470" y="0" width="85" height="20" uuid="e0000000-0000-0000-0000-000000000007">
+						<printWhenExpression><![CDATA[EXACT($P{show_comp}, "1")]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="TH Sarabun New" size="12"/>
+						<paragraph rightIndent="3"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{cmp_balance}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</detail>
+	<lastPageFooter>
+		<band height="25">
+			<frame>
+				<reportElement x="0" y="0" width="555" height="25" uuid="f0000000-0000-0000-0000-000000000001"/>
+				<box>
+					<topPen lineWidth="0.5"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="0" y="4" width="235" height="20" uuid="f0000000-0000-0000-0000-000000000002"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="TH Sarabun New" size="12" isBold="true"/>
+						<paragraph leftIndent="3"/>
+					</textElement>
+					<textFieldExpression><![CDATA[IF(EXACT($P{p_language}, "english"), "Total", "รวม")]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+					<reportElement x="235" y="4" width="75" height="20" uuid="f0000000-0000-0000-0000-000000000003">
+						<printWhenExpression><![CDATA[EXACT($P{show_dr_cr}, "1")]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="TH Sarabun New" size="12" isBold="true"/>
+						<paragraph rightIndent="5"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{v_Total_Debit}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+					<reportElement x="310" y="4" width="75" height="20" uuid="f0000000-0000-0000-0000-000000000004">
+						<printWhenExpression><![CDATA[EXACT($P{show_dr_cr}, "1")]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="TH Sarabun New" size="12" isBold="true"/>
+						<paragraph rightIndent="5"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{v_Total_Credit}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+					<reportElement x="385" y="4" width="85" height="20" uuid="f0000000-0000-0000-0000-000000000005"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="TH Sarabun New" size="12" isBold="true"/>
+						<paragraph rightIndent="5"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{v_Total_Balance}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+					<reportElement x="470" y="4" width="85" height="20" uuid="f0000000-0000-0000-0000-000000000006">
+						<printWhenExpression><![CDATA[EXACT($P{show_comp}, "1")]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="TH Sarabun New" size="12" isBold="true"/>
+						<paragraph rightIndent="5"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{v_Total_Cmp}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</lastPageFooter>
+</jasperReport>
