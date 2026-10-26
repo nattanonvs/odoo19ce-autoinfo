@@ -15,10 +15,11 @@
 
 ## 1. สรุปผู้บริหาร
 
-- ข้อกำหนดฝ่ายบัญชีทั้งหมด 14 รายการ → **ครอบคลุมแล้ว 8**, **ครอบคลุมบางส่วน/แนวทางต่าง 3**, **มีพร้อมใช้แต่ยังไม่เข้าแผน 0**, **ยังไม่ครอบคลุม 3** (นับหลังดำเนินการวันที่ 2026-10-26)
+- ข้อกำหนดฝ่ายบัญชีทั้งหมด 16 รายการ → **ครอบคลุมแล้ว 14**, **ครอบคลุมบางส่วน/แนวทางต่าง 2**, **มีพร้อมใช้แต่ยังไม่เข้าแผน 0**, **ยังไม่ครอบคลุม 0** (นับหลังปิดการตัดสินใจวันที่ 2026-10-26)
 - ในวันที่ 2026-10-26 ทีมเทคนิคได้ **เพิ่ม OCA repo ที่ขาด 3 repo** (account-invoicing, account-financial-reporting, account-reconcile) เข้า `third_party/oca/` และต่อ `addons_path` ใน `odoo.conf` แล้ว
-- **ยังเหลือช่องว่างจริง 1 รายการ**: `account_invoice_supplier_ref_unique` — ยังไม่มีบน OCA branch 19.0
-- **ต้องตัดสินใจ 3 เรื่อง** กับฝ่ายบัญชี (ดูข้อ 4)
+- **ช่องว่างเดิม 1 รายการถูกปิดแล้ว**: `account_invoice_supplier_ref_unique` ยังไม่มีบน OCA branch 19.0 → ปิดด้วย custom unique index ในโมดูล `od19_accounting_features` (Feature 6)
+- **การตัดสินใจ 4 เรื่อง ปิดครบแล้ว** — สรุปอยู่ในข้อ 4
+- ไม่มีข้อกำหนดใดที่ยังไม่ครอบคลุม (🔴 = 0)
 
 ## 2. ตาราง Coverage Matrix
 
@@ -26,7 +27,7 @@
 
 | รายการที่ขอ | โมดูลที่เกี่ยวข้อง | สถานะ | หมายเหตุ |
 | --- | --- | --- | --- |
-| จังหวัด / อำเภอ / รหัสไปรษณีย์ | core Odoo + `od19_partner_thai_fields` | 🟡 | จังหวัดใช้ `state_id` มาตรฐาน, รหัสไปรษณีย์ใช้ `zip`; **อำเภอ/ตำบล แยกเป็นฟิลด์ยังไม่มี** (ถ้าต้องใช้แยก ขออนุมัติเพิ่ม) |
+| จังหวัด / อำเภอ / รหัสไปรษณีย์ | core Odoo + `od19_partner_thai_fields` | ✅ | จังหวัดใช้ `state_id` มาตรฐาน, รหัสไปรษณีย์ใช้ `zip`; **อำเภอ/ตำบล เพิ่มแล้ว** เป็น `od19_amphoe` (อำเภอ/เขต) และ `od19_subdistrict` (ตำบล/แขวง) พร้อม sync ไป `res.company` (2026-10-26) |
 | เลขประจำตัวผู้เสียภาษี 13 หลัก | core `l10n_th` (ฟิลด์ `vat`) | ✅ | มาตรฐาน Odoo + validation |
 | สาขา (สำนักงานใหญ่/สาขา) | core `l10n_th` + `od19_partner_thai_fields` (`branch_code` 5 หลัก) | ✅ | HQ = `00000` |
 
@@ -41,9 +42,9 @@
 
 | รายการที่ขอ | โมดูลที่เกี่ยวข้อง | สถานะ | หมายเหตุ |
 | --- | --- | --- | --- |
-| `account_move_name_sequence` | OCA `account-financial-tools` | 🔵 | มีบนดิสก์; โครงการมี custom `od19_document_sequence` / `od19_accounting_document_sequence` (เลขไทย INV/PO/SO/PV ตามปี) — **ต้องเลือกว่าใช้ตัวไหน** |
+| `account_move_name_sequence` | OCA `account-financial-tools` | ✅ | **adopt เข้าแผน (2026-10-26)** — ติดตั้งและโหลดเป็น dependency ของ `od19_accounting_features` แล้ว; โครงการคง custom `od19_document_sequence` / `od19_accounting_document_sequence` (เลขไทย INV/PO/SO/PV ตามปี) ไว้ใช้กับเอกสารไทย |
 | `account_fiscal_year` | OCA `account-financial-tools` | ✅ | จัดการปีบัญชี (periods) ตามที่ขอ |
-| `account_lock_date_update` | OCA `account-financial-tools` | 🟡 | มีบนดิสก์พร้อมติดตั้ง; แผนปัจจุบันเลือกใช้ core lock dates + `account.lock_exception` (manual no-code) |
+| `account_lock_date_update` | OCA `account-financial-tools` | ✅ | **adopt เข้าแผน (2026-10-26)** — ติดตั้งเป็น dependency ของ `od19_accounting_features` แล้ว; ใช้ร่วมกับ `account.lock_exception` (manual no-code) |
 
 ### 2.4 ภาษีหัก ณ ที่จ่าย
 
@@ -53,8 +54,8 @@
 
 | รายการที่ขอ | โมดูลที่เกี่ยวข้อง | สถานะ | หมายเหตุ |
 | --- | --- | --- | --- |
-| `account_payment_order` (Payment Batch / Proposal) | — | 🔴 | **ไม่ adopt โดยเจตนา** ตามแนวทาง "Prepare Payment วิธีที่ 3" (ใช้ `account.payment` + `account.payment.register` มาตรฐาน) — ต้องยืนยันว่ากรณี "จ่ายเจ้าหนี้หลายรายพร้อมกัน" ยอมรับได้ |
-| `account_invoice_supplier_ref_unique` (กันเลข invoice ผู้ขายซ้ำ) | OCA `account-invoicing` | 🔴 | **ยังไม่มีบน OCA 19.0** → เลือก (ก) รอ OCA migrate หรือ (ข) ทำ custom ขนาดเล็กในนามโครงการ |
+| `account_payment_order` (Payment Batch / Proposal) | — | 🟡 | **ไม่ adopt โดยเจตนา (ตัดสินใจ 2026-10-26)**: ยังไม่มีบน OCA branch 19.0 (ตรวจ `OCA/account-payment` แล้วมี 8 โมดูล ไม่มีตัวนี้) และจะซ้ำซ้อนกับแนวทาง "Prepare Payment วิธีที่ 3" — ใช้ `account.payment` + `account.payment.register` มาตรฐานแทน; **revisit** เมื่อเกิดความต้องการ "ใบสั่งจ่ายเป็นชุด/หลายคู่ค้าในเอกสารเดียว" จริง |
+| `account_invoice_supplier_ref_unique` (กันเลข invoice ผู้ขายซ้ำ) | OCA `account-invoicing` (ไม่มีบน 19.0) → ปิดด้วย custom | ✅ | **ปิดช่องว่างแล้ว (2026-10-26)** ด้วย custom partial unique index ใน `od19_accounting_features` (Feature 6): `UNIQUE (company_id, commercial_partner_id, ref)` เฉพาะ `move_type IN ('in_invoice','in_refund')` และเมื่อ `ref` ไม่ว่าง — ค้นหาไว้รอสลับเป็น OCA เมื่อ migrate 19.0 แล้ว |
 
 ### 2.6 สินทรัพย์ถาวร
 
@@ -95,15 +96,18 @@
    - `account-reconcile` (`account_reconcile_oca`)
 2. ต่อ `addons_path` ใน `odoo.conf` ให้ครบทั้ง 3 repo
 3. อัปเดตเอกสารแผน: `domain-wave-matrix.md` (เพิ่มภาคผนวก Accounting Requirements Coverage) และ `2026-10-21-odoo19-enterprise-wave-2-custom-finance-controls.md` (ปรับรายการ OCA availability + Keep)
+4. **adopt OCA (ตัดสินใจ #2)**: ติดตั้ง `account_move_name_sequence` และ `account_lock_date_update` เป็น dependency ของ `od19_accounting_features` (เลขรันเอกสารจาก sequence ตามปี ไม่มีช่องว่าง + wizard ตั้งวันล็อกบัญชีสำหรับผู้สอบบัญชี)
+5. **เพิ่มฟิลด์อำเภอ/ตำบล (ตัดสินใจ #4)**: โมดูล `od19_partner_thai_fields` เพิ่ม `od19_amphoe` / `od19_subdistrict` บน `res.partner` พร้อม sync ไป `res.company` (ใช้ทั้งหน้าจอและเอกสารพิมพ์)
+6. **ปิดช่องว่างเลขใบกำกับซื้อซ้ำ (ตัดสินใจ #3)**: เพิ่ม unique index `account_move_od19_supplier_ref_uniq` ใน `od19_accounting_features` v19.0.1.5.0 + unit tests 6 เคส (ซ้ำคู่ค้าเดิม/สาขาเดียวกัน บล็อก · ต่างคู่ค้า/เลขว่าง ซ้ำได้)
 
-## 4. เรื่องที่ต้องตัดสินใจร่วมกับฝ่ายบัญชี
+## 4. บันทึกการตัดสินใจ (ปิดครบ 2026-10-26)
 
-| # | เรื่อง | ทางเลือก |
-| --- | --- | --- |
-| 1 | `account_payment_order` | รับ Prepare Payment (1 เอกสารต่อ 1 คู่สัญญา) แทน หรือต้องรองรับจ่ายหลาย partner ในครั้งเดียวจริง |
-| 2 | Sequence / Lock Date | ใช้ OCA (`account_move_name_sequence`, `account_lock_date_update`) แทน หรือเสริมของ custom ที่มีอยู่ |
-| 3 | `account_invoice_supplier_ref_unique` | รอ OCA migrate 19.0 หรือให้โครงการทำ custom ขนาดเล็ก |
-| 4 | ฟิลด์อำเภอ/ตำบล | ต้องการแยกฟิลด์อำเภอ/ตำบลจริงหรือไม่ (ปัจจุบันมีแค่จังหวัด + รหัสไปรษณีย์) |
+| # | เรื่อง | ผลการตัดสินใจ | ผลกระทบ |
+| --- | --- | --- | --- |
+| 1 | `account_payment_order` | **ไม่ adopt** — คงแนวทาง Prepare Payment บน `account.payment` เดิม; บันทึกเป็น "รอ OCA 19.0 / revisit เมื่อต้องการใบสั่งจ่ายเป็นชุด" | ไม่มี dependency ใหม่, flow การจ่ายคงเดิม |
+| 2 | Sequence / Lock Date | **ใช้ OCA** — `account_move_name_sequence` + `account_lock_date_update` เป็น dependency ของ `od19_accounting_features` | อัปเดตโมดูล `od19_accounting_features` |
+| 3 | `account_invoice_supplier_ref_unique` | **ทำ custom ขนาดเล็กในนามโครงการ** — partial unique index บน `ref` ต่อ (company, commercial partner) | ติดตั้ง/อัปเดต `od19_accounting_features` v19.0.1.5.0 |
+| 4 | ฟิลด์อำเภอ/ตำบล | **ต้องการ** — เพิ่ม `od19_amphoe` / `od19_subdistrict` | ติดตั้ง/อัปเดต `od19_partner_thai_fields` v19.0.1.1.0 |
 
 ## 5. ภาคผนวก — ชื่อโมดูล OCA จริงบน branch 19.0
 
