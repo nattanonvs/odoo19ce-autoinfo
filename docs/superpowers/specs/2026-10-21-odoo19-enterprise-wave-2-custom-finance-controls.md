@@ -43,7 +43,13 @@
   - `custom_addons/od19_accounting_document_sequence/` — pre-configured Thai document sequences (data-only), รวม sequence `account.voucher.vendor.payment` (`PV%(range_y)s%(range_month)s`) และ `account.voucher.customer.payment` (`RV%(range_y)s%(range_month)s-`)
   - `custom_addons/od19_accounting_payment_voucher_reports/` — **Created 2026-10-21** — `account.payment` extension (`od19_voucher_no` + `action_post()` assigns PV/RV from `ir.sequence`), Payment Voucher (PV) + Payment Receipt (RV) QWeb reports bound to `account.payment` with `payment_type` domain, form view field, post-install tests
   - OCA modules present in `third_party/oca/`: `l10n_th_account_tax` (WHT/VAT), `account_asset_management` (Assets), `account_fiscal_year` (Fiscal year periods), `base_tier_validation` (approval), `currency_rate_update`
-  - OCA modules **not** present in `third_party/oca/`: `account_financial_report`, `account_payment_order`
+  - OCA modules **not** present in `third_party/oca/`: `account_payment_order`
+  - **Accounting requirement coverage sync (2026-10-26)**: ตรวจข้อกำหนดจากฝ่ายบัญชีกับแผนและดิสก์จริง แล้วเพิ่ม OCA repo เข้า `third_party/oca/` และ `odoo.conf` `addons_path` ตามนี้ —
+    - ✅ `account_financial_report` + `account_tax_balance` (repo `account-financial-reporting`, branch 19.0)
+    - ✅ `account_reconcile_oca` (repo `account-reconcile`, branch 19.0) — โมดูลชื่อ `account_reconcile_oca` (ข้อกำหนดฝ่ายบัญชีเขียนว่า `account_reconcile_model_oca`)
+    - ✅ `auditlog` (repo `server-tools`, มีอยู่แล้ว) + `report_xlsx` (repo `reporting-engine`, มีอยู่แล้ว) — **ยังไม่ถูกอ้างในแผน** จึงบันทึก adopt ที่นี่
+    - ✅ `account_move_name_sequence` + `account_lock_date_update` (repo `account-financial-tools`, มีอยู่แล้ว) — พร้อมใช้ ต้องตัดสินใจเทียบกับ custom sequence/lock ที่มี
+    - ❌ `account_invoice_supplier_ref_unique` — **ยังไม่มีบน OCA branch 19.0** (repo `account-invoicing` clone แล้วแต่ยังไม่มีโมดูลนี้) → ต้องรอ OCA migrate หรือทำ custom ขนาดเล็ก
 - Evidence findings:
   - WHT GL is created by OCA `l10n_th_account_tax` (`_handle_withholding_taxes()`); there is **no custom** `od19_accounting_wht` module on disk — the display/advisory fields live in `od19_accounting_features`.
   - Fiscal year periods are provided by OCA `account_fiscal_year`; there is **no** OCA year-end-closing wizard and **no** custom closing module.
@@ -58,7 +64,7 @@
 - Dependencies:
   - Wave 1 accounting operational-closure baseline (AR, AP, payment, reconciliation, posting/tax mapping)
   - Wave 0 governance baseline (Thai font, engineering standards)
-  - OCA availability: `l10n_th_account_tax`, `account_asset_management`, `account_fiscal_year`, `base_tier_validation`
+  - OCA availability: `l10n_th_account_tax`, `account_asset_management`, `account_fiscal_year`, `base_tier_validation`, `auditlog`, `report_xlsx`, `account_financial_report`, `account_tax_balance`, `account_reconcile_oca`, `account_move_name_sequence`, `account_lock_date_update`
 - Gate readiness:
   - Spec-ready: ✅ scope, boundary, dual-report rule, and Payment Preparation (วิธีที่ 3) are defined
   - Plan-ready: ✅ addon boundary for Payment Voucher/Receipt (`od19_accounting_payment_voucher_reports`) fixed; Year-End Closing decided as manual no-code on core lock dates
@@ -150,6 +156,7 @@ Wave 2 มีการพัฒนาไปแล้วบางส่วนบ�
 
 - Keep
   - OCA `l10n_th_account_tax`, `account_fiscal_year`, `account_asset_management`, `base_tier_validation`
+  - OCA ที่พร้อมใช้เพิ่มตามข้อกำหนดฝ่ายบัญชี (2026-10-26): `auditlog` (ISO/Internal-External Audit), `report_xlsx` (ภ.พ.30 / ภ.ง.ด.3 / ภ.ง.ด.53 / ทะเบียนภาษีซื้อ-ขาย Excel), `account_financial_report` (TB/GL/BS/P&L), `account_tax_balance` (กระทบยอด VAT), `account_reconcile_oca` (auto bank reconciliation), `account_move_name_sequence`, `account_lock_date_update`
   - Odoo standard `account` (`account.payment.register`, PND CSV ผ่าน `l10n_th`)
   - โมดูล custom ที่ผ่านการตรวจสอบแล้ว: `od19_accounting_cheque`, `od19_accounting_money_in_report`, `od19_accounting_features`, `od19_thai_tax_reports`, `od19_asset_disposal`, `od19_asset_loan`, `od19_thai_font_support`, `od19_accounting_document_sequence`
 - Refactor

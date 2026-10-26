@@ -58,3 +58,15 @@
 	path = third_party/oca/stock-logistics-request
 	url = https://github.com/OCA/stock-logistics-request.git
 	branch = 19.0
+[submodule "third_party/oca/account-invoicing"]
+	path = third_party/oca/account-invoicing
+	url = https://github.com/OCA/account-invoicing.git
+	branch = 19.0
+[submodule "third_party/oca/account-financial-reporting"]
+	path = third_party/oca/account-financial-reporting
+	url = https://github.com/OCA/account-financial-reporting.git
+	branch = 19.0
+[submodule "third_party/oca/account-reconcile"]
+	path = third_party/oca/account-reconcile
+	url = https://github.com/OCA/account-reconcile.git
+	branch = 19.0

@@ -135,6 +135,7 @@
   - **Wave 2**: `od19_accounting_reporting` (รายงานทางการเงินทั้งหมด: AR/AP Aging, Trial Balance, P&L, Balance Sheet — QWeb), `od19_accounting_payment_voucher_reports` (รายงานใบสำคัญจ่าย/ใบสำคัญรับเงิน — **reports only, ไม่สร้าง model ใหม่** ตาม Payment Preparation วิธีที่ 3)
   - **หมายเหตุ**: ไม่มีโมดูล custom `od19_accounting_wht` บนดิสก์ — WHT GL สร้างโดย OCA `l10n_th_account_tax` (`_handle_withholding_taxes()`) และฟิลด์แสดงผล (advisory) อยู่ใน `od19_accounting_features` (compute-only) จึงไม่ต้องพัฒนาโมดูล WHT แยก; **WHT Certificate PDF (มาตรา 50 ทวิ)** พิมพ์จากโมเดล OCA `withholding.tax.cert` อยู่ใน `od19_thai_tax_reports` (2026-10-23)
 - **OCA Modules ที่จะใช้เป็นฐาน (ไม่พัฒนาเอง)**: `l10n_th` (มาตรฐาน Odoo: CoA, VAT 7%, WHT types, PND3/PND53 CSV, PromptPay QR, Tax Invoice PDF), `l10n_th_account_tax` (WHT บนบรรทัดใบแจ้งหนี้, auto-calc ตอนจ่าย, Tax Invoice Number/Date, Undue VAT, PIT), `base_tier_validation` (approval workflow รวมศูนย์เดียว), `account_financial_report` (รายงานทางการเงินมาตรฐาน)
+- **Accounting requirement alignment (2026-10-26)**: ตรวจข้อกำหนดจากฝ่ายบัญชีแล้วปรับแผนและ `third_party/oca` — adopt เพิ่ม `auditlog` (Audit Trail สำหรับ ISO 9001 / Internal / External Audit), `report_xlsx` (export ภ.พ.30 / ภ.ง.ด.3 / ภ.ง.ด.53 / ทะเบียนภาษีซื้อ-ขาย เป็น Excel), `account_tax_balance` (กระทบยอด VAT), `account_reconcile_oca` (auto bank reconciliation); เพิ่ม repo `account-financial-reporting` และ `account-reconcile` เป็น submodule (branch 19.0) และต่อ `addons_path` แล้ว; ดูรายละเอียดใน `## Accounting Requirements Coverage (ฝ่ายบัญชี 2026-10-26)`
 
 ### Wave 3 Focus
 - Build the after-sales operating model as its own bounded context.
@@ -182,6 +183,29 @@ Dashboard and reporting enablement work is **not** a domain wave in the Wave 0�
 | Internal Operations / reporting enablement | W6-DASH-PHASE3 | Draft | `docs/superpowers/specs/2026-10-22-odoo19-dashboard-phase3-completion-design.md`; `check_access()` cleanup + per-domain boards (D1 Finance / D2 Logistics / D3 HR) + doc sync |
 
 Keep this track aligned with the `## Cross-Cutting Reporting Track` section in `backlog/domain-spec-index.md`.
+
+## Accounting Requirements Coverage (ฝ่ายบัญชี 2026-10-26)
+
+Traceability ระหว่างข้อกำหนดที่ฝ่ายบัญชีส่งมา กับสภาพจริงในแผน/ดิสก์ (ตรวจ 2026-10-26). สัญลักษณ์: ✅ ครอบคลุม · 🟡 ครอบคลุมบางส่วน/แนวทางต่างแต่ได้ผลเทียบเท่า · 🔴 ยังไม่ครอบคลุม
+
+| ข้อกำหนดฝ่ายบัญชี | โมดูลที่เกี่ยวข้อง | สถานะ | หมายเหตุ |
+| --- | --- | --- | --- |
+| ข้อมูลพื้นฐานไทย (จังหวัด/อำเภอ/รหัสไปรษณีย์, เลขผู้เสียภาษี 13 หลัก) | core `l10n_th` + `od19_partner_thai_fields` | 🟡 | เลขภาษี 13 หลัก + สาขา (HQ/สาขา) ครบ; จังหวัดผ่าน `state_id`; **อำเภอ/ตำบล แยกฟิลด์ยังไม่มี** |
+| `l10n_th_base` / `l10n_th_partner` / `l10n_th_account` | core `l10n_th` (merged) | 🟡 | Odoo 19 รวมเป็น core `l10n_th` เดียว ชื่อเดิมไม่มีใน 19 |
+| `account_move_name_sequence` | OCA `account-financial-tools` | 🔵 | มีบนดิสก์; แผนใช้ custom `od19_document_sequence` / `od19_accounting_document_sequence` — ต้องตัดสินใจ |
+| `account_fiscal_year` | OCA + Wave 2 | ✅ | ใช้เป็น period ของปีบัญชี |
+| `account_lock_date_update` | OCA `account-financial-tools` | 🟡 | มีบนดิสก์; แผนเลือก core lock dates + `account.lock_exception` (manual no-code) |
+| `l10n_th_withholding_tax` (WHT 3/5/1/0.75%) | OCA `l10n_th_account_tax` | ✅ | 19.0 ใช้ชื่อนี้; auto-calc + หักตอนจ่าย + หนังสือรับรอง 50 ทวิ (`od19_thai_tax_reports`) |
+| `account_payment_order` (AP batch) | — | 🔴 | ไม่ adopt ตาม "วิธีที่ 3" (Prepare Payment บน `account.payment`) — ต้องยืนยันกับฝ่ายบัญชี |
+| `account_invoice_supplier_ref_unique` | OCA `account-invoicing` | 🔴 | **ยังไม่มีบน OCA 19.0** → รอ migrate หรือทำ custom เล็ก |
+| `account_asset_management` | OCA `account-financial-tools` | ✅ | + custom `od19_asset_disposal` / `od19_asset_loan` |
+| `account_tax_balance` | OCA `account-financial-reporting` | ✅ | repo เพิ่มเป็น submodule + addons_path แล้ว (2026-10-26) |
+| `account_financial_report` (TB/GL/BS/P&L) | OCA `account-financial-reporting` | ✅ | + custom `od19_accounting_reporting` (QWeb) คู่ขนาน |
+| `auditlog` | OCA `server-tools` | ✅ | adopt 2026-10-26 (ISO 9001 / Internal / External Audit) |
+| `report_xlsx` (ภ.พ.30 / ภ.ง.ด.3 / 53) | OCA `reporting-engine` | ✅ | adopt 2026-10-26 สำหรับ Excel export |
+| `account_reconcile_model_oca` → `account_reconcile_oca` | OCA `account-reconcile` | ✅ | repo เพิ่มเป็น submodule + addons_path แล้ว (2026-10-26); ชื่อโมดูลจริงบน 19.0 คือ `account_reconcile_oca` |
+
+Open decisions จากตารางนี้: (1) `account_payment_order` — รับ Prepare Payment แทนหรือไม่; (2) `account_move_name_sequence`/`account_lock_date_update` — ใช้ OCA แทน/เสริม custom ที่มี; (3) `account_invoice_supplier_ref_unique` — รอ OCA 19.0 หรือทำ custom; (4) ฟิลด์อำเภอ/ตำบล สำหรับคู่ค้าไทย
 
 ## Reviewability Cues
 
