@@ -3,13 +3,13 @@
 
 {
     "name": "OD19 Accounting Features",
-    "version": "19.0.1.4.0",
+    "version": "19.0.1.5.0",
     "author": "OD19",
     "category": "Accounting/Localizations",
     "summary": "Cancel reason wizard, payer/payee, BOT URL, prepayment due date, "
     "payment number, WHT base computed, AP bill-first gate "
-    "(require Vendor Bill before payment), and OCA journal sequence + "
-    "lock date controls",
+    "(require Vendor Bill before payment), unique supplier reference on "
+    "vendor bills, and OCA journal sequence + lock date controls",
     "description": """
 OD19 Accounting Features
 ========================
@@ -21,6 +21,8 @@ Provides several accounting features for the Thai localization:
 * BOT (Revenue Department) URL configuration with a smart link on invoices.
 * Prepayment actual due date (invoice date + 30 days).
 * Payment number displayed on vendor bills.
+* Unique supplier reference (vendor tax invoice number) per vendor and
+  company on vendor bills/refunds, to prevent double-booking.
 * Withholding tax (WHT) base amount computed from selected invoices.
 * OCA journal entry numbering from sequence (year reset, no gaps) via
   ``account_move_name_sequence``.

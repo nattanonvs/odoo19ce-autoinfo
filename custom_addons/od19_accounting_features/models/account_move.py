@@ -185,3 +185,22 @@ class AccountMove(models.Model):
                 )
                 payments = aml.mapped("payment_id")
         return payments
+
+    # ------------------------------------------------------------------
+    # Feature 6: Unique supplier reference on vendor bills
+    # ------------------------------------------------------------------
+    # The supplier reference (``ref``) is the vendor's tax invoice number.
+    # It must not be booked twice for the same vendor in the same company,
+    # otherwise the payable (and the input VAT) would be recorded twice.
+    # Only vendor bills/refunds are guarded, and only when a reference is
+    # actually filled in (draft bills without a number are left alone).
+    _od19_supplier_ref_uniq = models.UniqueIndex(
+        "(company_id, commercial_partner_id, ref) WHERE ("
+        "move_type IN ('in_invoice', 'in_refund') "
+        "AND ref IS NOT NULL AND ref <> '')",
+        lambda env, diagnostics: env._(
+            "เลขที่ใบกำกับซื้อซ้ำ: คู่ค้ารายนี้มีใบแจ้งหนี้/ใบลดหนี้ที่ใช้เลขที่อ้างอิงนี้แล้วในบริษัทนี้\n"
+            "Duplicate supplier reference: this partner already has a vendor bill "
+            "or refund using this reference in this company."
+        ),
+    )
