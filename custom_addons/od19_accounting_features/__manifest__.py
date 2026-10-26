@@ -3,12 +3,13 @@
 
 {
     "name": "OD19 Accounting Features",
-    "version": "19.0.1.3.0",
+    "version": "19.0.1.4.0",
     "author": "OD19",
     "category": "Accounting/Localizations",
     "summary": "Cancel reason wizard, payer/payee, BOT URL, prepayment due date, "
-    "payment number, WHT base computed, and AP bill-first gate "
-    "(require Vendor Bill before payment)",
+    "payment number, WHT base computed, AP bill-first gate "
+    "(require Vendor Bill before payment), and OCA journal sequence + "
+    "lock date controls",
     "description": """
 OD19 Accounting Features
 ========================
@@ -21,6 +22,10 @@ Provides several accounting features for the Thai localization:
 * Prepayment actual due date (invoice date + 30 days).
 * Payment number displayed on vendor bills.
 * Withholding tax (WHT) base amount computed from selected invoices.
+* OCA journal entry numbering from sequence (year reset, no gaps) via
+  ``account_move_name_sequence``.
+* OCA lock date update wizard (account adviser can set locking dates)
+  via ``account_lock_date_update``.
 
 The advisory WHT Certificate PDFs that used to be printed from
 ``account.payment`` were retired in favour of the GL-accurate
@@ -32,6 +37,8 @@ certificate printed from the OCA model ``withholding.tax.cert``
         "account_payment",
         "mail",
         "l10n_th_account_tax",
+        "account_move_name_sequence",
+        "account_lock_date_update",
     ],
     "data": [
         "security/ir.model.access.csv",
