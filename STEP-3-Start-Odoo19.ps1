@@ -166,7 +166,11 @@ if (Test-Port $httpPort) {
     Write-Host "  Odoo รันอยู่แล้วที่ port $httpPort" -ForegroundColor Green
 } else {
     Write-Host "  กำลังเริ่ม Odoo..." -ForegroundColor Yellow
-    Start-Process -FilePath $Python -ArgumentList @($OdooBin, "-c", "`"$Config`"") -WorkingDirectory $Root -WindowStyle Minimized
+    # start แบบ detached (ไม่ตายเมื่อปิดหน้าต่าง console) เหมือน Nginx
+    Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{
+        CommandLine      = "`"$Python`" `"$OdooBin`" -c `"$Config`""
+        CurrentDirectory = $Root
+    } | Out-Null
     $timeout = 180
     $elapsed = 0
     $started = $false
