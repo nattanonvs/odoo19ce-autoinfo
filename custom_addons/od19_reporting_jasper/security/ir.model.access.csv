@@ -21,3 +21,5 @@ access_profit_loss_report_user,profit.loss.report user,model_profit_loss_report,
 access_profit_loss_report_manager,profit.loss.report manager,model_profit_loss_report,account.group_account_manager,1,1,1,1
 access_balance_sheet_report_user,balance.sheet.report user,model_balance_sheet_report,account.group_account_invoice,1,1,1,1
 access_balance_sheet_report_manager,balance.sheet.report manager,model_balance_sheet_report,account.group_account_manager,1,1,1,1
+access_journal_voucher_form_user,journal.voucher.form user,model_journal_voucher_form,account.group_account_invoice,1,1,1,1
+access_journal_voucher_form_manager,journal.voucher.form manager,model_journal_voucher_form,account.group_account_manager,1,1,1,1

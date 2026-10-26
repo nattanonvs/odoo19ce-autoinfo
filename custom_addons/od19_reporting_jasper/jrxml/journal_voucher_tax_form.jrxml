@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ac_voucher_tax_form" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="0" bottomMargin="0" uuid="d73aab87-d1b4-498c-ab41-88575aa9d59f">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost.xml"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<parameter name="p_move_id" class="java.lang.Integer" isForPrompting="false"/>
+	<parameter name="p_DateFormat" class="java.lang.String">
+		<defaultValueExpression><![CDATA["dd-MM-yyyy"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="p_locale" class="java.lang.String">
+		<defaultValueExpression><![CDATA["th"]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+  COALESCE((SELECT t.name->>'th_TH' FROM account_tax t WHERE t.id = amti.tax_line_id), '') AS vat_name
+ ,COALESCE(amti.tax_invoice_number,'') AS vat_no
+ ,amti.tax_invoice_date AS vat_date
+ ,COALESCE(amti.tax_base_amount,0) AS vat_toal_amount
+ ,COALESCE(amti.balance,0) AS vat_amount
+ ,amti.move_id AS invoice_id
+ ,amti.move_id
+FROM account_move_tax_invoice amti
+WHERE amti.move_id = $P{p_move_id}]]>
+	</queryString>
+	<field name="vat_name" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="vat_name"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="dtr_vat"/>
+	</field>
+	<field name="vat_no" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="vat_no"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="dtr_vat"/>
+	</field>
+	<field name="vat_date" class="java.sql.Date">
+		<property name="com.jaspersoft.studio.field.label" value="vat_date"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="dtr_vat"/>
+	</field>
+	<field name="vat_toal_amount" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="vat_toal_amount"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="dtr_vat"/>
+	</field>
+	<field name="vat_amount" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="vat_amount"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="dtr_vat"/>
+	</field>
+	<field name="invoice_id" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="invoice_id"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="dtr_vat"/>
+	</field>
+	<field name="move_id" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="move_id"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="dtr_vat"/>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField isStretchWithOverflow="true">
+				<reportElement x="30" y="0" width="90" height="20" forecolor="#050E85" uuid="8d7cf6c4-756b-4fa9-b7bc-01da3c1e9e10"/>
+				<box leftPadding="1" bottomPadding="1">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph lineSpacing="Fixed" lineSpacingSize="4.0"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{vat_name}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="yyyy-MM-dd">
+				<reportElement x="120" y="0" width="70" height="20" forecolor="#050E85" uuid="4e667dea-a150-4e42-8f50-2801455af15e"/>
+				<box leftPadding="1" bottomPadding="1">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph lineSpacing="Fixed" lineSpacingSize="4.0"/>
+				</textElement>
+				<textFieldExpression><![CDATA[IF($F{vat_date}==null,"", new SimpleDateFormat($P{p_DateFormat}, new Locale($P{p_locale}, $P{p_locale})).format($F{vat_date}))]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00">
+				<reportElement x="270" y="0" width="70" height="20" forecolor="#050E85" uuid="183cfd22-1dbc-4c87-bfdd-60be7e534208"/>
+				<box leftPadding="1" bottomPadding="1">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph lineSpacing="Fixed" lineSpacingSize="4.0"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{vat_toal_amount}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="190" y="0" width="80" height="20" forecolor="#050E85" uuid="95bd3b86-2777-4129-8d6a-6e6d91f45945"/>
+				<box leftPadding="1" bottomPadding="1">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph lineSpacing="Fixed" lineSpacingSize="4.0"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{vat_no}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00">
+				<reportElement x="340" y="0" width="60" height="20" forecolor="#050E85" uuid="c0bea934-bc06-4a74-a555-8ce6decd19ff"/>
+				<box leftPadding="1" bottomPadding="1">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph lineSpacing="Fixed" lineSpacingSize="4.0"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{vat_amount}.floatValue() * -1]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="0" y="0" width="30" height="20" forecolor="#050E85" uuid="4f1eb6a1-9e4a-4c1c-b14b-7cfc9ac19def"/>
+				<box leftPadding="1" bottomPadding="1">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12" isBold="true"/>
+					<paragraph lineSpacing="Fixed" lineSpacingSize="4.0"/>
+				</textElement>
+				<textFieldExpression><![CDATA["VAT"]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

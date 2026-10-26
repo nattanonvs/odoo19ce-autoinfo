@@ -1,0 +1,374 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ac_voucher_twht_form" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="0" bottomMargin="0" uuid="3062e2f3-c895-4753-925d-3ec3f49c259d">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="AVERA"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<parameter name="p_move_id" class="java.lang.Integer" isForPrompting="false"/>
+	<parameter name="p_DateFormat" class="java.lang.String">
+		<defaultValueExpression><![CDATA["dd-MM-yyyy"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="p_locale" class="java.lang.String">
+		<defaultValueExpression><![CDATA["th"]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+  COALESCE(awm.wht_cert_income_desc,'') AS name
+ ,awm.date AS pay_date
+ ,COALESCE(awm.wht_cert_income_type,'') AS income_type
+ ,COALESCE((SELECT aht.name FROM account_withholding_tax aht WHERE aht.id = awm.wht_tax_id), '') AS tax_type
+ ,COALESCE((SELECT aht.amount FROM account_withholding_tax aht WHERE aht.id = awm.wht_tax_id), 0)::numeric AS tax_rate1
+ ,0::numeric AS tax_rate2
+ ,0::numeric AS tax_rate3
+ ,COALESCE(awm.amount_income,0)::numeric AS pay_amount1
+ ,0::numeric AS pay_amount2
+ ,0::numeric AS pay_amount3
+ ,COALESCE(awm.amount_wht,0)::numeric AS wht_amount1
+ ,0::numeric AS wht_amount2
+ ,0::numeric AS wht_amount3
+ ,COALESCE(awm.wht_cert_income_type,'') AS income_type1
+ ,''::varchar AS income_type2
+ ,''::varchar AS income_type3
+FROM account_withholding_move awm
+WHERE awm.move_id = $P{p_move_id} AND awm.cancelled IS NOT TRUE]]>
+	</queryString>
+	<field name="name" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="name"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="dtr_wht"/>
+	</field>
+	<field name="pay_date" class="java.sql.Date">
+		<property name="com.jaspersoft.studio.field.label" value="pay_date"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="dtr_wht"/>
+	</field>
+	<field name="income_type" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="income_type"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="dtr_wht"/>
+	</field>
+	<field name="tax_type" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="tax_type"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="dtr_wht"/>
+	</field>
+	<field name="tax_rate1" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="tax_rate1"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="dtr_wht"/>
+	</field>
+	<field name="tax_rate2" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="tax_rate2"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="dtr_wht"/>
+	</field>
+	<field name="tax_rate3" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="tax_rate3"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="dtr_wht"/>
+	</field>
+	<field name="pay_amount1" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="pay_amount1"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="dtr_wht"/>
+	</field>
+	<field name="pay_amount2" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="pay_amount2"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="dtr_wht"/>
+	</field>
+	<field name="pay_amount3" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="pay_amount3"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="dtr_wht"/>
+	</field>
+	<field name="wht_amount1" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="wht_amount1"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="dtr_wht"/>
+	</field>
+	<field name="wht_amount2" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="wht_amount2"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="dtr_wht"/>
+	</field>
+	<field name="wht_amount3" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="wht_amount3"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="dtr_wht"/>
+	</field>
+	<field name="income_type1" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="income_type1"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="dtr_wht"/>
+	</field>
+	<field name="income_type2" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="income_type2"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="dtr_wht"/>
+	</field>
+	<field name="income_type3" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="income_type3"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="dtr_wht"/>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField isStretchWithOverflow="true">
+				<reportElement x="30" y="0" width="90" height="20" forecolor="#047516" uuid="5c38d410-654e-46ab-bfe1-cfa6bf8f1ba2"/>
+				<box leftPadding="1" bottomPadding="1">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph lineSpacing="Fixed" lineSpacingSize="4.0"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="yyyy-MM-dd">
+				<reportElement x="120" y="0" width="70" height="20" forecolor="#047516" uuid="b84f3b20-30a6-4553-bbdb-9640ebaa9d74"/>
+				<box leftPadding="1" bottomPadding="1">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph lineSpacing="Fixed" lineSpacingSize="4.0"/>
+				</textElement>
+				<textFieldExpression><![CDATA[IF($F{pay_date}==null,"", new SimpleDateFormat($P{p_DateFormat}, new Locale($P{p_locale}, $P{p_locale})).format($F{pay_date}))]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00">
+				<reportElement x="270" y="0" width="70" height="20" forecolor="#047516" uuid="40f6c61d-3c6a-4c5a-8998-27199e27e9f2"/>
+				<box leftPadding="1" bottomPadding="1">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph lineSpacing="Fixed" lineSpacingSize="4.0"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pay_amount1}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="190" y="0" width="80" height="20" forecolor="#047516" uuid="9a93d2a9-dd5d-4cdb-93b4-cea70cf12b51"/>
+				<box leftPadding="1" bottomPadding="1">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph lineSpacing="Fixed" lineSpacingSize="4.0"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tax_rate1}.intValue() * -1]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00">
+				<reportElement x="340" y="0" width="60" height="20" forecolor="#047516" uuid="28f89ca8-647a-48c5-b109-4841776b87fe">
+					<printWhenExpression><![CDATA[$F{wht_amount1}.floatValue()>0]]></printWhenExpression>
+				</reportElement>
+				<box leftPadding="1" bottomPadding="1">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph lineSpacing="Fixed" lineSpacingSize="4.0"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{wht_amount1}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="0" y="0" width="30" height="20" forecolor="#047516" uuid="114d0c0a-b6f4-47e7-80c2-c6d7da2fd347"/>
+				<box leftPadding="1" bottomPadding="1">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12" isBold="true"/>
+					<paragraph lineSpacing="Fixed" lineSpacingSize="4.0"/>
+				</textElement>
+				<textFieldExpression><![CDATA["WHT"]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="20">
+			<printWhenExpression><![CDATA[$F{wht_amount2}.floatValue()>0]]></printWhenExpression>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="30" y="0" width="90" height="20" forecolor="#047516" uuid="7475c345-9d3e-4fc7-95ee-3bd98ed47dd0"/>
+				<box leftPadding="1" bottomPadding="1">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph lineSpacing="Fixed" lineSpacingSize="4.0"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="yyyy-MM-dd">
+				<reportElement x="120" y="0" width="70" height="20" forecolor="#047516" uuid="49de27a6-71d1-43bf-8d18-0140f31c51e0"/>
+				<box leftPadding="1" bottomPadding="1">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph lineSpacing="Fixed" lineSpacingSize="4.0"/>
+				</textElement>
+				<textFieldExpression><![CDATA[IF($F{pay_date}==null,"", new SimpleDateFormat($P{p_DateFormat}, new Locale($P{p_locale}, $P{p_locale})).format($F{pay_date}))]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00">
+				<reportElement x="270" y="0" width="70" height="20" forecolor="#047516" uuid="c624bb03-3fef-4237-8d3d-b2d872c23070"/>
+				<box leftPadding="1" bottomPadding="1">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph lineSpacing="Fixed" lineSpacingSize="4.0"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pay_amount2}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="190" y="0" width="80" height="20" forecolor="#047516" uuid="167d5c14-57bf-4102-aaa4-cc887cdfff9a"/>
+				<box leftPadding="1" bottomPadding="1">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph lineSpacing="Fixed" lineSpacingSize="4.0"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tax_rate2}.intValue() * -1]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00">
+				<reportElement x="340" y="0" width="60" height="20" forecolor="#047516" uuid="719978e3-8c0e-4127-89a5-65348deb57da"/>
+				<box leftPadding="1" bottomPadding="1">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph lineSpacing="Fixed" lineSpacingSize="4.0"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{wht_amount2}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="0" y="0" width="30" height="20" forecolor="#047516" uuid="ca822dcc-6aaa-4f8c-8017-18f8c4f01177"/>
+				<box leftPadding="1" bottomPadding="1">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12" isBold="true"/>
+					<paragraph lineSpacing="Fixed" lineSpacingSize="4.0"/>
+				</textElement>
+				<textFieldExpression><![CDATA["WHT"]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="20">
+			<printWhenExpression><![CDATA[$F{wht_amount3}.floatValue()>0]]></printWhenExpression>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="30" y="0" width="90" height="20" forecolor="#047516" uuid="de83bc77-6437-4a3a-aa2a-404d45e3686d"/>
+				<box leftPadding="1" bottomPadding="1">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph lineSpacing="Fixed" lineSpacingSize="4.0"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="yyyy-MM-dd">
+				<reportElement x="120" y="0" width="70" height="20" forecolor="#047516" uuid="1fbadf18-204a-4757-8d35-ac482fda9ce9"/>
+				<box leftPadding="1" bottomPadding="1">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph lineSpacing="Fixed" lineSpacingSize="4.0"/>
+				</textElement>
+				<textFieldExpression><![CDATA[IF($F{pay_date}==null,"", new SimpleDateFormat($P{p_DateFormat}, new Locale($P{p_locale}, $P{p_locale})).format($F{pay_date}))]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00">
+				<reportElement x="270" y="0" width="70" height="20" forecolor="#047516" uuid="189599aa-db40-4535-adb6-25995ab47836"/>
+				<box leftPadding="1" bottomPadding="1">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph lineSpacing="Fixed" lineSpacingSize="4.0"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pay_amount3}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="190" y="0" width="80" height="20" forecolor="#047516" uuid="803aaaea-5a6f-48fb-bccb-4e1702fa024b"/>
+				<box leftPadding="1" bottomPadding="1">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph lineSpacing="Fixed" lineSpacingSize="4.0"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tax_rate3}.intValue() * -1]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00">
+				<reportElement x="340" y="0" width="60" height="20" forecolor="#047516" uuid="54042fdb-5d13-4638-a71d-1b122ab440c7"/>
+				<box leftPadding="1" bottomPadding="1">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12"/>
+					<paragraph lineSpacing="Fixed" lineSpacingSize="4.0"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{wht_amount3}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="0" y="0" width="30" height="20" forecolor="#047516" uuid="d8e96cba-5bae-4681-97c4-b0b9ddef7f3f"/>
+				<box leftPadding="1" bottomPadding="1">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="TH Sarabun New" size="12" isBold="true"/>
+					<paragraph lineSpacing="Fixed" lineSpacingSize="4.0"/>
+				</textElement>
+				<textFieldExpression><![CDATA["WHT"]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

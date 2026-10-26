@@ -1,7 +1,7 @@
 {
     "name": "OD19 Reporting - Jasper Reports Foundation",
     "author": "OD19",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "category": "Reporting",
     "summary": "Foundation for Jasper and QWeb report templates",
     "depends": [
@@ -22,6 +22,7 @@
         "wizard/general_ledger_views.xml",
         "wizard/trial_balance_views.xml",
         "wizard/pl_bs_views.xml",
+        "wizard/journal_voucher_form_views.xml",
     ],
     "installable": True,
     "license": "LGPL-3",

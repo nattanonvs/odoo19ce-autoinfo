@@ -387,3 +387,60 @@ class TestPlBsReport(TransactionCase):
         self.assertIsInstance(parameters["pl_dr"], str)
         self.assertIsInstance(parameters["pl_balance"], str)
         self.assertIsInstance(parameters["pl_cmp_balance"], str)
+
+
+class TestJournalVoucherForm(TransactionCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.partner = cls.env["res.partner"].create(
+            {"name": "Voucher Partner", "is_company": True}
+        )
+        cls.move = cls.env["account.move"].create(
+            {"move_type": "entry", "partner_id": cls.partner.id}
+        )
+
+    def _report(self, move=True, **values):
+        report = self.env["journal.voucher.form"].create(values)
+        if move:
+            report = report.with_context(active_ids=self.move.ids)
+        return report
+
+    def test_default_jasper_file_is_shipped(self):
+        report = self.env["journal.voucher.form"].create({})
+        self.assertTrue(report.jasper_file.endswith("journal_voucher_form.jasper"))
+
+    def test_parameters_follow_legacy_contract(self):
+        report = self._report()
+        parameters = report.get_parameters()
+        self.assertEqual(
+            parameters["p_ID"],
+            "WHERE al.balance != 0 AND am.id in (%s)" % self.move.id,
+        )
+        self.assertTrue(parameters["p_Path"].endswith("/"))
+        self.assertEqual(parameters["p_ISO"], "")
+        self.assertEqual(parameters["p_EName"], "True")
+        self.assertEqual(parameters["p_ESignature"], "True")
+        self.assertEqual(parameters["p_language"], "thai")
+        self.assertEqual(parameters["p_DateFormat"], "dd-MM-yyyy")
+        self.assertEqual(parameters["p_locale"], "en")
+        self.assertEqual(report.name, self.move.display_name)
+
+    def test_locale_follows_date_type(self):
+        report = self._report(date_type="BE")
+        self.assertEqual(report.get_parameters()["p_locale"], "th")
+
+    def test_signature_toggles_flow_to_parameters(self):
+        report = self._report(p_EName=False, p_ESignature=False)
+        parameters = report.get_parameters()
+        self.assertEqual(parameters["p_EName"], "False")
+        self.assertEqual(parameters["p_ESignature"], "False")
+
+    def test_no_document_selected_raises(self):
+        from odoo.exceptions import UserError
+        with self.assertRaises(UserError):
+            self._report(move=False).get_parameters()
+
+    def test_partner_ids_for_send_by_email(self):
+        report = self._report()
+        self.assertEqual(report.get_partner_ids_for_send_by_email(), self.partner)
