@@ -43,3 +43,22 @@ class TestPartnerThaiFields(TransactionCase):
             "branch_code": "12345",
         })
         self.assertEqual(partner.branch_code, "12345")
+
+    def test_amphoe_subdistrict_fields(self):
+        partner = self.env["res.partner"].create({
+            "name": "ที่อยู่ไทย ทดสอบ",
+            "od19_subdistrict": "แขวงคลองเตย",
+            "od19_amphoe": "เขตคลองเตย",
+        })
+        self.assertEqual(partner.od19_subdistrict, "แขวงคลองเตย")
+        self.assertEqual(partner.od19_amphoe, "เขตคลองเตย")
+
+    def test_company_amphoe_subdistrict_related(self):
+        company = self.env.user.company_id
+        company.partner_id.write({
+            "od19_subdistrict": "แขวงสีลม",
+            "od19_amphoe": "เขตบางรัก",
+        })
+        # Company fields should mirror the partner fields
+        self.assertEqual(company.od19_subdistrict, "แขวงสีลม")
+        self.assertEqual(company.od19_amphoe, "เขตบางรัก")

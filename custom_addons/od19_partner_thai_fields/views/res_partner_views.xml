@@ -10,6 +10,10 @@
                 <field name="tax_name" placeholder="Tax Invoice Name"/>
                 <field name="branch_code" placeholder="00000"/>
             </xpath>
+            <xpath expr="//field[@name='city']" position="after">
+                <field name="od19_subdistrict" placeholder="Subdistrict / Tambon"/>
+                <field name="od19_amphoe" placeholder="Amphoe / District"/>
+            </xpath>
             <xpath expr="//field[@name='website']" position="after">
                 <field name="name_en" placeholder="English Name"/>
                 <field name="fax" placeholder="Fax"/>

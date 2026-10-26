@@ -25,6 +25,14 @@ class ResPartner(models.Model):
         help="Partner address in English (for international shipping).",
     )
     fax = fields.Char(string="Fax")
+    od19_amphoe = fields.Char(
+        string="Amphoe / District",
+        help="District (อำเภอ) or Khet (เขต) of the Thai address.",
+    )
+    od19_subdistrict = fields.Char(
+        string="Subdistrict / Tambon",
+        help="Sub-district (ตำบล) or Khwaeng (แขวง) of the Thai address.",
+    )
 
 
 class ResCompany(models.Model):
@@ -54,4 +62,14 @@ class ResCompany(models.Model):
         related="partner_id.fax",
         readonly=False,
         string="Fax",
+    )
+    od19_amphoe = fields.Char(
+        related="partner_id.od19_amphoe",
+        readonly=False,
+        string="Amphoe / District",
+    )
+    od19_subdistrict = fields.Char(
+        related="partner_id.od19_subdistrict",
+        readonly=False,
+        string="Subdistrict / Tambon",
     )
