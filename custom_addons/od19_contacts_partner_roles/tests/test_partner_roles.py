@@ -1,7 +1,9 @@
 from odoo.exceptions import ValidationError
+from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
 
+@tagged("post_install", "-at_install")
 class TestPartnerRoles(TransactionCase):
     def test_commercial_customer_requires_contact_channel(self):
         with self.assertRaises(ValidationError):
