@@ -79,6 +79,20 @@ class TestSalesCompatibility(TransactionCase):
 
         self.assertIsNone(dummy_env.partner_model.invalidated_fields)
 
+    def test_role_backfill_tolerates_absent_optional_fields(self):
+        # ``project_owner_id``/``contractor_ids`` and ``od19_project_owner_id``
+        # are contributed by companion modules this module does not depend on.
+        # Reading them is therefore optional: a field that is missing from the
+        # model must be skipped instead of raising ``KeyError`` while the
+        # registry loads.
+        self.assertEqual(
+            hooks._field_ids(self.env["project.project"], "missing_field"), set()
+        )
+        role_ids = hooks._collect_sales_partner_role_ids(self.env)
+        self.assertEqual(
+            set(role_ids), {"commercial_customer", "project_owner", "contractor"}
+        )
+
     def test_project_form_references_partner_role_domains(self):
         arch = self._get_arch(self.project_model, self.project_form_view, "form")
 

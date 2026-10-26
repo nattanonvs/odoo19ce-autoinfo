@@ -9,17 +9,31 @@ def _has_sales_role_sources(env):
     return "sale.order" in env.registry and "project.project" in env.registry
 
 
+def _field_ids(model, field_name):
+    """Return the ids referenced by ``field_name``, or an empty set.
+
+    ``project.project.project_owner_id``/``contractor_ids`` come from
+    ``od19_project_analytic`` and ``sale.order.od19_project_owner_id`` from
+    ``od19_sales_project_context``. This module only depends on ``base``, so
+    those optional fields may be absent and must simply be skipped instead
+    of raising a ``KeyError`` while the registry is loading.
+    """
+    if field_name not in model._fields:
+        return set()
+    return set(model.search([]).mapped(field_name).ids)
+
+
 def _collect_sales_partner_role_ids(env):
     project_model = env["project.project"].sudo()
     sale_order_model = env["sale.order"].sudo()
 
     return {
-        "commercial_customer": set(sale_order_model.search([]).mapped("partner_id").ids),
-        "project_owner": set(
-            project_model.search([]).mapped("project_owner_id").ids
-            + sale_order_model.search([]).mapped("od19_project_owner_id").ids
+        "commercial_customer": _field_ids(sale_order_model, "partner_id"),
+        "project_owner": (
+            _field_ids(project_model, "project_owner_id")
+            | _field_ids(sale_order_model, "od19_project_owner_id")
         ),
-        "contractor": set(project_model.search([]).mapped("contractor_ids").ids),
+        "contractor": _field_ids(project_model, "contractor_ids"),
     }
 
 
