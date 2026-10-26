@@ -12,14 +12,14 @@ class ResCompany(models.Model):
     od19_so_manager_approval_threshold = fields.Monetary(
         string="Sale Order Manager Approval Threshold",
         currency_field="currency_id",
-        default=100000.0,
+        default=1000000.0,
         help="Sale orders at or above this amount require approval from a Sales "
         "Manager (and below the director threshold).",
     )
     od19_so_director_approval_threshold = fields.Monetary(
         string="Sale Order Director Approval Threshold",
         currency_field="currency_id",
-        default=500000.0,
+        default=10000000.0,
         help="Sale orders at or above this amount require approval from a Sales "
         "Director.",
     )

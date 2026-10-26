@@ -15,8 +15,8 @@ class TestSaleAmountApprovalConfig(TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.company = cls.env.company
-        cls.company.od19_so_manager_approval_threshold = 100000.0
-        cls.company.od19_so_director_approval_threshold = 500000.0
+        cls.company.od19_so_manager_approval_threshold = 1000000.0
+        cls.company.od19_so_director_approval_threshold = 10000000.0
         cls.customer = cls.env["res.partner"].create({"name": "Config Tier Customer"})
         cls.product = cls.env["product.product"].create(
             {"name": "Config Tier Product", "type": "service", "list_price": 100.0}
@@ -79,34 +79,34 @@ class TestSaleAmountApprovalConfig(TransactionCase):
         domains = self._tier_domains()
         self.assertEqual(
             domains[OD19_SALE_TIER_MANAGER],
-            [("amount_total", ">=", 100000.0), ("amount_total", "<", 500000.0)],
+            [("amount_total", ">=", 1000000.0), ("amount_total", "<", 10000000.0)],
         )
         self.assertEqual(
             domains[OD19_SALE_TIER_DIRECTOR],
-            [("amount_total", ">=", 500000.0)],
+            [("amount_total", ">=", 10000000.0)],
         )
 
     def test_changing_threshold_updates_tier_domain(self):
-        self.company.od19_so_director_approval_threshold = 1000000.0
+        self.company.od19_so_director_approval_threshold = 20000000.0
         domains = self._tier_domains()
         self.assertEqual(
             domains[OD19_SALE_TIER_MANAGER],
-            [("amount_total", ">=", 100000.0), ("amount_total", "<", 1000000.0)],
+            [("amount_total", ">=", 1000000.0), ("amount_total", "<", 20000000.0)],
         )
         self.assertEqual(
             domains[OD19_SALE_TIER_DIRECTOR],
-            [("amount_total", ">=", 1000000.0)],
+            [("amount_total", ">=", 20000000.0)],
         )
 
     def test_order_follows_updated_threshold(self):
-        self.company.od19_so_manager_approval_threshold = 200000.0
-        self.company.od19_so_director_approval_threshold = 1000000.0
+        self.company.od19_so_manager_approval_threshold = 2000000.0
+        self.company.od19_so_director_approval_threshold = 20000000.0
 
-        below = self._create_order(150000)
+        below = self._create_order(1500000)
         self.assertFalse(below.need_validation)
 
-        manager_band = self._create_order(600000)
+        manager_band = self._create_order(6000000)
         self.assertTrue(manager_band.need_validation)
 
-        director_band = self._create_order(1500000)
+        director_band = self._create_order(25000000)
         self.assertTrue(director_band.need_validation)

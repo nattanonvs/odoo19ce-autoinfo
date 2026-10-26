@@ -11,6 +11,10 @@ class TestOcaBridge(TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.order_model = cls.env["sale.order"]
+        # กำหนดวงเงินของบริษัทให้ชัดเจนในเทสต์ ไม่พึ่งค่าที่ค้างอยู่ในฐานข้อมูล
+        # (วงเงินบน res.company เป็นข้อมูลที่ผู้ใช้ปรับได้ จึงไม่ควรทำให้เทสต์ผูกกับ DB)
+        cls.env.company.od19_so_manager_approval_threshold = 1000000.0
+        cls.env.company.od19_so_director_approval_threshold = 10000000.0
         cls.bridge_view = cls.env.ref(
             "od19_sales_oca_bridge_workflow.view_order_form_inherit_od19_oca_bridge"
         )
@@ -131,7 +135,7 @@ class TestOcaBridge(TransactionCase):
         self.assertEqual(order.state, "sale")
 
     def test_manager_threshold_order_waits_for_approval(self):
-        order = self._create_order(200000)
+        order = self._create_order(2000000)
         self.assertTrue(order.need_validation)
         order.action_confirm()
         self.assertEqual(order.state, "waiting_approval")
@@ -142,14 +146,14 @@ class TestOcaBridge(TransactionCase):
             order.action_confirm()
 
     def test_director_threshold_order_waits_for_approval(self):
-        order = self._create_order(600000)
+        order = self._create_order(12000000)
         self.assertTrue(order.need_validation)
         order.action_confirm()
         self.assertEqual(order.state, "waiting_approval")
         self.assertTrue(order.review_ids)
 
     def test_manager_approval_allows_confirm(self):
-        order = self._create_order(200000)
+        order = self._create_order(2000000)
         order.action_confirm()
         self.assertEqual(order.state, "waiting_approval")
         order.with_user(self.sales_manager).validate_tier()
@@ -158,7 +162,7 @@ class TestOcaBridge(TransactionCase):
         self.assertEqual(order.state, "sale")
 
     def test_director_approval_allows_confirm(self):
-        order = self._create_order(600000)
+        order = self._create_order(12000000)
         order.action_confirm()
         self.assertEqual(order.state, "waiting_approval")
         order.with_user(self.sales_director).validate_tier()
@@ -167,7 +171,7 @@ class TestOcaBridge(TransactionCase):
         self.assertEqual(order.state, "sale")
 
     def test_manager_cannot_approve_director_tier(self):
-        order = self._create_order(600000)
+        order = self._create_order(12000000)
         order.action_confirm()
         self.assertEqual(order.state, "waiting_approval")
         order.with_user(self.sales_manager).validate_tier()

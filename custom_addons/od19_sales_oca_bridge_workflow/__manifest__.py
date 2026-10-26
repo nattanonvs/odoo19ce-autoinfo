@@ -1,7 +1,7 @@
 {
     "name": "OD19 Sales OCA Workflow Bridge",
     "author": "OD19",
-    "version": "19.0.1.1.0",
+    "version": "19.0.1.2.0",
     "depends": [
         "sale_delivery_state",
         "base_revision",

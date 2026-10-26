@@ -223,14 +223,18 @@ Set-Location c:\odoo-dev\odoo19
 > และต้อง **สร้างใหม่** ทุกครั้งที่วงเงินเปลี่ยน (ทำ dynamic ไม่ได้)
 >
 > แนวทางที่ใช้:
-> - เก็บวงเงินไว้ที่ `res.company` (2 ฟิลด์ใหม่; ค่าเริ่มต้น manager 100,000 / director 500,000 ตามเดิม)
+> - เก็บวงเงินไว้ที่ `res.company` (2 ฟิลด์ใหม่; ค่าเริ่มต้น **manager 1,000,000 / director 10,000,000**)
 > - `res.company._od19_sync_sale_tier_definitions()` สร้าง/ปรับปรุง tier definition **แยกตามบริษัท**
 >   (`company_id = company`) ให้ตรงกับวงเงินปัจจุบัน พร้อมลบ record แบบเดิมที่ `company_id = False`
 > - เรียก sync จาก (1) `<function>` ใน `data/od19_sale_tier_definition.xml` (ไม่ใส่ `noupdate`
 >   เพื่อให้รันทั้งตอน install และ upgrade — `<function>` ในบล็อก noupdate จะถูกข้ามตอน upgrade),
 >   (2) override `res.company.write()` เมื่อวงเงินเปลี่ยน, (3) override `res.company.create()`
 >   สำหรับบริษัทใหม่
-> - ยังคงค่าเริ่มต้น 100,000/500,000 เพื่อให้เทสต์เดิมใน `test_oca_bridge.py` ผ่านโดยไม่ต้องแก้
+> - ค่าเริ่มต้นถูกปรับเป็น manager 1,000,000 / director 10,000,000 ตามที่ผู้ใช้กำหนด ⇒ ช่วงอนุมัติคือ
+>   Manager `[1,000,000, 10,000,000)` และ Director `≥ 10,000,000`; **SO ที่ต่ำกว่า 1,000,000 ไม่ต้องอนุมัติ**
+> - เทสต์ใน `test_oca_bridge.py` ตั้งวงเงินของบริษัทเองใน `setUpClass` (ไม่พึ่งค่าที่ค้างใน DB อีกต่อไป)
+>   และปรับยอดในเคสให้ตรงช่วงใหม่ (manager 2,000,000 / director 12,000,000)
+> - ค่าใน DB `odoo19_pdev` ถูกอัปเดตเป็น 1,000,000/10,000,000 แล้ว ทำให้ tier definition sync ตามทันที
 
 ---
 
