@@ -7,6 +7,7 @@
 | Artifact | Accounting department requirement coverage matrix |
 | Program | Odoo 19 CE Program |
 | สร้างเมื่อ | 2026-10-26 |
+| ปรับปรุงล่าสุด | 2026-10-27 (OCA Wave 2A ติดตั้งสำเร็จ 12 โมดูล · Wave 2B ปิดช่อง VAT สำเร็จ) |
 | ตรวจจาก | แผนจริง (`domain-wave-matrix.md`, `2026-10-21-odoo19-enterprise-wave-2-custom-finance-controls.md`) + สภาพดิสก์จริง (`third_party/oca/`, `custom_addons/`, `odoo.conf`) |
 | ผู้จัดทำ | ทีมเทคนิค |
 | ผู้รับ | ฝ่ายบัญชี / Audit |
@@ -67,14 +68,14 @@
 
 | รายการที่ขอ | โมดูลที่เกี่ยวข้อง | สถานะ | หมายเหตุ |
 | --- | --- | --- | --- |
-| `account_tax_balance` (VAT ซื้อ/ขาย, Tax Reconciliation) | OCA `account-financial-reporting` | ✅ | clone repo + ต่อ addons_path แล้ว 2026-10-26 |
-| `account_financial_report` (TB / GL / BS / P&L / Cash Flow) | OCA `account-financial-reporting` | ✅ | clone repo + ต่อ addons_path แล้ว 2026-10-26; ควบคู่กับ custom `od19_accounting_reporting` (QWeb) |
+| `account_tax_balance` (VAT ซื้อ/ขาย, Tax Reconciliation) | OCA `account-financial-reporting` | ✅ | clone repo + ต่อ addons_path (2026-10-26) + **ติดตั้งแล้ว 2026-10-27** (Wave 2A) |
+| `account_financial_report` (TB / GL / BS / P&L / Cash Flow) | OCA `account-financial-reporting` | ✅ | clone repo + ต่อ addons_path (2026-10-26) + **ติดตั้งแล้ว 2026-10-27** (Wave 2A); ควบคู่กับ custom `od19_accounting_reporting` (QWeb) |
 
 ### 2.8 Audit Trail
 
 | รายการที่ขอ | โมดูลที่เกี่ยวข้อง | สถานะ | หมายเหตุ |
 | --- | --- | --- | --- |
-| `auditlog` (ใครแก้อะไร เมื่อไร ค่าเดิม/ใหม่) | OCA `server-tools` | ✅ | มีบนดิสก์อยู่แล้ว; **adopt เข้าแผน 2026-10-26** (รองรับ ISO 9001 / Internal / External Audit) |
+| `auditlog` (ใครแก้อะไร เมื่อไร ค่าเดิม/ใหม่) | OCA `server-tools` | ✅ | มีบนดิสก์อยู่แล้ว; **adopt เข้าแผน 2026-10-26** (รองรับ ISO 9001 / Internal / External Audit); **ติดตั้งแล้ว 2026-10-27** (Wave 2A) |
 
 ### 2.9 เอกสารภาษีไทย (Excel export)
 
@@ -86,7 +87,7 @@
 
 | รายการที่ขอ | โมดูลที่เกี่ยวข้อง | สถานะ | หมายเหตุ |
 | --- | --- | --- | --- |
-| `account_reconcile_model_oca` | OCA `account-reconcile` | ✅ | clone repo + ต่อ addons_path แล้ว 2026-10-26; ชื่อโมดูลจริงบน 19.0 คือ **`account_reconcile_oca`** |
+| `account_reconcile_model_oca` | OCA `account-reconcile` | ✅ | clone repo + ต่อ addons_path (2026-10-26) + **ติดตั้งแล้ว 2026-10-27** (Wave 2A); ชื่อโมดูลจริงบน 19.0 คือ **`account_reconcile_oca`** (พร้อม `account_statement_base` dependency) |
 
 ## 3. สิ่งที่ดำเนินการแล้ว (2026-10-26)
 
@@ -99,6 +100,36 @@
 4. **adopt OCA (ตัดสินใจ #2)**: ติดตั้ง `account_move_name_sequence` และ `account_lock_date_update` เป็น dependency ของ `od19_accounting_features` (เลขรันเอกสารจาก sequence ตามปี ไม่มีช่องว่าง + wizard ตั้งวันล็อกบัญชีสำหรับผู้สอบบัญชี)
 5. **เพิ่มฟิลด์อำเภอ/ตำบล (ตัดสินใจ #4)**: โมดูล `od19_partner_thai_fields` เพิ่ม `od19_amphoe` / `od19_subdistrict` บน `res.partner` พร้อม sync ไป `res.company` (ใช้ทั้งหน้าจอและเอกสารพิมพ์)
 6. **ปิดช่องว่างเลขใบกำกับซื้อซ้ำ (ตัดสินใจ #3)**: เพิ่ม unique index `account_move_od19_supplier_ref_uniq` ใน `od19_accounting_features` v19.0.1.5.0 + unit tests 6 เคส (ซ้ำคู่ค้าเดิม/สาขาเดียวกัน บล็อก · ต่างคู่ค้า/เลขว่าง ซ้ำได้)
+
+## 3.1 OCA Wave 2A — ติดตั้งสำเร็จ (2026-10-27)
+
+ติดตั้ง OCA ที่โคลนไว้แล้วแต่ยังไม่ติดตั้ง (Quick Win, ไม่ต้องเขียนโค้ด) — 12 โมดูล state = `installed` บน `odoo19_pdev` (ตรวจด้วย psql) และ Odoo โหลดผ่านทุกโมดูลใน `odoo_server.log` (`account_billing (265/274)` → `account_check_deposit (266/274)` → `account_reconcile_oca (274/274)`):
+
+| โมดูล | Repo | ปิดช่องว่าง |
+| --- | --- | --- |
+| `account_financial_report` (+`date_range`) | account-financial-reporting | TB / GL / BS / P&L / Cash Flow |
+| `account_tax_balance` | account-financial-reporting | กระทบยอด VAT |
+| `partner_statement` | account-financial-reporting | AR/AP statement |
+| `account_reconcile_oca` (+`account_statement_base`) | account-reconcile | กระทบยอดธนาคาร |
+| `auditlog` | server-tools | Audit Trail (ISO 9001) |
+| `account_move_tier_validation` (+`base_tier_validation_formula`) | tier-validation | อนุมัติหลายชั้นบัญชี |
+| `account_check_deposit` | account-financial-tools | เช็ครับ (นำฝากธนาคาร) |
+| `account_billing` | account-invoicing | จัดกลุ่มใบแจ้งหนี้ก่อนจ่าย |
+| `account_journal_lock_date` | account-financial-tools | ล็อกงวดระดับสมุดรายวัน |
+
+หมายเหตุ: `account_billing` ไม่มีไฟล์แปลไทย (`no translation for language th_TH`) — ไม่ใช่ปัญหา; เอกสารนี้ครอบคลุมเฉพาะข้อกำหนดฝ่ายบัญชี ส่วนช่องว่างเชิงข้อบังคับกฎหมายไทย (ม.82/5, ภ.พ.36, ภ.ง.ด.50/51, TAS 12, e-Tax, ส.บช.3 ฯลฯ) ดู `thai-accounting-compliance-gap.md`
+
+## 3.2 Custom Wave 2B — ปิดช่อง VAT ตามกฎหมายไทย (2026-10-27)
+
+ปิดช่องว่างภาษีมูลค่าเพิ่มที่สรรพากรบังคับ ด้วยโมดูล custom `od19_thai_tax_reports` v19.0.1.5.0 (unit tests 39 รายการ ผ่านทั้งหมด บน `odoo19_pdev`):
+
+| ข้อบังคับ | สิ่งที่ทำ | ไฟล์/กลไก |
+| --- | --- | --- |
+| ม.82/5 ภาษีซื้อต้องห้าม | ฟิลด์ `od19_vat_deductible` บน `account.move.line` + ภาษี "ภาษีซื้อต้องห้าม" + แยกยอดในทะเบียนภาษีซื้อ | `models/account_move_line.py`, `data/od19_vat_non_deductible_data.xml`, `report/vat_purchase_register.*` |
+| ม.83/6 Reverse charge ภ.พ.36 | ภาษี reverse charge (self-assess ภาษีขาย + ภาษีซื้อ) + รายงาน ภ.พ.36 | `models/account_tax.py`, `data/od19_reverse_charge_data.xml`, `report/pp36_register.*` |
+| ม.86/4 ใบกำกับภาษีเต็มรูป | validate 8 รายการก่อน post เฉพาะเมื่อผู้ซื้อมีเลขภาษี (เปิด/ปิดผ่าน `res.company.od19_enforce_86_4_validation`) | `models/account_move.py`, `models/res_company.py`, `models/res_config_settings.py` |
+| ม.86/6 ใบกำกับภาษีอย่างย่อ | รายงาน Abbreviated Tax Invoice สำหรับขายปลีก | `report/tax_invoice_forms.xml` |
+| ม.86/9-10 ใบเพิ่มหนี้/ใบลดหนี้ | ฟิลด์ `od19_tax_invoice_doc_type` + block อ้างอิงใบกำกับเดิม/เหตุผล บนรายงานใบกำกับภาษี | `models/account_move.py`, `report/tax_invoice_forms.xml` |
 
 ## 4. บันทึกการตัดสินใจ (ปิดครบ 2026-10-26)
 
