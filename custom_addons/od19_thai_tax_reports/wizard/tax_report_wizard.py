@@ -27,6 +27,7 @@ class TaxReportWizard(models.TransientModel):
             ("vat_sales", "VAT Sales Register (สมุดรายการภาษีขาย)"),
             ("vat_purchase", "VAT Purchase Register (สมุดรายการภาษีซื้อ)"),
             ("wht", "WHT Register (สมุดภาษีหัก ณ ที่จ่าย)"),
+            ("pp36", "PP36 Register (รายงานภาษีนำส่ง ภ.พ.36)"),
         ],
         string="Report Type",
         required=True,
@@ -39,6 +40,7 @@ class TaxReportWizard(models.TransientModel):
             "vat_sales": "od19_thai_tax_reports.action_vat_sales_register",
             "vat_purchase": "od19_thai_tax_reports.action_vat_purchase_register",
             "wht": "od19_thai_tax_reports.action_wht_register",
+            "pp36": "od19_thai_tax_reports.action_pp36_register",
         }
         return (
             self.env.ref(report_map[self.report_type])

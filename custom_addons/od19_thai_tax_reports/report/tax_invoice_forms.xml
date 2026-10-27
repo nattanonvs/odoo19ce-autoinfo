@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- ม.86/9-10: ใบเพิ่มหนี้ / ใบลดหนี้ ต้องแสดง                            -->
+    <!--   - ประเภทเอกสาร (ใบเพิ่มหนี้ / ใบลดหนี้)                              -->
+    <!--   - เลขที่ และวัน เดือน ปี ของใบกำกับภาษีเดิมที่ถูกอ้างอิง                -->
+    <!--   - เหตุผลที่ออกใบเพิ่มหนี้ / ใบลดหนี้                                 -->
+    <!-- ข้อมูลเหล่านี้แสดงเพิ่มบนรายงานใบกำกับภาษีเดิม (account.report_invoice_document) -->
+    <!-- โดยไม่แก้ไขไฟล์ Core                                                  -->
+    <!-- ============================================================ -->
+    <record id="report_invoice_document_od19_note_reference" model="ir.ui.view">
+        <field name="name">account.report.invoice.document.od19.note.reference</field>
+        <field name="inherit_id" ref="account.report_invoice_document"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='informations']" position="after">
+                <t t-set="od19_doc_labels" t-value="{'full': 'ใบกำกับภาษี', 'abbreviated': 'ใบกำกับภาษีอย่างย่อ', 'debit_note': 'ใบเพิ่มหนี้', 'credit_note': 'ใบลดหนี้'}"/>
+                <t t-set="od19_src" t-value="o.parent_id or o.reversed_entry_id"/>
+                <div class="row mb-4"
+                     t-if="o.move_type in ('out_invoice', 'out_refund') and (o.dncn or od19_src)">
+                    <div class="col" t-if="o.dncn">
+                        <strong>ประเภทเอกสาร</strong>
+                        <div t-esc="od19_doc_labels.get(o.od19_tax_invoice_doc_type, '')"/>
+                    </div>
+                    <div class="col" t-if="od19_src">
+                        <strong>อ้างอิงใบกำกับภาษีเดิม</strong>
+                        <div>
+                            เลขที่ <span t-esc="od19_src.name or od19_src.ref or ''"/>
+                            <t t-if="od19_src.invoice_date">
+                                ลงวันที่ <span t-esc="od19_src.invoice_date" t-options='{"widget": "date"}'/>
+                            </t>
+                        </div>
+                    </div>
+                    <div class="col" t-if="o.reason_id">
+                        <strong>เหตุผล</strong>
+                        <div t-field="o.reason_id.name"/>
+                    </div>
+                    <div class="col" t-if="o.remark">
+                        <strong>รายละเอียด</strong>
+                        <div t-esc="o.remark"/>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- ม.86/6 ใบกำกับภาษีอย่างย่อ (Abbreviated Tax Invoice)                  -->
+    <!-- ใช้สำหรับการขายปลีกให้ผู้ซื้อที่ไม่ได้จดทะเบียน VAT                    -->
+    <!-- ============================================================ -->
+    <template id="abbreviated_tax_invoice_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family: 'Sarabun', 'Noto Sans Thai', Tahoma, sans-serif; font-size: 11pt;">
+                        <t t-set="seller" t-value="o.company_id.partner_id"/>
+                        <div class="text-center" style="font-size: 15pt; font-weight: bold;">ใบกำกับภาษีอย่างย่อ</div>
+                        <div class="text-center" style="font-size: 10pt; margin-bottom: 12px;">Abbreviated Tax Invoice (มาตรา 86/6 แห่งประมวลรัษฎากร)</div>
+
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="width: 65%; vertical-align: top;">
+                                    <div><strong>ผู้ขาย:</strong> <span t-esc="seller.name or ''"/></div>
+                                    <div><strong>เลขประจำตัวผู้เสียภาษี:</strong> <span t-esc="seller.vat or ''"/></div>
+                                    <div>
+                                        <strong>ที่อยู่:</strong>
+                                        <span t-esc="', '.join([s for s in [seller.street, seller.street2, seller.city, seller.zip] if s])"/>
+                                    </div>
+                                    <div t-if="seller.l10n_th_branch_name or seller.company_registry">
+                                        <strong>สาขา:</strong>
+                                        <span t-esc="seller.company_registry or seller.l10n_th_branch_name"/>
+                                    </div>
+                                </td>
+                                <td style="width: 35%; vertical-align: top; text-align: right;">
+                                    <div><strong>เลขที่:</strong> <span t-esc="o.name if o.name and o.name != '/' else o.ref or ''"/></div>
+                                    <div t-if="o.invoice_date">
+                                        <strong>วันที่:</strong>
+                                        <span t-esc="o.invoice_date" t-options='{"widget": "date"}'/>
+                                    </div>
+                                    <div t-if="o.partner_id.name">
+                                        <strong>ผู้ซื้อ:</strong> <span t-esc="o.partner_id.name"/>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 12px;">
+                            <thead>
+                                <tr>
+                                    <th style="border: 1px solid #000; padding: 4px 6px; width: 8%;">ลำดับ</th>
+                                    <th style="border: 1px solid #000; padding: 4px 6px;">รายการสินค้า/บริการ</th>
+                                    <th style="border: 1px solid #000; padding: 4px 6px; width: 12%;">จำนวน</th>
+                                    <th style="border: 1px solid #000; padding: 4px 6px; width: 18%;">ราคาต่อหน่วย</th>
+                                    <th style="border: 1px solid #000; padding: 4px 6px; width: 20%;">มูลค่า (บาท)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="od19_seq" t-value="0"/>
+                                <tr t-foreach="o.invoice_line_ids" t-as="l">
+                                    <t t-if="l.display_type == 'product'">
+                                        <t t-set="od19_seq" t-value="od19_seq + 1"/>
+                                        <td style="border: 1px solid #000; padding: 4px 6px; text-align: center;"><span t-esc="od19_seq"/></td>
+                                        <td style="border: 1px solid #000; padding: 4px 6px;"><span t-field="l.name"/></td>
+                                        <td style="border: 1px solid #000; padding: 4px 6px; text-align: right;"><span t-field="l.quantity"/></td>
+                                        <td style="border: 1px solid #000; padding: 4px 6px; text-align: right;"><span t-field="l.price_unit"/></td>
+                                        <td style="border: 1px solid #000; padding: 4px 6px; text-align: right;"><span t-field="l.price_subtotal"/></td>
+                                    </t>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <table style="width: 45%; border-collapse: collapse; margin-top: 8px; margin-left: 55%;">
+                            <tr>
+                                <td style="padding: 3px 6px;">รวมมูลค่าสินค้า/บริการ</td>
+                                <td style="padding: 3px 6px; text-align: right;"><span t-field="o.amount_untaxed"/></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 3px 6px;">ภาษีมูลค่าเพิ่ม</td>
+                                <td style="padding: 3px 6px; text-align: right;"><span t-field="o.amount_tax"/></td>
+                            </tr>
+                            <tr style="font-weight: bold;">
+                                <td style="padding: 3px 6px; border-top: 1px solid #000;">รวมทั้งสิ้น</td>
+                                <td style="padding: 3px 6px; text-align: right; border-top: 1px solid #000;"><span t-field="o.amount_total"/></td>
+                            </tr>
+                        </table>
+
+                        <div style="margin-top: 40px; text-align: right;">
+                            <div>ลงชื่อ ............................................</div>
+                            <div>ผู้มีอำนาจลงนาม / Authorized Signature</div>
+                            <div t-if="seller.name">( <span t-esc="seller.name"/> )</div>
+                        </div>
+
+                        <div style="margin-top: 20px; font-size: 9pt;">
+                            หมายเหตุ: ใบกำกับภาษีอย่างย่อนี้ใช้สำหรับการขายปลีกให้ผู้ซื้อที่ไม่ได้จดทะเบียนภาษีมูลค่าเพิ่ม
+                            หากผู้ซื้อประสงค์จะขอใบกำกับภาษีเต็มรูป โปรดแจ้งชื่อ ที่อยู่ และเลขประจำตัวผู้เสียภาษีให้ผู้ขายทราบ
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_od19_abbreviated_tax_invoice" model="ir.actions.report">
+        <field name="name">ใบกำกับภาษีอย่างย่อ / Abbreviated Tax Invoice</field>
+        <field name="model">account.move</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">od19_thai_tax_reports.abbreviated_tax_invoice_document</field>
+        <field name="report_file">od19_thai_tax_reports.abbreviated_tax_invoice_document</field>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_type">report</field>
+        <field name="print_report_name">'AbbrevTaxInvoice-%s' % (object.name or object.ref or object.id)</field>
+        <field name="domain">[('move_type', 'in', ('out_invoice', 'out_refund'))]</field>
+    </record>
+
+</odoo>

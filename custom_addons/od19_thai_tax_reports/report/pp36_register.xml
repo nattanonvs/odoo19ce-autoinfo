@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="pp36_register_document">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h2 class="text-center">รายงานภาษีมูลค่าเพิ่มนำส่ง (ภ.พ.36)</h2>
+                    <h3 class="text-center">VAT Self-Assessed Register (PP36)</h3>
+                    <div class="row mt-3">
+                        <div class="col-6">
+                            <strong>บริษัท:</strong> <span t-field="company.name"/>
+                        </div>
+                        <div class="col-6 text-right">
+                            <strong>เลขประจำตัวผู้เสียภาษี:</strong>
+                            <span t-field="company.vat"/>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-6">
+                            <strong>ระหว่างวันที่:</strong>
+                            <span t-field="date_from"/>
+                            <strong> ถึง </strong>
+                            <span t-field="date_to"/>
+                        </div>
+                    </div>
+
+                    <table class="table table-sm table-bordered mt-3">
+                        <thead class="thead-light">
+                            <tr>
+                                <th class="text-center" style="width:5%">ลำดับ</th>
+                                <th class="text-center" style="width:9%">วันที่</th>
+                                <th class="text-center" style="width:12%">เลขที่เอกสาร</th>
+                                <th class="text-center" style="width:12%">เลขที่ใบกำกับ (ผู้ขาย)</th>
+                                <th class="text-center">ชื่อผู้ขาย / ผู้ให้บริการ</th>
+                                <th class="text-center" style="width:11%">เลขผู้เสียภาษี</th>
+                                <th class="text-right" style="width:12%">มูลค่าสินค้า/บริการ</th>
+                                <th class="text-right" style="width:12%">ภาษีมูลค่าเพิ่ม</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="seq" t-value="0"/>
+                            <t t-foreach="lines" t-as="line">
+                                <tr>
+                                    <td class="text-center">
+                                        <t t-set="seq" t-value="seq + 1"/>
+                                        <span t-esc="seq"/>
+                                    </td>
+                                    <td class="text-center">
+                                        <span t-field="line['invoice_date']"/>
+                                    </td>
+                                    <td><span t-esc="line['name']"/></td>
+                                    <td><span t-esc="line['ref']"/></td>
+                                    <td><span t-esc="line['partner_name']"/></td>
+                                    <td class="text-center">
+                                        <span t-esc="line['partner_vat']"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="'{:,.2f}'.format(line['tax_base'])"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="'{:,.2f}'.format(line['vat_amount'])"/>
+                                    </td>
+                                </tr>
+                            </t>
+                            <tr class="font-weight-bold">
+                                <td colspan="6" class="text-right">รวมทั้งสิ้น</td>
+                                <td class="text-right">
+                                    <span t-esc="'{:,.2f}'.format(total_tax_base)"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'{:,.2f}'.format(total_vat_amount)"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_pp36_register" model="ir.actions.report">
+        <field name="name">PP36 Register</field>
+        <field name="model">thai.tax.report.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">od19_thai_tax_reports.pp36_register</field>
+        <field name="report_file">od19_thai_tax_reports.pp36_register</field>
+    </record>
+</odoo>

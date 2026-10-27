@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_move_form_od19_vat_deductible" model="ir.ui.view">
+        <field name="name">account.move.form.od19.vat.deductible</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='invoice_line_ids']//field[@name='tax_ids']" position="after">
+                <field name="od19_vat_deductible"
+                       column_invisible="parent.move_type not in ('in_invoice', 'in_refund', 'in_receipt')"
+                       optional="hide"
+                       widget="boolean_toggle"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_move_form_od19_tax_doc_type" model="ir.ui.view">
+        <field name="name">account.move.form.od19.tax.doc.type</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@id='other_tab']//field[@name='invoice_origin']" position="after">
+                <field name="od19_tax_invoice_doc_type"
+                       readonly="1"
+                       invisible="move_type not in ('out_invoice', 'out_refund', 'out_receipt')"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

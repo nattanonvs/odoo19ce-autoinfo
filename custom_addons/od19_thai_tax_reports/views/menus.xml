@@ -27,4 +27,11 @@
         action="action_thai_tax_report_wizard"
         sequence="30"
     />
+    <menuitem
+        id="menu_pp36_register"
+        name="PP36 Register (รายงานภาษีนำส่ง ภ.พ.36)"
+        parent="menu_thai_tax_reports"
+        action="action_thai_tax_report_wizard"
+        sequence="40"
+    />
 </odoo>

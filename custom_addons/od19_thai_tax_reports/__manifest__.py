@@ -1,7 +1,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 {
     "name": "Thai Tax Reports",
-    "version": "19.0.1.1.0",
+    "version": "19.0.1.5.0",
     "category": "Localization",
     "summary": "Thai tax reports: VAT Sales/Purchase Register, WHT Register, "
     "WHT Certificate (หนังสือรับรองการหักภาษี ณ ที่จ่าย)",
@@ -12,14 +12,21 @@
         "account",
         "l10n_th_account_tax",
         "od19_partner_thai_fields",
+        "od19_accounting_dncn",
     ],
     "data": [
         "security/ir.model.access.csv",
+        "data/od19_vat_non_deductible_data.xml",
+        "data/od19_reverse_charge_data.xml",
         "wizard/tax_report_wizard_views.xml",
         "report/vat_sales_register.xml",
         "report/vat_purchase_register.xml",
         "report/wht_register.xml",
         "report/wht_certificate.xml",
+        "report/pp36_register.xml",
+        "report/tax_invoice_forms.xml",
+        "views/account_move_views.xml",
+        "views/res_config_settings_views.xml",
         "views/menus.xml",
     ],
     "installable": True,

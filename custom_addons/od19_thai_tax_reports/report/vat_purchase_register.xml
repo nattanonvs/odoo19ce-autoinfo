@@ -28,13 +28,14 @@
                         <thead class="thead-light">
                             <tr>
                                 <th class="text-center" style="width:5%">ลำดับ</th>
-                                <th class="text-center" style="width:10%">วันที่</th>
-                                <th class="text-center" style="width:15%">เลขที่เอกสาร</th>
+                                <th class="text-center" style="width:9%">วันที่</th>
+                                <th class="text-center" style="width:14%">เลขที่เอกสาร</th>
                                 <th class="text-center">ชื่อผู้ขาย</th>
-                                <th class="text-center" style="width:12%">เลขผู้เสียภาษี</th>
-                                <th class="text-right" style="width:12%">ยอดก่อนภาษี</th>
-                                <th class="text-right" style="width:10%">ภาษีซื้อ</th>
-                                <th class="text-right" style="width:12%">ยอดรวม</th>
+                                <th class="text-center" style="width:11%">เลขผู้เสียภาษี</th>
+                                <th class="text-right" style="width:11%">ยอดก่อนภาษี</th>
+                                <th class="text-right" style="width:11%">ภาษีซื้อ (หักได้)</th>
+                                <th class="text-right" style="width:11%">ภาษีซื้อต้องห้าม</th>
+                                <th class="text-right" style="width:11%">ยอดรวม</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -60,6 +61,9 @@
                                         <span t-esc="'{:,.2f}'.format(line['tax_amount'])"/>
                                     </td>
                                     <td class="text-right">
+                                        <span t-esc="'{:,.2f}'.format(line['non_deductible_amount'])"/>
+                                    </td>
+                                    <td class="text-right">
                                         <span t-esc="'{:,.2f}'.format(line['amount_total'])"/>
                                     </td>
                                 </tr>
@@ -71,6 +75,9 @@
                                 </td>
                                 <td class="text-right">
                                     <span t-esc="'{:,.2f}'.format(total_tax_amount)"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-esc="'{:,.2f}'.format(total_non_deductible_amount)"/>
                                 </td>
                                 <td class="text-right">
                                     <span t-esc="'{:,.2f}'.format(total_amount)"/>

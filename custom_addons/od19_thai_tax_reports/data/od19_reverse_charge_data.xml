@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        มาตรา 83/6 : กรณีผู้จ่ายเงินซื้อสินค้าหรือบริการจากผู้ประกอบการต่างประเทศ
+        ผู้จ่ายเงินต้องนำส่งภาษีมูลค่าเพิ่มเป็นการขายให้ตัวเอง (ภ.พ.36)
+
+        ภาษีด้านล่างเป็น purchase tax ที่ลงภาษีขาย (+100 -> บัญชีภาษีขาย)
+        และภาษีซื้อ (-100 -> บัญชีภาษีซื้อ) ให้อัตโนมัติ โดยไม่กระทบยอดรวมของ
+        เอกสาร ฟังก์ชันท้ายไฟล์จะสร้าง repartition line ให้ครบทั้งสองด้าน
+        (หมายเหตุ: <function> ในบล็อก noupdate จะไม่ถูกเรียกตอน upgrade จึงไม่ใส่ noupdate)
+    -->
+    <record id="tax_group_vat_pp36" model="account.tax.group">
+        <field name="name">ภาษีนำส่ง ภ.พ.36 / VAT Self-Assessed (PP36)</field>
+        <field name="country_id" ref="base.th"/>
+    </record>
+
+    <record id="tax_input_vat_reverse_charge" model="account.tax">
+        <field name="name">VAT 7% (Reverse Charge PP36)</field>
+        <field name="description">ภาษีมูลค่าเพิ่มนำส่งตาม ม.83/6 (ภ.พ.36)</field>
+        <field name="amount_type">percent</field>
+        <field name="amount">7.0</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="tax_group_id" ref="tax_group_vat_pp36"/>
+    </record>
+
+    <function model="account.tax" name="_od19_setup_reverse_charge_taxes"/>
+</odoo>

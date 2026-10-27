@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Section 82/5 - Non-deductible input VAT (ภาษีซื้อต้องห้าม).
+
+        The tax has no repartition account, so its amount is posted on the
+        same account as the base line (the expense/cost): the VAT is
+        capitalised instead of being recorded as a claimable input VAT.
+        It also carries no tax tag, so it never shows up as deductible
+        input VAT in the tax reports.
+    -->
+    <record id="tax_group_vat_non_deductible" model="account.tax.group">
+        <field name="name">ภาษีซื้อต้องห้าม / Non-Deductible VAT</field>
+        <field name="country_id" ref="base.th"/>
+    </record>
+
+    <record id="tax_input_vat_non_deductible" model="account.tax">
+        <field name="name">VAT 7% (Non-Deductible)</field>
+        <field name="description">ภาษีซื้อต้องห้าม 7% (ม.82/5)</field>
+        <field name="amount_type">percent</field>
+        <field name="amount">7.0</field>
+        <field name="type_tax_use">purchase</field>
+        <field name="tax_group_id" ref="tax_group_vat_non_deductible"/>
+    </record>
+</odoo>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_od19_tax_invoice" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.od19.tax.invoice</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='account']" position="inside">
+                <block title="Thai Tax Invoice (ใบกำกับภาษี)"
+                       id="od19_tax_invoice_86_4">
+                    <setting string="Validate full-form tax invoice (Section 86/4)"
+                             help="When enabled, a sales tax invoice issued to a VAT-registered customer (juridical person with a tax ID) is blocked until all 8 particulars required by Section 86/4 of the Thai Revenue Code are complete.">
+                        <field name="od19_enforce_86_4_validation"/>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>
