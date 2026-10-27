@@ -1,0 +1,537 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* od19_accounting_features
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-27 10:58+0000\n"
+"PO-Revision-Date: 2026-10-27 10:58+0000\n"
+"Last-Translator: The Auto-Info Co., Ltd.\n"
+"Language-Team: Thai\n"
+"Language: th\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#. module: od19_accounting_features
+#: model:ir.actions.report,print_report_name:od19_accounting_features.action_report_billing_note
+msgid "'Billing Note - %s' % (object.name)"
+msgstr "'Billing Note - %s' % (object.name)"
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.billing_note_document
+msgid "<span> (</span>"
+msgstr "<span> (</span>"
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.billing_note_document
+msgid "<span> สาขา / Branch: </span>"
+msgstr "<span> สาขา / Branch: </span>"
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.billing_note_document
+msgid "<span>)</span>"
+msgstr "<span>)</span>"
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.billing_note_document
+msgid "<span>เลขประจำตัวผู้เสียภาษี / Tax ID: </span>"
+msgstr "<span>เลขประจำตัวผู้เสียภาษี / Tax ID: </span>"
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.billing_note_document
+msgid "<strong>กำหนดชำระเงิน / Payment Due: </strong>"
+msgstr "<strong>กำหนดชำระเงิน / Payment Due: </strong>"
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.billing_note_document
+msgid "<strong>จำนวนเงิน (ตัวอักษร): </strong>"
+msgstr "<strong>จำนวนเงิน (ตัวอักษร): </strong>"
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.billing_note_document
+msgid "<strong>ลูกค้า / Customer:</strong>"
+msgstr "<strong>ลูกค้า / Customer:</strong>"
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.billing_note_document
+msgid "<strong>วันที่ / Date: </strong>"
+msgstr "<strong>วันที่ / Date: </strong>"
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.billing_note_document
+msgid "<strong>เลขที่วางบิล / Note No: </strong>"
+msgstr "<strong>เลขที่วางบิล / Note No: </strong>"
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.res_config_settings_view_form_od19
+msgid "Accounts Payable (ทำจ่าย)"
+msgstr "เจ้าหนี้การค้า (Accounts Payable / ทำจ่าย)"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,field_description:od19_accounting_features.field_account_bank_statement_line__od19_actual_due_date
+#: model:ir.model.fields,field_description:od19_accounting_features.field_account_move__od19_actual_due_date
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.view_move_form_od19_features
+msgid "Actual Due Date"
+msgstr "วันครบกำหนดจริง"
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.billing_note_document
+msgid "BILLING NOTE"
+msgstr "BILLING NOTE"
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.view_move_form_od19_features
+msgid "BOT"
+msgstr "BOT"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,field_description:od19_accounting_features.field_account_bank_statement_line__od19_bot_url
+#: model:ir.model.fields,field_description:od19_accounting_features.field_account_move__od19_bot_url
+msgid "BOT Link"
+msgstr "ลิงก์ BOT"
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.res_config_settings_view_form_od19
+msgid "BOT URL"
+msgstr "BOT URL"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,field_description:od19_accounting_features.field_res_company__od19_bot_url
+#: model:ir.model.fields,field_description:od19_accounting_features.field_res_config_settings__od19_bot_url
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.res_config_settings_view_form_od19
+msgid "BOT URL (รายการภาษี)"
+msgstr "BOT URL (รายการภาษี)"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,help:od19_accounting_features.field_res_company__od19_bot_url
+#: model:ir.model.fields,help:od19_accounting_features.field_res_config_settings__od19_bot_url
+msgid ""
+"Base URL of the Revenue Department (BOT) e-Tax invoice lookup. The invoice "
+"number is appended as ?id=<invoice_name>."
+msgstr ""
+"URL หลักสำหรับค้นหาใบกำกับภาษีอิเล็กทรอนิกส์ของกรมสรรพากร (BOT) "
+"โดยต่อท้ายด้วยเลขที่ใบแจ้งหนี้เป็น ?id=<invoice_name>"
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.res_config_settings_view_form_od19
+msgid ""
+"Base URL of the Revenue Department (BOT) e-Tax invoice lookup. The invoice "
+"number is appended as ?id=invoice_name."
+msgstr ""
+"URL หลักสำหรับค้นหาใบกำกับภาษีอิเล็กทรอนิกส์ของกรมสรรพากร (BOT) "
+"โดยต่อท้ายด้วยเลขที่ใบแจ้งหนี้เป็น ?id=invoice_name"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,help:od19_accounting_features.field_account_payment__od19_wht_base_amount
+msgid "Base amount used to compute the withholding tax."
+msgstr "มูลค่าฐานที่ใช้คำนวณภาษีหัก ณ ที่จ่าย"
+
+#. module: od19_accounting_features
+#: model:ir.actions.report,name:od19_accounting_features.action_report_billing_note
+msgid "Billing Note"
+msgstr "ใบวางบิล"
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.view_od19_account_move_cancel_reason_form
+msgid "Cancel"
+msgstr "ยกเลิก"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,field_description:od19_accounting_features.field_account_bank_statement_line__od19_cancel_reason
+#: model:ir.model.fields,field_description:od19_accounting_features.field_account_move__od19_cancel_reason
+#: model:ir.model.fields,field_description:od19_accounting_features.field_od19_account_move_cancel_reason__reason
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.view_od19_account_move_cancel_reason_form
+msgid "Cancel Reason"
+msgstr "เหตุผลการยกเลิก"
+
+#. module: od19_accounting_features
+#: model:ir.model,name:od19_accounting_features.model_od19_account_move_cancel_reason
+msgid "Cancel Reason Wizard"
+msgstr "วิซาร์ดเหตุผลการยกเลิก"
+
+#. module: od19_accounting_features
+#: model:ir.model,name:od19_accounting_features.model_res_company
+msgid "Companies"
+msgstr "บริษัท"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,help:od19_accounting_features.field_account_payment__od19_wht_amount
+msgid "Computed withholding tax amount."
+msgstr "จำนวนภาษีหัก ณ ที่จ่ายที่คำนวณได้"
+
+#. module: od19_accounting_features
+#: model:ir.model,name:od19_accounting_features.model_res_config_settings
+msgid "Config Settings"
+msgstr "ตั้งค่าการกำหนดค่า"
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.view_od19_account_move_cancel_reason_form
+msgid "Confirm Cancel"
+msgstr "ยืนยันการยกเลิก"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,field_description:od19_accounting_features.field_od19_account_move_cancel_reason__create_uid
+msgid "Created by"
+msgstr "สร้างโดย"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,field_description:od19_accounting_features.field_od19_account_move_cancel_reason__create_date
+msgid "Created on"
+msgstr "สร้างเมื่อ"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,field_description:od19_accounting_features.field_account_move__display_name
+#: model:ir.model.fields,field_description:od19_accounting_features.field_account_payment__display_name
+#: model:ir.model.fields,field_description:od19_accounting_features.field_account_payment_register__display_name
+#: model:ir.model.fields,field_description:od19_accounting_features.field_od19_account_move_cancel_reason__display_name
+#: model:ir.model.fields,field_description:od19_accounting_features.field_res_company__display_name
+#: model:ir.model.fields,field_description:od19_accounting_features.field_res_config_settings__display_name
+msgid "Display Name"
+msgstr "ชื่อที่แสดง"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,help:od19_accounting_features.field_account_bank_statement_line__od19_actual_due_date
+#: model:ir.model.fields,help:od19_accounting_features.field_account_move__od19_actual_due_date
+msgid ""
+"For prepayments: invoice date + 30 days. For other moves: the standard due "
+"date."
+msgstr ""
+"สำหรับเงินจ่ายล่วงหน้า: วันที่ใบแจ้งหนี้ + 30 วัน "
+"สำหรับรายการอื่น: ใช้วันครบกำหนดมาตรฐาน"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,field_description:od19_accounting_features.field_account_move__id
+#: model:ir.model.fields,field_description:od19_accounting_features.field_account_payment__id
+#: model:ir.model.fields,field_description:od19_accounting_features.field_account_payment_register__id
+#: model:ir.model.fields,field_description:od19_accounting_features.field_od19_account_move_cancel_reason__id
+#: model:ir.model.fields,field_description:od19_accounting_features.field_res_company__id
+#: model:ir.model.fields,field_description:od19_accounting_features.field_res_config_settings__id
+msgid "ID"
+msgstr "ID"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,field_description:od19_accounting_features.field_account_bank_statement_line__od19_is_downpayment
+#: model:ir.model.fields,field_description:od19_accounting_features.field_account_move__od19_is_downpayment
+msgid "Is Prepayment"
+msgstr "เป็นเงินจ่ายล่วงหน้า"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,field_description:od19_accounting_features.field_od19_account_move_cancel_reason__move_ids
+msgid "Journal Entries"
+msgstr "รายการสมุดรายวัน"
+
+#. module: od19_accounting_features
+#: model:ir.model,name:od19_accounting_features.model_account_move
+msgid "Journal Entry"
+msgstr "รายการสมุดรายวัน"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,field_description:od19_accounting_features.field_od19_account_move_cancel_reason__write_uid
+msgid "Last Updated by"
+msgstr "แก้ไขล่าสุดโดย"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,field_description:od19_accounting_features.field_od19_account_move_cancel_reason__write_date
+msgid "Last Updated on"
+msgstr "แก้ไขล่าสุดเมื่อ"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,help:od19_accounting_features.field_account_bank_statement_line__od19_payment_number
+#: model:ir.model.fields,help:od19_accounting_features.field_account_move__od19_payment_number
+msgid "Name(s) of the payment(s) reconciled with this vendor bill."
+msgstr "ชื่อของรายการชำระเงินที่กระทบยอดกับใบแจ้งหนี้ผู้ขายนี้"
+
+#. module: od19_accounting_features
+#. odoo-python
+#: code:addons/od19_accounting_features/models/account_move.py:0
+msgid ""
+"No BOT URL or invoice number available. Configure the BOT URL in Settings "
+"and post the invoice first."
+msgstr ""
+"ไม่มี BOT URL หรือเลขที่ใบแจ้งหนี้ กรุณาตั้งค่า BOT URL ในหน้าตั้งค่า "
+"และยืนยัน (post) ใบแจ้งหนี้ก่อน"
+
+#. module: od19_accounting_features
+#. odoo-python
+#: code:addons/od19_accounting_features/wizards/account_move_cancel_reason.py:0
+msgid "No journal entries selected."
+msgstr "ยังไม่ได้เลือกรายการสมุดรายวัน"
+
+#. module: od19_accounting_features
+#. odoo-python
+#: code:addons/od19_accounting_features/wizards/account_move_cancel_reason.py:0
+msgid "None of the selected entries can be cancelled."
+msgstr "ไม่มีรายการที่เลือกไว้ที่สามารถยกเลิกได้"
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.view_move_form_od19_features
+msgid "Open Revenue Department (BOT) tax invoice lookup"
+msgstr "เปิดหน้าค้นหาใบกำกับภาษีของกรมสรรพากร (BOT)"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,help:od19_accounting_features.field_account_bank_statement_line__od19_payer_id
+#: model:ir.model.fields,help:od19_accounting_features.field_account_move__od19_payer_id
+msgid "Partner who actually pays for this prepayment."
+msgstr "คู่ค้าที่ชำระเงินจริงสำหรับเงินจ่ายล่วงหน้านี้"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,help:od19_accounting_features.field_account_payment__od19_payer_id
+msgid "Partner who actually pays."
+msgstr "คู่ค้าที่ชำระเงินจริง"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,help:od19_accounting_features.field_account_payment__od19_payee_id
+msgid "Partner who actually receives the payment."
+msgstr "คู่ค้าที่รับเงินจริง"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,help:od19_accounting_features.field_account_bank_statement_line__od19_payee_id
+#: model:ir.model.fields,help:od19_accounting_features.field_account_move__od19_payee_id
+msgid "Partner who actually receives this prepayment."
+msgstr "คู่ค้าที่รับเงินจริงสำหรับเงินจ่ายล่วงหน้านี้"
+
+#. module: od19_accounting_features
+#: model:ir.model,name:od19_accounting_features.model_account_payment_register
+msgid "Pay"
+msgstr "จ่าย"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,field_description:od19_accounting_features.field_account_bank_statement_line__od19_payment_number
+#: model:ir.model.fields,field_description:od19_accounting_features.field_account_move__od19_payment_number
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.view_move_form_od19_features
+msgid "Payment Number"
+msgstr "เลขที่การชำระเงิน"
+
+#. module: od19_accounting_features
+#: model:ir.model,name:od19_accounting_features.model_account_payment
+msgid "Payments"
+msgstr "การชำระเงิน"
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.view_od19_account_move_cancel_reason_form
+msgid "Please enter the reason for cancellation..."
+msgstr "กรุณาระบุเหตุผลในการยกเลิก..."
+
+#. module: od19_accounting_features
+#. odoo-python
+#: code:addons/od19_accounting_features/wizards/account_move_cancel_reason.py:0
+msgid "Please provide a cancel reason."
+msgstr "กรุณาระบุเหตุผลการยกเลิก"
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.view_move_form_od19_features
+msgid "Prepayment Payer/Payee"
+msgstr "ผู้จ่าย/ผู้รับเงินล่วงหน้า"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,help:od19_accounting_features.field_account_bank_statement_line__od19_cancel_reason
+#: model:ir.model.fields,help:od19_accounting_features.field_account_move__od19_cancel_reason
+msgid "Reason entered when cancelling this journal entry."
+msgstr "เหตุผลที่ระบุเมื่อยกเลิกรายการสมุดรายวันนี้"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,help:od19_accounting_features.field_od19_account_move_cancel_reason__reason
+msgid "Reason for cancelling this journal entry."
+msgstr "เหตุผลในการยกเลิกรายการสมุดรายวันนี้"
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.res_config_settings_view_form_od19
+msgid "Require Vendor Bill before Payment"
+msgstr "บังคับตั้งหนี้ก่อนจ่าย"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,help:od19_accounting_features.field_res_config_settings__od19_require_vendor_bill_for_payment
+msgid ""
+"Require a Vendor Bill (ตั้งหนี้) before an outbound payment can be posted."
+msgstr ""
+"กำหนดให้ต้องมีใบแจ้งหนี้ผู้ขาย (ตั้งหนี้) ก่อนจึงจะยืนยัน (post) การจ่ายเงินขาออกได้"
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.res_config_settings_view_form_od19
+msgid "Revenue Department (BOT)"
+msgstr "กรมสรรพากร (BOT)"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,help:od19_accounting_features.field_account_bank_statement_line__od19_bot_url
+#: model:ir.model.fields,help:od19_accounting_features.field_account_move__od19_bot_url
+msgid "Revenue Department (BOT) lookup URL for this tax invoice."
+msgstr "URL ค้นหาใบกำกับภาษีของกรมสรรพากร (BOT) สำหรับใบกำกับภาษีนี้"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,help:od19_accounting_features.field_account_bank_statement_line__od19_is_downpayment
+#: model:ir.model.fields,help:od19_accounting_features.field_account_move__od19_is_downpayment
+msgid "Technical helper. True when the move is a downpayment/prepayment."
+msgstr "ฟิลด์ช่วยทางเทคนิค เป็น True เมื่อรายการเป็นเงินจ่ายล่วงหน้า"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,help:od19_accounting_features.field_od19_account_move_cancel_reason__move_ids
+msgid "The journal entries that will be cancelled."
+msgstr "รายการสมุดรายวันที่จะถูกยกเลิก"
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.view_account_payment_form_od19
+msgid "WHT Amount"
+msgstr "จำนวนภาษีหัก"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,field_description:od19_accounting_features.field_account_payment__od19_wht_amount
+msgid "WHT Amount / จำนวนภาษีหัก"
+msgstr "จำนวนภาษีหัก / WHT Amount"
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.view_account_payment_form_od19
+msgid "WHT Base Amount"
+msgstr "มูลค่าคิดภาษีหัก"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,field_description:od19_accounting_features.field_account_payment__od19_wht_base_amount
+msgid "WHT Base Amount / มูลค่าคิดภาษี"
+msgstr "มูลค่าคิดภาษี / WHT Base Amount"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,field_description:od19_accounting_features.field_account_payment__od19_wht_rate
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.view_account_payment_form_od19
+msgid "WHT Rate"
+msgstr "อัตราภาษีหัก"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,field_description:od19_accounting_features.field_account_payment__od19_wht_type_id
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.view_account_payment_form_od19
+msgid "WHT Type"
+msgstr "ประเภทภาษีหัก"
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.res_config_settings_view_form_od19
+msgid ""
+"When enabled, a vendor (outbound) payment cannot be posted unless it is "
+"generated from a Vendor Bill (ตั้งหนี้). Standalone vendor payments that are"
+" not linked to any bill are blocked."
+msgstr ""
+"เมื่อเปิดใช้งาน การจ่ายเงินให้ผู้ขาย (ขาออก) จะไม่สามารถยืนยัน (post) ได้ "
+"หากไม่ได้สร้างจากใบแจ้งหนี้ผู้ขาย (ตั้งหนี้) "
+"การจ่ายเงินผู้ขายแบบเดี่ยวที่ไม่ผูกกับใบแจ้งหนี้ใด ๆ จะถูกบล็อก"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,help:od19_accounting_features.field_res_company__od19_require_vendor_bill_for_payment
+msgid ""
+"When enabled, an outbound (vendor) payment cannot be posted unless it is "
+"generated from a Vendor Bill (ตั้งหนี้). Standalone vendor payments that are"
+" not linked to any bill are blocked."
+msgstr ""
+"เมื่อเปิดใช้งาน การจ่ายเงินให้ผู้ขาย (ขาออก) จะไม่สามารถยืนยัน (post) ได้ "
+"หากไม่ได้สร้างจากใบแจ้งหนี้ผู้ขาย (ตั้งหนี้) "
+"การจ่ายเงินผู้ขายแบบเดี่ยวที่ไม่ผูกกับใบแจ้งหนี้ใด ๆ จะถูกบล็อก"
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.view_account_payment_form_od19
+msgid "Withholding Tax (WHT)"
+msgstr "ภาษีหัก ณ ที่จ่าย (WHT)"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,help:od19_accounting_features.field_account_payment__od19_wht_rate
+msgid "Withholding tax rate applied to the base amount."
+msgstr "อัตราภาษีหัก ณ ที่จ่ายที่ใช้กับมูลค่าฐาน"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,help:od19_accounting_features.field_account_payment__od19_wht_type_id
+msgid "Withholding tax type (OCA l10n_th_account_tax)."
+msgstr "ประเภทภาษีหัก ณ ที่จ่าย (OCA l10n_th_account_tax)"
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.billing_note_document
+msgid "ครบกำหนด / Due"
+msgstr "ครบกำหนด / Due"
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.billing_note_document
+msgid "จำนวนเงิน / Amount"
+msgstr "จำนวนเงิน / Amount"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,field_description:od19_accounting_features.field_res_company__od19_require_vendor_bill_for_payment
+#: model:ir.model.fields,field_description:od19_accounting_features.field_res_config_settings__od19_require_vendor_bill_for_payment
+msgid "บังคับตั้งหนี้ก่อนจ่าย (AP)"
+msgstr "บังคับตั้งหนี้ก่อนจ่าย (AP)"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,field_description:od19_accounting_features.field_account_bank_statement_line__od19_payer_id
+#: model:ir.model.fields,field_description:od19_accounting_features.field_account_move__od19_payer_id
+#: model:ir.model.fields,field_description:od19_accounting_features.field_account_payment__od19_payer_id
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.view_account_payment_form_od19
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.view_move_form_od19_features
+msgid "ผู้จ่ายเงิน / Payer"
+msgstr "ผู้จ่ายเงิน / Payer"
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.billing_note_document
+msgid "ผู้รับวางบิล / Received by"
+msgstr "ผู้รับวางบิล / Received by"
+
+#. module: od19_accounting_features
+#: model:ir.model.fields,field_description:od19_accounting_features.field_account_bank_statement_line__od19_payee_id
+#: model:ir.model.fields,field_description:od19_accounting_features.field_account_move__od19_payee_id
+#: model:ir.model.fields,field_description:od19_accounting_features.field_account_payment__od19_payee_id
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.view_account_payment_form_od19
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.view_move_form_od19_features
+msgid "ผู้รับเงิน / Payee"
+msgstr "ผู้รับเงิน / Payee"
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.billing_note_document
+msgid "ผู้วางบิล / Issued by"
+msgstr "ผู้วางบิล / Issued by"
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.billing_note_document
+msgid "รวมทั้งสิ้น / Total"
+msgstr "รวมทั้งสิ้น / Total"
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.billing_note_document
+msgid "ลำดับ"
+msgstr "ลำดับ"
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.billing_note_document
+msgid "วันที่ / Date"
+msgstr "วันที่ / Date"
+
+#. module: od19_accounting_features
+#. odoo-python
+#: code:addons/od19_accounting_features/models/account_move.py:0
+msgid ""
+"เลขที่ใบกำกับซื้อซ้ำ: คู่ค้ารายนี้มีใบแจ้งหนี้/ใบลดหนี้ที่ใช้เลขที่อ้างอิงนี้แล้วในบริษัทนี้\n"
+"Duplicate supplier reference: this partner already has a vendor bill or refund using this reference in this company."
+msgstr ""
+"เลขที่ใบกำกับซื้อซ้ำ: คู่ค้ารายนี้มีใบแจ้งหนี้/ใบลดหนี้ที่ใช้เลขที่อ้างอิงนี้แล้วในบริษัทนี้\n"
+"Duplicate supplier reference: this partner already has a vendor bill or refund using this reference in this company."
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.billing_note_document
+msgid "เลขที่ใบแจ้งหนี้ / Invoice No"
+msgstr "เลขที่ใบแจ้งหนี้ / Invoice No"
+
+#. module: od19_accounting_features
+#: model_terms:ir.ui.view,arch_db:od19_accounting_features.billing_note_document
+msgid "ใบวางบิล"
+msgstr "ใบวางบิล"
+
+#. module: od19_accounting_features
+#. odoo-python
+#: code:addons/od19_accounting_features/models/account_payment.py:0
+msgid ""
+"ไม่สามารถยืนยันการจ่ายชำระได้ เนื่องจากไม่พบการตั้งหนี้ (Vendor Bill)\n"
+"\n"
+"การจ่ายชำระฝั่งเจ้าหนี้ต้องอ้างอิงใบแจ้งหนี้ของผู้ขายที่ post แล้วเท่านั้น กรุณาใช้ปุ่ม \"ชำระเงิน\" (Register Payment) จากใบแจ้งหนี้ผู้ขาย\n"
+"\n"
+"Payment %(name)s (คู่ค้า: %(partner)s) ไม่ได้ผูกกับ Vendor Bill"
+msgstr ""
+"ไม่สามารถยืนยันการจ่ายชำระได้ เนื่องจากไม่พบการตั้งหนี้ (Vendor Bill)\n"
+"\n"
+"การจ่ายชำระฝั่งเจ้าหนี้ต้องอ้างอิงใบแจ้งหนี้ของผู้ขายที่ post แล้วเท่านั้น กรุณาใช้ปุ่ม \"ชำระเงิน\" (Register Payment) จากใบแจ้งหนี้ผู้ขาย\n"
+"\n"
+"Payment %(name)s (คู่ค้า: %(partner)s) ไม่ได้ผูกกับ Vendor Bill"

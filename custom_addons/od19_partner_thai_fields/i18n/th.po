@@ -1,0 +1,145 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* od19_partner_thai_fields
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-27 10:59+0000\n"
+"PO-Revision-Date: 2026-10-27 10:59+0000\n"
+"Last-Translator: The Auto-Info Co., Ltd.\n"
+"Language-Team: Thai\n"
+"Language: th\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#. module: od19_partner_thai_fields
+#: model:ir.model.fields,help:od19_partner_thai_fields.field_res_company__branch_code
+#: model:ir.model.fields,help:od19_partner_thai_fields.field_res_partner__branch_code
+#: model:ir.model.fields,help:od19_partner_thai_fields.field_res_users__branch_code
+msgid ""
+"5-digit branch code for Thai tax branch reporting. Use '00000' for head "
+"office."
+msgstr ""
+"รหัสสาขา 5 หลัก สำหรับรายงานสาขาเพื่อภาษีไทย ใช้ '00000' สำหรับสำนักงานใหญ่"
+
+#. module: od19_partner_thai_fields
+#: model:ir.model.fields,field_description:od19_partner_thai_fields.field_res_company__od19_amphoe
+#: model:ir.model.fields,field_description:od19_partner_thai_fields.field_res_partner__od19_amphoe
+#: model:ir.model.fields,field_description:od19_partner_thai_fields.field_res_users__od19_amphoe
+#: model_terms:ir.ui.view,arch_db:od19_partner_thai_fields.view_partner_form_thai_fields
+msgid "Amphoe / District"
+msgstr "อำเภอ / เขต"
+
+#. module: od19_partner_thai_fields
+#: model:ir.model.fields,field_description:od19_partner_thai_fields.field_res_company__branch_code
+#: model:ir.model.fields,field_description:od19_partner_thai_fields.field_res_partner__branch_code
+#: model:ir.model.fields,field_description:od19_partner_thai_fields.field_res_users__branch_code
+msgid "Branch Code"
+msgstr "รหัสสาขา"
+
+#. module: od19_partner_thai_fields
+#: model:ir.model,name:od19_partner_thai_fields.model_res_company
+msgid "Companies"
+msgstr "บริษัท"
+
+#. module: od19_partner_thai_fields
+#: model:ir.model,name:od19_partner_thai_fields.model_res_partner
+msgid "Contact"
+msgstr "ผู้ติดต่อ"
+
+#. module: od19_partner_thai_fields
+#: model:ir.model.fields,field_description:od19_partner_thai_fields.field_res_company__display_name
+#: model:ir.model.fields,field_description:od19_partner_thai_fields.field_res_partner__display_name
+msgid "Display Name"
+msgstr "ชื่อที่แสดง"
+
+#. module: od19_partner_thai_fields
+#: model:ir.model.fields,help:od19_partner_thai_fields.field_res_company__od19_amphoe
+#: model:ir.model.fields,help:od19_partner_thai_fields.field_res_partner__od19_amphoe
+#: model:ir.model.fields,help:od19_partner_thai_fields.field_res_users__od19_amphoe
+msgid "District (อำเภอ) or Khet (เขต) of the Thai address."
+msgstr "อำเภอ (District) หรือเขต (Khet) ของที่อยู่ไทย"
+
+#. module: od19_partner_thai_fields
+#: model:ir.model.fields,field_description:od19_partner_thai_fields.field_res_company__address_en
+#: model:ir.model.fields,field_description:od19_partner_thai_fields.field_res_partner__address_en
+#: model:ir.model.fields,field_description:od19_partner_thai_fields.field_res_users__address_en
+#: model_terms:ir.ui.view,arch_db:od19_partner_thai_fields.view_partner_form_thai_fields
+msgid "English Address"
+msgstr "ที่อยู่ภาษาอังกฤษ"
+
+#. module: od19_partner_thai_fields
+#: model:ir.model.fields,field_description:od19_partner_thai_fields.field_res_company__name_en
+#: model:ir.model.fields,field_description:od19_partner_thai_fields.field_res_partner__name_en
+#: model:ir.model.fields,field_description:od19_partner_thai_fields.field_res_users__name_en
+#: model_terms:ir.ui.view,arch_db:od19_partner_thai_fields.view_partner_form_thai_fields
+msgid "English Name"
+msgstr "ชื่อภาษาอังกฤษ"
+
+#. module: od19_partner_thai_fields
+#: model:ir.model.fields,field_description:od19_partner_thai_fields.field_res_company__fax
+#: model:ir.model.fields,field_description:od19_partner_thai_fields.field_res_partner__fax
+#: model:ir.model.fields,field_description:od19_partner_thai_fields.field_res_users__fax
+#: model_terms:ir.ui.view,arch_db:od19_partner_thai_fields.view_partner_form_thai_fields
+msgid "Fax"
+msgstr "แฟกซ์"
+
+#. module: od19_partner_thai_fields
+#: model:ir.model.fields,field_description:od19_partner_thai_fields.field_res_company__id
+#: model:ir.model.fields,field_description:od19_partner_thai_fields.field_res_partner__id
+msgid "ID"
+msgstr "ID"
+
+#. module: od19_partner_thai_fields
+#: model:ir.model.fields,help:od19_partner_thai_fields.field_res_company__tax_name
+#: model:ir.model.fields,help:od19_partner_thai_fields.field_res_partner__tax_name
+#: model:ir.model.fields,help:od19_partner_thai_fields.field_res_users__tax_name
+msgid ""
+"Name as shown on tax invoice (ใบกำกับภาษี). If empty, the partner name is "
+"used."
+msgstr "ชื่อที่แสดงบนใบกำกับภาษี หากว่างจะใช้ชื่อคู่ค้าแทน"
+
+#. module: od19_partner_thai_fields
+#: model:ir.model.fields,help:od19_partner_thai_fields.field_res_company__address_en
+#: model:ir.model.fields,help:od19_partner_thai_fields.field_res_partner__address_en
+#: model:ir.model.fields,help:od19_partner_thai_fields.field_res_users__address_en
+msgid "Partner address in English (for international shipping)."
+msgstr "ที่อยู่คู่ค้าภาษาอังกฤษ (สำหรับการจัดส่งระหว่างประเทศ)"
+
+#. module: od19_partner_thai_fields
+#: model:ir.model.fields,help:od19_partner_thai_fields.field_res_company__name_en
+#: model:ir.model.fields,help:od19_partner_thai_fields.field_res_partner__name_en
+#: model:ir.model.fields,help:od19_partner_thai_fields.field_res_users__name_en
+msgid "Partner name in English (for international correspondence)."
+msgstr "ชื่อคู่ค้าภาษาอังกฤษ (สำหรับการติดต่อระหว่างประเทศ)"
+
+#. module: od19_partner_thai_fields
+#: model:ir.model.fields,help:od19_partner_thai_fields.field_res_company__od19_subdistrict
+#: model:ir.model.fields,help:od19_partner_thai_fields.field_res_partner__od19_subdistrict
+#: model:ir.model.fields,help:od19_partner_thai_fields.field_res_users__od19_subdistrict
+msgid "Sub-district (ตำบล) or Khwaeng (แขวง) of the Thai address."
+msgstr "ตำบล (Sub-district) หรือแขวง (Khwaeng) ของที่อยู่ไทย"
+
+#. module: od19_partner_thai_fields
+#: model:ir.model.fields,field_description:od19_partner_thai_fields.field_res_company__od19_subdistrict
+#: model:ir.model.fields,field_description:od19_partner_thai_fields.field_res_partner__od19_subdistrict
+#: model:ir.model.fields,field_description:od19_partner_thai_fields.field_res_users__od19_subdistrict
+#: model_terms:ir.ui.view,arch_db:od19_partner_thai_fields.view_partner_form_thai_fields
+msgid "Subdistrict / Tambon"
+msgstr "ตำบล / แขวง"
+
+#. module: od19_partner_thai_fields
+#: model_terms:ir.ui.view,arch_db:od19_partner_thai_fields.view_partner_form_thai_fields
+msgid "Tax Invoice Name"
+msgstr "ชื่อในใบกำกับภาษี"
+
+#. module: od19_partner_thai_fields
+#: model:ir.model.fields,field_description:od19_partner_thai_fields.field_res_company__tax_name
+#: model:ir.model.fields,field_description:od19_partner_thai_fields.field_res_partner__tax_name
+#: model:ir.model.fields,field_description:od19_partner_thai_fields.field_res_users__tax_name
+msgid "Tax Name"
+msgstr "ชื่อทางภาษี"
