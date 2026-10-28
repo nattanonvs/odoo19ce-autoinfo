@@ -15,8 +15,10 @@ PDF/A-3 level B document:
   ``/AFRelationship /Data`` flag expected of an e-invoice payload.
 
 The source PDF comes from Odoo's own report engine, which embeds the fonts it
-renders with — a precondition of the profile — so this module only adds the
-archival metadata and the attachment.
+renders with — a precondition of the profile.  Those font dictionaries are not
+however always consistent with the embedded font program: ``wkhtmltopdf``
+rounds the glyph advances differently, which ISO 19005-3 clause 6.2.11.5
+rejects, so the ``/W`` arrays are recomputed from the font program itself.
 """
 
 import io
@@ -136,6 +138,66 @@ def _inject_extension_schema(pdf):
     stream.write(etree.tostring(root))
 
 
+def _normalise_glyph_widths(pdf):
+    """Rewrite the ``/W`` array of the embedded CID fonts.
+
+    ISO 19005-3 clause 6.2.11.5 requires the glyph widths declared in the font
+    dictionary to match the advances recorded in the embedded font program.
+    ``wkhtmltopdf`` (Qt) rounds them differently, so the widths are recomputed
+    from the font program exactly as Odoo's own ``convert_to_pdfa`` does::
+
+        width = round(1000 * font_glyph_width / font_units_per_em)
+
+    Only ``Type0``/``CIDFontType2`` (TrueType) fonts are handled, which is what
+    the report engine emits.  When ``fontTools`` is unavailable the document is
+    left untouched so the printable is still produced, and a warning is logged.
+    """
+    try:
+        import fontTools.ttLib
+    except ImportError:
+        _logger.warning(
+            "The fonttools package is not installed; the glyph widths declared "
+            "by the embedded fonts may not be consistent and the generated PDF "
+            "may not pass PDF/A-3 validation."
+        )
+        return
+    seen = set()
+    for page in pdf.pages:
+        fonts = page.get("/Resources", {}).get("/Font", None)
+        if fonts is None:
+            continue
+        for font in fonts.values():
+            if font.objgen in seen:
+                continue
+            seen.add(font.objgen)
+            if font.get("/Subtype") != "/Type0":
+                continue
+            for descendant in font.get("/DescendantFonts", []):
+                if descendant.get("/Subtype") != "/CIDFontType2":
+                    continue
+                font_file = descendant.get(
+                    "/FontDescriptor", {}
+                ).get("/FontFile2")
+                if font_file is None:
+                    continue
+                ttfont = fontTools.ttLib.TTFont(
+                    io.BytesIO(font_file.read_bytes())
+                )
+                units_per_em = ttfont["head"].unitsPerEm
+                glyph_set = ttfont.getGlyphSet()
+                # fontTools < 4.37.2 exposes the metrics through ``_hmtx``.
+                metrics = (
+                    getattr(glyph_set, "hMetrics", None)
+                    or glyph_set._hmtx.metrics
+                )
+                widths = [
+                    round(1000.0 * advance / units_per_em)
+                    for name, (advance, _lsb) in metrics.items()
+                    if name[:5] == "glyph"
+                ]
+                descendant["/W"] = pikepdf.Array([1, pikepdf.Array(widths)])
+
+
 def embed_xml(
     pdf_content,
     xml_content,
@@ -163,6 +225,7 @@ def embed_xml(
     with pikepdf.open(io.BytesIO(pdf_content)) as pdf:
         _set_output_intent(pdf)
         _set_metadata(pdf, title=title, description=description, creator=creator)
+        _normalise_glyph_widths(pdf)
         pdf.attachments[filename] = pikepdf.AttachedFileSpec(
             pdf,
             xml_content,

@@ -288,10 +288,93 @@ class TestOd19EtaxDocument(AccountTestInvoicingCommon):
         page.save()
         return buffer.getvalue()
 
+    @staticmethod
+    def _truetype_program(widths):
+        """Return a minimal TrueType program with the given glyph advances."""
+        from fontTools.fontBuilder import FontBuilder
+        from fontTools.pens.ttGlyphPen import TTGlyphPen
+
+        glyph_order = [".notdef"] + [
+            "glyph%05d" % index for index in range(1, len(widths) + 1)
+        ]
+        builder = FontBuilder(1000, isTTF=True)
+        builder.setupGlyphOrder(glyph_order)
+        builder.setupCharacterMap({})
+        pen = TTGlyphPen(None)
+        builder.setupGlyf(
+            {name: pen.glyph() for name in glyph_order}, calcGlyphBounds=False
+        )
+        builder.setupHorizontalMetrics(dict(zip(
+            glyph_order, [(width, 0) for width in [0] + list(widths)]
+        )))
+        builder.setupHorizontalHeader(ascent=800, descent=-200)
+        builder.setupNameTable({"familyName": "Od19Test", "styleName": "Regular"})
+        builder.setupOS2()
+        builder.setupPost()
+        buffer = io.BytesIO()
+        builder.save(buffer)
+        return buffer.getvalue()
+
+    def _pdf_with_embedded_cid_font(self, declared_widths):
+        """Return a PDF whose embedded CIDFont declares a wrong ``/W``."""
+        import pikepdf
+
+        pdf = pikepdf.new()
+        page = pdf.add_blank_page(page_size=(200, 200))
+        stream = pikepdf.Stream(pdf, self._truetype_program([600, 1200]))
+        descriptor = pdf.make_indirect(pikepdf.Dictionary(
+            Type=pikepdf.Name("/FontDescriptor"),
+            FontName=pikepdf.Name("/Od19Test"),
+            Flags=4,
+            FontBBox=pikepdf.Array([0, 0, 1000, 1000]),
+            ItalicAngle=0,
+            Ascent=800,
+            Descent=-200,
+            CapHeight=700,
+            StemV=80,
+            FontFile2=stream,
+        ))
+        descendant = pdf.make_indirect(pikepdf.Dictionary(
+            Type=pikepdf.Name("/Font"),
+            Subtype=pikepdf.Name("/CIDFontType2"),
+            BaseFont=pikepdf.Name("/Od19Test"),
+            FontDescriptor=descriptor,
+            W=pikepdf.Array([1, pikepdf.Array(declared_widths)]),
+            DW=1000,
+        ))
+        font = pdf.make_indirect(pikepdf.Dictionary(
+            Type=pikepdf.Name("/Font"),
+            Subtype=pikepdf.Name("/Type0"),
+            BaseFont=pikepdf.Name("/Od19Test"),
+            Encoding=pikepdf.Name("/Identity-H"),
+            DescendantFonts=pikepdf.Array([descendant]),
+        ))
+        page.obj["/Resources"] = pikepdf.Dictionary(
+            Font=pikepdf.Dictionary(F1=font)
+        )
+        buffer = io.BytesIO()
+        pdf.save(buffer)
+        pdf.close()
+        return buffer.getvalue()
+
     def test_pdf_embed_round_trip(self):
         xml = b"<?xml version='1.0' encoding='UTF-8'?><root/>"
         embedded = pdf_embed.embed_xml(self._source_pdf(), xml, "etax.xml")
         self.assertEqual(pdf_embed.extract_xml(embedded, "etax.xml"), xml)
+
+    def test_glyph_widths_match_the_font_program(self):
+        """ISO 19005-3 6.2.11.5: ``/W`` must match the embedded font program.
+
+        ``wkhtmltopdf`` rounds the glyph advances differently, which PDF/A
+        validators reject, so :func:`embed_xml` recomputes the array.
+        """
+        import pikepdf
+
+        source = self._pdf_with_embedded_cid_font([111, 222])
+        embedded = pdf_embed.embed_xml(source, b"<root/>", "etax.xml")
+        with pikepdf.open(io.BytesIO(embedded)) as pdf:
+            descendant = pdf.pages[0].Resources.Font.F1.DescendantFonts[0]
+            self.assertEqual(list(descendant.W[1]), [600, 1200])
 
     def test_pdf_is_pdfa3_and_carries_the_xml(self):
         import pikepdf
