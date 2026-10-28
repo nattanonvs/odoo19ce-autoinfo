@@ -6,7 +6,7 @@ CONFIGURATION_MENU_LABELS = ("Configuration", "ตั้งค่า", "กา�
 
 # Order of the apps in the app switcher, grouped by business flow so that apps
 # used together sit next to each other: front office (Discuss -> CRM -> Sales),
-# finance, marketing, supply chain, projects, HR, website and finally the
+# accounting, marketing, supply chain, projects, HR, website and finally the
 # internal tools. Apps of modules that are not installed are skipped, so the
 # list may safely reference optional modules.
 APP_MENU_ORDER = (
@@ -17,7 +17,7 @@ APP_MENU_ORDER = (
     "crm.crm_menu_root",
     "sale.sale_menu_root",
     "point_of_sale.menu_point_root",
-    # Finance and analytics
+    # Accounting and analytics (the account app is displayed as "Accounting")
     "account.menu_finance",
     "spreadsheet_dashboard.spreadsheet_dashboard_menu_root",
     # Marketing and engagement
