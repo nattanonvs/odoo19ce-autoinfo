@@ -181,30 +181,38 @@ class EtaxXmlBuilder:
     # ------------------------------------------------------------------
     def _build_document(self, root):
         doc = self.document
+        # Neither the generic ETDA profile (the Invoice family) nor the minimal
+        # CancellationNote profile declares the Thai ``PurposeCode`` list; the
+        # cancellation note carries its reason through ``IncludedNote`` instead.
+        generic = namespaces.uses_generic_profile(self.type_key)
+        minimal = namespaces.uses_minimal_profile(self.type_key)
         node = _el(root, self.rsm, "ExchangedDocument")
         _el(node, self.ram, "ID", _text(doc.name or self.move.name, 35))
         _el(
             node, self.ram, "Name",
             _text(namespaces.document_name(self.type_key, self.move.dncn), 35),
         )
+        list_id, list_agency = namespaces.type_code_list_ids(self.type_key)
         _el(
             node, self.ram, "TypeCode", doc.type_code or self.spec["type_code"],
-            {"listID": "1001_ThaiDocumentNameCodeInvoice", "listAgencyID": "RD/ETDA"},
+            {"listID": list_id, "listAgencyID": list_agency},
         )
         _el(
             node, self.ram, "IssueDateTime",
             formats.format_datetime(doc.issue_datetime or self.move.invoice_date, self.tz),
         )
-        _el(node, self.ram, "PurposeCode", doc.purpose_code or self.spec["purpose_code"])
+        if not generic and not minimal:
+            _el(node, self.ram, "PurposeCode", doc.purpose_code or self.spec["purpose_code"])
         if doc.global_id:
             _el(
                 node, self.ram, "GlobalID", _text(doc.global_id, 70),
                 {"schemeID": "OID", "schemeAgencyID": "ETDA"},
             )
-        _el(
-            node, self.ram, "CreationDateTime",
-            formats.format_datetime(doc.create_date, self.tz),
-        )
+        if not generic:
+            _el(
+                node, self.ram, "CreationDateTime",
+                formats.format_datetime(doc.create_date, self.tz),
+            )
         note = doc.get_note_text()
         if note:
             note_node = _el(node, self.ram, "IncludedNote")
@@ -217,6 +225,11 @@ class EtaxXmlBuilder:
     def _build_transaction(self, root):
         txn = _el(root, self.rsm, "SupplyChainTradeTransaction")
         self._build_agreement(txn)
+        # The minimal CancellationNote profile only carries the header
+        # agreement and the settlement: there is no delivery and no line item.
+        if namespaces.uses_minimal_profile(self.type_key):
+            self._build_settlement(txn)
+            return
         self._build_delivery(txn)
         self._build_settlement(txn)
         self._build_lines(txn)
@@ -224,6 +237,12 @@ class EtaxXmlBuilder:
     def _build_agreement(self, txn):
         agreement = _el(txn, self.ram, "ApplicableHeaderTradeAgreement")
         self._build_party(agreement, "SellerTradeParty", self.seller, is_seller=True)
+        # The CancellationNote profile declares only the seller and the
+        # referenced original document, so the buyer is omitted and the
+        # reference is emitted right after the seller.
+        if namespaces.uses_minimal_profile(self.type_key):
+            self._build_references(agreement)
+            return
         if namespaces.omits_buyer_party(self.type_key):
             return
         self._build_party(agreement, "BuyerTradeParty", self.buyer)
@@ -232,36 +251,51 @@ class EtaxXmlBuilder:
     def _build_references(self, agreement):
         move = self.move
         origin = _text(move.ref or move.invoice_origin, 35)
-        if origin:
+        if origin and not namespaces.uses_minimal_profile(self.type_key):
             ref = _el(agreement, self.ram, "BuyerOrderReferencedDocument")
             _el(ref, self.ram, "IssuerAssignedID", origin)
         reference = self._referenced_document()
         if reference:
-            name, type_code = reference
+            name, type_code, issued = reference
             ref = _el(agreement, self.ram, "AdditionalReferencedDocument")
             _el(ref, self.ram, "IssuerAssignedID", name)
+            if namespaces.uses_minimal_profile(self.type_key):
+                _el(ref, self.ram, "IssueDateTime",
+                    formats.format_datetime(issued, self.tz))
             _el(ref, self.ram, "ReferenceTypeCode", type_code)
 
     def _referenced_document(self):
-        """Return ``(name, type_code)`` of the document this one refers to.
+        """Return ``(name, type_code, issue_datetime)`` of the referenced document.
 
         Debit and credit notes (and cancellation notes) must always carry an
         ``AdditionalReferencedDocument``, so the note's own reference is used
-        as a last resort when the source document is not linked.
+        as a last resort when the source document is not linked. The issue date
+        is required by the minimal CancellationNote profile.
         """
         source = self.document.source_document_id
         if source and source.name:
+            source_move = source.move_id
             return (
                 _text(source.name, 35),
                 source.type_code or namespaces.REFERENCE_TYPE_TAX_INVOICE,
+                source.issue_datetime
+                or (source_move and (source_move.invoice_date or source_move.date)),
             )
         origin = self.move.reversed_entry_id
         if origin and origin.name:
-            return _text(origin.name, 35), namespaces.REFERENCE_TYPE_TAX_INVOICE
+            return (
+                _text(origin.name, 35),
+                namespaces.REFERENCE_TYPE_TAX_INVOICE,
+                origin.invoice_date or origin.date,
+            )
         if namespaces.requires_original_reference(self.type_key):
             name = _text(self.move.name, 35)
             if name:
-                return name, namespaces.REFERENCE_TYPE_TAX_INVOICE
+                return (
+                    name,
+                    namespaces.REFERENCE_TYPE_TAX_INVOICE,
+                    self.move.invoice_date or self.move.date,
+                )
         return None
 
     def _build_party(self, parent, tag, partner, is_seller=False):
@@ -348,6 +382,11 @@ class EtaxXmlBuilder:
 
     def _build_settlement(self, txn):
         settlement = _el(txn, self.ram, "ApplicableHeaderTradeSettlement")
+        # The CancellationNote profile reports the issuing party only: there is
+        # no currency, no tax and no monetary summation.
+        if namespaces.uses_minimal_profile(self.type_key):
+            self._build_party(settlement, "InvoicerTradeParty", self.seller, is_seller=True)
+            return
         _el(
             settlement, self.ram, "InvoiceCurrencyCode",
             self.move.currency_id.name or "THB",

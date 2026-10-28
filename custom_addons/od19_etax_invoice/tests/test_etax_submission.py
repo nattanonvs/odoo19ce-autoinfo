@@ -43,6 +43,8 @@ class TestOd19EtaxSubmission(AccountTestInvoicingCommon):
         cls.certificate.action_verify()
         cls.company.od19_etax_certificate_id = cls.certificate.id
         cls.company.od19_etax_enabled = True
+        # A Thai e-Tax issuer must bear a tax registration.
+        cls.company.vat = "0105558000014"
 
     @classmethod
     def setup_independent_user(cls):

@@ -74,6 +74,10 @@ class TestOd19EtaxDocument(AccountTestInvoicingCommon):
         cls.certificate.action_verify()
         cls.company.od19_etax_certificate_id = cls.certificate.id
         cls.company.od19_etax_enabled = True
+        # The seller must bear a Thai tax registration: the minimal
+        # CancellationNote profile requires ``SpecifiedTaxRegistration`` on the
+        # seller and the invoicer parties.
+        cls.company.vat = "0105558000014"
 
     @classmethod
     def setup_independent_user(cls):
@@ -182,6 +186,38 @@ class TestOd19EtaxDocument(AccountTestInvoicingCommon):
                 [],
                 "XSD validation failed for %s" % document_type,
             )
+
+    def test_type_code_list_attributes_follow_the_family_profile(self):
+        """The Thai families publish the Thai code list; the Invoice does not.
+
+        ETDA only ships the Invoice (380) family as the generic 2015 profile:
+        ``InvoiceDocumentCodeType`` fixes ``@listID`` to ``1001_Invoice`` and
+        ``@listAgencyID`` to ``6``, and ``ExchangedDocument`` declares neither
+        ``PurposeCode`` nor ``CreationDateTime``.
+        """
+        tax_invoice = self._create_document()
+        tax_invoice.action_generate_xml()
+        rsm = namespaces.rsm_namespace("tax_invoice")
+        ram = namespaces.ram_namespace("tax_invoice")
+        node = self._parse(tax_invoice.xml_file).find("{%s}ExchangedDocument" % rsm)
+        type_code = node.find("{%s}TypeCode" % ram)
+        self.assertEqual(type_code.get("listID"), "1001_ThaiDocumentNameCodeInvoice")
+        self.assertEqual(type_code.get("listAgencyID"), "RD/ETDA")
+        self.assertIsNotNone(node.find("{%s}PurposeCode" % ram))
+
+        document = self._create_document(document_type="invoice")
+        document.action_generate_xml()
+        tree = self._parse(document.xml_file)
+        self.assertEqual(validator.validate(tree, "invoice"), [])
+        rsm = namespaces.rsm_namespace("invoice")
+        ram = namespaces.ram_namespace("invoice")
+        node = tree.find("{%s}ExchangedDocument" % rsm)
+        type_code = node.find("{%s}TypeCode" % ram)
+        self.assertEqual(type_code.text, "380")
+        self.assertEqual(type_code.get("listID"), "1001_Invoice")
+        self.assertEqual(type_code.get("listAgencyID"), "6")
+        self.assertIsNone(node.find("{%s}PurposeCode" % ram))
+        self.assertIsNone(node.find("{%s}CreationDateTime" % ram))
 
     def test_only_customer_documents_allowed(self):
         bill = self.env["account.move"].create({

@@ -170,6 +170,29 @@ _ORIGINAL_REFERENCE_REQUIRED = frozenset({"debit_credit_note", "cancellation_not
 #: referenced-document elements, so they must never be emitted.
 _BUYER_PARTY_OMITTED = frozenset({"abbreviated_tax_invoice"})
 
+#: Document families backed by the minimal CancellationNote (ใบแจ้งยกเลิก)
+#: profile, which differs strongly from the other five. Its
+#: ``SupplyChainTradeTransaction`` carries only the header agreement (the
+#: seller plus the referenced original document) and the settlement (the
+#: invoicer): there is no delivery, no line item, no currency, no tax and no
+#: monetary summation. Its ``ExchangedDocument`` also replaces the Thai
+#: ``PurposeCode`` with the free text ``Purpose``.
+_MINIMAL_PROFILE = frozenset({"cancellation_note"})
+
+#: Document families whose bundled ETDA schema is the generic UN/CEFACT
+#: CrossIndustryInvoice 9.1 profile rather than the Thai ขมธอ.3-2560 profile.
+#: ETDA only publishes the Invoice family (380, ใบแจ้งหนี้) as the 2015 generic
+#: schema (``Invoice_QualifiedDataType_1p0.xsd``): its ``InvoiceDocumentCodeType``
+#: fixes ``@listID`` to ``1001_Invoice`` and ``@listAgencyID`` to ``6``, and its
+#: ``ExchangedDocument`` declares neither ``CreationDateTime`` nor the Thai
+#: ``PurposeCode`` list. ``Invoice_Schematron_2p0.sch`` confirms the intent with
+#: a single ``TypeCode = 380`` rule.
+_GENERIC_PROFILE = frozenset({"invoice"})
+
+#: ``listID`` / ``listAgencyID`` attributes of ``ExchangedDocument/TypeCode``.
+THAI_TYPE_CODE_LIST = ("1001_ThaiDocumentNameCodeInvoice", "RD/ETDA")
+GENERIC_TYPE_CODE_LIST = ("1001_Invoice", "6")
+
 #: UN/ECE 1153 reference type code of the original tax invoice.
 REFERENCE_TYPE_TAX_INVOICE = "388"
 
@@ -222,6 +245,23 @@ def requires_original_reference(document_type):
 def omits_buyer_party(document_type):
     """Return ``True`` when the family must not emit ``BuyerTradeParty``."""
     return document_type in _BUYER_PARTY_OMITTED
+
+
+def uses_generic_profile(document_type):
+    """Return ``True`` when the bundled ETDA schema is the generic profile."""
+    return document_type in _GENERIC_PROFILE
+
+
+def uses_minimal_profile(document_type):
+    """Return ``True`` when the family uses the minimal CancellationNote shape."""
+    return document_type in _MINIMAL_PROFILE
+
+
+def type_code_list_ids(document_type):
+    """Return the ``(listID, listAgencyID)`` of ``ExchangedDocument/TypeCode``."""
+    if uses_generic_profile(document_type):
+        return GENERIC_TYPE_CODE_LIST
+    return THAI_TYPE_CODE_LIST
 
 
 def rsm_namespace(document_type):
