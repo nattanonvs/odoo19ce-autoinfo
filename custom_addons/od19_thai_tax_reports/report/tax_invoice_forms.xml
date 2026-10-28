@@ -142,6 +142,7 @@
 
     <record id="action_od19_abbreviated_tax_invoice" model="ir.actions.report">
         <field name="name">ใบกำกับภาษีอย่างย่อ / Abbreviated Tax Invoice</field>
+        <field name="help">พิมพ์ใบกำกับภาษีอย่างย่อบนกระดาษตามมาตรา 86/6 สำหรับการขายปลีกให้ผู้ซื้อที่ไม่ได้จดทะเบียน VAT — เอกสารทางอิเล็กทรอนิกส์ (เอกสาร ขมธอ.3-2560 ประเภทใบกำกับภาษีอย่างย่อ, TypeCode T05) ที่ลงลายมือชื่อดิจิทัลและฝังใน PDF/A-3 ให้ออกผ่านแอป e-Tax Invoice บนรายการเดียวกัน โดยเลือก Document Type = "ใบกำกับภาษีอย่างย่อ (Abbreviated Tax Invoice)"</field>
         <field name="model">account.move</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">od19_thai_tax_reports.abbreviated_tax_invoice_document</field>
