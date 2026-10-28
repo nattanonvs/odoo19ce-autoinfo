@@ -27,6 +27,11 @@ registry.category("web_tour.tours").add("od19_warranty_tour", {
             tooltipPosition: "bottom",
             run: "click",
         },
+        // Wait for the warranty-claim list to be mounted before creating a
+        // record, otherwise "New" would target the Repairs default list.
+        {
+            trigger: ".o_list_renderer, .o_kanban_renderer",
+        },
         {
             trigger: ".o_list_button_add",
             content: _t("Create a new warranty claim."),
@@ -34,7 +39,7 @@ registry.category("web_tour.tours").add("od19_warranty_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='claim_date'] .o_input",
+            trigger: ".o_field_widget[name='claim_date'] input, .o_field_widget[name='claim_date'] .o_input",
             content: _t("Set the claim date."),
         },
         {
@@ -43,7 +48,7 @@ registry.category("web_tour.tours").add("od19_warranty_tour", {
             run: "edit Tesla",
         },
         {
-            trigger: ".o-autocomplete--dropdown-item:contains('Tesla, Inc.')",
+            trigger: ".o-autocomplete--dropdown-item:contains('Tesla')",
             content: _t("Pick the customer from the suggestion list."),
             run: "click",
         },

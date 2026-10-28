@@ -50,14 +50,20 @@ registry.category("web_tour.tours").add("od19_hr_expense_enhanced_tour", {
             run: "click",
         },
         {
-            trigger: ".o-autocomplete--dropdown-item:first",
+            trigger: ".o-autocomplete--dropdown-menu:not(.o_loading) .o-autocomplete--dropdown-item:first-child",
             content: _t("Pick the first available expense category."),
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='total_amount_currency'] input",
-            content: _t("Enter the amount."),
-            run: "edit 3000",
+            trigger: ".o_field_widget[name='quantity'] input",
+            content: markup(_t("Set the <b>quantity</b>; the total amount is computed automatically.")),
+            run: "edit 1",
+        },
+        {
+            trigger: ".o_field_widget[name='total_amount']",
+            content: markup(_t(
+                "The <b>total amount</b> is computed from quantity × unit price."
+            )),
         },
         {
             trigger: ".o_field_widget[name='first_approver_id'] input",
@@ -115,6 +121,19 @@ registry.category("web_tour.tours").add("od19_hr_expense_enhanced_tour", {
             trigger: "footer button[special='cancel']",
             content: _t("Cancel here to keep the demo data unchanged."),
             run: "click",
+        },
+        // Recording the cash return raises an "Invalid Operation" dialog when
+        // no journal is configured. Close it so the delegation steps below are
+        // not blocked by a lingering modal (gated on the happy path).
+        {
+            isActive: [".o_error_dialog"],
+            trigger: ".o_error_dialog button:contains('Close'), .o_dialog button:contains('Close'), .o_dialog .btn-close",
+            content: markup(_t("Close the warning dialog.")),
+            tooltipPosition: "left",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view:not(:has(.modal))",
         },
 
         // --- Delegation ---

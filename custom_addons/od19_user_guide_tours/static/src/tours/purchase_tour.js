@@ -42,19 +42,25 @@ registry.category("web_tour.tours").add("od19_purchase_approval_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='vendor_id'] input",
+            trigger: ".o_field_widget[name='od19_vendor_ref'] input",
             content: _t("Select the vendor."),
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='od19_entry_mode'] .o_select_menu_toggler",
+            trigger: ".o_field_widget[name='od19_priority'] .o_select_menu_toggler",
             content: markup(_t(
-                "Choose the <b>Entry Mode</b>: manual, from PR, or from SO."
+                "Set the <b>Priority</b> (Normal, Urgent, Emergency) to flag how quickly " +
+                "this purchase request must be handled."
             )),
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='line_ids'] .o_field_x2many_list_row_add",
+            trigger: ".o_select_menu_item:first",
+            content: _t("Pick the priority for the requisition."),
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='line_ids'] .o_field_x2many_list_row_add a",
             content: _t("Add a product line to the requisition."),
             run: "click",
         },
@@ -70,17 +76,17 @@ registry.category("web_tour.tours").add("od19_purchase_approval_tour", {
         },
         ...stepUtils.saveForm(),
         {
-            trigger: "button[name='action_od19_submit_for_approval']",
+            trigger: "button[name='button_to_approve']",
             content: markup(_t(
-                "Click <b>Submit for Approval</b>. <b>Every PR must be approved</b> before it can be used."
+                "Click <b>Request approval</b>. <b>Every PR must be approved</b> before it can be used."
             )),
             tooltipPosition: "left",
             run: "click",
         },
         {
-            trigger: "button[name='action_od19_approve']",
+            trigger: "button[name='button_approved']",
             content: markup(_t(
-                "The Purchase Manager clicks <b>Approve</b> to validate the PR."
+                "The Purchase Request Manager clicks <b>Approve</b> to validate the PR."
             )),
             tooltipPosition: "left",
             run: "click",
@@ -117,7 +123,7 @@ registry.category("web_tour.tours").add("od19_purchase_approval_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='order_line'] .o_field_x2many_list_row_add",
+            trigger: ".o_field_widget[name='order_line'] .o_field_x2many_list_row_add a",
             content: _t("Add a product line to the PO."),
             run: "click",
         },

@@ -88,7 +88,15 @@ registry.category("web_tour.tours").add("od19_knowledge_tour", {
             content: markup(_t("Describe the change summary for this revision.")),
             run: "edit Initial revision",
         },
-        ...stepUtils.saveForm(),
+        {
+            trigger: ".o_field_widget[name='content']",
+            content: markup(_t(
+                "The <b>article content</b> is written in the dedicated full-page editor " +
+                "(not inline) and is required before the article can be saved."
+            )),
+        },
+        // The content cannot be filled from the tour (it opens a dedicated editor),
+        // so we discard the draft instead of saving an invalid article.
         ...stepUtils.discardForm(),
 
         // --- Full-text search ---

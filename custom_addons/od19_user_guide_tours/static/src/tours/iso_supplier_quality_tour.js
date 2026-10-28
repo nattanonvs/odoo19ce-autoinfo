@@ -49,7 +49,7 @@ registry.category("web_tour.tours").add("od19_iso_supplier_quality_tour", {
             run: "edit Tesla",
         },
         {
-            trigger: ".o-autocomplete--dropdown-item:contains('Tesla, Inc.')",
+            trigger: ".o-autocomplete--dropdown-item:contains('Tesla')",
             run: "click",
         },
         ...stepUtils.saveForm(),

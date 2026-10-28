@@ -31,18 +31,21 @@ registry.category("web_tour.tours").add("od19_stock_picking_features_tour", {
             run: "click",
         },
         {
-            trigger: ".o_list_renderer .o_data_row:first",
+            trigger: ".o_list_renderer .o_data_row:first .o_data_cell:first",
             content: markup(_t("Open a transfer to see the extra fields and tab.")),
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='od19_sale_user_id']",
+            trigger: ".o_form_view",
+        },
+        {
+            trigger: ".o_field_widget[name='od19_sale_user_id'], .o_field_widget[name='od19_dept_manager_id'], .o_field_widget[name='origin']",
             content: markup(_t(
                 "The <b>Salesperson</b> (od19_sale_user_id) and the <b>Department Manager</b> " +
                 "(od19_dept_manager_id) form the signature chain printed on the transfer document. " +
-                "They are locked once the transfer is done or cancelled."
+                "They are resolved automatically from the linked sale order / Source Document, " +
+                "and are locked once the transfer is done or cancelled."
             )),
-            run: "click",
         },
         {
             trigger: "a.nav-link:contains('Additional Lines')",
@@ -53,7 +56,7 @@ registry.category("web_tour.tours").add("od19_stock_picking_features_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='od19_additional_line_ids'] .o_field_x2many_list_row_add",
+            trigger: ".o_field_widget[name='od19_additional_line_ids'] .o_field_x2many_list_row_add a",
             content: markup(_t("Click <b>Add a Line</b> to insert an additional print line.")),
             run: "click",
         },

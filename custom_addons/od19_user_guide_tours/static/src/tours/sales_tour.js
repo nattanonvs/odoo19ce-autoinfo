@@ -60,6 +60,34 @@ registry.category("web_tour.tours").add("od19_sales_contract_billing_tour", {
             content: _t("Pick the project from the suggestion list."),
             run: "click",
         },
+        // The Project field is required: when no project matches, picking a
+        // suggestion opens a "Create Project" dialog (the full project form) whose
+        // Name **and** Job Number are required. Fill both then save, otherwise the
+        // dialog stays open on a validation error and blocks every field below.
+        {
+            isActive: [".o_dialog .o_field_widget[name='name'] input"],
+            trigger: ".o_dialog .o_field_widget[name='name'] input",
+            content: markup(_t("Name the <b>Project</b> created from the contract.")),
+            run: `edit Contract Project ${Date.now()}`,
+        },
+        {
+            isActive: [".o_dialog .o_field_widget[name='job_no'] input"],
+            trigger: ".o_dialog .o_field_widget[name='job_no'] input",
+            content: markup(_t(
+                "Set the <b>Job Number</b> of the new project (required and unique)."
+            )),
+            run: `edit JOB-${Date.now()}`,
+        },
+        {
+            isActive: [".o_dialog .o_form_button_save, .o_dialog footer .btn-primary"],
+            trigger: ".o_dialog .o_form_button_save, .o_dialog footer .btn-primary",
+            content: markup(_t("Save the <b>Project</b> created from the contract.")),
+            tooltipPosition: "left",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.o_dialog .o_form_view))",
+        },
         {
             trigger: ".o_field_widget[name='limit_amount'] input",
             content: markup(_t(

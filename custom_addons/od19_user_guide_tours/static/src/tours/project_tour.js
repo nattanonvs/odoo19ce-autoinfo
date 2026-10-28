@@ -11,6 +11,14 @@ import { markup } from "@odoo/owl";
  *  2. Setting Job Type, Department, Project Owner, and Contractors
  *  3. Linking analytic account for P&L tracking
  *  4. The project context hierarchy (Owner → Project → Contractor → Contract)
+ *
+ * Implementation note: the "New" button of the Projects *kanban* opens the
+ * simplified "Create a Project" dialog (project_project_view_form_simplified_footer),
+ * whose only action button is `action_view_tasks` (class `o_open_tasks`). That
+ * button saves the project **and jumps straight to its Tasks view**, so the full
+ * project form is never displayed. The tour therefore switches to the list view
+ * first: the list "New" button opens the regular project form (project.edit_project)
+ * where Job Number, Project Type, Department, Owner and Contractors live.
  */
 registry.category("web_tour.tours").add("od19_project_analytic_tour", {
     url: "/odoo",
@@ -21,19 +29,17 @@ registry.category("web_tour.tours").add("od19_project_analytic_tour", {
                 "Let's set up a <b>Project</b> with a <b>Job Number</b> to track P&amp;L per project."
             ))
         ),
-
         {
-            trigger: ".o-kanban-button-new",
-            content: _t("Create a new project."),
+            trigger: ".o_cp_switch_buttons button.o_switch_view.o_list",
+            content: _t("Switch to the list view so a new project opens in its full form."),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='job_no'] input",
-            content: markup(_t(
-                "Enter the <b>Job Number</b> (e.g. JOB-2026-001). This is the unique identifier for the project."
-            )),
-            run: "edit JOB-2026-001",
+            trigger: ".o_list_button_add",
+            content: _t("Create a new project."),
+            tooltipPosition: "bottom",
+            run: "click",
         },
         {
             trigger: ".o_field_widget[name='name'] input",
@@ -41,8 +47,20 @@ registry.category("web_tour.tours").add("od19_project_analytic_tour", {
             run: "edit Building A Construction",
         },
         {
+            trigger: ".o_field_widget[name='job_no'] input",
+            content: markup(_t(
+                "Enter the <b>Job Number</b> (e.g. JOB-2026-001). This is the unique identifier for the project."
+            )),
+            run: `edit JOB-${Date.now()}`,
+        },
+        {
             trigger: ".o_field_widget[name='partner_id'] input",
             content: _t("Select the customer (commercial customer)."),
+            run: "click",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:first",
+            content: _t("Pick the customer from the suggestion list."),
             run: "click",
         },
         {
@@ -76,14 +94,13 @@ registry.category("web_tour.tours").add("od19_project_analytic_tour", {
         ...stepUtils.discardForm(),
 
         {
-            trigger: ".o_kanban_view, .o_list_view",
+            trigger: ".o_list_view, .o_kanban_view",
             content: markup(_t(
                 "Project setup complete! The hierarchy is: " +
                 "<b>1 Project Owner → Many Projects → Many Contractors → Many Contracts</b>. " +
                 "Each project has a unique <b>Job Number</b> and an analytic account to track " +
                 "revenue, costs, and profit per project."
             )),
-            run: "click",
         },
     ],
 });

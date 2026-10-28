@@ -57,9 +57,18 @@ registry.category("web_tour.tours").add("od19_hr_expense_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='total_amount_currency'] input",
-            content: _t("Enter the total amount."),
-            run: "edit 500",
+            trigger: ".o_field_widget[name='quantity'] input",
+            content: markup(_t(
+                "Set the <b>quantity</b> (and unit price); the expense <b>total amount</b> is " +
+                "computed automatically from both."
+            )),
+            run: "edit 1",
+        },
+        {
+            trigger: ".o_field_widget[name='total_amount']",
+            content: markup(_t(
+                "The <b>total amount</b> is a computed, read-only field: quantity x unit price."
+            )),
         },
         {
             trigger: ".o_field_widget[name='payment_mode'] .o_radio_input[data-value='own_account']",

@@ -55,21 +55,25 @@ registry.category("web_tour.tours").add("od19_thai_tax_reports_tour", {
             tooltipPosition: "left",
             run: "click",
         },
-        // Printing leaves the wizard and an error dialog open when the report
-        // cannot be produced, blocking the navbar. Close them (when present).
+        // Printing may leave an error dialog and/or the "Configure your
+        // document layout" configurator open, which blocks the navbar. Close
+        // whichever appears (gated so the happy path is not affected).
         {
-            trigger: ".o_error_dialog .modal-footer .o-default-button",
+            isActive: [".o_error_dialog"],
+            trigger: ".o_error_dialog button:contains('Close'), .o_error_dialog .btn-close, .o_error_dialog .btn-primary",
             content: markup(_t("Close the warning dialog.")),
             tooltipPosition: "left",
             run: "click",
-            timeout: 20000,
         },
         {
-            trigger: ".o_dialog .modal-footer .btn-secondary",
-            content: markup(_t("Close the report wizard.")),
+            isActive: [".o_dialog:has(.o_document_layout)"],
+            trigger: ".o_dialog .modal-header .btn-close, .o_dialog footer button[special='cancel'], .o_dialog .o_form_button_cancel",
+            content: markup(_t("Close the document layout configurator without saving.")),
             tooltipPosition: "left",
             run: "click",
-            timeout: 20000,
+        },
+        {
+            trigger: ".o_form_view:not(:has(.modal)), .o_list_view:not(:has(.modal))",
         },
 
         // --- VAT Purchase Register ---
@@ -99,19 +103,25 @@ registry.category("web_tour.tours").add("od19_thai_tax_reports_tour", {
             tooltipPosition: "left",
             run: "click",
         },
+        // Printing may leave an error dialog and/or the "Configure your
+        // document layout" configurator open, which blocks the navbar. Close
+        // whichever appears (gated so the happy path is not affected).
         {
-            trigger: ".o_error_dialog .modal-footer .o-default-button",
+            isActive: [".o_error_dialog"],
+            trigger: ".o_error_dialog button:contains('Close'), .o_error_dialog .btn-close, .o_error_dialog .btn-primary",
             content: markup(_t("Close the warning dialog.")),
             tooltipPosition: "left",
             run: "click",
-            timeout: 20000,
         },
         {
-            trigger: ".o_dialog .modal-footer .btn-secondary",
-            content: markup(_t("Close the report wizard.")),
+            isActive: [".o_dialog:has(.o_document_layout)"],
+            trigger: ".o_dialog .modal-header .btn-close, .o_dialog footer button[special='cancel'], .o_dialog .o_form_button_cancel",
+            content: markup(_t("Close the document layout configurator without saving.")),
             tooltipPosition: "left",
             run: "click",
-            timeout: 20000,
+        },
+        {
+            trigger: ".o_form_view:not(:has(.modal)), .o_list_view:not(:has(.modal))",
         },
 
         // --- WHT Register ---
@@ -141,19 +151,25 @@ registry.category("web_tour.tours").add("od19_thai_tax_reports_tour", {
             tooltipPosition: "left",
             run: "click",
         },
+        // Printing may leave an error dialog and/or the "Configure your
+        // document layout" configurator open, which blocks the navbar. Close
+        // whichever appears (gated so the happy path is not affected).
         {
-            trigger: ".o_error_dialog .modal-footer .o-default-button",
+            isActive: [".o_error_dialog"],
+            trigger: ".o_error_dialog button:contains('Close'), .o_error_dialog .btn-close, .o_error_dialog .btn-primary",
             content: markup(_t("Close the warning dialog.")),
             tooltipPosition: "left",
             run: "click",
-            timeout: 20000,
         },
         {
-            trigger: ".o_dialog .modal-footer .btn-secondary",
-            content: markup(_t("Close the report wizard.")),
+            isActive: [".o_dialog:has(.o_document_layout)"],
+            trigger: ".o_dialog .modal-header .btn-close, .o_dialog footer button[special='cancel'], .o_dialog .o_form_button_cancel",
+            content: markup(_t("Close the document layout configurator without saving.")),
             tooltipPosition: "left",
             run: "click",
-            timeout: 20000,
+        },
+        {
+            trigger: ".o_form_view:not(:has(.modal)), .o_list_view:not(:has(.modal))",
         },
 
         {

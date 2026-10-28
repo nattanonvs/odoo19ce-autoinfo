@@ -63,9 +63,32 @@ registry.category("web_tour.tours").add("od19_fleet_accounting_tour", {
             run: "click",
         },
         {
-            trigger: ".o_kanban_record:first",
-            content: markup(_t("Open a vehicle to set its accounting information.")),
+            trigger: ".o_switch_view.o_list",
+            content: markup(_t(
+                "Switch to the <b>list view</b>. An empty database shows read-only sample " +
+                "kanban cards, so we create a fresh vehicle to set its accounting information."
+            )),
+            tooltipPosition: "bottom",
             run: "click",
+        },
+        {
+            trigger: ".o_list_button_add",
+            content: markup(_t("Create a new vehicle to classify its costs.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='model_id'] input",
+            content: markup(_t("Select the vehicle <b>Model</b> (the only required field).")),
+            run: "edit Micra",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:contains('Micra')",
+            content: _t("Pick the model from the suggestion list."),
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view",
         },
         {
             trigger: ".o_field_widget[name='expense_category_id'] input",

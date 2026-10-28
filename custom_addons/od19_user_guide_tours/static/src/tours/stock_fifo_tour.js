@@ -77,6 +77,31 @@ registry.category("web_tour.tours").add("od19_stock_fifo_tour", {
             tooltipPosition: "top",
             run: "click",
         },
+        // Valuing stock when there is no product to value raises an
+        // "Invalid Operation" dialog. Close it when it appears so the steps
+        // that follow are not blocked (gated so the happy path is unaffected).
+        {
+            isActive: [".o_error_dialog"],
+            trigger: ".o_error_dialog button:contains('Close'), .o_dialog button:contains('Close'), .o_dialog .btn-close",
+            content: markup(_t("Close the warning dialog if no product could be valued.")),
+            tooltipPosition: "left",
+            run: "click",
+        },
+        // The wizard itself stays open while the computation runs (and when it
+        // raises an error). Close it so the result list below is not blocked by
+        // a lingering modal. Gated so the happy path (dialog auto-closed by a
+        // successful computation) is unaffected.
+        {
+            isActive: [".o_dialog:not(:has(.o_error_dialog))"],
+            trigger: ".o_dialog:not(:has(.o_error_dialog)) .modal-header .btn-close, .o_dialog:not(:has(.o_error_dialog)) footer button[special='cancel'], .o_dialog:not(:has(.o_error_dialog)) .o_form_button_cancel",
+            content: markup(_t("Close the FIFO valuation wizard once the computation is done.")),
+            tooltipPosition: "left",
+            run: "click",
+        },
+        // Wait until the wizard's result/underlying view is ready to use.
+        {
+            trigger: ".o_form_view:not(:has(.modal)), .o_list_view:not(:has(.modal))",
+        },
         {
             trigger: ".o_list_renderer",
             content: markup(_t(

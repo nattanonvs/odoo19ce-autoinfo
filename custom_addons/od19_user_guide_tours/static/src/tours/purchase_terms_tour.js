@@ -40,7 +40,7 @@ registry.category("web_tour.tours").add("od19_purchase_terms_tour", {
         {
             trigger: ".o_field_widget[name='name'] input",
             content: _t("Enter the template name (e.g. Standard Delivery To)."),
-            run: "edit Standard Delivery To",
+            run: "edit Standard Delivery " + Date.now(),
         },
         {
             trigger: ".o_field_widget[name='term_type'] .o_select_menu_toggler",

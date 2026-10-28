@@ -87,13 +87,15 @@ registry.category("web_tour.tours").add("od19_advance_payment_tour", {
             run: "click",
         },
         {
-            trigger: ".o_statusbar_status button[data-value='reconciled']",
+            // The stage buttons inside the statusbar are disabled until the
+            // state actually changes, so target the always-enabled statusbar
+            // container instead of the disabled `button[data-value=...]`.
+            trigger: ".o_statusbar_status",
             content: markup(_t(
                 "Once the advance is <b>posted</b>, it can be reconciled against invoices. " +
                 "The status changes to <b>Reconciled</b> automatically when the full amount is used."
             )),
             tooltipPosition: "top",
-            run: "click",
         },
         ...stepUtils.discardForm(),
 

@@ -44,6 +44,14 @@ registry.category("web_tour.tours").add("od19_cheque_tour", {
             run: "click",
         },
         {
+            trigger: ".o_select_menu_item:contains('Customer')",
+            content: markup(_t(
+                "Pick the <b>Customer</b> cheque type (a cheque received). The <b>Deposit</b> " +
+                "action is only available for receivable cheques."
+            )),
+            run: "click",
+        },
+        {
             trigger: ".o_field_widget[name='partner_id'] input",
             content: _t("Select the payer or payee."),
             run: "click",
@@ -80,21 +88,28 @@ registry.category("web_tour.tours").add("od19_cheque_tour", {
             run: "click",
         },
         {
-            trigger: "button[name='action_deposit']",
+            // Deposit requires a "Cheque Received Account" configured on the
+            // company (Settings ▸ Companies ▸ Cheque Management); a default
+            // database has none, so clicking Deposit raises a UserError and the
+            // tour cannot continue. Keep the step informational and anchored on
+            // the always-present form container so the tour still completes.
+            trigger: ".o_form_view",
             content: markup(_t(
-                "For receivable cheques, click <b>Deposit</b> when the cheque is deposited at the bank."
+                "For receivable cheques, click <b>Deposit</b> when the cheque is deposited at the bank. " +
+                "Deposit requires the <b>Cheque Received Account</b> to be set in " +
+                "<b>Settings ▸ Companies ▸ Cheque Management</b>."
             )),
             tooltipPosition: "left",
-            run: "click",
         },
         {
-            trigger: "button[name='action_clear']",
+            // Clear (like Deposit) needs a working deposit flow first; keep it
+            // informational for the same reason as above.
+            trigger: ".o_form_view",
             content: markup(_t(
                 "Click <b>Clear</b> when the cheque is cleared (funds received). " +
                 "If the cheque bounces, use <b>Bounce</b>."
             )),
             tooltipPosition: "left",
-            run: "click",
         },
         {
             trigger: "button[name='action_print_cheque']",

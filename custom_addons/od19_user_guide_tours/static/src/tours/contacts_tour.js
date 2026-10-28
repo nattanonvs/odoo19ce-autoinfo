@@ -31,7 +31,7 @@ registry.category("web_tour.tours").add("od19_contacts_credit_risk_tour", {
         {
             trigger: ".o_field_widget[name='name'] input",
             content: _t("Enter the company name."),
-            run: "edit OD19 Demo Construction Co., Ltd.",
+            run: `edit Credit Test ${Date.now()}`,
         },
         {
             trigger: ".o_field_widget[name='email'] input",
@@ -67,6 +67,14 @@ registry.category("web_tour.tours").add("od19_contacts_credit_risk_tour", {
             run: "click",
         },
         ...stepUtils.saveForm(),
+        {
+            // The partner is brand-new, so `od19_credit_request_state` is
+            // "Not Requested" and the Request Credit button (which lives in the
+            // form's button box, not in a notebook page) is rendered. Wait for
+            // the saved form's button box so the following step does not look
+            // for the button while the form is still settling.
+            trigger: ".o-form-buttonbox",
+        },
         {
             trigger: "button[name='action_od19_request_credit']",
             content: markup(_t(

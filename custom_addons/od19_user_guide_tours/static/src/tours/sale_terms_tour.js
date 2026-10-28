@@ -40,7 +40,7 @@ registry.category("web_tour.tours").add("od19_sale_terms_tour", {
         {
             trigger: ".o_field_widget[name='name'] input",
             content: _t("Enter the template name (e.g. Standard Warranty 1 Year)."),
-            run: "edit Standard Warranty 1 Year",
+            run: "edit Standard Warranty " + Date.now(),
         },
         {
             trigger: ".o_field_widget[name='term_type'] .o_select_menu_toggler",

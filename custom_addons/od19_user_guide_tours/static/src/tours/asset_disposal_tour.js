@@ -19,6 +19,91 @@ registry.category("web_tour.tours").add("od19_asset_disposal_tour", {
             "account.menu_finance",
             markup(_t("Let's learn how to <b>dispose</b> a fixed asset and generate the disposal entry."))
         ),
+
+        // --- Make sure an Asset Profile exists ---
+        // Creating and validating an asset requires a profile, and a fresh
+        // database has none. Create one first, otherwise the asset save fails
+        // on the required `profile_id` and the tour gets stuck.
+        {
+            trigger: navSection("Configuration"),
+            content: markup(_t(
+                "An asset first needs an <b>Asset Profile</b>. Open the <b>Configuration</b> menu."
+            )),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: navItem("Asset Profiles"),
+            content: markup(_t(
+                "Open <b>Asset Profiles</b> (Configuration ▸ Assets ▸ Asset Profiles)."
+            )),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_renderer",
+        },
+        {
+            trigger: ".o_list_button_add",
+            content: _t("Create a new asset profile."),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='name'] input",
+            content: _t("Name the profile (e.g. IT Equipment)."),
+            run: "edit IT Equipment",
+        },
+        {
+            trigger: ".o_field_widget[name='account_asset_id'] input",
+            content: markup(_t("Select the <b>Asset Account</b> (the balance-sheet account of the asset).")),
+            run: "click",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:first",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='account_depreciation_id'] input",
+            content: markup(_t("Select the <b>Depreciation Account</b> (accumulated depreciation).")),
+            run: "click",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:first",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='account_expense_depreciation_id'] input",
+            content: markup(_t("Select the <b>Depreciation Expense Account</b>.")),
+            run: "click",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:first",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='account_residual_value_id'] input",
+            content: markup(_t(
+                "Select the <b>Residual Value Account</b>; the disposal entry needs it."
+            )),
+            run: "click",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:first",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='journal_id'] input",
+            content: markup(_t("Select the journal used to post the asset entries.")),
+            run: "click",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:first",
+            run: "click",
+        },
+        ...stepUtils.saveForm(),
+        ...stepUtils.discardForm(),
+
         {
             trigger: navSection("Assets"),
             content: markup(_t("Open the <b>Assets</b> menu.")),
@@ -37,6 +122,15 @@ registry.category("web_tour.tours").add("od19_asset_disposal_tour", {
             trigger: ".o_list_button_add",
             content: _t("Create a new fixed asset."),
             tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='profile_id'] input",
+            content: markup(_t("Link the asset to the <b>IT Equipment</b> profile created above.")),
+            run: "edit IT Equipment",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:contains('IT Equipment')",
             run: "click",
         },
         {
@@ -82,9 +176,19 @@ registry.category("web_tour.tours").add("od19_asset_disposal_tour", {
         {
             trigger: ".o_control_panel .o_back_button",
             content: markup(_t(
-                "The disposal journal entry is opened. Return to the asset to review the disposal details."
+                "The disposal journal entry is opened. Return to the assets list to review the asset."
             )),
             run: "click",
+        },
+        {
+            trigger: ".o_list_renderer .o_data_row .o_data_cell[name='name']:contains('Machine A')",
+            content: markup(_t(
+                "Re-open the disposed asset <b>Machine A</b> from the list to review its disposal details."
+            )),
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view",
         },
         {
             trigger: "a.nav-link:contains('Disposal')",

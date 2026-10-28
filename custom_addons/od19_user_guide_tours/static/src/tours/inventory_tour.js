@@ -57,7 +57,7 @@ registry.category("web_tour.tours").add("od19_inventory_operations_tour", {
             run: "edit Tesla",
         },
         {
-            trigger: ".o-autocomplete--dropdown-item:contains('Tesla, Inc.')",
+            trigger: ".o-autocomplete--dropdown-item:contains('Tesla')",
             content: _t("Pick the customer from the suggestion list."),
             run: "click",
         },
@@ -146,14 +146,17 @@ registry.category("web_tour.tours").add("od19_inventory_operations_tour", {
             run: "edit 9",
         },
         {
-            trigger: ".o_field_widget[name='line_ids'] .o_field_x2many_list_row_add",
+            trigger: ".o_field_widget[name='line_ids'] .o_field_x2many_list_row_add a",
             content: markup(_t(
                 "Add <b>inspection lines</b>: each parameter with expected vs. actual value and pass/fail result."
             )),
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='parameter'] input",
+            trigger: ".o_selected_row",
+        },
+        {
+            trigger: ".o_selected_row .o_field_widget[name='parameter'] input",
             content: _t("Enter the inspection parameter name."),
             run: "edit Surface finish",
         },

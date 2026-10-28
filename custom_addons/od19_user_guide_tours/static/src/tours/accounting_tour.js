@@ -107,13 +107,96 @@ registry.category("web_tour.tours").add("od19_accounting_tour", {
         {
             trigger: ".o_field_widget[name='od19_wht_type_id'] input",
             content: markup(_t(
-                "Select the <b>WHT Type</b>. The system calculates the WHT base, WHT amount, " +
-                "and net amount automatically."
+                "The <b>WHT Type</b> (Withholding Tax, optional) drives the automatic WHT base, " +
+                "WHT amount and net amount on the payment."
             )),
             run: "click",
         },
+        // Do NOT pick an entry from the suggestion list: in a database where no
+        // Withholding Tax Type exists yet the only entry is a "Create ..."
+        // option. Its dialog requires a dedicated WHT account (none is
+        // pre-seeded), so it cannot be saved and would block the rest of the
+        // tour. Showing the list is enough; the tour continues with the save.
+        ...stepUtils.saveForm(),
+        ...stepUtils.discardForm(),
+
+        // --- Asset Profile (required before an asset can be saved) ---
+        // Creating an asset needs a profile, and a fresh database has none.
+        // Create one first, otherwise the asset save fails on the required
+        // `profile_id` and the tour gets stuck.
         {
-            trigger: ".o-autocomplete--dropdown-menu a.dropdown-item:not(.o_loading)",
+            trigger: navSection("Configuration"),
+            content: markup(_t(
+                "An asset first needs an <b>Asset Profile</b>. Open the <b>Configuration</b> menu."
+            )),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: navItem("Asset Profiles"),
+            content: markup(_t(
+                "Open <b>Asset Profiles</b> (Configuration ▸ Assets ▸ Asset Profiles)."
+            )),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_renderer",
+        },
+        {
+            trigger: ".o_list_button_add",
+            content: _t("Create a new asset profile."),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='name'] input",
+            content: _t("Name the profile (e.g. IT Equipment)."),
+            run: "edit IT Equipment",
+        },
+        {
+            trigger: ".o_field_widget[name='account_asset_id'] input",
+            content: markup(_t("Select the <b>Asset Account</b> (the balance-sheet account of the asset).")),
+            run: "click",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:first",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='account_depreciation_id'] input",
+            content: markup(_t("Select the <b>Depreciation Account</b> (accumulated depreciation).")),
+            run: "click",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:first",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='account_expense_depreciation_id'] input",
+            content: markup(_t("Select the <b>Depreciation Expense Account</b>.")),
+            run: "click",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:first",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='account_residual_value_id'] input",
+            content: markup(_t("Select the <b>Residual Value Account</b>.")),
+            run: "click",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:first",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='journal_id'] input",
+            content: markup(_t("Select the journal used to post the asset entries.")),
+            run: "click",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:first",
             run: "click",
         },
         ...stepUtils.saveForm(),
@@ -136,6 +219,15 @@ registry.category("web_tour.tours").add("od19_accounting_tour", {
             trigger: ".o_list_button_add",
             content: _t("Create a new fixed asset."),
             tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='profile_id'] input",
+            content: markup(_t("Link the asset to the <b>IT Equipment</b> profile created above.")),
+            run: "edit IT Equipment",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:contains('IT Equipment')",
             run: "click",
         },
         {

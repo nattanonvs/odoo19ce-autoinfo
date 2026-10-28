@@ -112,7 +112,10 @@ registry.category("web_tour.tours").add("od19_iso_internal_audit_tour", {
             run: "click",
         },
         {
-            trigger: ".o-autocomplete--dropdown-item",
+            // Wait for the suggestion list to finish loading before picking the
+            // first entry; clicking too early left the required field empty and
+            // the save failed validation.
+            trigger: ".o-autocomplete--dropdown-menu:not(.o_loading) .o-autocomplete--dropdown-item:first-child",
             run: "click",
         },
         {
@@ -121,7 +124,7 @@ registry.category("web_tour.tours").add("od19_iso_internal_audit_tour", {
             run: "click",
         },
         {
-            trigger: ".o-autocomplete--dropdown-item",
+            trigger: ".o-autocomplete--dropdown-menu:not(.o_loading) .o-autocomplete--dropdown-item:first-child",
             run: "click",
         },
         ...stepUtils.saveForm(),

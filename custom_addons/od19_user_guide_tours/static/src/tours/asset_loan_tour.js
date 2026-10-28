@@ -77,9 +77,23 @@ registry.category("web_tour.tours").add("od19_asset_loan_tour", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='line_ids'] .o_field_x2many_list_row_add",
+            trigger: ".o_field_widget[name='line_ids'] .o_field_x2many_list_row_add a",
             content: _t("Add an equipment line."),
             run: "click",
+        },
+        {
+            trigger: ".o_selected_row .o_field_widget[name='equipment_id'] input",
+            content: _t("Select the equipment to loan."),
+            run: "edit ",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:first",
+            run: "click",
+        },
+        {
+            trigger: ".o_selected_row .o_field_widget[name='quantity'] input",
+            content: _t("Set the quantity to loan."),
+            run: "edit 1",
         },
         ...stepUtils.saveForm(),
         {
