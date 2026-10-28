@@ -27,6 +27,9 @@ packaging==26.3           # Odoo Core runtime     -> odoo/modules/module.py อ�
                           #                          (core ไม่ได้ประกาศไว้ใน requirements.txt)
 signxml==5.2.0            # od19_etax_invoice     -> ลงลายมือชื่อดิจิทัล XMLDSig/XAdES (ขมธอ.14-2560)
                           #                          ใช้ signxml.xades.XAdESSigner; ต้องการ lxml + cryptography
+pikepdf==10.17.0          # od19_etax_invoice     -> PDF/A-3 (ISO 19005-3): XMP pdfaid + pdfaExtension,
+                          #                          OutputIntent sRGB ICC, แนบ XML ด้วย /AFRelationship /Data
+                          #                          (แทน PyPDF2 ที่เลิกพัฒนา) · ต้องมี qpdf>=11 (มากับ wheel)
 
 # ---------------------------------------------------------------------------
 # [2] ติดตั้งตามให้เองอัตโนมัติ เมื่อติดตั้งข้อ [1] — ไม่ต้องระบุเอง
