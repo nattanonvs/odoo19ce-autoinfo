@@ -95,9 +95,9 @@
 
 | ข้อบังคับ | สิ่งที่กฎหมายกำหนด | สถานะ | ช่องว่าง |
 | --- | --- | --- | --- |
-| ระเบียบกรมสรรพากร พ.ศ. 2560 | e-Tax Invoice / e-Receipt | 🟡 | `od19_etax_invoice` ทำ XML + XAdES-BES (RSA-SHA512) + แนบ XML ใน PDF เสร็จแล้ว — **แต่ไฟล์ PDF ยังไม่เป็น PDF/A-3** (ไม่มี XMP / OutputIntent / ICC / AFRelationship) |
-| ขมธอ.3-2560 (ETDA) | มาตรฐาน XML + ลายมือชื่อดิจิทัล | 🟡 | XML ครบ 6 Document Families + XSD ETDA จริงผูกในโมดูล + validate **ก่อน** ลงนาม — แต่ **TypeCode ใบเพิ่มหนี้ยังเป็น 81 (ต้องเป็น 80)** และเทสต์ XSD ครอบเพียง 2/6 families |
-| การนำส่งให้สรรพากร | Upload ผ่านระบบ RD | 🔴 | ไม่มี integration ยื่นสรรพากร (ไม่มี model/action/API ใด ๆ) |
+| ระเบียบกรมสรรพากร พ.ศ. 2560 | e-Tax Invoice / e-Receipt | ✅ | `od19_etax_invoice` ทำ XML + XAdES-BES (RSA-SHA512) + แนบ XML ใน **PDF/A-3 level B** (XMP `pdfaid:part=3`/`conformance=B` + `pdfaExtension:schemas`, `/OutputIntents` sRGB ICC, `AFRelationship=/Data`) เสร็จแล้ว |
+| ขมธอ.3-2560 (ETDA) | มาตรฐาน XML + ลายมือชื่อดิจิทัล | 🟡 | XML ครบ 6 Document Families + XSD ETDA จริงผูกในโมดูล + validate **ก่อน** ลงนาม · แก้ TypeCode ใบเพิ่มหนี้/ใบลดหนี้เป็น 80/81 ตาม `dncn` แล้ว — แต่ **ตระกูล `invoice` (380) ยังใช้ XSD generic 2015** ต้องได้ไฟล์ ขมธอ.3-2560 ตัวจริงจาก ETDA |
+| การนำส่งให้สรรพากร | Upload ผ่านระบบ RD | 🟡 | มี model `od19.etax.submission` + adapter (`lib/rd_gateway.py`, Mock เป็นค่าเริ่มต้น) + batch export ZIP fallback — **แต่ยังไม่เชื่อม RD จริง** (รอ Provider ID + API spec) |
 
 ### หมวด F: ภาษีอื่น
 
@@ -170,7 +170,7 @@
 | XAdES-BES | ✅ | `lib/signer.py` — RSA-SHA512 · SHA-512 · c14n 1.0 · enveloped transform · KeyInfo/X509Data |
 | Certificate lifecycle | ✅ | `models/etax_certificate.py` — PEM key/cert/chain + passphrase + verify + expiry |
 | Lifecycle + immutability | ✅ | draft → generated → signed; เอกสารที่ signed แก้/ยกเลิกไม่ได้ |
-| แนบ XML ใน PDF | 🟡 | `lib/pdf_embed.py` แนบ signed XML เข้า `/Names /EmbeddedFiles` — แต่ยังเป็น PDF ธรรมดา ไม่ใช่ PDF/A-3 |
+| แนบ XML ใน PDF | ✅ | `lib/pdf_embed.py` (pikepdf) แนบ signed XML เข้า `/Names /EmbeddedFiles` เป็น **PDF/A-3 level B** — XMP `pdfaid:part=3`/`conformance=B` + `pdfaExtension:schemas`, `/OutputIntents` sRGB ICC, `AFRelationship=/Data`, PDF 1.7 |
 | QR + รายงานไทย | ✅ | `lib/qr.py` + `report/etax_document_report.xml` (โทน #9E2424, watermark ฉบับร่าง, block ลายเซ็น + digest) |
 | เทสต์ | 🟡 | `tests/test_etax_document.py` 13 เทสต์ — ครอบ 2/6 families |
 
@@ -180,7 +180,7 @@
 
 | รายการ | สถานะ | สิ่งที่ต้องทำ |
 | --- | --- | --- |
-| A. PDF/A-3 | 🔴 0% | ใส่ XMP (`pdfaid:part=3`, `conformance=B`), `/OutputIntents` + ICC (sRGB), `AFRelationship=/Data` บน embedded file, `/ID` ใน trailer, ปิด encryption, ตรวจ font embedding |
+| A. PDF/A-3 | ✅ | `lib/pdf_embed.py` (pikepdf) ใส่ XMP (`pdfaid:part=3`, `conformance=B` + `pdfaExtension:schemas`), `/OutputIntents` + sRGB ICC (สร้างจาก Pillow/lcms), `AFRelationship=/Data` บน embedded file, PDF 1.7 — เทสต์ parse XMP/OutputIntent/attachment ผ่าน · **คงเหลือ**: ตรวจ font embedding ด้วย veraPDF ก่อน certify จริง |
 | B. ช่องทางยื่น RD | ✅ | อยู่ใน `od19_etax_invoice` — model `od19.etax.submission` (state/submitted_at/reference/response_code/response_message/attempt_count) + config ระดับบริษัท (`od19_etax_rd_mode` mock｜live, `od19_etax_rd_endpoint`, `od19_etax_rd_provider_id`) + adapter `lib/rd_gateway.py` (Mock = ค่าเริ่มต้น, Live = จุด implement จริง) · fallback `lib/batch_export.py` (ZIP: signed XML + PDF + `manifest.txt` เป็น audit trail) |
 | C. e-Withholding Tax | 🔴 0% | integration นำส่งผ่านธนาคาร (ต้อง bank API + mTLS) |
 | D. ภ.ง.ด.54 report | ✅ | อยู่ใน `od19_thai_tax_reports` — mirror pattern `report/wht_register.py` + `pnd54` ใน `wizard/tax_report_wizard.py` + `selection_add` `pnd54` บน `account.withholding.tax.income_tax_form` (OCA ไม่มีค่านี้) |
@@ -189,10 +189,10 @@
 
 | # | เรื่อง | ระดับ | รายละเอียด |
 | --- | --- | --- | --- |
-| 1 | ใบเพิ่มหนี้ออกเป็น TypeCode 81 (ใบลดหนี้) | 🔴 สูง | `lib/namespaces.py` กำหนด `debit_credit_note → "81"` ตายตัว แต่ XSD ETDA ระบุ 80 = Debit note / 81 = Credit note |
-| 2 | `validator.ValidationError` เป็น Exception ธรรมดา | 🟠 กลาง | ไม่ใช่ `odoo.exceptions` → schema ไม่ผ่านตอน `action_generate_xml` จะได้ traceback แทนข้อความไทย |
-| 3 | เทสต์ XSD ครอบเพียง 2/6 families | 🟠 กลาง | Receipt / AbbreviatedTaxInvoice / Invoice / CancellationNote ยังไม่ถูก XSD-validate |
-| 4 | `PyPDF2` เลิกพัฒนาแล้ว | 🟡 ต่ำ | ควรย้ายเป็น `pypdf` และเพิ่ม `pikepdf` สำหรับงาน PDF/A-3 |
+| 1 | ใบเพิ่มหนี้ออกเป็น TypeCode 81 (ใบลดหนี้) | ✅ | แก้แล้ว — `lib/namespaces.py` เลือก 80/81 ตาม `move_id.dncn` (`NOTE_TYPE_CODE_BY_DNCN`) + `_compute_type_code` depends `move_id.dncn` · เทสต์ยืนยัน |
+| 2 | `validator.ValidationError` เป็น Exception ธรรมดา | ✅ | แก้แล้ว — `_build_unsigned_tree` จับ `ValidationError` → raise `UserError` ข้อความไทย |
+| 3 | เทสต์ XSD ครอบเพียง 2/6 families | 🟡 | เพิ่มเทสต์ครอบครบ 6 families แล้ว แต่ **ตระกูล `invoice` (380) ยังไม่ผ่าน** — XSD ที่ bundle (`Invoice_QualifiedDataType_1p0.xsd`) เป็น generic ETDA 2015 (บังคับ `listID=1001_Invoice`, `agency=6`, ไม่มี `CreationDateTime`) ไม่ใช่โปรไฟล์ไทย ขมธอ.3-2560 → **ต้องหา XSD ตัวจริงจาก ETDA มาแทน** (ดู Phase 0 ค้าง) |
+| 4 | `PyPDF2` เลิกพัฒนาแล้ว | ✅ | แก้แล้ว — ตัด `PyPDF2` ออก ใช้ `pikepdf` ทั้ง embed + extract (`__manifest__` external_dependencies อัปเดตแล้ว) |
 | 5 | `od19_etax_enabled` เป็น field ตกแต่ง | 🟡 ต่ำ | มีแค่ใน view ไม่มีโค้ด gate การใช้งาน |
 | 6 | default mapping ไม่ใช้ Receipt/T05/Invoice/T07 | 🟡 ต่ำ | `models/account_move.py` แมปแค่ out_invoice/out_refund → 4 families ต้องเลือก manual |
 | 7 | ทับซ้อนกับ Wave 2B | 🟡 ต่ำ | `abbreviated_tax_invoice` มีทั้งในโหมด XML และ QWeb report (`od19_thai_tax_reports/report/tax_invoice_forms.xml`) |
@@ -201,14 +201,14 @@
 
 | Phase | งาน |
 | --- | --- |
-| Phase 0 — Quick win แก้ของเดิม | (1) แยก TypeCode ใบเพิ่มหนี้ (80) / ใบลดหนี้ (81) ตาม `dncn` · (2) schema error → `UserError` ข้อความไทย · (3) เพิ่มเทสต์ XSD ครบ 6 families · (4) ย้าย `PyPDF2` → `pypdf` + อัปเดต `requirements-od19.txt` · (5) ตัดสินใจ `od19_etax_enabled` |
-| Phase 1 — PDF/A-3 | เพิ่ม `pikepdf` + ship `sRGB.icc` · `lib/pdfa.py` ใส่ XMP + OutputIntent + AFRelationship + ID + ปิด encryption · verify font embedding · เทสต์ parse XMP |
+| Phase 0 — Quick win แก้ของเดิม | ✅ (1) TypeCode 80/81 ตาม `dncn` · ✅ (2) schema error → `UserError` ข้อความไทย · ✅ (4) ตัด `PyPDF2` ใช้ `pikepdf` · 🟡 (3) เทสต์ XSD 6 families — **ค้าง**: ตระกูล `invoice` ต้องได้ XSD ขมธอ.3-2560 ตัวจริงจาก ETDA · 🟡 (5) `od19_etax_enabled` ยังไม่ gate |
+| Phase 1 — PDF/A-3 | ✅ `lib/pdf_embed.py` (pikepdf) — XMP `pdfaid:part=3`/`conformance=B` + `pdfaExtension:schemas`, `/OutputIntents` sRGB ICC, `AFRelationship=/Data`, PDF 1.7 · เทสต์ parse XMP/OutputIntent/attachment · v19.0.1.2.0 · **คงเหลือ**: ตรวจด้วย veraPDF (font embedding) |
 | Phase 2 — ช่องทางยื่น RD | ✅ model `od19.etax.submission` + config บริษัท + adapter (mock ได้) · fallback batch export ZIP + audit trail · v19.0.1.1.0 |
 | Phase 3 — ภ.ง.ด.54 | ✅ report เฉพาะใน `od19_thai_tax_reports` (mirror `wht_register`) · v19.0.1.6.0 |
 | Phase 4 — e-Withholding | integration ธนาคาร (ต้องยืนยันธนาคารก่อน) |
 
-**ต้องตัดสินใจ / รอข้อมูล**: (1) PDF/A-3 ใช้ `pikepdf` หรือ `ghostscript` · (2) มี RD Service Provider ID + API spec แล้วหรือยัง · (3) ยืนยันการแยก TypeCode 80/81 (กระทบเอกสารที่ออกไปแล้ว) · (4) ลำดับเริ่ม Phase 0 หรือ Phase 1 · (5) ธนาคารสำหรับ e-Withholding · (6) **ยืนยันสมมุติฐาน ภ.ง.ด.54**: ใช้ flag `pnd54` ที่เพิ่มบน `account.withholding.tax.income_tax_form` เป็นเกณฑ์คัดรายการ (OCA ไม่มีค่านี้) — หากต้องการเกณฑ์อื่น (เช่น ตามประเภทผู้จ่าย/หน่วยงานราชการ) ต้องปรับ domain ใน `report/pnd54_register.py`
-**ติดตาม**: ขั้นตอนรันเทสต์ + `git push` ของ Wave 2B ยังค้าง เนื่องจาก terminal runtime ล่ม (2026-10-27)
+**ต้องตัดสินใจ / รอข้อมูล**: (1) ~~PDF/A-3 ใช้ `pikepdf` หรือ `ghostscript`~~ ✅ เลือก `pikepdf` · (2) มี RD Service Provider ID + API spec แล้วหรือยัง · (3) ยืนยันการแยก TypeCode 80/81 (กระทบเอกสารที่ออกไปแล้ว) · (4) ลำดับเริ่ม Phase 0 หรือ Phase 1 · (5) ธนาคารสำหรับ e-Withholding · (6) **ยืนยันสมมุติฐาน ภ.ง.ด.54**: ใช้ flag `pnd54` ที่เพิ่มบน `account.withholding.tax.income_tax_form` เป็นเกณฑ์คัดรายการ (OCA ไม่มีค่านี้) — หากต้องการเกณฑ์อื่น (เช่น ตามประเภทผู้จ่าย/หน่วยงานราชการ) ต้องปรับ domain ใน `report/pnd54_register.py`
+**ติดตาม**: terminal บน Windows กลับมาใช้งานได้แล้ว (2026-10-28) — Wave 2B/2C commit แล้วบน `feat/od19-wave2b-vat-compliance` · Wave 2C Phase 0 (บางส่วน) + Phase 1 + Phase 2 + Phase 3 ปิดแล้ว · คงเหลือ Phase 0 ข้อ 3 (XSD `invoice`) + Phase 4 · ยังไม่ `git push`
 
 > หมายเหตุ: audit นี้เป็น read-only — ยังไม่มีการแก้ไขไฟล์ใด ๆ ในโมดูล `od19_etax_invoice`
 
