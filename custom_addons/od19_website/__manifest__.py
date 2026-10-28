@@ -42,6 +42,9 @@
             "od19_website/static/src/js/od19_products.js",
             "od19_website/static/src/js/od19_portal_rooms.js",
         ],
+        "web.assets_backend": [
+            "od19_website/static/src/js/od19_portal_hotkey.js",
+        ],
     },
     "images": ["static/description/icon.png"],
     "installable": True,
