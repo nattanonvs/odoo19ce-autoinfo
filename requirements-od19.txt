@@ -51,6 +51,33 @@ fonttools==4.60.1         # od19_etax_invoice     -> อ่าน embedded TrueT
 # pyparsing==3.3.3          # ไม่พบการอ้างอิงในโปรเจกต์
 
 # ---------------------------------------------------------------------------
+# [4] ข้อจำกัดรุ่นที่ชนกันโดยตรง — ห้ามปล่อยให้ pip resolve เอง (ยืนยัน 2026-10-28)
+# ---------------------------------------------------------------------------
+# ปัญหา: signxml 5.2.0 ประกาศ Requires-Dist: cryptography>=45
+#        แต่ Odoo 19 Core (requirements.txt) ล็อกไว้สำหรับ python>=3.12:
+#            cryptography==42.0.8
+#            pyopenssl==24.1.0   -> Requires-Dist: cryptography<43,>=41.0.5
+#        จึงเป็นไปไม่ได้ที่จะได้ทั้ง cryptography>=45 และ <43 พร้อมกัน
+#
+# แนวทางที่ใช้จริง: ยึดรุ่นของ Odoo Core (cryptography 42.0.8) เป็นหลัก
+#   แล้วติดตั้ง signxml แบบไม่ดึง dependency:
+#       pip install --no-deps signxml==5.2.0
+#   ตรวจแล้วว่า XAdES-BES ที่โปรเจกต์ใช้ (RSA-SHA512 + SHA-512 + c14n 1.0 +
+#   enveloped transform + KeyInfo/X509Data) ทำงานได้บน cryptography 42.0.8
+#   — unit tests ของ od19_etax_invoice ผ่านทั้งหมด
+#
+# ห้ามรันบรรทัดนี้แบบไม่มี --no-deps:
+#       pip install -r requirements-od19.txt
+#   เพราะ pip จะอัป cryptography เป็น >=45 -> ทำลาย pyopenssl 24.1.0
+#   และ Odoo core จะพังตอน import (AttributeError: module 'lib' has no attribute 'GEN_EMAIL')
+#
+# หลังติดตั้ง `pip check` จะยังรายงาน 2 ข้อ — ยอมรับได้ (เป็นข้อจำกัดของ metadata
+# ไม่ใช่ข้อผิดพลาดขณะรัน):
+#   1) signxml 5.2.0 has requirement cryptography>=45, but you have cryptography 42.0.8.
+#   2) lxml-html-clean 0.4.5 has requirement lxml>=6.1.1, but you have lxml 5.2.1.
+#      (lxml 5.2.1 มาจาก pylibs\ ที่ vendored — เช่นเดียวกัน ไม่ต้องแก้)
+
+# ---------------------------------------------------------------------------
 # หมายเหตุ
 # ---------------------------------------------------------------------------
 # * โฟลเดอร์ pylibs\ เป็นไลบรารีแบบ vendored (ใส่เข้า sys.path) ไม่ใช่ pip
