@@ -26,7 +26,7 @@ from ..lib import namespaces, qr, signer, validator, xml_builder
 
 _logger = logging.getLogger(__name__)
 
-_ALLOWED_MOVE_TYPES = ("out_invoice", "out_refund")
+_ALLOWED_MOVE_TYPES = ("out_invoice", "out_refund", "out_receipt")
 
 
 class Od19EtaxDocument(models.Model):
@@ -68,7 +68,7 @@ class Od19EtaxDocument(models.Model):
         required=True,
         ondelete="cascade",
         tracking=True,
-        domain="[('move_type', 'in', ('out_invoice', 'out_refund'))]",
+        domain="[('move_type', 'in', ('out_invoice', 'out_refund', 'out_receipt'))]",
     )
     partner_id = fields.Many2one(
         "res.partner",
@@ -195,7 +195,7 @@ class Od19EtaxDocument(models.Model):
                 raise ValidationError(
                     self.env._(
                         "An e-Tax document can only be issued for a customer "
-                        "invoice or credit note."
+                        "invoice, credit note or receipt."
                     )
                 )
 

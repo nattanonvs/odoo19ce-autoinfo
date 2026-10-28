@@ -171,6 +171,27 @@ class TestOd19EtaxDocument(AccountTestInvoicingCommon):
         })
         self.assertEqual(document.type_code, "81")
 
+    def test_default_type_follows_the_buyer_tax_status(self):
+        """A VAT buyer gets the full form; a consumer gets the abbreviated one."""
+        invoice = self._create_invoice(move_type="out_invoice", post=False)
+        self.assertFalse(invoice.partner_id.vat)
+        self.assertEqual(
+            invoice._od19_etax_default_type(), "abbreviated_tax_invoice"
+        )
+        invoice.partner_id.vat = "0105558000014"
+        self.assertEqual(invoice._od19_etax_default_type(), "tax_invoice")
+
+    def test_default_type_for_sales_receipt(self):
+        """A sales receipt (``out_receipt``) maps to the Receipt family (T01)."""
+        receipt = self._create_invoice(move_type="out_receipt", post=False)
+        self.assertEqual(receipt._od19_etax_default_type(), "receipt")
+        document = self.env["od19.etax.document"].create({
+            "move_id": receipt.id,
+            "document_type": receipt._od19_etax_default_type(),
+        })
+        self.assertEqual(document.type_code, "T01")
+        self.assertEqual(document.purpose_code, "TIVC01")
+
     def test_all_document_families_are_schema_valid(self):
         """Every offered family must build XSD-valid XML."""
         for document_type in dict(namespaces.DOCUMENT_TYPE_SELECTION):

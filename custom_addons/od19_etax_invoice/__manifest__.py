@@ -3,7 +3,7 @@
 
 {
     "name": "OD19 e-Tax Invoice & e-Receipt",
-    "version": "19.0.1.2.2",
+    "version": "19.0.1.2.3",
     "author": "OD19",
     "category": "Accounting/Localizations",
     "summary": "Thai e-Tax Invoice & e-Receipt (ขมธอ.3-2560) XML with XAdES digital signature",

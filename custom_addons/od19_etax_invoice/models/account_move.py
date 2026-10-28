@@ -3,9 +3,12 @@
 
 from odoo import api, fields, models
 
+#: Families that map one-to-one onto a journal entry type. The customer
+#: invoice is handled separately because its family depends on the buyer, and
+#: the commercial invoice (380) and the cancellation note (T07) are issued
+#: outside a single sale cycle, so they stay a manual choice.
 _DEFAULT_TYPE_BY_MOVE = {
-    "out_invoice": "tax_invoice",
-    "out_refund": "debit_credit_note",
+    "out_receipt": "receipt",
 }
 
 
@@ -62,12 +65,29 @@ class AccountMove(models.Model):
     def _od19_etax_default_type(self):
         """Return the document type matching the journal entry.
 
-        Odoo posts a debit note as an ``out_invoice``, so the DN/CN
-        classification (od19_accounting_dncn) is checked before the journal
-        entry type to keep debit notes out of the ``tax_invoice`` family.
+        The journal entry alone cannot name every family: the commercial
+        invoice (380) and the cancellation note (T07) are issued outside a
+        single sale cycle, so they remain a manual choice. The remaining
+        families are derived from the entry:
+
+        * a debit/credit note (od19_accounting_dncn) is classified through
+          ``dncn`` before the entry type, because Odoo posts a debit note as an
+          ``out_invoice``;
+        * a VAT-registered buyer must receive the full-form tax invoice (388),
+          while a consumer sale may use the abbreviated form (T05, ม.86/6),
+          matching how ``od19_thai_tax_reports`` resolves the Thai legal type;
+        * a sales receipt (``out_receipt``) is reported as a Receipt (T01).
         """
         self.ensure_one()
         if self.dncn in ("dn", "cn"):
+            return "debit_credit_note"
+        if self.move_type == "out_invoice":
+            return (
+                "tax_invoice"
+                if self.partner_id.vat
+                else "abbreviated_tax_invoice"
+            )
+        if self.move_type == "out_refund":
             return "debit_credit_note"
         return _DEFAULT_TYPE_BY_MOVE.get(self.move_type, "tax_invoice")
 
