@@ -18,8 +18,8 @@ msgstr ""
 
 #. module: od19_dashboard
 #: model:res.groups.privilege,name:od19_dashboard.res_groups_privilege_od19_dashboard
-msgid "Dashboards"
-msgstr "แดชบอร์ด"
+msgid "Dashboard Builder"
+msgstr "ตัวสร้างแดชบอร์ด"
 
 #. module: od19_dashboard
 #: model:res.groups,name:od19_dashboard.group_od19_dashboard_user

@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!-- ===================== Privilege ===================== -->
+    <!-- Named "Dashboard Builder" to stay distinct from the core
+         "Dashboard" privilege (spreadsheet_dashboard) in Access Rights. -->
     <record id="res_groups_privilege_od19_dashboard" model="res.groups.privilege">
-        <field name="name">Dashboards</field>
+        <field name="name">Dashboard Builder</field>
         <field name="category_id" ref="base.module_category_productivity"/>
         <field name="sequence">80</field>
     </record>
