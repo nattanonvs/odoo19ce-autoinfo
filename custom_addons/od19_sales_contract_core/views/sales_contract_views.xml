@@ -101,6 +101,6 @@
         name="Sales Contracts"
         parent="sale.sale_menu_root"
         action="action_od19_sales_contract"
-        sequence="91"
+        sequence="31"
     />
 </odoo>

@@ -193,7 +193,7 @@
     <menuitem id="menu_od19_after_sales_reporting_root"
               name="After-Sales Reporting"
               parent="sale.sale_menu_root"
-              sequence="85"/>
+              sequence="45"/>
 
     <menuitem id="menu_od19_after_sales_ticket_kpi"
               name="Service Tickets"

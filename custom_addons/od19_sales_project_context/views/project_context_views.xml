@@ -12,6 +12,6 @@
         name="Projects"
         parent="sale.sale_menu_root"
         action="action_od19_sales_project"
-        sequence="90"
+        sequence="32"
     />
 </odoo>

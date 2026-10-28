@@ -68,7 +68,7 @@
         id="menu_sales_services"
         name="Sales Services"
         parent="sale.sale_menu_root"
-        sequence="30"
+        sequence="36"
         groups="group_sales_service"
     />
 
