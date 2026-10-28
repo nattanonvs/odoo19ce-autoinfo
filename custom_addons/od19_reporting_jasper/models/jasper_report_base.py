@@ -156,6 +156,15 @@ class JasperReportEngine(models.TransientModel):
     def _legacy_print_by(self):
         return self.env.user.name or ""
 
+    def _legacy_filestore_path(self):
+        """Absolute filestore folder, used by reports that load signature images.
+
+        Legacy printed ``"{data_dir}/filestore/{dbname}/"``; Odoo 19 exposes the
+        same folder through :meth:`ir.attachment._filestore`.
+        """
+        path = self.env["ir.attachment"]._filestore()
+        return path.replace("\\", "/") + "/"
+
     def get_common_parameters(self):
         """Parameters shared by nearly every legacy printable report."""
         return {

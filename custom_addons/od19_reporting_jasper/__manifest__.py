@@ -6,7 +6,9 @@
     "summary": "Foundation for Jasper and QWeb report templates",
     "depends": [
         "account",
+        "hr",
         "mail",
+        "od19_accounting_dncn",
         "purchase_stock",
     ],
     "data": [
@@ -23,6 +25,12 @@
         "wizard/trial_balance_views.xml",
         "wizard/pl_bs_views.xml",
         "wizard/journal_voucher_form_views.xml",
+        "wizard/credit_note_form_views.xml",
+        "wizard/debit_note_form_views.xml",
+        "wizard/billing_form_views.xml",
+        "wizard/prepayment_form_views.xml",
+        "wizard/receipt_cash_form_views.xml",
+        "wizard/receipt_form_views.xml",
     ],
     "installable": True,
     "license": "LGPL-3",

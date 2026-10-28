@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        F-AC-003 Debit Note form (ใบเพิ่มหนี้ / ใบกำกับภาษี).
+
+        Inherits the shared wizard layout (views/jasper_report_wizard.xml) and
+        replaces the placeholder <group name="parameters"/> with the parameters
+        this form needs.  Bound to account.move so it appears in the Print menu
+        of a debit note.
+    -->
+    <record id="view_debit_note_form" model="ir.ui.view">
+        <field name="name">debit.note.form</field>
+        <field name="model">debit.note.form</field>
+        <field name="inherit_id" ref="view_jasper_report_wizard"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='parameters']" position="replace">
+                <group name="parameters" invisible="state != 'input'">
+                    <group>
+                        <field name="p_language" required="1" default_focus="1"/>
+                        <field name="date_type" required="1"/>
+                        <field name="date_format" required="1"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_debit_note_form" model="ir.actions.act_window">
+        <field name="name">Debit Note Form</field>
+        <field name="res_model">debit.note.form</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_debit_note_form"/>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_type">report</field>
+    </record>
+
+</odoo>

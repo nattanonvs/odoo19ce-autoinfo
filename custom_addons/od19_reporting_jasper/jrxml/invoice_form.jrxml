@@ -74,7 +74,7 @@
 					left join account_move_line_account_tax_rel b on b.account_move_line_id = a.id
 					left join account_tax c on c.id = b.account_tax_id
 					where a.move_id = invoice.id and a.display_type = 'product' limit 1) as tax_exigibility,
-				term.name as payment_term, 
+				COALESCE(term.name->>'th_TH', term.name->>'en_US', '') as payment_term, 
 				partner.tax_name as customer,
 				CONCAT(partner.street,' ',partner.street2) AS  partner_address,
 				partner.ref as customer_code,

@@ -23,3 +23,15 @@ access_balance_sheet_report_user,balance.sheet.report user,model_balance_sheet_r
 access_balance_sheet_report_manager,balance.sheet.report manager,model_balance_sheet_report,account.group_account_manager,1,1,1,1
 access_journal_voucher_form_user,journal.voucher.form user,model_journal_voucher_form,account.group_account_invoice,1,1,1,1
 access_journal_voucher_form_manager,journal.voucher.form manager,model_journal_voucher_form,account.group_account_manager,1,1,1,1
+access_credit_note_form_user,credit.note.form user,model_credit_note_form,account.group_account_invoice,1,1,1,1
+access_credit_note_form_manager,credit.note.form manager,model_credit_note_form,account.group_account_manager,1,1,1,1
+access_debit_note_form_user,debit.note.form user,model_debit_note_form,account.group_account_invoice,1,1,1,1
+access_debit_note_form_manager,debit.note.form manager,model_debit_note_form,account.group_account_manager,1,1,1,1
+access_billing_form_user,billing.form user,model_billing_form,account.group_account_invoice,1,1,1,1
+access_billing_form_manager,billing.form manager,model_billing_form,account.group_account_manager,1,1,1,1
+access_prepayment_form_user,prepayment.form user,model_prepayment_form,account.group_account_invoice,1,1,1,1
+access_prepayment_form_manager,prepayment.form manager,model_prepayment_form,account.group_account_manager,1,1,1,1
+access_receipt_cash_form_user,receipt.cash.form user,model_receipt_cash_form,account.group_account_invoice,1,1,1,1
+access_receipt_cash_form_manager,receipt.cash.form manager,model_receipt_cash_form,account.group_account_manager,1,1,1,1
+access_receipt_form_user,receipt.form user,model_receipt_form,account.group_account_invoice,1,1,1,1
+access_receipt_form_manager,receipt.form manager,model_receipt_form,account.group_account_manager,1,1,1,1

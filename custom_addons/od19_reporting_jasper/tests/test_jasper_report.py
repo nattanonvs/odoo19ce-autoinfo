@@ -1,3 +1,5 @@
+import os
+
 from odoo import fields
 from odoo.tests.common import TransactionCase
 
@@ -444,3 +446,150 @@ class TestJournalVoucherForm(TransactionCase):
     def test_partner_ids_for_send_by_email(self):
         report = self._report()
         self.assertEqual(report.get_partner_ids_for_send_by_email(), self.partner)
+
+
+class TestInvoiceFormPorts(TransactionCase):
+    """Batch 1 of the ``dtr_accounting_form`` port.
+
+    Covers the six printable forms F-AC-002/003/005/006/007/008.  Every form
+    re-uses the shared engine, so the tests assert the legacy parameter
+    contract and that the compiled ``.jasper`` ships with the module.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.partner = cls.env["res.partner"].create(
+            {"name": "Form Partner", "is_company": True}
+        )
+        cls.sale_journal = cls.env["account.journal"].search(
+            [("type", "=", "sale")], limit=1
+        )
+
+    def _move(self, **values):
+        vals = {"partner_id": self.partner.id, "journal_id": self.sale_journal.id}
+        vals.update(values)
+        return self.env["account.move"].create(vals)
+
+    def _shipped(self, model):
+        report = self.env[model].create({})
+        self.assertTrue(report.jasper_file.endswith(".jasper"))
+        self.assertTrue(os.path.isfile(report.jasper_file), report.jasper_file)
+        return report
+
+    # ------------------------------------------------------------- shipping
+    def test_compiled_templates_are_shipped(self):
+        for model in ("credit.note.form", "debit.note.form", "billing.form",
+                      "prepayment.form", "receipt.cash.form", "receipt.form"):
+            self._shipped(model)
+
+    def test_compiled_names_match_python_module(self):
+        self._shipped("credit.note.form").jasper_file.endswith("credit_note_form.jasper")
+        self.assertTrue(self._shipped("debit.note.form").jasper_file.endswith(
+            "debit_note_form.jasper"))
+        self.assertTrue(self._shipped("billing.form").jasper_file.endswith(
+            "billing_form.jasper"))
+        self.assertTrue(self._shipped("prepayment.form").jasper_file.endswith(
+            "prepayment_form.jasper"))
+        self.assertTrue(self._shipped("receipt.form").jasper_file.endswith(
+            "receipt_form.jasper"))
+
+    # ---------------------------------------------------------- credit note
+    def test_credit_note_parameters_follow_legacy_contract(self):
+        move = self._move(move_type="out_refund")
+        report = self.env["credit.note.form"].with_context(
+            active_ids=move.ids
+        ).create({})
+        parameters = report.get_parameters()
+        self.assertEqual(parameters["ids"], "where invoice.id in (%s)" % move.id)
+        self.assertEqual(parameters["iscopy"], "0")
+        self.assertEqual(parameters["p_language"], "thai")
+        self.assertEqual(parameters["p_locale"], "en")
+        self.assertEqual(parameters["p_DateFormat"], "dd-MM-yyyy")
+        self.assertEqual(report.name, move.display_name)
+
+    def test_credit_note_rejects_plain_invoice(self):
+        from odoo.exceptions import ValidationError
+        move = self._move(move_type="out_invoice")
+        report = self.env["credit.note.form"].with_context(
+            active_ids=move.ids
+        ).create({})
+        with self.assertRaises(ValidationError):
+            report.get_parameters()
+
+    # ----------------------------------------------------------- debit note
+    def test_debit_note_parameters_follow_legacy_contract(self):
+        move = self._move(move_type="out_invoice", dncn="dn")
+        report = self.env["debit.note.form"].with_context(
+            active_ids=move.ids
+        ).create({})
+        parameters = report.get_parameters()
+        self.assertEqual(parameters["ids"], "where invoice.id in (%s)" % move.id)
+        self.assertEqual(parameters["p_locale"], "en")
+        report.date_type = "BE"
+        self.assertEqual(report.get_parameters()["p_locale"], "th")
+
+    def test_debit_note_rejects_plain_invoice(self):
+        from odoo.exceptions import ValidationError
+        move = self._move(move_type="out_invoice")
+        report = self.env["debit.note.form"].with_context(
+            active_ids=move.ids
+        ).create({})
+        with self.assertRaises(ValidationError):
+            report.get_parameters()
+
+    # -------------------------------------------------------------- billing
+    def test_billing_parameters_follow_legacy_contract(self):
+        move = self._move(move_type="out_invoice")
+        report = self.env["billing.form"].with_context(
+            active_ids=move.ids
+        ).create({})
+        parameters = report.get_parameters()
+        self.assertEqual(parameters["ids"], "WHERE bill.id in (%s)" % move.id)
+        self.assertTrue(parameters["p_Path"].endswith("/"))
+        self.assertEqual(parameters["p_ISO"], "")
+        self.assertEqual(parameters["p_EName"], "True")
+        self.assertEqual(parameters["p_ESignature"], "True")
+        self.assertEqual(parameters["p_Iscopy"], "0")
+        self.assertEqual(report.get_partner_ids_for_send_by_email(), self.partner)
+
+    # ----------------------------------------------------------- prepayment
+    def test_prepayment_parameters_follow_legacy_contract(self):
+        payment = self.env["account.payment"].create(
+            {"partner_id": self.partner.id, "amount": 1500.0}
+        )
+        report = self.env["prepayment.form"].with_context(
+            active_ids=payment.ids
+        ).create({})
+        parameters = report.get_parameters()
+        self.assertEqual(parameters["ids"], "WHERE bill.id in (%s)" % payment.id)
+        self.assertEqual(parameters["p_language"], "thai")
+        self.assertEqual(parameters["p_ESignature"], "True")
+
+    # --------------------------------------------------------- receipt cash
+    def test_receipt_cash_parameters_follow_legacy_contract(self):
+        payment = self.env["account.payment"].create(
+            {"partner_id": self.partner.id, "amount": 300.0}
+        )
+        report = self.env["receipt.cash.form"].with_context(
+            active_ids=payment.ids
+        ).create({})
+        parameters = report.get_parameters()
+        self.assertEqual(parameters["ids"], "WHERE cash.id in (%s)" % payment.id)
+        self.assertEqual(parameters["p_Tax"], "1")
+        report.p_Tax = "2"
+        self.assertEqual(report.get_parameters()["p_Tax"], "2")
+
+    # -------------------------------------------------------------- receipt
+    def test_receipt_parameters_follow_legacy_contract(self):
+        payment = self.env["account.payment"].create(
+            {"partner_id": self.partner.id, "amount": 700.0}
+        )
+        report = self.env["receipt.form"].with_context(
+            active_ids=payment.ids
+        ).create({})
+        parameters = report.get_parameters()
+        self.assertEqual(parameters["ids"], "WHERE pay.id in (%s)" % payment.id)
+        self.assertEqual(parameters["p_Tax"], "1")
+        self.assertEqual(parameters["p_EName"], "True")
+        self.assertTrue(parameters["p_Path"].endswith("/"))
