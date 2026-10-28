@@ -19,4 +19,10 @@
               action="action_od19_etax_certificate"
               sequence="20"/>
 
+    <menuitem id="menu_od19_etax_submission"
+              name="RD Submissions"
+              parent="menu_od19_etax_root"
+              action="action_od19_etax_submission"
+              sequence="30"/>
+
 </odoo>

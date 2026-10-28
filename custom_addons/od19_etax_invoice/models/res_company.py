@@ -19,3 +19,21 @@ class ResCompany(models.Model):
         help="Default certificate used to sign the e-Tax documents of this "
         "company.",
     )
+    od19_etax_rd_mode = fields.Selection(
+        [("mock", "Mock (ทดสอบ)"), ("live", "Live (RD)")],
+        string="RD Submission Channel",
+        default="mock",
+        required=True,
+        help="Mock answers locally and is the default until the RD API contract "
+        "is published. Live sends the documents to the Revenue Department "
+        "sandbox or production endpoint.",
+    )
+    od19_etax_rd_endpoint = fields.Char(
+        string="RD Submission Endpoint",
+        help="Base URL of the Revenue Department e-Tax submission service.",
+    )
+    od19_etax_rd_provider_id = fields.Char(
+        string="RD Service Provider ID",
+        help="Identifier issued by the RD to the e-Tax service provider of this "
+        "company.",
+    )

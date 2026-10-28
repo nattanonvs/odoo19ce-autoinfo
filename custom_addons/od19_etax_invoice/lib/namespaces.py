@@ -164,8 +164,49 @@ _CONTACT_EMAIL = {
 #: ``OriginalInformationAmount`` / ``DifferenceInformationAmount``.
 _ORIGINAL_REFERENCE_REQUIRED = frozenset({"debit_credit_note", "cancellation_note"})
 
+#: Document families whose ``ApplicableHeaderTradeAgreement`` carries only the
+#: seller. The abbreviated tax invoice (ใบกำกับภาษีอย่างย่อ, ม.86/6) omits the
+#: buyer entirely, and its XSD does not declare ``BuyerTradeParty`` nor the
+#: referenced-document elements, so they must never be emitted.
+_BUYER_PARTY_OMITTED = frozenset({"abbreviated_tax_invoice"})
+
 #: UN/ECE 1153 reference type code of the original tax invoice.
 REFERENCE_TYPE_TAX_INVOICE = "388"
+
+#: UN/ECE 1001 type codes of the DebitCreditNote family, resolved from the
+#: ``account.move.dncn`` classification (od19_accounting_dncn): 80 is a debit
+#: note (ใบเพิ่มหนี้) and 81 a credit note (ใบลดหนี้).
+NOTE_TYPE_CODE_BY_DNCN = {"dn": "80", "cn": "81"}
+
+#: Thai document names of the DebitCreditNote family.
+NOTE_NAME_BY_DNCN = {"dn": "ใบเพิ่มหนี้", "cn": "ใบลดหนี้"}
+
+
+def document_type_code(document_type, dncn=None):
+    """Return the UN/ECE 1001 ``TypeCode`` of a document family.
+
+    A ``debit_credit_note`` is split into a debit note (``80``) or a credit
+    note (``81``) through the ``dncn`` value of its journal entry; every other
+    family reports its fixed code.
+    """
+    spec = DOCUMENT_TYPES.get(document_type)
+    if not spec:
+        return False
+    if document_type == "debit_credit_note":
+        return NOTE_TYPE_CODE_BY_DNCN.get(dncn, spec["type_code"])
+    return spec["type_code"]
+
+
+def document_name(document_type, dncn=None):
+    """Return the Thai ``Name`` of a document family.
+
+    A ``debit_credit_note`` is named ใบเพิ่มหนี้ (debit) or ใบลดหนี้ (credit)
+    through the ``dncn`` value of its journal entry.
+    """
+    spec = DOCUMENT_TYPES.get(document_type, {})
+    if document_type == "debit_credit_note":
+        return NOTE_NAME_BY_DNCN.get(dncn, spec.get("name", ""))
+    return spec.get("name", "")
 
 
 def contact_email_element(document_type):
@@ -176,6 +217,11 @@ def contact_email_element(document_type):
 def requires_original_reference(document_type):
     """Return ``True`` when the family must reference the original document."""
     return document_type in _ORIGINAL_REFERENCE_REQUIRED
+
+
+def omits_buyer_party(document_type):
+    """Return ``True`` when the family must not emit ``BuyerTradeParty``."""
+    return document_type in _BUYER_PARTY_OMITTED
 
 
 def rsm_namespace(document_type):

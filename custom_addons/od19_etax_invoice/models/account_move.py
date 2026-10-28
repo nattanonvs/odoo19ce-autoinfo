@@ -55,8 +55,15 @@ class AccountMove(models.Model):
                 move.od19_etax_state = "cancelled"
 
     def _od19_etax_default_type(self):
-        """Return the document type matching the journal entry type."""
+        """Return the document type matching the journal entry.
+
+        Odoo posts a debit note as an ``out_invoice``, so the DN/CN
+        classification (od19_accounting_dncn) is checked before the journal
+        entry type to keep debit notes out of the ``tax_invoice`` family.
+        """
         self.ensure_one()
+        if self.dncn in ("dn", "cn"):
+            return "debit_credit_note"
         return _DEFAULT_TYPE_BY_MOVE.get(self.move_type, "tax_invoice")
 
     def action_od19_create_etax_document(self):

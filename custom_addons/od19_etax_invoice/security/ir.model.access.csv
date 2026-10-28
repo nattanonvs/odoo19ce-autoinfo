@@ -4,3 +4,6 @@ access_od19_etax_document_invoice,od19.etax.document billing,model_od19_etax_doc
 access_od19_etax_document_manager,od19.etax.document manager,model_od19_etax_document,account.group_account_manager,1,1,1,1
 access_od19_etax_certificate_readonly,od19.etax.certificate readonly,model_od19_etax_certificate,account.group_account_readonly,1,0,0,0
 access_od19_etax_certificate_manager,od19.etax.certificate manager,model_od19_etax_certificate,account.group_account_manager,1,1,1,1
+access_od19_etax_submission_readonly,od19.etax.submission readonly,model_od19_etax_submission,account.group_account_readonly,1,0,0,0
+access_od19_etax_submission_invoice,od19.etax.submission billing,model_od19_etax_submission,account.group_account_invoice,1,1,1,0
+access_od19_etax_submission_manager,od19.etax.submission manager,model_od19_etax_submission,account.group_account_manager,1,1,1,1

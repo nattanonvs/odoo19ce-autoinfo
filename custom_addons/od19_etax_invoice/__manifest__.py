@@ -3,7 +3,7 @@
 
 {
     "name": "OD19 e-Tax Invoice & e-Receipt",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "author": "OD19",
     "category": "Accounting/Localizations",
     "summary": "Thai e-Tax Invoice & e-Receipt (ขมธอ.3-2560) XML with XAdES digital signature",
@@ -12,6 +12,7 @@
         "account",
         "mail",
         "od19_partner_thai_fields",
+        "od19_accounting_dncn",
     ],
     "external_dependencies": {
         "python": [
@@ -26,6 +27,7 @@
         "security/ir.model.access.csv",
         "views/etax_certificate_views.xml",
         "views/etax_document_views.xml",
+        "views/etax_submission_views.xml",
         "views/res_partner_views.xml",
         "views/res_company_views.xml",
         "views/account_move_views.xml",

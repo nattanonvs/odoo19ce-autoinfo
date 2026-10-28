@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="seq_od19_etax_submission" model="ir.sequence">
+        <field name="name">e-Tax RD Submission</field>
+        <field name="code">od19.etax.submission</field>
+        <field name="prefix">SUB/%(year)s/</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="view_od19_etax_submission_list" model="ir.ui.view">
+        <field name="name">od19.etax.submission.list</field>
+        <field name="model">od19.etax.submission</field>
+        <field name="arch" type="xml">
+            <list string="RD Submissions">
+                <field name="name"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="channel"/>
+                <field name="submitted_at"/>
+                <field name="attempt_count"/>
+                <field name="reference"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-success="state == 'accepted'"
+                       decoration-warning="state == 'rejected'"
+                       decoration-danger="state == 'failed'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_od19_etax_submission_form" model="ir.ui.view">
+        <field name="name">od19.etax.submission.form</field>
+        <field name="model">od19.etax.submission</field>
+        <field name="arch" type="xml">
+            <form string="RD Submission">
+                <header>
+                    <button name="action_submit" type="object"
+                            string="Submit to RD" class="btn-primary"
+                            invisible="state not in ('draft', 'failed', 'rejected')"/>
+                    <button name="action_retry" type="object"
+                            string="Retry"
+                            invisible="state not in ('failed', 'rejected')"/>
+                    <button name="action_export_batch" type="object"
+                            string="Export Batch"
+                            invisible="state == 'accepted'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,accepted"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Submission Reference"/>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="channel"/>
+                            <field name="submitted_at"/>
+                            <field name="attempt_count"/>
+                        </group>
+                        <group>
+                            <field name="reference"/>
+                            <field name="response_code"/>
+                            <field name="batch_exported_at"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Documents" name="documents">
+                            <field name="document_ids">
+                                <list string="e-Tax Documents">
+                                    <field name="name"/>
+                                    <field name="document_type"/>
+                                    <field name="issue_datetime"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Response" name="response">
+                            <group>
+                                <field name="response_message" nolabel="1"
+                                       readonly="1"/>
+                                <field name="note" placeholder="Internal note"/>
+                            </group>
+                        </page>
+                        <page string="Fallback Batch" name="batch">
+                            <group>
+                                <field name="batch_filename" invisible="1"/>
+                                <field name="batch_file" filename="batch_filename"
+                                       readonly="1"/>
+                            </group>
+                            <div class="text-muted">
+                                ใช้เมื่อช่องทางออนไลน์ไม่พร้อม — ไฟล์ ZIP
+                                บรรจุ XML ที่ลงนามแล้ว, PDF และ manifest.txt
+                                เป็นหลักฐานการนำส่ง
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_od19_etax_submission_search" model="ir.ui.view">
+        <field name="name">od19.etax.submission.search</field>
+        <field name="model">od19.etax.submission</field>
+        <field name="arch" type="xml">
+            <search string="RD Submissions">
+                <field name="name"/>
+                <field name="reference"/>
+                <field name="document_ids"/>
+                <filter string="Accepted" name="accepted"
+                        domain="[('state', '=', 'accepted')]"/>
+                <filter string="Failed or Rejected" name="problem"
+                        domain="[('state', 'in', ('failed', 'rejected'))]"/>
+                <group>
+                    <filter string="Status" name="group_state"
+                            context="{'group_by': 'state'}"/>
+                    <filter string="Channel" name="group_channel"
+                            context="{'group_by': 'channel'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_od19_etax_submission" model="ir.actions.act_window">
+        <field name="name">RD Submissions</field>
+        <field name="res_model">od19.etax.submission</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_od19_etax_submission_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first RD submission
+            </p>
+            <p>
+                Group the signed e-Tax documents and hand them over to the
+                Revenue Department through the online channel, or export the
+                signed fallback ZIP batch when it is unavailable.
+            </p>
+        </field>
+    </record>
+
+</odoo>

@@ -15,6 +15,14 @@
                                    options="{'no_create': False}"
                                    invisible="not od19_etax_enabled"/>
                         </group>
+                        <group string="RD Submission" invisible="not od19_etax_enabled">
+                            <field name="od19_etax_rd_mode"/>
+                            <field name="od19_etax_rd_endpoint"
+                                   placeholder="https://etax.rd.go.th/api"
+                                   invisible="od19_etax_rd_mode != 'live'"/>
+                            <field name="od19_etax_rd_provider_id"
+                                   invisible="od19_etax_rd_mode != 'live'"/>
+                        </group>
                     </group>
                 </page>
             </xpath>

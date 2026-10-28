@@ -20,7 +20,7 @@ from odoo.tests import tagged
 
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 
-from ..lib import pdf_embed, validator
+from ..lib import namespaces, pdf_embed, validator
 
 DS_NS = "http://www.w3.org/2000/09/xmldsig#"
 
@@ -104,6 +104,23 @@ class TestOd19EtaxDocument(AccountTestInvoicingCommon):
             "document_type": document_type,
         })
 
+    def _create_note_move(self, dncn):
+        """Return a posted DN/CN journal entry classified through ``dncn``.
+
+        A debit note is posted as an ``out_invoice`` and a credit note as an
+        ``out_refund``; both require a reason once posted.
+        """
+        move_type = "out_invoice" if dncn == "dn" else "out_refund"
+        move = self._create_invoice(move_type=move_type, post=False)
+        move.write({
+            "dncn": dncn,
+            "reason_id": self.env["account.move.dncn.reason"].create(
+                {"name": "Test DN/CN reason"}
+            ).id,
+        })
+        move.action_post()
+        return move
+
     def _parse(self, binary_field):
         return etree.fromstring(base64.b64decode(binary_field))
 
@@ -124,6 +141,46 @@ class TestOd19EtaxDocument(AccountTestInvoicingCommon):
         document.action_generate_xml()
         tree = self._parse(document.xml_file)
         self.assertEqual(validator.validate(tree, "debit_credit_note"), [])
+
+    def test_debit_note_type_code(self):
+        """A debit note (ใบเพิ่มหนี้) reports UN/ECE 1001 code 80."""
+        move = self._create_note_move("dn")
+        self.assertEqual(move._od19_etax_default_type(), "debit_credit_note")
+        document = self.env["od19.etax.document"].create({
+            "move_id": move.id,
+            "document_type": "debit_credit_note",
+        })
+        self.assertEqual(document.type_code, "80")
+        self.assertEqual(document.purpose_code, "CDNG01")
+        document.action_generate_xml()
+        tree = self._parse(document.xml_file)
+        self.assertEqual(validator.validate(tree, "debit_credit_note"), [])
+
+    def test_credit_note_type_code_from_dncn(self):
+        """A credit note (ใบลดหนี้) reports UN/ECE 1001 code 81."""
+        move = self._create_note_move("cn")
+        self.assertEqual(move._od19_etax_default_type(), "debit_credit_note")
+        document = self.env["od19.etax.document"].create({
+            "move_id": move.id,
+            "document_type": "debit_credit_note",
+        })
+        self.assertEqual(document.type_code, "81")
+
+    def test_all_document_families_are_schema_valid(self):
+        """Every offered family must build XSD-valid XML."""
+        for document_type in dict(namespaces.DOCUMENT_TYPE_SELECTION):
+            invoice = self._create_invoice(move_type="out_invoice")
+            document = self.env["od19.etax.document"].create({
+                "move_id": invoice.id,
+                "document_type": document_type,
+            })
+            document.action_generate_xml()
+            tree = self._parse(document.xml_file)
+            self.assertEqual(
+                validator.validate(tree, document_type),
+                [],
+                "XSD validation failed for %s" % document_type,
+            )
 
     def test_only_customer_documents_allowed(self):
         bill = self.env["account.move"].create({

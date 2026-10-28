@@ -183,7 +183,10 @@ class EtaxXmlBuilder:
         doc = self.document
         node = _el(root, self.rsm, "ExchangedDocument")
         _el(node, self.ram, "ID", _text(doc.name or self.move.name, 35))
-        _el(node, self.ram, "Name", _text(self.spec["name"], 35))
+        _el(
+            node, self.ram, "Name",
+            _text(namespaces.document_name(self.type_key, self.move.dncn), 35),
+        )
         _el(
             node, self.ram, "TypeCode", doc.type_code or self.spec["type_code"],
             {"listID": "1001_ThaiDocumentNameCodeInvoice", "listAgencyID": "RD/ETDA"},
@@ -221,6 +224,8 @@ class EtaxXmlBuilder:
     def _build_agreement(self, txn):
         agreement = _el(txn, self.ram, "ApplicableHeaderTradeAgreement")
         self._build_party(agreement, "SellerTradeParty", self.seller, is_seller=True)
+        if namespaces.omits_buyer_party(self.type_key):
+            return
         self._build_party(agreement, "BuyerTradeParty", self.buyer)
         self._build_references(agreement)
 

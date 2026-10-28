@@ -37,6 +37,9 @@
                             string="Generate PDF"/>
                     <button name="action_print" type="object"
                             string="Print"/>
+                    <button name="action_submit_to_rd" type="object"
+                            string="Submit to RD" class="btn-primary"
+                            invisible="state != 'signed'"/>
                     <button name="action_cancel" type="object"
                             string="Cancel Document"
                             invisible="state in ('signed', 'cancelled')"/>

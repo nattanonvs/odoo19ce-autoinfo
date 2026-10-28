@@ -19,7 +19,7 @@ import re
 
 from lxml import etree
 
-from odoo import api, fields, models
+from odoo import Command, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
 from ..lib import namespaces, qr, signer, validator, xml_builder
@@ -162,11 +162,13 @@ class Od19EtaxDocument(models.Model):
                 vals["name"] = (move.name if move else False) or self.env._("e-Tax")
         return super().create(vals_list)
 
-    @api.depends("document_type")
+    @api.depends("document_type", "move_id.dncn")
     def _compute_type_code(self):
         for record in self:
             spec = namespaces.DOCUMENT_TYPES.get(record.document_type, {})
-            record.type_code = spec.get("type_code", False)
+            record.type_code = namespaces.document_type_code(
+                record.document_type, record.move_id.dncn
+            )
             record.purpose_code = spec.get("purpose_code", False)
 
     @api.constrains("move_id")
@@ -239,7 +241,16 @@ class Od19EtaxDocument(models.Model):
         """Build and validate the unsigned XML tree."""
         self.ensure_one()
         tree = xml_builder.build_unsigned_tree(self)
-        validator.assert_valid(tree, self.document_type)
+        try:
+            validator.assert_valid(tree, self.document_type)
+        except validator.ValidationError as error:
+            raise UserError(
+                self.env._(
+                    "ไฟล์ XML e-Tax ไม่ผ่านการตรวจสอบตาม Schema ของ ETDA "
+                    "(ขมธอ.3-2560)\n%s",
+                    error,
+                )
+            ) from error
         return tree
 
     def action_generate_xml(self):
@@ -330,6 +341,33 @@ class Od19EtaxDocument(models.Model):
         """Open the printable e-Tax document."""
         self.ensure_one()
         return self._get_report().report_action(self.ids)
+
+    # ------------------------------------------------------------------
+    # RD submission
+    # ------------------------------------------------------------------
+    def action_submit_to_rd(self):
+        """Create a submission for this document and send it to the RD."""
+        self.ensure_one()
+        if self.state != "signed":
+            raise UserError(
+                self.env._(
+                    "เอกสาร %s ต้องอยู่ในสถานะลงนามแล้วก่อนนำส่งไปยังสรรพากร",
+                    self.name,
+                )
+            )
+        submission = self.env["od19.etax.submission"].create({
+            "company_id": self.company_id.id,
+            "document_ids": [Command.set(self.ids)],
+        })
+        submission.action_submit()
+        return {
+            "type": "ir.actions.act_window",
+            "name": self.env._("RD Submission"),
+            "res_model": "od19.etax.submission",
+            "res_id": submission.id,
+            "view_mode": "form",
+            "target": "current",
+        }
 
     def action_cancel(self):
         for record in self:
