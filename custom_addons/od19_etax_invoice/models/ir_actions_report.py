@@ -38,15 +38,19 @@ class IrActionsReport(models.Model):
         documents = self.env["od19.etax.document"].browse(res_ids).exists()
         payload = False
         filename = pdf_embed.DEFAULT_FILENAME
+        title = False
         for document in documents:
             if document.signed_xml_file:
                 payload = base64.b64decode(document.signed_xml_file)
                 filename = document.signed_xml_filename or filename
+                title = document.name
                 break
         if not payload:
             return content
         try:
-            return pdf_embed.embed_xml(content, payload, filename=filename)
+            return pdf_embed.embed_xml(
+                content, payload, filename=filename, title=title
+            )
         except Exception:  # the PDF must still print if the attachment fails
             _logger.exception("Cannot embed the e-Tax XML into the PDF report.")
             return content

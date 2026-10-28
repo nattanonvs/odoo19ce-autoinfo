@@ -260,15 +260,44 @@ class TestOd19EtaxDocument(AccountTestInvoicingCommon):
             self.assertIn("amount", values)
         self.assertTrue(document.get_qr_data_uri().startswith("data:image/png;base64,"))
 
-    def test_pdf_embed_round_trip(self):
-        from PyPDF2 import PdfWriter
+    def _source_pdf(self):
+        from reportlab.pdfgen import canvas
 
-        writer = PdfWriter()
-        writer.add_blank_page(width=200, height=200)
         buffer = io.BytesIO()
-        writer.write(buffer)
+        page = canvas.Canvas(buffer)
+        page.drawString(72, 720, "e-Tax invoice")
+        page.showPage()
+        page.save()
+        return buffer.getvalue()
+
+    def test_pdf_embed_round_trip(self):
         xml = b"<?xml version='1.0' encoding='UTF-8'?><root/>"
-        embedded = pdf_embed.embed_xml(buffer.getvalue(), xml, "etax.xml")
+        embedded = pdf_embed.embed_xml(self._source_pdf(), xml, "etax.xml")
+        self.assertEqual(pdf_embed.extract_xml(embedded, "etax.xml"), xml)
+
+    def test_pdf_is_pdfa3_and_carries_the_xml(self):
+        import pikepdf
+
+        xml = b"<?xml version='1.0' encoding='UTF-8'?><root/>"
+        embedded = pdf_embed.embed_xml(
+            self._source_pdf(), xml, "etax.xml", title="INV/2026/0001"
+        )
+        with pikepdf.open(io.BytesIO(embedded)) as pdf:
+            with pdf.open_metadata() as metadata:
+                self.assertEqual(metadata["pdfaid:part"], "3")
+                self.assertEqual(metadata["pdfaid:conformance"], "B")
+                self.assertEqual(metadata["dc:title"], "INV/2026/0001")
+            intents = pdf.Root.OutputIntents
+            self.assertEqual(len(intents), 1)
+            self.assertEqual(str(intents[0].S), "/GTS_PDFA1")
+            self.assertTrue(
+                intents[0].DestOutputProfile.read_bytes().startswith(b"\x00")
+            )
+            attachment = pdf.attachments["etax.xml"]
+            self.assertEqual(attachment.obj["/AFRelationship"], "/Data")
+            self.assertEqual(
+                attachment.get_file().read_bytes(), xml
+            )
         self.assertEqual(pdf_embed.extract_xml(embedded, "etax.xml"), xml)
 
     def test_report_template_renders(self):
