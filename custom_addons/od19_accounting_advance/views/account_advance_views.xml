@@ -101,7 +101,7 @@
         name="Advance Payments"
         parent="account.menu_finance"
         action="action_account_advance"
-        sequence="50"
+        sequence="12"
     />
 
 </odoo>

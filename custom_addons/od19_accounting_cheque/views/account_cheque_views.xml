@@ -142,7 +142,7 @@
         name="Cheques"
         parent="account.menu_finance"
         action="action_account_cheque"
-        sequence="60"
+        sequence="11"
     />
 
 </odoo>

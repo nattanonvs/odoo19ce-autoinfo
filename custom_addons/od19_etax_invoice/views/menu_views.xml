@@ -4,7 +4,7 @@
     <menuitem id="menu_od19_etax_root"
               name="e-Tax Invoice"
               parent="account.menu_finance"
-              sequence="30"
+              sequence="15"
               groups="account.group_account_invoice"/>
 
     <menuitem id="menu_od19_etax_document"

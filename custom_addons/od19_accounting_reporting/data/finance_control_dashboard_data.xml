@@ -374,10 +374,13 @@
         <field name="params" eval="{'dashboard_id': ref('dashboard_finance_control')}"/>
     </record>
 
+    <!-- Kept between the core operational menus (Review, seq 7) and Reporting
+         (seq 20) so the custom finance menus sit together instead of jumping
+         before the Dashboard or after Configuration. -->
     <menuitem id="menu_od19_finance_control_dashboard"
               name="Finance Control Board"
               parent="account.menu_finance"
               action="action_od19_finance_control_dashboard"
-              sequence="0"/>
+              sequence="10"/>
 
 </odoo>

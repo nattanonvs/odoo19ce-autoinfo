@@ -85,7 +85,7 @@
         id="menu_petty_cash_root"
         name="Petty Cash"
         parent="account.menu_finance"
-        sequence="70"
+        sequence="13"
     />
 
     <menuitem
