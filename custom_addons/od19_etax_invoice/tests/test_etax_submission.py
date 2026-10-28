@@ -42,6 +42,7 @@ class TestOd19EtaxSubmission(AccountTestInvoicingCommon):
         })
         cls.certificate.action_verify()
         cls.company.od19_etax_certificate_id = cls.certificate.id
+        cls.company.od19_etax_enabled = True
 
     @classmethod
     def setup_independent_user(cls):

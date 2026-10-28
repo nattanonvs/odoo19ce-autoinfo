@@ -27,19 +27,22 @@
         <field name="arch" type="xml">
             <form string="e-Tax Document">
                 <header>
+                    <field name="od19_etax_enabled" invisible="1"/>
                     <button name="action_generate_xml" type="object"
                             string="Generate XML" class="btn-primary"
-                            invisible="state in ('signed', 'cancelled')"/>
+                            invisible="state in ('signed', 'cancelled') or not od19_etax_enabled"/>
                     <button name="action_sign" type="object"
                             string="Sign" class="btn-primary"
-                            invisible="state in ('signed', 'cancelled')"/>
+                            invisible="state in ('signed', 'cancelled') or not od19_etax_enabled"/>
                     <button name="action_generate_pdf" type="object"
-                            string="Generate PDF"/>
+                            string="Generate PDF"
+                            invisible="not od19_etax_enabled"/>
                     <button name="action_print" type="object"
-                            string="Print"/>
+                            string="Print"
+                            invisible="not od19_etax_enabled"/>
                     <button name="action_submit_to_rd" type="object"
                             string="Submit to RD" class="btn-primary"
-                            invisible="state != 'signed'"/>
+                            invisible="state != 'signed' or not od19_etax_enabled"/>
                     <button name="action_cancel" type="object"
                             string="Cancel Document"
                             invisible="state in ('signed', 'cancelled')"/>

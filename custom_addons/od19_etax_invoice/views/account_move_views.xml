@@ -17,15 +17,16 @@
                 </button>
             </xpath>
             <xpath expr="//header" position="inside">
+                <field name="od19_etax_enabled" invisible="1"/>
                 <button name="action_od19_create_etax_document"
                         type="object"
                         string="Create e-Tax Document"
                         class="btn-primary"
-                        invisible="move_type not in ('out_invoice', 'out_refund') or state != 'posted' or od19_etax_document_count"/>
+                        invisible="move_type not in ('out_invoice', 'out_refund') or state != 'posted' or od19_etax_document_count or not od19_etax_enabled"/>
             </xpath>
             <xpath expr="//page[@id='other_tab_entry']" position="after">
                 <page string="e-Tax Invoice" name="od19_etax"
-                      invisible="move_type not in ('out_invoice', 'out_refund')">
+                      invisible="move_type not in ('out_invoice', 'out_refund') or not od19_etax_enabled">
                     <group>
                         <group>
                             <field name="od19_etax_state" widget="badge"/>

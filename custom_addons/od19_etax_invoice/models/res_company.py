@@ -2,6 +2,7 @@
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0)
 
 from odoo import fields, models
+from odoo.exceptions import UserError
 
 
 class ResCompany(models.Model):
@@ -37,3 +38,21 @@ class ResCompany(models.Model):
         help="Identifier issued by the RD to the e-Tax service provider of this "
         "company.",
     )
+
+    def _od19_etax_check_enabled(self):
+        """Raise when this company has not enabled the e-Tax Invoice feature.
+
+        ``od19_etax_enabled`` is the single switch of the module: it guards the
+        creation of e-Tax documents, every step of their lifecycle and the RD
+        submission, so nothing can be operated for a company that never opted
+        in.
+        """
+        self.ensure_one()
+        if not self.od19_etax_enabled:
+            raise UserError(
+                self.env._(
+                    "e-Tax Invoice is not enabled for company %s. Enable it in "
+                    "the company settings before issuing e-Tax documents.",
+                    self.display_name,
+                )
+            )

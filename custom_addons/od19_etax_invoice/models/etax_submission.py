@@ -109,6 +109,12 @@ class Od19EtaxSubmission(models.Model):
 
     note = fields.Text()
 
+    od19_etax_enabled = fields.Boolean(
+        related="company_id.od19_etax_enabled",
+        string="e-Tax Invoice Enabled",
+        readonly=True,
+    )
+
     # ------------------------------------------------------------------
     # Naming
     # ------------------------------------------------------------------
@@ -133,6 +139,7 @@ class Od19EtaxSubmission(models.Model):
     def action_submit(self):
         """Send every document of the submission through the RD gateway."""
         self.ensure_one()
+        self.company_id._od19_etax_check_enabled()
         if not self.document_ids:
             raise UserError(
                 self.env._("กรุณาเลือกเอกสาร e-Tax ที่ต้องการนำส่งก่อน")
@@ -198,6 +205,7 @@ class Od19EtaxSubmission(models.Model):
     def action_export_batch(self):
         """Build the signed ZIP batch used when the online channel is down."""
         self.ensure_one()
+        self.company_id._od19_etax_check_enabled()
         if not self.document_ids:
             raise UserError(
                 self.env._("กรุณาเลือกเอกสาร e-Tax ที่ต้องการส่งออกก่อน")

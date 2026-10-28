@@ -35,15 +35,16 @@
         <field name="arch" type="xml">
             <form string="RD Submission">
                 <header>
+                    <field name="od19_etax_enabled" invisible="1"/>
                     <button name="action_submit" type="object"
                             string="Submit to RD" class="btn-primary"
-                            invisible="state not in ('draft', 'failed', 'rejected')"/>
+                            invisible="state not in ('draft', 'failed', 'rejected') or not od19_etax_enabled"/>
                     <button name="action_retry" type="object"
                             string="Retry"
-                            invisible="state not in ('failed', 'rejected')"/>
+                            invisible="state not in ('failed', 'rejected') or not od19_etax_enabled"/>
                     <button name="action_export_batch" type="object"
                             string="Export Batch"
-                            invisible="state == 'accepted'"/>
+                            invisible="state == 'accepted' or not od19_etax_enabled"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="draft,accepted"/>
                 </header>

@@ -33,6 +33,11 @@ class AccountMove(models.Model):
         string="e-Tax Status",
         compute="_compute_od19_etax_state",
     )
+    od19_etax_enabled = fields.Boolean(
+        related="company_id.od19_etax_enabled",
+        string="e-Tax Invoice Enabled",
+        readonly=True,
+    )
 
     @api.depends("od19_etax_document_ids")
     def _compute_od19_etax_document_count(self):

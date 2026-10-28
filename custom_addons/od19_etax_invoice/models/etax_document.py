@@ -90,6 +90,11 @@ class Od19EtaxDocument(models.Model):
         string="Signing Certificate",
         help="Leave empty to use the certificate configured on the company.",
     )
+    od19_etax_enabled = fields.Boolean(
+        related="company_id.od19_etax_enabled",
+        string="e-Tax Invoice Enabled",
+        readonly=True,
+    )
 
     issue_datetime = fields.Datetime(
         string="Issue Date Time",
@@ -156,11 +161,23 @@ class Od19EtaxDocument(models.Model):
     # ------------------------------------------------------------------
     @api.model_create_multi
     def create(self, vals_list):
+        Company = self.env["res.company"]
         for vals in vals_list:
+            company = (
+                Company.browse(vals["company_id"])
+                if vals.get("company_id")
+                else self.env.company
+            )
+            company._od19_etax_check_enabled()
             if not vals.get("name"):
                 move = self.env["account.move"].browse(vals.get("move_id"))
                 vals["name"] = (move.name if move else False) or self.env._("e-Tax")
         return super().create(vals_list)
+
+    def _ensure_etax_enabled(self):
+        """Raise when any record belongs to a company without the feature."""
+        for record in self:
+            record.company_id._od19_etax_check_enabled()
 
     @api.depends("document_type", "move_id.dncn")
     def _compute_type_code(self):
@@ -255,6 +272,7 @@ class Od19EtaxDocument(models.Model):
 
     def action_generate_xml(self):
         """Build the unsigned XML and store it as an attachment."""
+        self._ensure_etax_enabled()
         for record in self:
             tree = record._build_unsigned_tree()
             content = etree.tostring(
@@ -269,6 +287,7 @@ class Od19EtaxDocument(models.Model):
 
     def action_sign(self):
         """Validate and sign the XML with the configured certificate."""
+        self._ensure_etax_enabled()
         for record in self:
             if record.move_id.state != "posted":
                 raise UserError(
@@ -324,6 +343,7 @@ class Od19EtaxDocument(models.Model):
 
     def action_generate_pdf(self):
         """Render the printable PDF carrying the signed XML."""
+        self._ensure_etax_enabled()
         for record in self:
             report = record._get_report()
             content, report_type = report._render_qweb_pdf(report, record.ids)
@@ -340,6 +360,7 @@ class Od19EtaxDocument(models.Model):
     def action_print(self):
         """Open the printable e-Tax document."""
         self.ensure_one()
+        self._ensure_etax_enabled()
         return self._get_report().report_action(self.ids)
 
     # ------------------------------------------------------------------
@@ -348,6 +369,7 @@ class Od19EtaxDocument(models.Model):
     def action_submit_to_rd(self):
         """Create a submission for this document and send it to the RD."""
         self.ensure_one()
+        self._ensure_etax_enabled()
         if self.state != "signed":
             raise UserError(
                 self.env._(

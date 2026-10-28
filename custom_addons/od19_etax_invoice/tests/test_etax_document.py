@@ -73,6 +73,7 @@ class TestOd19EtaxDocument(AccountTestInvoicingCommon):
         })
         cls.certificate.action_verify()
         cls.company.od19_etax_certificate_id = cls.certificate.id
+        cls.company.od19_etax_enabled = True
 
     @classmethod
     def setup_independent_user(cls):
@@ -190,6 +191,23 @@ class TestOd19EtaxDocument(AccountTestInvoicingCommon):
         with self.assertRaises(ValidationError):
             self.env["od19.etax.document"].create({
                 "move_id": bill.id,
+                "document_type": "tax_invoice",
+            })
+
+    # ------------------------------------------------------------------
+    # Company switch
+    # ------------------------------------------------------------------
+    def test_company_switch_gates_the_feature(self):
+        """Nothing can be issued for a company that never opted in."""
+        document = self._create_document()
+        self.company.od19_etax_enabled = False
+        with self.assertRaises(UserError):
+            document.action_generate_xml()
+        with self.assertRaises(UserError):
+            document.action_print()
+        with self.assertRaises(UserError):
+            self.env["od19.etax.document"].create({
+                "move_id": document.move_id.id,
                 "document_type": "tax_invoice",
             })
 
