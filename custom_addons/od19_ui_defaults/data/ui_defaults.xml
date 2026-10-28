@@ -19,4 +19,11 @@
     -->
     <function model="ir.ui.menu" name="_od19_place_configuration_menus_last"/>
 
+    <!--
+        Order the apps in the app switcher by business flow (CRM/Sales next to
+        each other, supply-chain apps together, HR apps together, ...). See
+        APP_MENU_ORDER in models/ir_ui_menu.py.
+    -->
+    <function model="ir.ui.menu" name="_od19_sequence_app_menus"/>
+
 </odoo>

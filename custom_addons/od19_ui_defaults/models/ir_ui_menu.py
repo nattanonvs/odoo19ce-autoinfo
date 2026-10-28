@@ -4,9 +4,118 @@ from odoo import api, models
 # because a few menus are named in Thai directly in the source XML.
 CONFIGURATION_MENU_LABELS = ("Configuration", "ตั้งค่า", "การตั้งค่า")
 
+# Order of the apps in the app switcher, grouped by business flow so that apps
+# used together sit next to each other: front office (Discuss -> CRM -> Sales),
+# finance, marketing, supply chain, projects, HR, website and finally the
+# internal tools. Apps of modules that are not installed are skipped, so the
+# list may safely reference optional modules.
+APP_MENU_ORDER = (
+    # Front office: communication, CRM and sales
+    "mail.menu_root_discuss",
+    "calendar.mail_menu_calendar",
+    "contacts.menu_contacts",
+    "crm.crm_menu_root",
+    "sale.sale_menu_root",
+    "point_of_sale.menu_point_root",
+    # Finance and analytics
+    "account.menu_finance",
+    "spreadsheet_dashboard.spreadsheet_dashboard_menu_root",
+    # Marketing and engagement
+    "mass_mailing.mass_mailing_menu_root",
+    "mass_mailing_sms.mass_mailing_sms_menu_root",
+    "event.event_main_menu",
+    "survey.menu_surveys",
+    "im_livechat.menu_livechat_root",
+    "marketing_card.card_menu",
+    "utm.menu_link_tracker_root",
+    # Supply chain
+    "purchase.menu_purchase_root",
+    "stock.menu_stock_root",
+    "mrp.menu_mrp_root",
+    "repair.menu_repair_order",
+    "maintenance.menu_maintenance_title",
+    # Projects and services
+    "project.menu_main_pm",
+    "hr_timesheet.timesheet_menu_root",
+    "od19_helpdesk_extension.menu_internal_helpdesk",
+    "od19_document_sign.menu_od19_document_sign_root",
+    # Human resources
+    "hr.menu_hr_root",
+    "hr_attendance.menu_hr_attendance_root",
+    "hr_recruitment.menu_hr_recruitment_root",
+    "fleet.menu_root",
+    "hr_holidays.menu_hr_holidays_root",
+    "hr_expense.menu_hr_expense_root",
+    "lunch.menu_lunch",
+    # Website, content and internal tools
+    "website.menu_website_configuration",
+    "website_slides.website_slides_menu_root",
+    "od19_announcement.announcement_main_menu",
+    "od19_iso_document_control.menu_iso_root",
+    "project_todo.menu_todo_todos",
+    "data_recycle.menu_data_cleaning_root",
+    "od19_user_guide_tours.menu_od19_user_guide_root",
+)
+
+# Sequences are handed out in steps of ten so that another module can still
+# insert an app between two curated ones without renumbering the whole list.
+APP_MENU_SEQUENCE_START = 10
+APP_MENU_SEQUENCE_STEP = 10
+
+# Context key set while re-sequencing to keep the ``create``/``write`` overrides
+# below from re-entering the same logic.
+APP_MENU_REORDER_CONTEXT = "od19_app_menu_reorder"
+
 
 class IrUiMenu(models.Model):
     _inherit = "ir.ui.menu"
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        menus = super().create(vals_list)
+        menus._od19_reorder_app_menus_if_root()
+        return menus
+
+    def write(self, vals):
+        res = super().write(vals)
+        if "sequence" in vals or "parent_id" in vals:
+            self._od19_reorder_app_menus_if_root()
+        return res
+
+    def _od19_reorder_app_menus_if_root(self):
+        """Re-apply the app ordering whenever a top-level menu is created/moved.
+
+        Odoo rewrites the ``sequence`` of every menu owned by a module each time
+        that module is installed or upgraded, which would shuffle the apps back
+        into their default order on the next ``-u``. Re-applying the curated
+        order on the fly keeps it in place without touching the core data files.
+        """
+        if self.env.context.get(APP_MENU_REORDER_CONTEXT):
+            return
+        if not any(not menu.parent_id for menu in self):
+            return
+        self.env["ir.ui.menu"].with_context(
+            **{APP_MENU_REORDER_CONTEXT: True}
+        )._od19_sequence_app_menus()
+
+    @api.model
+    def _od19_sequence_app_menus(self):
+        """Order the top-level app menus by business flow (see APP_MENU_ORDER).
+
+        The writes are done under the reorder context so the ``create``/``write``
+        overrides above do not re-enter this method while it is running, which
+        keeps the method idempotent and free of redundant nested reorders.
+        """
+        menu_model = self.env["ir.ui.menu"].with_context(
+            **{APP_MENU_REORDER_CONTEXT: True}
+        )
+        for index, xmlid in enumerate(APP_MENU_ORDER):
+            menu = menu_model.env.ref(xmlid, raise_if_not_found=False)
+            if not menu:
+                continue
+            sequence = APP_MENU_SEQUENCE_START + index * APP_MENU_SEQUENCE_STEP
+            if menu.sequence != sequence:
+                menu.sequence = sequence
 
     @api.model
     def _od19_place_configuration_menus_last(self):
