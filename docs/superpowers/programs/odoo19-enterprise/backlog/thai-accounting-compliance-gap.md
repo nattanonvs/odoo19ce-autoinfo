@@ -170,9 +170,9 @@
 | XAdES-BES | ✅ | `lib/signer.py` — RSA-SHA512 · SHA-512 · c14n 1.0 · enveloped transform · KeyInfo/X509Data |
 | Certificate lifecycle | ✅ | `models/etax_certificate.py` — PEM key/cert/chain + passphrase + verify + expiry |
 | Lifecycle + immutability | ✅ | draft → generated → signed; เอกสารที่ signed แก้/ยกเลิกไม่ได้ |
-| แนบ XML ใน PDF | ✅ | `lib/pdf_embed.py` (pikepdf) แนบ signed XML เข้า `/Names /EmbeddedFiles` เป็น **PDF/A-3 level B** — XMP `pdfaid:part=3`/`conformance=B` + `pdfaExtension:schemas`, `/OutputIntents` sRGB ICC, `AFRelationship=/Data`, PDF 1.7 |
+| แนบ XML ใน PDF | ✅ | `lib/pdf_embed.py` (pikepdf) แนบ signed XML เข้า `/Names /EmbeddedFiles` เป็น **PDF/A-3 level B** — XMP `pdfaid:part=3`/`conformance=B` + `pdfaExtension:schemas`, `/OutputIntents` sRGB ICC, `AFRelationship=/Data`, PDF 1.7 · เขียน `/W` ของ CIDFont ใหม่จาก embedded font program (fontTools) ให้ตรง ISO 19005-3 §6.2.11.5 |
 | QR + รายงานไทย | ✅ | `lib/qr.py` + `report/etax_document_report.xml` (โทน #9E2424, watermark ฉบับร่าง, block ลายเซ็น + digest) |
-| เทสต์ | 🟡 | `tests/test_etax_document.py` 13 เทสต์ — ครอบ 2/6 families |
+| เทสต์ | 🟡 | `tests/test_etax_document.py` 18 เทสต์ — ครอบ 2/6 families |
 
 **ตรวจแล้วว่าไม่เป็นปัญหา**: ลำดับ Summation `OriginalInformationAmount → LineTotalAmount → DifferenceInformationAmount` ถูกต้องตามทั้ง XSD ของ DebitCreditNote และ CancellationNote · TypeCode 80/81/380/388/T01/T05/T07 มีจริงใน `ThaiDocumentNameCode_Invoice_1p0.xsd` · log 2026-10-26 โหลดโมดูลผ่านสะอาด
 
@@ -180,7 +180,7 @@
 
 | รายการ | สถานะ | สิ่งที่ต้องทำ |
 | --- | --- | --- |
-| A. PDF/A-3 | ✅ | `lib/pdf_embed.py` (pikepdf) ใส่ XMP (`pdfaid:part=3`, `conformance=B` + `pdfaExtension:schemas`), `/OutputIntents` + sRGB ICC (สร้างจาก Pillow/lcms), `AFRelationship=/Data` บน embedded file, PDF 1.7 — เทสต์ parse XMP/OutputIntent/attachment ผ่าน · **คงเหลือ**: ตรวจ font embedding ด้วย veraPDF ก่อน certify จริง |
+| A. PDF/A-3 | ✅ | `lib/pdf_embed.py` (pikepdf) ใส่ XMP (`pdfaid:part=3`, `conformance=B` + `pdfaExtension:schemas`), `/OutputIntents` + sRGB ICC (สร้างจาก Pillow/lcms), `AFRelationship=/Data` บน embedded file, PDF 1.7 — เทสต์ parse XMP/OutputIntent/attachment ผ่าน · **ยืนยันด้วย veraPDF 1.30.3 (flavour 3b) แล้ว: PASS** (`lib/pdf_embed.py` เขียน `/W` ของ CIDFont ใหม่จาก embedded font program ด้วย `fontTools` เพราะ wkhtmltopdf ปัดเศษ glyph width ไม่ตรงตาม ISO 19005-3 §6.2.11.5) |
 | B. ช่องทางยื่น RD | ✅ | อยู่ใน `od19_etax_invoice` — model `od19.etax.submission` (state/submitted_at/reference/response_code/response_message/attempt_count) + config ระดับบริษัท (`od19_etax_rd_mode` mock｜live, `od19_etax_rd_endpoint`, `od19_etax_rd_provider_id`) + adapter `lib/rd_gateway.py` (Mock = ค่าเริ่มต้น, Live = จุด implement จริง) · fallback `lib/batch_export.py` (ZIP: signed XML + PDF + `manifest.txt` เป็น audit trail) |
 | C. e-Withholding Tax | 🔴 0% | integration นำส่งผ่านธนาคาร (ต้อง bank API + mTLS) |
 | D. ภ.ง.ด.54 report | ✅ | อยู่ใน `od19_thai_tax_reports` — mirror pattern `report/wht_register.py` + `pnd54` ใน `wizard/tax_report_wizard.py` + `selection_add` `pnd54` บน `account.withholding.tax.income_tax_form` (OCA ไม่มีค่านี้) |
@@ -202,7 +202,7 @@
 | Phase | งาน |
 | --- | --- |
 | Phase 0 — Quick win แก้ของเดิม | ✅ (1) TypeCode 80/81 ตาม `dncn` · ✅ (2) schema error → `UserError` ข้อความไทย · ✅ (4) ตัด `PyPDF2` ใช้ `pikepdf` · ✅ (5) `od19_etax_enabled` gate ครบทุกเส้นทาง (create/lifecycle/submit + view) v19.0.1.2.1 · 🟡 (3) เทสต์ XSD 6 families — **ค้าง**: ตระกูล `invoice` ต้องได้ XSD ขมธอ.3-2560 ตัวจริงจาก ETDA |
-| Phase 1 — PDF/A-3 | ✅ `lib/pdf_embed.py` (pikepdf) — XMP `pdfaid:part=3`/`conformance=B` + `pdfaExtension:schemas`, `/OutputIntents` sRGB ICC, `AFRelationship=/Data`, PDF 1.7 · เทสต์ parse XMP/OutputIntent/attachment · v19.0.1.2.0 · **คงเหลือ**: ตรวจด้วย veraPDF (font embedding) |
+| Phase 1 — PDF/A-3 | ✅ `lib/pdf_embed.py` (pikepdf) — XMP `pdfaid:part=3`/`conformance=B` + `pdfaExtension:schemas`, `/OutputIntents` sRGB ICC, `AFRelationship=/Data`, PDF 1.7 · เขียน `/W` ของ CIDFont ใหม่จาก embedded font program (เพิ่ม `fontTools` ใน `requirements-od19.txt`) · เทสต์ parse XMP/OutputIntent/attachment + `test_glyph_widths_match_the_font_program` · v19.0.1.2.2 · **veraPDF 1.30.3 flavour 3b: PASS** |
 | Phase 2 — ช่องทางยื่น RD | ✅ model `od19.etax.submission` + config บริษัท + adapter (mock ได้) · fallback batch export ZIP + audit trail · v19.0.1.1.0 |
 | Phase 3 — ภ.ง.ด.54 | ✅ report เฉพาะใน `od19_thai_tax_reports` (mirror `wht_register`) · v19.0.1.6.0 |
 | Phase 4 — e-Withholding | integration ธนาคาร (ต้องยืนยันธนาคารก่อน) |
