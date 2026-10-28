@@ -16,4 +16,37 @@
             </xpath>
         </field>
     </record>
+
+    <record id="res_config_settings_view_form_od19_ewht" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.od19.ewht</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='account']" position="inside">
+                <block title="e-Withholding Tax (e-WHT)"
+                       id="od19_ewht_settings">
+                    <setting string="e-Withholding Tax (e-WHT)"
+                             help="File withholding tax (ภาษีหัก ณ ที่จ่าย) electronically through the bank, which relays it to the Revenue Department.">
+                        <field name="od19_ewht_enabled"/>
+                        <div class="content-group mt16"
+                             invisible="not od19_ewht_enabled">
+                            <div class="row mt16">
+                                <label for="od19_ewht_mode" class="col-lg-3 o_light_label"/>
+                                <field name="od19_ewht_mode"/>
+                            </div>
+                            <div class="row">
+                                <label for="od19_ewht_endpoint" class="col-lg-3 o_light_label"/>
+                                <field name="od19_ewht_endpoint"
+                                       placeholder="https://ewht.bank.example/api"/>
+                            </div>
+                            <div class="row">
+                                <label for="od19_ewht_provider_id" class="col-lg-3 o_light_label"/>
+                                <field name="od19_ewht_provider_id"/>
+                            </div>
+                        </div>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
 </odoo>

@@ -1,2 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_thai_tax_report_wizard,access_thai_tax_report_wizard,model_thai_tax_report_wizard,base.group_user,1,1,1,0
+access_od19_ewht_submission_readonly,od19.ewht.submission readonly,model_od19_ewht_submission,account.group_account_readonly,1,0,0,0
+access_od19_ewht_submission_invoice,od19.ewht.submission billing,model_od19_ewht_submission,account.group_account_invoice,1,1,1,0
+access_od19_ewht_submission_manager,od19.ewht.submission manager,model_od19_ewht_submission,account.group_account_manager,1,1,1,1

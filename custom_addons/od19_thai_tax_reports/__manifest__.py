@@ -1,15 +1,17 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 {
     "name": "Thai Tax Reports",
-    "version": "19.0.1.6.1",
+    "version": "19.0.1.7.0",
     "category": "Localization",
     "summary": "Thai tax reports: VAT Sales/Purchase Register, WHT Register, "
-    "WHT Certificate (หนังสือรับรองการหักภาษี ณ ที่จ่าย), PND54 Register",
+    "WHT Certificate (หนังสือรับรองการหักภาษี ณ ที่จ่าย), PND54 Register, "
+    "e-Withholding Tax submission",
     "author": "Custom",
     "website": "https://github.com/OCA/l10n-thailand",
     "license": "LGPL-3",
     "depends": [
         "account",
+        "mail",
         "l10n_th_account_tax",
         "od19_partner_thai_fields",
         "od19_accounting_dncn",
@@ -28,6 +30,7 @@
         "report/tax_invoice_forms.xml",
         "views/account_move_views.xml",
         "views/res_config_settings_views.xml",
+        "views/ewht_submission_views.xml",
         "views/menus.xml",
     ],
     "installable": True,

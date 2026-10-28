@@ -7,7 +7,7 @@
 | Artifact | Thai accounting & tax regulatory compliance gap analysis |
 | Program | Odoo 19 CE Program |
 | สร้างเมื่อ | 2026-10-27 |
-| ปรับปรุงล่าสุด | 2026-10-28 (Wave 2A ติดตั้งสำเร็จ · Wave 2B ปิดช่อง VAT สำเร็จ · Wave 2C Phase 0–3.5 ปิดแล้ว · เหลือ Phase 4 e-Withholding) |
+| ปรับปรุงล่าสุด | 2026-10-28 (Wave 2A ติดตั้งสำเร็จ · Wave 2B ปิดช่อง VAT สำเร็จ · Wave 2C Phase 0–4 ปิดแล้ว — เหลือ Bank API spec สำหรับโหมด live) |
 | ตรวจจาก | สภาพจริงบนดิสก์ (`custom_addons/`, `third_party/oca/`, core `addons/l10n_th`), สถานะโมดูลใน DB `odoo19_pdev`, `odoo.conf`, และงานวิจัยกฎหมายไทย (ยืนยันซ้ำด้วยการค้นเว็บ) |
 | มุมมอง | **ข้อบังคับ/กฎหมาย** (ต่างจาก `accounting-requirements-coverage.md` ที่เป็นมุม "requirement checklist ของฝ่ายบัญชี") |
 | ผู้จัดทำ | ทีมเทคนิค |
@@ -25,8 +25,8 @@
   4. **ภาษีอื่น: ภ.ธ.40 (SBT) และอากรแสตมป์ / e-Stamp**
 - พร้อมกันนั้น **Wave 2A ติดตั้งสำเร็จแล้ว (2026-10-27)** — OCA 12 โมดูล state = `installed` บน `odoo19_pdev` แล้ว ซึ่งปิดช่องว่างด้านรายงานการเงิน/การควบคุมภายในได้ทันที — ได้แก่ `account_financial_report`, `account_tax_balance`, `partner_statement`, `account_reconcile_oca` (+`account_statement_base`), `auditlog`, `account_move_tier_validation` (+`base_tier_validation_formula`), `account_check_deposit`, `account_billing`, `account_journal_lock_date`, `date_range`
 - **Wave 2B ปิดช่อง VAT ครบแล้ว (2026-10-27)** — custom module `od19_thai_tax_reports` v19.0.1.5.0 ครอบคลุม ม.82/5 ภาษีซื้อต้องห้าม, ม.83/6 Reverse charge ภ.พ.36, ม.86/4 validate 8 รายการ, ม.86/6 ใบกำกับภาษีอย่างย่อ และ ม.86/9-10 ใบเพิ่มหนี้/ใบลดหนี้ (unit tests ของโมดูลผ่าน 39 รายการ, 0 failed)
-- **Wave 2C audit + ปิดงานเกือบครบ (2026-10-27 → 2026-10-28)** — ตรวจโมดูล `od19_etax_invoice` แบบ read-only 21 ไฟล์ พบว่า **XML ขมธอ.3-2560 + XSD ETDA + XAdES-BES ทำเสร็จแล้วและได้มาตรฐาน** หลังจากนั้นปิด Phase 0–3.5 ครบ (**PDF/A-3 ผ่าน veraPDF 1.30.3 flavour 3b**, **ช่องทางยื่น RD** แบบ mock + batch export, **ภ.ง.ด.54**) เหลือเพียง **e-Withholding** (ดูรายละเอียดในข้อ 4 Wave 2C)
-- **ข้อเสนอ**: Wave 2A ✅ Wave 2B ✅ และ Wave 2C Phase 0–3.5 ✅ ปิดแล้ว (เทสต์ `od19_etax_invoice` 33 tests, 0 failed); ขั้นถัดไปคือ **Wave 2C Phase 4 (e-Withholding Tax)** ซึ่งต้องยืนยันธนาคาร/ช่องทางนำส่งก่อน
+- **Wave 2C audit + ปิดงานเกือบครบ (2026-10-27 → 2026-10-28)** — ตรวจโมดูล `od19_etax_invoice` แบบ read-only 21 ไฟล์ พบว่า **XML ขมธอ.3-2560 + XSD ETDA + XAdES-BES ทำเสร็จแล้วและได้มาตรฐาน** หลังจากนั้นปิด Phase 0–4 ครบ (**PDF/A-3 ผ่าน veraPDF 1.30.3 flavour 3b**, **ช่องทางยื่น RD** แบบ mock + batch export, **ภ.ง.ด.54**, และ **e-Withholding Tax** แบบ mock-first ใน `od19_thai_tax_reports`) เหลือเพียงการเชื่อมต่อจริงกับธนาคาร (Bank API spec) สำหรับโหมด `live` (ดูรายละเอียดในข้อ 4 Wave 2C)
+- **ข้อเสนอ**: Wave 2A ✅ Wave 2B ✅ และ Wave 2C Phase 0–4 ✅ ปิดแล้ว (เทสต์ `od19_etax_invoice` 33 tests + `od19_thai_tax_reports` 50 tests, 0 failed ทั้งคู่); ขั้นถัดไปคือ **Wave 3 (ภ.ง.ด.50/51 + TAS 12 Deferred Tax + TFRS for NPAEs)**
 
 ## 2. สิ่งที่ระบบมีวันนี้ (As-Is)
 
@@ -81,7 +81,7 @@
 | ภ.ง.ด.53 | ยื่น **7 วัน** (e-Filing +8 = 15 วัน) | ✅ | core `tax_report_pnd53` |
 | ภ.ง.ด.54 | นำส่งภาษีให้ราชการ/องค์กร | ✅ | report เฉพาะใน `od19_thai_tax_reports` (flag `pnd54` บน `account.withholding.tax.income_tax_form`) |
 | ม.50 ทวิ | หนังสือรับรองการหักภาษี **2 ฉบับ** (ม.40(1)(2) ภายใน 15 ก.พ. ปีถัดไป) | ✅ | OCA `withholding.tax.cert` |
-| e-Withholding Tax | นำส่งอิเล็กทรอนิกส์ผ่านธนาคาร | 🔴 | ไม่มี integration |
+| e-Withholding Tax | นำส่งอิเล็กทรอนิกส์ผ่านธนาคาร | 🟡 | mock-first พร้อม (Live รอ Bank API spec) |
 
 ### หมวด D: ภาษีเงินได้นิติบุคคล
 
@@ -156,7 +156,7 @@
 | ม.86/6 ใบกำกับอย่างย่อ | รายงาน Abbreviated Tax Invoice สำหรับขายปลีก | `report/tax_invoice_forms.xml` |
 | ม.86/9-10 ใบเพิ่มหนี้/ใบลดหนี้ | ฟิลด์ `od19_tax_invoice_doc_type` + block "อ้างอิงใบกำกับภาษีเดิม/เหตุผล" บนรายงานใบกำกับภาษี | `models/account_move.py`, `report/tax_invoice_forms.xml` |
 
-### Wave 2C — WHT + e-Tax ให้สมบูรณ์ 🔄 (audit 2026-10-27 · Phase 0–3.5 ปิดแล้ว 2026-10-28 · เหลือ Phase 4)
+### Wave 2C — WHT + e-Tax ให้สมบูรณ์ ✅ (audit 2026-10-27 · Phase 0–4 ปิดแล้ว 2026-10-28)
 **เป้าหมาย**: ปิดช่องว่างหมวด C (ภ.ง.ด.54, e-Withholding Tax) และหมวด E (e-Tax Invoice ให้สมบูรณ์)
 
 #### ผล Audit `od19_etax_invoice` (read-only, 2026-10-27 · 21 ไฟล์)
@@ -182,7 +182,7 @@
 | --- | --- | --- |
 | A. PDF/A-3 | ✅ | `lib/pdf_embed.py` (pikepdf) ใส่ XMP (`pdfaid:part=3`, `conformance=B` + `pdfaExtension:schemas`), `/OutputIntents` + sRGB ICC (สร้างจาก Pillow/lcms), `AFRelationship=/Data` บน embedded file, PDF 1.7 — เทสต์ parse XMP/OutputIntent/attachment ผ่าน · **ยืนยันด้วย veraPDF 1.30.3 (flavour 3b) แล้ว: PASS** (`lib/pdf_embed.py` เขียน `/W` ของ CIDFont ใหม่จาก embedded font program ด้วย `fontTools` เพราะ wkhtmltopdf ปัดเศษ glyph width ไม่ตรงตาม ISO 19005-3 §6.2.11.5) |
 | B. ช่องทางยื่น RD | ✅ | อยู่ใน `od19_etax_invoice` — model `od19.etax.submission` (state/submitted_at/reference/response_code/response_message/attempt_count) + config ระดับบริษัท (`od19_etax_rd_mode` mock｜live, `od19_etax_rd_endpoint`, `od19_etax_rd_provider_id`) + adapter `lib/rd_gateway.py` (Mock = ค่าเริ่มต้น, Live = จุด implement จริง) · fallback `lib/batch_export.py` (ZIP: signed XML + PDF + `manifest.txt` เป็น audit trail) |
-| C. e-Withholding Tax | 🔴 0% | integration นำส่งผ่านธนาคาร (ต้อง bank API + mTLS) |
+| C. e-Withholding Tax | 🟡 mock พร้อม | อยู่ใน `od19_thai_tax_reports` — model `od19.ewht.submission` (state/submitted_at/reference/response_code/response_message/attempt_count) + config บริษัท (`od19_ewht_mode` mock｜live, `od19_ewht_endpoint`, `od19_ewht_provider_id`) + adapter `lib/ewht_gateway.py` (Mock = ค่าเริ่มต้น, Live = จุด implement จริง) · แหล่งข้อมูล = `account.withholding.move` (OCA) · **โหมด `live` ยังต้อง bank API + mTLS** |
 | D. ภ.ง.ด.54 report | ✅ | อยู่ใน `od19_thai_tax_reports` — mirror pattern `report/wht_register.py` + `pnd54` ใน `wizard/tax_report_wizard.py` + `selection_add` `pnd54` บน `account.withholding.tax.income_tax_form` (OCA ไม่มีค่านี้) |
 
 **ประเด็นคุณภาพที่พบ (ยืนยันจากโค้ด)**
@@ -206,12 +206,12 @@
 | Phase 2 — ช่องทางยื่น RD | ✅ model `od19.etax.submission` + config บริษัท + adapter (mock ได้) · fallback batch export ZIP + audit trail · v19.0.1.1.0 |
 | Phase 3 — ภ.ง.ด.54 | ✅ report เฉพาะใน `od19_thai_tax_reports` (mirror `wht_register`) · v19.0.1.6.1 |
 | Phase 3.5 — ปิดประเด็นคุณภาพ #6/#7 | ✅ default mapping ครบ families ตาม buyer VAT + receipt · เอกสารแยกขอบเขต paper 86/6 vs electronic T05 ชัดเจน · v19.0.1.2.3 / v19.0.1.6.1 |
-| Phase 4 — e-Withholding | integration ธนาคาร (ต้องยืนยันธนาคารก่อน) |
+| Phase 4 — e-Withholding | ✅ mock-first ใน `od19_thai_tax_reports` — model `od19.ewht.submission` + adapter `lib/ewht_gateway.py` (Mock/Live) + config บริษัท + view/security/เทสต์ · v19.0.1.7.0 (โหมด `live` รอ Bank API spec) |
 
-**ต้องตัดสินใจ / รอข้อมูล**: (1) ~~PDF/A-3 ใช้ `pikepdf` หรือ `ghostscript`~~ ✅ เลือก `pikepdf` · (2) ~~มี RD Service Provider ID + API spec แล้วหรือยัง~~ 🟡 adapter ทำเป็น mock ได้แล้ว (`od19_etax_rd_mode`); mode `live` ยังต้องมี Provider ID + API spec จริง · (3) ~~ยืนยันการแยก TypeCode 80/81 (กระทบเอกสารที่ออกไปแล้ว)~~ ✅ ยืนยันแล้ว (ดูประเด็นคุณภาพ #1) · (4) ~~ลำดับเริ่ม Phase 0 หรือ Phase 1~~ ✅ เริ่มจาก Phase 0 (ปิดแล้วทั้งสอง) · (5) **ธนาคารสำหรับ e-Withholding** (Phase 4 — ต้องยืนยัน) · (6) **ยืนยันสมมุติฐาน ภ.ง.ด.54**: ใช้ flag `pnd54` ที่เพิ่มบน `account.withholding.tax.income_tax_form` เป็นเกณฑ์คัดรายการ (OCA ไม่มีค่านี้) — หากต้องการเกณฑ์อื่น (เช่น ตามประเภทผู้จ่าย/หน่วยงานราชการ) ต้องปรับ domain ใน `report/pnd54_register.py`
-**ติดตาม**: terminal บน Windows กลับมาใช้งานได้แล้ว (2026-10-28) — Wave 2B/2C commit + **push ขึ้น `origin/feat/od19-wave2b-vat-compliance` แล้ว (HEAD ล่าสุด `d08a3c225b1`)** · Wave 2C Phase 0 (ข้อ 1–5 ครบ) + Phase 1 + Phase 2 + Phase 3 + Phase 3.5 (ปิดประเด็นคุณภาพ #6/#7 ครบทั้ง 7 ข้อ) ปิดแล้ว · เทสต์ `od19_etax_invoice` 0 failed, 0 error(s) of 33 tests · คงเหลือ Phase 4 (e-Withholding)
+**ต้องตัดสินใจ / รอข้อมูล**: (1) ~~PDF/A-3 ใช้ `pikepdf` หรือ `ghostscript`~~ ✅ เลือก `pikepdf` · (2) ~~มี RD Service Provider ID + API spec แล้วหรือยัง~~ 🟡 adapter ทำเป็น mock ได้แล้ว (`od19_etax_rd_mode`); mode `live` ยังต้องมี Provider ID + API spec จริง · (3) ~~ยืนยันการแยก TypeCode 80/81 (กระทบเอกสารที่ออกไปแล้ว)~~ ✅ ยืนยันแล้ว (ดูประเด็นคุณภาพ #1) · (4) ~~ลำดับเริ่ม Phase 0 หรือ Phase 1~~ ✅ เริ่มจาก Phase 0 (ปิดแล้วทั้งสอง) · (5) ~~ธนาคารสำหรับ e-Withholding (Phase 4)~~ 🟡 adapter ทำเป็น mock ได้แล้ว (`od19_ewht_mode`); mode `live` ยังต้องยืนยันธนาคาร + bank API spec · (6) **ยืนยันสมมุติฐาน ภ.ง.ด.54**: ใช้ flag `pnd54` ที่เพิ่มบน `account.withholding.tax.income_tax_form` เป็นเกณฑ์คัดรายการ (OCA ไม่มีค่านี้) — หากต้องการเกณฑ์อื่น (เช่น ตามประเภทผู้จ่าย/หน่วยงานราชการ) ต้องปรับ domain ใน `report/pnd54_register.py`
+**ติดตาม**: terminal บน Windows กลับมาใช้งานได้แล้ว (2026-10-28) — Wave 2B/2C commit + **push ขึ้น `origin/feat/od19-wave2b-vat-compliance` แล้ว (HEAD ล่าสุด `d08a3c225b1`)** · Wave 2C Phase 0 (ข้อ 1–5 ครบ) + Phase 1 + Phase 2 + Phase 3 + Phase 3.5 (ปิดประเด็นคุณภาพ #6/#7 ครบทั้ง 7 ข้อ) + Phase 4 (e-Withholding mock-first) ปิดแล้ว · เทสต์ `od19_etax_invoice` 0 failed, 0 error(s) of 33 tests · เทสต์ `od19_thai_tax_reports` 0 failed, 0 error(s) of 50 tests (รวม 9 เทสต์ e-WHT) · คงเหลือเพียงการเชื่อมต่อจริงกับธนาคาร/RD สำหรับโหมด `live`
 
-> หมายเหตุ: ผล audit ข้างต้นมาจากการตรวจแบบ read-only (ขั้นตอน audit ไม่ได้แก้ไขไฟล์ในโมดูล `od19_etax_invoice`) — การแก้ไขเกิดขึ้นภายหลังใน Phase 0–3.5 ตามแผนด้านบน
+> หมายเหตุ: ผล audit ข้างต้นมาจากการตรวจแบบ read-only (ขั้นตอน audit ไม่ได้แก้ไขไฟล์ในโมดูล `od19_etax_invoice`) — การแก้ไขเกิดขึ้นภายหลังใน Phase 0–4 ตามแผนด้านบน
 
 ### Wave 3 — ภาษีเงินได้นิติบุคคล + มาตรฐานบัญชี
 - **ภ.ง.ด.50 / ภ.ง.ด.51**: รายงาน + ประมาณการ
