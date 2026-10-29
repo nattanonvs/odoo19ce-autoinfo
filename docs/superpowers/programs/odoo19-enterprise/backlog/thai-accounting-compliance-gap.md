@@ -110,7 +110,7 @@
 
 | ข้อบังคับ | สิ่งที่กฎหมายกำหนด | สถานะ | ช่องว่าง |
 | --- | --- | --- | --- |
-| TFRS for NPAEs | งบการเงินตามมาตรฐาน | 🟡 | มี GL แต่ไม่มี template งบตามแบบ NPAE |
+| TFRS for NPAEs | งบการเงินตามมาตรฐาน | ✅ | template งบการเงินตามแบบ NPAE ใน `od19_thai_tax_reports` (งบแสดงฐานะการเงิน + งบกำไรขาดทุน) **เสร็จ 2026-10-29** (Wave 3) |
 | งบทดลอง / กำไรขาดทุน / งบดุล / กระแสเงินสด | รายงานมาตรฐาน | ✅ | `account_financial_report` (OCA) **ติดตั้งแล้ว 2026-10-27** (Wave 2A) |
 | กระทบยอดธนาคาร | Monthly recon | ✅ | `account_reconcile_oca` + `account_statement_base` **ติดตั้งแล้ว 2026-10-27** (Wave 2A) |
 | ปิดงวดบัญชี | ล็อกงวด | ✅ | `account_lock_date_update` ติดตั้งแล้ว + `account_journal_lock_date` **ติดตั้งแล้ว 2026-10-27** (Wave 2A) |
@@ -220,7 +220,7 @@
 | ภ.ง.ด.50 (รายปี) | ✅ | อยู่ใน `od19_thai_tax_reports` — `report/pnd50_register.py` (`_get_profit_and_loss` รวบยอดบัญชี `internal_group in (income, expense)` ที่ `parent_state='posted'` ผ่าน `_read_group(balance:sum)`) + template/report action `report/pnd50_register.xml` + selection/menu บน wizard · v19.0.1.8.0 |
 | ภ.ง.ด.51 (ครึ่งปี/ประมาณการ) | ✅ | อยู่ใน `od19_thai_tax_reports` — `report/pnd51_register.py` ใช้ `_get_profit_and_loss` ร่วมกับ ภ.ง.ด.50, ประมาณการกำไรทั้งปี (`net_profit × 12 ÷ จำนวนเดือน`) และภาษีครึ่งปี = 50% ของประมาณการทั้งปี · v19.0.1.8.0 |
 | TAS 12 Deferred Tax | ✅ | อยู่ใน `od19_thai_tax_reports` — Worksheet/Register `od19.deferred.tax.worksheet` + `od19.deferred.tax.line` (มูลค่าตามบัญชี vs ฐานภาษี → ผลต่างชั่วคราว taxable/deductible → ภาษีรอตัดบัญชี) · บันทึกบัญชีอัตโนมัติเฉพาะ **ส่วนเคลื่อนไหว** (ยอดปิดงวด − ยอดยกมาจาก `previous_worksheet_id` ที่ Post แล้ว) ผ่าน `action_post_deferred_tax` · ตั้งค่าบัญชี DTA/DTL/ค่าใช้จ่าย + สมุดรายวัน + อัตราภาษี ที่หน้าตั้งค่าบริษัท · v19.0.1.9.0 |
-| TFRS for NPAEs template | ⬜ | งบการเงินตามแบบ NPAE |
+| TFRS for NPAEs template | ✅ | อยู่ใน `od19_thai_tax_reports` — `report/npae_financial_statement.py` (AbstractModel สรุป **งบแสดงฐานะการเงิน** จากยอดสะสม `parent_state='posted'` จัดกลุ่มตาม `account_type` เป็นหมุนเวียน/ไม่หมุนเวียน + **งบกำไรขาดทุน** เฉพาะรอบระยะเวลา) + template/report action `report/npae_financial_statement.xml` + selection/menu บน wizard · ตรวจสมการบัญชีผ่าน `balance_difference` (สินทรัพย์ − หนี้สิน − ส่วนของผู้ถือหุ้นรวมผลกำไร) · v19.0.1.10.0 |
 
 **ประเด็นคุณภาพที่พบ (แก้แล้วใน Wave 3)**
 
@@ -230,7 +230,7 @@
 | 2 | เทมเพลตใช้ `t-field` กับค่า dict/ตัวแปร (compile ไม่ผ่าน) | ✅ | แก้แล้ว — `_compile_directive_field` บังคับ `assert "." in t-field` (ใช้กับ record.field เท่านั้น) ทำให้ `t-field="date_from"` และ `t-field="line['date']"` compile ไม่ผ่าน · เปลี่ยนเป็น `t-out` (+ `t-options='{"widget": "date"}'` สำหรับวันที่) ใน pnd50/pnd51/vat_sales/vat_purchase/wht/pp36/pnd54 |
 | 3 | Computed field อ้าง computed field ของโมเดลเดียวกัน (TAS 12) | ✅ | แก้แล้ว — `total_dta`/`total_dtl` ถูกใช้เป็น dependency ของ `_compute_totals` ผ่าน `previous_worksheet_id.total_*` (self-reference) ทำให้ Odoo เตือน `should be declared with recursive=True` · ประกาศ `recursive=True` บนสองฟิลด์ |
 
-**แผนดำเนินการ Wave 3**: ✅ ลำดับที่ 1 — ภ.ง.ด.50 + ภ.ง.ด.51 (report + ประมาณการ + เทสต์ render/compute ผ่าน) · ✅ ลำดับที่ 2 — TAS 12 Deferred Tax (worksheet + auto GL + เทสต์ 8 ตัวผ่าน) · ⬜ ลำดับที่ 3 — TFRS for NPAEs
+**แผนดำเนินการ Wave 3**: ✅ ลำดับที่ 1 — ภ.ง.ด.50 + ภ.ง.ด.51 (report + ประมาณการ + เทสต์ render/compute ผ่าน) · ✅ ลำดับที่ 2 — TAS 12 Deferred Tax (worksheet + auto GL + เทสต์ 8 ตัวผ่าน) · ✅ ลำดับที่ 3 — TFRS for NPAEs (งบแสดงฐานะการเงิน + งบกำไรขาดทุน + เทสต์ render/compute/wizard ผ่าน) — **Wave 3 ปิดสมบูรณ์**
 
 ### Wave 4 — ภาษีอื่น + การยื่นราชการ
 - **ภ.ธ.40 SBT** (กรณีเข้าข่ายธุรกิจเฉพาะ)

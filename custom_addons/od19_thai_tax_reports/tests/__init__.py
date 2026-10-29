@@ -6,3 +6,4 @@ from . import test_vat_tax_invoice_86_4
 from . import test_tax_invoice_forms_86_6
 from . import test_ewht_submission
 from . import test_deferred_tax
+from . import test_npae_financial_statement
