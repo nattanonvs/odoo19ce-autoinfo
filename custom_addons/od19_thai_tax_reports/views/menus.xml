@@ -62,4 +62,11 @@
         action="action_od19_ewht_submission"
         sequence="90"
     />
+    <menuitem
+        id="menu_deferred_tax"
+        name="Deferred Tax (TAS 12 — ภาษีเงินได้รอตัดบัญชี)"
+        parent="menu_thai_tax_reports"
+        action="action_od19_deferred_tax_worksheet"
+        sequence="85"
+    />
 </odoo>

@@ -209,7 +209,7 @@
 | Phase 4 — e-Withholding | ✅ mock-first ใน `od19_thai_tax_reports` — model `od19.ewht.submission` + adapter `lib/ewht_gateway.py` (Mock/Live) + config บริษัท + view/security/เทสต์ · v19.0.1.7.0 (โหมด `live` รอ Bank API spec) |
 
 **ต้องตัดสินใจ / รอข้อมูล**: (1) ~~PDF/A-3 ใช้ `pikepdf` หรือ `ghostscript`~~ ✅ เลือก `pikepdf` · (2) ~~มี RD Service Provider ID + API spec แล้วหรือยัง~~ 🟡 adapter ทำเป็น mock ได้แล้ว (`od19_etax_rd_mode`); mode `live` ยังต้องมี Provider ID + API spec จริง · (3) ~~ยืนยันการแยก TypeCode 80/81 (กระทบเอกสารที่ออกไปแล้ว)~~ ✅ ยืนยันแล้ว (ดูประเด็นคุณภาพ #1) · (4) ~~ลำดับเริ่ม Phase 0 หรือ Phase 1~~ ✅ เริ่มจาก Phase 0 (ปิดแล้วทั้งสอง) · (5) ~~ธนาคารสำหรับ e-Withholding (Phase 4)~~ 🟡 adapter ทำเป็น mock ได้แล้ว (`od19_ewht_mode`); mode `live` ยังต้องยืนยันธนาคาร + bank API spec · (6) **ยืนยันสมมุติฐาน ภ.ง.ด.54**: ใช้ flag `pnd54` ที่เพิ่มบน `account.withholding.tax.income_tax_form` เป็นเกณฑ์คัดรายการ (OCA ไม่มีค่านี้) — หากต้องการเกณฑ์อื่น (เช่น ตามประเภทผู้จ่าย/หน่วยงานราชการ) ต้องปรับ domain ใน `report/pnd54_register.py`
-**ติดตาม**: terminal บน Windows กลับมาใช้งานได้แล้ว (2026-10-28) — Wave 2B/2C commit + **push ขึ้น `origin/feat/od19-wave2b-vat-compliance` แล้ว (HEAD ล่าสุด `d08a3c225b1`)** · Wave 2C Phase 0 (ข้อ 1–5 ครบ) + Phase 1 + Phase 2 + Phase 3 + Phase 3.5 (ปิดประเด็นคุณภาพ #6/#7 ครบทั้ง 7 ข้อ) + Phase 4 (e-Withholding mock-first) ปิดแล้ว · เทสต์ `od19_etax_invoice` 0 failed, 0 error(s) of 33 tests · เทสต์ `od19_thai_tax_reports` 0 failed, 0 error(s) of 50 tests (รวม 9 เทสต์ e-WHT) · คงเหลือเพียงการเชื่อมต่อจริงกับธนาคาร/RD สำหรับโหมด `live`
+**ติดตาม**: terminal บน Windows กลับมาใช้งานได้แล้ว (2026-10-28) — Wave 2B/2C commit + **push ขึ้น `origin/feat/od19-wave2b-vat-compliance` แล้ว (HEAD ล่าสุด `d08a3c225b1`)** · Wave 2C Phase 0 (ข้อ 1–5 ครบ) + Phase 1 + Phase 2 + Phase 3 + Phase 3.5 (ปิดประเด็นคุณภาพ #6/#7 ครบทั้ง 7 ข้อ) + Phase 4 (e-Withholding mock-first) ปิดแล้ว · เทสต์ `od19_etax_invoice` 0 failed, 0 error(s) of 33 tests · เทสต์ `od19_thai_tax_reports` 0 failed, 0 error(s) of 63 tests (รวมเทสต์ e-WHT และ TAS 12 Deferred Tax) · คงเหลือเพียงการเชื่อมต่อจริงกับธนาคาร/RD สำหรับโหมด `live`
 
 > หมายเหตุ: ผล audit ข้างต้นมาจากการตรวจแบบ read-only (ขั้นตอน audit ไม่ได้แก้ไขไฟล์ในโมดูล `od19_etax_invoice`) — การแก้ไขเกิดขึ้นภายหลังใน Phase 0–4 ตามแผนด้านบน
 
@@ -219,7 +219,7 @@
 | --- | --- | --- |
 | ภ.ง.ด.50 (รายปี) | ✅ | อยู่ใน `od19_thai_tax_reports` — `report/pnd50_register.py` (`_get_profit_and_loss` รวบยอดบัญชี `internal_group in (income, expense)` ที่ `parent_state='posted'` ผ่าน `_read_group(balance:sum)`) + template/report action `report/pnd50_register.xml` + selection/menu บน wizard · v19.0.1.8.0 |
 | ภ.ง.ด.51 (ครึ่งปี/ประมาณการ) | ✅ | อยู่ใน `od19_thai_tax_reports` — `report/pnd51_register.py` ใช้ `_get_profit_and_loss` ร่วมกับ ภ.ง.ด.50, ประมาณการกำไรทั้งปี (`net_profit × 12 ÷ จำนวนเดือน`) และภาษีครึ่งปี = 50% ของประมาณการทั้งปี · v19.0.1.8.0 |
-| TAS 12 Deferred Tax | ⬜ | คำนวณผลต่างชั่วคราว + รายงาน |
+| TAS 12 Deferred Tax | ✅ | อยู่ใน `od19_thai_tax_reports` — Worksheet/Register `od19.deferred.tax.worksheet` + `od19.deferred.tax.line` (มูลค่าตามบัญชี vs ฐานภาษี → ผลต่างชั่วคราว taxable/deductible → ภาษีรอตัดบัญชี) · บันทึกบัญชีอัตโนมัติเฉพาะ **ส่วนเคลื่อนไหว** (ยอดปิดงวด − ยอดยกมาจาก `previous_worksheet_id` ที่ Post แล้ว) ผ่าน `action_post_deferred_tax` · ตั้งค่าบัญชี DTA/DTL/ค่าใช้จ่าย + สมุดรายวัน + อัตราภาษี ที่หน้าตั้งค่าบริษัท · v19.0.1.9.0 |
 | TFRS for NPAEs template | ⬜ | งบการเงินตามแบบ NPAE |
 
 **ประเด็นคุณภาพที่พบ (แก้แล้วใน Wave 3)**
@@ -228,8 +228,9 @@
 | --- | --- | --- | --- |
 | 1 | รายงานเดิม 5 ตัว Print ไม่ได้ (`MissingError: Template not found`) | ✅ | แก้แล้ว — `report_name` ของ `ir.actions.report` ไม่ตรงกับ xmlid ของ QWeb template (template เดิมลงท้าย `_document`) ทำให้ `_render_template` หา template ไม่เจอ · rename xmlid ของ vat_sales/vat_purchase/wht/pp36/pnd54 ให้ตรง `report_name` (`od19_thai_tax_reports.<name>`) |
 | 2 | เทมเพลตใช้ `t-field` กับค่า dict/ตัวแปร (compile ไม่ผ่าน) | ✅ | แก้แล้ว — `_compile_directive_field` บังคับ `assert "." in t-field` (ใช้กับ record.field เท่านั้น) ทำให้ `t-field="date_from"` และ `t-field="line['date']"` compile ไม่ผ่าน · เปลี่ยนเป็น `t-out` (+ `t-options='{"widget": "date"}'` สำหรับวันที่) ใน pnd50/pnd51/vat_sales/vat_purchase/wht/pp36/pnd54 |
+| 3 | Computed field อ้าง computed field ของโมเดลเดียวกัน (TAS 12) | ✅ | แก้แล้ว — `total_dta`/`total_dtl` ถูกใช้เป็น dependency ของ `_compute_totals` ผ่าน `previous_worksheet_id.total_*` (self-reference) ทำให้ Odoo เตือน `should be declared with recursive=True` · ประกาศ `recursive=True` บนสองฟิลด์ |
 
-**แผนดำเนินการ Wave 3**: ✅ ลำดับที่ 1 — ภ.ง.ด.50 + ภ.ง.ด.51 (report + ประมาณการ + เทสต์ render/compute ผ่าน) · ⬜ ลำดับที่ 2 — TAS 12 Deferred Tax · ⬜ ลำดับที่ 3 — TFRS for NPAEs
+**แผนดำเนินการ Wave 3**: ✅ ลำดับที่ 1 — ภ.ง.ด.50 + ภ.ง.ด.51 (report + ประมาณการ + เทสต์ render/compute ผ่าน) · ✅ ลำดับที่ 2 — TAS 12 Deferred Tax (worksheet + auto GL + เทสต์ 8 ตัวผ่าน) · ⬜ ลำดับที่ 3 — TFRS for NPAEs
 
 ### Wave 4 — ภาษีอื่น + การยื่นราชการ
 - **ภ.ธ.40 SBT** (กรณีเข้าข่ายธุรกิจเฉพาะ)
