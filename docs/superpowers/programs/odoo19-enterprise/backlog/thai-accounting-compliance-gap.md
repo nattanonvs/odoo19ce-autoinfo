@@ -7,7 +7,7 @@
 | Artifact | Thai accounting & tax regulatory compliance gap analysis |
 | Program | Odoo 19 CE Program |
 | สร้างเมื่อ | 2026-10-27 |
-| ปรับปรุงล่าสุด | 2026-10-29 (Wave 3 ปิดสมบูรณ์ · Wave 4: ปิด ส.บช.3 ยื่นงบ DBD และ ภ.ธ.40 SBT แล้ว) |
+| ปรับปรุงล่าสุด | 2026-10-29 (Wave 3 ปิดสมบูรณ์ · Wave 4: ปิด ส.บช.3 ยื่นงบ DBD, ภ.ธ.40 SBT และทะเบียนอากรแสตมป์แล้ว) |
 | ตรวจจาก | สภาพจริงบนดิสก์ (`custom_addons/`, `third_party/oca/`, core `addons/l10n_th`), สถานะโมดูลใน DB `odoo19_pdev`, `odoo.conf`, และงานวิจัยกฎหมายไทย (ยืนยันซ้ำด้วยการค้นเว็บ) |
 | มุมมอง | **ข้อบังคับ/กฎหมาย** (ต่างจาก `accounting-requirements-coverage.md` ที่เป็นมุม "requirement checklist ของฝ่ายบัญชี") |
 | ผู้จัดทำ | ทีมเทคนิค |
@@ -104,7 +104,7 @@
 | ข้อบังคับ | สิ่งที่กฎหมายกำหนด | สถานะ | ช่องว่าง |
 | --- | --- | --- | --- |
 | ภ.ธ.40 | ภาษีธุรกิจเฉพาะ (SBT) | ✅ | กลุ่มภาษี `tax_group_sbt` + ภาษี SBT 3% และส่วนท้องถิ่น 0.3% (`data/od19_sbt_data.xml`) + รายงาน `od19_thai_tax_reports.sbt_pp40_register` (รายรับ/ภาษี 3%/ท้องถิ่น/รวม) |
-| อากรแสตมป์ / e-Stamp | อากรแสตมป์ + นำส่งอิเล็กทรอนิกส์ | 🔴 | ไม่มี |
+| อากรแสตมป์ / e-Stamp | อากรแสตมป์ + นำส่งอิเล็กทรอนิกส์ | 🟡 | **ทะเบียนอากรแสตมป์ + รายงาน** (2026-10-29): โมเดล `od19.stamp.duty.rate` (บัญชีอัตราอากร 6 ลักษณะ ใน `data/od19_stamp_duty_data.xml`) + `od19.stamp.duty` (คำนวณอากรจากอัตรา ปัดขึ้นตามกติกา "ทุก X บาทหรือเศษของ X บาท" + เพดานอากร) + รายงาน `od19_thai_tax_reports.stamp_duty_register` — **ยังไม่มี e-Stamp ยื่นอิเล็กทรอนิกส์ต่อ RD** (รอ API spec) |
 
 ### หมวด G: รายงานการเงิน / การปิดงบ
 
@@ -239,7 +239,12 @@
   - คำนวณ `filing_deadline = date_to + 150 วัน` (พ.ร.บ.การบัญชี 2543 ม.11) และแสดง `retention_years = 5` (ม.14)
   - เพิ่มเข้า wizard `thai.tax.report.wizard` (selection `sbc3`) + เมนู `menu_sbc3_register` (seq 65) + เทสต์ 5 ตัว (`test_sbc3_register.py`)
 - ✅ **ภ.ธ.40 SBT** (กรณีเข้าข่ายธุรกิจเฉพาะ) (2026-10-29) — กลุ่มภาษี `tax_group_sbt` + ภาษี SBT 3% (`tax_sbt_specific`) และส่วนท้องถิ่น 0.3% (`tax_sbt_local`) ใน `data/od19_sbt_data.xml`; รายงาน `od19_thai_tax_reports.sbt_pp40_register` สรุปรายรับ/ภาษี 3%/ท้องถิ่น/รวม แยกใบกำกับขาย–ใบลดหนี้ (ใบลดหนี้เป็นค่าลบ), เทสต์ 7 ตัว (`test_sbt_pp40_register.py`)
-- **อากรแสตมป์ / e-Stamp** — ยังไม่เริ่ม
+- ✅ **อากรแสตมป์ (Stamp Duty)** — ทะเบียน + รายงาน (2026-10-29)
+  - โมเดล `od19.stamp.duty.rate` (บัญชีอัตราอากรแสตมป์ 6 ลักษณะ: 1/2/3/4 = 1 บาท/1,000, 5 = 1 บาท/2,000 เพดาน 10,000, 9 = 3 บาท/ฉบับ) ใน `data/od19_stamp_duty_data.xml`
+  - โมเดล `od19.stamp.duty` คำนวณอากรอัตโนมัติ (`_compute_duty_amount`) ตามกติกา "ทุกจำนวนเงิน X บาท หรือเศษของ X บาท" = **ปัดขึ้น (ceil)** + เพดาน `max_amount`; มี sequence `ST/%(year)s/` และสถานะ ร่าง→ปิดอากร
+  - รายงาน `od19_thai_tax_reports.stamp_duty_register` (ทะเบียนอากร + สรุปตามลักษณะแห่งตราสาร) + เมนู `menu_stamp_duty` (register/rates/report) + wizard selection `stamp_duty`
+  - เทสต์ 13 ตัว (`test_stamp_duty.py`) ผ่านทั้งหมด
+- **อากรแสตมป์ / e-Stamp** — เหลือเฉพาะการนำส่งอิเล็กทรอนิกส์ (e-Stamp ต่อ RD API) รอ API spec
 
 ## 5. ลำดับความสำคัญเชิงธุรกิจ (Criticality)
 

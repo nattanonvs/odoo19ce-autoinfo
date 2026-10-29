@@ -9,3 +9,4 @@ from . import pnd51_register
 from . import npae_financial_statement
 from . import sbc3_register
 from . import sbt_pp40_register
+from . import stamp_duty_register

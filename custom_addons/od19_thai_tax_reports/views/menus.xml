@@ -90,4 +90,31 @@
         action="action_od19_deferred_tax_worksheet"
         sequence="85"
     />
+    <menuitem
+        id="menu_stamp_duty"
+        name="Stamp Duty (อากรแสตมป์)"
+        parent="menu_thai_tax_reports"
+        sequence="66"
+    />
+    <menuitem
+        id="menu_stamp_duty_register"
+        name="Stamp Duty Register (ทะเบียนอากรแสตมป์)"
+        parent="menu_stamp_duty"
+        action="action_od19_stamp_duty"
+        sequence="10"
+    />
+    <menuitem
+        id="menu_stamp_duty_rate"
+        name="Stamp Duty Rates (บัญชีอัตราอากรแสตมป์)"
+        parent="menu_stamp_duty"
+        action="action_od19_stamp_duty_rate"
+        sequence="20"
+    />
+    <menuitem
+        id="menu_stamp_duty_report"
+        name="Stamp Duty Report (รายงานทะเบียนอากรแสตมป์)"
+        parent="menu_stamp_duty"
+        action="action_thai_tax_report_wizard"
+        sequence="30"
+    />
 </odoo>
