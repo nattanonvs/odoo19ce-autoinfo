@@ -1,10 +1,12 @@
 from odoo.tests.common import TransactionCase
 
 from odoo.addons.od19_ui_defaults.models.ir_ui_menu import (
-    APP_MENU_ORDER,
+    APP_MENU_CLUSTERS,
+    APP_MENU_CLUSTER_GAP,
     APP_MENU_SEQUENCE_START,
     APP_MENU_SEQUENCE_STEP,
     CONFIGURATION_MENU_LABELS,
+    od19_app_menu_sequences,
 )
 
 
@@ -40,13 +42,50 @@ class TestUiDefaults(TransactionCase):
             "sale.group_discount_per_so_line must be implied by base.group_user",
         )
 
+    def test_app_menu_clusters_have_no_duplicate_apps(self):
+        """An app must be listed once, in a single cluster."""
+        xmlids = [xmlid for _label, cluster in APP_MENU_CLUSTERS for xmlid in cluster]
+        self.assertEqual(
+            len(xmlids),
+            len(set(xmlids)),
+            "An app xmlid is listed more than once in APP_MENU_CLUSTERS",
+        )
+
+    def test_cluster_apps_stay_inside_their_sequence_block(self):
+        """Each cluster must fit in its own block and never overlap the next."""
+        blocks = []
+        for index, (label, cluster) in enumerate(APP_MENU_CLUSTERS):
+            base = APP_MENU_SEQUENCE_START + index * APP_MENU_CLUSTER_GAP
+            last = base + (len(cluster) - 1) * APP_MENU_SEQUENCE_STEP
+            self.assertLess(
+                last,
+                base + APP_MENU_CLUSTER_GAP,
+                "Cluster %r does not fit in its sequence block" % label,
+            )
+            blocks.append((label, base, last))
+        for (previous_label, _base, previous_last), (label, base, _last) in zip(
+            blocks, blocks[1:]
+        ):
+            self.assertLess(
+                previous_last,
+                base,
+                "Cluster %r overlaps the following cluster %r"
+                % (previous_label, label),
+            )
+
+    def test_app_menu_sequences_are_strictly_increasing(self):
+        """The computed sequences must be unique and sorted."""
+        sequences = [sequence for _xmlid, sequence in od19_app_menu_sequences()]
+        self.assertEqual(sequences, sorted(sequences))
+        self.assertEqual(len(sequences), len(set(sequences)))
+        self.assertEqual(sequences[0], APP_MENU_SEQUENCE_START)
+
     def test_app_menus_follow_business_flow(self):
-        """Installed apps must be sequenced in the order of ``APP_MENU_ORDER``."""
-        for index, xmlid in enumerate(APP_MENU_ORDER):
+        """Installed apps must carry the sequence assigned by the clusters."""
+        for xmlid, expected in od19_app_menu_sequences():
             menu = self.env.ref(xmlid, raise_if_not_found=False)
             if not menu:
                 continue
-            expected = APP_MENU_SEQUENCE_START + index * APP_MENU_SEQUENCE_STEP
             self.assertEqual(
                 menu.sequence,
                 expected,
@@ -59,7 +98,8 @@ class TestUiDefaults(TransactionCase):
         settings = self.env.ref("base.menu_administration", raise_if_not_found=False)
         self.assertTrue(apps, "Expected the Apps menu to be installed")
         self.assertTrue(settings, "Expected the Settings menu to be installed")
-        for xmlid in APP_MENU_ORDER:
+        self.assertLess(apps.sequence, settings.sequence)
+        for xmlid, _sequence in od19_app_menu_sequences():
             menu = self.env.ref(xmlid, raise_if_not_found=False)
             if not menu:
                 continue

@@ -20,9 +20,10 @@
     <function model="ir.ui.menu" name="_od19_place_configuration_menus_last"/>
 
     <!--
-        Order the apps in the app switcher by business flow (CRM/Sales next to
-        each other, supply-chain apps together, HR apps together, ...). See
-        APP_MENU_ORDER in models/ir_ui_menu.py.
+        Order the apps in the app switcher by business-flow cluster (front
+        office, finance, marketing, procurement, projects, people, website and
+        internal tools) and keep the Apps/Settings tiles at the end. See
+        APP_MENU_CLUSTERS in models/ir_ui_menu.py.
     -->
     <function model="ir.ui.menu" name="_od19_sequence_app_menus"/>
 
