@@ -24,7 +24,14 @@ class TestThaiTaxReports(TransactionCase):
         self.assertTrue(wizard.date_to)
 
     def test_wizard_report_types(self):
-        for report_type in ("vat_sales", "vat_purchase", "wht", "pnd54"):
+        for report_type in (
+            "vat_sales",
+            "vat_purchase",
+            "wht",
+            "pnd54",
+            "pnd50",
+            "pnd51",
+        ):
             wizard = self._create_wizard(report_type=report_type)
             self.assertEqual(wizard.report_type, report_type)
 
@@ -150,3 +157,147 @@ class TestThaiTaxReports(TransactionCase):
         self.assertIn("หนังสือรับรองการหักภาษี", rendered)
         self.assertIn("1,000.00", rendered)
         self.assertIn("30.00", rendered)
+
+    def _create_pl_move(self):
+        """สร้างรายการกำไร/ขาดทุนที่ Post แล้ว สำหรับทดสอบ ภ.ง.ด.50/51"""
+        income = self.env["account.account"].create(
+            {
+                "code": "X993001",
+                "name": "Income PND50 Test",
+                "account_type": "income",
+            }
+        )
+        expense = self.env["account.account"].create(
+            {
+                "code": "X993002",
+                "name": "Expense PND50 Test",
+                "account_type": "expense",
+            }
+        )
+        asset = self.env["account.account"].create(
+            {
+                "code": "X993003",
+                "name": "Cash PND50 Test",
+                "account_type": "asset_current",
+            }
+        )
+        move = self.env["account.move"].create(
+            {
+                "move_type": "entry",
+                "date": fields.Date.today(),
+                "line_ids": [
+                    (0, 0, {"name": "Income", "credit": 5000.0, "account_id": income.id}),
+                    (0, 0, {"name": "Expense", "debit": 2000.0, "account_id": expense.id}),
+                    (0, 0, {"name": "Cash", "debit": 3000.0, "account_id": asset.id}),
+                ],
+            }
+        )
+        move.action_post()
+        return income, expense
+
+    def test_pnd50_register_is_bound(self):
+        report = self.env.ref("od19_thai_tax_reports.action_pnd50_register")
+        self.assertEqual(report.model, "thai.tax.report.wizard")
+        self.assertEqual(report.report_type, "qweb-pdf")
+
+    def test_pnd51_register_is_bound(self):
+        report = self.env.ref("od19_thai_tax_reports.action_pnd51_register")
+        self.assertEqual(report.model, "thai.tax.report.wizard")
+        self.assertEqual(report.report_type, "qweb-pdf")
+
+    def test_pnd50_register_computes_profit_and_tax(self):
+        """ภ.ง.ด.50 สรุปกำไรสุทธิตามบัญชีและคำนวณภาษีในอัตรา 20%"""
+        self._create_pl_move()
+        values = (
+            self.env["report.od19_thai_tax_reports.pnd50_register"]
+            .with_context(
+                date_from=fields.Date.today(),
+                date_to=fields.Date.today(),
+                company_id=self.env.company.id,
+            )
+            ._get_report_values([])
+        )
+        self.assertGreaterEqual(values["total_income"], 5000.0)
+        self.assertGreaterEqual(values["total_expense"], 2000.0)
+        self.assertAlmostEqual(
+            values["net_profit"], values["total_income"] - values["total_expense"]
+        )
+        self.assertAlmostEqual(
+            values["taxable_profit"],
+            values["net_profit"] if values["net_profit"] > 0 else 0.0,
+        )
+        self.assertAlmostEqual(values["tax_amount"], values["taxable_profit"] * 0.20)
+        self.assertIn("X993001", [line["code"] for line in values["income_lines"]])
+
+    def test_pnd51_register_estimates_half_year(self):
+        """ภ.ง.ด.51 ประมาณการกำไรทั้งปีและคำนวณภาษีครึ่งปี (50%)"""
+        self._create_pl_move()
+        values = (
+            self.env["report.od19_thai_tax_reports.pnd51_register"]
+            .with_context(
+                date_from=fields.Date.today(),
+                date_to=fields.Date.today(),
+                company_id=self.env.company.id,
+            )
+            ._get_report_values([])
+        )
+        self.assertGreaterEqual(values["months"], 1)
+        self.assertAlmostEqual(
+            values["net_profit"], values["total_income"] - values["total_expense"]
+        )
+        expected_annual = values["net_profit"] * 12.0 / values["months"]
+        self.assertAlmostEqual(values["estimated_annual_profit"], expected_annual)
+        self.assertAlmostEqual(
+            values["estimated_annual_tax"],
+            values["taxable_annual_profit"] * 0.20,
+        )
+        self.assertAlmostEqual(
+            values["half_year_payable"], values["estimated_annual_tax"] * 0.5
+        )
+
+    def test_register_reports_render(self):
+        """ทุกรายงานใน wizard ต้อง render ได้จริง (กัน template/report_name ไม่ตรง)"""
+        report_map = {
+            "vat_sales": (
+                "od19_thai_tax_reports.action_vat_sales_register",
+                "สมุดรายการภาษีขาย",
+            ),
+            "vat_purchase": (
+                "od19_thai_tax_reports.action_vat_purchase_register",
+                "สมุดรายการภาษีซื้อ",
+            ),
+            "wht": (
+                "od19_thai_tax_reports.action_wht_register",
+                "สมุดภาษีหัก ณ ที่จ่าย",
+            ),
+            "pp36": (
+                "od19_thai_tax_reports.action_pp36_register",
+                "ภ.พ.36",
+            ),
+            "pnd54": (
+                "od19_thai_tax_reports.action_pnd54_register",
+                "ภ.ง.ด.54",
+            ),
+            "pnd50": (
+                "od19_thai_tax_reports.action_pnd50_register",
+                "ภ.ง.ด.50",
+            ),
+            "pnd51": (
+                "od19_thai_tax_reports.action_pnd51_register",
+                "ภ.ง.ด.51",
+            ),
+        }
+        for report_type, (xmlid, needle) in report_map.items():
+            with self.subTest(report_type=report_type):
+                wizard = self._create_wizard(report_type=report_type)
+                report = self.env.ref(xmlid)
+                html, _report_type = (
+                    self.env["ir.actions.report"]
+                    .with_context(
+                        date_from=wizard.date_from,
+                        date_to=wizard.date_to,
+                        company_id=wizard.company_id.id,
+                    )
+                    ._render_qweb_html(report, wizard.ids)
+                )
+                self.assertIn(needle, html.decode())

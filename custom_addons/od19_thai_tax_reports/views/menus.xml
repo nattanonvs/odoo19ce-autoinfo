@@ -42,10 +42,24 @@
         sequence="50"
     />
     <menuitem
+        id="menu_pnd50_register"
+        name="PND50 Register (แบบแสดงรายการ ภ.ง.ด.50)"
+        parent="menu_thai_tax_reports"
+        action="action_thai_tax_report_wizard"
+        sequence="70"
+    />
+    <menuitem
+        id="menu_pnd51_register"
+        name="PND51 Register (แบบแสดงรายการ ภ.ง.ด.51)"
+        parent="menu_thai_tax_reports"
+        action="action_thai_tax_report_wizard"
+        sequence="80"
+    />
+    <menuitem
         id="menu_ewht_submission"
         name="e-Withholding Tax (นำส่ง ภ.ง.ด. อิเล็กทรอนิกส์)"
         parent="menu_thai_tax_reports"
         action="action_od19_ewht_submission"
-        sequence="60"
+        sequence="90"
     />
 </odoo>

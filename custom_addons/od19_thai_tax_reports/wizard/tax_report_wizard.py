@@ -29,6 +29,8 @@ class TaxReportWizard(models.TransientModel):
             ("wht", "WHT Register (สมุดภาษีหัก ณ ที่จ่าย)"),
             ("pp36", "PP36 Register (รายงานภาษีนำส่ง ภ.พ.36)"),
             ("pnd54", "PND54 Register (แบบแสดงรายการ ภ.ง.ด.54)"),
+            ("pnd50", "PND50 Register (แบบแสดงรายการ ภ.ง.ด.50)"),
+            ("pnd51", "PND51 Register (แบบแสดงรายการ ภ.ง.ด.51)"),
         ],
         string="Report Type",
         required=True,
@@ -43,6 +45,8 @@ class TaxReportWizard(models.TransientModel):
             "wht": "od19_thai_tax_reports.action_wht_register",
             "pp36": "od19_thai_tax_reports.action_pp36_register",
             "pnd54": "od19_thai_tax_reports.action_pnd54_register",
+            "pnd50": "od19_thai_tax_reports.action_pnd50_register",
+            "pnd51": "od19_thai_tax_reports.action_pnd51_register",
         }
         return (
             self.env.ref(report_map[self.report_type])
