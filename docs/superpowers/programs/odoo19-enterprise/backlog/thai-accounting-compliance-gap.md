@@ -214,9 +214,22 @@
 > หมายเหตุ: ผล audit ข้างต้นมาจากการตรวจแบบ read-only (ขั้นตอน audit ไม่ได้แก้ไขไฟล์ในโมดูล `od19_etax_invoice`) — การแก้ไขเกิดขึ้นภายหลังใน Phase 0–4 ตามแผนด้านบน
 
 ### Wave 3 — ภาษีเงินได้นิติบุคคล + มาตรฐานบัญชี
-- **ภ.ง.ด.50 / ภ.ง.ด.51**: รายงาน + ประมาณการ
-- **TAS 12 Deferred Tax**: คำนวณผลต่างชั่วคราว + รายงาน
-- **TFRS for NPAEs template**: งบการเงินตามแบบ NPAE
+
+| รายการ | สถานะ | สิ่งที่ต้องทำ |
+| --- | --- | --- |
+| ภ.ง.ด.50 (รายปี) | ✅ | อยู่ใน `od19_thai_tax_reports` — `report/pnd50_register.py` (`_get_profit_and_loss` รวบยอดบัญชี `internal_group in (income, expense)` ที่ `parent_state='posted'` ผ่าน `_read_group(balance:sum)`) + template/report action `report/pnd50_register.xml` + selection/menu บน wizard · v19.0.1.8.0 |
+| ภ.ง.ด.51 (ครึ่งปี/ประมาณการ) | ✅ | อยู่ใน `od19_thai_tax_reports` — `report/pnd51_register.py` ใช้ `_get_profit_and_loss` ร่วมกับ ภ.ง.ด.50, ประมาณการกำไรทั้งปี (`net_profit × 12 ÷ จำนวนเดือน`) และภาษีครึ่งปี = 50% ของประมาณการทั้งปี · v19.0.1.8.0 |
+| TAS 12 Deferred Tax | ⬜ | คำนวณผลต่างชั่วคราว + รายงาน |
+| TFRS for NPAEs template | ⬜ | งบการเงินตามแบบ NPAE |
+
+**ประเด็นคุณภาพที่พบ (แก้แล้วใน Wave 3)**
+
+| # | เรื่อง | ระดับ | รายละเอียด |
+| --- | --- | --- | --- |
+| 1 | รายงานเดิม 5 ตัว Print ไม่ได้ (`MissingError: Template not found`) | ✅ | แก้แล้ว — `report_name` ของ `ir.actions.report` ไม่ตรงกับ xmlid ของ QWeb template (template เดิมลงท้าย `_document`) ทำให้ `_render_template` หา template ไม่เจอ · rename xmlid ของ vat_sales/vat_purchase/wht/pp36/pnd54 ให้ตรง `report_name` (`od19_thai_tax_reports.<name>`) |
+| 2 | เทมเพลตใช้ `t-field` กับค่า dict/ตัวแปร (compile ไม่ผ่าน) | ✅ | แก้แล้ว — `_compile_directive_field` บังคับ `assert "." in t-field` (ใช้กับ record.field เท่านั้น) ทำให้ `t-field="date_from"` และ `t-field="line['date']"` compile ไม่ผ่าน · เปลี่ยนเป็น `t-out` (+ `t-options='{"widget": "date"}'` สำหรับวันที่) ใน pnd50/pnd51/vat_sales/vat_purchase/wht/pp36/pnd54 |
+
+**แผนดำเนินการ Wave 3**: ✅ ลำดับที่ 1 — ภ.ง.ด.50 + ภ.ง.ด.51 (report + ประมาณการ + เทสต์ render/compute ผ่าน) · ⬜ ลำดับที่ 2 — TAS 12 Deferred Tax · ⬜ ลำดับที่ 3 — TFRS for NPAEs
 
 ### Wave 4 — ภาษีอื่น + การยื่นราชการ
 - **ภ.ธ.40 SBT** (กรณีเข้าข่ายธุรกิจเฉพาะ)
