@@ -49,6 +49,13 @@
         sequence="60"
     />
     <menuitem
+        id="menu_sbc3_register"
+        name="SBC3 DBD Filing (งบการเงินนำส่ง DBD ส.บช.3)"
+        parent="menu_thai_tax_reports"
+        action="action_thai_tax_report_wizard"
+        sequence="65"
+    />
+    <menuitem
         id="menu_pnd50_register"
         name="PND50 Register (แบบแสดงรายการ ภ.ง.ด.50)"
         parent="menu_thai_tax_reports"

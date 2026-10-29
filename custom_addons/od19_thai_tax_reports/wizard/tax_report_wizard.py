@@ -32,6 +32,7 @@ class TaxReportWizard(models.TransientModel):
             ("pnd50", "PND50 Register (แบบแสดงรายการ ภ.ง.ด.50)"),
             ("pnd51", "PND51 Register (แบบแสดงรายการ ภ.ง.ด.51)"),
             ("npae", "NPAE Financial Statement (งบการเงินตามแบบ NPAE)"),
+            ("sbc3", "SBC3 Financial Statement (งบการเงินนำส่ง DBD ส.บช.3)"),
         ],
         string="Report Type",
         required=True,
@@ -49,6 +50,7 @@ class TaxReportWizard(models.TransientModel):
             "pnd50": "od19_thai_tax_reports.action_pnd50_register",
             "pnd51": "od19_thai_tax_reports.action_pnd51_register",
             "npae": "od19_thai_tax_reports.action_npae_financial_statement",
+            "sbc3": "od19_thai_tax_reports.action_sbc3_register",
         }
         return (
             self.env.ref(report_map[self.report_type])

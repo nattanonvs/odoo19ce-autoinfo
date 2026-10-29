@@ -7,3 +7,4 @@ from . import pnd54_register
 from . import pnd50_register
 from . import pnd51_register
 from . import npae_financial_statement
+from . import sbc3_register

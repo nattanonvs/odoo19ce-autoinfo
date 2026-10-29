@@ -1,13 +1,14 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 {
     "name": "Thai Tax Reports",
-    "version": "19.0.1.10.0",
+    "version": "19.0.1.11.0",
     "category": "Localization",
     "summary": "Thai tax reports: VAT Sales/Purchase Register, WHT Register, "
     "WHT Certificate (หนังสือรับรองการหักภาษี ณ ที่จ่าย), PND54 Register, "
     "PND50/PND51 Register (ภาษีเงินได้นิติบุคคล), "
     "Deferred Tax Worksheet (TAS 12 ภาษีเงินได้รอตัดบัญชี), "
     "NPAE Financial Statement (งบการเงินตามแบบ NPAE), "
+    "SBC3 DBD Filing (งบการเงินนำส่ง DBD ส.บช.3), "
     "e-Withholding Tax submission",
     "author": "Custom",
     "website": "https://github.com/OCA/l10n-thailand",
@@ -33,6 +34,7 @@
         "report/pnd50_register.xml",
         "report/pnd51_register.xml",
         "report/npae_financial_statement.xml",
+        "report/sbc3_register.xml",
         "report/tax_invoice_forms.xml",
         "views/account_move_views.xml",
         "views/res_config_settings_views.xml",
