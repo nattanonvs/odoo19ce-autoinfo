@@ -3,6 +3,8 @@ from . import vat_sales_register
 from . import vat_purchase_register
 from . import wht_register
 from . import pp36_register
+from . import pnd3_register
+from . import pnd53_register
 from . import pnd54_register
 from . import pnd50_register
 from . import pnd51_register

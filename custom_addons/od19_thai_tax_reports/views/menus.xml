@@ -42,6 +42,20 @@
         sequence="45"
     />
     <menuitem
+        id="menu_pnd3_register"
+        name="PND3 Register (แบบแสดงรายการ ภ.ง.ด.3)"
+        parent="menu_thai_tax_reports"
+        action="action_thai_tax_report_wizard"
+        sequence="55"
+    />
+    <menuitem
+        id="menu_pnd53_register"
+        name="PND53 Register (แบบแสดงรายการ ภ.ง.ด.53)"
+        parent="menu_thai_tax_reports"
+        action="action_thai_tax_report_wizard"
+        sequence="56"
+    />
+    <menuitem
         id="menu_pnd54_register"
         name="PND54 Register (แบบแสดงรายการ ภ.ง.ด.54)"
         parent="menu_thai_tax_reports"
