@@ -7,7 +7,7 @@
 | Artifact | Thai accounting & tax regulatory compliance gap analysis |
 | Program | Odoo 19 CE Program |
 | สร้างเมื่อ | 2026-10-27 |
-| ปรับปรุงล่าสุด | 2026-10-29 (Wave 3 ปิดสมบูรณ์ · Wave 4: ปิด ส.บช.3 ยื่นงบ DBD, ภ.ธ.40 SBT และทะเบียนอากรแสตมป์แล้ว) |
+| ปรับปรุงล่าสุด | 2026-10-29 (Wave 3 ปิดสมบูรณ์ · Wave 4: ปิด ส.บช.3 ยื่นงบ DBD, ภ.ธ.40 SBT และทะเบียนอากรแสตมป์แล้ว · เพิ่มทะเบียน ภ.ง.ด.3/53 fallback สำหรับ CE) |
 | ตรวจจาก | สภาพจริงบนดิสก์ (`custom_addons/`, `third_party/oca/`, core `addons/l10n_th`), สถานะโมดูลใน DB `odoo19_pdev`, `odoo.conf`, และงานวิจัยกฎหมายไทย (ยืนยันซ้ำด้วยการค้นเว็บ) |
 | มุมมอง | **ข้อบังคับ/กฎหมาย** (ต่างจาก `accounting-requirements-coverage.md` ที่เป็นมุม "requirement checklist ของฝ่ายบัญชี") |
 | ผู้จัดทำ | ทีมเทคนิค |
@@ -35,7 +35,7 @@
 | กลุ่ม | โมดูล | บทบาท |
 | --- | --- | --- |
 | Core Odoo 19 | `account`, `account_payment`, `account_asset_management`, `account_fiscal_year` | บัญชีแกนหลัก + สินทรัพย์ถาวร + ปีบัญชี |
-| Core Thai | `l10n_th` | ผังบัญชีไทย + ภาษีไทย + **รายงาน ภ.พ.30 / ภ.ง.ด.3 / ภ.ง.ด.53** (account.report engine) |
+| Core Thai | `l10n_th` | ผังบัญชีไทย + ภาษีไทย + รายงาน ภ.พ.30 / ภ.ง.ด.3 / ภ.ง.ด.53 (account.report engine — **ภ.ง.ด.3/53 บน CE ต้องใช้ทะเบียน fallback ใน `od19_thai_tax_reports`** เพราะ viewer อยู่ใน Enterprise `account_reports`) |
 | OCA Thai | `l10n_th_account_tax` | VAT + WHT บนบรรทัดใบแจ้งหนี้ + `withholding.tax.cert` (50 ทวิ) + `account.move.tax.invoice` (`tax_invoice_number`/`tax_invoice_date`) |
 | OCA Finance Tools | `account_lock_date_update`, `account_move_name_sequence` | ล็อกงวดบัญชี + รันเลขที่เอกสารไม่มีช่องว่าง |
 | OCA (Wave 2A, 2026-10-27) | `account_financial_report`(+`date_range`), `account_tax_balance`, `partner_statement`, `account_reconcile_oca`(+`account_statement_base`), `auditlog`, `account_move_tier_validation`(+`base_tier_validation_formula`), `account_check_deposit`, `account_billing`, `account_journal_lock_date` | รายงานการเงิน + กระทบยอด VAT/ธนาคาร + AR/AP statement + Audit Trail + อนุมัติหลายชั้น + เช็ครับ + จัดกลุ่มใบแจ้งหนี้ + ล็อกงวดสมุดรายวัน |
@@ -77,8 +77,8 @@
 
 | ข้อบังคับ | สิ่งที่กฎหมายกำหนด | สถานะ | ช่องว่าง |
 | --- | --- | --- | --- |
-| ภ.ง.ด.1 / 2 / 3 | หักจากเงินเดือน/บุคคล/นิติบุคคล | ✅ | OCA personal_income_tax + core `tax_report_pnd3` |
-| ภ.ง.ด.53 | ยื่น **7 วัน** (e-Filing +8 = 15 วัน) | ✅ | core `tax_report_pnd53` |
+| ภ.ง.ด.1 / 2 / 3 | หักจากเงินเดือน/บุคคล/นิติบุคคล | ✅ | OCA `l10n_th_account_tax` (PIT) + ทะเบียน `od19_thai_tax_reports.pnd3_register` รวบรวม ภ.ง.ด.3/3a จาก `account.withholding.move` (core `tax_report_pnd3` ใช้ไม่ได้บน CE เพราะ viewer อยู่ใน Enterprise `account_reports`) |
+| ภ.ง.ด.53 | ยื่น **7 วัน** (e-Filing +8 = 15 วัน) | ✅ | ทะเบียน `od19_thai_tax_reports.pnd53_register` (กรอง `income_tax_form = pnd53` จาก `account.withholding.move`; core `tax_report_pnd53` ใช้ไม่ได้บน CE เพราะ viewer อยู่ใน Enterprise `account_reports`) |
 | ภ.ง.ด.54 | นำส่งภาษีให้ราชการ/องค์กร | ✅ | report เฉพาะใน `od19_thai_tax_reports` (flag `pnd54` บน `account.withholding.tax.income_tax_form`) |
 | ม.50 ทวิ | หนังสือรับรองการหักภาษี **2 ฉบับ** (ม.40(1)(2) ภายใน 15 ก.พ. ปีถัดไป) | ✅ | OCA `withholding.tax.cert` |
 | e-Withholding Tax | นำส่งอิเล็กทรอนิกส์ผ่านธนาคาร | 🟡 | mock-first พร้อม (Live รอ Bank API spec) |
