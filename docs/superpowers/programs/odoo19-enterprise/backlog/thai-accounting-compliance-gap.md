@@ -7,7 +7,7 @@
 | Artifact | Thai accounting & tax regulatory compliance gap analysis |
 | Program | Odoo 19 CE Program |
 | สร้างเมื่อ | 2026-10-27 |
-| ปรับปรุงล่าสุด | 2026-10-29 (Wave 3 ปิดสมบูรณ์ · Wave 4 เริ่มแล้ว — ปิด ส.บช.3 ยื่นงบ DBD สำเร็จ) |
+| ปรับปรุงล่าสุด | 2026-10-29 (Wave 3 ปิดสมบูรณ์ · Wave 4: ปิด ส.บช.3 ยื่นงบ DBD และ ภ.ธ.40 SBT แล้ว) |
 | ตรวจจาก | สภาพจริงบนดิสก์ (`custom_addons/`, `third_party/oca/`, core `addons/l10n_th`), สถานะโมดูลใน DB `odoo19_pdev`, `odoo.conf`, และงานวิจัยกฎหมายไทย (ยืนยันซ้ำด้วยการค้นเว็บ) |
 | มุมมอง | **ข้อบังคับ/กฎหมาย** (ต่างจาก `accounting-requirements-coverage.md` ที่เป็นมุม "requirement checklist ของฝ่ายบัญชี") |
 | ผู้จัดทำ | ทีมเทคนิค |
@@ -26,7 +26,7 @@
 - พร้อมกันนั้น **Wave 2A ติดตั้งสำเร็จแล้ว (2026-10-27)** — OCA 12 โมดูล state = `installed` บน `odoo19_pdev` แล้ว ซึ่งปิดช่องว่างด้านรายงานการเงิน/การควบคุมภายในได้ทันที — ได้แก่ `account_financial_report`, `account_tax_balance`, `partner_statement`, `account_reconcile_oca` (+`account_statement_base`), `auditlog`, `account_move_tier_validation` (+`base_tier_validation_formula`), `account_check_deposit`, `account_billing`, `account_journal_lock_date`, `date_range`
 - **Wave 2B ปิดช่อง VAT ครบแล้ว (2026-10-27)** — custom module `od19_thai_tax_reports` v19.0.1.5.0 ครอบคลุม ม.82/5 ภาษีซื้อต้องห้าม, ม.83/6 Reverse charge ภ.พ.36, ม.86/4 validate 8 รายการ, ม.86/6 ใบกำกับภาษีอย่างย่อ และ ม.86/9-10 ใบเพิ่มหนี้/ใบลดหนี้ (unit tests ของโมดูลผ่าน 39 รายการ, 0 failed)
 - **Wave 2C audit + ปิดงานเกือบครบ (2026-10-27 → 2026-10-28)** — ตรวจโมดูล `od19_etax_invoice` แบบ read-only 21 ไฟล์ พบว่า **XML ขมธอ.3-2560 + XSD ETDA + XAdES-BES ทำเสร็จแล้วและได้มาตรฐาน** หลังจากนั้นปิด Phase 0–4 ครบ (**PDF/A-3 ผ่าน veraPDF 1.30.3 flavour 3b**, **ช่องทางยื่น RD** แบบ mock + batch export, **ภ.ง.ด.54**, และ **e-Withholding Tax** แบบ mock-first ใน `od19_thai_tax_reports`) เหลือเพียงการเชื่อมต่อจริงกับธนาคาร (Bank API spec) สำหรับโหมด `live` (ดูรายละเอียดในข้อ 4 Wave 2C)
-- **สถานะปัจจุบัน**: Wave 2A ✅ Wave 2B ✅ Wave 2C Phase 0–4 ✅ **Wave 3 ✅ ปิดสมบูรณ์ (2026-10-29)** — ภ.ง.ด.50/51, TAS 12 Deferred Tax และ TFRS for NPAEs · **Wave 4 เริ่มแล้ว (2026-10-29)** — ปิด **ส.บช.3 / ยื่นงบ DBD** สำเร็จ (ลำดับที่ 1); เทสต์ `od19_etax_invoice` 33 tests + `od19_thai_tax_reports` 90 tests, 0 failed ทั้งคู่; ขั้นถัดไปคือ ภ.ธ.40 SBT และอากรแสตมป์ e-Stamp
+- **สถานะปัจจุบัน**: Wave 2A ✅ Wave 2B ✅ Wave 2C Phase 0–4 ✅ **Wave 3 ✅ ปิดสมบูรณ์ (2026-10-29)** — ภ.ง.ด.50/51, TAS 12 Deferred Tax และ TFRS for NPAEs · **Wave 4 กำลังดำเนินการ (2026-10-29)** — ปิดแล้ว 2 รายการ: **ส.บช.3 / ยื่นงบ DBD** (ลำดับที่ 1) และ **ภ.ธ.40 SBT** (ลำดับที่ 2); เทสต์ `od19_etax_invoice` 33 tests + `od19_thai_tax_reports` 97 tests, 0 failed ทั้งคู่; เหลืออากรแสตมป์ / e-Stamp
 
 ## 2. สิ่งที่ระบบมีวันนี้ (As-Is)
 
@@ -103,7 +103,7 @@
 
 | ข้อบังคับ | สิ่งที่กฎหมายกำหนด | สถานะ | ช่องว่าง |
 | --- | --- | --- | --- |
-| ภ.ธ.40 | ภาษีธุรกิจเฉพาะ (SBT) | 🔴 | ไม่มี |
+| ภ.ธ.40 | ภาษีธุรกิจเฉพาะ (SBT) | ✅ | กลุ่มภาษี `tax_group_sbt` + ภาษี SBT 3% และส่วนท้องถิ่น 0.3% (`data/od19_sbt_data.xml`) + รายงาน `od19_thai_tax_reports.sbt_pp40_register` (รายรับ/ภาษี 3%/ท้องถิ่น/รวม) |
 | อากรแสตมป์ / e-Stamp | อากรแสตมป์ + นำส่งอิเล็กทรอนิกส์ | 🔴 | ไม่มี |
 
 ### หมวด G: รายงานการเงิน / การปิดงบ
@@ -238,7 +238,7 @@
   - เทมเพลต QWeb `report/sbc3_register.xml` แสดง 5 ส่วน: ข้อมูลทั่วไป, งบแสดงฐานะการเงิน, งบกำไรขาดทุน, สรุปสาระสำคัญ, คำรับรอง + หมายเหตุ 150 วัน/5 ปี
   - คำนวณ `filing_deadline = date_to + 150 วัน` (พ.ร.บ.การบัญชี 2543 ม.11) และแสดง `retention_years = 5` (ม.14)
   - เพิ่มเข้า wizard `thai.tax.report.wizard` (selection `sbc3`) + เมนู `menu_sbc3_register` (seq 65) + เทสต์ 5 ตัว (`test_sbc3_register.py`)
-- **ภ.ธ.40 SBT** (กรณีเข้าข่ายธุรกิจเฉพาะ) — ยังไม่เริ่ม
+- ✅ **ภ.ธ.40 SBT** (กรณีเข้าข่ายธุรกิจเฉพาะ) (2026-10-29) — กลุ่มภาษี `tax_group_sbt` + ภาษี SBT 3% (`tax_sbt_specific`) และส่วนท้องถิ่น 0.3% (`tax_sbt_local`) ใน `data/od19_sbt_data.xml`; รายงาน `od19_thai_tax_reports.sbt_pp40_register` สรุปรายรับ/ภาษี 3%/ท้องถิ่น/รวม แยกใบกำกับขาย–ใบลดหนี้ (ใบลดหนี้เป็นค่าลบ), เทสต์ 7 ตัว (`test_sbt_pp40_register.py`)
 - **อากรแสตมป์ / e-Stamp** — ยังไม่เริ่ม
 
 ## 5. ลำดับความสำคัญเชิงธุรกิจ (Criticality)

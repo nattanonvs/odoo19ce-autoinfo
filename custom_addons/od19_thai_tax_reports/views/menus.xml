@@ -35,6 +35,13 @@
         sequence="40"
     />
     <menuitem
+        id="menu_sbt_pp40_register"
+        name="PP40 SBT Register (รายงานภาษีธุรกิจเฉพาะ ภ.ธ.40)"
+        parent="menu_thai_tax_reports"
+        action="action_thai_tax_report_wizard"
+        sequence="45"
+    />
+    <menuitem
         id="menu_pnd54_register"
         name="PND54 Register (แบบแสดงรายการ ภ.ง.ด.54)"
         parent="menu_thai_tax_reports"
