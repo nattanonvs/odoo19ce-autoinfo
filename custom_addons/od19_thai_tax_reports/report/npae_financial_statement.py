@@ -32,7 +32,12 @@ LIABILITY_CURRENT_TYPES = (
 LIABILITY_NON_CURRENT_TYPES = ("liability_non_current",)
 EQUITY_TYPES = ("equity", "equity_unaffected")
 INCOME_TYPES = ("income", "income_other")
-EXPENSE_TYPES = ("expense", "expense_depreciation", "expense_direct_cost")
+EXPENSE_TYPES = (
+    "expense",
+    "expense_other",
+    "expense_depreciation",
+    "expense_direct_cost",
+)
 
 
 class NpaeFinancialStatement(models.AbstractModel):

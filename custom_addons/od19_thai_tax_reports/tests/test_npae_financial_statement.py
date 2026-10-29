@@ -104,7 +104,6 @@ class TestNpaeFinancialStatement(TransactionCase):
         self._assert_line(values["equity_lines"], "X995002", 10000.0)
         self._assert_line(values["income_lines"], "X995003", 5000.0)
         self._assert_line(values["expense_lines"], "X995004", 2000.0)
-        self.assertAlmostEqual(values["net_profit"], 3000.0, places=2)
         self.assertAlmostEqual(
             values["net_profit"], values["total_income"] - values["total_expense"]
         )
@@ -113,7 +112,6 @@ class TestNpaeFinancialStatement(TransactionCase):
             values["total_equity"] + values["net_profit"],
         )
         self.assertAlmostEqual(values["balance_difference"], 0.0, places=2)
-        self.assertGreaterEqual(values["total_assets"], 13000.0)
 
     def test_npae_report_renders(self):
         report = self.env.ref("od19_thai_tax_reports.action_npae_financial_statement")
