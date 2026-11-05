@@ -187,7 +187,7 @@
 
     <!-- เมนู Customers: ใบสำคัญรับเงิน (รับชำระจากลูกค้า) -->
     <record id="action_od19_receipt_vouchers" model="ir.actions.act_window">
-        <field name="name">Prepare Receipt / ใบสำคัญรับเงิน</field>
+        <field name="name">ใบสำคัญรับเงิน / Receipt Vouchers</field>
         <field name="res_model">account.payment</field>
         <field name="view_mode">list,form</field>
         <field name="domain">[('payment_type', '=', 'inbound')]</field>
@@ -204,16 +204,29 @@
     </record>
 
     <menuitem id="menu_od19_prepare_payment"
-              name="Payment Vouchers / ใบสำคัญจ่าย"
+              name="ใบสำคัญจ่าย — รออนุมัติ / Payment Vouchers"
               parent="account.menu_finance_payables"
               action="action_od19_payment_vouchers"
               sequence="18"
               groups="account.group_account_invoice,account.group_account_readonly"/>
     <menuitem id="menu_od19_prepare_receipt"
-              name="Prepare Receipt"
+              name="ใบสำคัญรับเงิน — รออนุมัติ / Receipt Vouchers"
               parent="account.menu_finance_receivables"
               action="action_od19_receipt_vouchers"
               sequence="14"
               groups="account.group_account_invoice,account.group_account_readonly"/>
+
+    <!-- ============================================================
+         แยกบทบาทเมนูให้ชัดเจน (แก้ความสับสน Payments vs ใบสำคัญ)
+         - เมนู OD19 ด้านบน = ทะเบียนใบสำคัญ (งานรออนุมัติ/รอจ่าย)
+         - เมนู Core เดิมชื่อ "Payments" = ประวัติ/ค้นหารายการจ่าย-รับทุกสถานะ
+         ปรับผ่าน ir.ui.menu ของ Core เท่านั้น ไม่แตะไฟล์ Core
+         ============================================================ -->
+    <record id="account.menu_action_account_payments_payable" model="ir.ui.menu">
+        <field name="name">รายการจ่ายทั้งหมด / All Payments</field>
+    </record>
+    <record id="account.menu_action_account_payments_receivable" model="ir.ui.menu">
+        <field name="name">รายการรับชำระทั้งหมด / All Payments</field>
+    </record>
 
 </odoo>
