@@ -478,7 +478,7 @@
         <field name="measure_key">ticket_count</field>
         <field name="groupby_key">service_type</field>
         <field name="date_range">all_time</field>
-        <field name="limit" eval="8"/>
+        <field name="limit" eval="15"/>
         <field name="grid_w" eval="6"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="110"/>
@@ -492,7 +492,7 @@
         <field name="measure_key">ticket_count</field>
         <field name="groupby_key">stage_id</field>
         <field name="date_range">all_time</field>
-        <field name="limit" eval="8"/>
+        <field name="limit" eval="12"/>
         <field name="grid_w" eval="6"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="120"/>
@@ -506,7 +506,7 @@
         <field name="measure_key">claim_count</field>
         <field name="groupby_key">state</field>
         <field name="date_range">all_time</field>
-        <field name="limit" eval="8"/>
+        <field name="limit" eval="12"/>
         <field name="grid_w" eval="6"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="130"/>
@@ -520,7 +520,7 @@
         <field name="measure_key">card_count</field>
         <field name="groupby_key">service_type</field>
         <field name="date_range">all_time</field>
-        <field name="limit" eval="8"/>
+        <field name="limit" eval="15"/>
         <field name="grid_w" eval="6"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="140"/>
@@ -534,7 +534,7 @@
         <field name="measure_key">return_count</field>
         <field name="groupby_key">reason</field>
         <field name="date_range">all_time</field>
-        <field name="limit" eval="8"/>
+        <field name="limit" eval="15"/>
         <field name="grid_w" eval="6"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="150"/>
@@ -548,7 +548,7 @@
         <field name="measure_key">inspection_count</field>
         <field name="groupby_key">result</field>
         <field name="date_range">all_time</field>
-        <field name="limit" eval="8"/>
+        <field name="limit" eval="12"/>
         <field name="grid_w" eval="6"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="160"/>
@@ -562,7 +562,7 @@
         <field name="measure_key">avg_score</field>
         <field name="groupby_key">period</field>
         <field name="date_range">all_time</field>
-        <field name="limit" eval="12"/>
+        <field name="limit" eval="15"/>
         <field name="grid_w" eval="6"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="170"/>

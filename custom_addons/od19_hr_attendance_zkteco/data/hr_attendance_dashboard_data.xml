@@ -244,7 +244,7 @@
         <field name="groupby_key">department_id</field>
         <field name="date_range">this_month</field>
         <field name="date_key">date</field>
-        <field name="limit" eval="8"/>
+        <field name="limit" eval="15"/>
         <field name="grid_w" eval="6"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="70"/>
@@ -259,7 +259,7 @@
         <field name="groupby_key">employee_id</field>
         <field name="date_range">this_month</field>
         <field name="date_key">date</field>
-        <field name="limit" eval="8"/>
+        <field name="limit" eval="15"/>
         <field name="grid_w" eval="6"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="80"/>
@@ -273,7 +273,7 @@
         <field name="measure_key">worked_hours</field>
         <field name="groupby_key">date</field>
         <field name="date_range">all_time</field>
-        <field name="limit" eval="12"/>
+        <field name="limit" eval="24"/>
         <field name="grid_w" eval="6"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="90"/>
@@ -287,7 +287,7 @@
         <field name="measure_key">number_of_days</field>
         <field name="groupby_key">state</field>
         <field name="date_range">all_time</field>
-        <field name="limit" eval="8"/>
+        <field name="limit" eval="12"/>
         <field name="grid_w" eval="6"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="100"/>
@@ -301,7 +301,7 @@
         <field name="measure_key">number_of_days</field>
         <field name="groupby_key">holiday_status_id</field>
         <field name="date_range">all_time</field>
-        <field name="limit" eval="8"/>
+        <field name="limit" eval="12"/>
         <field name="grid_w" eval="6"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="110"/>
@@ -315,7 +315,7 @@
         <field name="measure_key">number_of_days</field>
         <field name="groupby_key">department_id</field>
         <field name="date_range">all_time</field>
-        <field name="limit" eval="8"/>
+        <field name="limit" eval="15"/>
         <field name="grid_w" eval="6"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="120"/>
