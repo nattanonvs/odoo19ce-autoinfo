@@ -13,6 +13,7 @@
         "security/od19_draft_security.xml",
         "security/ir.model.access.csv",
         "data/ir_cron_data.xml",
+        "views/od19_draft_views.xml",
     ],
     "assets": {
         "web.assets_backend": [
