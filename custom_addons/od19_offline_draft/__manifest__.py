@@ -17,6 +17,10 @@
     "assets": {
         "web.assets_backend": [
             "od19_offline_draft/static/src/draft_service.js",
+            "od19_offline_draft/static/src/draft_banner.js",
+            "od19_offline_draft/static/src/draft_banner.xml",
+            "od19_offline_draft/static/src/form_controller_patch.js",
+            "od19_offline_draft/static/src/offline_draft.scss",
         ],
     },
     "installable": True,

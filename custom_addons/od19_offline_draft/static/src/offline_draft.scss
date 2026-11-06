@@ -1,0 +1,10 @@
+.od19-draft-banner {
+    margin: 0.5rem 0.75rem 0;
+    font-size: 0.9rem;
+
+    &__text {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+}
