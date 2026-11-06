@@ -15,3 +15,9 @@ class IrHttp(models.AbstractModel):
         result = super().session_info()
         result["od19_draft"] = self._od19_draft_session_info()
         return result
+
+    @api.model
+    def get_frontend_session_info(self):
+        result = super().get_frontend_session_info()
+        result["od19_draft"] = self._od19_draft_session_info()
+        return result
