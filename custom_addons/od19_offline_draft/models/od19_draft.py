@@ -185,4 +185,12 @@ class Od19Draft(models.Model):
         )
         count = len(expired)
         expired.unlink()
+        # ร่างที่ถูกทำเป็น expired (เช่น payload version เก่า) เก็บไว้ตรวจสอบ
+        # ชั่วคราวแล้วลบทิ้งเมื่อพ้นช่วงผ่อนผัน เพื่อไม่ให้ค้างถาวร
+        self.sudo().search(
+            [
+                ("state", "=", "expired"),
+                ("write_date", "<", now - timedelta(days=DRAFT_TTL_DAYS)),
+            ]
+        ).unlink()
         return count
