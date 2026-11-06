@@ -155,6 +155,30 @@ export const od19DraftService = {
             }
         }
 
+        async function discardNow(model, resId) {
+            if (!isEnabled(model)) {
+                return false;
+            }
+            try {
+                await orm.call("od19.draft", "discard_draft", [model, resId || 0]);
+                return true;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        async function markApplied(model, resId) {
+            if (!isEnabled(model)) {
+                return false;
+            }
+            try {
+                await orm.call("od19.draft", "mark_applied", [model, resId || 0]);
+                return true;
+            } catch (error) {
+                return false;
+            }
+        }
+
         async function flushPending() {
             try {
                 const db = await getDb();
@@ -183,7 +207,17 @@ export const od19DraftService = {
             });
         });
 
-        return { isEnabled, save, load, clear, syncNow, flushPending, config };
+        return {
+            isEnabled,
+            save,
+            load,
+            clear,
+            syncNow,
+            discardNow,
+            markApplied,
+            flushPending,
+            config,
+        };
     },
 };
 
