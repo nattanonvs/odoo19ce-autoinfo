@@ -22,6 +22,9 @@
             "od19_offline_draft/static/src/form_controller_patch.js",
             "od19_offline_draft/static/src/offline_draft.scss",
         ],
+        "web.assets_frontend": [
+            "od19_offline_draft/static/src/portal/portal_autosave.js",
+        ],
     },
     "installable": True,
     "application": False,
