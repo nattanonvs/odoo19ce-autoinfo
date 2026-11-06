@@ -96,3 +96,23 @@ class TestOd19DraftCore(TransactionCase):
         removed = draft_model._cron_expire_drafts()
         self.assertEqual(removed, 1)
         self.assertTrue(draft_model.fetch_draft("sale.order", 77))
+
+    def test_cron_ignores_drafts_without_expiry(self):
+        draft_model = self.env["od19.draft"]
+        draft_model.create({"model_name": "sale.order", "res_id": 5, "payload": {}})
+        self.assertEqual(draft_model._cron_expire_drafts(), 0)
+        self.assertTrue(draft_model.fetch_draft("sale.order", 5))
+
+    def test_cron_ignores_non_active_drafts(self):
+        draft_model = self.env["od19.draft"]
+        draft = draft_model.create(
+            {
+                "model_name": "sale.order",
+                "res_id": 6,
+                "payload": {},
+                "state": "applied",
+                "expires_at": "2000-01-01 00:00:00",
+            }
+        )
+        self.assertEqual(draft_model._cron_expire_drafts(), 0)
+        self.assertTrue(draft.exists())
