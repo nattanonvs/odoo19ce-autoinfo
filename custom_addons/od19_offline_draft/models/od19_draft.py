@@ -126,7 +126,8 @@ class Od19Draft(models.Model):
         if not draft:
             return False
         if draft.payload_version != DRAFT_PAYLOAD_VERSION:
-            draft.unlink()
+            # เก็บร่างเดิมไว้เป็น expired เพื่อการตรวจสอบ ไม่ลบข้อมูลผู้ใช้แบบเงียบ
+            draft.write({"state": "expired"})
             return False
         return {
             "id": draft.id,
