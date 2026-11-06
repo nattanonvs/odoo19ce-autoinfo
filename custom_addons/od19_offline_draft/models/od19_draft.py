@@ -1,9 +1,19 @@
 # Copyright 2026 TRAE
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
 
-from odoo import api, fields, models
+from datetime import timedelta
+
+from odoo import _, api, fields, models
+from odoo.exceptions import UserError
 
 DRAFT_PAYLOAD_VERSION = 1
+DRAFT_TTL_DAYS = 7
+DEFAULT_ENABLED_MODELS = (
+    "sale.order",
+    "purchase.order",
+    "purchase.request",
+    "account.analytic.line",
+)
 
 
 class Od19Draft(models.Model):
@@ -57,3 +67,95 @@ class Od19Draft(models.Model):
             WHERE state = 'active'
             """
         )
+
+    # ------------------------------------------------------------------
+    # Registry
+    # ------------------------------------------------------------------
+    @api.model
+    def _get_enabled_models(self):
+        enabled = set(DEFAULT_ENABLED_MODELS)
+        for model_name, model in self.env.registry.models.items():
+            if getattr(model, "_od19_draft_enabled", False):
+                enabled.add(model_name)
+        return tuple(sorted(enabled))
+
+    @api.model
+    def _validate_model(self, model_name):
+        if model_name not in self._get_enabled_models():
+            raise UserError(
+                _("Model '%s' is not enabled for offline drafts.") % model_name
+            )
+
+    # ------------------------------------------------------------------
+    # Lifecycle
+    # ------------------------------------------------------------------
+    @api.model
+    def _active_domain(self, model_name, res_id):
+        return [
+            ("model_name", "=", model_name),
+            ("res_id", "=", res_id or 0),
+            ("user_id", "=", self.env.user.id),
+            ("state", "=", "active"),
+        ]
+
+    @api.model
+    def upsert_draft(self, model_name, res_id, payload, payload_version=None):
+        self._validate_model(model_name)
+        values = {
+            "model_name": model_name,
+            "res_id": res_id or 0,
+            "user_id": self.env.user.id,
+            "company_id": self.env.company.id,
+            "payload": payload or {},
+            "payload_version": payload_version or DRAFT_PAYLOAD_VERSION,
+            "expires_at": fields.Datetime.now() + timedelta(days=DRAFT_TTL_DAYS),
+        }
+        draft = self.sudo().search(self._active_domain(model_name, res_id), limit=1)
+        if draft:
+            draft.write(values)
+        else:
+            draft = self.sudo().create(values)
+        return {
+            "id": draft.id,
+            "updated_at": fields.Datetime.to_string(draft.write_date),
+        }
+
+    @api.model
+    def fetch_draft(self, model_name, res_id):
+        draft = self.sudo().search(self._active_domain(model_name, res_id), limit=1)
+        if not draft:
+            return False
+        if draft.payload_version != DRAFT_PAYLOAD_VERSION:
+            draft.unlink()
+            return False
+        return {
+            "id": draft.id,
+            "payload": draft.payload,
+            "payload_version": draft.payload_version,
+            "updated_at": fields.Datetime.to_string(draft.write_date),
+            "expires_at": (
+                fields.Datetime.to_string(draft.expires_at) if draft.expires_at else False
+            ),
+            "attachment_ids": draft._get_attachment_ids(),
+        }
+
+    def _get_attachment_ids(self):
+        self.ensure_one()
+        return (
+            self.env["ir.attachment"]
+            .sudo()
+            .search([("res_model", "=", self._name), ("res_id", "=", self.id)])
+            .ids
+        )
+
+    @api.model
+    def discard_draft(self, model_name, res_id):
+        self.sudo().search(self._active_domain(model_name, res_id)).unlink()
+        return True
+
+    @api.model
+    def mark_applied(self, model_name, res_id):
+        drafts = self.sudo().search(self._active_domain(model_name, res_id))
+        drafts.write({"state": "applied"})
+        drafts.unlink()
+        return True
