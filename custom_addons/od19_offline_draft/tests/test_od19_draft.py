@@ -53,7 +53,7 @@ class TestOd19DraftCore(TransactionCase):
         draft_model.mark_applied("sale.order", 0)
         self.assertEqual(draft_model.search_count([]), 0)
 
-    def test_fetch_discards_when_payload_version_mismatch(self):
+    def test_fetch_expires_when_payload_version_mismatch(self):
         draft_model = self.env["od19.draft"]
         draft = draft_model.create(
             {
@@ -64,4 +64,5 @@ class TestOd19DraftCore(TransactionCase):
             }
         )
         self.assertFalse(draft_model.fetch_draft("sale.order", 0))
-        self.assertFalse(draft.exists())
+        self.assertTrue(draft.exists())
+        self.assertEqual(draft.state, "expired")
