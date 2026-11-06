@@ -14,6 +14,11 @@
         "security/ir.model.access.csv",
         "data/ir_cron_data.xml",
     ],
+    "assets": {
+        "web.assets_backend": [
+            "od19_offline_draft/static/src/draft_service.js",
+        ],
+    },
     "installable": True,
     "application": False,
     "auto_install": False,
