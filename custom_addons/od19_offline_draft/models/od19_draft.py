@@ -183,7 +183,6 @@ class Od19Draft(models.Model):
                 ("expires_at", "<", now),
             ]
         )
-        if expired:
-            expired.write({"state": "expired"})
-            expired.unlink()
-        return len(expired)
+        count = len(expired)
+        expired.unlink()
+        return count
