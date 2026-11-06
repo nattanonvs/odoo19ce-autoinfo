@@ -85,3 +85,14 @@ class TestOd19DraftCore(TransactionCase):
     def test_upsert_rejects_disabled_model(self):
         with self.assertRaises(UserError):
             self.env["od19.draft"].upsert_draft("res.partner", 0, {"note": "x"})
+
+    def test_cron_expires_only_past_drafts(self):
+        draft_model = self.env["od19.draft"]
+        draft_model.upsert_draft("sale.order", 0, {"note": "expired"})
+        draft_model.sudo().search([("res_id", "=", 0)]).write(
+            {"expires_at": "2000-01-01 00:00:00"}
+        )
+        draft_model.upsert_draft("sale.order", 77, {"note": "fresh"})
+        removed = draft_model._cron_expire_drafts()
+        self.assertEqual(removed, 1)
+        self.assertTrue(draft_model.fetch_draft("sale.order", 77))

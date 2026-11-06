@@ -12,6 +12,7 @@
     "data": [
         "security/od19_draft_security.xml",
         "security/ir.model.access.csv",
+        "data/ir_cron_data.xml",
     ],
     "installable": True,
     "application": False,

@@ -172,3 +172,18 @@ class Od19Draft(models.Model):
         drafts.write({"state": "applied"})
         drafts.unlink()
         return True
+
+    @api.model
+    def _cron_expire_drafts(self):
+        now = fields.Datetime.now()
+        expired = self.sudo().search(
+            [
+                ("state", "=", "active"),
+                ("expires_at", "!=", False),
+                ("expires_at", "<", now),
+            ]
+        )
+        if expired:
+            expired.write({"state": "expired"})
+            expired.unlink()
+        return len(expired)
