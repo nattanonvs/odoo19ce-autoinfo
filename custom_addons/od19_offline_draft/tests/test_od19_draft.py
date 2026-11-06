@@ -116,3 +116,31 @@ class TestOd19DraftCore(TransactionCase):
         )
         self.assertEqual(draft_model._cron_expire_drafts(), 0)
         self.assertTrue(draft.exists())
+
+    def test_fetch_exposes_attachment_ids(self):
+        draft_model = self.env["od19.draft"]
+        info = draft_model.upsert_draft("sale.order", 0, {"note": "with file"})
+        attachment = self.env["ir.attachment"].create(
+            {
+                "name": "draft.txt",
+                "res_model": "od19.draft",
+                "res_id": info["id"],
+                "datas": "aGVsbG8=",
+            }
+        )
+        result = draft_model.fetch_draft("sale.order", 0)
+        self.assertEqual(result["attachment_ids"], [attachment.id])
+
+    def test_unlink_removes_related_attachments(self):
+        draft_model = self.env["od19.draft"]
+        info = draft_model.upsert_draft("sale.order", 0, {"note": "with file"})
+        attachment = self.env["ir.attachment"].create(
+            {
+                "name": "draft.txt",
+                "res_model": "od19.draft",
+                "res_id": info["id"],
+                "datas": "aGVsbG8=",
+            }
+        )
+        draft_model.discard_draft("sale.order", 0)
+        self.assertFalse(attachment.exists())
