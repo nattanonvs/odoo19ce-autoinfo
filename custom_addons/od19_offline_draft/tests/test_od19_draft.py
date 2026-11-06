@@ -144,3 +144,10 @@ class TestOd19DraftCore(TransactionCase):
         )
         draft_model.discard_draft("sale.order", 0)
         self.assertFalse(attachment.exists())
+
+    def test_ir_http_exposes_draft_config(self):
+        ir_http = self.env["ir.http"]
+        self.assertTrue(hasattr(ir_http, "_od19_draft_session_info"))
+        payload = ir_http._od19_draft_session_info()
+        self.assertIn("sale.order", payload["enabled_models"])
+        self.assertEqual(payload["debounce_ms"], 2000)
