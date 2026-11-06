@@ -86,6 +86,7 @@ import { session } from "@web/session";
             timer = setTimeout(flush, debounceMs);
         });
         form.addEventListener("submit", () => {
+            clearTimeout(timer);
             try {
                 window.localStorage.removeItem(storageKey(form));
             } catch (error) {
