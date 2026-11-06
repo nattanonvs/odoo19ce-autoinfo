@@ -8,6 +8,8 @@ from odoo.exceptions import UserError
 
 DRAFT_PAYLOAD_VERSION = 1
 DRAFT_TTL_DAYS = 7
+DRAFT_DEBOUNCE_MS = 2000
+DRAFT_MAX_ATTACHMENT_SIZE = 5 * 1024 * 1024  # 5 MB
 DEFAULT_ENABLED_MODELS = (
     "sale.order",
     "purchase.order",
@@ -85,6 +87,16 @@ class Od19Draft(models.Model):
             raise UserError(
                 _("Model '%s' is not enabled for offline drafts.") % model_name
             )
+
+    @api.model
+    def _get_client_config(self):
+        return {
+            "enabled_models": list(self._get_enabled_models()),
+            "debounce_ms": DRAFT_DEBOUNCE_MS,
+            "ttl_days": DRAFT_TTL_DAYS,
+            "max_attachment_size": DRAFT_MAX_ATTACHMENT_SIZE,
+            "payload_version": DRAFT_PAYLOAD_VERSION,
+        }
 
     # ------------------------------------------------------------------
     # Lifecycle

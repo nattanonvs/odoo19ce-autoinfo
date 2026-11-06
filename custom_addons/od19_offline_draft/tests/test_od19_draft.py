@@ -1,3 +1,4 @@
+from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase, tagged
 
 
@@ -66,3 +67,21 @@ class TestOd19DraftCore(TransactionCase):
         self.assertFalse(draft_model.fetch_draft("sale.order", 0))
         self.assertTrue(draft.exists())
         self.assertEqual(draft.state, "expired")
+
+    def test_enabled_models_contains_defaults(self):
+        enabled = self.env["od19.draft"]._get_enabled_models()
+        self.assertIn("sale.order", enabled)
+        self.assertIn("purchase.order", enabled)
+        self.assertIn("purchase.request", enabled)
+        self.assertIn("account.analytic.line", enabled)
+
+    def test_client_config_shape(self):
+        config = self.env["od19.draft"]._get_client_config()
+        self.assertEqual(config["debounce_ms"], 2000)
+        self.assertEqual(config["ttl_days"], 7)
+        self.assertEqual(config["payload_version"], 1)
+        self.assertIn("sale.order", config["enabled_models"])
+
+    def test_upsert_rejects_disabled_model(self):
+        with self.assertRaises(UserError):
+            self.env["od19.draft"].upsert_draft("res.partner", 0, {"note": "x"})
