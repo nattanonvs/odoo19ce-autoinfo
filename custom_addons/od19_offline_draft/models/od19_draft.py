@@ -70,6 +70,12 @@ class Od19Draft(models.Model):
             """
         )
 
+    def unlink(self):
+        self.env["ir.attachment"].sudo().search(
+            [("res_model", "=", self._name), ("res_id", "in", self.ids)]
+        ).unlink()
+        return super().unlink()
+
     # ------------------------------------------------------------------
     # Registry
     # ------------------------------------------------------------------
