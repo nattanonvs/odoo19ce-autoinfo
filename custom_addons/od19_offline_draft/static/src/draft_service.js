@@ -70,7 +70,10 @@ export const od19DraftService = {
 
         function getDb() {
             if (!dbPromise) {
-                dbPromise = openDatabase();
+                dbPromise = openDatabase().catch((error) => {
+                    dbPromise = null;
+                    throw error;
+                });
             }
             return dbPromise;
         }
@@ -87,6 +90,7 @@ export const od19DraftService = {
                         key,
                         model,
                         resId: resId || 0,
+                        userId,
                         payload,
                         schema: SCHEMA_VERSION,
                         dirty: true,
@@ -154,9 +158,9 @@ export const od19DraftService = {
         async function flushPending() {
             try {
                 const db = await getDb();
-                const records = (await runStore(db, STORE_DRAFTS, "readonly", (store) =>
-                    store.getAll()
-                )) || [];
+                const records = (
+                    (await runStore(db, STORE_DRAFTS, "readonly", (store) => store.getAll())) || []
+                ).filter((record) => record.userId === userId);
                 for (const record of records) {
                     if (!record.dirty) {
                         continue;
@@ -173,7 +177,11 @@ export const od19DraftService = {
             }
         }
 
-        window.addEventListener("online", () => flushPending());
+        window.addEventListener("online", () => {
+            flushPending().catch(() => {
+                // fail-safe: sync will be retried on the next online event
+            });
+        });
 
         return { isEnabled, save, load, clear, syncNow, flushPending, config };
     },
