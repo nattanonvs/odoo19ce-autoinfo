@@ -1,5 +1,8 @@
+import json
+from uuid import uuid4
+
 from odoo.exceptions import UserError
-from odoo.tests.common import TransactionCase, tagged
+from odoo.tests.common import HttpCase, TransactionCase, tagged
 
 
 @tagged("post_install", "-at_install")
@@ -151,3 +154,22 @@ class TestOd19DraftCore(TransactionCase):
         payload = ir_http._od19_draft_session_info()
         self.assertIn("sale.order", payload["enabled_models"])
         self.assertEqual(payload["debounce_ms"], 2000)
+
+
+@tagged("post_install", "-at_install")
+class TestOd19DraftSessionInfo(HttpCase):
+    def test_session_info_route_exposes_draft_config(self):
+        self.authenticate("admin", "admin")
+        # Avoid the create part of res.users.settings since the
+        # get_session_info route is readonly.
+        self.env["res.users.settings"]._find_or_create_for_user(self.env.user)
+        payload = json.dumps({"jsonrpc": "2.0", "method": "call", "id": str(uuid4())})
+        headers = {"Content-Type": "application/json"}
+        response = self.url_open(
+            "/web/session/get_session_info", data=payload, headers=headers
+        )
+        self.assertEqual(response.status_code, 200)
+        result = response.json()["result"]
+        self.assertIn("od19_draft", result)
+        self.assertIn("sale.order", result["od19_draft"]["enabled_models"])
+        self.assertEqual(result["od19_draft"]["debounce_ms"], 2000)
