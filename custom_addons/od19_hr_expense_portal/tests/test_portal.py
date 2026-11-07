@@ -138,3 +138,34 @@ class TestExpensePortalHttp(TestExpensePortalBase, HttpCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(
             "localStorage.removeItem('od19_expense_draft')", response.text)
+
+    # ------------------------------------------------------------------
+    # Phase 4b — optional map distance (server-side, disabled by default)
+    # ------------------------------------------------------------------
+    def test_p4b_map_button_hidden_by_default(self):
+        self.authenticate("od19_portal_flow", "od19_portal_flow")
+        html = self.url_open("/my/expenses/new").text
+        self.assertNotIn('id="od19_expense_map_button"', html)
+
+    def test_p4b_distance_route_disabled_by_default(self):
+        self.authenticate("od19_portal_flow", "od19_portal_flow")
+        response = self.url_open("/my/expenses/distance", data={
+            "csrf_token": self._csrf_token(),
+            "origin": "Bangkok",
+            "destination": "Chiang Mai",
+        })
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("error", response.text)
+
+    def test_p4b_map_button_shown_when_configured(self):
+        params = self.env["ir.config_parameter"].sudo()
+        keys = [
+            "od19_hr_expense_portal.map_provider",
+            "od19_hr_expense_portal.map_api_key",
+        ]
+        params.set_param(keys[0], "ors")
+        params.set_param(keys[1], "test-key")
+        self.addCleanup(lambda: params.search([("key", "in", keys)]).unlink())
+        self.authenticate("od19_portal_flow", "od19_portal_flow")
+        html = self.url_open("/my/expenses/new").text
+        self.assertIn('id="od19_expense_map_button"', html)

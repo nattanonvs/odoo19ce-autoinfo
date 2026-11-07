@@ -9,6 +9,8 @@ never reach an expense belonging to somebody else.
 
 import logging
 
+import requests
+
 from odoo import _, fields, http
 from odoo.exceptions import MissingError, UserError, ValidationError
 from odoo.http import request
@@ -19,6 +21,12 @@ from odoo.addons.portal.controllers.portal import (
 )
 
 _logger = logging.getLogger(__name__)
+
+_MAP_PROVIDER_PARAM = 'od19_hr_expense_portal.map_provider'
+_MAP_API_KEY_PARAM = 'od19_hr_expense_portal.map_api_key'
+_ORS_GEOCODE_URL = 'https://api.openrouteservice.org/geocode/search'
+_ORS_DIRECTIONS_URL = 'https://api.openrouteservice.org/v2/directions/driving-car'
+_MAP_REQUEST_TIMEOUT = 10
 
 
 class Od19HrExpensePortal(CustomerPortal):
@@ -51,6 +59,7 @@ class Od19HrExpensePortal(CustomerPortal):
             if employee else Vehicle.browse(),
             'today': fields.Date.context_today(request.env.user),
             'form': {},
+            'map_enabled': self._map_config()[2],
         }
 
     def _expense_form_to_wizard_vals(self, post):
@@ -84,6 +93,89 @@ class Od19HrExpensePortal(CustomerPortal):
             'destination': post.get('destination'),
             'submit_now': bool(post.get('submit_now')),
         }
+
+    # ------------------------------------------------------------
+    # Map distance (optional, disabled unless configured)
+    # ------------------------------------------------------------
+    def _map_config(self):
+        """Read the map provider configuration from system parameters.
+
+        Returns ``(provider, api_key, enabled)``. The feature stays off until
+        an operator sets both a provider and an API key, so the button never
+        appears out of the box (see spec K7).
+        """
+        params = request.env['ir.config_parameter'].sudo()
+        provider = (params.get_param(_MAP_PROVIDER_PARAM) or 'none').strip().lower()
+        api_key = params.get_param(_MAP_API_KEY_PARAM) or ''
+        return provider, api_key, bool(provider != 'none' and api_key)
+
+    def _compute_distance_km(self, provider, api_key, origin, destination):
+        """Return the driving distance (km) between two free-text places."""
+        if provider == 'ors':
+            return self._distance_ors(api_key, origin, destination)
+        raise UserError(_("Unsupported map provider: %s") % provider)
+
+    def _distance_ors(self, api_key, origin, destination):
+        """Distance via OpenRouteService (geocoding + driving-car route)."""
+
+        def _geocode(text):
+            response = requests.get(
+                _ORS_GEOCODE_URL,
+                params={'api_key': api_key, 'text': text, 'size': 1},
+                timeout=_MAP_REQUEST_TIMEOUT,
+            )
+            response.raise_for_status()
+            features = response.json().get('features') or []
+            return features[0]['geometry']['coordinates'] if features else None
+
+        start = _geocode(origin)
+        end = _geocode(destination)
+        if not start or not end:
+            return 0.0
+        response = requests.get(
+            _ORS_DIRECTIONS_URL,
+            params={
+                'api_key': api_key,
+                'start': '%s,%s' % (start[0], start[1]),
+                'end': '%s,%s' % (end[0], end[1]),
+            },
+            timeout=_MAP_REQUEST_TIMEOUT,
+        )
+        response.raise_for_status()
+        features = response.json().get('features') or []
+        if not features:
+            return 0.0
+        return features[0]['properties']['summary']['distance'] / 1000.0
+
+    @http.route(
+        '/my/expenses/distance', type='http', auth='user', website=True,
+        methods=['POST'],
+    )
+    def portal_my_expense_distance(self, **post):
+        """Return the driving distance (km) as JSON for the map button.
+
+        The API key never reaches the browser: the lookup runs server-side and
+        the endpoint fails softly (JSON ``error``) so a network problem never
+        blocks the portal (see spec §6.5).
+        """
+        provider, api_key, enabled = self._map_config()
+        if not enabled:
+            return request.make_json_response(
+                {'error': _("Map distance is not configured.")}, status=400)
+        origin = (post.get('origin') or '').strip()
+        destination = (post.get('destination') or '').strip()
+        if not origin or not destination:
+            return request.make_json_response(
+                {'error': _("Please fill in both origin and destination.")},
+                status=400)
+        try:
+            distance_km = self._compute_distance_km(
+                provider, api_key, origin, destination)
+        except Exception as exc:  # noqa: BLE001 - never break the portal
+            _logger.warning("Map distance lookup failed: %s", exc)
+            return request.make_json_response(
+                {'error': _("Could not calculate the distance.")}, status=502)
+        return request.make_json_response({'distance_km': round(distance_km, 1)})
 
     # ------------------------------------------------------------
     # My Expenses

@@ -256,6 +256,12 @@
                             <input type="text" name="destination" id="destination" class="form-control"
                                    t-att-value="form.get('destination') or ''"/>
                         </div>
+                        <div class="col-12 mb-3" t-if="map_enabled">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" id="od19_expense_map_button">
+                                <i class="fa fa-map-signs me-1"/> คำนวณระยะทางจากแผนที่
+                            </button>
+                            <small class="ms-2" id="od19_expense_map_status"></small>
+                        </div>
                     </div>
                 </fieldset>
 
@@ -309,6 +315,60 @@
                         form.reset();
                     });
                 }
+            })();
+            </script>
+
+            <!-- Optional map distance: server-side lookup, API key never sent to the browser -->
+            <script type="text/javascript">
+            (function () {
+                var btn = document.getElementById('od19_expense_map_button');
+                if (!btn) { return; }
+                var form = document.getElementById('od19_expense_form');
+                var status = document.getElementById('od19_expense_map_status');
+                var distance = document.getElementById('distance_km');
+                var setStatus = function (msg, ok) {
+                    if (!status) { return; }
+                    status.textContent = msg || '';
+                    status.className = 'ms-2 ' + (ok ? 'text-success' : 'text-danger');
+                };
+                btn.addEventListener('click', function () {
+                    var origin = (form.elements['origin'] || {}).value || '';
+                    var destination = (form.elements['destination'] || {}).value || '';
+                    if (!origin || !destination) {
+                        setStatus('กรอกต้นทางและปลายทางก่อน', false);
+                        return;
+                    }
+                    var tokenEl = form.elements['csrf_token'];
+                    var body = new URLSearchParams();
+                    body.append('csrf_token', tokenEl ? tokenEl.value : '');
+                    body.append('origin', origin);
+                    body.append('destination', destination);
+                    btn.disabled = true;
+                    setStatus('กำลังคำนวณ...', true);
+                    fetch('/my/expenses/distance', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                        body: body.toString(),
+                    }).then(function (resp) {
+                        return resp.json().then(function (data) {
+                            return {ok: resp.ok, data: data};
+                        });
+                    }).then(function (result) {
+                        if (!result.ok || result.data.error) {
+                            setStatus(result.data.error || 'คำนวณไม่สำเร็จ', false);
+                            return;
+                        }
+                        if (distance) {
+                            distance.value = result.data.distance_km;
+                            distance.dispatchEvent(new Event('input', {bubbles: true}));
+                        }
+                        setStatus('ระยะทาง ' + result.data.distance_km + ' กม.', true);
+                    }).catch(function () {
+                        setStatus('คำนวณไม่สำเร็จ', false);
+                    }).then(function () {
+                        btn.disabled = false;
+                    });
+                });
             })();
             </script>
         </t>
