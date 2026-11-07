@@ -4,14 +4,21 @@
     <record id="group_internal_helpdesk" model="res.groups">
         <field name="name">Internal Helpdesk User</field>
         <field name="privilege_id" ref="helpdesk_mgmt.group_helpdesk_privilege" />
-        <field name="implied_ids" eval="[(4, ref('helpdesk_mgmt.group_helpdesk_user_own'))]" />
+        <!-- Imply only Internal User, NOT the broad OCA helpdesk groups.
+             Those carry wide record rules (e.g. "All Tickets" = [(1,'=',1)])
+             which, being OR-combined, would neutralise this group's own
+             team_type restriction below. -->
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]" />
         <field name="comment">Can see and manage only Internal IT Helpdesk tickets.</field>
     </record>
 
     <record id="group_sales_service" model="res.groups">
         <field name="name">Sales Services User</field>
         <field name="privilege_id" ref="helpdesk_mgmt.group_helpdesk_privilege" />
-        <field name="implied_ids" eval="[(4, ref('helpdesk_mgmt.group_helpdesk_user'))]" />
+        <!-- Imply only Internal User. Implying group_helpdesk_user would pull
+             in the "All Tickets" record rule and void the customer_service
+             restriction defined below. -->
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]" />
         <field name="comment">Can see and manage only Customer Sales Services tickets (with billing).</field>
     </record>
 
