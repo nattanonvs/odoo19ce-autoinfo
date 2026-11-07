@@ -37,14 +37,14 @@
 
 **Files:** `controllers/__init__.py`, `controllers/portal.py`, `__init__.py`
 
-- [ ] **Step 1: สร้าง `controllers/__init__.py`**
+- [x] **Step 1: สร้าง `controllers/__init__.py`**
 
 ```python
 # -*- coding: utf-8 -*-
 from . import portal
 ```
 
-- [ ] **Step 2: สร้าง `controllers/portal.py`**
+- [x] **Step 2: สร้าง `controllers/portal.py`**
 
 Route:
 - `GET /my/expenses` (+ `/my/expenses/page/<int:page>`) — รายการใบเบิกของผู้ใช้ (paged)
@@ -66,9 +66,9 @@ def _expense_check_access(self, expense_id):
     return expense
 ```
 
-- [ ] **Step 3: เพิ่ม import ใน `__init__.py`** (`from . import controllers`)
+- [x] **Step 3: เพิ่ม import ใน `__init__.py`** (`from . import controllers`)
 
-- [ ] **Step 4: ตรวจไวยากรณ์แบบ static**
+- [x] **Step 4: ตรวจไวยากรณ์แบบ static**
 
 Run: `venv19\Scripts\python.exe -m py_compile custom_addons/od19_hr_expense_portal/controllers/portal.py`
 Expected: ไม่มี error
@@ -77,10 +77,10 @@ Expected: ไม่มี error
 
 **Files:** `views/portal_templates.xml`
 
-- [ ] **Step 1: `portal_my_expenses`** — ตารางรายการ + ปุ่ม "ยื่นใบเบิก" + `portal.pager`
-- [ ] **Step 2: `portal_my_expense_detail`** — ข้อมูลใบเบิก + timeline `review_ids` (`sequence`, `name`, `display_status`, `done_by`, `reviewed_date`) + เหตุผลเมื่อถูกปฏิเสธ
-- [ ] **Step 3: `portal_my_expense_new`** — ฟอร์ม (category/date/description + amount | mileage: distance/vehicle/origin/destination) + checkbox submit_now + csrf token
-- [ ] **Step 4: ตรวจ XML well-formed**
+- [x] **Step 1: `portal_my_expenses`** — ตารางรายการ + ปุ่ม "ยื่นใบเบิก" + `portal.pager`
+- [x] **Step 2: `portal_my_expense_detail`** — ข้อมูลใบเบิก + timeline `review_ids` (`sequence`, `name`, `display_status`, `done_by`, `reviewed_date`) + เหตุผลเมื่อถูกปฏิเสธ
+- [x] **Step 3: `portal_my_expense_new`** — ฟอร์ม (category/date/description + amount | mileage: distance/vehicle/origin/destination) + checkbox submit_now + csrf token
+- [x] **Step 4: ตรวจ XML well-formed**
 
 Run: `venv19\Scripts\python.exe -c "import xml.dom.minidom; xml.dom.minidom.parse('custom_addons/od19_hr_expense_portal/views/portal_templates.xml')"`
 Expected: ไม่มี error
@@ -89,18 +89,18 @@ Expected: ไม่มี error
 
 **Files:** `security/od19_hr_expense_portal_security.xml`, `security/ir.model.access.csv`
 
-- [ ] **Step 1: `ir.rule`** — `base.group_portal` เห็นเฉพาะ `['|',('employee_id.user_id','=',user.id),('create_uid','=',user.id)]`
-- [ ] **Step 2: `ir.model.access.csv`** — เพิ่ม `base.group_portal` read-only บน `hr.expense` (1,0,0,0) — การสร้าง/ส่งทำผ่าน controller (sudo)
+- [x] **Step 1: `ir.rule`** — `base.group_portal` เห็นเฉพาะ `['|',('employee_id.user_id','=',user.id),('create_uid','=',user.id)]`
+- [x] **Step 2: `ir.model.access.csv`** — เพิ่ม `base.group_portal` read-only บน `hr.expense` (1,0,0,0) — การสร้าง/ส่งทำผ่าน controller (sudo)
 
 ## Task 4: Tests (T4, T8)
 
 **Files:** `tests/test_portal.py`, `tests/__init__.py`
 
-- [ ] **Step 1: T4 — ผู้ใช้พอร์ทัลเห็นเฉพาะใบเบิกของตัวเอง**
+- [x] **Step 1: T4 — ผู้ใช้พอร์ทัลเห็นเฉพาะใบเบิกของตัวเอง**
   - `TransactionCase`: สร้าง 2 พนักงาน/2 ผู้ใช้พอร์ทัล → search/read ฝั่ง ORM เห็นเฉพาะของตัวเอง + controller detail ของคนอื่น → 403/404
-- [ ] **Step 2: T8 — ยื่นใบเบิกผ่าน portal สำเร็จ (HttpCase)**
+- [x] **Step 2: T8 — ยื่นใบเบิกผ่าน portal สำเร็จ (HttpCase)**
   - `HttpCase`: ล็อกอินผู้ใช้พอร์ทัล → GET `/my/expenses` (200) → GET `/my/expenses/new` (200) → POST สร้าง (redirect) → ใบเบิกถูกสร้างด้วย employee ที่ถูกต้อง
-- [ ] **Step 3: รันเทสต์**
+- [x] **Step 3: รันเทสต์**
 
 Run:
 ```powershell
@@ -110,6 +110,42 @@ Expected: `0 failed, 0 error(s)`
 
 ## Task 5: Commit
 
-- [ ] `git add -- custom_addons/od19_hr_expense_portal docs/superpowers/plans/2026-11-07-od19-hr-expense-portal-phase3-plan.md`
-- [ ] `git commit -m "feat(od19_hr_expense_portal): add employee portal for expense claims (Phase 3)"`
-- [ ] `git push -u origin feature/od19_hr_expense_portal`
+- [x] `git add -- custom_addons/od19_hr_expense_portal docs/superpowers/plans/2026-11-07-od19-hr-expense-portal-phase3-plan.md`
+- [x] `git commit -m "feat(od19_hr_expense_portal): add employee portal for expense claims (Phase 3)"`
+- [x] `git push -u origin feature/od19_hr_expense_portal`
+
+---
+
+## Results (verification)
+
+**Commit:** `ea55de0585a` — `feat(od19_hr_expense_portal): add employee portal for expense claims (Phase 3)`
+(10 files changed, +719/−3) · push แล้วที่ `origin/feature/od19_hr_expense_portal`
+
+**คำสั่งที่รันจริง** (โหลดโมดูลจาก worktree ผ่าน `--addons-path` + `PYTHONDONTWRITEBYTECODE=1`):
+
+```powershell
+python odoo-bin -c odoo.conf -d odoo19_pdev -u od19_hr_expense_portal `
+  --data-dir C:\odoo-dev\odoo19\data_test --http-port 8075 `
+  --test-enable --test-tags /od19_hr_expense_portal --stop-after-init `
+  --logfile C:\odoo-dev\odoo19\data_test_run.log `
+  --addons-path "C:\odoo-dev\od19-portal\custom_addons,<odoo core + oca paths>"
+```
+
+**ผลลัพธ์จริง:**
+```
+odoo19_pdev: od19_hr_expense_portal: 13 tests 4.27s 1861 queries
+odoo19_pdev odoo.tests.result: 0 failed, 0 error(s) of 7 tests
+EXIT=0
+```
+
+7 tests ผ่านทั้งหมด:
+
+| # | Test | ผล |
+|---|---|---|
+| T4.1 | `TestExpensePortalAccess.test_t4_portal_user_sees_only_own_expenses` | PASS |
+| T4.2 | `TestExpensePortalAccess.test_t4_portal_user_cannot_read_other_expense` | PASS (Access Denied by record rule) |
+| T8.1 | `TestExpensePortalHttp.test_t8_portal_expense_flow` | PASS (GET list 200 → GET new 200 → POST 303 → detail 200) |
+| T8.2 | `TestExpensePortalHttp.test_t8_cannot_open_other_expense` | PASS (404) |
+| — | `TestQuickCreate` × 3 (regression Phase 2) | PASS |
+
+**Trace HTTP จริง:** `GET /my/expenses` 200 · `GET /my/expenses/new` 200 · `POST /my/expenses/new` 303 · `GET /my/expenses/<id>` 200 · ใบเบิกคนอื่น 404
