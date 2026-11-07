@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_config_settings_view_form_ai" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.ai</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='general_settings']" position="inside">
+                <block title="AI Assistant" id="od19_ai_settings">
+                    <setting
+                        id="od19_ai_connection_setting"
+                        string="AI Endpoint"
+                        help="Free / self-hosted OpenAI-compatible endpoint: Ollama, Groq, Google Gemini, OpenRouter, Mistral ..."
+                        groups="base.group_system"
+                    >
+                        <div class="content-group">
+                            <div class="row mt16">
+                                <label for="od19_ai_base_url" class="col-lg-3 o_light_label"/>
+                                <field name="od19_ai_base_url" placeholder="http://localhost:11434/v1"/>
+                            </div>
+                            <div class="row">
+                                <label for="od19_ai_model" class="col-lg-3 o_light_label"/>
+                                <field name="od19_ai_model" placeholder="qwen2.5:7b"/>
+                            </div>
+                            <div class="row">
+                                <label for="od19_ai_api_key" class="col-lg-3 o_light_label"/>
+                                <field name="od19_ai_api_key" widget="password" placeholder="leave empty for Ollama"/>
+                            </div>
+                            <div class="row">
+                                <label for="od19_ai_timeout" class="col-lg-3 o_light_label"/>
+                                <field name="od19_ai_timeout"/>
+                            </div>
+                            <div class="row">
+                                <label for="od19_ai_system_prompt" class="col-lg-3 o_light_label"/>
+                                <field name="od19_ai_system_prompt" widget="text"/>
+                            </div>
+                        </div>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
