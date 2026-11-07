@@ -170,6 +170,20 @@ class TestExpensePortalHttp(TestExpensePortalBase, HttpCase):
         html = self.url_open("/my/expenses/new").text
         self.assertIn('id="od19_expense_map_button"', html)
 
+    # ------------------------------------------------------------------
+    # Phase 4d — in-portal user guide
+    # ------------------------------------------------------------------
+    def test_p4d_help_page_available(self):
+        self.authenticate("od19_portal_flow", "od19_portal_flow")
+        response = self.url_open("/my/expenses/help")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("คู่มือการยื่นใบเบิกค่าใช้จ่าย", response.text)
+
+    def test_p4d_help_link_on_list(self):
+        self.authenticate("od19_portal_flow", "od19_portal_flow")
+        html = self.url_open("/my/expenses").text
+        self.assertIn('href="/my/expenses/help"', html)
+
 
 @tagged("post_install", "-at_install")
 class TestExpenseSummaryReport(TestExpensePortalBase, TransactionCase):

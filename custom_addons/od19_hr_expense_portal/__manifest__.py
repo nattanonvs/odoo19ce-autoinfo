@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'HR Expense Portal',
-    'version': '19.0.2.3.0',
+    'version': '19.0.2.4.0',
     'category': 'Human Resources/Expenses',
     'summary': (
         'Employee-facing expense experience: a quick submission wizard, a '

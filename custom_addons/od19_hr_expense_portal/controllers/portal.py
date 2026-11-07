@@ -210,6 +210,19 @@ class Od19HrExpensePortal(CustomerPortal):
             'od19_hr_expense_portal.portal_my_expenses', values)
 
     @http.route(
+        '/my/expenses/help', type='http', auth='user', website=True,
+    )
+    def portal_my_expense_help(self, **kw):
+        """Static in-portal user guide for filing an expense claim (Phase 4d)."""
+        values = self._prepare_portal_layout_values()
+        values.update({
+            'page_name': 'expense',
+            'map_enabled': self._map_config()[2],
+        })
+        return request.render(
+            'od19_hr_expense_portal.portal_my_expense_help', values)
+
+    @http.route(
         '/my/expenses/new', type='http', auth='user', website=True,
         methods=['GET'],
     )
