@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_od19_ai_chat_list" model="ir.ui.view">
+        <field name="name">od19.ai.chat.list</field>
+        <field name="model">od19.ai.chat</field>
+        <field name="arch" type="xml">
+            <list string="AI Assistant">
+                <field name="create_date"/>
+                <field name="name"/>
+                <field name="user_id"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'done'"
+                       decoration-danger="state == 'error'"/>
+                <field name="model_used"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_od19_ai_chat_form" model="ir.ui.view">
+        <field name="name">od19.ai.chat.form</field>
+        <field name="model">od19.ai.chat</field>
+        <field name="arch" type="xml">
+            <form string="AI Assistant">
+                <header>
+                    <button name="action_ask" type="object" string="Ask AI"
+                            class="oe_highlight" invisible="state == 'done'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,done,error"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="user_id"/>
+                        <field name="model_used"/>
+                    </group>
+                    <group string="Question">
+                        <field name="prompt" nolabel="1" placeholder="Type your question ..."/>
+                    </group>
+                    <group string="Answer">
+                        <field name="response" nolabel="1" readonly="1"/>
+                        <field name="error_message" nolabel="1" readonly="1"
+                               invisible="not error_message" class="text-danger"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_od19_ai_chat" model="ir.actions.act_window">
+        <field name="name">AI Assistant</field>
+        <field name="res_model">od19.ai.chat</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_od19_ai_root" name="AI Assistant" sequence="95"/>
+    <menuitem id="menu_od19_ai_chat" name="Ask AI"
+              parent="menu_od19_ai_root" action="action_od19_ai_chat" sequence="10"/>
+
+</odoo>
