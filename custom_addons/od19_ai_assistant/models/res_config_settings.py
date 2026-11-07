@@ -32,7 +32,7 @@ class ResConfigSettings(models.TransientModel):
         config_parameter="od19_ai.timeout",
         default=60,
     )
-    od19_ai_system_prompt = fields.Text(
+    od19_ai_system_prompt = fields.Char(
         string="System Prompt",
         config_parameter="od19_ai.system_prompt",
         default="You are a helpful assistant for a Thai accounting ERP "
