@@ -121,3 +121,20 @@ class TestExpensePortalHttp(TestExpensePortalBase, HttpCase):
         self.authenticate("od19_portal_flow", "od19_portal_flow")
         response = self.url_open("/my/expenses/%s" % self.expense_other.id)
         self.assertEqual(response.status_code, 404)
+
+    # ------------------------------------------------------------------
+    # Phase 4a — offline-tolerant draft (localStorage)
+    # ------------------------------------------------------------------
+    def test_p4a_draft_autosave_markers_present(self):
+        self.authenticate("od19_portal_flow", "od19_portal_flow")
+        html = self.url_open("/my/expenses/new").text
+        self.assertIn('id="od19_expense_form"', html)
+        self.assertIn("od19_expense_draft", html)
+
+    def test_p4a_draft_cleared_on_detail(self):
+        self.authenticate("od19_portal_flow", "od19_portal_flow")
+        expense = self._make_expense(self.employee_a, "Own draft", 12.0)
+        response = self.url_open("/my/expenses/%s" % expense.id)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(
+            "localStorage.removeItem('od19_expense_draft')", response.text)

@@ -167,6 +167,11 @@
                     </t>
                 </div>
             </div>
+
+            <!-- A submitted claim lands here: drop the local draft -->
+            <script type="text/javascript">
+            try { window.localStorage.removeItem('od19_expense_draft'); } catch (e) {}
+            </script>
         </t>
     </template>
 
@@ -179,7 +184,15 @@
                 <div class="alert alert-danger" t-out="error"/>
             </t>
 
-            <form method="post" action="/my/expenses/new" class="col-lg-8">
+            <div class="alert alert-info col-lg-8" role="alert">
+                <i class="fa fa-mobile me-1"/>
+                ระบบบันทึกร่างไว้ในเครื่องนี้อัตโนมัติ หากสัญญาณหลุดแล้วกลับมา กรอกต่อได้ทันที
+                <button type="button" id="od19_expense_draft_clear" class="btn btn-link btn-sm p-0 align-baseline">
+                    ล้างร่างที่บันทึกไว้
+                </button>
+            </div>
+
+            <form method="post" action="/my/expenses/new" class="col-lg-8" id="od19_expense_form">
                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
 
                 <div class="mb-3">
@@ -254,6 +267,50 @@
                 <button type="submit" class="btn btn-primary">ยื่นใบเบิก</button>
                 <a href="/my/expenses" class="btn btn-secondary">ยกเลิก</a>
             </form>
+
+            <!-- Offline-tolerant draft: keep the in-progress form in localStorage -->
+            <script type="text/javascript">
+            (function () {
+                var KEY = 'od19_expense_draft';
+                var form = document.getElementById('od19_expense_form');
+                if (!form) { return; }
+                try {
+                    var saved = window.localStorage.getItem(KEY);
+                    if (saved) {
+                        var data = JSON.parse(saved);
+                        Object.keys(data).forEach(function (name) {
+                            var el = form.elements[name];
+                            if (!el) { return; }
+                            if (el.type === 'checkbox') {
+                                el.checked = !!data[name];
+                            } else if (!el.value) {
+                                el.value = data[name];
+                            }
+                        });
+                    }
+                } catch (e) { /* storage unavailable: continue without draft */ }
+                var save = function () {
+                    try {
+                        var data = {};
+                        Array.prototype.forEach.call(form.elements, function (el) {
+                            if (!el.name || el.name === 'csrf_token') { return; }
+                            data[el.name] = el.type === 'checkbox' ? el.checked : el.value;
+                        });
+                        window.localStorage.setItem(KEY, JSON.stringify(data));
+                    } catch (e) { /* storage unavailable: ignore */ }
+                };
+                form.addEventListener('input', save);
+                form.addEventListener('change', save);
+                var clearBtn = document.getElementById('od19_expense_draft_clear');
+                if (clearBtn) {
+                    clearBtn.addEventListener('click', function (ev) {
+                        ev.preventDefault();
+                        try { window.localStorage.removeItem(KEY); } catch (e) {}
+                        form.reset();
+                    });
+                }
+            })();
+            </script>
         </t>
     </template>
 
