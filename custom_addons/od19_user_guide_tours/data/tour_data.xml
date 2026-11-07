@@ -514,4 +514,141 @@
         <field name="url">/odoo</field>
         <field name="custom">True</field>
     </record>
+
+    <!--
+        Accounting add-ons (prepayment / payment voucher & fee / operational
+        closure / analytic requirement / Bank of Thailand currency rates).
+        These guides live inside the Accounting application and are reachable
+        from User Guide > Interactive Tours or from /odoo?tour=<name>.
+    -->
+    <record id="tour_od19_prepayment" model="web_tour.tour">
+        <field name="name">od19_prepayment_tour</field>
+        <field name="sequence">231</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_payment_voucher" model="web_tour.tour">
+        <field name="name">od19_payment_voucher_tour</field>
+        <field name="sequence">232</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_payment_fee" model="web_tour.tour">
+        <field name="name">od19_payment_fee_tour</field>
+        <field name="sequence">233</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_operational_closure" model="web_tour.tour">
+        <field name="name">od19_operational_closure_tour</field>
+        <field name="sequence">234</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_analytic_require" model="web_tour.tour">
+        <field name="name">od19_analytic_require_tour</field>
+        <field name="sequence">235</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_currency_rate_bot" model="web_tour.tour">
+        <field name="name">od19_currency_rate_bot_tour</field>
+        <field name="sequence">236</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+
+    <!--
+        Sales add-ons (Jasper sale reports, services / returns Jasper,
+        confirmation stamp, dual-currency amount columns).
+    -->
+    <record id="tour_od19_sale_jasper" model="web_tour.tour">
+        <field name="name">od19_sale_jasper_tour</field>
+        <field name="sequence">237</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_sales_services_jasper" model="web_tour.tour">
+        <field name="name">od19_sales_services_jasper_tour</field>
+        <field name="sequence">238</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_sales_confirm_stamp" model="web_tour.tour">
+        <field name="name">od19_sales_confirm_stamp_tour</field>
+        <field name="sequence">239</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_sales_currency_amount" model="web_tour.tour">
+        <field name="name">od19_sales_currency_amount_tour</field>
+        <field name="sequence">240</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+
+    <!--
+        Purchase / Inventory add-ons (purchase requests, purchase order
+        revision, delivery label printing).
+    -->
+    <record id="tour_od19_purchase_request" model="web_tour.tour">
+        <field name="name">od19_purchase_request_tour</field>
+        <field name="sequence">241</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_purchase_revision" model="web_tour.tour">
+        <field name="name">od19_purchase_revision_tour</field>
+        <field name="sequence">242</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_delivery_label" model="web_tour.tour">
+        <field name="name">od19_delivery_label_tour</field>
+        <field name="sequence">243</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+
+    <!--
+        HR / platform / administration add-ons (employee expense portal,
+        internal helpdesk issue, web navigation bar, local AI assistant,
+        central security roles, Thai partner fields).
+    -->
+    <record id="tour_od19_hr_expense_portal" model="web_tour.tour">
+        <field name="name">od19_hr_expense_portal_tour</field>
+        <field name="sequence">244</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_internal_issue" model="web_tour.tour">
+        <field name="name">od19_internal_issue_tour</field>
+        <field name="sequence">245</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_web_navigation" model="web_tour.tour">
+        <field name="name">od19_web_navigation_tour</field>
+        <field name="sequence">246</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_ai_assistant" model="web_tour.tour">
+        <field name="name">od19_ai_assistant_tour</field>
+        <field name="sequence">247</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_security_roles" model="web_tour.tour">
+        <field name="name">od19_security_roles_tour</field>
+        <field name="sequence">248</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_partner_thai_fields" model="web_tour.tour">
+        <field name="name">od19_partner_thai_fields_tour</field>
+        <field name="sequence">249</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
 </odoo>
