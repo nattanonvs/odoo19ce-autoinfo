@@ -15,7 +15,7 @@
 1. **ความง่ายในการใช้งานของพนักงาน** — ปัจจุบัน `hr.expense` เป็นหน้าจอหลังบ้าน (backend) ล้วน ไม่มี portal และมีรายละเอียดภาษี/บัญชีที่พนักงานทั่วไปไม่จำเป็นต้องเข้าใจ
 2. **การอนุมัติ 3 ชั้น** — ปัจจุบันมีเพียง 2 ชั้น (กลไกฟิลด์ `first_approver_id` / `second_approval_state`)
 
-งานนี้จึง **ไม่สร้างโมเดลใหม่** แต่เพิ่ม "ชั้นประสบการณ์ใช้งานของพนักงาน" และ **ยกระดับการอนุมัติเป็น 3 ชั้น** (หัวหน้าแผนก → บัญชี → CEO) ด้วย OCA `base_tier_validation` ซึ่งมีฟีเจอร์มอบหมายผู้อนุมัติ (delegation) ในตัวอยู่แล้ว
+งานนี้จึง **ไม่สร้างโมเดลใหม่** แต่เพิ่ม "ชั้นประสบการณ์ใช้งานของพนักงาน" และ **ยกระดับการอนุมัติเป็น 3 ชั้น** (หัวหน้าแผนก → บัญชี → CEO) ด้วย OCA `base_tier_validation` ซึ่งมีฟีเจอร์ส่งต่อการอนุมัติ (Forward) ให้ผู้อื่นในกลุ่มทำแทนได้ ผ่านโมดูล `base_tier_validation_forward`
 
 **เป้าหมายเชิงผลลัพธ์**
 
@@ -39,7 +39,7 @@
 | `od19_hr_expense_thai` (19.0.1.1.0) | มีจริง | อนุมัติ 2 ชั้น, วิธีจ่ายคืน (เงินสด/โอน/เช็ค), สร้าง `account.payment` จ่ายคืนจริง + reconcile กับเจ้าหนี้พนักงาน |
 | `od19_hr_advance` (19.0.1.0.0) | มีจริง | เงินทดรองพนักงาน ใช้ OCA `base_tier_validation` 2 ชั้น (ต้นแบบที่นำกลไกมาใช้ซ้ำได้) |
 | `od19_approval_center` (19.0.1.0.0) | มีจริง | ศูนย์อนุมัติ view-only, source `hr.expense` ปัจจุบันเป็น `strategy: field` 2 ขั้น |
-| `third_party/oca/tier-validation/base_tier_validation` | พร้อมใช้ | tier definition/review + เมนู Delegations |
+| `third_party/oca/tier-validation/base_tier_validation` | พร้อมใช้ | tier definition/review + ฟีเจอร์ Forward (`base_tier_validation_forward`) |
 
 ### 2.2 ช่องว่างเทียบกับความต้องการ
 
@@ -228,7 +228,7 @@
 
 > **กลไกที่ต้องยืนยันตอน implement:** `base_tier_validation` เรียง `tier.definition` ด้วย `sequence` จากมากไปน้อยไปเป็น `tier.review.sequence` 1, 2, 3 (definition `sequence` สูงกว่า = อนุมัติก่อน) ตามที่โปรเจกต์ใช้ใน `od19_hr_advance` — ต้องตรวจเทียบกับโค้ด OCA จริงอีกครั้งก่อนตั้งค่า
 
-- **การมอบหมาย (delegation):** ใช้เมนู **Tier Validation → Delegations** ของ OCA (ผู้ใช้ตั้งว่าตนจะให้ใครอนุมัติแทน ช่วงวันที่ใด) — ไม่เขียนโค้ดใหม่
+- **การส่งต่อการอนุมัติ (Forward):** เปิดใช้ด้วยฟิลด์ `tier.definition.has_forward = True` (โมดูล `base_tier_validation_forward`) เมื่อเปิดแล้วผู้อนุมัติที่ถูกคาดหวังจะเห็นปุ่ม **Forward** และกดส่งต่อการอนุมัติให้ผู้ใช้อื่นที่อยู่ในกลุ่มผู้อนุมัติแทนได้ — ไม่เขียนโค้ดใหม่
 - **ผลกระทบต่อกลไกเดิม:** เลิกใช้ฟิลด์ `first_approver_id` เป็นตัวตัดสินเส้นทาง และเลิกใช้ `second_approval_state` เป็นกลไกหลัก (คงฟิลด์ไว้เพื่อความเข้ากันได้ของข้อมูลเท่านั้น)
 - **สถานะรออนุมัติของ tier validation:** `tier.validation` เก็บสถานะที่ `review_ids` / `validation_status` (ไม่ใช่ `state`) จึงต้องแมป "รอใคร" จาก `review_ids` ปัจจุบัน
 
@@ -274,12 +274,24 @@
 
 | เฟส | เนื้อหา | ผลลัพธ์ที่ตรวจได้ |
 |---|---|---|
-| **Phase 1** | 3 ชั้นอนุมัติบน `hr.expense` ด้วย tier validation + กลุ่ม CEO + อัปเดต Approval Center | ยื่นใบเบิก 1 ใบ แล้วต้องผ่าน 3 ขั้นตามลำดับ; มอบหมายผ่านเมนู Delegations ได้ |
+| **Phase 1** | 3 ชั้นอนุมัติบน `hr.expense` ด้วย tier validation + กลุ่ม CEO + อัปเดต Approval Center | ยื่นใบเบิก 1 ใบ แล้วต้องผ่าน 3 ขั้นตามลำดับ; ส่งต่อ (Forward) ให้ผู้อื่นในกลุ่มได้ |
 | **Phase 2** | wizard ยื่นเบิกแบบง่าย (backend) + ค่าเริ่มต้นภาษีอัตโนมัติ + Kanban สถานะ + **Mileage ฝั่ง backend** (ฟิลด์/คำนวณยอด/ตั้งค่าอัตราที่บริษัท) + **สมุดรถพนักงาน** (จดจำ/เติมอัตโนมัติ/แก้-เพิ่ม-ลบ) | พนักงานยื่นเบิกจบใน ≤ 4 ขั้น; ยื่น Mileage แล้วยอด = กม. × อัตรา ถูกต้อง และรถถูกเติมอัตโนมัติในครั้งถัดไป |
 | **Phase 3** | Portal `/my/expenses` + responsive/มือถือ (รวมฟอร์ม Mileage) | พนักงานที่ไม่มีสิทธิ์หลังบ้านยื่นและติดตามได้จากมือถือ |
 | **Phase 4** | Polish: ปุ่มคำนวณระยะทางจากแผนที่ (optional), เก็บร่างกันเน็ตหลุด, รายงาน, คู่มือการใช้งาน | (ตามความจำเป็น) |
 
 การส่งมอบทำ **ตามเฟส** — แต่ละเฟสมีเทสต์ผ่านก่อนไปเฟสถัดไป
+
+### 11.1 บันทึก as-built (Phase 2) — การเบี่ยงจากร่างแรก
+
+Phase 2 implement จริงบน branch `feature/od19-hr-expense-ux` (worktree แยก) มีรายละเอียดที่ต้องบันทึกเพื่อความแม่นยำ:
+
+1. **กลไก Mileage (C6):** ใช้ `quantity` = ระยะทาง (กม.) และ `total_amount` = ระยะทาง × อัตรา เป็นแหล่งความจริง เนื่องจาก `price_unit` ของ core เป็น readonly+computed — core จะคำนวณ `price_unit` (= อัตรา/กม.) ให้เองจาก `total_amount / quantity` (สำหรับสินค้าที่ไม่มีต้นทุน) จึง **ไม่เขียน `price_unit` ตรง ๆ**
+2. **หมวดค่าใช้จ่าย Mileage (C7):** ระบุด้วยธง `od19_is_mileage_category` บน `product.template`; wizard ใช้ `compute` อ่านธงนี้เพื่อสลับโหมดกรอก (จำนวนเงิน vs ระยะทาง)
+3. **สินค้าหมวด Mileage (C8):** seed product "ค่าเดินทางตามระยะทาง / Mileage" (`default_code = MIL-KM`, `standard_price = 0`, UoM = กม., `can_be_expensed`, `od19_is_mileage_category`) ใน `od19_hr_expense_enhanced/data/od19_expense_category_data.xml` — ต้อง `standard_price = 0` เพื่อให้ core ไม่ทับ `total_amount`
+4. **Wizard ยื่นเบิก:** โมเดล `od19.expense.quick.create` ในโมดูลใหม่ `od19_hr_expense_portal` (v `19.0.1.0.0`) พร้อมเมนู "ยื่นใบเบิกค่าใช้จ่าย"
+5. **Kanban "ใบเบิกของฉัน":** domain `[('employee_id.user_id','=',uid)]`, `default_group_by="state"`, ใช้ `<t t-name="card">` (Odoo 19) และเพิ่มฟิลด์ `od19_approval_hint` (compute) บน `hr.expense` ใน `od19_hr_expense_portal`
+6. **ความเข้ากันได้ Odoo 19:** `_sql_constraints` → `models.Constraint`; `name_get()` → `_compute_display_name`; `res.users.groups_id` → `group_ids`
+7. **ฟิลด์ Mileage บน `hr.expense` (ชื่อจริง):** `od19_is_mileage`, `od19_mileage_distance_km`, `od19_mileage_vehicle_id`, `od19_mileage_vehicle_type`, `od19_mileage_plate`, `od19_mileage_origin`, `od19_mileage_destination`, `od19_mileage_date`, `od19_mileage_rate` (compute+store)
 
 ---
 
@@ -289,7 +301,7 @@
 |---|---|---|
 | T1 | ยื่นใบเบิกแล้วต้องผ่าน 3 ขั้นตามลำดับ (หัวหน้าแผนก → บัญชี → CEO) และข้ามขั้นไม่ได้ | TransactionCase |
 | T2 | ถ้ายังอนุมัติไม่ครบ 3 ชั้น `state` ต้องไม่เป็น `approved` | TransactionCase |
-| T3 | มอบหมายผู้อนุมัติ (delegation) แล้วผู้อื่นอนุมัติแทนได้ | TransactionCase |
+| T3 | ส่งต่อการอนุมัติ (Forward) แล้วผู้อื่นในกลุ่มอนุมัติแทนได้ | TransactionCase |
 | T4 | ผู้ใช้พอร์ทัลเห็นเฉพาะใบเบิกของตัวเอง | TransactionCase / HttpCase |
 | T5 | เบี้ยเลี้ยงเกินวงเงินโดยไม่มีเหตุผล → validation error | TransactionCase |
 | T6 | ใบรับรองแทนใบเสร็จรับเงิน ต้องไม่มี VAT | TransactionCase |
@@ -338,9 +350,9 @@
 - `custom_addons/od19_hr_expense_enhanced/models/hr_expense.py` — `first_approver_id`, `od19_document_type`, `od19_is_per_diem` (แบบอย่างที่จะเพิ่มฟิลด์ Mileage ต่อจากนี้)
 - `custom_addons/od19_hr_expense_enhanced/models/res_company.py` — `od19_per_diem_rate_domestic/overseas` + `_od19_per_diem_rate()` (แบบอย่างที่จะเพิ่ม `od19_mileage_rate`)
 - โมเดลใหม่ **`od19.employee.vehicle`** (สมุดรถพนักงาน: `employee_id`, ประเภท, ป้ายทะเบียน, วันใช้งานล่าสุด) — เพิ่มใน `od19_hr_expense_enhanced/models/` ควบคู่กับ `hr.expense`
-- Core `addons/hr_expense/models/hr_expense.py` — `product_uom_id`, `quantity`, `price_unit`, `total_amount` (กลไกที่ Mileage ใช้: UoM = กม., quantity = ระยะทาง, price_unit = อัตรา/กม.)
+- Core `addons/hr_expense/models/hr_expense.py` — `product_uom_id`, `quantity`, `price_unit`, `total_amount` (กลไกที่ Mileage ใช้: UoM = กม., `quantity` = ระยะทาง, `total_amount` = ระยะทาง × อัตรา; core คำนวณ `price_unit` = อัตรา/กม. ให้เองสำหรับสินค้าที่ไม่มีต้นทุน — ดู §11.1 ข้อ 1)
 - `custom_addons/od19_hr_expense_thai/models/hr_expense.py` — กลไกอนุมัติ 2 ชั้นเดิม + `_od19_create_reimbursement_payment`
 - `custom_addons/od19_hr_advance/data/tier_definition_data.xml` — ต้นแบบการตั้งค่า `tier.definition` (2 ชั้น)
 - `custom_addons/od19_approval_center/data/approval_sources.py` — source `hr.expense` (บรรทัดที่กำหนด `strategy` / `steps`)
 - `custom_addons/od19_role_catalog` — ที่ตั้งของกลุ่มสิทธิ์ธุรกิจ (ที่จะเพิ่มกลุ่ม CEO)
-- `third_party/oca/tier-validation/base_tier_validation` — กลไก tier validation + เมนู Delegations
+- `third_party/oca/tier-validation/base_tier_validation` — กลไก tier validation + ฟีเจอร์ Forward (`base_tier_validation_forward`)
