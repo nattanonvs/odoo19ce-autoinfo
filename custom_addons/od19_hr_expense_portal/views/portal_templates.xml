@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Breadcrumb entry for the /my/expenses pages -->
+    <template id="portal_my_expenses_breadcrumb" name="Portal: My Expenses breadcrumb" inherit_id="portal.portal_breadcrumbs" priority="40">
+        <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+            <li name="od19_expense_breadcrumb" t-if="page_name == 'expense'" t-attf-class="breadcrumb-item #{'active ' if not expense else ''}">
+                <a t-if="expense" href="/my/expenses">ใบเบิกค่าใช้จ่าย</a>
+                <t t-else="">ใบเบิกค่าใช้จ่าย</t>
+            </li>
+            <li t-if="expense" class="breadcrumb-item active">
+                <t t-out="expense.name or expense.product_id.display_name"/>
+            </li>
+        </xpath>
+    </template>
+
+    <!-- List of the current user's expenses -->
+    <template id="portal_my_expenses" name="My Expenses">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-set="state_labels" t-value="{
+                'draft': 'ฉบับร่าง',
+                'submitted': 'รออนุมัติ',
+                'approved': 'อนุมัติแล้ว',
+                'posted': 'บันทึกบัญชีแล้ว',
+                'in_payment': 'กำลังจ่าย',
+                'paid': 'จ่ายแล้ว',
+                'refused': 'ถูกปฏิเสธ',
+            }"/>
+
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">ใบเบิกค่าใช้จ่ายของฉัน</t>
+            </t>
+
+            <div class="mb-3">
+                <a class="btn btn-primary" href="/my/expenses/new">
+                    <i class="fa fa-plus me-1"/> ยื่นใบเบิก
+                </a>
+            </div>
+
+            <t t-if="not expenses">
+                <p class="alert alert-warning">ยังไม่มีใบเบิกค่าใช้จ่าย</p>
+            </t>
+            <t t-if="expenses" t-call="portal.portal_table">
+                <thead>
+                    <tr class="active">
+                        <th name="expense_date">วันที่</th>
+                        <th name="expense_name">รายการ</th>
+                        <th name="expense_amount" class="text-end pe-3">จำนวนเงิน</th>
+                        <th name="expense_status">สถานะ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="expenses" t-as="expense">
+                        <tr>
+                            <td><span t-field="expense.date"/></td>
+                            <td>
+                                <a t-attf-href="/my/expenses/#{expense.id}">
+                                    <t t-out="expense.name or expense.product_id.display_name"/>
+                                </a>
+                            </td>
+                            <td class="text-end pe-3">
+                                <span t-out="expense.total_amount" t-options='{"widget": "monetary", "display_currency": expense.currency_id}'/>
+                            </td>
+                            <td>
+                                <span t-attf-class="badge rounded-pill #{'text-bg-success' if expense.state in ('approved', 'posted', 'in_payment', 'paid') else ('text-bg-danger' if expense.state == 'refused' else 'text-bg-info')}">
+                                    <t t-out="state_labels.get(expense.state, expense.state)"/>
+                                </span>
+                                <small class="d-block text-muted" t-if="expense.state == 'submitted'">
+                                    <t t-out="expense.od19_approval_hint"/>
+                                </small>
+                            </td>
+                        </tr>
+                    </t>
+                </tbody>
+            </t>
+        </t>
+    </template>
+
+    <!-- Expense detail + 3-tier approval timeline -->
+    <template id="portal_my_expense_detail" name="My Expense Detail">
+        <t t-call="portal.portal_layout">
+            <t t-set="review_labels" t-value="{
+                'none': 'ยังไม่ถึงคิว',
+                'pending': 'รออนุมัติ',
+                'approved': 'อนุมัติแล้ว',
+                'rejected': 'ถูกปฏิเสธ',
+            }"/>
+            <t t-set="state_labels" t-value="{
+                'draft': 'ฉบับร่าง',
+                'submitted': 'รออนุมัติ',
+                'approved': 'อนุมัติแล้ว',
+                'posted': 'บันทึกบัญชีแล้ว',
+                'in_payment': 'กำลังจ่าย',
+                'paid': 'จ่ายแล้ว',
+                'refused': 'ถูกปฏิเสธ',
+            }"/>
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <h3 class="mb-3">
+                        <t t-out="expense.name or expense.product_id.display_name"/>
+                    </h3>
+                    <span t-attf-class="badge rounded-pill mb-3 #{'text-bg-success' if expense.state in ('approved', 'posted', 'in_payment', 'paid') else ('text-bg-danger' if expense.state == 'refused' else 'text-bg-info')}">
+                        <t t-out="state_labels.get(expense.state, expense.state)"/>
+                    </span>
+
+                    <div class="row gy-2 mb-4">
+                        <div class="col-sm-6">
+                            <strong>วันที่:</strong> <span t-field="expense.date"/>
+                        </div>
+                        <div class="col-sm-6">
+                            <strong>หมวดค่าใช้จ่าย:</strong> <span t-field="expense.product_id"/>
+                        </div>
+                        <div class="col-sm-6">
+                            <strong>จำนวนเงิน:</strong>
+                            <span t-out="expense.total_amount" t-options='{"widget": "monetary", "display_currency": expense.currency_id}'/>
+                        </div>
+                        <div class="col-sm-6" t-if="expense.od19_is_mileage">
+                            <strong>ระยะทาง:</strong> <span t-field="expense.od19_mileage_distance_km"/> กม.
+                        </div>
+                        <div class="col-sm-6" t-if="expense.od19_is_mileage and expense.od19_mileage_vehicle_id">
+                            <strong>รถ:</strong> <span t-field="expense.od19_mileage_vehicle_id"/>
+                        </div>
+                        <div class="col-sm-6" t-if="expense.od19_is_mileage and expense.od19_mileage_origin">
+                            <strong>ต้นทาง:</strong> <span t-field="expense.od19_mileage_origin"/>
+                        </div>
+                        <div class="col-sm-6" t-if="expense.od19_is_mileage and expense.od19_mileage_destination">
+                            <strong>ปลายทาง:</strong> <span t-field="expense.od19_mileage_destination"/>
+                        </div>
+                    </div>
+
+                    <form t-if="expense.state == 'draft'" method="post" t-attf-action="/my/expenses/#{expense.id}/submit">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa fa-paper-plane me-1"/> ส่งอนุมัติ
+                        </button>
+                    </form>
+                </div>
+
+                <div class="col-lg-4">
+                    <h5 class="mb-3">สถานะการอนุมัติ</h5>
+                    <t t-if="expense.review_ids">
+                        <ul class="list-group">
+                            <t t-foreach="expense.review_ids" t-as="review">
+                                <li class="list-group-item d-flex justify-content-between align-items-start gap-2">
+                                    <div>
+                                        <div class="fw-bold">
+                                            <t t-out="review.sequence"/>. <t t-out="review.name"/>
+                                        </div>
+                                        <small class="text-muted" t-if="review.done_by">
+                                            โดย <t t-out="review.done_by.name"/>
+                                        </small>
+                                        <small class="d-block text-muted" t-if="review.reviewed_date">
+                                            <span t-field="review.reviewed_date"/>
+                                        </small>
+                                    </div>
+                                    <span t-attf-class="badge #{'text-bg-success' if review.display_status == 'approved' else ('text-bg-danger' if review.display_status == 'rejected' else 'text-bg-secondary')}">
+                                        <t t-out="review_labels.get(review.display_status, review.display_status)"/>
+                                    </span>
+                                </li>
+                            </t>
+                        </ul>
+                    </t>
+                    <t t-else="">
+                        <p class="text-muted">ยังไม่มีขั้นตอนการอนุมัติ</p>
+                    </t>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Submission form -->
+    <template id="portal_my_expense_new" name="New Expense">
+        <t t-call="portal.portal_layout">
+            <h3 class="mb-3">ยื่นใบเบิกค่าใช้จ่าย</h3>
+
+            <t t-if="error">
+                <div class="alert alert-danger" t-out="error"/>
+            </t>
+
+            <form method="post" action="/my/expenses/new" class="col-lg-8">
+                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                <div class="mb-3">
+                    <label class="form-label" for="expense_category_id">หมวดค่าใช้จ่าย</label>
+                    <select name="expense_category_id" id="expense_category_id" class="form-select" required="required">
+                        <option value="">-- เลือก --</option>
+                        <t t-foreach="categories" t-as="category">
+                            <option t-att-value="category.id"
+                                    t-att-selected="form.get('expense_category_id') == category.id">
+                                <t t-out="category.display_name"/>
+                            </option>
+                        </t>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="expense_date">วันที่</label>
+                    <input type="date" name="expense_date" id="expense_date" class="form-control"
+                           t-att-value="form.get('expense_date') or today"/>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="description">รายละเอียด</label>
+                    <input type="text" name="description" id="description" class="form-control"
+                           t-att-value="form.get('description') or ''"/>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="amount">จำนวนเงิน (กรณีไม่ใช่ค่าเดินทาง)</label>
+                    <input type="number" step="0.01" name="amount" id="amount" class="form-control"
+                           t-att-value="form.get('amount') or ''"/>
+                </div>
+
+                <fieldset class="mb-3">
+                    <legend class="h6">ค่าเดินทางตามระยะทาง (ถ้ามี)</legend>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="distance_km">ระยะทาง (กม.)</label>
+                            <input type="number" step="0.01" name="distance_km" id="distance_km" class="form-control"
+                                   t-att-value="form.get('distance_km') or ''"/>
+                        </div>
+                        <div class="col-md-6 mb-3" t-if="vehicles">
+                            <label class="form-label" for="vehicle_id">รถของฉัน</label>
+                            <select name="vehicle_id" id="vehicle_id" class="form-select">
+                                <option value="">-- ไม่ระบุ --</option>
+                                <t t-foreach="vehicles" t-as="vehicle">
+                                    <option t-att-value="vehicle.id"
+                                            t-att-selected="form.get('vehicle_id') == vehicle.id">
+                                        <t t-out="vehicle.display_name"/>
+                                    </option>
+                                </t>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="origin">ต้นทาง</label>
+                            <input type="text" name="origin" id="origin" class="form-control"
+                                   t-att-value="form.get('origin') or ''"/>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="destination">ปลายทาง</label>
+                            <input type="text" name="destination" id="destination" class="form-control"
+                                   t-att-value="form.get('destination') or ''"/>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <div class="form-check mb-3">
+                    <input type="checkbox" class="form-check-input" id="submit_now" name="submit_now" value="1" checked="checked"/>
+                    <label class="form-check-label" for="submit_now">ส่งอนุมัติทันที</label>
+                </div>
+
+                <button type="submit" class="btn btn-primary">ยื่นใบเบิก</button>
+                <a href="/my/expenses" class="btn btn-secondary">ยกเลิก</a>
+            </form>
+        </t>
+    </template>
+
+</odoo>
