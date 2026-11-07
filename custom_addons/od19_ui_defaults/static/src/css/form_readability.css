@@ -29,6 +29,16 @@
     transition: background-color .15s ease, box-shadow .15s ease;
 }
 
+/* 2b) เฉพาะช่องที่ยังไม่ได้เติม (edit mode) — ให้ดูเด่นขึ้นเล็กน้อย
+   ใช้ o_od19_field_empty ที่เติมจาก JS เฉพาะตอนแก้ไข จึงไม่กระทบช่องที่มีข้อมูล
+   วางไว้ก่อนกฎ hover/focus เพื่อให้ตอบสนองตอนโฟกัสยังทำงานตามปกติ */
+.o_form_view .o_field_widget.o_od19_field_empty input.o_input,
+.o_form_view .o_field_widget.o_od19_field_empty textarea.o_input,
+.o_form_view .o_field_widget.o_od19_field_empty select.o_input {
+    background-color: #eef1f6;
+    box-shadow: inset 0 0 0 1px #cdd3dd;
+}
+
 .o_form_view .o_field_widget input.o_input:hover,
 .o_form_view .o_field_widget textarea.o_input:hover,
 .o_form_view .o_field_widget select.o_input:hover {
