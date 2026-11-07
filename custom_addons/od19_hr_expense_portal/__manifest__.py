@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'HR Expense Portal',
-    'version': '19.0.2.2.0',
+    'version': '19.0.2.3.0',
     'category': 'Human Resources/Expenses',
     'summary': (
         'Employee-facing expense experience: a quick submission wizard, a '
@@ -24,6 +24,7 @@
         'views/hr_expense_quick_create_views.xml',
         'views/hr_expense_kanban_views.xml',
         'views/portal_templates.xml',
+        'report/od19_expense_summary_report.xml',
     ],
     'installable': True,
     'application': False,

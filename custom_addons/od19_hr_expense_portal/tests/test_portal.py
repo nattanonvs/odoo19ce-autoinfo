@@ -169,3 +169,35 @@ class TestExpensePortalHttp(TestExpensePortalBase, HttpCase):
         self.authenticate("od19_portal_flow", "od19_portal_flow")
         html = self.url_open("/my/expenses/new").text
         self.assertIn('id="od19_expense_map_button"', html)
+
+
+@tagged("post_install", "-at_install")
+class TestExpenseSummaryReport(TestExpensePortalBase, TransactionCase):
+    """Phase 4c — printable expense reimbursement summary (QWeb PDF)."""
+
+    REPORT_XMLID = "od19_hr_expense_portal.action_report_od19_expense_summary"
+    REPORT_NAME = "od19_hr_expense_portal.od19_expense_summary_document"
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls._setup_portal_fixtures()
+        cls.employee = cls.env["hr.employee"].create({"name": "Report Employee"})
+
+    def test_report_is_bound_to_hr_expense(self):
+        report = self.env.ref(self.REPORT_XMLID)
+        self.assertEqual(report.model, "hr.expense")
+        self.assertEqual(report.report_type, "qweb-pdf")
+        self.assertEqual(report.report_name, self.REPORT_NAME)
+
+    def test_report_renders(self):
+        expense = self._make_expense(self.employee, "Report expense", 450.0)
+        report = self.env.ref(self.REPORT_XMLID)
+        html, _report_type = (
+            self.env["ir.actions.report"]
+            .with_context(discard_logo_check=True)
+            ._render_qweb_html(report, expense.ids)
+        )
+        rendered = html.decode()
+        self.assertIn("ใบสรุปการเบิกค่าใช้จ่าย", rendered)
+        self.assertIn("Report expense", rendered)
