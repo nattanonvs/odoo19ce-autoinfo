@@ -33,7 +33,7 @@
                             </div>
                             <div class="row">
                                 <label for="od19_ai_system_prompt" class="col-lg-3 o_light_label"/>
-                                <field name="od19_ai_system_prompt"/>
+                                <field name="od19_ai_system_prompt" widget="text"/>
                             </div>
                         </div>
                     </setting>
