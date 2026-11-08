@@ -103,6 +103,7 @@ Tours can be started from:
         'od19_sales_retention',
         'od19_purchase_jasper',
         'od19_billing_request',
+        'od19_ai_assistant',
     ],
     'data': [
         'data/tour_data.xml',
@@ -187,6 +188,7 @@ Tours can be started from:
             'od19_user_guide_tours/static/src/tours/service_card_tour.js',
             'od19_user_guide_tours/static/src/tours/petty_cash_tour.js',
             'od19_user_guide_tours/static/src/tours/billing_request_tour.js',
+            'od19_user_guide_tours/static/src/tours/ai_assistant_tour.js',
         ],
     },
     'icon': '/od19_user_guide_tours/static/description/icon.svg',
