@@ -9,6 +9,7 @@
                 <field name="create_date"/>
                 <field name="name"/>
                 <field name="user_id"/>
+                <field name="message_count"/>
                 <field name="state" widget="badge"
                        decoration-success="state == 'done'"
                        decoration-danger="state == 'error'"/>
@@ -23,22 +24,31 @@
         <field name="arch" type="xml">
             <form string="ผู้ช่วย AI">
                 <header>
-                    <button name="action_ask" type="object" string="ถาม AI"
-                            class="oe_highlight" invisible="state == 'done'"/>
+                    <button name="action_ask" type="object" string="ส่ง"
+                            class="oe_highlight"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,done,error"/>
                 </header>
                 <sheet>
                     <group>
                         <field name="user_id"/>
                         <field name="model_used"/>
+                        <field name="message_count"/>
                     </group>
-                    <group string="คำถาม">
+                    <group string="บทสนทนา">
+                        <field name="message_ids" nolabel="1" readonly="1">
+                            <list create="false" edit="false" delete="false">
+                                <field name="create_date"/>
+                                <field name="author_id"/>
+                                <field name="role" widget="badge"
+                                       decoration-info="role == 'user'"
+                                       decoration-success="role == 'assistant'"
+                                       decoration-warning="role == 'system'"/>
+                                <field name="content"/>
+                            </list>
+                        </field>
+                    </group>
+                    <group string="คำถามถัดไป">
                         <field name="prompt" nolabel="1" placeholder="พิมพ์คำถามของคุณ ..."/>
-                    </group>
-                    <group string="คำตอบ">
-                        <field name="response" nolabel="1" readonly="1"/>
-                        <field name="error_message" nolabel="1" readonly="1"
-                               invisible="not error_message" class="text-danger"/>
                     </group>
                 </sheet>
             </form>
