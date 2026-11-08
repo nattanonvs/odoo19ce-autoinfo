@@ -10,8 +10,13 @@ import { markup } from "@odoo/owl";
  * (od19_ai_assistant — "AI Assistant / ผู้ช่วย AI"):
  *  1. Open the "AI Assistant" app and browse past conversations
  *  2. Start a new conversation and type a question
- *  3. Send it with "Ask AI"
- *  4. Read the answer (or the error message when the endpoint is not reachable)
+ *  3. Send it with the send button ("Ask AI" / "ส่ง")
+ *  4. Read the answer in the conversation panel (or the error status when the
+ *     endpoint is not reachable)
+ *
+ * The conversation panel is rendered as a list of messages on current
+ * versions (message_ids) and as a plain answer/error field on older ones, so
+ * the steps that point at the reply accept either layout.
  */
 registry.category("web_tour.tours").add("od19_ai_assistant_tour", {
     url: "/odoo",
@@ -42,7 +47,7 @@ registry.category("web_tour.tours").add("od19_ai_assistant_tour", {
         {
             trigger: "button[name='action_ask']",
             content: markup(_t(
-                "กด <b>Ask AI</b> เพื่อส่งคำถามไปยังปลายทาง AI " +
+                "กดปุ่ม <b>ส่ง / Ask AI</b> เพื่อส่งคำถามไปยังปลายทาง AI " +
                 "(Ollama หรือ endpoint ที่รองรับ OpenAI)"
             )),
             tooltipPosition: "bottom",
@@ -57,10 +62,10 @@ registry.category("web_tour.tours").add("od19_ai_assistant_tour", {
             tooltipPosition: "bottom",
         },
         {
-            trigger: ".o_field_widget[name='response'], .o_field_widget[name='error_message']",
+            trigger: ".o_field_widget[name='message_ids'], .o_field_widget[name='response'], .o_field_widget[name='error_message']",
             content: markup(_t(
-                "<b>คำตอบ</b> จะแสดงในส่วน Answer ส่วน <b>ข้อความผิดพลาด</b> " +
-                "จะแสดงเมื่อตั้งค่า endpoint ไม่ถูกต้อง — แก้ไขได้ที่ General Settings → AI Assistant"
+                "<b>คำตอบ</b> จะแสดงในส่วนบทสนทนา (แต่ละข้อความมีป้ายกำกับ <b>ผู้ใช้ / ผู้ช่วย / เครื่องมือ</b>) " +
+                "ส่วน <b>ข้อความผิดพลาด</b> จะแสดงเมื่อตั้งค่า endpoint ไม่ถูกต้อง — แก้ไขได้ที่ General Settings → AI Assistant"
             )),
             tooltipPosition: "bottom",
         },
@@ -68,7 +73,7 @@ registry.category("web_tour.tours").add("od19_ai_assistant_tour", {
         {
             trigger: ".o_list_renderer",
             content: markup(_t(
-                "จบการแนะนำ <b>ผู้ช่วย AI</b> แล้ว! สร้างบทสนทนา พิมพ์คำถาม แล้วกด Ask AI " +
+                "จบการแนะนำ <b>ผู้ช่วย AI</b> แล้ว! สร้างบทสนทนา พิมพ์คำถาม แล้วกดส่ง " +
                 "เพื่อรับคำตอบจากโมเดลภายในเครื่อง"
             )),
             run: "click",

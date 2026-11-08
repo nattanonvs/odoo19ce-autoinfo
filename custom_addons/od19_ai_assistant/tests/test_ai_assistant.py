@@ -33,8 +33,38 @@ class TestOd19AiAssistant(TransactionCase):
         chat = self.env["od19.ai.chat"].create({"prompt": "สวัสดี"})
         with patch(CHAT_COMPLETION, return_value="สวัสดีครับ"):
             chat.action_ask()
-        self.assertEqual(chat.response, "สวัสดีครับ")
+        assistant = chat.message_ids.filtered(lambda m: m.role == "assistant")
+        self.assertEqual(assistant.content, "สวัสดีครับ")
         self.assertEqual(chat.state, "done")
+        self.assertFalse(chat.prompt)
+
+    def test_action_ask_keeps_history(self):
+        chat = self.env["od19.ai.chat"].create({})
+        captured = []
+
+        def fake_chat_completion(base_url, model, messages, api_key=None, timeout=None):
+            captured.append([(m["role"], m["content"]) for m in messages])
+            return "ตอบครั้งที่ %d" % len(captured)
+
+        with patch(CHAT_COMPLETION, side_effect=fake_chat_completion):
+            chat.prompt = "คำถามแรก"
+            chat.action_ask()
+            chat.prompt = "คำถามที่สอง"
+            chat.action_ask()
+
+        # First call: system prompt + the single user question.
+        self.assertEqual(captured[0][0][0], "system")
+        self.assertEqual(captured[0][1:], [("user", "คำถามแรก")])
+        # Second call replays the whole conversation before the new question.
+        self.assertEqual(
+            captured[1][1:],
+            [
+                ("user", "คำถามแรก"),
+                ("assistant", "ตอบครั้งที่ 1"),
+                ("user", "คำถามที่สอง"),
+            ],
+        )
+        self.assertEqual(len(chat.message_ids), 4)
 
     def test_action_ask_records_error(self):
         from odoo.addons.od19_ai_assistant.lib.client import AiClientError
@@ -43,9 +73,88 @@ class TestOd19AiAssistant(TransactionCase):
         with patch(CHAT_COMPLETION, side_effect=AiClientError("boom")):
             result = chat.action_ask()
         self.assertEqual(chat.state, "error")
-        self.assertIn("boom", chat.error_message)
+        system = chat.message_ids.filtered(lambda m: m.role == "system")
+        self.assertIn("boom", system.content)
         self.assertEqual(result.get("tag"), "display_notification")
 
-    def test_name_is_derived_from_prompt(self):
-        chat = self.env["od19.ai.chat"].create({"prompt": "ขอรายงานภาษีซื้อ\nบรรทัดที่สอง"})
+    def test_name_is_derived_from_message(self):
+        chat = self.env["od19.ai.chat"].create({})
+        chat._post_message("user", "ขอรายงานภาษีซื้อ\nบรรทัดที่สอง")
         self.assertEqual(chat.name, "ขอรายงานภาษีซื้อ")
+
+    # ------------------------------------------------------------------
+    # Tool calling
+    # ------------------------------------------------------------------
+    def test_tool_catalog_lists_installed_tools(self):
+        tools = self.env["od19.ai.tool"]
+        names = [t["name"] for t in tools.available_tools()]
+        self.assertIn("search_partners", names)
+        self.assertIn("search_partners", tools.prompt_catalog())
+
+    def test_system_prompt_includes_tool_catalog(self):
+        prompt = self.env["od19.ai.chat"]._build_system_prompt("BASE")
+        self.assertIn("BASE", prompt)
+        self.assertIn("search_partners", prompt)
+
+    def test_parse_tool_call_variants(self):
+        Chat = self.env["od19.ai.chat"]
+        self.assertEqual(
+            Chat._parse_tool_call(
+                '{"tool": "search_partners", "arguments": {"keyword": "x"}}'
+            ),
+            ("search_partners", {"keyword": "x"}),
+        )
+        self.assertEqual(
+            Chat._parse_tool_call(
+                '```json\n{"tool": "search_products", "arguments": {}}\n```'
+            ),
+            ("search_products", {}),
+        )
+        self.assertEqual(
+            Chat._parse_tool_call(
+                'โปรดรอ {"tool": "search_invoices", "arguments": {}} ครับ'
+            ),
+            ("search_invoices", {}),
+        )
+        self.assertIsNone(Chat._parse_tool_call("สวัสดีครับ"))
+        self.assertIsNone(Chat._parse_tool_call(""))
+
+    def test_safe_limit_is_clamped(self):
+        tools = self.env["od19.ai.tool"]
+        self.assertEqual(tools._safe_limit(100), 20)
+        self.assertEqual(tools._safe_limit(0), 1)
+        self.assertEqual(tools._safe_limit("bad"), 5)
+
+    def test_search_partners_tool_returns_match(self):
+        self.env["res.partner"].create({"name": "บริษัท ABC การบัญชี จำกัด"})
+        result = self.env["od19.ai.tool"].execute(
+            "search_partners", {"keyword": "ABC"}
+        )
+        self.assertIn("บริษัท ABC การบัญชี จำกัด", result)
+
+    def test_execute_unknown_tool_is_reported(self):
+        result = self.env["od19.ai.tool"].execute("no_such_tool", {})
+        self.assertIn("ไม่พบเครื่องมือ", result)
+
+    def test_action_ask_runs_tool_then_answers(self):
+        self.env["res.partner"].create({"name": "บริษัท ทดสอบ จำกัด"})
+        chat = self.env["od19.ai.chat"].create({"prompt": "หาคู่ค้าชื่อทดสอบ"})
+        calls = {"n": 0}
+
+        def fake_chat_completion(base_url, model, messages, api_key=None, timeout=None):
+            calls["n"] += 1
+            if calls["n"] == 1:
+                return '{"tool": "search_partners", "arguments": {"keyword": "ทดสอบ"}}'
+            return "พบคู่ค้าชื่อ บริษัท ทดสอบ จำกัด"
+
+        with patch(CHAT_COMPLETION, side_effect=fake_chat_completion):
+            chat.action_ask()
+
+        tool_msgs = chat.message_ids.filtered(lambda m: m.role == "tool")
+        self.assertEqual(len(tool_msgs), 1)
+        self.assertIn("บริษัท ทดสอบ จำกัด", tool_msgs.content)
+        self.assertEqual(calls["n"], 2)
+        last = chat.message_ids.sorted("id")[-1]
+        self.assertEqual(last.role, "assistant")
+        self.assertIn("พบคู่ค้า", last.content)
+        self.assertEqual(chat.state, "done")

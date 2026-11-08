@@ -3,7 +3,7 @@
 
 {
     "name": "OD19 AI Assistant",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.3.0",
     "author": "OD19",
     "category": "Productivity",
     "summary": "Free / self-hosted AI assistant for Odoo 19 CE "
