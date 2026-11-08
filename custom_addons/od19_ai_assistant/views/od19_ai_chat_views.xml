@@ -42,7 +42,8 @@
                                 <field name="role" widget="badge"
                                        decoration-info="role == 'user'"
                                        decoration-success="role == 'assistant'"
-                                       decoration-warning="role == 'system'"/>
+                                       decoration-warning="role == 'system'"
+                                       decoration-muted="role == 'tool'"/>
                                 <field name="content"/>
                             </list>
                         </field>

@@ -17,7 +17,12 @@ class Od19AiMessage(models.Model):
         index=True,
     )
     role = fields.Selection(
-        [("user", "ผู้ใช้"), ("assistant", "ผู้ช่วย"), ("system", "ระบบ")],
+        [
+            ("user", "ผู้ใช้"),
+            ("assistant", "ผู้ช่วย"),
+            ("system", "ระบบ"),
+            ("tool", "เครื่องมือ"),
+        ],
         string="บทบาท",
         required=True,
         default="user",

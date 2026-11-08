@@ -1,7 +1,9 @@
 # Copyright 2026 OD19
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0)
 
+import json
 import logging
+import re
 
 from odoo import api, fields, models, tools
 from odoo.exceptions import UserError
@@ -11,6 +13,22 @@ from ..lib.client import AiClientError, chat_completion
 _logger = logging.getLogger(__name__)
 
 PARAM_PREFIX = "od19_ai"
+
+# Maximum number of tool-call round-trips before we force a plain answer.
+MAX_TOOL_ROUNDS = 5
+
+# Appended to the system prompt when tools are available. The assistant is
+# asked to answer with a single JSON object to request data, which keeps the
+# protocol model-agnostic (works with Ollama/Qwen and any OpenAI-compatible
+# endpoint without relying on native function-calling support).
+TOOL_PROTOCOL = (
+    "\n\nคุณสามารถเรียกใช้เครื่องมือเพื่ออ่านข้อมูลจริงจากระบบ Odoo ได้ "
+    "เมื่อต้องการข้อมูล ให้ตอบกลับเป็น JSON เท่านั้นในรูปแบบ:\n"
+    '{{"tool": "<ชื่อเครื่องมือ>", "arguments": {{<พารามิเตอร์>}}}}\n'
+    "เครื่องมือที่มี:\n%s\n"
+    "เมื่อได้ข้อมูลเพียงพอแล้ว ให้ตอบเป็นข้อความภาษาไทยปกติ ห้ามใส่ JSON\n"
+    "ห้ามสมมติข้อมูลเอง หากไม่พบให้แจ้งผู้ใช้ตามจริง"
+)
 
 # Used when neither ir.config_parameter nor odoo.conf provides a value.
 DEFAULTS = {
@@ -112,9 +130,50 @@ class Od19AiChat(models.Model):
         self.ensure_one()
         messages = [{"role": "system", "content": system_prompt}]
         for msg in self.message_ids.sorted("id"):
-            if msg.role in ("user", "assistant"):
+            if msg.role == "tool":
+                # Prompt-based protocol: feed tool output back as an
+                # observation the model can read.
+                messages.append(
+                    {
+                        "role": "user",
+                        "content": "[ผลลัพธ์จากเครื่องมือ]\n%s" % msg.content,
+                    }
+                )
+            elif msg.role in ("user", "assistant"):
                 messages.append({"role": msg.role, "content": msg.content})
         return messages
+
+    @api.model
+    def _build_system_prompt(self, base_prompt):
+        """Append the tool catalog to the base system prompt."""
+        catalog = self.env["od19.ai.tool"].prompt_catalog()
+        if not catalog:
+            return base_prompt
+        return base_prompt + TOOL_PROTOCOL % catalog
+
+    @api.model
+    def _parse_tool_call(self, text):
+        """Return ``(name, arguments)`` if ``text`` requests a tool call."""
+        if not text:
+            return None
+        candidate = text.strip()
+        if candidate.startswith("```"):
+            candidate = candidate.strip("`").strip()
+            if candidate.lower().startswith("json"):
+                candidate = candidate[4:].strip()
+        data = None
+        try:
+            data = json.loads(candidate)
+        except (TypeError, ValueError):
+            match = re.search(r"\{.*\}", candidate, re.DOTALL)
+            if match:
+                try:
+                    data = json.loads(match.group(0))
+                except (TypeError, ValueError):
+                    data = None
+        if isinstance(data, dict) and data.get("tool"):
+            return data["tool"], data.get("arguments") or {}
+        return None
 
     def _post_message(self, role, content):
         """Append a message to the conversation."""
@@ -127,24 +186,46 @@ class Od19AiChat(models.Model):
     # Actions
     # ------------------------------------------------------------------
     def action_ask(self):
-        """Append :attr:`prompt` to the conversation and store the answer."""
+        """Append :attr:`prompt` to the conversation and store the answer.
+
+        The assistant may call read-only Odoo tools before answering: each
+        round re-sends the whole history (including tool observations)
+        until the model replies with plain text or :data:`MAX_TOOL_ROUNDS`
+        is reached.
+        """
         self.ensure_one()
         question = (self.prompt or "").strip()
         if not question:
             raise UserError("กรุณากรอกคำถามก่อน")
 
         config = self._get_ai_config()
+        system_prompt = self._build_system_prompt(config["system_prompt"])
+        tool_model = self.env["od19.ai.tool"]
         self._post_message("user", question)
         self.write({"prompt": False})
 
+        answer = None
         try:
-            answer = chat_completion(
-                config["base_url"],
-                config["model"],
-                self._build_messages(config["system_prompt"]),
-                api_key=config["api_key"],
-                timeout=config["timeout"],
-            )
+            for _round in range(MAX_TOOL_ROUNDS):
+                raw = chat_completion(
+                    config["base_url"],
+                    config["model"],
+                    self._build_messages(system_prompt),
+                    api_key=config["api_key"],
+                    timeout=config["timeout"],
+                )
+                call = self._parse_tool_call(raw)
+                if not call:
+                    answer = raw
+                    break
+                name, arguments = call
+                self._post_message("assistant", raw)
+                self._post_message("tool", tool_model.execute(name, arguments))
+            else:
+                answer = (
+                    "ขออภัย ระบบเรียกใช้เครื่องมือหลายรอบเกินไป "
+                    "กรุณาตั้งคำถามให้เฉพาะเจาะจงมากขึ้น"
+                )
         except AiClientError as exc:
             # Persist the failure (a raise would roll the write back) and
             # surface it to the user with a notification instead.
