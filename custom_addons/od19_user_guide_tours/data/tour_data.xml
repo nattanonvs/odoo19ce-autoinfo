@@ -514,4 +514,10 @@
         <field name="url">/odoo</field>
         <field name="custom">True</field>
     </record>
+    <record id="tour_od19_ai_assistant" model="web_tour.tour">
+        <field name="name">od19_ai_assistant_tour</field>
+        <field name="sequence">231</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
 </odoo>

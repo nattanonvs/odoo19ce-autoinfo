@@ -46,6 +46,7 @@ OD19_GUIDE_APP_TOURS = [
     ("website.menu_website_configuration", "od19_recruitment_tour"),
     ("spreadsheet_dashboard.spreadsheet_dashboard_menu_root", "od19_dashboard_tour"),
     ("base.menu_administration", "od19_misc_features_tour"),
+    ("od19_ai_assistant.menu_od19_ai_root", "od19_ai_assistant_tour"),
 ]
 
 
