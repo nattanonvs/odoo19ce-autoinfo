@@ -33,8 +33,38 @@ class TestOd19AiAssistant(TransactionCase):
         chat = self.env["od19.ai.chat"].create({"prompt": "สวัสดี"})
         with patch(CHAT_COMPLETION, return_value="สวัสดีครับ"):
             chat.action_ask()
-        self.assertEqual(chat.response, "สวัสดีครับ")
+        assistant = chat.message_ids.filtered(lambda m: m.role == "assistant")
+        self.assertEqual(assistant.content, "สวัสดีครับ")
         self.assertEqual(chat.state, "done")
+        self.assertFalse(chat.prompt)
+
+    def test_action_ask_keeps_history(self):
+        chat = self.env["od19.ai.chat"].create({})
+        captured = []
+
+        def fake_chat_completion(base_url, model, messages, api_key=None, timeout=None):
+            captured.append([(m["role"], m["content"]) for m in messages])
+            return "ตอบครั้งที่ %d" % len(captured)
+
+        with patch(CHAT_COMPLETION, side_effect=fake_chat_completion):
+            chat.prompt = "คำถามแรก"
+            chat.action_ask()
+            chat.prompt = "คำถามที่สอง"
+            chat.action_ask()
+
+        # First call: system prompt + the single user question.
+        self.assertEqual(captured[0][0][0], "system")
+        self.assertEqual(captured[0][1:], [("user", "คำถามแรก")])
+        # Second call replays the whole conversation before the new question.
+        self.assertEqual(
+            captured[1][1:],
+            [
+                ("user", "คำถามแรก"),
+                ("assistant", "ตอบครั้งที่ 1"),
+                ("user", "คำถามที่สอง"),
+            ],
+        )
+        self.assertEqual(len(chat.message_ids), 4)
 
     def test_action_ask_records_error(self):
         from odoo.addons.od19_ai_assistant.lib.client import AiClientError
@@ -43,9 +73,11 @@ class TestOd19AiAssistant(TransactionCase):
         with patch(CHAT_COMPLETION, side_effect=AiClientError("boom")):
             result = chat.action_ask()
         self.assertEqual(chat.state, "error")
-        self.assertIn("boom", chat.error_message)
+        system = chat.message_ids.filtered(lambda m: m.role == "system")
+        self.assertIn("boom", system.content)
         self.assertEqual(result.get("tag"), "display_notification")
 
-    def test_name_is_derived_from_prompt(self):
-        chat = self.env["od19.ai.chat"].create({"prompt": "ขอรายงานภาษีซื้อ\nบรรทัดที่สอง"})
+    def test_name_is_derived_from_message(self):
+        chat = self.env["od19.ai.chat"].create({})
+        chat._post_message("user", "ขอรายงานภาษีซื้อ\nบรรทัดที่สอง")
         self.assertEqual(chat.name, "ขอรายงานภาษีซื้อ")

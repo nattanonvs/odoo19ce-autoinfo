@@ -26,29 +26,42 @@ DEFAULTS = {
 
 class Od19AiChat(models.Model):
     _name = "od19.ai.chat"
-    _description = "ข้อความผู้ช่วย AI (OD19)"
+    _description = "บทสนทนาผู้ช่วย AI (OD19)"
     _order = "create_date desc"
 
     name = fields.Char(compute="_compute_name", store=True)
-    prompt = fields.Text(string="คำถาม", required=True)
-    response = fields.Text(string="คำตอบ", readonly=True)
-    error_message = fields.Text(string="ข้อความผิดพลาด", readonly=True)
-    model_used = fields.Char(string="โมเดลที่ใช้", readonly=True)
     state = fields.Selection(
         [("draft", "ฉบับร่าง"), ("done", "สำเร็จ"), ("error", "ผิดพลาด")],
         default="draft",
         readonly=True,
     )
     user_id = fields.Many2one(
-        "res.users", string="ผู้ถาม", default=lambda self: self.env.user,
+        "res.users",
+        string="ผู้ถาม",
+        default=lambda self: self.env.user,
         readonly=True,
     )
+    model_used = fields.Char(string="โมเดลที่ใช้", readonly=True)
+    message_ids = fields.One2many(
+        "od19.ai.message", "chat_id", string="ข้อความ"
+    )
+    message_count = fields.Integer(
+        string="จำนวนข้อความ", compute="_compute_message_count"
+    )
+    # Transient input box: the next question to send.
+    prompt = fields.Text(string="คำถามถัดไป")
 
-    @api.depends("prompt")
+    @api.depends("message_ids.role", "message_ids.content")
     def _compute_name(self):
         for rec in self:
-            lines = (rec.prompt or "").strip().splitlines()
-            rec.name = (lines[0][:60] if lines else "") or "คำถามใหม่"
+            first = rec.message_ids.filtered(lambda m: m.role == "user")[:1]
+            lines = (first.content or "").strip().splitlines() if first else []
+            rec.name = (lines[0][:60] if lines else "") or "บทสนทนาใหม่"
+
+    @api.depends("message_ids")
+    def _compute_message_count(self):
+        for rec in self:
+            rec.message_count = len(rec.message_ids)
 
     # ------------------------------------------------------------------
     # Configuration resolution
@@ -92,31 +105,51 @@ class Od19AiChat(models.Model):
         }
 
     # ------------------------------------------------------------------
+    # Helpers
+    # ------------------------------------------------------------------
+    def _build_messages(self, system_prompt):
+        """Return the OpenAI-style message list including full history."""
+        self.ensure_one()
+        messages = [{"role": "system", "content": system_prompt}]
+        for msg in self.message_ids.sorted("id"):
+            if msg.role in ("user", "assistant"):
+                messages.append({"role": msg.role, "content": msg.content})
+        return messages
+
+    def _post_message(self, role, content):
+        """Append a message to the conversation."""
+        self.ensure_one()
+        return self.env["od19.ai.message"].create(
+            {"chat_id": self.id, "role": role, "content": content}
+        )
+
+    # ------------------------------------------------------------------
     # Actions
     # ------------------------------------------------------------------
     def action_ask(self):
-        """Send :attr:`prompt` to the configured endpoint and store the answer."""
+        """Append :attr:`prompt` to the conversation and store the answer."""
         self.ensure_one()
-        if not (self.prompt or "").strip():
+        question = (self.prompt or "").strip()
+        if not question:
             raise UserError("กรุณากรอกคำถามก่อน")
 
         config = self._get_ai_config()
-        messages = [
-            {"role": "system", "content": config["system_prompt"]},
-            {"role": "user", "content": self.prompt},
-        ]
+        self._post_message("user", question)
+        self.write({"prompt": False})
+
         try:
             answer = chat_completion(
                 config["base_url"],
                 config["model"],
-                messages,
+                self._build_messages(config["system_prompt"]),
                 api_key=config["api_key"],
                 timeout=config["timeout"],
             )
         except AiClientError as exc:
             # Persist the failure (a raise would roll the write back) and
             # surface it to the user with a notification instead.
-            self.write({"state": "error", "response": False, "error_message": str(exc)})
+            self.write({"state": "error"})
+            self._post_message("system", "เกิดข้อผิดพลาด: %s" % exc)
             return {
                 "type": "ir.actions.client",
                 "tag": "display_notification",
@@ -128,12 +161,6 @@ class Od19AiChat(models.Model):
                 },
             }
 
-        self.write(
-            {
-                "response": answer,
-                "state": "done",
-                "error_message": False,
-                "model_used": config["model"],
-            }
-        )
+        self._post_message("assistant", answer)
+        self.write({"state": "done", "model_used": config["model"]})
         return True
