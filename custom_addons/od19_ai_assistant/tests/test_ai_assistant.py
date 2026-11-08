@@ -4,10 +4,18 @@
 from datetime import date
 from unittest.mock import patch
 
-from odoo.tests.common import TransactionCase, tagged
+from odoo.tests.common import (
+    HttpCase,
+    JsonRpcException,
+    TransactionCase,
+    tagged,
+)
 
 CHAT_COMPLETION = (
     "odoo.addons.od19_ai_assistant.models.od19_ai_chat.chat_completion"
+)
+STREAM_COMPLETION = (
+    "odoo.addons.od19_ai_assistant.controllers.main.chat_completion_stream"
 )
 AI_CLIENT_ERROR = "odoo.addons.od19_ai_assistant.lib.client.AiClientError"
 
@@ -241,3 +249,109 @@ class TestOd19AiAssistant(TransactionCase):
         tools = self.env["od19.ai.tool"].with_user(self._plain_user("od19_acl_b"))
         result = tools.execute("search_journal_items", {})
         self.assertIn("ไม่มีสิทธิ์อ่านข้อมูล", result)
+
+
+@tagged("post_install", "-at_install")
+class TestOd19AiChatHttp(HttpCase):
+    """JSON-RPC and streaming endpoints that back the OWL chat UI."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        group_user = cls.env.ref("base.group_user")
+        cls.chat_user = cls.env["res.users"].create(
+            {
+                "name": "OD19 Chat User",
+                "login": "od19_chat_user",
+                "password": "od19_chat_user",
+                "group_ids": [(6, 0, [group_user.id])],
+            }
+        )
+        cls.other_user = cls.env["res.users"].create(
+            {
+                "name": "OD19 Chat Other",
+                "login": "od19_chat_other",
+                "password": "od19_chat_other",
+                "group_ids": [(6, 0, [group_user.id])],
+            }
+        )
+
+    def _login(self):
+        self.authenticate("od19_chat_user", "od19_chat_user")
+
+    def _make_chat(self, user):
+        return self.env["od19.ai.chat"].create({"user_id": user.id})
+
+    def test_create_returns_owned_chat(self):
+        self._login()
+        ids = self.make_jsonrpc_request("/od19_ai/chat/create")
+        self.assertIsInstance(ids, list)
+        self.assertEqual(len(ids), 1)
+        chat = self.env["od19.ai.chat"].browse(ids[0])
+        self.assertTrue(chat.exists())
+        self.assertEqual(chat.user_id, self.chat_user)
+
+    def test_list_includes_created_chat(self):
+        self._login()
+        [chat_id] = self.make_jsonrpc_request("/od19_ai/chat/create")
+        listing = self.make_jsonrpc_request("/od19_ai/chat/list")
+        self.assertIn(chat_id, [item["id"] for item in listing])
+
+    def test_messages_returns_history(self):
+        chat = self._make_chat(self.chat_user)
+        chat._post_message("user", "สวัสดี")
+        chat._post_message("assistant", "สวัสดีครับ")
+        self._login()
+        data = self.make_jsonrpc_request(
+            "/od19_ai/chat/messages", {"chat_id": chat.id}
+        )
+        self.assertEqual(data["chat"]["id"], chat.id)
+        self.assertEqual([m["role"] for m in data["messages"]],
+                         ["user", "assistant"])
+        self.assertEqual(data["messages"][0]["content"], "สวัสดี")
+
+    def test_delete_removes_chat(self):
+        self._login()
+        [chat_id] = self.make_jsonrpc_request("/od19_ai/chat/create")
+        result = self.make_jsonrpc_request(
+            "/od19_ai/chat/delete", {"chat_id": chat_id}
+        )
+        self.assertTrue(result)
+        self.assertFalse(self.env["od19.ai.chat"].browse(chat_id).exists())
+
+    def test_cannot_read_other_user_chat(self):
+        other = self._make_chat(self.other_user)
+        self._login()
+        with self.assertRaises(JsonRpcException) as ctx:
+            self.make_jsonrpc_request(
+                "/od19_ai/chat/messages", {"chat_id": other.id}
+            )
+        self.assertIn("AccessError", str(ctx.exception))
+
+    def test_cannot_delete_other_user_chat(self):
+        other = self._make_chat(self.other_user)
+        self._login()
+        with self.assertRaises(JsonRpcException):
+            self.make_jsonrpc_request(
+                "/od19_ai/chat/delete", {"chat_id": other.id}
+            )
+        self.assertTrue(other.exists())
+
+    def test_stream_endpoint_emits_sse(self):
+        chat = self._make_chat(self.chat_user)
+
+        def fake_stream(base_url, model, messages, api_key=None, timeout=None):
+            yield "สวัสดี"
+            yield "ครับ"
+
+        self._login()
+        with patch(STREAM_COMPLETION, side_effect=fake_stream):
+            response = self.url_open(
+                "/od19_ai/chat/stream",
+                json={"chat_id": chat.id, "message": "ทักทาย"},
+            )
+        self.assertEqual(response.status_code, 200)
+        body = response.text
+        self.assertIn('"type": "delta"', body)
+        self.assertIn("สวัสดี", body)
+        self.assertIn('"type": "done"', body)
