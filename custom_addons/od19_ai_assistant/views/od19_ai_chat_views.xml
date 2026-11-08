@@ -5,7 +5,7 @@
         <field name="name">od19.ai.chat.list</field>
         <field name="model">od19.ai.chat</field>
         <field name="arch" type="xml">
-            <list string="AI Assistant">
+            <list string="ผู้ช่วย AI">
                 <field name="create_date"/>
                 <field name="name"/>
                 <field name="user_id"/>
@@ -21,9 +21,9 @@
         <field name="name">od19.ai.chat.form</field>
         <field name="model">od19.ai.chat</field>
         <field name="arch" type="xml">
-            <form string="AI Assistant">
+            <form string="ผู้ช่วย AI">
                 <header>
-                    <button name="action_ask" type="object" string="Ask AI"
+                    <button name="action_ask" type="object" string="ถาม AI"
                             class="oe_highlight" invisible="state == 'done'"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,done,error"/>
                 </header>
@@ -32,10 +32,10 @@
                         <field name="user_id"/>
                         <field name="model_used"/>
                     </group>
-                    <group string="Question">
-                        <field name="prompt" nolabel="1" placeholder="Type your question ..."/>
+                    <group string="คำถาม">
+                        <field name="prompt" nolabel="1" placeholder="พิมพ์คำถามของคุณ ..."/>
                     </group>
-                    <group string="Answer">
+                    <group string="คำตอบ">
                         <field name="response" nolabel="1" readonly="1"/>
                         <field name="error_message" nolabel="1" readonly="1"
                                invisible="not error_message" class="text-danger"/>
@@ -46,13 +46,13 @@
     </record>
 
     <record id="action_od19_ai_chat" model="ir.actions.act_window">
-        <field name="name">AI Assistant</field>
+        <field name="name">ผู้ช่วย AI</field>
         <field name="res_model">od19.ai.chat</field>
         <field name="view_mode">list,form</field>
     </record>
 
-    <menuitem id="menu_od19_ai_root" name="AI Assistant" sequence="95"/>
-    <menuitem id="menu_od19_ai_chat" name="Ask AI"
+    <menuitem id="menu_od19_ai_root" name="ผู้ช่วย AI" sequence="95"/>
+    <menuitem id="menu_od19_ai_chat" name="ถาม AI"
               parent="menu_od19_ai_root" action="action_od19_ai_chat" sequence="10"/>
 
 </odoo>

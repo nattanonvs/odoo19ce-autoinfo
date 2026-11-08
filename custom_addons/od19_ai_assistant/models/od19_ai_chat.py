@@ -26,21 +26,21 @@ DEFAULTS = {
 
 class Od19AiChat(models.Model):
     _name = "od19.ai.chat"
-    _description = "OD19 AI Assistant Message"
+    _description = "ข้อความผู้ช่วย AI (OD19)"
     _order = "create_date desc"
 
     name = fields.Char(compute="_compute_name", store=True)
-    prompt = fields.Text(string="Question", required=True)
-    response = fields.Text(string="Answer", readonly=True)
-    error_message = fields.Text(readonly=True)
-    model_used = fields.Char(readonly=True)
+    prompt = fields.Text(string="คำถาม", required=True)
+    response = fields.Text(string="คำตอบ", readonly=True)
+    error_message = fields.Text(string="ข้อความผิดพลาด", readonly=True)
+    model_used = fields.Char(string="โมเดลที่ใช้", readonly=True)
     state = fields.Selection(
-        [("draft", "Draft"), ("done", "Done"), ("error", "Error")],
+        [("draft", "ฉบับร่าง"), ("done", "สำเร็จ"), ("error", "ผิดพลาด")],
         default="draft",
         readonly=True,
     )
     user_id = fields.Many2one(
-        "res.users", string="Asked by", default=lambda self: self.env.user,
+        "res.users", string="ผู้ถาม", default=lambda self: self.env.user,
         readonly=True,
     )
 
@@ -48,7 +48,7 @@ class Od19AiChat(models.Model):
     def _compute_name(self):
         for rec in self:
             lines = (rec.prompt or "").strip().splitlines()
-            rec.name = (lines[0][:60] if lines else "") or "New question"
+            rec.name = (lines[0][:60] if lines else "") or "คำถามใหม่"
 
     # ------------------------------------------------------------------
     # Configuration resolution
@@ -98,7 +98,7 @@ class Od19AiChat(models.Model):
         """Send :attr:`prompt` to the configured endpoint and store the answer."""
         self.ensure_one()
         if not (self.prompt or "").strip():
-            raise UserError("Please enter a question first.")
+            raise UserError("กรุณากรอกคำถามก่อน")
 
         config = self._get_ai_config()
         messages = [
@@ -121,7 +121,7 @@ class Od19AiChat(models.Model):
                 "type": "ir.actions.client",
                 "tag": "display_notification",
                 "params": {
-                    "title": "AI Assistant",
+                    "title": "ผู้ช่วย AI",
                     "message": str(exc),
                     "type": "danger",
                     "sticky": False,
