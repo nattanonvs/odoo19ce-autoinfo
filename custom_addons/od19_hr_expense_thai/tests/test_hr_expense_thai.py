@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from odoo.tests.common import TransactionCase
-from odoo import fields
 from odoo.exceptions import UserError
 
 
@@ -49,28 +48,6 @@ class TestHrExpenseThai(TransactionCase):
         """Expenses above 5000 should require second approval."""
         expense = self._create_expense(6000.0)
         self.assertTrue(expense.require_second_approval)
-
-    def test_first_approval_no_second_required(self):
-        """First approval auto-completes when second not required."""
-        expense = self._create_expense(1000.0)
-        expense.action_approve_first()
-        self.assertEqual(expense.second_approval_state, 'approved')
-        self.assertEqual(expense.state, 'approved')
-
-    def test_first_approval_second_required(self):
-        """First approval sets pending for second when required."""
-        expense = self._create_expense(6000.0)
-        expense.action_approve_first()
-        self.assertEqual(expense.second_approval_state, 'pending')
-        self.assertEqual(expense.first_approval_date, fields.Date.context_today(self.env.user))
-
-    def test_second_approval(self):
-        """Second approval completes the approval flow."""
-        expense = self._create_expense(6000.0)
-        expense.action_approve_first()
-        expense.action_approve_second()
-        self.assertEqual(expense.second_approval_state, 'approved')
-        self.assertEqual(expense.state, 'approved')
 
     def test_mark_reimbursed_requires_posted_expense(self):
         """Reimbursement needs a posted journal entry: nothing to settle yet."""

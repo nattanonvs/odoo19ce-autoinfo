@@ -6,6 +6,10 @@ from odoo.addons.od19_ui_defaults.models.ir_ui_menu import (
     APP_MENU_SEQUENCE_START,
     APP_MENU_SEQUENCE_STEP,
     CONFIGURATION_MENU_LABELS,
+    NAVBAR_GROUPS,
+    NAVBAR_GROUP_MODULE,
+    NAVBAR_MOVES,
+    NAVBAR_RENAMES,
     od19_app_menu_sequences,
 )
 
@@ -113,3 +117,84 @@ class TestUiDefaults(TransactionCase):
             self.skipTest("The Discuss app is not installed")
         menu.sequence = 10000
         self.assertEqual(menu.sequence, APP_MENU_SEQUENCE_START)
+
+    def test_navbar_groups_gather_sections(self):
+        """Each installed group must own its sections as a single dropdown."""
+        self.env["ir.ui.menu"]._od19_apply_navbar_groups()
+        for group_name, _label_en, label_th, parent_xmlid, sequence, child_xmlids in NAVBAR_GROUPS:
+            parent = self.env.ref(parent_xmlid, raise_if_not_found=False)
+            children = [self.env.ref(x, raise_if_not_found=False) for x in child_xmlids]
+            if not parent or not all(children):
+                continue
+            group = self.env.ref(
+                "%s.%s" % (NAVBAR_GROUP_MODULE, group_name), raise_if_not_found=False
+            )
+            self.assertTrue(group, "Missing NavBar group %s" % group_name)
+            self.assertEqual(group.parent_id, parent)
+            self.assertFalse(group.action, "A NavBar group must not carry an action")
+            self.assertEqual(group.sequence, sequence)
+            self.assertEqual(group.with_context(lang="th_TH").name, label_th)
+            for child in children:
+                self.assertEqual(child.parent_id, group)
+                self.assertNotIn(child, parent.child_id)
+
+    def test_navbar_groups_are_idempotent(self):
+        """Re-applying the grouping must not create duplicate sections."""
+        menu_model = self.env["ir.ui.menu"]
+        data_model = self.env["ir.model.data"]
+        domain = [("module", "=", NAVBAR_GROUP_MODULE), ("model", "=", "ir.ui.menu")]
+        menu_model._od19_apply_navbar_groups()
+        count = data_model.search_count(domain)
+        self.assertLessEqual(count, len(NAVBAR_GROUPS))
+        menu_model._od19_apply_navbar_groups()
+        self.assertEqual(data_model.search_count(domain), count)
+
+    def test_navbar_grouping_is_reapplied_on_write(self):
+        """Moving a grouped section back to its app must be reverted."""
+        for group_name, _label_en, _label_th, parent_xmlid, _sequence, child_xmlids in NAVBAR_GROUPS:
+            parent = self.env.ref(parent_xmlid, raise_if_not_found=False)
+            child = self.env.ref(child_xmlids[0], raise_if_not_found=False)
+            group = self.env.ref(
+                "%s.%s" % (NAVBAR_GROUP_MODULE, group_name), raise_if_not_found=False
+            )
+            if not parent or not child or not group:
+                continue
+            child.parent_id = parent
+            self.assertNotEqual(
+                child.parent_id,
+                parent,
+                "%s must be pulled back inside its NavBar group" % child_xmlids[0],
+            )
+            self.assertEqual(child.parent_id, group)
+            break
+
+    def test_navbar_moves_are_applied(self):
+        """A moved section must sit inside its target section, in order."""
+        menu_model = self.env["ir.ui.menu"]
+        menu_model._od19_apply_navbar_groups()
+        for menu_xmlid, parent_xmlid, sequence in NAVBAR_MOVES:
+            menu = self.env.ref(menu_xmlid, raise_if_not_found=False)
+            parent = self.env.ref(parent_xmlid, raise_if_not_found=False)
+            if not menu or not parent:
+                continue
+            self.assertEqual(menu.parent_id, parent)
+            self.assertEqual(menu.sequence, sequence)
+
+    def test_navbar_renames_are_applied(self):
+        """A renamed section must carry the new label in both languages."""
+        self.env["ir.ui.menu"]._od19_apply_navbar_groups()
+        for menu_xmlid, label_en, label_th in NAVBAR_RENAMES:
+            menu = self.env.ref(menu_xmlid, raise_if_not_found=False)
+            if not menu:
+                continue
+            self.assertEqual(menu.with_context(lang="en_US").name, label_en)
+            self.assertEqual(menu.with_context(lang="th_TH").name, label_th)
+
+    def test_navbar_rename_is_reapplied_on_write(self):
+        """Renaming a managed section manually must be reverted."""
+        menu_xmlid, label_en, _label_th = NAVBAR_RENAMES[0]
+        menu = self.env.ref(menu_xmlid, raise_if_not_found=False)
+        if not menu:
+            self.skipTest("%s is not installed" % menu_xmlid)
+        menu.name = "ZZZ"
+        self.assertEqual(menu.with_context(lang="en_US").name, label_en)
