@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2026 OD19 -->
+<!-- License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl). -->
+<odoo>
+
+    <!-- ============================================================ -->
+    # รายงานสรุปใบเบิกค่าใช้จ่าย (Expense Reimbursement Summary)
+    # A one-page printable summary of a single hr.expense: the claim, the
+    # supporting-document type, the mileage detail (when applicable) and
+    # the pending approver, for attaching to the reimbursement packet.
+    <!-- ============================================================ -->
+    <template id="od19_expense_summary_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="expense">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family:'Sarabun','Noto Sans Thai','Tahoma',sans-serif;">
+                        <h2 class="text-center">ใบสรุปการเบิกค่าใช้จ่าย</h2>
+                        <h4 class="text-center">EXPENSE REIMBURSEMENT SUMMARY</h4>
+
+                        <div class="row mt-3">
+                            <div class="col-7">
+                                <div>
+                                    <strong>พนักงาน / Employee: </strong>
+                                    <span t-field="expense.employee_id.name"/>
+                                </div>
+                                <div t-if="expense.employee_id.department_id">
+                                    <strong>แผนก / Department: </strong>
+                                    <span t-field="expense.employee_id.department_id.name"/>
+                                </div>
+                                <div>
+                                    <strong>บริษัท / Company: </strong>
+                                    <span t-field="expense.company_id.name"/>
+                                </div>
+                            </div>
+                            <div class="col-5 text-right">
+                                <div>
+                                    <strong>เลขที่ / Reference: </strong>
+                                    <span t-field="expense.name"/>
+                                </div>
+                                <div>
+                                    <strong>วันที่ / Date: </strong>
+                                    <span t-field="expense.date"/>
+                                </div>
+                                <div>
+                                    <strong>สถานะ / Status: </strong>
+                                    <span t-esc="dict(expense._fields['state'].selection).get(expense.state)"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <table class="table table-sm table-bordered mt-4">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th class="text-center" style="width:8%">ลำดับ</th>
+                                    <th>รายการ / Description</th>
+                                    <th style="width:20%">ประเภทเอกสาร / Document</th>
+                                    <th class="text-right" style="width:15%">จำนวนเงิน / Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="text-center">1</td>
+                                    <td>
+                                        <span t-field="expense.name"/>
+                                        <t t-if="expense.description">
+                                            <div><span t-field="expense.description"/></div>
+                                        </t>
+                                    </td>
+                                    <td>
+                                        <span t-esc="dict(expense._fields['od19_document_type'].selection).get(expense.od19_document_type) if 'od19_document_type' in expense._fields else ''"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-field="expense.total_amount"
+                                              t-options='{"widget": "monetary", "display_currency": expense.currency_id}'/>
+                                    </td>
+                                </tr>
+                                <tr class="font-weight-bold">
+                                    <td colspan="3" class="text-right">รวมทั้งสิ้น / Total</td>
+                                    <td class="text-right">
+                                        <span t-field="expense.total_amount"
+                                              t-options='{"widget": "monetary", "display_currency": expense.currency_id}'/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="row mt-2">
+                            <div class="col-12">
+                                <strong>จำนวนเงิน (ตัวอักษร): </strong>
+                                <span t-esc="expense.currency_id.amount_to_text(expense.total_amount)"/>
+                            </div>
+                        </div>
+
+                        <!-- Mileage detail (only for own-vehicle travel) -->
+                        <t t-if="'od19_is_mileage' in expense._fields and expense.od19_is_mileage">
+                            <h5 class="mt-4">รายละเอียดค่าเดินทาง / Mileage Detail</h5>
+                            <table class="table table-sm table-bordered">
+                                <tbody>
+                                    <tr>
+                                        <th style="width:30%">วันที่เดินทาง / Travel Date</th>
+                                        <td><span t-field="expense.od19_mileage_date"/></td>
+                                        <th style="width:30%">รถ / Vehicle</th>
+                                        <td>
+                                            <span t-field="expense.od19_mileage_vehicle_id.name"/>
+                                            <t t-if="expense.od19_mileage_plate">
+                                                <span> (<span t-field="expense.od19_mileage_plate"/>)</span>
+                                            </t>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>ต้นทาง / Origin</th>
+                                        <td><span t-field="expense.od19_mileage_origin"/></td>
+                                        <th>ปลายทาง / Destination</th>
+                                        <td><span t-field="expense.od19_mileage_destination"/></td>
+                                    </tr>
+                                    <tr>
+                                        <th>ระยะทาง / Distance</th>
+                                        <td><span t-field="expense.od19_mileage_distance_km"/> km</td>
+                                        <th>อัตราต่อ กม. / Rate</th>
+                                        <td>
+                                            <span t-field="expense.od19_mileage_rate"
+                                                  t-options='{"widget": "monetary", "display_currency": expense.currency_id}'/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </t>
+
+                        <!-- Approval trail -->
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <strong>การอนุมัติ / Approval: </strong>
+                                <span t-field="expense.od19_approval_hint" t-if="'od19_approval_hint' in expense._fields"/>
+                            </div>
+                        </div>
+
+                        <div class="row mt-5">
+                            <div class="col-4 text-center">
+                                <div>__________________________</div>
+                                <div>ผู้เบิก / Claimant</div>
+                            </div>
+                            <div class="col-4 text-center">
+                                <div>__________________________</div>
+                                <div>ผู้อนุมัติ / Approver</div>
+                            </div>
+                            <div class="col-4 text-center">
+                                <div>__________________________</div>
+                                <div>ผู้จ่ายเงิน / Cashier</div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_od19_expense_summary" model="ir.actions.report">
+        <field name="name">Expense Reimbursement Summary (ใบสรุปการเบิกค่าใช้จ่าย)</field>
+        <field name="model">hr.expense</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">od19_hr_expense_portal.od19_expense_summary_document</field>
+        <field name="report_file">od19_hr_expense_portal.od19_expense_summary_document</field>
+        <field name="binding_model_id" ref="hr_expense.model_hr_expense"/>
+        <field name="binding_type">report</field>
+        <field name="print_report_name">'Expense Summary - %s' % (object.name or '')</field>
+    </record>
+
+</odoo>
