@@ -159,7 +159,8 @@ class TestOd19DraftCore(TransactionCase):
 @tagged("post_install", "-at_install")
 class TestOd19DraftSessionInfo(HttpCase):
     def test_session_info_route_exposes_draft_config(self):
-        self.authenticate("admin", "admin")
+        admin = self.env.ref("base.user_admin")
+        self.authenticate(admin.login, "admin")
         # Avoid the create part of res.users.settings since the
         # get_session_info route is readonly.
         self.env["res.users.settings"]._find_or_create_for_user(self.env.user)

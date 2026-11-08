@@ -62,7 +62,7 @@ class Od19Draft(models.Model):
 
     def init(self):
         # Unique เฉพาะร่างที่ยัง active — 1 เรกคอร์ด : 1 ผู้ใช้ : 1 ร่างที่ใช้งานได้
-        self._cr.execute(
+        self.env.cr.execute(
             """
             CREATE UNIQUE INDEX IF NOT EXISTS od19_draft_active_uniq
             ON od19_draft (model_name, res_id, user_id)
