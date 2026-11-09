@@ -32,6 +32,7 @@ TOOL_PROTOCOL = (
 
 # Used when neither ir.config_parameter nor odoo.conf provides a value.
 DEFAULTS = {
+    "provider": "ollama",
     "base_url": "http://localhost:11434/v1",
     "model": "qwen2.5:7b",
     "system_prompt": (
@@ -39,6 +40,21 @@ DEFAULTS = {
         "Answer in Thai unless asked otherwise."
     ),
     "timeout": 60,
+}
+
+# Per-provider endpoint/model presets. Ollama (local, free) stays the
+# default; Groq (free cloud tier) is the ready-made alternative. Selecting a
+# provider in Settings fills the endpoint fields, and these presets also act
+# as the fallback when only the provider is configured.
+PROVIDER_PRESETS = {
+    "ollama": {
+        "base_url": "http://localhost:11434/v1",
+        "model": "qwen2.5:7b",
+    },
+    "groq": {
+        "base_url": "https://api.groq.com/openai/v1",
+        "model": "llama-3.3-70b-versatile",
+    },
 }
 
 
@@ -96,10 +112,12 @@ class Od19AiChat(models.Model):
     def _get_ai_config(self):
         """Resolve AI settings: ir.config_parameter -> odoo.conf -> default.
 
-        Allows the endpoint/credentials to be supplied either from the
-        Settings UI or from ``odoo.conf`` (keys ``od19_ai_base_url``,
-        ``od19_ai_model``, ``od19_ai_api_key``, ``od19_ai_timeout``,
-        ``od19_ai_system_prompt``) so no secret has to be hard-coded.
+        Allows the provider/endpoint/credentials to be supplied either from
+        the Settings UI or from ``odoo.conf`` (keys ``od19_ai_provider``,
+        ``od19_ai_base_url``, ``od19_ai_model``, ``od19_ai_api_key``,
+        ``od19_ai_timeout``, ``od19_ai_system_prompt``) so no secret has to
+        be hard-coded. When the provider is set but the endpoint is not, the
+        provider preset is used (Ollama by default, Groq as the alternative).
         """
 
         def resolve(key):
@@ -108,6 +126,9 @@ class Od19AiChat(models.Model):
                 return param
             return tools.config.get("%s_%s" % (PARAM_PREFIX, key))
 
+        provider = resolve("provider") or DEFAULTS["provider"]
+        preset = PROVIDER_PRESETS.get(provider, {})
+
         timeout_raw = resolve("timeout")
         try:
             timeout = int(timeout_raw) if timeout_raw else DEFAULTS["timeout"]
@@ -115,8 +136,11 @@ class Od19AiChat(models.Model):
             timeout = DEFAULTS["timeout"]
 
         return {
-            "base_url": resolve("base_url") or DEFAULTS["base_url"],
-            "model": resolve("model") or DEFAULTS["model"],
+            "provider": provider,
+            "base_url": resolve("base_url")
+            or preset.get("base_url")
+            or DEFAULTS["base_url"],
+            "model": resolve("model") or preset.get("model") or DEFAULTS["model"],
             "api_key": resolve("api_key") or "",
             "system_prompt": resolve("system_prompt") or DEFAULTS["system_prompt"],
             "timeout": timeout,

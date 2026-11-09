@@ -34,9 +34,43 @@ class TestOd19AiAssistant(TransactionCase):
         params = self.env["ir.config_parameter"].sudo()
         params.search([("key", "=like", "od19_ai.%")]).unlink()
         config = self.env["od19.ai.chat"]._get_ai_config()
+        self.assertEqual(config["provider"], "ollama")
         self.assertEqual(config["base_url"], "http://localhost:11434/v1")
         self.assertEqual(config["model"], "qwen2.5:7b")
         self.assertEqual(config["timeout"], 60)
+
+    def test_config_uses_groq_provider_preset(self):
+        params = self.env["ir.config_parameter"].sudo()
+        params.search([("key", "=like", "od19_ai.%")]).unlink()
+        params.set_param("od19_ai.provider", "groq")
+        config = self.env["od19.ai.chat"]._get_ai_config()
+        self.assertEqual(config["provider"], "groq")
+        self.assertEqual(config["base_url"], "https://api.groq.com/openai/v1")
+        self.assertEqual(config["model"], "llama-3.3-70b-versatile")
+
+    def test_config_explicit_endpoint_overrides_provider(self):
+        params = self.env["ir.config_parameter"].sudo()
+        params.search([("key", "=like", "od19_ai.%")]).unlink()
+        params.set_param("od19_ai.provider", "groq")
+        params.set_param("od19_ai.base_url", "http://example.test/v1")
+        config = self.env["od19.ai.chat"]._get_ai_config()
+        self.assertEqual(config["base_url"], "http://example.test/v1")
+        # The model is still taken from the provider preset when unset.
+        self.assertEqual(config["model"], "llama-3.3-70b-versatile")
+
+    def test_settings_onchange_fills_provider_preset(self):
+        settings = self.env["res.config.settings"].new(
+            {
+                "od19_ai_provider": "groq",
+                "od19_ai_base_url": "http://localhost:11434/v1",
+                "od19_ai_model": "qwen2.5:7b",
+            }
+        )
+        settings._onchange_od19_ai_provider()
+        self.assertEqual(
+            settings.od19_ai_base_url, "https://api.groq.com/openai/v1"
+        )
+        self.assertEqual(settings.od19_ai_model, "llama-3.3-70b-versatile")
 
     def test_action_ask_stores_answer(self):
         chat = self.env["od19.ai.chat"].create({"prompt": "สวัสดี"})
