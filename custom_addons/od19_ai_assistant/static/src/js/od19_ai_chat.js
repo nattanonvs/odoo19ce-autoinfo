@@ -2,6 +2,7 @@
 
 import { Component, onPatched, useRef, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
+import { rpc } from "@web/core/network/rpc";
 import { useService } from "@web/core/utils/hooks";
 
 /**
@@ -16,7 +17,6 @@ export class Od19AiChatAction extends Component {
     static props = ["*"];
 
     setup() {
-        this.rpc = useService("rpc");
         this.notification = useService("notification");
         this.messagesRef = useRef("messages");
         this.state = useState({
@@ -49,16 +49,16 @@ export class Od19AiChatAction extends Component {
     // Data loading
     // ------------------------------------------------------------------
     async loadChats() {
-        this.state.chats = await this.rpc("/od19_ai/chat/list", {});
+        this.state.chats = await rpc("/od19_ai/chat/list", {});
     }
 
     async loadMessages(chatId) {
-        const data = await this.rpc("/od19_ai/chat/messages", { chat_id: chatId });
+        const data = await rpc("/od19_ai/chat/messages", { chat_id: chatId });
         this.state.messages = data.messages;
     }
 
     async createChat() {
-        const [id] = await this.rpc("/od19_ai/chat/create", {});
+        const [id] = await rpc("/od19_ai/chat/create", {});
         await this.loadChats();
         return id;
     }
@@ -91,7 +91,7 @@ export class Od19AiChatAction extends Component {
         if (this.state.streaming) {
             return;
         }
-        await this.rpc("/od19_ai/chat/delete", { chat_id: chatId });
+        await rpc("/od19_ai/chat/delete", { chat_id: chatId });
         if (chatId === this.state.activeChatId) {
             await this.newChat();
         }
