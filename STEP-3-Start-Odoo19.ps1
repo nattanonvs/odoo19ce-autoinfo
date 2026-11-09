@@ -116,21 +116,51 @@ $exitCode = 0
 Write-Step 1 "เคลียร์ process / service ที่ค้างอยู่ (เก็บเฉพาะ $TargetDb)"
 
 # 1a. ปิด Odoo server (python odoo-bin) ทุกตัวที่ยังรันอยู่
+#     ตรวจจาก CommandLine เป็นหลัก และ fallback ด้วย ExecutablePath ใต้ venv19
+#     เพราะบาง process อ่าน CommandLine ไม่ได้ (ข้อจำกัดสิทธิ์/WMI) แล้วจะถูกข้ามทั้งที่ยังจับพอร์ตอยู่
+$venvDir = [regex]::Escape((Join-Path $Root "venv19"))
 Get-CimInstance Win32_Process -ErrorAction SilentlyContinue |
-    Where-Object { $_.Name -eq "python.exe" -and $_.CommandLine -and $_.CommandLine -match "odoo-bin" } |
+    Where-Object {
+        $_.Name -eq "python.exe" -and (
+            ($_.CommandLine    -and $_.CommandLine    -match "odoo-bin") -or
+            ($_.ExecutablePath -and $_.ExecutablePath -match $venvDir)
+        )
+    } |
     ForEach-Object {
         Write-Host "  kill Odoo process PID $($_.ProcessId)" -ForegroundColor DarkYellow
         Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue
     }
 
 # 1b. ปิด process ที่ยังจับพอร์ต Odoo อยู่ (8069 legacy / http_port / gevent_port)
+#     ตรวจ *ทุก* TCP state ไม่ใช่แค่ Listen — process ที่ค้างตอนปิดตัวอาจเหลือ socket สถานะ
+#     FIN_WAIT_1/CLOSE_WAIT แล้วกันการ bind ของ process ใหม่ (ทำให้ระบบล่มเงียบ)
 foreach ($port in @(8069, $httpPort, $geventPort) | Select-Object -Unique) {
-    Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue |
-        Select-Object -ExpandProperty OwningProcess -Unique |
-        ForEach-Object {
-            Write-Host "  kill process on port $port (PID $_)" -ForegroundColor DarkYellow
-            Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue
-        }
+    $holders = @()
+    # แหล่งที่ 1: Get-NetTCPConnection ทุก state
+    $holders += Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue |
+                Select-Object -ExpandProperty OwningProcess -Unique
+    # แหล่งที่ 2: netstat fallback — ครอบคลุม listener บน [::] (dual-stack) ที่อาจมองไม่เห็น
+    $holders += netstat -ano | Select-String -Pattern ":$port\s" |
+                ForEach-Object { ($_.ToString().Trim() -split '\s+')[-1] }
+    $holders | Where-Object { ($_ -as [int]) -and [int]$_ -gt 0 } | Sort-Object -Unique | ForEach-Object {
+        Write-Host "  kill process on port $port (PID $_)" -ForegroundColor DarkYellow
+        Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue
+    }
+}
+
+# 1b-verify. รอจนพอร์ต Odoo ว่างจริง (สูงสุด 10 วินาที/พอร์ต) เพื่อกันการ start ทับซ้อน
+foreach ($port in @($httpPort, $geventPort) | Select-Object -Unique) {
+    for ($i = 0; $i -lt 10; $i++) {
+        if (-not (Test-Port $port)) { break }
+        Start-Sleep -Seconds 1
+    }
+    if (Test-Port $port) {
+        $left = (Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue |
+                 Select-Object -ExpandProperty OwningProcess -Unique |
+                 Where-Object { $_ -and $_ -ne 0 }) -join ', '
+        if (-not $left) { $left = "(ตรวจ PID ไม่ได้)" }
+        Write-Host "  เตือน: port $port ยังถูกจับอยู่ (PID $left)" -ForegroundColor Yellow
+    }
 }
 
 # 1c. ปิด nginx ที่ค้างอยู่ทั้งหมด ก่อนเริ่มใหม่ในขั้นตอนที่ 4 (กัน process สะสม)
@@ -220,6 +250,18 @@ Write-Step 3 "เริ่ม Odoo (port $httpPort)"
 if (Test-Http "http://127.0.0.1:$httpPort/web/login") {
     Write-Host "  Odoo รันอยู่แล้วที่ port $httpPort" -ForegroundColor Green
 } else {
+    # กันกรณี Odoo เก่าค้าง: ถ้าพอร์ตยังถูกจับแต่ไม่ตอบ HTTP (zombie) ให้ปิด process นั้นก่อนเริ่มใหม่
+    # ไม่งั้น process ใหม่จะ bind พอร์ตไม่ได้ แล้วระบบล่มเงียบ
+    if (Test-Port $httpPort) {
+        $holders = @(Get-NetTCPConnection -LocalPort $httpPort -ErrorAction SilentlyContinue |
+                     Select-Object -ExpandProperty OwningProcess -Unique |
+                     Where-Object { $_ -and $_ -ne 0 })
+        if ($holders.Count -gt 0) {
+            Write-Host "  พบ process ค้างบน port $httpPort (PID $($holders -join ', ')) - ปิดก่อนเริ่มใหม่" -ForegroundColor Yellow
+            $holders | ForEach-Object { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue }
+            Start-Sleep -Seconds 2
+        }
+    }
     Write-Host "  กำลังเริ่ม Odoo..." -ForegroundColor Yellow
     # start แบบ detached (ไม่ตายเมื่อปิดหน้าต่าง console) เหมือน Nginx
     Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{
