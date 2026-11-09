@@ -111,10 +111,14 @@ def chat_completion_stream(
                 "AI endpoint returned HTTP %s: %s"
                 % (response.status_code, response.text[:500])
             )
-        for raw_line in response.iter_lines(decode_unicode=True):
+        for raw_line in response.iter_lines(decode_unicode=False):
             if not raw_line:
                 continue
-            line = raw_line.strip()
+            # Ollama replies with ``Content-Type: text/event-stream`` and no
+            # charset, so ``requests`` would decode the body as ISO-8859-1 and
+            # garble Thai text. Decode UTF-8 explicitly instead of trusting
+            # ``response.encoding``.
+            line = raw_line.decode("utf-8", "replace").strip()
             if not line.startswith("data:"):
                 continue
             data = line[5:].strip()
