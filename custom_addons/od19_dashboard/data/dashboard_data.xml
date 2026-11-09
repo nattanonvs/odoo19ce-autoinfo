@@ -108,7 +108,7 @@
         <field name="groupby_key">date_order</field>
         <field name="date_key">date_order</field>
         <field name="date_range">this_year</field>
-        <field name="limit" eval="12"/>
+        <field name="limit" eval="24"/>
         <field name="grid_w" eval="8"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="50"/>
@@ -123,7 +123,7 @@
         <field name="groupby_key">team_id</field>
         <field name="date_key">date_order</field>
         <field name="date_range">this_year</field>
-        <field name="limit" eval="6"/>
+        <field name="limit" eval="12"/>
         <field name="grid_w" eval="4"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="60"/>
@@ -138,7 +138,7 @@
         <field name="date_key">date_order</field>
         <field name="date_range">this_year</field>
         <field name="domain">[('state', '=', 'sale')]</field>
-        <field name="limit" eval="10"/>
+        <field name="limit" eval="25"/>
         <field name="grid_w" eval="6"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="70"/>
@@ -153,7 +153,7 @@
         <field name="date_key">scheduled_date</field>
         <field name="date_range">overdue</field>
         <field name="domain">[('state', 'not in', ['done', 'cancel'])]</field>
-        <field name="limit" eval="10"/>
+        <field name="limit" eval="25"/>
         <field name="grid_w" eval="6"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="80"/>
@@ -232,7 +232,7 @@
         <field name="measure_key">__count</field>
         <field name="groupby_key">state</field>
         <field name="date_range">all_time</field>
-        <field name="limit" eval="8"/>
+        <field name="limit" eval="15"/>
         <field name="grid_w" eval="6"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="50"/>
@@ -247,7 +247,7 @@
         <field name="groupby_key">partner_id</field>
         <field name="date_key">date_order</field>
         <field name="date_range">last_90_days</field>
-        <field name="limit" eval="8"/>
+        <field name="limit" eval="15"/>
         <field name="grid_w" eval="6"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="60"/>
@@ -263,7 +263,7 @@
         <field name="date_key">invoice_date</field>
         <field name="date_range">this_year</field>
         <field name="domain">[('move_type', '=', 'out_invoice'), ('state', '=', 'posted')]</field>
-        <field name="limit" eval="12"/>
+        <field name="limit" eval="24"/>
         <field name="grid_w" eval="12"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="70"/>
@@ -277,7 +277,7 @@
         <field name="measure_key">__count</field>
         <field name="date_range">all_time</field>
         <field name="domain">[('state', 'not in', ['done', 'cancel'])]</field>
-        <field name="limit" eval="10"/>
+        <field name="limit" eval="25"/>
         <field name="grid_w" eval="12"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="80"/>
@@ -358,7 +358,7 @@
         <field name="measure_key">__count</field>
         <field name="groupby_key">state</field>
         <field name="date_range">all_time</field>
-        <field name="limit" eval="8"/>
+        <field name="limit" eval="15"/>
         <field name="grid_w" eval="6"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="50"/>
@@ -373,7 +373,7 @@
         <field name="groupby_key">picking_type_id</field>
         <field name="date_key">scheduled_date</field>
         <field name="date_range">last_30_days</field>
-        <field name="limit" eval="6"/>
+        <field name="limit" eval="12"/>
         <field name="grid_w" eval="6"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="60"/>
@@ -387,7 +387,7 @@
         <field name="measure_key">__count</field>
         <field name="date_key">scheduled_date</field>
         <field name="date_range">last_30_days</field>
-        <field name="limit" eval="10"/>
+        <field name="limit" eval="25"/>
         <field name="grid_w" eval="12"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="70"/>
