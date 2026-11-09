@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_od19_draft_list" model="ir.ui.view">
+        <field name="name">od19.draft.list</field>
+        <field name="model">od19.draft</field>
+        <field name="arch" type="xml">
+            <list string="Offline Drafts" create="false">
+                <field name="name"/>
+                <field name="model_name"/>
+                <field name="res_id"/>
+                <field name="user_id"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="state"/>
+                <field name="write_date"/>
+                <field name="expires_at"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_od19_draft_form" model="ir.ui.view">
+        <field name="name">od19.draft.form</field>
+        <field name="model">od19.draft</field>
+        <field name="arch" type="xml">
+            <form string="Offline Draft" create="false">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="model_name"/>
+                            <field name="res_id"/>
+                            <field name="state"/>
+                        </group>
+                        <group>
+                            <field name="user_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="payload_version"/>
+                            <field name="expires_at"/>
+                        </group>
+                    </group>
+                    <field name="payload" widget="json"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_od19_draft" model="ir.actions.act_window">
+        <field name="name">Offline Drafts / ร่างอัตโนมัติ</field>
+        <field name="res_model">od19.draft</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem
+        id="menu_od19_draft"
+        name="Offline Drafts"
+        parent="base.menu_custom"
+        action="action_od19_draft"
+        groups="base.group_system"
+        sequence="95"/>
+</odoo>
