@@ -70,3 +70,64 @@ def chat_completion(base_url, model, messages, api_key=None, timeout=DEFAULT_TIM
         raise AiClientError(
             "Unexpected AI response: %s" % response.text[:500]
         ) from exc
+
+
+def chat_completion_stream(
+    base_url, model, messages, api_key=None, timeout=DEFAULT_TIMEOUT
+):
+    """Yield assistant content fragments as they are produced (SSE).
+
+    Works against any OpenAI-compatible ``/chat/completions`` endpoint that
+    supports ``stream=true`` (Ollama does). Each yielded value is a ``str``
+    fragment of the answer, so the caller can forward it to the browser
+    immediately instead of waiting for the full completion.
+    """
+    if not base_url:
+        raise AiClientError("AI base URL is not configured.")
+    if not model:
+        raise AiClientError("AI model name is not configured.")
+
+    url = "%s/chat/completions" % base_url.rstrip("/")
+    headers = {"Content-Type": "application/json"}
+    if api_key:
+        headers["Authorization"] = "Bearer %s" % api_key
+    payload = {"model": model, "messages": messages, "stream": True}
+
+    _logger.debug("AI stream -> %s (%s)", url, model)
+    try:
+        response = requests.post(
+            url,
+            headers=headers,
+            data=json.dumps(payload),
+            timeout=timeout,
+            stream=True,
+        )
+    except requests.exceptions.RequestException as exc:
+        raise AiClientError("Cannot reach AI endpoint %s: %s" % (url, exc)) from exc
+
+    with response:
+        if response.status_code >= 400:
+            raise AiClientError(
+                "AI endpoint returned HTTP %s: %s"
+                % (response.status_code, response.text[:500])
+            )
+        for raw_line in response.iter_lines(decode_unicode=True):
+            if not raw_line:
+                continue
+            line = raw_line.strip()
+            if not line.startswith("data:"):
+                continue
+            data = line[5:].strip()
+            if data == "[DONE]":
+                break
+            try:
+                chunk = json.loads(data)
+            except ValueError:
+                continue
+            choices = chunk.get("choices") or []
+            if not choices:
+                continue
+            delta = choices[0].get("delta") or {}
+            content = delta.get("content")
+            if content:
+                yield content

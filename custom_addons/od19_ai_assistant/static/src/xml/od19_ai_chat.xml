@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="od19_ai_assistant.ChatAction">
+        <div class="o_od19_ai_chat">
+
+            <aside class="o_od19_ai_sidebar">
+                <div class="o_od19_ai_sidebar_head">
+                    <button type="button" class="btn btn-primary"
+                            t-on-click="newChat">
+                        <i class="fa fa-plus me-1"/> บทสนทนาใหม่
+                    </button>
+                </div>
+                <div class="o_od19_ai_chat_list">
+                    <t t-foreach="state.chats" t-as="chat" t-key="chat.id">
+                        <div class="o_od19_ai_chat_item"
+                             t-att-class="{ active: chat.id === state.activeChatId }"
+                             t-on-click="() => this.selectChat(chat.id)">
+                            <span class="o_od19_ai_chat_name" t-out="chat.name"/>
+                            <button type="button" class="o_od19_ai_chat_del"
+                                    title="ลบ"
+                                    t-on-click.stop="() => this.deleteChat(chat.id)">
+                                <i class="fa fa-trash-o"/>
+                            </button>
+                        </div>
+                    </t>
+                    <div class="o_od19_ai_sidebar_empty" t-if="!state.chats.length">
+                        ยังไม่มีบทสนทนา
+                    </div>
+                </div>
+            </aside>
+
+            <section class="o_od19_ai_thread">
+                <div class="o_od19_ai_messages" t-ref="messages">
+                    <div class="o_od19_ai_empty" t-if="!hasConversation">
+                        <i class="fa fa-comments fa-3x mb-2 d-block"/>
+                        <div>สอบถามข้อมูลจากระบบ Odoo ได้เลย</div>
+                    </div>
+
+                    <t t-foreach="state.messages" t-as="msg" t-key="msg.id">
+                        <div class="o_od19_ai_msg" t-att-class="'role-' + msg.role"
+                             t-out="msg.content"/>
+                    </t>
+
+                    <t t-foreach="state.toolChips" t-as="chip" t-key="chip_index">
+                        <div class="o_od19_ai_toolchip">
+                            <i class="fa fa-wrench"/>
+                            <span t-out="chip"/>
+                        </div>
+                    </t>
+
+                    <div class="o_od19_ai_msg role-assistant" t-if="state.streamText"
+                         t-out="state.streamText"/>
+
+                    <div class="o_od19_ai_typing" t-if="state.streaming and !state.streamText">
+                        กำลังคิด ...
+                    </div>
+
+                    <div class="o_od19_ai_msg role-system" t-if="state.error"
+                         t-out="state.error"/>
+                </div>
+
+                <div class="o_od19_ai_composer">
+                    <textarea t-model="state.draft"
+                              placeholder="พิมพ์คำถาม แล้วกด Enter ... (Shift+Enter ขึ้นบรรทัดใหม่)"
+                              t-on-keydown="onKeydown"
+                              t-att-disabled="state.streaming"/>
+                    <button type="button" class="btn btn-primary"
+                            t-on-click="send"
+                            t-att-disabled="state.streaming or !state.draft.trim()">
+                        <i class="fa fa-paper-plane me-1"/> ส่ง
+                    </button>
+                </div>
+            </section>
+
+        </div>
+    </t>
+
+</templates>
