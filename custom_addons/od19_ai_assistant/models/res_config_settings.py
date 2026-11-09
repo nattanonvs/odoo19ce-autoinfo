@@ -1,12 +1,27 @@
 # Copyright 2026 OD19
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0)
 
-from odoo import fields, models
+from odoo import api, fields, models
+
+from .od19_ai_chat import PROVIDER_PRESETS
 
 
 class ResConfigSettings(models.TransientModel):
     _inherit = "res.config.settings"
 
+    od19_ai_provider = fields.Selection(
+        selection=[
+            ("ollama", "Ollama (ในเครื่อง)"),
+            ("groq", "Groq (คลาวด์ฟรี)"),
+            ("custom", "กำหนดเอง (OpenAI-compatible)"),
+        ],
+        string="ผู้ให้บริการ AI",
+        config_parameter="od19_ai.provider",
+        default="ollama",
+        help="เลือกผู้ให้บริการเพื่อเติมที่อยู่ (Base URL) และโมเดลเริ่มต้นให้ "
+        "อัตโนมัติ แล้วแก้ไขได้ตามต้องการ "
+        "Ollama ทำงานฟรี/ในเครื่อง ส่วน Groq มีโควตาฟรีบนคลาวด์",
+    )
     od19_ai_base_url = fields.Char(
         string="ที่อยู่ AI (Base URL)",
         config_parameter="od19_ai.base_url",
@@ -38,3 +53,20 @@ class ResConfigSettings(models.TransientModel):
         default="You are a helpful assistant for a Thai accounting ERP "
         "(Odoo 19). Answer in Thai unless asked otherwise.",
     )
+
+    @api.onchange("od19_ai_provider")
+    def _onchange_od19_ai_provider(self):
+        """Prefill the endpoint/model from the selected provider preset.
+
+        Existing custom values are preserved: only a blank value or a value
+        copied from another preset is replaced.
+        """
+        preset = PROVIDER_PRESETS.get(self.od19_ai_provider)
+        if not preset:
+            return
+        known_urls = {item["base_url"] for item in PROVIDER_PRESETS.values()}
+        known_models = {item["model"] for item in PROVIDER_PRESETS.values()}
+        if not self.od19_ai_base_url or self.od19_ai_base_url in known_urls:
+            self.od19_ai_base_url = preset["base_url"]
+        if not self.od19_ai_model or self.od19_ai_model in known_models:
+            self.od19_ai_model = preset["model"]

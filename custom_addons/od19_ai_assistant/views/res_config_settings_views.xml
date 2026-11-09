@@ -16,6 +16,10 @@
                     >
                         <div class="content-group">
                             <div class="row mt16">
+                                <label for="od19_ai_provider" class="col-lg-3 o_light_label"/>
+                                <field name="od19_ai_provider"/>
+                            </div>
+                            <div class="row">
                                 <label for="od19_ai_base_url" class="col-lg-3 o_light_label"/>
                                 <field name="od19_ai_base_url" placeholder="http://localhost:11434/v1"/>
                             </div>
