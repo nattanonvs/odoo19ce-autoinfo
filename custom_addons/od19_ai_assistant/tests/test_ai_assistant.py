@@ -506,3 +506,87 @@ class TestOrmGuard(TransactionCase):
 
         with self.assertRaises(guard.OrmGuardError):
             guard.validate_domain(self.env, "res.partner", Domain([("name", "=", "x")]))
+
+
+@tagged("post_install", "-at_install")
+class TestGenericExplorer(TransactionCase):
+    def test_generic_tools_are_available(self):
+        names = [t["name"] for t in self.env["od19.ai.tool"].available_tools()]
+        for expected in (
+            "list_models",
+            "describe_model",
+            "search_records",
+            "aggregate_records",
+        ):
+            self.assertIn(expected, names)
+
+    def test_list_models_returns_partner(self):
+        result = self.env["od19.ai.tool"].execute(
+            "list_models", {"keyword": "res.partner"}
+        )
+        self.assertIn("res.partner", result)
+
+    def test_list_models_respects_limit(self):
+        result = self.env["od19.ai.tool"].execute("list_models", {"limit": 3})
+        lines = [line for line in result.splitlines() if line.startswith("- ")]
+        self.assertLessEqual(len(lines), 3)
+
+    def test_describe_model_lists_fields(self):
+        result = self.env["od19.ai.tool"].execute(
+            "describe_model", {"model": "res.partner"}
+        )
+        self.assertIn("res.partner", result)
+        self.assertIn("name", result)
+
+    def test_describe_model_rejects_unknown_model(self):
+        result = self.env["od19.ai.tool"].execute(
+            "describe_model", {"model": "does.not.exist"}
+        )
+        self.assertIn("ไม่พบโมเดล", result)
+
+    def test_search_records_finds_created_partner(self):
+        self.env["res.partner"].create({"name": "บริษัท ทดสอบทั่วไป จำกัด"})
+        result = self.env["od19.ai.tool"].execute(
+            "search_records",
+            {
+                "model": "res.partner",
+                "domain": [["name", "ilike", "ทดสอบทั่วไป"]],
+                "fields": ["name"],
+            },
+        )
+        self.assertIn("บริษัท ทดสอบทั่วไป จำกัด", result)
+
+    def test_search_records_rejects_bad_domain(self):
+        result = self.env["od19.ai.tool"].execute(
+            "search_records",
+            {"model": "res.partner", "domain": [["name", "regex", "x"]]},
+        )
+        self.assertIn("ไม่ได้รับอนุญาต", result)
+
+    def test_search_records_caps_limit(self):
+        self.env["res.partner"].create([{"name": "ลูกค้า %s" % i} for i in range(30)])
+        result = self.env["od19.ai.tool"].execute(
+            "search_records", {"model": "res.partner", "fields": ["name"], "limit": 500}
+        )
+        lines = [line for line in result.splitlines() if line.startswith("- ")]
+        self.assertLessEqual(len(lines), 20)
+
+    def test_aggregate_records_counts(self):
+        self.env["res.partner"].create([{"name": "agg %s" % i} for i in range(3)])
+        result = self.env["od19.ai.tool"].execute(
+            "aggregate_records",
+            {
+                "model": "res.partner",
+                "domain": [["name", "ilike", "agg"]],
+                "aggregates": ["__count"],
+            },
+        )
+        self.assertIn("จำนวน", result)
+        self.assertIn("3", result)
+
+    def test_aggregate_records_rejects_bad_function(self):
+        result = self.env["od19.ai.tool"].execute(
+            "aggregate_records",
+            {"model": "res.partner", "aggregates": ["id:median"]},
+        )
+        self.assertIn("ไม่ได้รับอนุญาต", result)

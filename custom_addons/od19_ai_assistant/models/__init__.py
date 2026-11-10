@@ -2,6 +2,7 @@
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0)
 
 from . import od19_ai_tool
+from . import od19_ai_tool_generic
 from . import od19_ai_message
 from . import od19_ai_chat
 from . import res_config_settings

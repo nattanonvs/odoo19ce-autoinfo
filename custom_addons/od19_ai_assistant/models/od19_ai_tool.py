@@ -124,13 +124,33 @@ class Od19AiTool(models.AbstractModel):
         ]
 
     @api.model
+    def all_tools(self):
+        """Every declared tool: curated + generic + meta + draft.
+
+        Each specialised layer contributes through its own ``_*_definitions``
+        method (defined in its own file). ``getattr`` keeps the layers optional
+        so the module still loads while they are being built.
+        """
+        definitions = list(self._tool_definitions())
+        for method_name in (
+            "_generic_definitions",
+            "_index_definitions",
+            "_draft_definitions",
+        ):
+            method = getattr(self, method_name, None)
+            if method:
+                definitions.extend(method())
+        return definitions
+
+    @api.model
     def available_tools(self):
-        """Return the definitions whose backing model is installed."""
-        return [
-            tool
-            for tool in self._tool_definitions()
-            if tool["model"] in self.env
-        ]
+        """Definitions whose backing model is installed (model-less = always)."""
+        result = []
+        for tool in self.all_tools():
+            model_name = tool.get("model")
+            if model_name is None or model_name in self.env:
+                result.append(tool)
+        return result
 
     @api.model
     def prompt_catalog(self):
@@ -155,9 +175,10 @@ class Od19AiTool(models.AbstractModel):
         method = getattr(self, "_run_%s" % name, None)
         if method is None:
             return "เครื่องมือ %s ยังไม่พร้อมใช้งาน" % name
-        if not self._check_read_access(tool["model"]):
+        model_name = tool.get("model")
+        if model_name and not self._check_read_access(model_name):
             return "คุณไม่มีสิทธิ์อ่านข้อมูล %s" % self.env[
-                tool["model"]
+                model_name
             ]._description
         arguments = arguments if isinstance(arguments, dict) else {}
         try:
