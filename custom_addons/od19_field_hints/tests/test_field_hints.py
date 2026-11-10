@@ -79,3 +79,23 @@ class TestFieldHints(TransactionCase):
             _request_stack.pop()
         self.assertIn("od19_field_hints", info)
         self.assertIn("custom_models", info["od19_field_hints"])
+
+    def test_assets_are_wired_into_backend_bundle(self):
+        assets = self.env["ir.qweb"]._get_asset_content("web.assets_backend")[0]
+        urls = [asset["url"] for asset in assets]
+        self.assertIn("/od19_field_hints/static/src/js/od19_field_hints.js", urls)
+        self.assertIn("/od19_field_hints/static/src/scss/od19_field_hints.scss", urls)
+
+    def test_patch_guards_placeholder_injection(self):
+        """patch ต้องตรวจว่ามีคีย์ placeholder และยังว่าง ก่อนเติมค่า"""
+        from pathlib import Path
+
+        from odoo.modules.module import get_module_path
+
+        source = (
+            Path(get_module_path("od19_field_hints"))
+            / "static/src/js/od19_field_hints.js"
+        ).read_text(encoding="utf-8")
+        self.assertIn("fieldComponentProps", source)
+        self.assertIn('"placeholder" in props', source)
+        self.assertIn("session.od19_field_hints", source)
