@@ -264,6 +264,10 @@ a:hover { color: #7A1B1B; }
     font-size: 0.85rem;
     text-align: center;
 }
+/* Discreet staff-only link in the footer bar (kept out of the public navbar). */
+.od19-footer-sep { opacity: 0.4; margin: 0 8px; }
+.od19-footer-staff { color: #c2c9d3; text-decoration: none; }
+.od19-footer-staff:hover { color: #fff; text-decoration: underline; }
 
 /* ---------- Employee Portal ---------- */
 .od19-portal-hero {

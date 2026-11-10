@@ -62,6 +62,10 @@
                     </div>
                     <div class="od19-footer-bottom">
                         © <span t-esc="datetime.datetime.now().year"/> The Auto-Info Co., Ltd. All Rights Reserved.
+                        <span class="od19-footer-sep">·</span>
+                        <a class="od19-footer-staff" href="/employee-portal">
+                            <i class="fa fa-lock"/> Employee Portal
+                        </a>
                     </div>
                 </div>
             </footer>

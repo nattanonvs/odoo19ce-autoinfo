@@ -231,3 +231,50 @@ class TestBrandFoundation(HttpCase):
         self.assertIn("404", html)
         # Link back home must be present
         self.assertIn('href="/"', html)
+
+
+@tagged("post_install", "-at_install")
+class TestNavigationIA(HttpCase):
+    """SP2: public navigation excludes staff links, inner pages carry breadcrumbs."""
+
+    def test_employee_portal_not_in_public_nav(self):
+        """The staff-only /employee-portal page must not be a public menu item."""
+        # The legacy menu record is either never declared (fresh install) or
+        # removed by website.menu.od19_configure_menus() (upgrade).
+        self.assertFalse(
+            self.env.ref(
+                "od19_website.menu_employee_portal", raise_if_not_found=False
+            )
+        )
+        website = self.env["website"].get_current_website()
+        portal_menus = website.menu_id.child_id.filtered(
+            lambda m: (m.url or "").strip().rstrip("/") == "/employee-portal"
+        )
+        self.assertFalse(portal_menus, "Employee Portal must not be a top nav item")
+
+    def test_footer_has_employee_portal_link(self):
+        """Staff still reach the portal through the discreet footer link."""
+        html = self.url_open("/").text
+        self.assertIn('class="od19-footer-staff"', html)
+        self.assertIn('href="/employee-portal"', html)
+
+    def test_inner_pages_have_breadcrumb(self):
+        """Every inner content page exposes a breadcrumb linked back home."""
+        for path in (
+            "/industrial-automation",
+            "/building-automation",
+            "/terminal-automation",
+            "/products",
+            "/about-us",
+        ):
+            html = self.url_open(path).text
+            self.assertIn(
+                '<nav class="od19-breadcrumb">',
+                html,
+                "missing breadcrumb on %s" % path,
+            )
+            self.assertIn(
+                '<a href="/">Home</a>',
+                html,
+                "breadcrumb on %s must link back home" % path,
+            )
