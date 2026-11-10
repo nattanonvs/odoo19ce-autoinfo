@@ -39,18 +39,25 @@ class Od19AiToolIndex(models.AbstractModel):
     # ------------------------------------------------------------------
     @api.model
     def prompt_index(self):
-        """One compact line per tool, capped by :attr:`MAX_INDEX_CHARS`."""
+        """One compact line per tool, capped by :attr:`MAX_INDEX_CHARS`.
+
+        Whole lines are accumulated until the next one would push the index
+        past the budget; the loop then stops. This guarantees the index never
+        ends with a partial tool line (which the model would try to call).
+        """
         lines = []
+        total = 0
         for tool in self.available_tools():
             description = (tool.get("description") or "").strip().splitlines()
             short = description[0] if description else ""
             if len(short) > self.INDEX_DESC_LENGTH:
                 short = short[: self.INDEX_DESC_LENGTH - 1] + "…"
-            lines.append("- %s: %s" % (tool["name"], short))
-        index = "\n".join(lines)
-        if len(index) > self.MAX_INDEX_CHARS:
-            index = index[: self.MAX_INDEX_CHARS - 1] + "…"
-        return index
+            line = "- %s: %s" % (tool["name"], short)
+            if total + len(line) + 1 > self.MAX_INDEX_CHARS:
+                break
+            lines.append(line)
+            total += len(line) + 1
+        return "\n".join(lines)
 
     @api.model
     def full_schema(self, name):
@@ -68,7 +75,9 @@ class Od19AiToolIndex(models.AbstractModel):
         tool = self.full_schema(name)
         if not tool:
             return "ไม่พบเครื่องมือชื่อ %s" % name
-        lines = ["เครื่องมือ %s: %s" % (tool["name"], tool["description"])]
+        lines = [
+            "เครื่องมือ %s: %s" % (tool["name"], tool.get("description") or "")
+        ]
         arguments_schema = tool.get("arguments") or {}
         if arguments_schema:
             for key, description in arguments_schema.items():

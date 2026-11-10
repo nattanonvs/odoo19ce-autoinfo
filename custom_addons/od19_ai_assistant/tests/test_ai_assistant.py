@@ -607,6 +607,30 @@ class TestCapabilityIndex(TransactionCase):
             len(index), self.env["od19.ai.tool"].MAX_INDEX_CHARS
         )
 
+    def test_prompt_index_never_cuts_a_tool_line(self):
+        tool_model = self.env["od19.ai.tool"]
+        fake_tools = [
+            {"name": "fake_tool_%03d" % i, "description": "description %03d" % i}
+            for i in range(400)
+        ]
+        with patch.object(
+            type(tool_model), "available_tools", return_value=fake_tools
+        ):
+            index = tool_model.prompt_index()
+        budget = tool_model.MAX_INDEX_CHARS
+        self.assertLessEqual(len(index), budget)
+        lines = index.splitlines()
+        # The budget must actually cut tools off (break branch executed).
+        self.assertTrue(lines)
+        self.assertLess(len(lines), len(fake_tools))
+        whole_lines = {
+            "- %s: %s" % (t["name"], t["description"]) for t in fake_tools
+        }
+        for line in lines:
+            self.assertTrue(line.startswith("- "), line)
+            self.assertIn(": ", line, line)
+            self.assertIn(line, whole_lines, line)
+
     def test_tool_help_returns_argument_schema(self):
         help_text = self.env["od19.ai.tool"].execute(
             "tool_help", {"name": "search_records"}
