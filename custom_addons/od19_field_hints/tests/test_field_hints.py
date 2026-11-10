@@ -41,3 +41,17 @@ class TestFieldHints(TransactionCase):
         """โมเดล Core ล้วน ๆ ต้องไม่อยู่ในรายการ"""
         config = self.env["od19.field.hints"]._get_client_config()
         self.assertNotIn("ir.ui.view", config["custom_models"])
+
+    def test_settings_toggle_enabled(self):
+        settings = self.env["res.config.settings"].create({"od19_field_hints_enabled": False})
+        settings.execute()
+        config = self.env["od19.field.hints"]._get_client_config()
+        self.assertFalse(config["enabled"])
+        self.env["ir.config_parameter"].sudo().set_param("od19_field_hints.enabled", "True")
+
+    def test_settings_toggle_apply_core(self):
+        settings = self.env["res.config.settings"].create({"od19_field_hints_apply_core": True})
+        settings.execute()
+        config = self.env["od19.field.hints"]._get_client_config()
+        self.assertTrue(config["apply_core"])
+        self.env["ir.config_parameter"].sudo().set_param("od19_field_hints.apply_core", "False")
