@@ -927,3 +927,33 @@ class TestDraftHttp(HttpCase):
         )
         payload = response.json()
         self.assertIn("error", payload)
+
+
+@tagged("post_install", "-at_install")
+class TestPerformanceGuards(TransactionCase):
+    def test_list_models_metadata_is_cached(self):
+        tools = self.env["od19.ai.tool"]
+        tools._run_list_models({"limit": 5})  # warm the ACL + tool caches
+        with self.assertQueryCount(0):
+            tools._run_list_models({"limit": 5})
+
+    def test_describe_model_runs_no_query(self):
+        tools = self.env["od19.ai.tool"]
+        tools._run_describe_model({"model": "res.partner"})  # warm registry
+        with self.assertQueryCount(0):
+            tools._run_describe_model({"model": "res.partner"})
+
+    def test_search_records_never_exceeds_cap(self):
+        self.env["res.partner"].create([{"name": "cap %s" % i} for i in range(25)])
+        result = self.env["od19.ai.tool"].execute(
+            "search_records",
+            {"model": "res.partner", "fields": ["name"], "limit": 999},
+        )
+        lines = [line for line in result.splitlines() if line.startswith("- ")]
+        self.assertLessEqual(len(lines), 20)
+
+    def test_prompt_index_is_bounded(self):
+        tool_model = self.env["od19.ai.tool"]
+        self.assertLessEqual(
+            len(tool_model.prompt_index()), tool_model.MAX_INDEX_CHARS
+        )
