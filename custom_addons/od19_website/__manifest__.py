@@ -22,6 +22,7 @@
     "data": [
         "security/ir.model.access.csv",
         "views/website_templates.xml",
+        "views/website_brand.xml",
         "views/homepage.xml",
         "views/services_pages.xml",
         "views/products_page.xml",

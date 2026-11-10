@@ -204,3 +204,30 @@ class TestEmployeeLoginRedirect(HttpCase):
         user = self._make_user("od19_login_plain", with_employee=False)
         response = self._login(user.login, user.login)
         self.assertEqual(response.request.path_url, "/odoo")
+
+
+@tagged("post_install", "-at_install")
+class TestBrandFoundation(HttpCase):
+    """SP1: fixed brand logo + branded 404 page."""
+
+    def test_header_uses_autoinfo_logo_svg(self):
+        """The homepage header must render autoinfo_logo.svg as the logo."""
+        html = self.url_open("/").text
+        self.assertIn("autoinfo_logo.svg", html)
+
+    def test_favicon_is_present(self):
+        """Favicon link must point at the module favicon."""
+        html = self.url_open("/").text
+        self.assertIn("/od19_website/static/src/img/favicon.svg", html)
+
+    def test_404_page_is_branded(self):
+        """A non-existent URL returns the Auto-Info branded 404 page."""
+        response = self.url_open("/this-page-does-not-exist-12345")
+        self.assertEqual(response.status_code, 404)
+        html = response.text
+        # Branded elements from od19_404 template
+        self.assertIn("od19-404-wrap", html)
+        self.assertIn("autoinfo_logo.svg", html)
+        self.assertIn("404", html)
+        # Link back home must be present
+        self.assertIn('href="/"', html)
