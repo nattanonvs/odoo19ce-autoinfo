@@ -278,3 +278,51 @@ class TestNavigationIA(HttpCase):
                 html,
                 "breadcrumb on %s must link back home" % path,
             )
+
+
+@tagged("post_install", "-at_install")
+class TestHomepageSP3(HttpCase):
+    """SP3: homepage hero polish, process narrative and animated stats."""
+
+    def test_homepage_hero_has_sheen_and_scroll_cue(self):
+        """The hero carries the animated sheen layer and a scroll cue to services."""
+        html = self.url_open("/").text
+        self.assertIn("od19-home-hero", html)
+        self.assertIn("od19-hero-sheen", html)
+        self.assertIn('class="od19-hero-scroll"', html)
+        self.assertIn('href="#services"', html)
+
+    def test_homepage_has_process_section(self):
+        """"How We Work" tells the four-step delivery story."""
+        html = self.url_open("/").text
+        self.assertIn('id="how-we-work"', html)
+        self.assertGreaterEqual(
+            html.count("od19-step-num"),
+            4,
+            "the process section must render four numbered steps",
+        )
+
+    def test_homepage_stats_are_countup_ready(self):
+        """Every stat number exposes the data hooks used by od19_home.js."""
+        html = self.url_open("/").text
+        self.assertGreaterEqual(
+            html.count("data-od19-count"),
+            4,
+            "all four stats must be animatable",
+        )
+
+    def test_homepage_section_anchors(self):
+        """Every main block is deep-linkable through a stable anchor id."""
+        html = self.url_open("/").text
+        for anchor in (
+            "services",
+            "how-we-work",
+            "about",
+            "products",
+            "partners",
+            "news",
+            "careers",
+            "contact",
+        ):
+            self.assertIn('id="%s"' % anchor, html, "missing anchor #%s" % anchor)
+

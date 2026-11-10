@@ -2402,6 +2402,55 @@ a.od19-room-tile:focus {
     }
 }
 
+/* SP3: homepage hero polish — drifting light sheen + scroll cue (offline, no libs) */
+.od19-hero-sheen {
+    position: absolute;
+    inset: -40% -10%;
+    background: linear-gradient(115deg, transparent 38%,
+                rgba(255, 255, 255, 0.1) 50%, transparent 62%);
+    transform: translateX(-18%);
+    animation: od19-sheen 9s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 1;
+}
+@keyframes od19-sheen {
+    0%, 100% { transform: translateX(-18%); opacity: 0.55; }
+    50% { transform: translateX(18%); opacity: 0.9; }
+}
+.od19-hero-scroll {
+    position: absolute;
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%);
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-decoration: none;
+    z-index: 2;
+}
+.od19-hero-scroll i {
+    font-size: 1.5rem;
+    animation: od19-bob 1.8s ease-in-out infinite;
+}
+.od19-hero-scroll:hover { color: #fff; }
+@keyframes od19-bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(6px); }
+}
+@media (max-width: 767.98px) {
+    .od19-hero-scroll { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .od19-hero-sheen,
+    .od19-hero-scroll i { animation: none; }
+}
+
 /* Cards: soft glass edge + layered shadow for depth */
 .od19-cap-card,
 .od19-service-card,

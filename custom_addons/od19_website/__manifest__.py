@@ -45,6 +45,7 @@
     "assets": {
         "web.assets_frontend": [
             "od19_website/static/src/css/od19_website.css",
+            "od19_website/static/src/js/od19_home.js",
             "od19_website/static/src/js/od19_products.js",
             "od19_website/static/src/js/od19_portal_rooms.js",
             "od19_website/static/src/js/od19_approval_badge.js",
