@@ -747,3 +747,37 @@ class TestCapabilityMode(TransactionCase):
         )
         self.assertNotIn("secret", str(log.arguments))
         self.assertIn("ok", str(log.arguments))
+
+    def test_sanitize_rejects_relational_field(self):
+        from odoo.addons.od19_ai_assistant.lib import orm_guard
+
+        self.params.set_param("od19_ai.draft_models", "res.partner")
+        with self.assertRaises(orm_guard.OrmGuardError):
+            self.capability._sanitize_values(
+                "res.partner", {"name": "x", "bank_ids": [(2, 1)]}
+            )
+
+    def test_audit_log_redacts_nested_secrets(self):
+        redacted = self.capability._redact_arguments(
+            {
+                "model": "res.partner",
+                "values": {"password": "s3cr3t", "keyword": "ok"},
+            }
+        )
+        self.assertIn("res.partner", str(redacted))
+        self.assertNotIn("s3cr3t", str(redacted))
+        self.assertIn("ok", str(redacted))
+
+    def test_audit_log_redacts_key_variants(self):
+        redacted = self.capability._redact_arguments(
+            {
+                "apikey": "A1",
+                "clientsecret": "B2",
+                "passwd": "C3",
+                "keyword": "keepme",
+            }
+        )
+        self.assertEqual(redacted["apikey"], "***")
+        self.assertEqual(redacted["clientsecret"], "***")
+        self.assertEqual(redacted["passwd"], "***")
+        self.assertEqual(redacted["keyword"], "keepme")

@@ -10,7 +10,6 @@ for whitelisted models, and always forces a non-posting ``draft`` state.
 
 import json
 import logging
-import time
 
 from odoo import api, models
 from odoo.exceptions import UserError
@@ -24,6 +23,18 @@ DRAFT_MARKER = "__OD19_DRAFT__"
 
 #: Secret-ish argument keys that must never reach the audit log.
 REDACTED_KEYS = ("password", "api_key", "token", "secret", "key")
+
+#: Substrings that mark an argument key as secret-ish even without separators.
+REDACTED_SUBSTRINGS = (
+    "password",
+    "passwd",
+    "secret",
+    "token",
+    "credential",
+    "apikey",
+    "api_key",
+    "pwd",
+)
 
 #: Fields the AI may never set on a draft.
 FORBIDDEN_FIELDS = frozenset(
@@ -135,6 +146,10 @@ class Od19AiCapability(models.AbstractModel):
                 raise orm_guard.OrmGuardError(
                     'ไม่พบฟิลด์ "%s" ในโมเดล %s' % (field_name, model_name)
                 )
+            if field.type in ("one2many", "many2many"):
+                raise orm_guard.OrmGuardError(
+                    'ไม่อนุญาตให้ตั้งค่าฟิลด์เชิงสัมพันธ์ "%s"' % field_name
+                )
             cleaned[field_name] = value
         state_field = model._fields.get("state")
         if state_field and state_field.type == "selection":
@@ -147,20 +162,32 @@ class Od19AiCapability(models.AbstractModel):
     # Audit
     # ------------------------------------------------------------------
     @api.model
+    def _is_secret_key(self, key):
+        """True when an argument key looks secret-ish (variant tolerant)."""
+        lowered = str(key).lower()
+        if lowered in REDACTED_KEYS or lowered in REDACTED_SUBSTRINGS:
+            return True
+        if any(marker in lowered for marker in REDACTED_SUBSTRINGS):
+            return True
+        # Split on separators so ``api_key`` matches the ``key`` token while
+        # ``keyword`` does not.
+        tokens = lowered.replace("-", "_").split("_")
+        return any(token in REDACTED_KEYS for token in tokens)
+
+    @api.model
     def _redact_arguments(self, arguments):
-        if not isinstance(arguments, dict):
-            return {}
-        redacted = {}
-        for key, value in arguments.items():
-            lowered = key.lower()
-            tokens = lowered.replace("-", "_").split("_")
-            if lowered in REDACTED_KEYS or any(
-                token in REDACTED_KEYS for token in tokens
-            ):
-                redacted[key] = "***"
-            else:
-                redacted[key] = value
-        return redacted
+        if isinstance(arguments, dict):
+            return {
+                key: (
+                    "***"
+                    if self._is_secret_key(key)
+                    else self._redact_arguments(value)
+                )
+                for key, value in arguments.items()
+            }
+        if isinstance(arguments, (list, tuple)):
+            return [self._redact_arguments(item) for item in arguments]
+        return arguments
 
     @api.model
     def log_call(
