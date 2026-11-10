@@ -18,6 +18,9 @@
                         <field name="od19_confidentiality"/>
                         <field name="od19_source_ref"/>
                         <field name="od19_duplicate_count"/>
+                        <field name="od19_retention_policy_id"/>
+                        <field name="od19_retention_until"/>
+                        <field name="od19_legal_hold"/>
                     </group>
                 </group>
             </xpath>

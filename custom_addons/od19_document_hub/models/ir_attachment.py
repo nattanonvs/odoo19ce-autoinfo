@@ -68,6 +68,7 @@ class IrAttachment(models.Model):
     )
 
     _od19_name_trgm = models.Index("USING gin (name gin_trgm_ops)")
+    _od19_checksum_idx = models.Index("(checksum)")
 
     @api.depends(
         "od19_doc_date",

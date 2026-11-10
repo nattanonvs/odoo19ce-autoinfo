@@ -3,6 +3,8 @@
 
 import base64
 
+from psycopg2 import IntegrityError
+
 from odoo.tests.common import TransactionCase, tagged
 
 
@@ -29,7 +31,7 @@ class TestDocumentExtract(TransactionCase):
         self.env["od19.document.extract"].create({
             "attachment_id": att.id, "text_content": "x",
         })
-        with self.assertRaises(Exception):
+        with self.assertRaises(IntegrityError):
             with self.cr.savepoint():
                 self.env["od19.document.extract"].create({
                     "attachment_id": att.id, "text_content": "y",
@@ -43,7 +45,20 @@ class TestDocumentExtract(TransactionCase):
         found = self.env["od19.document.extract"].search([
             ("text_content", "ilike", "ค่าบริการ"),
         ])
-        self.assertTrue(found)
+        self.assertEqual(len(found), 1)
+
+    def test_trigram_index_created(self):
+        if not self.registry.has_trigram:
+            self.skipTest("pg_trgm extension is required for trigram indexes")
+        self.env.cr.execute("""
+            SELECT am.amname
+              FROM pg_class idx
+              JOIN pg_am am ON am.oid = idx.relam
+             WHERE idx.relname = 'od19_document_extract_content_trgm'
+        """)
+        row = self.env.cr.fetchone()
+        self.assertIsNotNone(row, "ต้องมีดัชนี trigram บน text_content")
+        self.assertEqual(row[0], "gin")
 
     def test_cascade_delete(self):
         att = self._make_attachment()

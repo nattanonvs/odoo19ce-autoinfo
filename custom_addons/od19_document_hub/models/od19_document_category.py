@@ -1,8 +1,7 @@
 # Copyright 2026 TRAE
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
 
-from odoo import _, api, fields, models
-from odoo.exceptions import ValidationError
+from odoo import api, fields, models
 
 
 class Od19DocumentCategory(models.Model):
@@ -46,25 +45,3 @@ class Od19DocumentCategory(models.Model):
                 )
             else:
                 category.complete_name = category.name
-
-    @api.constrains("parent_id")
-    def _check_parent_recursion(self):
-        if self._has_cycle():
-            raise ValidationError(
-                _("ไม่สามารถตั้งหมวดแม่ให้เป็นหมวดลูกของตัวเองได้")
-            )
-
-    def write(self, vals):
-        if vals.get("parent_id"):
-            parent = self.browse(vals["parent_id"])
-            ancestors = {
-                int(label)
-                for label in (parent.parent_path or "").split("/")
-                if label
-            }
-            for category in self:
-                if parent == category or category.id in ancestors:
-                    raise ValidationError(
-                        _("ไม่สามารถตั้งหมวดแม่ให้เป็นหมวดลูกของตัวเองได้")
-                    )
-        return super().write(vals)

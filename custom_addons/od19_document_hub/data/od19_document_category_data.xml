@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<odoo noupdate="1">
     <record id="cat_purchase" model="od19.document.category">
         <field name="name">จัดซื้อ</field>
         <field name="code">PUR</field>

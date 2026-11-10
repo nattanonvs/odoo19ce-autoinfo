@@ -35,4 +35,4 @@ class TestAttachmentMetadata(TransactionCase):
         a1 = self.env["ir.attachment"].create({"name": "d1.txt", "datas": payload})
         a2 = self.env["ir.attachment"].create({"name": "d2.txt", "datas": payload})
         self.assertEqual(a1.checksum, a2.checksum)
-        self.assertTrue(a1.od19_duplicate_count >= 1)
+        self.assertEqual(a1.od19_duplicate_count, 1)
