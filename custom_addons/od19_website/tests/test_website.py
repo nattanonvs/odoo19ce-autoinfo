@@ -326,3 +326,65 @@ class TestHomepageSP3(HttpCase):
         ):
             self.assertIn('id="%s"' % anchor, html, "missing anchor #%s" % anchor)
 
+
+@tagged("post_install", "-at_install")
+class TestProductsServicesSP4(HttpCase):
+    """SP4: products catalog and service pages share one content source."""
+
+    def test_catalog_is_single_source_of_truth(self):
+        """The catalog lives on the website model and covers three domains."""
+        products = self.env["website"].od19_products()
+        self.assertEqual(len(products), 25)
+        by_dept = {}
+        for product in products:
+            by_dept[product["dept"]] = by_dept.get(product["dept"], 0) + 1
+        self.assertEqual(by_dept, {"industrial": 9, "building": 8, "terminal": 8})
+
+    def test_products_page_shows_filter_counts(self):
+        """Each filter pill is labelled with the live number of products."""
+        html = self.url_open("/products").text
+        self.assertEqual(html.count("od19-pc-count"), 4)
+        for count in ("25", "9", "8"):
+            self.assertIn(
+                'class="od19-pc-count">%s<' % count,
+                html,
+                "missing filter count %s" % count,
+            )
+
+    def test_products_page_links_to_service_pages(self):
+        """Every department links through to its service page."""
+        html = self.url_open("/products").text
+        for url in (
+            "/industrial-automation",
+            "/building-automation",
+            "/terminal-automation",
+        ):
+            self.assertIn('href="%s"' % url, html, "missing cross-link to %s" % url)
+        self.assertEqual(html.count("od19-pc-dept-link"), 3)
+
+    def test_products_hero_stats_reflect_catalog(self):
+        """Hero stats are derived from the catalog, not hard-coded."""
+        html = self.url_open("/products").text
+        self.assertIn("25+", html)
+        self.assertIn("<span>Product Brands</span>", html)
+        self.assertNotIn("Global Brands", html)
+
+    def test_service_pages_have_related_products(self):
+        """Each service page cross-links back to the shared catalog."""
+        for path in (
+            "/industrial-automation",
+            "/building-automation",
+            "/terminal-automation",
+        ):
+            html = self.url_open(path).text
+            self.assertGreaterEqual(
+                html.count("od19-rel-card"),
+                4,
+                "%s must show at least four related products" % path,
+            )
+            self.assertIn(
+                'href="/products"',
+                html,
+                "%s must link back to the catalog" % path,
+            )
+
