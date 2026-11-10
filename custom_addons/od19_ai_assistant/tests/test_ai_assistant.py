@@ -950,10 +950,20 @@ class TestPerformanceGuards(TransactionCase):
             {"model": "res.partner", "fields": ["name"], "limit": 999},
         )
         lines = [line for line in result.splitlines() if line.startswith("- ")]
+        self.assertGreaterEqual(len(lines), 1)
         self.assertLessEqual(len(lines), 20)
 
     def test_prompt_index_is_bounded(self):
         tool_model = self.env["od19.ai.tool"]
-        self.assertLessEqual(
-            len(tool_model.prompt_index()), tool_model.MAX_INDEX_CHARS
-        )
+        fake_tools = [
+            {"name": "fake_tool_%03d" % i, "description": "description %03d" % i}
+            for i in range(400)
+        ]
+        with patch.object(
+            type(tool_model), "available_tools", return_value=fake_tools
+        ):
+            index = tool_model.prompt_index()
+        # Force the budget branch so the guard is not vacuously true: the index
+        # must stay within the cap *and* actually drop tools.
+        self.assertLessEqual(len(index), tool_model.MAX_INDEX_CHARS)
+        self.assertLess(len(index.splitlines()), len(fake_tools))
