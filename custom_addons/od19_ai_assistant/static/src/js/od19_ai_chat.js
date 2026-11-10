@@ -72,6 +72,7 @@ export class Od19AiChatAction extends Component {
         this.state.error = "";
         this.state.streamText = "";
         this.state.toolChips = [];
+        this.state.pendingDraft = null;
         await this.loadMessages(chatId);
         this.scrollToBottom();
     }
@@ -86,6 +87,7 @@ export class Od19AiChatAction extends Component {
         this.state.toolChips = [];
         this.state.error = "";
         this.state.draft = "";
+        this.state.pendingDraft = null;
     }
 
     async deleteChat(chatId) {
