@@ -712,6 +712,24 @@ class TestCapabilityMode(TransactionCase):
         self.capability.preview_draft("res.partner", {"name": "พรีวิว"})
         self.assertEqual(self.env["res.partner"].search_count([]), before)
 
+    def test_preview_values_preserve_types(self):
+        # Regression: ``preview_draft`` must not stringify values, otherwise the
+        # 2-step round-trip (preview -> UI -> confirm) corrupts booleans
+        # (False -> "False" -> True) and silently drops many2one ids (a str is
+        # not a valid cache id, so it becomes None).
+        self.params.set_param("od19_ai.capability_mode", "read_draft")
+        self.params.set_param("od19_ai.draft_models", "res.partner")
+        parent = self.env["res.partner"].create({"name": "ผู้ปกครอง"})
+        preview = self.capability.preview_draft(
+            "res.partner",
+            {"name": "ร่างลูกค้า", "active": False, "parent_id": parent.id},
+        )
+        self.assertIs(preview["values"]["active"], False)
+        self.assertEqual(preview["values"]["parent_id"], parent.id)
+        record = self.capability.create_draft("res.partner", preview["values"])
+        self.assertFalse(record.active)
+        self.assertEqual(record.parent_id, parent)
+
     def test_draft_record_tool_returns_marker(self):
         self.params.set_param("od19_ai.capability_mode", "read_draft")
         self.params.set_param("od19_ai.draft_models", "res.partner")

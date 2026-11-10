@@ -110,10 +110,14 @@ class Od19AiCapability(models.AbstractModel):
         if model_name not in self._draft_whitelist():
             raise UserError("โมเดล %s ไม่อยู่ในรายการที่อนุญาต" % model_name)
         cleaned = self._sanitize_values(model_name, values)
+        # Keep native types: these values round-trip through the chat UI and
+        # are handed straight back to ``create_draft``. Stringifying them would
+        # corrupt booleans (``False`` -> ``"False"`` -> ``True``) and silently
+        # drop many2one ids (a ``str`` is not a valid cache id -> ``None``).
         return {
             "model": model_name,
             "model_label": self.env[model_name]._description or model_name,
-            "values": {key: str(value) for key, value in cleaned.items()},
+            "values": cleaned,
         }
 
     @api.model
