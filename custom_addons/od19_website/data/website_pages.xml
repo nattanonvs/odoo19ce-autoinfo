@@ -56,4 +56,20 @@
         <field name="is_published" eval="True"/>
     </record>
 
+    <record id="quality_page" model="website.page">
+        <field name="name">Quality &amp; Certifications</field>
+        <field name="url">/quality-certifications</field>
+        <field name="view_id" ref="od19_quality_page"/>
+        <field name="website_id" ref="website.default_website"/>
+        <field name="is_published" eval="True"/>
+    </record>
+
+    <record id="portfolio_page" model="website.page">
+        <field name="name">References</field>
+        <field name="url">/portfolio</field>
+        <field name="view_id" ref="od19_portfolio_page"/>
+        <field name="website_id" ref="website.default_website"/>
+        <field name="is_published" eval="True"/>
+    </record>
+
 </odoo>

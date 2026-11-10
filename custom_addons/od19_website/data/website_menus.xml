@@ -56,12 +56,28 @@
         <field name="sequence" eval="30"/>
     </record>
 
+    <record id="menu_quality" model="website.menu">
+        <field name="name">Quality</field>
+        <field name="url">/quality-certifications</field>
+        <field name="website_id" ref="website.default_website"/>
+        <field name="parent_id" ref="website.main_menu"/>
+        <field name="sequence" eval="35"/>
+    </record>
+
     <record id="menu_about" model="website.menu">
         <field name="name">About</field>
         <field name="url">/about-us</field>
         <field name="website_id" ref="website.default_website"/>
         <field name="parent_id" ref="website.main_menu"/>
         <field name="sequence" eval="40"/>
+    </record>
+
+    <record id="menu_portfolio" model="website.menu">
+        <field name="name">References</field>
+        <field name="url">/portfolio</field>
+        <field name="website_id" ref="website.default_website"/>
+        <field name="parent_id" ref="website.main_menu"/>
+        <field name="sequence" eval="42"/>
     </record>
 
     <record id="menu_careers" model="website.menu">

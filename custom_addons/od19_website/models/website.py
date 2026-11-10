@@ -44,6 +44,152 @@ OD19_PRODUCT_CATALOG = [
     {"dept": "terminal", "brand": "Emerson Rosemount", "name": "Radar Level Gauge", "desc": "Non-contact radar level measurement for accurate inventory with zero maintenance.", "specs": ["Non-contact", "High accuracy", "Retrofit ready"], "img": "terminal-radar-gauge.jpg"},
 ]
 
+# Trust signals (SP5).  Rendered on /quality-certifications.  The certification
+# body, certificate number and expiry date are *not* hard-coded here: they live
+# on res.company so the real values can be maintained from the backend and the
+# page only shows them when they are set.
+OD19_CERTIFICATIONS = [
+    {
+        "key": "iso9001",
+        "icon": "fa-certificate",
+        "title": "ISO 9001:2015",
+        "subtitle": "Quality Management System",
+        "status": "certified",
+        "status_label": "Certified",
+        "desc": "Our quality management system is certified to ISO 9001:2015, covering "
+                "project delivery, engineering, service and procurement.",
+        "points": [
+            "Annual surveillance and re-certification audits",
+            "Documented quality procedures and project records",
+            "Customer feedback and corrective-action process",
+        ],
+    },
+    {
+        "key": "iso14001",
+        "icon": "fa-leaf",
+        "title": "ISO 14001",
+        "subtitle": "Environmental Management System",
+        "status": "in_progress",
+        "status_label": "Preparing",
+        "desc": "We are preparing our environmental management system for ISO 14001 "
+                "certification as part of our sustainability roadmap.",
+        "points": [
+            "Environmental aspects and impacts review",
+            "Waste, energy and emissions controls",
+            "Planned certification audit",
+        ],
+    },
+    {
+        "key": "gmp",
+        "icon": "fa-flask",
+        "title": "GMP",
+        "subtitle": "Good Manufacturing Practice",
+        "status": "compliant",
+        "status_label": "Compliant",
+        "desc": "Our building automation solutions for life-science facilities are "
+                "designed, installed and documented to GMP requirements.",
+        "points": [
+            "Clean-room and HVAC qualification support",
+            "Documented installation and commissioning records",
+            "Change control under GMP procedures",
+        ],
+    },
+    {
+        "key": "csv",
+        "icon": "fa-check-square-o",
+        "title": "CSV",
+        "subtitle": "Computer System Validation",
+        "status": "compliant",
+        "status_label": "Compliant",
+        "desc": "We deliver computer system validation documentation aligned with "
+                "GAMP 5 for regulated automation systems.",
+        "points": [
+            "Validation master plan and risk assessment",
+            "IQ / OQ / PQ protocols and reports",
+            "Audit trail and data-integrity controls",
+        ],
+    },
+]
+
+OD19_ACCREDITATIONS = [
+    "ISO 9001:2015",
+    "ISO 14001 (preparing)",
+    "GMP",
+    "GAMP 5 / CSV",
+    "IEC 61131-3",
+    "IEC 62443",
+    "ISO 50001",
+]
+
+# Illustrative project references (SP5).  Customer names are intentionally not
+# published; each entry describes the sector and the delivered scope.  Replace
+# with the real reference list before go-live.
+OD19_PROJECT_REFERENCES = [
+    {
+        "sector": "industrial", "year": "2024",
+        "title": "Petrochemical plant — SCADA centralisation",
+        "scope": "Legacy controller migration with centralised SCADA, historian and alarm management.",
+        "detail": "Multi-rack migration executed during planned shutdowns with no production loss.",
+        "img": "content/industrial.jpg",
+    },
+    {
+        "sector": "industrial", "year": "2024",
+        "title": "Manufacturing line — control panel retrofit",
+        "scope": "Custom control panels, variable-speed drives and safety interlock integration.",
+        "detail": "Panel design, wiring and factory acceptance testing delivered as a single package.",
+        "img": "products/industrial-control-panel.jpg",
+    },
+    {
+        "sector": "industrial", "year": "2023",
+        "title": "Process plant — pressure and flow instrumentation",
+        "scope": "Rosemount transmitters and Micro Motion Coriolis meters with HART integration.",
+        "detail": "Calibrated, loop-tested and documented instrumentation for custody-transfer metering.",
+        "img": "products/industrial-rosemount-pressure.jpg",
+    },
+    {
+        "sector": "building", "year": "2024",
+        "title": "Life-science facility — HVAC and clean-room control",
+        "scope": "GMP HVAC control, room pressure cascade and continuous environmental monitoring.",
+        "detail": "Qualified installation with documented differential-pressure and air-change verification.",
+        "img": "content/building.jpg",
+    },
+    {
+        "sector": "building", "year": "2023",
+        "title": "Pharmaceutical plant — CSV validation package",
+        "scope": "Validation master plan, IQ / OQ / PQ protocols and audit-trail configuration.",
+        "detail": "Inspection-ready documentation handed over with traceability matrix and training records.",
+        "img": "products/building-cleanroom-control.jpg",
+    },
+    {
+        "sector": "building", "year": "2022",
+        "title": "Office tower — energy management system",
+        "scope": "Sub-metering, KPI dashboards and reporting aligned to ISO 50001 practice.",
+        "detail": "Measurable reduction in common-area energy consumption after commissioning.",
+        "img": "products/building-energy-management.jpg",
+    },
+    {
+        "sector": "terminal", "year": "2024",
+        "title": "Fuel depot — tank gauging and overfill prevention",
+        "scope": "Radar and servo level gauges with an independent SIL-rated overfill protection layer.",
+        "detail": "Independent safety layer commissioned and self-tested alongside the inventory system.",
+        "img": "products/terminal-radar-gauge.jpg",
+    },
+    {
+        "sector": "terminal", "year": "2023",
+        "title": "Product terminal — loading arm and batch control",
+        "scope": "Loading arm and metering skid with batch controller and access-control integration.",
+        "detail": "Automated tanker load-out with metering, vapour recovery and driver access control.",
+        "img": "products/terminal-loading-arm-skid.jpg",
+    },
+    {
+        "sector": "terminal", "year": "2022",
+        "title": "Tank farm — integrated terminal management",
+        "scope": "Terminal management system with inventory, reconciliation and business integration.",
+        "detail": "Order-to-load workflow integrated with the customer's commercial systems.",
+        "img": "products/terminal-tms.jpg",
+    },
+]
+
 
 class Website(models.Model):
     _inherit = "website"
@@ -52,6 +198,21 @@ class Website(models.Model):
     def od19_products(self):
         """Return the shared product catalog (see OD19_PRODUCT_CATALOG)."""
         return OD19_PRODUCT_CATALOG
+
+    @api.model
+    def od19_certifications(self):
+        """Return the trust / certification list (see OD19_CERTIFICATIONS)."""
+        return OD19_CERTIFICATIONS
+
+    @api.model
+    def od19_accreditations(self):
+        """Return the standards and frameworks the team works to."""
+        return OD19_ACCREDITATIONS
+
+    @api.model
+    def od19_projects(self):
+        """Return the project references (see OD19_PROJECT_REFERENCES)."""
+        return OD19_PROJECT_REFERENCES
 
     @api.model
     def od19_setup_website(self):

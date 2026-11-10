@@ -197,6 +197,14 @@
                             <span class="od19-partner-chip">Honeywell</span>
                             <span class="od19-partner-chip">ABB</span>
                         </div>
+                        <div class="od19-pf-more">
+                            <a href="/quality-certifications" class="btn btn-hero">
+                                Quality &amp; Certifications <i class="fa fa-arrow-right"/>
+                            </a>
+                            <a href="/portfolio" class="btn btn-outline-primary">
+                                Project References <i class="fa fa-arrow-right"/>
+                            </a>
+                        </div>
                     </div>
                 </section>
 

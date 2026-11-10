@@ -26,6 +26,8 @@
         "views/homepage.xml",
         "views/services_pages.xml",
         "views/products_page.xml",
+        "views/quality_page.xml",
+        "views/portfolio_page.xml",
         "views/about_page.xml",
         "views/careers_pages.xml",
         "views/blog_pages.xml",

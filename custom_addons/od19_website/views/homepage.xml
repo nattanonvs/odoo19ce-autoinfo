@@ -188,21 +188,33 @@
                     </div>
                 </section>
 
-                <!-- Partners -->
+                <!-- Quality & Certifications (SP5: trust band linking to the
+                     dedicated quality + references pages) -->
                 <section id="partners" class="od19-section pt-0">
                     <div class="container">
                         <div class="od19-section-title">
-                            <h2>Technology Partners</h2>
+                            <h2>Quality &amp; Certifications</h2>
                             <div class="od19-divider"/>
+                            <p class="od19-pf-sub">Certified quality management and regulated-environment
+                               compliance — backed by world-class technology partners.</p>
                         </div>
                         <div class="od19-partner-strip">
+                            <span class="od19-partner-chip"><i class="fa fa-certificate"/> ISO 9001:2015</span>
+                            <span class="od19-partner-chip"><i class="fa fa-leaf"/> ISO 14001</span>
+                            <span class="od19-partner-chip"><i class="fa fa-flask"/> GMP</span>
+                            <span class="od19-partner-chip"><i class="fa fa-check-square-o"/> CSV</span>
                             <span class="od19-partner-chip">Schneider Electric</span>
                             <span class="od19-partner-chip">Siemens</span>
                             <span class="od19-partner-chip">Emerson</span>
                             <span class="od19-partner-chip">Honeywell</span>
-                            <span class="od19-partner-chip">ABB</span>
-                            <span class="od19-partner-chip">ISO 9001</span>
-                            <span class="od19-partner-chip">GMP / CSV</span>
+                        </div>
+                        <div class="od19-pf-more">
+                            <a href="/quality-certifications" class="btn btn-hero">
+                                Quality &amp; Certifications <i class="fa fa-arrow-right"/>
+                            </a>
+                            <a href="/portfolio" class="btn btn-outline-primary">
+                                Project References <i class="fa fa-arrow-right"/>
+                            </a>
                         </div>
                     </div>
                 </section>

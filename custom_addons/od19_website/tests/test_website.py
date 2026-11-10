@@ -266,6 +266,8 @@ class TestNavigationIA(HttpCase):
             "/terminal-automation",
             "/products",
             "/about-us",
+            "/quality-certifications",
+            "/portfolio",
         ):
             html = self.url_open(path).text
             self.assertIn(
@@ -386,5 +388,100 @@ class TestProductsServicesSP4(HttpCase):
                 'href="/products"',
                 html,
                 "%s must link back to the catalog" % path,
+            )
+
+
+@tagged("post_install", "-at_install")
+class TestTrustReferencesSP5(HttpCase):
+    """SP5: quality-certifications and portfolio share one content source."""
+
+    def test_trust_content_is_single_source_of_truth(self):
+        """Certifications and references both live on the website model."""
+        certs = self.env["website"].od19_certifications()
+        self.assertEqual(
+            [c["key"] for c in certs],
+            ["iso9001", "iso14001", "gmp", "csv"],
+        )
+
+        projects = self.env["website"].od19_projects()
+        self.assertEqual(len(projects), 9)
+        by_sector = {}
+        for project in projects:
+            by_sector[project["sector"]] = by_sector.get(project["sector"], 0) + 1
+        self.assertEqual(by_sector, {"industrial": 3, "building": 3, "terminal": 3})
+
+    def test_quality_page_renders_certifications(self):
+        """/quality-certifications shows every certificate with a status badge."""
+        html = self.url_open("/quality-certifications").text
+        self.assertGreaterEqual(html.count("od19-cert-card"), 4)
+        self.assertIn("ISO 9001:2015", html)
+        self.assertIn("ISO 14001", html)
+        # Status badges are driven by each certificate's status field.
+        self.assertIn("od19-cert-certified", html)
+        self.assertIn("od19-cert-in_progress", html)
+        self.assertEqual(
+            html.count("od19-accred-chip"),
+            len(self.env["website"].od19_accreditations()),
+        )
+
+    def test_quality_page_shows_configured_certificate(self):
+        """Certificate body / number appear only once set in the backend."""
+        company = self.env["website"].get_current_website().company_id
+        company.write({
+            "od19_website_cert_body": "SGS (Thailand) Ltd.",
+            "od19_website_cert_no": "TH-QM-12345",
+        })
+        # The page response is cached for anonymous visitors for an hour and a
+        # company write does not invalidate that cache, so drop it before each
+        # fetch to observe the current backend values.
+        self.env.registry.clear_cache()
+        html = self.url_open("/quality-certifications").text
+        self.assertIn("od19-cert-body", html)
+        self.assertIn("SGS (Thailand) Ltd.", html)
+        self.assertIn("od19-cert-no", html)
+        self.assertIn("TH-QM-12345", html)
+
+        # With no certificate on file the page invites the visitor to ask.
+        company.write({
+            "od19_website_cert_body": False,
+            "od19_website_cert_no": False,
+            "od19_website_cert_valid_until": False,
+        })
+        self.env.registry.clear_cache()
+        html = self.url_open("/quality-certifications").text
+        self.assertIn("od19-cert-request", html)
+
+    def test_portfolio_page_renders_grid_and_filter(self):
+        """/portfolio shows the reference grid with a live sector filter."""
+        html = self.url_open("/portfolio").text
+        self.assertEqual(html.count("od19-proj-card"), 9)
+        self.assertEqual(html.count("od19-pc-pill"), 4)
+        self.assertEqual(html.count("od19-pc-count"), 4)
+        for count in ("9", "3"):
+            self.assertIn(
+                'class="od19-pc-count">%s<' % count,
+                html,
+                "missing filter count %s" % count,
+            )
+        for sector in ("industrial", "building", "terminal"):
+            self.assertEqual(
+                html.count('data-dept="%s"' % sector),
+                3,
+                "sector %s must list three references" % sector,
+            )
+
+    def test_new_pages_are_linked_from_home_about_and_footer(self):
+        """Home, About and the footer all link to the two new trust pages."""
+        for path in ("/", "/about-us"):
+            html = self.url_open(path).text
+            self.assertIn(
+                'href="/quality-certifications"',
+                html,
+                "%s must link to the quality page" % path,
+            )
+            self.assertIn(
+                'href="/portfolio"',
+                html,
+                "%s must link to the references page" % path,
             )
 
