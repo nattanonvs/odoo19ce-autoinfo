@@ -8,5 +8,6 @@ from . import od19_ai_message
 from . import od19_ai_chat
 from . import od19_ai_tool_log
 from . import od19_ai_capability
+from . import od19_ai_provider
 from . import res_config_settings
 from . import res_users

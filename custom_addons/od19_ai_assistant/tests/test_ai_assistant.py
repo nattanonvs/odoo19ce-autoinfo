@@ -831,3 +831,24 @@ class TestCapabilitySettings(TransactionCase):
         self.assertEqual(
             self.env["od19.ai.capability"].capability_mode(user), "read_only"
         )
+
+
+@tagged("post_install", "-at_install")
+class TestExternalProvider(TransactionCase):
+    def setUp(self):
+        super().setUp()
+        self.params = self.env["ir.config_parameter"].sudo()
+        self.params.search([("key", "=", "od19_ai.external_enabled")]).unlink()
+
+    def test_disabled_by_default(self):
+        provider = self.env["od19.ai.provider"]
+        self.assertFalse(provider.enabled())
+        self.assertEqual(provider.list_tools(), [])
+
+    def test_execute_reports_disabled(self):
+        result = self.env["od19.ai.provider"].execute("web_search", {})
+        self.assertIn("ยังไม่เปิดใช้งาน", result)
+
+    def test_enabled_flag_reads_parameter(self):
+        self.params.set_param("od19_ai.external_enabled", "1")
+        self.assertTrue(self.env["od19.ai.provider"].enabled())
