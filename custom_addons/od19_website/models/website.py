@@ -191,6 +191,22 @@ OD19_PROJECT_REFERENCES = [
 ]
 
 
+# Enquiry types offered by the RFQ form on /contactus (SP6).  Each type is
+# routed to a sales team (matched by name, ignored when no such team exists)
+# and labelled with a CRM tag so the sales desk can filter requests at a
+# glance.  This is the single source used by both the form and the routing
+# performed in models/crm_lead.py.
+OD19_ENQUIRY_TYPES = [
+    {"key": "quotation", "label": "Request a Quotation", "team": "Sales", "tag": "Website: Quotation"},
+    {"key": "product", "label": "Product Information", "team": "Sales", "tag": "Website: Product Info"},
+    {"key": "service", "label": "Service & Maintenance", "team": "Service", "tag": "Website: Service"},
+    {"key": "spare_part", "label": "Spare Parts", "team": "Sales", "tag": "Website: Spare Parts"},
+    {"key": "certificate", "label": "Certificate Copy Request", "team": "Sales", "tag": "Website: Certificate"},
+    {"key": "career", "label": "Careers", "team": "Sales", "tag": "Website: Careers"},
+    {"key": "other", "label": "Other Enquiry", "team": "Sales", "tag": "Website: Other"},
+]
+
+
 class Website(models.Model):
     _inherit = "website"
 
@@ -198,6 +214,11 @@ class Website(models.Model):
     def od19_products(self):
         """Return the shared product catalog (see OD19_PRODUCT_CATALOG)."""
         return OD19_PRODUCT_CATALOG
+
+    @api.model
+    def od19_enquiry_types(self):
+        """Return the RFQ enquiry types (see OD19_ENQUIRY_TYPES)."""
+        return OD19_ENQUIRY_TYPES
 
     @api.model
     def od19_certifications(self):

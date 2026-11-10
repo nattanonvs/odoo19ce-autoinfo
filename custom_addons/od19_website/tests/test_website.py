@@ -485,3 +485,90 @@ class TestTrustReferencesSP5(HttpCase):
                 "%s must link to the references page" % path,
             )
 
+
+@tagged("post_install", "-at_install")
+class TestContactRFQSP6(HttpCase):
+    """SP6: the contact page posts a real crm.lead and is routed by enquiry."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        # A "Service" team does not exist on a fresh database; create one so the
+        # enquiry -> team routing can be asserted end to end.
+        cls.service_team = cls.env["crm.team"].create({"name": "Service"})
+
+    def test_enquiry_types_are_single_source_of_truth(self):
+        """The RFQ enquiry types live on the website model."""
+        types = self.env["website"].od19_enquiry_types()
+        self.assertEqual(len(types), 7)
+        self.assertEqual(
+            [t["key"] for t in types],
+            ["quotation", "product", "service", "spare_part",
+             "certificate", "career", "other"],
+        )
+        for etype in types:
+            self.assertTrue(etype["label"])
+            self.assertTrue(etype["team"])
+            self.assertTrue(etype["tag"])
+
+    def test_contact_page_renders_rfq_form(self):
+        """/contactus exposes the RFQ form that posts to crm.lead."""
+        html = self.url_open("/contactus").text
+        self.assertIn('data-model_name="crm.lead"', html)
+        self.assertIn('data-success-page="/contactus-thank-you"', html)
+        self.assertIn("od19-rfq-form", html)
+        self.assertIn('name="Enquiry Type"', html)
+        self.assertIn('name="Product of Interest"', html)
+        for etype in self.env["website"].od19_enquiry_types():
+            self.assertIn(etype["label"], html)
+        for product in self.env["website"].od19_products():
+            self.assertIn(product["name"], html)
+
+    def test_rfq_creates_lead_and_routes_by_enquiry(self):
+        """Posting the RFQ creates a crm.lead routed to the matching team/tag."""
+        self.authenticate(None, None)
+        response = self.url_open("/website/form/crm.lead", data={
+            "contact_name": "Somchai Jaidee",
+            "partner_name": "ACME Manufacturing",
+            "email_from": "somchai@acme.co.th",
+            "phone": "+66 81 234 5678",
+            "Enquiry Type": "service",
+            "Product of Interest": "Modicon M580",
+            "description": "Please quote a preventive-maintenance contract.",
+            "PDPA Consent": "yes",
+            "csrf_token": http.Request.csrf_token(self),
+        })
+        lead_id = response.json().get("id")
+        self.assertTrue(lead_id, "the RFQ must create a crm.lead")
+
+        lead = self.env["crm.lead"].sudo().browse(lead_id)
+        self.assertTrue(lead.exists())
+        self.assertEqual(lead.contact_name, "Somchai Jaidee")
+        self.assertEqual(lead.email_from, "somchai@acme.co.th")
+        self.assertEqual(lead.team_id, self.service_team)
+        self.assertIn("Website: Service", lead.tag_ids.mapped("name"))
+        self.assertIn("Service", lead.name)
+
+    def test_quotation_routes_to_default_sales_team(self):
+        """A quotation enquiry lands on the default 'Sales' team."""
+        self.authenticate(None, None)
+        response = self.url_open("/website/form/crm.lead", data={
+            "contact_name": "Kanya W.",
+            "email_from": "kanya@example.co.th",
+            "Enquiry Type": "quotation",
+            "description": "We need a quotation for a new line.",
+            "csrf_token": http.Request.csrf_token(self),
+        })
+        lead = self.env["crm.lead"].sudo().browse(response.json().get("id"))
+        self.assertTrue(lead.exists())
+        self.assertEqual(lead.team_id.name, "Sales")
+        self.assertIn("Website: Quotation", lead.tag_ids.mapped("name"))
+
+    def test_thank_you_page_shows_auto_info_not_placeholder(self):
+        """/contactus-thank-you shows Auto-Info details, not the Odoo demo data."""
+        html = self.url_open("/contactus-thank-you").text
+        self.assertNotIn("3575 Fake Buena Vista Avenue", html)
+        self.assertNotIn("+1 555-555-5556", html)
+        self.assertIn("1359 Soi Ladprao 94", html)
+        self.assertIn("sales@auto-info.co.th", html)
+

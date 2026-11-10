@@ -2865,6 +2865,61 @@ a.od19-room-tile:focus {
 }
 .od19-proj-detail i { margin-top: 2px; }
 
+/* ---------- SP6: Request-for-Quotation form ---------- */
+.od19-rfq-form {
+    background: #fff;
+    border: 1px solid #efe6e6;
+    border-radius: 20px;
+    padding: 30px 30px 24px;
+    box-shadow: 0 14px 36px rgba(42, 26, 26, 0.06);
+}
+.od19-rfq-form label.s_website_form_label {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #4a4141;
+    margin-bottom: 6px;
+}
+.od19-rfq-form .s_website_form_mark { color: var(--od19-primary); }
+.od19-rfq-form .form-control,
+.od19-rfq-form .form-select {
+    border: 1px solid #e3dada;
+    border-radius: 10px;
+    padding: 10px 12px;
+    background-color: #fff;
+}
+.od19-rfq-form .form-control:focus,
+.od19-rfq-form .form-select:focus {
+    border-color: var(--od19-primary);
+    box-shadow: 0 0 0 0.18rem rgba(158, 36, 36, 0.12);
+    background-color: #fff;
+}
+.od19-rfq-form textarea.form-control { min-height: 150px; resize: vertical; }
+.od19-rfq-consent {
+    background: #fbf8f8;
+    border: 1px solid #ece2e2;
+    border-radius: 14px;
+    padding: 14px 18px;
+}
+.od19-rfq-consent .form-check-label { font-size: 0.9rem; color: #4a4141; }
+.od19-rfq-consent .form-check-input:checked {
+    background-color: var(--od19-primary);
+    border-color: var(--od19-primary);
+}
+.od19-rfq-consent .form-check-input:focus {
+    border-color: var(--od19-primary);
+    box-shadow: 0 0 0 0.18rem rgba(158, 36, 36, 0.12);
+}
+.od19-rfq-submit-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.od19-rfq-submit {
+    border-radius: 40px;
+    padding: 12px 30px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.od19-rfq-form .s_website_form_result { font-weight: 600; }
+.od19-thanks-company { color: var(--od19-primary); font-weight: 700; }
+.od19-thanks-back { border-radius: 40px; padding: 10px 24px; font-weight: 700; }
+
 /* --- Responsive / motion --- */
 @media (max-width: 575.98px) {
     .od19-cert-grid,
