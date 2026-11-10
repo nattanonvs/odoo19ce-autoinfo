@@ -590,3 +590,41 @@ class TestGenericExplorer(TransactionCase):
             {"model": "res.partner", "aggregates": ["id:median"]},
         )
         self.assertIn("ไม่ได้รับอนุญาต", result)
+
+
+@tagged("post_install", "-at_install")
+class TestCapabilityIndex(TransactionCase):
+    def test_prompt_index_lists_tools_without_schemas(self):
+        index = self.env["od19.ai.tool"].prompt_index()
+        self.assertIn("search_partners", index)
+        self.assertIn("search_records", index)
+        # Argument schemas must NOT be inlined in the index.
+        self.assertNotIn("จำนวนผลสูงสุด", index)
+
+    def test_prompt_index_respects_char_budget(self):
+        index = self.env["od19.ai.tool"].prompt_index()
+        self.assertLessEqual(
+            len(index), self.env["od19.ai.tool"].MAX_INDEX_CHARS
+        )
+
+    def test_tool_help_returns_argument_schema(self):
+        help_text = self.env["od19.ai.tool"].execute(
+            "tool_help", {"name": "search_records"}
+        )
+        self.assertIn("search_records", help_text)
+        self.assertIn("domain", help_text)
+
+    def test_tool_help_unknown_tool(self):
+        help_text = self.env["od19.ai.tool"].execute(
+            "tool_help", {"name": "no_such_tool"}
+        )
+        self.assertIn("ไม่พบเครื่องมือ", help_text)
+
+    def test_full_schema_returns_arguments(self):
+        schema = self.env["od19.ai.tool"].full_schema("search_partners")
+        self.assertIn("keyword", schema["arguments"])
+
+    def test_system_prompt_uses_index(self):
+        prompt = self.env["od19.ai.chat"]._build_system_prompt("BASE")
+        self.assertIn("tool_help", prompt)
+        self.assertIn("search_partners", prompt)
