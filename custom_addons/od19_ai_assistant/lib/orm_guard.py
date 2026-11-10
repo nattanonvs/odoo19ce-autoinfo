@@ -156,14 +156,19 @@ def validate_aggregates(env, model_name, aggregates):
 
 
 def validate_domain(env, model_name, domain):
-    """Return a safe :class:`~odoo.fields.Domain` or raise :class:`OrmGuardError`."""
-    if isinstance(domain, Domain):
-        return domain
-    if domain is None or domain is False or domain == "" or domain == []:
+    """Return a safe :class:`~odoo.fields.Domain` or raise :class:`OrmGuardError`.
+
+    Callers must pass a legacy token list/tuple (or an empty value). A Domain
+    instance is rejected on purpose so no request can bypass field/operator
+    validation.
+    """
+    if isinstance(domain, (list, tuple)):
+        if not domain:
+            return Domain.TRUE
+        return Domain(_parse_tokens(env, model_name, list(domain)))
+    if domain is None or domain is False or domain == "":
         return Domain.TRUE
-    if not isinstance(domain, (list, tuple)):
-        raise OrmGuardError("โดเมนการค้นหาไม่ถูกต้อง")
-    return Domain(_parse_tokens(env, model_name, list(domain)))
+    raise OrmGuardError("โดเมนการค้นหาไม่ถูกต้อง")
 
 
 def _parse_tokens(env, model_name, tokens):
@@ -185,6 +190,12 @@ def _parse_tokens(env, model_name, tokens):
                 if not isinstance(operator, str) or operator not in SAFE_OPERATORS:
                     raise OrmGuardError(
                         'ตัวดำเนินการ "%s" ไม่ได้รับอนุญาต' % (operator,)
+                    )
+                if operator in ("in", "not in") and not isinstance(
+                    value, (list, tuple)
+                ):
+                    raise OrmGuardError(
+                        'ตัวดำเนินการ "%s" ต้องมีค่าเป็นรายการ' % operator
                     )
                 check_field(env, model_name, field_name)
                 result.append((field_name, operator, value))

@@ -479,3 +479,30 @@ class TestOrmGuard(TransactionCase):
             guard.validate_groupby(
                 self.env, "res.partner", ["create_date:fortnight"]
             )
+
+    def test_validate_domain_accepts_nested_logic(self):
+        guard = self._guard()
+        domain = guard.validate_domain(
+            self.env,
+            "res.partner",
+            ["|", ["name", "=", "nested-a"], ["name", "=", "nested-b"]],
+        )
+        self.env["res.partner"].create({"name": "nested-a"})
+        self.assertTrue(self.env["res.partner"].search_count(domain))
+
+    def test_validate_domain_accepts_in_with_list_value(self):
+        guard = self._guard()
+        domain = guard.validate_domain(self.env, "res.partner", [["id", "in", [1, 2]]])
+        self.assertTrue(self.env["res.partner"].search_count(domain))
+
+    def test_validate_domain_rejects_in_with_non_list_value(self):
+        guard = self._guard()
+        with self.assertRaises(guard.OrmGuardError):
+            guard.validate_domain(self.env, "res.partner", [["id", "in", "abc"]])
+
+    def test_validate_domain_rejects_domain_instance(self):
+        guard = self._guard()
+        from odoo.fields import Domain
+
+        with self.assertRaises(guard.OrmGuardError):
+            guard.validate_domain(self.env, "res.partner", Domain([("name", "=", "x")]))
