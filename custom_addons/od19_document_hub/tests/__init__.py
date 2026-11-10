@@ -3,3 +3,4 @@
 
 from . import test_document_hub_module
 from . import test_document_hub_category
+from . import test_document_hub_extract
