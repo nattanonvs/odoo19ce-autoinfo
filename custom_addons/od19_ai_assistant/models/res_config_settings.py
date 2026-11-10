@@ -53,6 +53,18 @@ class ResConfigSettings(models.TransientModel):
         default="You are a helpful assistant for a Thai accounting ERP "
         "(Odoo 19). Answer in Thai unless asked otherwise.",
     )
+    od19_ai_capability_mode = fields.Selection(
+        selection=[
+            ("read_only", "อ่านเท่านั้น (A)"),
+            ("read_draft", "อ่าน + ร่างเอกสาร (B)"),
+        ],
+        string="โหมดผู้ช่วย AI (ดีฟอลต์ระบบ)",
+        config_parameter="od19_ai.capability_mode",
+        default="read_only",
+        help="โหมดเริ่มต้นของผู้ช่วย AI สำหรับผู้ใช้ใหม่ "
+        "read_only = อ่านข้อมูลเท่านั้น; read_draft = อ่าน + เสนอร่างเอกสาร "
+        "(ต้องยืนยันก่อนสร้างจริงเสมอ)",
+    )
 
     @api.onchange("od19_ai_provider")
     def _onchange_od19_ai_provider(self):

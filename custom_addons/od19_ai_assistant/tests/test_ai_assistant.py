@@ -661,6 +661,11 @@ class TestCapabilityMode(TransactionCase):
         super().setUp()
         self.params = self.env["ir.config_parameter"].sudo()
         self.params.search([("key", "=like", "od19_ai.%")]).unlink()
+        # The per-user override (added in Task 5) defaults to "read_only" for
+        # existing users, which would shadow the system parameter these tests
+        # exercise. Clear it so the acting user keeps following the *system*
+        # mode gate, exactly as these tests were originally written.
+        self.env.user.od19_ai_capability_mode = False
         self.capability = self.env["od19.ai.capability"]
 
     def test_default_mode_is_read_only(self):
@@ -781,3 +786,48 @@ class TestCapabilityMode(TransactionCase):
         self.assertEqual(redacted["clientsecret"], "***")
         self.assertEqual(redacted["passwd"], "***")
         self.assertEqual(redacted["keyword"], "keepme")
+
+
+@tagged("post_install", "-at_install")
+class TestCapabilitySettings(TransactionCase):
+    def setUp(self):
+        super().setUp()
+        self.params = self.env["ir.config_parameter"].sudo()
+        self.params.search([("key", "=like", "od19_ai.%")]).unlink()
+
+    def test_users_default_mode_is_read_only(self):
+        self.assertEqual(self.env.user.od19_ai_capability_mode, "read_only")
+
+    def test_settings_mode_field_persists(self):
+        settings = self.env["res.config.settings"].create(
+            {"od19_ai_capability_mode": "read_draft"}
+        )
+        settings.set_values()
+        self.assertEqual(
+            self.params.get_param("od19_ai.capability_mode"), "read_draft"
+        )
+
+    def test_new_user_default_follows_system_mode(self):
+        self.params.set_param("od19_ai.capability_mode", "read_draft")
+        user = self.env["res.users"].create(
+            {
+                "name": "OD19 Mode User",
+                "login": "od19_mode_user",
+                "group_ids": [(6, 0, [self.env.ref("base.group_user").id])],
+            }
+        )
+        self.assertEqual(user.od19_ai_capability_mode, "read_draft")
+
+    def test_user_override_wins_over_system(self):
+        self.params.set_param("od19_ai.capability_mode", "read_draft")
+        user = self.env["res.users"].create(
+            {
+                "name": "OD19 Readonly User",
+                "login": "od19_readonly_user",
+                "group_ids": [(6, 0, [self.env.ref("base.group_user").id])],
+                "od19_ai_capability_mode": "read_only",
+            }
+        )
+        self.assertEqual(
+            self.env["od19.ai.capability"].capability_mode(user), "read_only"
+        )

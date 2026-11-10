@@ -39,9 +39,26 @@
                                 <label for="od19_ai_system_prompt" class="col-lg-3 o_light_label"/>
                                 <field name="od19_ai_system_prompt" widget="text"/>
                             </div>
+                            <div class="row">
+                                <label for="od19_ai_capability_mode" class="col-lg-3 o_light_label"/>
+                                <field name="od19_ai_capability_mode"/>
+                            </div>
                         </div>
                     </setting>
                 </block>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_users_form_od19_ai" model="ir.ui.view">
+        <field name="name">res.users.form.od19.ai</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='preferences']" position="inside">
+                <group string="ผู้ช่วย AI">
+                    <field name="od19_ai_capability_mode"/>
+                </group>
             </xpath>
         </field>
     </record>
