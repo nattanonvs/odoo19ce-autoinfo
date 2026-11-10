@@ -389,3 +389,93 @@ class TestOd19AiChatHttp(HttpCase):
         self.assertIn('"type": "delta"', body)
         self.assertIn("สวัสดี", body)
         self.assertIn('"type": "done"', body)
+
+
+@tagged("post_install", "-at_install")
+class TestOrmGuard(TransactionCase):
+    def _guard(self):
+        from odoo.addons.od19_ai_assistant.lib import orm_guard
+
+        return orm_guard
+
+    def test_safe_limit_caps_and_defaults(self):
+        guard = self._guard()
+        self.assertEqual(guard.safe_limit(100), 20)
+        self.assertEqual(guard.safe_limit(0), 1)
+        self.assertEqual(guard.safe_limit("bad"), 5)
+        self.assertEqual(guard.safe_limit(None, default=7), 7)
+
+    def test_safe_offset_never_negative(self):
+        guard = self._guard()
+        self.assertEqual(guard.safe_offset(-5), 0)
+        self.assertEqual(guard.safe_offset("3"), 3)
+        self.assertEqual(guard.safe_offset("bad"), 0)
+
+    def test_validate_fields_rejects_unknown_field(self):
+        guard = self._guard()
+        with self.assertRaises(guard.OrmGuardError):
+            guard.validate_fields(self.env, "res.partner", ["no_such_field"])
+
+    def test_validate_fields_defaults_to_display_name(self):
+        guard = self._guard()
+        self.assertEqual(
+            guard.validate_fields(self.env, "res.partner", None), ["display_name"]
+        )
+
+    def test_validate_domain_accepts_safe_operator(self):
+        guard = self._guard()
+        domain = guard.validate_domain(
+            self.env, "res.partner", [["name", "ilike", "abc"]]
+        )
+        self.env["res.partner"].create({"name": "abc co"})
+        self.assertTrue(self.env["res.partner"].search_count(domain))
+
+    def test_validate_domain_rejects_unknown_operator(self):
+        guard = self._guard()
+        with self.assertRaises(guard.OrmGuardError):
+            guard.validate_domain(
+                self.env, "res.partner", [["name", "regex", "abc"]]
+            )
+
+    def test_validate_domain_rejects_unknown_field(self):
+        guard = self._guard()
+        with self.assertRaises(guard.OrmGuardError):
+            guard.validate_domain(
+                self.env, "res.partner", [["nope", "=", 1]]
+            )
+
+    def test_validate_domain_accepts_dotted_path(self):
+        guard = self._guard()
+        domain = guard.validate_domain(
+            self.env, "res.partner", [["user_ids.login", "ilike", "admin"]]
+        )
+        self.assertTrue(self.env["res.partner"].search_count(domain))
+
+    def test_validate_domain_rejects_non_stored_compute(self):
+        guard = self._guard()
+        with self.assertRaises(guard.OrmGuardError):
+            guard.validate_domain(
+                self.env, "res.partner", [["display_name", "=", "x"]]
+            )
+
+    def test_check_model_rejects_missing_model(self):
+        guard = self._guard()
+        with self.assertRaises(guard.OrmGuardError):
+            guard.check_model(self.env, "does.not.exist")
+
+    def test_validate_order_rejects_unknown_field(self):
+        guard = self._guard()
+        with self.assertRaises(guard.OrmGuardError):
+            guard.validate_order(self.env, "res.partner", "nope desc")
+
+    def test_validate_aggregates_rejects_unknown_function(self):
+        guard = self._guard()
+        with self.assertRaises(guard.OrmGuardError):
+            guard.validate_aggregates(self.env, "res.partner", ["id:median"])
+
+    def test_validate_groupby_rejects_bad_granularity(self):
+        guard = self._guard()
+        with self.assertRaises(guard.OrmGuardError):
+            guard.validate_groupby(
+                self.env, "res.partner", ["create_date:fortnight"]
+            )
