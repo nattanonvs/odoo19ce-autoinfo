@@ -5,3 +5,4 @@ from . import test_document_hub_module
 from . import test_document_hub_category
 from . import test_document_hub_extract
 from . import test_document_hub_attachment
+from . import test_document_archive_report
