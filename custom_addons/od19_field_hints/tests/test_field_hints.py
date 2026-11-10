@@ -1,8 +1,12 @@
 # Copyright 2026 OD19
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0)
 
+from unittest.mock import Mock
+
+from odoo.http import _request_stack
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
+from odoo.tools.misc import DotDict
 
 
 @tagged("post_install", "-at_install")
@@ -55,3 +59,23 @@ class TestFieldHints(TransactionCase):
         config = self.env["od19.field.hints"]._get_client_config()
         self.assertTrue(config["apply_core"])
         self.env["ir.config_parameter"].sudo().set_param("od19_field_hints.apply_core", "False")
+
+    def test_session_info_contains_field_hints(self):
+        """config ต้องถูกส่งไปกับ session_info เพื่อให้ฝั่ง client อ่านได้แบบ synchronous"""
+        # core session_info() ต้องมี HTTP request (request.session) จึงต้องจำลอง request
+        request = Mock(
+            db=self.env.cr.dbname,
+            env=self.env,
+            session=DotDict({
+                "uid": self.env.uid,
+                "context": dict(self.env.context),
+                "debug": "",
+            }),
+        )
+        _request_stack.push(request)
+        try:
+            info = self.env["ir.http"].session_info()
+        finally:
+            _request_stack.pop()
+        self.assertIn("od19_field_hints", info)
+        self.assertIn("custom_models", info["od19_field_hints"])
