@@ -4,6 +4,7 @@
 from datetime import date
 from unittest.mock import patch
 
+from odoo.exceptions import UserError
 from odoo.tests.common import (
     HttpCase,
     JsonRpcException,
@@ -652,3 +653,97 @@ class TestCapabilityIndex(TransactionCase):
         prompt = self.env["od19.ai.chat"]._build_system_prompt("BASE")
         self.assertIn("tool_help", prompt)
         self.assertIn("search_partners", prompt)
+
+
+@tagged("post_install", "-at_install")
+class TestCapabilityMode(TransactionCase):
+    def setUp(self):
+        super().setUp()
+        self.params = self.env["ir.config_parameter"].sudo()
+        self.params.search([("key", "=like", "od19_ai.%")]).unlink()
+        self.capability = self.env["od19.ai.capability"]
+
+    def test_default_mode_is_read_only(self):
+        self.assertEqual(self.capability.system_mode(), "read_only")
+
+    def test_can_draft_false_in_read_only(self):
+        self.params.set_param("od19_ai.capability_mode", "read_only")
+        self.assertFalse(self.capability.can_draft("res.partner"))
+
+    def test_can_draft_true_for_whitelisted_model(self):
+        self.params.set_param("od19_ai.capability_mode", "read_draft")
+        self.params.set_param("od19_ai.draft_models", "res.partner")
+        self.assertTrue(self.capability.can_draft("res.partner"))
+
+    def test_can_draft_false_for_non_whitelisted_model(self):
+        self.params.set_param("od19_ai.capability_mode", "read_draft")
+        self.params.set_param("od19_ai.draft_models", "res.partner")
+        self.assertFalse(self.capability.can_draft("res.company"))
+
+    def test_create_draft_rejected_in_read_only(self):
+        self.params.set_param("od19_ai.capability_mode", "read_only")
+        with self.assertRaises(UserError):
+            self.capability.create_draft("res.partner", {"name": "ห้ามสร้าง"})
+
+    def test_create_draft_creates_record(self):
+        self.params.set_param("od19_ai.capability_mode", "read_draft")
+        self.params.set_param("od19_ai.draft_models", "res.partner")
+        record = self.capability.create_draft("res.partner", {"name": "ร่างใหม่"})
+        self.assertTrue(record.exists())
+        self.assertEqual(record.name, "ร่างใหม่")
+
+    def test_sanitize_rejects_unknown_field(self):
+        from odoo.addons.od19_ai_assistant.lib import orm_guard
+
+        self.params.set_param("od19_ai.draft_models", "res.partner")
+        with self.assertRaises(orm_guard.OrmGuardError):
+            self.capability._sanitize_values(
+                "res.partner", {"name": "x", "nope": 1}
+            )
+
+    def test_preview_draft_does_not_create(self):
+        self.params.set_param("od19_ai.draft_models", "res.partner")
+        before = self.env["res.partner"].search_count([])
+        self.capability.preview_draft("res.partner", {"name": "พรีวิว"})
+        self.assertEqual(self.env["res.partner"].search_count([]), before)
+
+    def test_draft_record_tool_returns_marker(self):
+        self.params.set_param("od19_ai.capability_mode", "read_draft")
+        self.params.set_param("od19_ai.draft_models", "res.partner")
+        result = self.env["od19.ai.tool"].execute(
+            "draft_record", {"model": "res.partner", "values": {"name": "ร่าง"}}
+        )
+        self.assertTrue(result.startswith("__OD19_DRAFT__"))
+
+    def test_draft_record_tool_rejected_in_read_only(self):
+        self.params.set_param("od19_ai.capability_mode", "read_only")
+        result = self.env["od19.ai.tool"].execute(
+            "draft_record", {"model": "res.partner", "values": {"name": "ร่าง"}}
+        )
+        self.assertFalse(result.startswith("__OD19_DRAFT__"))
+
+    def test_execute_writes_audit_log(self):
+        before = self.env["od19.ai.tool.log"].search_count([])
+        self.env["od19.ai.tool"].execute(
+            "search_partners", {"keyword": "audit-probe"}
+        )
+        logs = self.env["od19.ai.tool.log"].search(
+            [("tool_name", "=", "search_partners")]
+        )
+        self.assertGreaterEqual(len(logs), 1)
+        self.assertGreater(self.env["od19.ai.tool.log"].search_count([]), before)
+        self.assertTrue(logs[0].success)
+
+    def test_audit_log_redacts_secrets(self):
+        capability = self.capability
+        log = self.env["od19.ai.tool.log"].create(
+            {
+                "tool_name": "demo",
+                "tool_kind": "read",
+                "arguments": capability._redact_arguments(
+                    {"api_key": "secret", "keyword": "ok"}
+                ),
+            }
+        )
+        self.assertNotIn("secret", str(log.arguments))
+        self.assertIn("ok", str(log.arguments))

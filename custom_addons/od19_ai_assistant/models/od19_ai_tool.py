@@ -12,6 +12,7 @@ module keeps working on any Odoo 19 database.
 """
 
 import logging
+import time
 from datetime import date, datetime
 
 from odoo import api, fields, models
@@ -166,7 +167,7 @@ class Od19AiTool(models.AbstractModel):
     # ------------------------------------------------------------------
     @api.model
     def execute(self, name, arguments):
-        """Run a tool by ``name`` and return a plain-text result."""
+        """Run a tool by ``name``, audit it, and return a plain-text result."""
         tool = next(
             (t for t in self.available_tools() if t["name"] == name), None
         )
@@ -181,11 +182,27 @@ class Od19AiTool(models.AbstractModel):
                 model_name
             ]._description
         arguments = arguments if isinstance(arguments, dict) else {}
+        started = time.monotonic()
+        success = True
+        error = ""
         try:
-            return method(arguments)
+            result = method(arguments)
         except Exception as exc:  # noqa: BLE001 - never break the chat loop
+            success = False
+            error = str(exc)
             _logger.warning("AI tool %s failed: %s", name, exc)
-            return "เรียกเครื่องมือ %s ไม่สำเร็จ: %s" % (name, exc)
+            result = "เรียกเครื่องมือ %s ไม่สำเร็จ: %s" % (name, exc)
+        duration_ms = int((time.monotonic() - started) * 1000)
+        self.env["od19.ai.capability"].log_call(
+            name,
+            tool.get("kind", "read"),
+            arguments,
+            result,
+            success=success,
+            error=error,
+            duration_ms=duration_ms,
+        )
+        return result
 
     # ------------------------------------------------------------------
     # Access rights (A3) - read with the current user's real rights

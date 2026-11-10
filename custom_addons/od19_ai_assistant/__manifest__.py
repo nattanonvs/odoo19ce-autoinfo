@@ -12,6 +12,7 @@
     "depends": ["base_setup"],
     "data": [
         "security/ir.model.access.csv",
+        "security/od19_ai_security.xml",
         "views/res_config_settings_views.xml",
         "views/od19_ai_chat_views.xml",
     ],
