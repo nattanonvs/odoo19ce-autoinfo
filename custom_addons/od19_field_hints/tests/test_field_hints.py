@@ -31,3 +31,13 @@ class TestFieldHints(TransactionCase):
         entry = config["overrides"]["res.partner"]["name"]
         self.assertEqual(entry["kind"], "example")
         self.assertTrue(entry["text"].startswith("เช่น:"))
+
+    def test_custom_models_detects_od19_fields(self):
+        """โมเดลที่มีฟิลด์จากโมดูล od19_* ต้องถูกตรวจพบ"""
+        config = self.env["od19.field.hints"]._get_client_config()
+        self.assertIn("res.partner", config["custom_models"])
+
+    def test_custom_models_excludes_pure_core_models(self):
+        """โมเดล Core ล้วน ๆ ต้องไม่อยู่ในรายการ"""
+        config = self.env["od19.field.hints"]._get_client_config()
+        self.assertNotIn("ir.ui.view", config["custom_models"])

@@ -1,7 +1,7 @@
 # Copyright 2026 OD19
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0)
 
-from odoo import models
+from odoo import models, tools
 from odoo.tools import str2bool
 
 # คำนำหน้าตามชนิดข้อความ (kind -> prefix)
@@ -51,6 +51,17 @@ class Od19FieldHints(models.AbstractModel):
     _name = "od19.field.hints"
     _description = "OD19 Field Hints Config"
 
+    @tools.ormcache()
+    def _get_custom_models(self):
+        """ชื่อโมเดลทั้งหมดที่มีฟิลด์ซึ่งนิยาม/สืบทอดโดยโมดูล od19_*"""
+        result = set()
+        for model_name, model in self.env.registry.items():
+            for field in model._fields.values():
+                if any(module.startswith("od19_") for module in (field._modules or ())):
+                    result.add(model_name)
+                    break
+        return tuple(sorted(result))
+
     def _get_client_config(self):
         params = self.env["ir.config_parameter"].sudo()
         return {
@@ -67,5 +78,5 @@ class Od19FieldHints(models.AbstractModel):
                 for model, fields in OVERRIDES.items()
             },
             "important": IMPORTANT_FIELDS,
-            "custom_models": [],
+            "custom_models": list(self._get_custom_models()),
         }
