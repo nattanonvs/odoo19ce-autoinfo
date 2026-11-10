@@ -28,6 +28,7 @@ export class Od19AiChatAction extends Component {
             streamText: "",
             toolChips: [],
             error: "",
+            pendingDraft: null,
         });
         onPatched(() => {
             if (this.state.streaming) {
@@ -184,6 +185,30 @@ export class Od19AiChatAction extends Component {
         }
     }
 
+    async confirmDraft() {
+        const pending = this.state.pendingDraft;
+        if (!pending) {
+            return;
+        }
+        try {
+            const result = await rpc("/od19_ai/draft/confirm", {
+                model: pending.model,
+                values: pending.values,
+            });
+            this.notification.add(
+                `สร้างเอกสารร่างแล้ว: ${result.name}`,
+                { type: "success" }
+            );
+            this.state.pendingDraft = null;
+        } catch (error) {
+            this.state.error = error.message || "ยืนยันร่างไม่สำเร็จ";
+        }
+    }
+
+    cancelDraft() {
+        this.state.pendingDraft = null;
+    }
+
     onStreamEvent(event) {
         switch (event.type) {
             case "delta":
@@ -200,6 +225,10 @@ export class Od19AiChatAction extends Component {
                 if (event.status === "done") {
                     this.state.toolChips.push(event.name);
                 }
+                break;
+            case "draft":
+                this.state.pendingDraft = event.draft;
+                this.state.streamText = "";
                 break;
             case "error":
                 this.state.error = event.message;

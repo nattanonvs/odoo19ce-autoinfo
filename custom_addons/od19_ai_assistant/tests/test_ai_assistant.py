@@ -852,3 +852,78 @@ class TestExternalProvider(TransactionCase):
     def test_enabled_flag_reads_parameter(self):
         self.params.set_param("od19_ai.external_enabled", "1")
         self.assertTrue(self.env["od19.ai.provider"].enabled())
+
+
+@tagged("post_install", "-at_install")
+class TestDraftHttp(HttpCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.plain_user = cls.env["res.users"].create(
+            {
+                "name": "OD19 Draft User",
+                "login": "od19_draft_user",
+                "password": "od19_draft_user",
+                "group_ids": [
+                    (
+                        6,
+                        0,
+                        [
+                            cls.env.ref("base.group_user").id,
+                            # ``can_draft`` requires create rights on the
+                            # whitelisted model; base.group_user is read-only on
+                            # res.partner (ACL 1,0,0,0), so grant the standard
+                            # partner-creation group to exercise draft creation.
+                            cls.env.ref("base.group_partner_manager").id,
+                        ],
+                    )
+                ],
+            }
+        )
+        # The per-user capability override defaults to "read_only" at creation
+        # and would shadow the ``od19_ai.capability_mode`` system parameter
+        # these tests exercise. Clear it so the system mode gate governs
+        # (mirrors TestCapabilityMode.setUp).
+        cls.plain_user.od19_ai_capability_mode = False
+
+    def _login(self):
+        self.authenticate("od19_draft_user", "od19_draft_user")
+
+    def test_draft_confirm_creates_record(self):
+        params = self.env["ir.config_parameter"].sudo()
+        params.set_param("od19_ai.capability_mode", "read_draft")
+        params.set_param("od19_ai.draft_models", "res.partner")
+        self._login()
+        before = self.env["res.partner"].search_count([])
+        # A ``type="jsonrpc"`` route only reads parameters from the JSON body's
+        # ``params`` key, so post the full JSON-RPC envelope.
+        response = self.url_open(
+            "/od19_ai/draft/confirm",
+            json={
+                "jsonrpc": "2.0",
+                "method": "call",
+                "id": 1,
+                "params": {
+                    "model": "res.partner",
+                    "values": {"name": "ร่างผ่าน HTTP"},
+                },
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertGreater(self.env["res.partner"].search_count([]), before)
+
+    def test_draft_confirm_rejected_in_read_only(self):
+        params = self.env["ir.config_parameter"].sudo()
+        params.set_param("od19_ai.capability_mode", "read_only")
+        self._login()
+        response = self.url_open(
+            "/od19_ai/draft/confirm",
+            json={
+                "jsonrpc": "2.0",
+                "method": "call",
+                "id": 1,
+                "params": {"model": "res.partner", "values": {"name": "ห้าม"}},
+            },
+        )
+        payload = response.json()
+        self.assertIn("error", payload)

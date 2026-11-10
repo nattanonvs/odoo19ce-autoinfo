@@ -21,6 +21,7 @@ from odoo.exceptions import AccessError
 from odoo.http import request
 
 from ..lib.client import AiClientError, chat_completion_stream
+from ..models.od19_ai_capability import DRAFT_MARKER
 from ..models.od19_ai_chat import MAX_TOOL_ROUNDS
 
 _logger = logging.getLogger(__name__)
@@ -77,7 +78,15 @@ def _stream_answer(registry, uid, context, chat_id, question):
                 name, arguments = call
                 chat._post_message("assistant", raw)
                 yield _sse({"type": "tool", "name": name, "status": "running"})
-                chat._post_message("tool", tool_model.execute(name, arguments))
+                result = tool_model.execute(name, arguments)
+                if result.startswith(DRAFT_MARKER):
+                    draft = json.loads(result[len(DRAFT_MARKER):])
+                    chat._post_message(
+                        "tool", "เสนอร่างเอกสาร: %s" % draft.get("model_label", "")
+                    )
+                    yield _sse({"type": "draft", "draft": draft})
+                else:
+                    chat._post_message("tool", result)
                 yield _sse({"type": "tool", "name": name, "status": "done"})
             else:
                 answer = (
@@ -158,6 +167,13 @@ class Od19AiChatController(http.Controller):
             raise AccessError("ไม่พบบทสนทนานี้")
         chat.unlink()
         return True
+
+    @http.route("/od19_ai/draft/confirm", type="jsonrpc", auth="user")
+    def draft_confirm(self, model=None, values=None, **kwargs):
+        record = request.env["od19.ai.capability"].create_draft(
+            (model or "").strip(), values or {}
+        )
+        return {"id": record.id, "name": record.display_name}
 
     @http.route(
         "/od19_ai/chat/stream",

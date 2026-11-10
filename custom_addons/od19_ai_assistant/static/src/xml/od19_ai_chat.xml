@@ -58,6 +58,25 @@
 
                     <div class="o_od19_ai_msg role-system" t-if="state.error"
                          t-out="state.error"/>
+
+                    <div class="o_od19_ai_draft" t-if="state.pendingDraft">
+                        <div class="o_od19_ai_draft_title">
+                            <i class="fa fa-file-text-o me-1"/>
+                            ขอสร้างเอกสารร่าง: <t t-out="state.pendingDraft.model_label"/>
+                        </div>
+                        <ul class="o_od19_ai_draft_values">
+                            <t t-foreach="Object.entries(state.pendingDraft.values)"
+                               t-as="entry" t-key="entry[0]">
+                                <li><t t-out="entry[0]"/>: <t t-out="entry[1]"/></li>
+                            </t>
+                        </ul>
+                        <div class="o_od19_ai_draft_actions">
+                            <button type="button" class="btn btn-primary btn-sm"
+                                    t-on-click="confirmDraft">ยืนยันการสร้าง</button>
+                            <button type="button" class="btn btn-secondary btn-sm"
+                                    t-on-click="cancelDraft">ยกเลิก</button>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="o_od19_ai_composer">
