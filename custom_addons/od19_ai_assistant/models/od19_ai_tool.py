@@ -12,6 +12,7 @@ module keeps working on any Odoo 19 database.
 """
 
 import logging
+import time
 from datetime import date, datetime
 
 from odoo import api, fields, models
@@ -124,13 +125,33 @@ class Od19AiTool(models.AbstractModel):
         ]
 
     @api.model
+    def all_tools(self):
+        """Every declared tool: curated + generic + meta + draft.
+
+        Each specialised layer contributes through its own ``_*_definitions``
+        method (defined in its own file). ``getattr`` keeps the layers optional
+        so the module still loads while they are being built.
+        """
+        definitions = list(self._tool_definitions())
+        for method_name in (
+            "_generic_definitions",
+            "_index_definitions",
+            "_draft_definitions",
+        ):
+            method = getattr(self, method_name, None)
+            if method:
+                definitions.extend(method())
+        return definitions
+
+    @api.model
     def available_tools(self):
-        """Return the definitions whose backing model is installed."""
-        return [
-            tool
-            for tool in self._tool_definitions()
-            if tool["model"] in self.env
-        ]
+        """Definitions whose backing model is installed (model-less = always)."""
+        result = []
+        for tool in self.all_tools():
+            model_name = tool.get("model")
+            if model_name is None or model_name in self.env:
+                result.append(tool)
+        return result
 
     @api.model
     def prompt_catalog(self):
@@ -146,7 +167,7 @@ class Od19AiTool(models.AbstractModel):
     # ------------------------------------------------------------------
     @api.model
     def execute(self, name, arguments):
-        """Run a tool by ``name`` and return a plain-text result."""
+        """Run a tool by ``name``, audit it, and return a plain-text result."""
         tool = next(
             (t for t in self.available_tools() if t["name"] == name), None
         )
@@ -155,16 +176,33 @@ class Od19AiTool(models.AbstractModel):
         method = getattr(self, "_run_%s" % name, None)
         if method is None:
             return "เครื่องมือ %s ยังไม่พร้อมใช้งาน" % name
-        if not self._check_read_access(tool["model"]):
+        model_name = tool.get("model")
+        if model_name and not self._check_read_access(model_name):
             return "คุณไม่มีสิทธิ์อ่านข้อมูล %s" % self.env[
-                tool["model"]
+                model_name
             ]._description
         arguments = arguments if isinstance(arguments, dict) else {}
+        started = time.monotonic()
+        success = True
+        error = ""
         try:
-            return method(arguments)
+            result = method(arguments)
         except Exception as exc:  # noqa: BLE001 - never break the chat loop
+            success = False
+            error = str(exc)
             _logger.warning("AI tool %s failed: %s", name, exc)
-            return "เรียกเครื่องมือ %s ไม่สำเร็จ: %s" % (name, exc)
+            result = "เรียกเครื่องมือ %s ไม่สำเร็จ: %s" % (name, exc)
+        duration_ms = int((time.monotonic() - started) * 1000)
+        self.env["od19.ai.capability"].log_call(
+            name,
+            tool.get("kind", "read"),
+            arguments,
+            result,
+            success=success,
+            error=error,
+            duration_ms=duration_ms,
+        )
+        return result
 
     # ------------------------------------------------------------------
     # Access rights (A3) - read with the current user's real rights

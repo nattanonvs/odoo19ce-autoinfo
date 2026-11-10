@@ -3,7 +3,7 @@
 
 {
     "name": "OD19 AI Assistant",
-    "version": "19.0.1.5.0",
+    "version": "19.0.2.0.0",
     "author": "OD19",
     "category": "Productivity",
     "summary": "Free / self-hosted AI assistant for Odoo 19 CE "
@@ -12,6 +12,7 @@
     "depends": ["base_setup"],
     "data": [
         "security/ir.model.access.csv",
+        "security/od19_ai_security.xml",
         "views/res_config_settings_views.xml",
         "views/od19_ai_chat_views.xml",
     ],

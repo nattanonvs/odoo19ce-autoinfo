@@ -26,6 +26,8 @@ TOOL_PROTOCOL = (
     "เมื่อต้องการข้อมูล ให้ตอบกลับเป็น JSON เท่านั้นในรูปแบบ:\n"
     '{{"tool": "<ชื่อเครื่องมือ>", "arguments": {{<พารามิเตอร์>}}}}\n'
     "เครื่องมือที่มี:\n%s\n"
+    "หากต้องการทราบพารามิเตอร์ของเครื่องมือ ให้เรียก tool_help ก่อน "
+    'เช่น {{"tool": "tool_help", "arguments": {{"name": "search_records"}}}}\n'
     "เมื่อได้ข้อมูลเพียงพอแล้ว ให้ตอบเป็นข้อความภาษาไทยปกติ ห้ามใส่ JSON\n"
     "ห้ามสมมติข้อมูลเอง หากไม่พบให้แจ้งผู้ใช้ตามจริง"
 )
@@ -169,11 +171,11 @@ class Od19AiChat(models.Model):
 
     @api.model
     def _build_system_prompt(self, base_prompt):
-        """Append the tool catalog to the base system prompt."""
-        catalog = self.env["od19.ai.tool"].prompt_catalog()
-        if not catalog:
+        """Append the compact tool index to the base system prompt."""
+        index = self.env["od19.ai.tool"].prompt_index()
+        if not index:
             return base_prompt
-        return base_prompt + TOOL_PROTOCOL % catalog
+        return base_prompt + TOOL_PROTOCOL % index
 
     @api.model
     def _parse_tool_call(self, text):
