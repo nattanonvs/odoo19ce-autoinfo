@@ -23,3 +23,27 @@ class TestRetentionPolicy(TransactionCase):
                     "name": "ผิด", "duration_month": 0, "action": "review",
                 })
 
+
+@tagged("post_install", "-at_install")
+class TestDocumentCategory(TransactionCase):
+
+    def test_complete_name(self):
+        parent = self.env["od19.document.category"].create({"name": "จัดซื้อ", "code": "TST_PUR"})
+        child = self.env["od19.document.category"].create({
+            "name": "ใบสั่งซื้อ", "code": "TST_PUR_PO", "parent_id": parent.id,
+        })
+        self.assertEqual(child.complete_name, "จัดซื้อ / ใบสั่งซื้อ")
+
+    def test_code_unique(self):
+        self.env["od19.document.category"].create({"name": "A", "code": "DUP"})
+        with self.assertRaises(Exception):
+            with self.cr.savepoint():
+                self.env["od19.document.category"].create({"name": "B", "code": "DUP"})
+
+    def test_no_parent_cycle(self):
+        a = self.env["od19.document.category"].create({"name": "A", "code": "CYC_A"})
+        b = self.env["od19.document.category"].create({"name": "B", "code": "CYC_B", "parent_id": a.id})
+        with self.assertRaises(ValidationError):
+            with self.cr.savepoint():
+                a.parent_id = b.id
+
