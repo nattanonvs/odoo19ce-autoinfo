@@ -9,27 +9,26 @@
                 <field name="od19_project_type_id"
                        domain="[('project_ok', '=', True)]"/>
             </xpath>
-            <xpath expr="//sheet" position="inside">
-                <notebook>
-                    <page string="Job Assignment" name="od19_job_assignment">
-                        <group>
-                            <group string="Assignment">
-                                <field name="od19_responsible_person_ids"
-                                       widget="many2many_tags"
-                                       string="Responsible Persons"/>
-                                <field name="od19_coordinator_ids"
-                                       widget="many2many_tags"
-                                       string="Coordinators"/>
-                            </group>
-                            <group string="Documents">
-                                <field name="od19_scope_of_work"
-                                       string="Scope of Work"/>
-                                <field name="od19_document_requirements"
-                                       string="Document Requirements"/>
-                            </group>
+            <!-- Job Assignment tab: place it in the main notebook, right before Settings -->
+            <xpath expr="//notebook/page[@name='settings']" position="before">
+                <page string="Job Assignment" name="od19_job_assignment">
+                    <group>
+                        <group string="Assignment">
+                            <field name="od19_responsible_person_ids"
+                                   widget="many2many_tags"
+                                   string="Responsible Persons"/>
+                            <field name="od19_coordinator_ids"
+                                   widget="many2many_tags"
+                                   string="Coordinators"/>
                         </group>
-                    </page>
-                </notebook>
+                        <group string="Documents">
+                            <field name="od19_scope_of_work"
+                                   string="Scope of Work"/>
+                            <field name="od19_document_requirements"
+                                   string="Document Requirements"/>
+                        </group>
+                    </group>
+                </page>
             </xpath>
         </field>
     </record>

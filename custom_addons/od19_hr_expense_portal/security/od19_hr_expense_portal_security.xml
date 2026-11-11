@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Defense-in-depth: a portal user may only ever read the expenses tied to
+        his own employee (or the ones he created himself). The controllers
+        already restrict every query with the owner domain, this rule protects
+        any other ORM entry point.
+    -->
+    <record id="rule_hr_expense_portal_own" model="ir.rule">
+        <field name="name">HR Expense: portal user reads only own expenses</field>
+        <field name="model_id" ref="hr_expense.model_hr_expense"/>
+        <field name="domain_force">['|', ('employee_id.user_id', '=', user.id), ('create_uid', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+</odoo>

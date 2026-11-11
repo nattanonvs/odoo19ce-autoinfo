@@ -129,10 +129,11 @@ graph TD
 - [x] **ปิดงาน (2026-11-02):** เพิ่ม [.gitattributes](file:///c:/odoo-dev/odoo19/.gitattributes) (rule `*.jar`, `*.jasper`, `*.dump`, `*.zip`) + ปลดล็อก dotfile ด้วย `!.gitattributes` ใน [.gitignore](file:///c:/odoo-dev/odoo19/.gitignore); รัน `git lfs install --local` สำเร็จ → commit `b80218bb4b4`; dump/zip ใหญ่ถูก ignore แล้วโดย `.gitignore` (`/backups/`, `migration/od15_export/*.dump`) ⇒ ไม่เข้า object store
 - [x] **ยกเลิกโดยคำตัดสิน (2026-11-05) — RETIRED:** รายการ migrate history ของ 4 `.jar` (`Arial.jar` 51 MB, `jython-2.7.0.jar`, `groovy-all-2.4.12.jar`, `jasperreports-6.10.0.jar`) ด้วย `git lfs migrate import` **ถูกยกเลิกถาวร** เพราะต้อง `force-push` ซึ่ง AGENTS.md §1.2 ข้อ 2 ห้ามเด็ดขาด; ประกอบกับ `.gitattributes` (อัปเดต 2026-11-04) ได้ถอด LFS filter ออกแล้วและยืนยันว่าไม่มีไฟล์ใดถูก track ใน LFS (`git lfs ls-files` ว่าง) → ไฟล์ `.jar`/`.jasper` เก็บเป็น binary Git object ปกติต่อไป
 
-### Task B6 — Release แรก
-- [ ] **Objective:** ออก `v19.0.<n>` ตาม Release Checklist
-- [ ] **Depends on:** B1–B5, A1–A3
-- [ ] **Acceptance:** checklist ติ๊กครบ, tag + release notes
+### Task B6 — Release แรก (ปิดแล้ว 2026-11-09)
+- [x] **Objective:** ออก `v19.0.<n>` ตาม Release Checklist
+- [x] **Depends on:** B1–B5, A1–A3
+- [x] **Acceptance:** checklist ติ๊กครบ, tag + release notes
+- [x] **ปิดงาน (2026-11-09):** ออก tag ครบ 5 รุ่นบน `19.0` แล้ว — `v19.0.0` (`f900de7edde`), `v19.0.1` (`e39eb1c21d1`), `v19.0.2` (`e0e1238b253`), `v19.0.3` (`20e450a2317`, PR #17), `v19.0.4` (`a6fab73ff49`, PR #22); B1–B5 + A1–A3 ปิดครบก่อนหน้า (ขั้นตอนตาม [Release Checklist](file:///c:/odoo-dev/odoo19/docs/superpowers/programs/odoo19-enterprise/foundation/git-and-release-baseline.md#L83-L90) ซึ่งเป็น template ต่อ release)
 
 ---
 

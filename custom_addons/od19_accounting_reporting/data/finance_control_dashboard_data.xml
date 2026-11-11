@@ -286,7 +286,7 @@
         <field name="measure_key">amount</field>
         <field name="groupby_key">state</field>
         <field name="date_range">all_time</field>
-        <field name="limit" eval="12"/>
+        <field name="limit" eval="15"/>
         <field name="grid_w" eval="6"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="70"/>
@@ -300,7 +300,7 @@
         <field name="measure_key">amount</field>
         <field name="groupby_key">cheque_type</field>
         <field name="date_range">all_time</field>
-        <field name="limit" eval="8"/>
+        <field name="limit" eval="12"/>
         <field name="grid_w" eval="6"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="80"/>
@@ -315,7 +315,7 @@
         <field name="groupby_key">partner_id</field>
         <field name="date_range">all_time</field>
         <field name="domain">[('account_id.account_type', '=', 'asset_receivable'), ('parent_state', '=', 'posted'), ('reconciled', '=', False)]</field>
-        <field name="limit" eval="8"/>
+        <field name="limit" eval="15"/>
         <field name="grid_w" eval="6"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="90"/>
@@ -330,7 +330,7 @@
         <field name="groupby_key">partner_id</field>
         <field name="date_range">all_time</field>
         <field name="domain">[('account_id.account_type', '=', 'liability_payable'), ('parent_state', '=', 'posted'), ('reconciled', '=', False)]</field>
-        <field name="limit" eval="8"/>
+        <field name="limit" eval="15"/>
         <field name="grid_w" eval="6"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="100"/>
@@ -344,7 +344,7 @@
         <field name="measure_key">amount</field>
         <field name="groupby_key">transaction_type</field>
         <field name="date_range">all_time</field>
-        <field name="limit" eval="8"/>
+        <field name="limit" eval="12"/>
         <field name="grid_w" eval="6"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="110"/>
@@ -359,7 +359,7 @@
         <field name="groupby_key">date</field>
         <field name="date_range">all_time</field>
         <field name="domain">[('parent_state', '=', 'posted')]</field>
-        <field name="limit" eval="12"/>
+        <field name="limit" eval="24"/>
         <field name="grid_w" eval="6"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="120"/>

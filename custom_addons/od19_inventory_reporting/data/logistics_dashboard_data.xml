@@ -217,7 +217,7 @@
         <field name="measure_key">__count</field>
         <field name="groupby_key">state</field>
         <field name="date_range">all_time</field>
-        <field name="limit" eval="8"/>
+        <field name="limit" eval="15"/>
         <field name="grid_w" eval="6"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="70"/>
@@ -232,7 +232,7 @@
         <field name="measure_key">__count</field>
         <field name="groupby_key">department_id</field>
         <field name="date_range">all_time</field>
-        <field name="limit" eval="8"/>
+        <field name="limit" eval="15"/>
         <field name="grid_w" eval="6"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="80"/>
@@ -246,7 +246,7 @@
         <field name="measure_key">__count</field>
         <field name="groupby_key">od19_issue_type_id</field>
         <field name="date_range">all_time</field>
-        <field name="limit" eval="8"/>
+        <field name="limit" eval="12"/>
         <field name="grid_w" eval="6"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="90"/>
@@ -261,7 +261,7 @@
         <field name="groupby_key">picking_type_id</field>
         <field name="date_range">all_time</field>
         <field name="domain">[('state', 'not in', ['done', 'cancel'])]</field>
-        <field name="limit" eval="8"/>
+        <field name="limit" eval="15"/>
         <field name="grid_w" eval="6"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="100"/>
@@ -275,7 +275,7 @@
         <field name="measure_key">amount_total</field>
         <field name="groupby_key">state</field>
         <field name="date_range">all_time</field>
-        <field name="limit" eval="8"/>
+        <field name="limit" eval="12"/>
         <field name="grid_w" eval="6"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="110"/>
@@ -289,7 +289,7 @@
         <field name="measure_key">__count</field>
         <field name="groupby_key">expected_date</field>
         <field name="date_range">all_time</field>
-        <field name="limit" eval="12"/>
+        <field name="limit" eval="24"/>
         <field name="grid_w" eval="6"/>
         <field name="grid_h" eval="3"/>
         <field name="sequence" eval="120"/>

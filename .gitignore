@@ -141,6 +141,9 @@ nginx/nginx-1.27.2/conf/*
 .agent-mail/
 .amqrc
 
+# Agent resource leases (Tier 2 coordination -- see AGENTS.md section 2)
+.agent-locks/
+
 # ============================================================
 # Prebuilt Windows binaries & installers (not part of source)
 # ============================================================
