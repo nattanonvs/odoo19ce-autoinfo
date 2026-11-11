@@ -124,6 +124,13 @@ class TestOd19AiAssistantService(TransactionCase):
     def test_suggest_actions_empty_context(self):
         self.assertTrue(self._brain().suggest_actions(None))
 
+    def test_suggest_actions_all_known_models_non_empty(self):
+        for model in ("sale.order", "purchase.order", "account.move",
+                      "res.partner", "product.template", "project.task"):
+            chips = self._brain().suggest_actions({"model": model})
+            self.assertTrue(chips, "no chips for %s" % model)
+            self.assertLessEqual(len(chips), 4)
+
     def test_confirm_draft_delegates(self):
         self.env.user.od19_ai_capability_mode = "read_draft"
         self.env["ir.config_parameter"].sudo().set_param(
