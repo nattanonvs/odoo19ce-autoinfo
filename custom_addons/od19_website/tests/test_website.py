@@ -694,3 +694,92 @@ class TestSeoAnalyticsSP7(HttpCase):
         self.env["website"].od19_setup_seo()
         self.assertEqual(website.robots_txt, "User-agent: *\nDisallow:\n")
 
+
+@tagged("post_install", "-at_install")
+class TestPdpaLegalSP8(HttpCase):
+    """SP8: the legal layer — PDPA privacy notice, terms, cookie consent and
+    the go-live checks that tie them together."""
+
+    OD19_LEGAL_PAGES = ["/privacy", "/terms"]
+
+    def test_legal_pages_render(self):
+        """/privacy and /terms are live pages with real legal copy."""
+        privacy_html = self.url_open("/privacy").text
+        self.assertIn("Privacy Policy", privacy_html)
+        self.assertIn("Personal Data Protection Act", privacy_html)
+        self.assertIn("Your rights as a data subject", privacy_html)
+        self.assertIn("privacy@auto-info.co.th", privacy_html)
+
+        terms_html = self.url_open("/terms").text
+        self.assertIn("Terms of Use", terms_html)
+        self.assertIn("Governing law", terms_html)
+
+    def test_privacy_page_has_no_placeholder_data(self):
+        """The privacy notice never leaks Odoo's demo company identity."""
+        html = self.url_open("/privacy").text
+        self.assertNotIn("+1 555-555-5556", html)
+        self.assertNotIn("YourCompany", html)
+        self.assertIn("1359 Soi Ladprao 94", html)
+
+    def test_footer_links_to_legal_pages(self):
+        """The footer exposes the privacy, terms and cookie policies."""
+        html = self.url_open("/").text
+        self.assertIn('href="/privacy"', html)
+        self.assertIn('href="/terms"', html)
+        self.assertIn('href="/cookie-policy"', html)
+
+    def test_legal_pages_have_meta_and_are_in_the_sitemap(self):
+        """Legal pages carry meta copy and are index-ready (go-live)."""
+        pages = self.env["website.page"].search([("url", "in", self.OD19_LEGAL_PAGES)])
+        self.assertEqual(len(pages), len(self.OD19_LEGAL_PAGES))
+        for page in pages:
+            self.assertTrue(page.is_published, "%s must be published" % page.url)
+            self.assertTrue(page.website_indexed, "%s must be indexable" % page.url)
+            self.assertTrue(page.website_meta_title, "%s meta title" % page.url)
+            self.assertTrue(page.website_meta_description, "%s meta description" % page.url)
+
+        xml = self.url_open("/sitemap.xml").text
+        for path in self.OD19_LEGAL_PAGES:
+            self.assertIn(path, xml, "%s must be listed in the sitemap" % path)
+
+    def test_robots_txt_does_not_block_legal_pages(self):
+        """/privacy and /terms stay crawlable (go-live)."""
+        body = self.url_open("/robots.txt").text
+        self.assertNotIn("Disallow: /privacy", body)
+        self.assertNotIn("Disallow: /terms", body)
+
+    def test_setup_pdpa_enables_consent_and_cookie_policy(self):
+        """od19_setup_pdpa() turns on the cookie bar and its policy page."""
+        website = self.env["website"].get_current_website()
+        website.write({"cookies_bar": False})
+        self.env["website.page"].search([("url", "=", "/cookie-policy")]).unlink()
+
+        self.env["website"].od19_setup_pdpa()
+
+        self.assertTrue(website.cookies_bar)
+        cookie_policy = self.env["website.page"].search(
+            [("url", "=", "/cookie-policy")], limit=1,
+        )
+        self.assertTrue(cookie_policy.exists())
+
+        html = self.url_open("/cookie-policy").text
+        self.assertIn("Analytics cookies", html)
+        self.assertIn('href="/privacy"', html)
+
+    def test_setup_pdpa_is_idempotent(self):
+        """Re-running the PDPA setup leaves established values untouched."""
+        website = self.env["website"].get_current_website()
+        self.env["website"].od19_setup_pdpa()
+        cookie_policy = self.env["website.page"].search(
+            [("url", "=", "/cookie-policy")], limit=1,
+        )
+        seeded_title = cookie_policy.website_meta_title
+
+        # A customised value must survive a re-run.
+        cookie_policy.website_meta_description = "Custom notice"
+        self.env["website"].od19_setup_pdpa()
+
+        self.assertTrue(website.cookies_bar)
+        self.assertEqual(cookie_policy.website_meta_title, seeded_title)
+        self.assertEqual(cookie_policy.website_meta_description, "Custom notice")
+

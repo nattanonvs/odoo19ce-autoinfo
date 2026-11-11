@@ -266,6 +266,8 @@ a:hover { color: #7A1B1B; }
 }
 /* Discreet staff-only link in the footer bar (kept out of the public navbar). */
 .od19-footer-sep { opacity: 0.4; margin: 0 8px; }
+.od19-footer-legal { color: #c2c9d3; text-decoration: none; }
+.od19-footer-legal:hover { color: #fff; text-decoration: underline; }
 .od19-footer-staff { color: #c2c9d3; text-decoration: none; }
 .od19-footer-staff:hover { color: #fff; text-decoration: underline; }
 
@@ -2919,6 +2921,35 @@ a.od19-room-tile:focus {
 .od19-rfq-form .s_website_form_result { font-weight: 600; }
 .od19-thanks-company { color: var(--od19-primary); font-weight: 700; }
 .od19-thanks-back { border-radius: 40px; padding: 10px 24px; font-weight: 700; }
+
+/* ---------- SP8: Legal pages (Privacy Policy / Terms / Cookie) ---------- */
+.od19-legal {
+    max-width: 860px;
+    margin: 0 auto;
+    color: var(--od19-dark);
+    line-height: 1.75;
+}
+.od19-legal h2 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--od19-primary);
+    margin: 2rem 0 0.75rem;
+}
+.od19-legal h2:first-child { margin-top: 0; }
+.od19-legal p { margin: 0 0 1rem; }
+.od19-legal a { color: var(--od19-primary); text-decoration: underline; }
+.od19-legal-meta {
+    font-size: 0.9rem;
+    color: var(--od19-gray);
+    background: #fbf8f8;
+    border-left: 4px solid var(--od19-primary);
+    padding: 10px 16px;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+}
+.od19-legal-list { margin: 0 0 1rem; padding-left: 1.25rem; }
+.od19-legal-list li { margin-bottom: 0.4rem; }
+.od19-legal-table th { color: var(--od19-primary); }
 
 /* --- Responsive / motion --- */
 @media (max-width: 575.98px) {

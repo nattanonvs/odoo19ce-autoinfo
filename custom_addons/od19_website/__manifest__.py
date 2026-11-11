@@ -33,6 +33,7 @@
         "views/careers_pages.xml",
         "views/blog_pages.xml",
         "views/contact_page.xml",
+        "views/legal_pages.xml",
         "views/employee_portal.xml",
         "views/approval_center.xml",
         "views/res_company_views.xml",
@@ -43,6 +44,7 @@
         "data/website_menus.xml",
         "data/blog_data.xml",
         "data/website_pages.xml",
+        "data/legal_pages.xml",
         "data/setup_functions.xml",
     ],
     "assets": {

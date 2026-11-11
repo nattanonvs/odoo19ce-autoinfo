@@ -372,3 +372,54 @@ class Website(models.Model):
                     "od19_website: SEO setup applied to %r -> %s",
                     website.name, sorted(vals),
                 )
+
+    # ------------------------------------------------------------------
+    # PDPA — cookie consent & legal pages (SP8)
+    # ------------------------------------------------------------------
+    @api.model
+    def od19_setup_pdpa(self):
+        """Enable cookie consent and make the legal pages live.
+
+        Idempotent: replayed on every ``-u od19_website`` (see
+        data/setup_functions.xml).  Enabling ``cookies_bar`` makes consent
+        opt-in and lets core create the ``/cookie-policy`` page that the bar
+        links to; the Privacy Policy and Terms pages are (re)published and left
+        indexed.  Nothing is overwritten once it is already in place, so the
+        administrator's edits survive an upgrade.
+        """
+        for website in self.search([]):
+            if not website.cookies_bar:
+                website.sudo().write({"cookies_bar": True})
+                _logger.info(
+                    "od19_website: enabled the cookies bar on %r", website.name,
+                )
+
+        legal_pages = self.env["website.page"].sudo().search([
+            ("url", "in", ("/privacy", "/terms")),
+        ])
+        for page in legal_pages:
+            vals = {}
+            if not page.is_published:
+                vals["is_published"] = True
+            if not page.website_indexed:
+                vals["website_indexed"] = True
+            if vals:
+                page.write(vals)
+                _logger.info(
+                    "od19_website: legal page %s -> %s", page.url, sorted(vals),
+                )
+
+        # Core creates this page together with the cookies bar; enrich its
+        # metadata once, and never clobber a value the administrator set.
+        cookie_policy = self.env["website.page"].sudo().search([
+            ("url", "=", "/cookie-policy"),
+        ], limit=1)
+        if cookie_policy and not cookie_policy.website_meta_description:
+            cookie_policy.write({
+                "website_meta_title": "Cookie Policy | Auto-Info",
+                "website_meta_description": (
+                    "How The Auto-Info Co., Ltd. uses cookies on this website — "
+                    "essential cookies, optional analytics cookies and how to manage "
+                    "or withdraw your consent."
+                ),
+            })
