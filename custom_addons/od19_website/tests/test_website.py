@@ -10,6 +10,12 @@ from odoo.tests.common import (
     get_db_name,
 )
 
+from odoo.addons.od19_website.models.website import (
+    OD19_ORG_EMAIL,
+    OD19_ORG_NAME,
+    OD19_ORG_PHONE,
+)
+
 
 class TestWebsite(TransactionCase):
     """Basic tests for website company configuration fields."""
@@ -571,4 +577,120 @@ class TestContactRFQSP6(HttpCase):
         self.assertNotIn("+1 555-555-5556", html)
         self.assertIn("1359 Soi Ladprao 94", html)
         self.assertIn("sales@auto-info.co.th", html)
+
+
+@tagged("post_install", "-at_install")
+class TestSeoAnalyticsSP7(HttpCase):
+    """SP7: every page is index-ready — meta copy, schema.org, OG, robots,
+    sitemap and a consent-gated Google Analytics tag."""
+
+    OD19_SEO_PAGES = [
+        "/",
+        "/industrial-automation",
+        "/building-automation",
+        "/terminal-automation",
+        "/products",
+        "/about-us",
+        "/quality-certifications",
+        "/portfolio",
+    ]
+
+    def test_every_page_has_meta_copy(self):
+        """All eight pages carry a non-empty title, description and keywords."""
+        pages = self.env["website.page"].search([("url", "in", self.OD19_SEO_PAGES)])
+        self.assertEqual(len(pages), len(self.OD19_SEO_PAGES))
+        for page in pages:
+            self.assertTrue(
+                page.website_meta_title, "%s is missing a meta title" % page.url,
+            )
+            self.assertTrue(
+                page.website_meta_description,
+                "%s is missing a meta description" % page.url,
+            )
+            self.assertTrue(
+                page.website_meta_keywords,
+                "%s is missing meta keywords" % page.url,
+            )
+
+    def test_homepage_renders_title_and_meta(self):
+        """Rendering / emits the page title, description and keywords."""
+        page = self.env["website.page"].search([("url", "=", "/")], limit=1)
+        html = self.url_open("/").text
+
+        self.assertIn("<title>%s</title>" % page.website_meta_title, html)
+        self.assertIn('name="description"', html)
+        self.assertIn('name="keywords"', html)
+        self.assertIn(page.website_meta_description, html)
+        self.assertIn(page.website_meta_keywords, html)
+
+    def test_jsonld_and_social_meta_on_every_page(self):
+        """Every page emits Organization + WebSite JSON-LD and social tags."""
+        for path in self.OD19_SEO_PAGES:
+            html = self.url_open(path).text
+            self.assertIn(
+                'type="application/ld+json"', html,
+                "%s must carry schema.org markup" % path,
+            )
+            self.assertIn('"@type": "Organization"', html, path)
+            self.assertIn('"@type": "WebSite"', html, path)
+            # The published identity is the canonical Auto-Info one — never the
+            # res.company record, which could still hold Odoo's demo values.
+            self.assertIn('"name": "%s"' % OD19_ORG_NAME, html, path)
+            self.assertIn('"telephone": "%s"' % OD19_ORG_PHONE, html, path)
+            self.assertIn('"email": "%s"' % OD19_ORG_EMAIL, html, path)
+            # Social sharing tags (OpenGraph + Twitter) plus the locale hint.
+            for tag in ('property="og:title"', 'property="og:site_name"',
+                        'property="og:image"', 'property="og:locale"',
+                        'name="twitter:card"'):
+                self.assertIn(tag, html, "%s must expose %s" % (path, tag))
+
+    def test_robots_txt_blocks_private_areas(self):
+        """/robots.txt keeps the backend, portal and employee area out."""
+        body = self.url_open("/robots.txt").text
+        self.assertIn("Disallow: /employee-portal", body)
+        self.assertIn("Disallow: /web/", body)
+        self.assertIn("Sitemap:", body)
+
+    def test_sitemap_lists_public_pages(self):
+        """/sitemap.xml exposes the public static pages."""
+        xml = self.url_open("/sitemap.xml").text
+        for path in ("/products", "/quality-certifications", "/contactus"):
+            self.assertIn(
+                path, xml, "%s must be present in the sitemap" % path,
+            )
+
+    def test_google_analytics_is_consent_gated(self):
+        """A configured GA key loads gtag with analytics denied by default."""
+        website = self.env["website"].get_current_website()
+        # Consent gating only exists when the cookie bar is enabled — without
+        # it Odoo considers every consent already granted.
+        website.write({"google_analytics_key": "G-TEST1234", "cookies_bar": True})
+        self.env.registry.clear_cache()
+
+        html = self.url_open("/").text
+        self.assertIn("googletagmanager.com/gtag/js?id=G-TEST1234", html)
+        self.assertIn("'analytics_storage': 'denied'", html)
+        self.assertIn("optionalCookiesAccepted", html)
+
+    def test_setup_seo_is_idempotent(self):
+        """od19_setup_seo() seeds defaults and never clobbers custom values."""
+        website = self.env["website"].get_current_website()
+        company = website.company_id
+        website.write({"robots_txt": False, "google_analytics_key": False})
+        company.od19_website_ga_key = "G-IDEMPOTENT1"
+
+        self.env["website"].od19_setup_seo()
+        seeded_robots = website.robots_txt
+        self.assertIn("Disallow: /employee-portal", seeded_robots)
+        self.assertEqual(website.google_analytics_key, "G-IDEMPOTENT1")
+
+        # Running it again leaves the seeded values untouched.
+        self.env["website"].od19_setup_seo()
+        self.assertEqual(website.robots_txt, seeded_robots)
+        self.assertEqual(website.google_analytics_key, "G-IDEMPOTENT1")
+
+        # A customised robots.txt survives a re-run.
+        website.write({"robots_txt": "User-agent: *\nDisallow:\n"})
+        self.env["website"].od19_setup_seo()
+        self.assertEqual(website.robots_txt, "User-agent: *\nDisallow:\n")
 

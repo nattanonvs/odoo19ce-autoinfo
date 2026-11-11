@@ -1,8 +1,46 @@
 import logging
 
 from odoo import api, models
+from odoo.http import request
+from odoo.tools.json import scriptsafe as json_scriptsafe
 
 _logger = logging.getLogger(__name__)
+
+# Spelled out once and reused as (a) the schema.org Organization description,
+# (b) the fallback meta description for pages without their own copy.
+OD19_ORG_DESCRIPTION = (
+    "The Auto-Info Co., Ltd. delivers total integrated automation solutions in "
+    "industrial, building and terminal automation — PLC/SCADA, BMS/HVAC, tank "
+    "gauging and loading control — with ISO 9001:2015 certified engineering, "
+    "installation and service from Bangkok, Thailand."
+)
+
+# Canonical public identity used to build the schema.org Organization markup on
+# every page.  It mirrors the contact details the site already shows in its
+# header, footer and contact page, and is deliberately *not* read from the
+# res.company record: that record may still hold Odoo's demo/placeholder values
+# (e.g. "YourCompany" / "+1 555-555-5556"), which must never leak into the
+# published structured data.
+OD19_ORG_NAME = "The Auto-Info Co., Ltd."
+OD19_ORG_PHONE = "+66 2 934 5410-6"
+OD19_ORG_EMAIL = "sales@auto-info.co.th"
+OD19_ORG_ADDRESS = {
+    "@type": "PostalAddress",
+    "streetAddress": "1359 Soi Ladprao 94 (Panjamitr), Ladprao Rd., "
+                     "Plubpla, Wangthonglang",
+    "addressLocality": "Bangkok",
+    "postalCode": "10310",
+    "addressCountry": "TH",
+}
+
+# Appended to the Odoo-generated robots.txt (the User-agent / Allow / Sitemap
+# block is produced by the website.robots template itself).  Keep internal
+# tooling and the employee portal out of the index.
+OD19_DEFAULT_ROBOTS = """# Auto-Info — keep private areas out of the index
+Disallow: /web/
+Disallow: /my/
+Disallow: /employee-portal
+"""
 
 # Odoo ships the website record as "My Website", which then leaks into every
 # browser tab as "<page name> | My Website".  Brand it on install/upgrade.
@@ -243,3 +281,94 @@ class Website(models.Model):
             return
         website.sudo().write({"name": WEBSITE_NAME})
         _logger.info("od19_website: renamed default website to %r", WEBSITE_NAME)
+
+    # ------------------------------------------------------------------
+    # SEO — schema.org structured data (SP7)
+    # ------------------------------------------------------------------
+    @api.model
+    def od19_seo_default_description(self):
+        """Fallback meta description for pages without their own copy."""
+        return OD19_ORG_DESCRIPTION
+
+    @api.model
+    def od19_organization_jsonld(self):
+        """Return schema.org Organization + WebSite markup as a JSON string.
+
+        Injected inside `<head>` on every page (see views/seo.xml).  The value
+        is ``scriptsafe`` serialised so it can be dropped verbatim into a
+        `<script type="application/ld+json">` element without HTML escaping
+        breaking the JSON.
+        """
+        website = self.env["website"].get_current_website()
+        company = website.company_id.sudo()
+        base_url = website.get_base_url()
+
+        organization = {
+            "@type": "Organization",
+            "@id": "%s#organization" % base_url,
+            "name": OD19_ORG_NAME,
+            "url": base_url,
+            "logo": "%s/logo.png?company=%s" % (base_url, company.id),
+            "description": OD19_ORG_DESCRIPTION,
+            "address": dict(OD19_ORG_ADDRESS),
+            "contactPoint": [{
+                "@type": "ContactPoint",
+                "contactType": "sales",
+                "telephone": OD19_ORG_PHONE,
+                "email": OD19_ORG_EMAIL,
+            }],
+        }
+
+        same_as = [
+            url for url in (
+                company.od19_website_facebook_url,
+                company.od19_website_linkedin_url,
+                company.od19_website_youtube_url,
+            ) if url
+        ]
+        if same_as:
+            organization["sameAs"] = same_as
+
+        website_data = {
+            "@type": "WebSite",
+            "@id": "%s#website" % base_url,
+            "name": website.name,
+            "url": base_url,
+            "potentialAction": {
+                "@type": "SearchAction",
+                "target": "%s/website/search?search={search_term_string}" % base_url,
+                "query-input": "required name=search_term_string",
+            },
+        }
+        lang = getattr(request, "lang", None) if request else None
+        if lang is not None and getattr(lang, "code", None):
+            website_data["inLanguage"] = lang.code.replace("_", "-")
+
+        payload = [
+            dict(organization, **{"@context": "https://schema.org"}),
+            dict(website_data, **{"@context": "https://schema.org"}),
+        ]
+        return json_scriptsafe.dumps(payload, indent=2)
+
+    @api.model
+    def od19_setup_seo(self):
+        """Propagate the company Google Analytics ID and seed robots.txt.
+
+        Idempotent: replayed on every ``-u od19_website`` (see
+        data/setup_functions.xml).  Never overwrites a value that has already
+        been customised from the backend / website editor.
+        """
+        for website in self.search([]):
+            company = website.company_id.sudo()
+            key = (company.od19_website_ga_key or "").strip()
+            vals = {}
+            if key and website.google_analytics_key != key:
+                vals["google_analytics_key"] = key
+            if not (website.robots_txt or "").strip():
+                vals["robots_txt"] = OD19_DEFAULT_ROBOTS
+            if vals:
+                website.sudo().write(vals)
+                _logger.info(
+                    "od19_website: SEO setup applied to %r -> %s",
+                    website.name, sorted(vals),
+                )

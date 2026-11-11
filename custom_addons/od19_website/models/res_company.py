@@ -46,3 +46,10 @@ class ResCompany(models.Model):
         string="Certificate Valid Until",
         help="Expiry date of the ISO 9001 certificate.",
     )
+    od19_website_ga_key = fields.Char(
+        string="Google Analytics ID",
+        help="Google Analytics 4 measurement ID (G-XXXXXXXXXX). When set, it is "
+             "propagated to the website and the analytics script is loaded with "
+             "Odoo's cookie-consent gating (analytics denied until the visitor "
+             "accepts optional cookies).",
+    )

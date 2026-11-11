@@ -32,6 +32,9 @@
                         <field name="od19_website_cert_no"/>
                         <field name="od19_website_cert_valid_until"/>
                     </group>
+                    <group string="SEO &amp; Analytics">
+                        <field name="od19_website_ga_key" placeholder="G-XXXXXXXXXX"/>
+                    </group>
                 </page>
             </xpath>
         </field>
