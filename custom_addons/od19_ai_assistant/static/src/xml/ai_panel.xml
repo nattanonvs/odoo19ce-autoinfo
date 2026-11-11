@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="od19_ai_assistant.AiPanel">
+        <div t-if="isOpen" class="o_od19_ai_panel">
+            <div class="o_od19_ai_panel_head">
+                <span class="o_od19_ai_panel_title">
+                    <i class="fa fa-magic me-1"/> ผู้ช่วย AI
+                </span>
+                <button type="button" class="o_od19_ai_panel_close"
+                        title="ปิด" t-on-click="close">
+                    <i class="fa fa-times"/>
+                </button>
+            </div>
+
+            <div class="o_od19_ai_panel_chips" t-if="state.chips.length">
+                <button type="button" class="o_od19_ai_chip"
+                        t-foreach="state.chips" t-as="chip" t-key="chip_index"
+                        t-out="chip" t-on-click="() => this.useChip(chip)"/>
+            </div>
+
+            <div class="o_od19_ai_panel_messages" t-ref="messages">
+                <t t-foreach="state.messages" t-as="msg" t-key="msg.id">
+                    <div class="o_od19_ai_msg" t-att-class="'role-' + msg.role"
+                         t-out="msg.content"/>
+                </t>
+                <t t-foreach="state.toolChips" t-as="chip" t-key="chip_index">
+                    <div class="o_od19_ai_toolchip">
+                        <i class="fa fa-wrench"/> <span t-out="chip"/>
+                    </div>
+                </t>
+                <div class="o_od19_ai_msg role-assistant" t-if="state.streamText"
+                     t-out="state.streamText"/>
+                <div class="o_od19_ai_typing" t-if="state.streaming and !state.streamText">
+                    กำลังคิด ...
+                </div>
+                <div class="o_od19_ai_msg role-system" t-if="state.error"
+                     t-out="state.error"/>
+                <div class="o_od19_ai_draft" t-if="state.pendingDraft">
+                    <div class="o_od19_ai_draft_title">
+                        <i class="fa fa-file-text-o me-1"/>
+                        ขอสร้างเอกสารร่าง:
+                        <t t-out="state.pendingDraft.model_label"/>
+                    </div>
+                    <ul class="o_od19_ai_draft_values">
+                        <t t-foreach="Object.entries(state.pendingDraft.values)"
+                           t-as="entry" t-key="entry[0]">
+                            <li><t t-out="entry[0]"/>: <t t-out="entry[1]"/></li>
+                        </t>
+                    </ul>
+                    <div class="o_od19_ai_draft_actions">
+                        <button type="button" class="btn btn-primary btn-sm"
+                                t-on-click="confirmDraft">ยืนยันการสร้าง</button>
+                        <button type="button" class="btn btn-secondary btn-sm"
+                                t-on-click="cancelDraft">ยกเลิก</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="o_od19_ai_panel_composer">
+                <textarea t-model="state.draft"
+                          placeholder="ถามเกี่ยวกับเอกสารนี้ ... (Enter = ส่ง)"
+                          t-on-keydown="onKeydown"
+                          t-att-disabled="state.streaming"/>
+                <button type="button" class="btn btn-primary"
+                        t-on-click="send"
+                        t-att-disabled="state.streaming or !state.draft.trim()">
+                    <i class="fa fa-paper-plane"/>
+                </button>
+            </div>
+        </div>
+    </t>
+
+</templates>
