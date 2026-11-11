@@ -3,7 +3,7 @@
 import { Component, onPatched, reactive, useRef, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { rpc } from "@web/core/network/rpc";
-import { useService } from "@web/core/utils/hooks";
+import { useBus, useService } from "@web/core/utils/hooks";
 import { getPageContext } from "./ai_context";
 
 /** Shared open/close state (systray button and the panel both read it). */
@@ -44,7 +44,23 @@ export class AiPanel extends Component {
                 this.scrollToBottom();
             }
         });
+        useBus(this.env.bus, "ACTION_MANAGER:UPDATE", () => {
+            this.loadChips();
+        });
         this.loadChips();
+    }
+
+    get pageContext() {
+        return getPageContext(this.env);
+    }
+
+    get isDocked() {
+        const ctx = this.pageContext;
+        return Boolean(ctx && ctx.view_type === "form" && ctx.res_id);
+    }
+
+    get panelClass() {
+        return this.isDocked ? "o_od19_ai_panel o_od19_ai_docked" : "o_od19_ai_panel";
     }
 
     get isOpen() {

@@ -2,7 +2,7 @@
 <templates xml:space="preserve">
 
     <t t-name="od19_ai_assistant.AiPanel">
-        <div t-if="isOpen" class="o_od19_ai_panel">
+        <div t-if="isOpen" t-att-class="panelClass">
             <div class="o_od19_ai_panel_head">
                 <span class="o_od19_ai_panel_title">
                     <i class="fa fa-magic me-1"/> ผู้ช่วย AI

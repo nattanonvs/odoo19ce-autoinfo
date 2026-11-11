@@ -66,3 +66,11 @@
         }
     }
 }
+
+/* Docked beside a form view: stretch from below the navbar to the bottom. */
+.o_od19_ai_panel.o_od19_ai_docked {
+    top: 60px;
+    bottom: 16px;
+    max-height: none;
+    width: 360px;
+}
