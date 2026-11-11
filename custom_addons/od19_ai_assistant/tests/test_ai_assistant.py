@@ -985,3 +985,60 @@ class TestPerformanceGuards(TransactionCase):
         # must stay within the cap *and* actually drop tools.
         self.assertLessEqual(len(index), tool_model.MAX_INDEX_CHARS)
         self.assertLess(len(index.splitlines()), len(fake_tools))
+
+
+@tagged("post_install", "-at_install")
+class TestOd19AiAskHttp(HttpCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.ask_user = cls.env["res.users"].create(
+            {
+                "name": "OD19 Ask User",
+                "login": "od19_ask_user",
+                "password": "od19_ask_user",
+                "group_ids": [(6, 0, [cls.env.ref("base.group_user").id])],
+            }
+        )
+
+    def _login(self):
+        self.authenticate("od19_ask_user", "od19_ask_user")
+
+    def test_ask_endpoint_returns_answer(self):
+        partner = self.env["res.partner"].create({"name": "บริษัท ถาม จำกัด"})
+        self._login()
+        with patch(CHAT_COMPLETION, return_value="นี่คือบริษัท ถาม จำกัด"):
+            result = self.url_open(
+                "/od19_ai/ask",
+                json={
+                    "jsonrpc": "2.0",
+                    "method": "call",
+                    "id": 1,
+                    "params": {
+                        "question": "เอกสารนี้คืออะไร",
+                        "model": "res.partner",
+                        "res_id": partner.id,
+                        "view_type": "form",
+                    },
+                },
+            ).json()["result"]
+        self.assertEqual(result["answer"], "นี่คือบริษัท ถาม จำกัด")
+        self.assertIsNone(result["error"])
+
+    def test_suggest_endpoint_returns_chips(self):
+        partner = self.env["res.partner"].create({"name": "บริษัท ชิป จำกัด"})
+        self._login()
+        result = self.url_open(
+            "/od19_ai/suggest",
+            json={
+                "jsonrpc": "2.0",
+                "method": "call",
+                "id": 1,
+                "params": {
+                    "model": "res.partner",
+                    "res_id": partner.id,
+                    "view_type": "form",
+                },
+            },
+        ).json()["result"]
+        self.assertTrue(result["chips"])
