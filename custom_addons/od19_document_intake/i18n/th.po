@@ -1,0 +1,18 @@
+# Thai translation for od19_document_intake
+msgid ""
+msgstr ""
+"Project-Id-Version: od19_document_intake 19.0.1.0.0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: th\n"
+
+#. module: od19_document_intake
+#: model:ir.model,name:od19_document_intake.model_od19_document_inbox
+msgid "กล่องรับเข้าเอกสาร (staging)"
+msgstr "กล่องรับเข้าเอกสาร (staging)"
+
+#. module: od19_document_intake
+#: model:ir.model,name:od19_document_intake.model_od19_document_channel
+msgid "ช่องทางรับเอกสารเข้า"
+msgstr "ช่องทางรับเอกสารเข้า"
