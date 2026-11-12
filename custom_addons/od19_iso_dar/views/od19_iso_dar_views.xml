@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <!-- ==================== Wizard action (ต้องมาก่อนปุ่มใน header) ==================== -->
+    <record id="action_od19_iso_dar_create_document" model="ir.actions.act_window">
+        <field name="name">สร้างเอกสารใหม่จาก DAR</field>
+        <field name="res_model">od19.iso.dar.create.document</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
     <!-- ==================== List ==================== -->
     <record id="view_od19_iso_dar_list" model="ir.ui.view">
         <field name="name">od19.iso.dar.list</field>
@@ -76,6 +84,12 @@
                     <button name="action_close" type="object"
                             string="ปิดใบ" class="btn-primary"
                             invisible="status != 'approved'"/>
+                    <button name="%(action_od19_iso_dar_create_document)d"
+                            type="action"
+                            string="สร้างเอกสารใหม่"
+                            class="btn-primary"
+                            context="{'active_id': id, 'active_model': 'od19.iso.dar'}"
+                            invisible="status != 'approved' or request_type != 'new'"/>
                     <button name="action_cancel" type="object"
                             string="ยกเลิก" class="btn-secondary"
                             invisible="status in ('approved','cancelled','closed')"/>

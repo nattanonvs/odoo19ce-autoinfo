@@ -169,3 +169,23 @@ class TestIsoDar(TransactionCase):
         dar._apply_approval_effect()
         dar._apply_approval_effect()
         self.assertEqual(doc.revision, "01")
+
+    def test_wizard_creates_document(self):
+        dar = self._new_dar(
+            request_type="new",
+            category_id=self.env["od19.iso.document.category"].search([], limit=1).id,
+            reviewer_id=self.users[1].id,
+            approver_id=self.users[2].id,
+            final_approver_id=self.users[3].id,
+        )
+        dar.action_submit_for_review()
+        dar.with_user(self.users[1]).action_review_approve()
+        dar.with_user(self.users[2]).action_approve()
+        dar.with_user(self.users[3]).action_final_approve()
+        self.assertEqual(dar.status, "approved")
+        wiz = self.env["od19.iso.dar.create.document"].with_context(
+            active_id=dar.id, active_model="od19.iso.dar"
+        ).create({"document_title": "เอกสารใหม่จาก DAR"})
+        wiz.action_create_document()
+        self.assertTrue(dar.document_id)
+        self.assertEqual(dar.document_id.document_title, "เอกสารใหม่จาก DAR")
