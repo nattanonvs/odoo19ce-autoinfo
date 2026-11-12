@@ -3,3 +3,5 @@ access_od19_iso_dar_user,od19.iso.dar.user,model_od19_iso_dar,base.group_user,1,
 access_od19_iso_dar_controller,od19.iso.dar.controller,model_od19_iso_dar,od19_iso_dar.group_iso_dar_controller,1,1,1,0
 access_od19_iso_dar_manager,od19.iso.dar.manager,model_od19_iso_dar,od19_iso_dar.group_iso_dar_manager,1,1,1,1
 access_od19_iso_dar_system,od19.iso.dar.system,model_od19_iso_dar,base.group_system,1,1,1,1
+access_od19_iso_dar_change_line_user,od19.iso.dar.change.line.user,model_od19_iso_dar_change_line,base.group_user,1,1,1,1
+access_od19_iso_dar_change_line_system,od19.iso.dar.change.line.system,model_od19_iso_dar_change_line,base.group_system,1,1,1,1

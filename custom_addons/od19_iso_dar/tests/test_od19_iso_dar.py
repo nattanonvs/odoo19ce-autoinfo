@@ -89,3 +89,15 @@ class TestIsoDar(TransactionCase):
         self.assertTrue(source)
         self.assertEqual(source.sla_days, 5)
         self.assertEqual(len(source.step_ids), 3)
+
+    def test_change_line_create(self):
+        dar = self._new_dar()
+        line = self.env["od19.iso.dar.change.line"].create({
+            "dar_id": dar.id,
+            "field_changed": "ข้อ 4.2",
+            "before_value": "เดิม",
+            "after_value": "ใหม่",
+            "impact": "ต้องอบรมพนักงาน",
+        })
+        self.assertEqual(line.dar_id, dar)
+        self.assertIn(line, dar.change_line_ids)
