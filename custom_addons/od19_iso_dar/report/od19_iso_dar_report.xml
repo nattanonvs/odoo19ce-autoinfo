@@ -1,3 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+
+    <record id="action_report_od19_iso_dar" model="ir.actions.report">
+        <field name="name">ใบคำขอ DAR (PDF)</field>
+        <field name="model">od19.iso.dar</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">od19_iso_dar.report_od19_iso_dar</field>
+        <field name="report_file">od19_iso_dar.report_od19_iso_dar</field>
+        <field name="print_report_name">'DAR_%s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_od19_iso_dar"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_od19_iso_dar">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2 class="text-center">ใบคำขอเปลี่ยนแปลงเอกสาร (Document Action Request)</h2>
+                        <div class="row">
+                            <div class="col-6">
+                                <strong>เลขที่ DAR:</strong> <span t-field="o.name"/>
+                            </div>
+                            <div class="col-6 text-end">
+                                <strong>ประเภทคำขอ:</strong> <span t-field="o.request_type"/>
+                            </div>
+                        </div>
+                        <table class="table table-sm mt-3">
+                            <tr>
+                                <td><strong>เอกสารอ้างอิง</strong></td>
+                                <td><span t-field="o.document_id"/></td>
+                                <td><strong>แผนก</strong></td>
+                                <td><span t-field="o.department_id"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>ประเภทเอกสาร</strong></td>
+                                <td><span t-field="o.category_id"/></td>
+                                <td><strong>วันที่มีผล</strong></td>
+                                <td><span t-field="o.effective_date"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>เหตุผล / ความจำเป็น</strong></td>
+                                <td colspan="3"><span t-field="o.reason"/></td>
+                            </tr>
+                        </table>
+
+                        <h4>รายการเปลี่ยนแปลง</h4>
+                        <table class="table table-sm table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>ประเด็น</th>
+                                    <th>เดิม</th>
+                                    <th>ใหม่</th>
+                                    <th>ผลกระทบ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="o.change_line_ids" t-as="line">
+                                    <td><span t-field="line.field_changed"/></td>
+                                    <td><span t-field="line.before_value"/></td>
+                                    <td><span t-field="line.after_value"/></td>
+                                    <td><span t-field="line.impact"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h4>การลงนามอนุมัติ</h4>
+                        <table class="table table-sm table-bordered text-center">
+                            <thead>
+                                <tr>
+                                    <th>ผู้ขอ</th>
+                                    <th>ผู้ตรวจทาน</th>
+                                    <th>ผู้อนุมัติ</th>
+                                    <th>ผู้อนุมัติสุดท้าย</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="height:70px;"><span t-field="o.requester_id"/></td>
+                                    <td><span t-field="o.reviewer_id"/></td>
+                                    <td><span t-field="o.approver_id"/></td>
+                                    <td><span t-field="o.final_approver_id"/></td>
+                                </tr>
+                                <tr>
+                                    <td>วันที่ ................</td>
+                                    <td>วันที่ ................</td>
+                                    <td>วันที่ ................</td>
+                                    <td>วันที่ ................</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- ท้ายเอกสาร ISO เดิม: ใช้ template iso_footer ที่มีอยู่จริง
+                             (ตัวฉีด iso_footer_corner ผ่าน web.external_layout_* ใช้ไม่ได้กับ DAR
+                             เพราะ od19_iso_document_id เป็นค่าคงที่บน report action ไม่ใช่ต่อเรคคอร์ด) -->
+                        <div class="mt-4 border-top pt-1">
+                            <t t-call="od19_iso_document_control.iso_footer">
+                                <t t-set="iso_code" t-value="o.document_id.code or ''"/>
+                                <t t-set="iso_revision" t-value="o.document_id.revision or '00'"/>
+                                <t t-set="iso_effective_date" t-value="o.document_id.effective_date.strftime('%d/%m/%y') if o.document_id.effective_date else ''"/>
+                            </t>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
 </odoo>

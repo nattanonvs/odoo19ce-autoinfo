@@ -121,3 +121,10 @@ class TestIsoDar(TransactionCase):
         doc.action_new_revision_keep_approved()
         self.assertEqual(doc.revision, "01")
         self.assertEqual(doc.status, "approved")
+
+    def test_report_renders(self):
+        dar = self._new_dar()
+        html, _mimetype = self.env["ir.actions.report"]._render_qweb_html(
+            "od19_iso_dar.action_report_od19_iso_dar", dar.ids
+        )
+        self.assertIn(dar.name, html.decode("utf-8"))
