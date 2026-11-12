@@ -1,0 +1,40 @@
+# Copyright 2026 TRAE
+# License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
+
+{
+    "name": "ISO Document Action Request (DAR)",
+    "version": "19.0.1.0.0",
+    "category": "ISO/Quality",
+    "license": "LGPL-3",
+    "author": "TRAE",
+    "website": "https://www.trae.ai",
+    "summary": "ระบบออกใบ DAR (Document Action Request) สำหรับเอกสารควบคุม ISO",
+    "depends": [
+        "base",
+        "mail",
+        "hr",
+        "web",
+        "od19_iso_document_control",
+        "od19_approval_center",
+        "od19_thai_font_support",
+        "od19_security_roles",
+    ],
+    "data": [
+        "security/od19_iso_dar_groups.xml",
+        "security/ir.model.access.csv",
+        "security/od19_department_rule.xml",
+        "data/ir_sequence_data.xml",
+        "data/approval_source_data.xml",
+        "data/mail_template_data.xml",
+        "data/ir_cron_data.xml",
+        "views/od19_iso_dar_views.xml",
+        "views/od19_iso_dar_copy_views.xml",
+        "views/od19_iso_document_dar_views.xml",
+        "wizard/od19_iso_dar_create_document_views.xml",
+        "report/od19_iso_dar_report.xml",
+    ],
+    "demo": [],
+    "installable": True,
+    "application": False,
+    "auto_install": False,
+}
