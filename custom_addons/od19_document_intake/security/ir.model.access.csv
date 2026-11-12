@@ -1,3 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_od19_document_channel_user,od19.document.channel.user,model_od19_document_channel,od19_document_hub.group_document_user,1,1,1,0
 access_od19_document_channel_manager,od19.document.channel.manager,model_od19_document_channel,od19_document_hub.group_document_manager,1,1,1,1
+access_od19_document_classify_rule_user,od19.document.classify.rule.user,model_od19_document_classify_rule,od19_document_hub.group_document_user,1,0,0,0
+access_od19_document_classify_rule_manager,od19.document.classify.rule.manager,model_od19_document_classify_rule,od19_document_hub.group_document_manager,1,1,1,1

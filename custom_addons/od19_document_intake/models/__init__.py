@@ -2,3 +2,4 @@
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
 
 from . import od19_document_channel
+from . import od19_document_classify_rule
