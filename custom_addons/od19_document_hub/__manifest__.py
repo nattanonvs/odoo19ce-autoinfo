@@ -16,6 +16,7 @@
         "data/od19_document_category_data.xml",
         "views/od19_document_category_views.xml",
         "views/od19_document_retention_policy_views.xml",
+        "views/od19_document_bulk_category_views.xml",
         "views/ir_attachment_views.xml",
         "views/od19_document_hub_menus.xml",
     ],

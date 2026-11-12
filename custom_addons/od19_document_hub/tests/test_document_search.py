@@ -55,3 +55,15 @@ class TestDocumentSearch(TransactionCase):
         found = self.Attachment.search([("od19_search_text", "ilike", "")])
         self.assertIn(self.att_name, found)
         self.assertIn(self.att_content, found)
+
+    def test_bulk_category_wizard(self):
+        """wizard จัดหมวดเป็นชุด ต้องเขียนหมวดให้ทุกระเบียนที่เลือก"""
+        category = self.env["od19.document.category"].create({
+            "name": "ใบกำกับภาษี", "code": "SEARCH-001",
+        })
+        wizard = self.env["od19.document.bulk.category.wizard"].with_context(
+            active_ids=(self.att_name + self.att_content).ids,
+        ).create({"category_id": category.id})
+        wizard.action_apply()
+        self.assertEqual(self.att_name.od19_category_id, category)
+        self.assertEqual(self.att_content.od19_category_id, category)
