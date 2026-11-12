@@ -50,8 +50,28 @@
                             <field name="od19_disposal_move_id" readonly="1" />
                         </group>
                         <group string="Linked Documents">
-                            <field name="od19_additional_bill_ids" widget="many2many_tags" />
-                            <field name="od19_supporting_move_ids" widget="many2many_tags" />
+                            <field
+                                name="od19_additional_bill_ids"
+                                widget="many2many_tags"
+                            />
+                            <button
+                                name="action_open_additional_bills"
+                                string="Open Additional Documents"
+                                type="object"
+                                class="btn-link"
+                                icon="fa-external-link"
+                            />
+                            <field
+                                name="od19_supporting_move_ids"
+                                widget="many2many_tags"
+                            />
+                            <button
+                                name="action_open_supporting_documents"
+                                string="Open Supporting Documents"
+                                type="object"
+                                class="btn-link"
+                                icon="fa-external-link"
+                            />
                         </group>
                     </group>
                 </page>
