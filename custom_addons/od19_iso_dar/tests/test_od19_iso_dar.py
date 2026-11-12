@@ -101,3 +101,23 @@ class TestIsoDar(TransactionCase):
         })
         self.assertEqual(line.dar_id, dar)
         self.assertIn(line, dar.change_line_ids)
+
+    def test_dar_ids_and_count(self):
+        doc = self.env["od19.iso.document"].create({
+            "document_title": "ทดสอบเอกสาร",
+            "category_id": self.env["od19.iso.document.category"].search([], limit=1).id,
+        })
+        self._new_dar(request_type="other", document_id=doc.id)
+        self.assertEqual(doc.dar_count, 1)
+        self.assertIn("dar_ids", doc._fields)
+
+    def test_new_revision_keep_approved(self):
+        doc = self.env["od19.iso.document"].create({
+            "document_title": "ทดสอบ Rev",
+            "category_id": self.env["od19.iso.document.category"].search([], limit=1).id,
+            "status": "approved",
+            "revision": "00",
+        })
+        doc.action_new_revision_keep_approved()
+        self.assertEqual(doc.revision, "01")
+        self.assertEqual(doc.status, "approved")
