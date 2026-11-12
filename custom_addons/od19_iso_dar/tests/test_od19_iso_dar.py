@@ -81,3 +81,11 @@ class TestIsoDar(TransactionCase):
     def test_department_rule_exists(self):
         rule = self.env.ref("od19_iso_dar.rule_od19_iso_dar_department")
         self.assertIn("department_id", rule.domain_force)
+
+    def test_approval_source_registered(self):
+        source = self.env["od19.approval.source"].search(
+            [("model_name", "=", "od19.iso.dar")], limit=1
+        )
+        self.assertTrue(source)
+        self.assertEqual(source.sla_days, 5)
+        self.assertEqual(len(source.step_ids), 3)

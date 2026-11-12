@@ -1,3 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<odoo noupdate="1">
+
+    <record id="approval_source_od19_iso_dar" model="od19.approval.source">
+        <field name="name">ใบคำขอ DAR (ISO DAR)</field>
+        <field name="model_id" ref="model_od19_iso_dar"/>
+        <field name="icon">fa-file-text-o</field>
+        <field name="action_xmlid">od19_iso_dar.action_od19_iso_dar</field>
+        <field name="sequence">45</field>
+        <field name="requester_field">requester_id</field>
+        <field name="requester_kind">user</field>
+        <field name="submitted_date_field">create_date</field>
+        <field name="rejected_states">rejected</field>
+        <field name="success_states">approved,closed</field>
+        <field name="strategy">field</field>
+        <field name="sla_days">5</field>
+    </record>
+
+    <record id="approval_step_dar_review" model="od19.approval.step">
+        <field name="source_id" ref="approval_source_od19_iso_dar"/>
+        <field name="sequence">10</field>
+        <field name="label">ทบทวน (Review)</field>
+        <field name="state_field">status</field>
+        <field name="state_value">review</field>
+        <field name="approver_field">reviewer_id</field>
+        <field name="approver_kind">user</field>
+    </record>
+
+    <record id="approval_step_dar_approval" model="od19.approval.step">
+        <field name="source_id" ref="approval_source_od19_iso_dar"/>
+        <field name="sequence">20</field>
+        <field name="label">อนุมัติ (Approval)</field>
+        <field name="state_field">status</field>
+        <field name="state_value">approval</field>
+        <field name="approver_field">approver_id</field>
+        <field name="approver_kind">user</field>
+    </record>
+
+    <record id="approval_step_dar_final" model="od19.approval.step">
+        <field name="source_id" ref="approval_source_od19_iso_dar"/>
+        <field name="sequence">30</field>
+        <field name="label">อนุมัติขั้นสุดท้าย (Final approval)</field>
+        <field name="state_field">status</field>
+        <field name="state_value">final_approval</field>
+        <field name="approver_field">final_approver_id</field>
+        <field name="approver_kind">user</field>
+    </record>
+
 </odoo>
