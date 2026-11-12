@@ -8,3 +8,4 @@ from . import test_document_hub_attachment
 from . import test_document_archive_report
 from . import test_document_hub_baseline
 from . import test_document_search
+from . import test_document_search_perf
