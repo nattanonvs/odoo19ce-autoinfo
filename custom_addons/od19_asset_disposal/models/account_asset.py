@@ -4,7 +4,7 @@
 import logging
 
 from odoo import api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -56,6 +56,151 @@ class AccountAsset(models.Model):
         check_company=True,
         help="Journal entry generated when the asset was disposed.",
     )
+
+    # ------------------------------------------------------------------
+    # Linked documents (multi-bill support)
+    # ------------------------------------------------------------------
+    def _od19_get_source_moves(self):
+        """Return the move(s) that created this asset.
+
+        OCA creates the asset from a purchase bill and links the bill to the
+        'create' type depreciation line. This is the primary source document.
+        """
+        self.ensure_one()
+        return self.depreciation_line_ids.filtered(
+            lambda line: line.type == "create"
+        ).mapped("move_id")
+
+    @api.constrains("od19_additional_bill_ids")
+    def _od19_check_bill_reference_consistency(self):
+        """The primary bill that created the asset cannot be listed again
+        among the additional documents."""
+        for asset in self:
+            duplicate = asset._od19_get_source_moves() & asset.od19_additional_bill_ids
+            if duplicate:
+                raise ValidationError(
+                    self.env._(
+                        "The primary document that created the asset (%s) "
+                        "cannot be selected again as an additional document.",
+                        ", ".join(duplicate.mapped("display_name")),
+                    )
+                )
+
+    def _od19_open_moves(self, moves, name):
+        """Return a standard act_window: one document opens its form,
+        several documents open a list, none shows a notification."""
+        self.ensure_one()
+        if not moves:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "type": "warning",
+                    "title": self.env._("No Document"),
+                    "message": self.env._(
+                        "No document is linked to this asset."
+                    ),
+                    "sticky": False,
+                },
+            }
+        action = {
+            "type": "ir.actions.act_window",
+            "name": name,
+            "res_model": "account.move",
+            "view_mode": "list,form",
+            "domain": [("id", "in", moves.ids)],
+            "target": "current",
+        }
+        if len(moves) == 1:
+            action.update({"view_mode": "form", "res_id": moves.id})
+        return action
+
+    def action_open_additional_bills(self):
+        self.ensure_one()
+        return self._od19_open_moves(
+            self.od19_additional_bill_ids, self.env._("Additional Documents")
+        )
+
+    def action_open_supporting_documents(self):
+        self.ensure_one()
+        return self._od19_open_moves(
+            self.od19_supporting_move_ids, self.env._("Supporting Documents")
+        )
+
+    # ------------------------------------------------------------------
+    # Merge several bills into one asset
+    # ------------------------------------------------------------------
+    def _od19_check_can_merge(self, line):
+        """Raise a clear error if this asset cannot absorb another bill."""
+        self.ensure_one()
+        if self.state not in ("draft", "open"):
+            raise UserError(
+                self.env._(
+                    "Asset '%s' is in state '%s' and cannot receive the value "
+                    "of another bill.",
+                    self.display_name,
+                    dict(self._fields["state"].selection).get(self.state, self.state),
+                )
+            )
+        if self.company_id != line.company_id:
+            raise UserError(
+                self.env._(
+                    "The bill line and the target asset '%s' must belong to "
+                    "the same company.",
+                    self.display_name,
+                )
+            )
+        posted = self.depreciation_line_ids.filtered(
+            lambda dl: dl.type in ("depreciate", "remove")
+            and dl.move_id
+            and dl.move_id.state == "posted"
+        )
+        if posted:
+            raise UserError(
+                self.env._(
+                    "Asset '%s' already has posted depreciation entries, so it "
+                    "cannot absorb the value of another bill.\n"
+                    "Reverse the depreciation first, or create a separate asset.",
+                    self.display_name,
+                )
+            )
+
+    def _od19_sync_first_line(self):
+        """Keep the 'create' asset line amount in sync with depreciation_base."""
+        self.ensure_one()
+        create_line = self.depreciation_line_ids.filtered(
+            lambda dl: dl.type == "create"
+        )
+        if create_line:
+            create_line.write({"amount": self.depreciation_base})
+
+    def _od19_merge_purchase_value(self, amount, move):
+        """Add ``amount`` to the purchase value of this asset and register the
+        bill as an additional document."""
+        self.ensure_one()
+        new_value = self.purchase_value + amount
+        self.with_context(asset_validate_from_write=True).write(
+            {"purchase_value": new_value}
+        )
+        self._od19_sync_first_line()
+        if self.state == "open":
+            self.compute_depreciation_board()
+        if move and move not in self.od19_additional_bill_ids:
+            self.od19_additional_bill_ids = [(4, move.id)]
+
+    def _od19_unmerge_purchase_value(self, amount, move):
+        """Revert :meth:`_od19_merge_purchase_value` (used when the bill is
+        reset to draft)."""
+        self.ensure_one()
+        new_value = self.purchase_value - amount
+        self.with_context(asset_validate_from_write=True).write(
+            {"purchase_value": new_value}
+        )
+        self._od19_sync_first_line()
+        if self.state == "open":
+            self.compute_depreciation_board()
+        if move and move in self.od19_additional_bill_ids:
+            self.od19_additional_bill_ids = [(3, move.id)]
 
     # ------------------------------------------------------------------
     # Disposal workflow
