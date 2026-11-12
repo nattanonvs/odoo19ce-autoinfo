@@ -1,7 +1,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 {
     "name": "Thai Tax Reports",
-    "version": "19.0.1.15.0",
+    "version": "19.0.1.16.0",
     "category": "Localization",
     "summary": "Thai tax reports: VAT Sales/Purchase Register, "
     "PP30 Register (แบบแสดงรายการภาษีมูลค่าเพิ่ม ภ.พ.30), "
