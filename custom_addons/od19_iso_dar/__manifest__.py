@@ -30,6 +30,7 @@
         "views/od19_iso_dar_views.xml",
         "views/od19_iso_dar_copy_views.xml",
         "views/od19_iso_document_dar_views.xml",
+        "views/od19_iso_dar_report_views.xml",
         "wizard/od19_iso_dar_create_document_views.xml",
         "report/od19_iso_dar_report.xml",
     ],

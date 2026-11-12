@@ -233,3 +233,7 @@ class TestIsoDar(TransactionCase):
         dar.with_user(self.users[3]).action_final_approve()
         self.assertTrue(dar.copy_record_ids)
         self.assertEqual(dar.copy_record_ids.copy_type, "controlled")
+
+    def test_summary_action_exists(self):
+        action = self.env.ref("od19_iso_dar.action_od19_iso_dar_summary")
+        self.assertEqual(action.res_model, "od19.iso.dar")

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_od19_iso_dar_summary" model="ir.actions.act_window">
+        <field name="name">รายงานสรุป DAR</field>
+        <field name="res_model">od19.iso.dar</field>
+        <field name="view_mode">pivot,graph,list</field>
+        <field name="domain">[]</field>
+        <field name="context">{'search_default_group_status': 1, 'search_default_group_type': 1}</field>
+    </record>
+
+    <menuitem id="menu_od19_iso_dar_summary"
+              name="รายงานสรุป DAR"
+              parent="od19_iso_document_control.menu_iso_document_control"
+              action="action_od19_iso_dar_summary"
+              sequence="40"/>
+
+</odoo>
