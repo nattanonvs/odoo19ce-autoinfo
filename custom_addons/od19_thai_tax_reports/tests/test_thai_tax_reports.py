@@ -366,6 +366,76 @@ class TestThaiTaxReports(TransactionCase):
             values["half_year_payable"], values["estimated_annual_tax"] * 0.5
         )
 
+    def _create_posted_sale_move(self, move_type="out_invoice"):
+        """สร้างใบแจ้งหนี้/ใบลดหนี้ขายที่ Post แล้ว สำหรับทดสอบทะเบียนภาษีขาย"""
+        company = self.env.company
+        tax = company.account_sale_tax_id
+        if not tax:
+            tax = self.env["account.tax"].create(
+                {
+                    "name": "Test Output VAT 7%",
+                    "amount_type": "percent",
+                    "amount": 7.0,
+                    "type_tax_use": "sale",
+                    "company_id": company.id,
+                }
+            )
+        income_account = self.env["account.account"].search(
+            [
+                ("account_type", "=", "income"),
+                ("company_ids", "in", company.id),
+            ],
+            limit=1,
+        )
+        partner = self.env["res.partner"].create(
+            {"name": "VAT Register Buyer %s" % move_type}
+        )
+        move = self.env["account.move"].create(
+            {
+                "move_type": move_type,
+                "partner_id": partner.id,
+                "invoice_date": fields.Date.today(),
+                "invoice_line_ids": [
+                    (
+                        0,
+                        0,
+                        {
+                            "name": "Consulting service",
+                            "quantity": 1.0,
+                            "price_unit": 10000.0,
+                            "account_id": income_account.id,
+                            "tax_ids": [(6, 0, [tax.id])],
+                        },
+                    )
+                ],
+            }
+        )
+        move.action_post()
+        return move
+
+    def test_vat_sales_register_includes_credit_note(self):
+        """ทะเบียนภาษีขายต้องรวมใบลดหนี้ (out_refund) และแสดงเป็นค่าลบ"""
+        invoice = self._create_posted_sale_move("out_invoice")
+        refund = self._create_posted_sale_move("out_refund")
+
+        values = (
+            self.env["report.od19_thai_tax_reports.vat_sales_register"]
+            .with_context(
+                date_from=fields.Date.today(),
+                date_to=fields.Date.today(),
+                company_id=self.env.company.id,
+            )
+            ._get_report_values([])
+        )
+
+        by_name = {line["name"]: line for line in values["lines"]}
+        self.assertIn(invoice.name, by_name)
+        self.assertIn(refund.name, by_name)
+        self.assertEqual(by_name[invoice.name]["doc_type"], "ใบกำกับภาษีขาย")
+        self.assertEqual(by_name[refund.name]["doc_type"], "ใบลดหนี้")
+        self.assertLess(by_name[refund.name]["tax_base"], 0)
+        self.assertLess(by_name[refund.name]["tax_amount"], 0)
+
     def test_register_reports_render(self):
         """ทุกรายงานใน wizard ต้อง render ได้จริง (กัน template/report_name ไม่ตรง)"""
         report_map = {
