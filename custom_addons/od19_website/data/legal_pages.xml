@@ -24,7 +24,9 @@
 
     <record id="terms_page" model="website.page">
         <field name="name">Terms of Use</field>
-        <field name="url">/terms</field>
+        <!-- /terms is reserved by Odoo's account module (invoice terms
+             route), so the branded page lives at /terms-of-use instead. -->
+        <field name="url">/terms-of-use</field>
         <field name="view_id" ref="od19_terms_page"/>
         <field name="website_id" ref="website.default_website"/>
         <field name="is_published" eval="True"/>

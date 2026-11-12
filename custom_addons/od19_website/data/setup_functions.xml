@@ -31,7 +31,7 @@
     <function model="website" name="od19_setup_seo"/>
 
     <!-- Enable the cookie consent bar and keep the PDPA legal pages
-         (/privacy, /terms) published and indexed. -->
+         (/privacy, /terms-of-use) published and indexed. -->
     <function model="website" name="od19_setup_pdpa"/>
 
 </odoo>

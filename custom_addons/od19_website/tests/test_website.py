@@ -700,17 +700,17 @@ class TestPdpaLegalSP8(HttpCase):
     """SP8: the legal layer — PDPA privacy notice, terms, cookie consent and
     the go-live checks that tie them together."""
 
-    OD19_LEGAL_PAGES = ["/privacy", "/terms"]
+    OD19_LEGAL_PAGES = ["/privacy", "/terms-of-use"]
 
     def test_legal_pages_render(self):
-        """/privacy and /terms are live pages with real legal copy."""
+        """/privacy and /terms-of-use are live pages with real legal copy."""
         privacy_html = self.url_open("/privacy").text
         self.assertIn("Privacy Policy", privacy_html)
         self.assertIn("Personal Data Protection Act", privacy_html)
         self.assertIn("Your rights as a data subject", privacy_html)
         self.assertIn("privacy@auto-info.co.th", privacy_html)
 
-        terms_html = self.url_open("/terms").text
+        terms_html = self.url_open("/terms-of-use").text
         self.assertIn("Terms of Use", terms_html)
         self.assertIn("Governing law", terms_html)
 
@@ -725,7 +725,7 @@ class TestPdpaLegalSP8(HttpCase):
         """The footer exposes the privacy, terms and cookie policies."""
         html = self.url_open("/").text
         self.assertIn('href="/privacy"', html)
-        self.assertIn('href="/terms"', html)
+        self.assertIn('href="/terms-of-use"', html)
         self.assertIn('href="/cookie-policy"', html)
 
     def test_legal_pages_have_meta_and_are_in_the_sitemap(self):
@@ -743,10 +743,10 @@ class TestPdpaLegalSP8(HttpCase):
             self.assertIn(path, xml, "%s must be listed in the sitemap" % path)
 
     def test_robots_txt_does_not_block_legal_pages(self):
-        """/privacy and /terms stay crawlable (go-live)."""
+        """/privacy and /terms-of-use stay crawlable (go-live)."""
         body = self.url_open("/robots.txt").text
         self.assertNotIn("Disallow: /privacy", body)
-        self.assertNotIn("Disallow: /terms", body)
+        self.assertNotIn("Disallow: /terms-of-use", body)
 
     def test_setup_pdpa_enables_consent_and_cookie_policy(self):
         """od19_setup_pdpa() turns on the cookie bar and its policy page."""
