@@ -15,7 +15,7 @@
 1. **Privacy Policy (`/privacy`)** — ประกาศความเป็นส่วนตัวตาม **พ.ร.บ.คุ้มครองข้อมูลส่วนบุคคล
    พ.ศ. 2562 (PDPA)** ระบุฐานทางกฎหมาย (legal basis), ระยะเวลาเก็บรักษา, สิทธิของเจ้าของข้อมูล
    (rights of the data subject), ช่องทางติดต่อ DPO และมาตรการความปลอดภัย
-2. **Terms of Use (`/terms`)** — ข้อกำหนดการใช้เว็บไซต์ ทรัพย์สินทางปัญญา และข้อจำกัดความรับผิด
+2. **Terms of Use (`/terms-of-use`)** — ข้อกำหนดการใช้เว็บไซต์ ทรัพย์สินทางปัญญา และข้อจำกัดความรับผิด
 3. **Cookie Policy** — ใช้หน้า `/cookie-policy` ที่ Odoo สร้างให้อัตโนมัติเมื่อเปิด cookie bar
    แล้ว **override เนื้อหา** ให้เป็นฉบับแบรนด์ Auto-Info (ลิงก์ไป `/privacy`, เพิ่มหมวด Analytics
    และช่องทางถอนความยินยอม)
@@ -24,7 +24,7 @@
 5. **Footer legal links** — เพิ่มลิงก์ Privacy / Terms / Cookie Policy ในส่วนท้ายเว็บ
 6. **Setup hook `od19_setup_pdpa()`** — idempotent: เปิด cookie bar, publish + ตั้ง metadata
    ของหน้าด้านกฎหมาย, และไม่ทับเนื้อหาที่ผู้ดูแลแก้เอง
-7. **Go-live** — ตรวจว่า `/privacy` และ `/terms` อยู่ใน sitemap, ไม่ถูก `robots.txt` ปิดกั้น
+7. **Go-live** — ตรวจว่า `/privacy` และ `/terms-of-use` อยู่ใน sitemap, ไม่ถูก `robots.txt` ปิดกั้น
    และทุกหน้ามี metadata ครบ
 
 ## 2. Problem / Goal
@@ -36,7 +36,7 @@
 - Footer ไม่มีลิงก์กฎหมายให้ผู้เยี่ยมชมเข้าถึงได้
 
 **เป้าหมาย**
-- `/privacy` และ `/terms` เป็นหน้าจริง publish แล้ว มี metadata และอยู่ใน sitemap
+- `/privacy` และ `/terms-of-use` เป็นหน้าจริง publish แล้ว มี metadata และอยู่ใน sitemap
 - `/cookie-policy` มีเนื้อหาแบรนด์ Auto-Info และเชื่อมกับ `/privacy`
 - cookie bar เปิดใช้งาน; ความยินยอมเป็น opt-in (essential / all)
 - footer มีลิงก์กฎหมายครบ
@@ -50,8 +50,10 @@
   บทนำ, ข้อมูลที่เก็บ, ฐานทางกฎหมาย, วัตถุประสงค์, การเปิดเผย/ผู้ประมวลผลช่วง,
   การโอนข้อมูลข้ามพรมแดน, ระยะเวลาเก็บรักษา, สิทธิของเจ้าของข้อมูล (PDPA มาตรา 30–36),
   ความปลอดภัย, ช่องทางติดต่อ DPO, วันที่มีผล
-- `od19_terms_page` — QWeb template หน้า `/terms`: การยอมรับข้อกำหนด, การใช้ที่อนุญาต,
+- `od19_terms_page` — QWeb template หน้า `/terms-of-use`: การยอมรับข้อกำหนด, การใช้ที่อนุญาต,
   ทรัพย์สินทางปัญญา, ลิงก์ภายนอก, ข้อจำกัดความรับผิด, กฎหมายที่ใช้บังคับ
+  > **หมายเหตุ URL**: เดิมหน้าอยู่ที่ `/terms` แต่โมดูล `account` (core) ถือ route `/terms`
+  > (controller ข้อกำหนดใบแจ้งหนี้) ทับ `website.page` บน path เดียวกัน จึงย้ายไป `/terms-of-use`
 
 ### 3.2 Cookie policy overlay — `views/legal_pages.xml`
 - `od19_cookie_policy` — inherit `website.cookie_policy`; เพิ่มส่วนท้าย: หมวด Analytics,
@@ -61,14 +63,14 @@
 - เพิ่มบล็อกลิงก์กฎหมายใน `.od19-footer-bottom` (Privacy Policy · Terms of Use · Cookie Policy)
 
 ### 3.4 Pages + metadata — `data/legal_pages.xml` (ใหม่, noupdate="1")
-- `website.page` 2 records: `/privacy`, `/terms` (published, indexed) พร้อม
+- `website.page` 2 records: `/privacy`, `/terms-of-use` (published, indexed) พร้อม
   `website_meta_title/description/keywords`
 - ใช้ `noupdate="1"` เพื่อรักษาเนื้อหา/ค่าที่ผู้ดูแลแก้หลังติดตั้ง
 
 ### 3.5 Setup hook — `models/website.py`
 - `od19_setup_pdpa()` (@api.model) idempotent:
   - เปิด `website.cookies_bar = True` (ทำให้ Odoo สร้าง `/cookie-policy` อัตโนมัติ)
-  - publish `/privacy`, `/terms` และตั้ง metadata ให้ `/cookie-policy` (ต้อง index)
+  - publish `/privacy`, `/terms-of-use` และตั้ง metadata ให้ `/cookie-policy` (ต้อง index)
   - ไม่เขียนทับ `cookies_bar` ถ้าเปิดอยู่แล้ว
 - เพิ่ม `<function model="website" name="od19_setup_pdpa"/>` ใน
   `data/setup_functions.xml`
@@ -79,25 +81,25 @@
 
 ### 3.7 Tests — `tests/test_website.py`
 - `TestPdpaLegalSP8` (HttpCase, `post_install`):
-  - `/privacy` และ `/terms` เรนเดอร์ 200 และมีเนื้อหาสาระสำคัญ (PDPA rights, DPO contact)
+  - `/privacy` และ `/terms-of-use` เรนเดอร์ 200 และมีเนื้อหาสาระสำคัญ (PDPA rights, DPO contact)
   - `/privacy` ไม่มีข้อมูลปลอม (`+1 555-555-5556`, `YourCompany`)
-  - footer มีลิงก์ `/privacy`, `/terms`, `/cookie-policy`
+  - footer มีลิงก์ `/privacy`, `/terms-of-use`, `/cookie-policy`
   - `od19_setup_pdpa()` เปิด cookie bar และสร้าง `/cookie-policy`
   - `/cookie-policy` มีเนื้อหาแบรนด์ + ลิงก์ไป `/privacy`
   - legal pages มี metadata ไม่ว่าง และอยู่ใน `/sitemap.xml`
-  - `robots.txt` ไม่ปิดกั้น `/privacy`/`/terms`
+  - `robots.txt` ไม่ปิดกั้น `/privacy`/`/terms-of-use`
   - `od19_setup_pdpa()` idempotent
 
 ## 4. Acceptance Criteria
 
-- [ ] `/privacy` และ `/terms` เป็น `website.page` ที่ publish + indexed และ render 200
+- [ ] `/privacy` และ `/terms-of-use` เป็น `website.page` ที่ publish + indexed และ render 200
 - [ ] หน้าด้านกฎหมายทั้งสองมี `website_meta_title`/`_description`/`_keywords` ไม่ว่าง
 - [ ] `/privacy` มีหัวข้อสิทธิของเจ้าของข้อมูล (PDPA) และช่องทางติดต่อ DPO
 - [ ] footer แสดงลิงก์ Privacy Policy, Terms of Use และ Cookie Policy
 - [ ] `od19_setup_pdpa()` เปิด `cookies_bar` และมีหน้า `/cookie-policy`
 - [ ] `/cookie-policy` มีเนื้อหาแบรนด์ Auto-Info และลิงก์ไป `/privacy`
-- [ ] `/sitemap.xml` มี `/privacy` และ `/terms`
-- [ ] `/robots.txt` ไม่มี `Disallow: /privacy` หรือ `/terms`
+- [ ] `/sitemap.xml` มี `/privacy` และ `/terms-of-use`
+- [ ] `/robots.txt` ไม่มี `Disallow: /privacy` หรือ `/terms-of-use`
 - [ ] `od19_setup_pdpa()` เป็น idempotent (เรียกซ้ำไม่เปลี่ยนค่าเดิม)
 - [ ] เทสต์ `TestPdpaLegalSP8` ผ่านทั้งหมด และชุดเทสต์เดิมไม่ regression (0 failed / 0 error)
 
