@@ -186,3 +186,83 @@ class Od19DocumentInbox(models.Model):
         except (TypeError, ValueError):
             confidence = 0.0
         return category, empty_partner, confidence, "ai"
+
+    # ------------------------------------------------------------------
+    # Pipeline
+    # ------------------------------------------------------------------
+    def _od19_create_attachment(self, category=None, res_model=None, res_id=None):
+        """สร้าง ir.attachment จริงจากไฟล์ในกล่องรับเข้า แล้วปรับสถานะเป็น linked"""
+        self.ensure_one()
+        category = category or self.suggested_category_id or self.channel_id.default_category_id
+        attachment = self.env["ir.attachment"].create({
+            "name": self.filename or self.name,
+            "datas": self.file,
+            "res_model": res_model or self.res_model or False,
+            "res_id": res_id or self.res_id or 0,
+            "od19_origin": "external",
+            "od19_category_id": category.id if category else False,
+            "od19_partner_id": self.suggested_partner_id.id if self.suggested_partner_id else False,
+            "od19_doc_date": fields.Date.context_today(self),
+            "od19_index_state": "pending",
+        })
+        self.write({
+            "attachment_id": attachment.id,
+            "res_model": res_model or self.res_model,
+            "res_id": res_id or self.res_id,
+            "state": "linked",
+        })
+        return attachment
+
+    def _od19_classify(self, attachment=None):
+        """คืน (category, partner, confidence, method) — กฎก่อน แล้วค่อย AI"""
+        self.ensure_one()
+        category, partner, confidence, method = self._od19_classify_by_rules(attachment)
+        if category:
+            return category, partner, confidence, method
+        if self.channel_id.enable_ai:
+            category, partner, confidence, method = self._od19_classify_with_ai()
+            if category:
+                return category, partner, confidence, method
+        default = self.channel_id.default_category_id
+        if default:
+            return default, self.env["res.partner"], 50.0, "rule"
+        return self.env["od19.document.category"], self.env["res.partner"], 0.0, "rule"
+
+    def _od19_process(self):
+        """ประมวลผลรายการเดียว — ตรวจ MIME/ขนาด → checksum → จัดหมวด → ตัดสินใจ"""
+        self.ensure_one()
+        if self.state not in ("new", "failed"):
+            return
+        self.state = "processing"
+        lines = []
+        try:
+            self._od19_compute_checksum()
+            category, partner, confidence, method = self._od19_classify()
+            self.write({
+                "suggested_category_id": category.id if category else False,
+                "suggested_partner_id": partner.id if partner else False,
+                "confidence": confidence,
+                "classify_method": method,
+            })
+            if category and confidence >= CONFIDENCE_THRESHOLD:
+                attachment = self._od19_create_attachment(category)
+                attachment._od19_run_extraction(self.channel_id)
+                lines.append("ผูกอัตโนมัติด้วย %s (%.1f%%)" % (method, confidence))
+            else:
+                self.state = "to_review"
+                lines.append("รอคนยืนยัน (%.1f%%)" % confidence)
+        except Exception as exc:  # noqa: BLE001 — ต้องไม่ทำให้ cron ล้ม
+            _logger.exception("od19_document_intake: ประมวลผล inbox %s ล้มเหลว", self.id)
+            self.state = "failed"
+            lines.append("ผิดพลาด: %s" % exc)
+        self.log = "\n".join(lines)
+
+    def action_process(self):
+        for inbox in self:
+            inbox._od19_process()
+
+    @api.model
+    def _cron_process_inbox(self):
+        pending = self.search([("state", "in", ("new", "failed"))], limit=50)
+        for inbox in pending:
+            inbox._od19_process()
