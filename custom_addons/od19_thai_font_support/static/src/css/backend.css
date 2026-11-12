@@ -83,8 +83,14 @@ em, .font-italic, .fst-italic {
     font-family: 'odoo_ui_icons' !important;
 }
 
-.fa,
-[class*=" fa-"],
-[class^="fa-"] {
+/* FontAwesome restore. Excludes any element carrying the odoo_ui_icons
+ * BASE class `oi`, because some widgets mix both fonts, e.g.
+ *   <i class="oi oi-fw oi-panel-right fa-flip-horizontal">  (oi icon + fa flip utility)
+ *   <i class="fa fa-database oi-small me-1">                (fa icon + oi size utility)
+ * The `:not(.oi)` also raises specificity above the `[class*=" oi-"]`
+ * rule below, so a real fa icon still wins over a stray `oi-*` utility. */
+.fa:not(.oi),
+[class*=" fa-"]:not(.oi),
+[class^="fa-"]:not(.oi) {
     font-family: 'FontAwesome' !important;
 }
