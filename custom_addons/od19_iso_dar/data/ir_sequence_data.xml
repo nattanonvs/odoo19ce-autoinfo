@@ -1,3 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<odoo noupdate="1">
+
+    <!-- เลขที่ใบ DAR: DC{ปี ค.ศ. 2 หลัก}-{NNN} เช่น DC26-001
+         prefix ว่าง เพราะ "DC{yy}-" ประกอบในโค้ด (_generate_dar_number) -->
+    <record id="seq_iso_dar" model="ir.sequence">
+        <field name="name">ISO Document Action Request (DAR)</field>
+        <field name="code">od19.iso.dar</field>
+        <field name="prefix"></field>
+        <field name="padding">3</field>
+        <field name="number_next">1</field>
+        <field name="number_increment">1</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
 </odoo>
