@@ -29,14 +29,24 @@
     transition: background-color .15s ease, box-shadow .15s ease;
 }
 
-/* 2b) เฉพาะช่องที่ยังไม่ได้เติม (edit mode) — ให้ดูเด่นขึ้นเล็กน้อย
+/* 2b) เฉพาะช่องที่ยังไม่ได้เติม (edit mode) — สไตล์ "Liquid Glass"
    ใช้ o_od19_field_empty ที่เติมจาก JS เฉพาะตอนแก้ไข จึงไม่กระทบช่องที่มีข้อมูล
+   - แผ่นกระจกโปร่งแสง (backdrop blur) + ไฮไลต์ขาวด้านบน + ขอบในบางเบา + เงานุ่ม
+   - พื้นฟอร์ม Odoo เรียบสีขาว จึงอาศัย "ไฮไลต์ + เงา + เฉดเย็นจาง" ให้อ่านเป็นกระจกได้
+   - ใช้ inset box-shadow แทน border เพื่อไม่ให้ layout ขยับ
    วางไว้ก่อนกฎ hover/focus เพื่อให้ตอบสนองตอนโฟกัสยังทำงานตามปกติ */
 .o_form_view .o_field_widget.o_od19_field_empty input.o_input,
 .o_form_view .o_field_widget.o_od19_field_empty textarea.o_input,
 .o_form_view .o_field_widget.o_od19_field_empty select.o_input {
-    background-color: #eef1f6;
-    box-shadow: inset 0 0 0 1px #cdd3dd;
+    background-color: rgba(243, 247, 252, .62);
+    -webkit-backdrop-filter: blur(10px) saturate(150%);
+    backdrop-filter: blur(10px) saturate(150%);
+    border-radius: 8px;
+    box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, .70),
+        inset 0 1px 0 rgba(255, 255, 255, .95),
+        inset 0 -1px 0 rgba(199, 206, 218, .55),
+        0 6px 16px -8px rgba(31, 41, 55, .25);
 }
 
 .o_form_view .o_field_widget input.o_input:hover,
