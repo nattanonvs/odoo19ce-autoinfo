@@ -1,3 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<odoo noupdate="1">
+
+    <record id="mail_template_dar_sla" model="mail.template">
+        <field name="name">ISO DAR: SLA Reminder</field>
+        <field name="model_id" ref="model_od19_iso_dar"/>
+        <field name="subject">[DAR] ใบ ${object.name} ค้างเกิน SLA</field>
+        <field name="body_html" type="html">
+            <p>ใบคำขอ DAR <strong t-out="object.name"/></p>
+            <p>สถานะ: <span t-out="object.status"/></p>
+        </field>
+    </record>
+
 </odoo>

@@ -303,3 +303,36 @@ class Od19IsoDar(models.Model):
                 })
             # 'new' -> ใช้ wizard (Task T11) ; 'other' -> ไม่มีผลอัตโนมัติ
             dar.effect_applied = True
+
+    # ------------------------------------------------------------------
+    # SLA reminder (Task T12)
+    # ------------------------------------------------------------------
+    SLA_DAYS = 5
+    PENDING_STATES = (REVIEW, APPROVAL, FINAL_APPROVAL)
+
+    @api.model
+    def _cron_dar_sla_reminder(self):
+        """แจ้งเตือนใบที่ค้างเกิน SLA (5 วัน) ในแต่ละขั้นที่รออนุมัติ."""
+        deadline = fields.Datetime.subtract(
+            fields.Datetime.now(), days=self.SLA_DAYS
+        )
+        pending = self.search([
+            ("status", "in", self.PENDING_STATES),
+            ("create_date", "<", deadline),
+        ])
+        for dar in pending:
+            if dar.activity_ids:
+                continue
+            approver = (
+                dar.reviewer_id
+                or dar.approver_id
+                or dar.final_approver_id
+                or dar.requester_id
+            )
+            dar.activity_schedule(
+                "mail.mail_activity_data_todo",
+                user_id=(approver or self.env.user).id,
+                summary=_("ใบ DAR ค้างเกิน %s วัน") % self.SLA_DAYS,
+                note=_("ใบ %s รออนุมัติเกินกำหนด SLA") % dar.name,
+            )
+        return True

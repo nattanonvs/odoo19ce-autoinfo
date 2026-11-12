@@ -189,3 +189,19 @@ class TestIsoDar(TransactionCase):
         wiz.action_create_document()
         self.assertTrue(dar.document_id)
         self.assertEqual(dar.document_id.document_title, "เอกสารใหม่จาก DAR")
+
+    def test_sla_reminder_creates_activity(self):
+        dar = self._new_dar(
+            requester_id=self.users[0].id,
+            reviewer_id=self.users[1].id,
+            status="review",
+        )
+        old = fields.Datetime.subtract(fields.Datetime.now(), days=6)
+        self.env.cr.execute(
+            "UPDATE od19_iso_dar SET create_date = %s WHERE id = %s",
+            (old, dar.id),
+        )
+        dar.invalidate_recordset(["create_date"])
+        self.env["od19.iso.dar"]._cron_dar_sla_reminder()
+        dar.invalidate_recordset()
+        self.assertTrue(dar.activity_ids)
