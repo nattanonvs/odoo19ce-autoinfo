@@ -19,3 +19,11 @@ class TestDocumentIntakeModule(TransactionCase):
         # ต้องใช้ของ hub ได้ (หมวด + extract)
         self.assertIn("od19.document.category", self.env)
         self.assertIn("od19.document.extract", self.env)
+
+    def test_intake_models_registered(self):
+        for model in (
+            "od19.document.channel",
+            "od19.document.classify.rule",
+            "od19.document.inbox",
+        ):
+            self.assertIn(model, self.env)

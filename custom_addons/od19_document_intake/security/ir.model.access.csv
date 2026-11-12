@@ -3,3 +3,5 @@ access_od19_document_channel_user,od19.document.channel.user,model_od19_document
 access_od19_document_channel_manager,od19.document.channel.manager,model_od19_document_channel,od19_document_hub.group_document_manager,1,1,1,1
 access_od19_document_classify_rule_user,od19.document.classify.rule.user,model_od19_document_classify_rule,od19_document_hub.group_document_user,1,0,0,0
 access_od19_document_classify_rule_manager,od19.document.classify.rule.manager,model_od19_document_classify_rule,od19_document_hub.group_document_manager,1,1,1,1
+access_od19_document_inbox_user,od19.document.inbox.user,model_od19_document_inbox,od19_document_hub.group_document_user,1,1,1,0
+access_od19_document_inbox_manager,od19.document.inbox.manager,model_od19_document_inbox,od19_document_hub.group_document_manager,1,1,1,1

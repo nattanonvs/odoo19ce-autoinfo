@@ -3,3 +3,4 @@
 
 from . import od19_document_channel
 from . import od19_document_classify_rule
+from . import od19_document_inbox
