@@ -6,3 +6,5 @@ access_od19_iso_dar_system,od19.iso.dar.system,model_od19_iso_dar,base.group_sys
 access_od19_iso_dar_change_line_user,od19.iso.dar.change.line.user,model_od19_iso_dar_change_line,base.group_user,1,1,1,1
 access_od19_iso_dar_change_line_system,od19.iso.dar.change.line.system,model_od19_iso_dar_change_line,base.group_system,1,1,1,1
 access_od19_iso_dar_create_document,od19.iso.dar.create.document,model_od19_iso_dar_create_document,base.group_user,1,1,1,1
+access_od19_iso_dar_copy_record_user,od19.iso.dar.copy.record.user,model_od19_iso_dar_copy_record,base.group_user,1,1,1,1
+access_od19_iso_dar_copy_record_system,od19.iso.dar.copy.record.system,model_od19_iso_dar_copy_record,base.group_system,1,1,1,1

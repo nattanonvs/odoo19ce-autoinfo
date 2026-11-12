@@ -1,3 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+
+    <record id="view_od19_iso_dar_copy_list" model="ir.ui.view">
+        <field name="name">od19.iso.dar.copy.record.list</field>
+        <field name="model">od19.iso.dar.copy.record</field>
+        <field name="arch" type="xml">
+            <list string="ทะเบียนสำเนา">
+                <field name="issued_date"/>
+                <field name="dar_id"/>
+                <field name="copy_type"/>
+                <field name="copy_number"/>
+                <field name="recipient_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_od19_iso_dar_copy_form" model="ir.ui.view">
+        <field name="name">od19.iso.dar.copy.record.form</field>
+        <field name="model">od19.iso.dar.copy.record</field>
+        <field name="arch" type="xml">
+            <form string="ทะเบียนสำเนา">
+                <group>
+                    <field name="dar_id"/>
+                    <field name="copy_type"/>
+                    <field name="copy_number"/>
+                    <field name="recipient_id"/>
+                    <field name="issued_date"/>
+                    <field name="note"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_od19_iso_dar_copy" model="ir.actions.act_window">
+        <field name="name">ทะเบียนสำเนา</field>
+        <field name="res_model">od19.iso.dar.copy.record</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_od19_iso_dar_copy"
+              name="ทะเบียนสำเนา"
+              parent="od19_iso_document_control.menu_iso_document_control"
+              action="action_od19_iso_dar_copy"
+              sequence="30"/>
+
 </odoo>

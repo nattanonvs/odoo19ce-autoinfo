@@ -205,3 +205,31 @@ class TestIsoDar(TransactionCase):
         self.env["od19.iso.dar"]._cron_dar_sla_reminder()
         dar.invalidate_recordset()
         self.assertTrue(dar.activity_ids)
+
+    def test_copy_record_model(self):
+        doc = self._approved_doc()
+        dar = self._new_dar(
+            request_type="copy_controlled", document_id=doc.id
+        )
+        rec = self.env["od19.iso.dar.copy.record"].create({
+            "dar_id": dar.id,
+            "copy_type": "controlled",
+            "recipient_id": self.users[0].id,
+            "copy_number": "C-001",
+        })
+        self.assertEqual(rec.dar_id, dar)
+
+    def test_effect_copy_creates_record(self):
+        doc = self._approved_doc()
+        dar = self._new_dar(
+            request_type="copy_controlled", document_id=doc.id,
+            reviewer_id=self.users[1].id,
+            approver_id=self.users[2].id,
+            final_approver_id=self.users[3].id,
+        )
+        dar.action_submit_for_review()
+        dar.with_user(self.users[1]).action_review_approve()
+        dar.with_user(self.users[2]).action_approve()
+        dar.with_user(self.users[3]).action_final_approve()
+        self.assertTrue(dar.copy_record_ids)
+        self.assertEqual(dar.copy_record_ids.copy_type, "controlled")
