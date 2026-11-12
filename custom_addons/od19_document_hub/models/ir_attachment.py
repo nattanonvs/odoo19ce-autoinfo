@@ -70,6 +70,34 @@ class IrAttachment(models.Model):
     _od19_name_trgm = models.Index("USING gin (name gin_trgm_ops)")
     _od19_checksum_idx = models.Index("(checksum)")
 
+    od19_extract_ids = fields.One2many(
+        "od19.document.extract", "attachment_id", "ข้อความที่สกัดได้",
+    )
+    od19_search_text = fields.Char(
+        "ค้นชื่อ/เนื้อหาไฟล์",
+        compute="_compute_od19_search_text",
+        search="_search_od19_search_text",
+        store=False,
+    )
+
+    def _compute_od19_search_text(self):
+        # ฟิลด์สำหรับค้นอย่างเดียว ไม่เก็บค่า
+        for attachment in self:
+            attachment.od19_search_text = False
+
+    def _search_od19_search_text(self, operator, value):
+        """กล่องค้นรวม: จับคู่ทั้งชื่อไฟล์และเนื้อหาที่สกัดได้ (ใช้ดัชนี trigram)
+
+        ค่าว่าง/None = ไม่กรอง (คืนเงื่อนไขจริงทั้งหมด)
+        """
+        if not value:
+            return []
+        return [
+            "|",
+            ("name", "ilike", value),
+            ("od19_extract_ids.text_content", "ilike", value),
+        ]
+
     @api.depends(
         "od19_doc_date",
         "od19_retention_policy_id",
