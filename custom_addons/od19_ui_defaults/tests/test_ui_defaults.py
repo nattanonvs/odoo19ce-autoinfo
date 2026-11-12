@@ -121,6 +121,9 @@ class TestUiDefaults(TransactionCase):
     def test_navbar_groups_gather_sections(self):
         """Each installed group must own its sections as a single dropdown."""
         self.env["ir.ui.menu"]._od19_apply_navbar_groups()
+        th_active = "th_TH" in self.env["res.lang"].search(
+            [("active", "=", True)]
+        ).mapped("code")
         for group_name, _label_en, label_th, parent_xmlid, sequence, child_xmlids in NAVBAR_GROUPS:
             parent = self.env.ref(parent_xmlid, raise_if_not_found=False)
             children = [self.env.ref(x, raise_if_not_found=False) for x in child_xmlids]
@@ -133,7 +136,10 @@ class TestUiDefaults(TransactionCase):
             self.assertEqual(group.parent_id, parent)
             self.assertFalse(group.action, "A NavBar group must not carry an action")
             self.assertEqual(group.sequence, sequence)
-            self.assertEqual(group.with_context(lang="th_TH").name, label_th)
+            if th_active:
+                # The Thai label is only written when ``th_TH`` is activated;
+                # on a database without it the module keeps the English label.
+                self.assertEqual(group.with_context(lang="th_TH").name, label_th)
             for child in children:
                 self.assertEqual(child.parent_id, group)
                 self.assertNotIn(child, parent.child_id)
@@ -183,12 +189,16 @@ class TestUiDefaults(TransactionCase):
     def test_navbar_renames_are_applied(self):
         """A renamed section must carry the new label in both languages."""
         self.env["ir.ui.menu"]._od19_apply_navbar_groups()
+        th_active = "th_TH" in self.env["res.lang"].search(
+            [("active", "=", True)]
+        ).mapped("code")
         for menu_xmlid, label_en, label_th in NAVBAR_RENAMES:
             menu = self.env.ref(menu_xmlid, raise_if_not_found=False)
             if not menu:
                 continue
             self.assertEqual(menu.with_context(lang="en_US").name, label_en)
-            self.assertEqual(menu.with_context(lang="th_TH").name, label_th)
+            if th_active:
+                self.assertEqual(menu.with_context(lang="th_TH").name, label_th)
 
     def test_navbar_rename_is_reapplied_on_write(self):
         """Renaming a managed section manually must be reverted."""

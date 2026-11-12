@@ -336,6 +336,13 @@ class IrUiMenu(models.Model):
         menu_model = self.env["ir.ui.menu"].with_context(
             **{NAVBAR_GROUP_CONTEXT: True, "lang": "en_US"}
         )
+        # Thai labels are only written when the language is actually activated:
+        # ``update_field_translations`` raises a UserError on a database where
+        # ``th_TH`` is not installed (e.g. a fresh test database), which would
+        # make the whole module fail to install.
+        th_active = "th_TH" in self.env["res.lang"].search(
+            [("active", "=", True)]
+        ).mapped("code")
         for group_name, label_en, label_th, parent_xmlid, sequence, child_xmlids in NAVBAR_GROUPS:
             parent = self.env.ref(parent_xmlid, raise_if_not_found=False)
             children = [
@@ -361,7 +368,8 @@ class IrUiMenu(models.Model):
                     "res_id": group.id,
                     "noupdate": True,
                 })
-            group.update_field_translations("name", {"th_TH": label_th})
+            if th_active:
+                group.update_field_translations("name", {"th_TH": label_th})
             for index, child in enumerate(children, start=1):
                 menu_model.browse(child.id).write({
                     "parent_id": group.id,
@@ -383,7 +391,8 @@ class IrUiMenu(models.Model):
                 continue
             record = menu_model.browse(menu.id)
             record.write({"name": label_en})
-            record.update_field_translations("name", {"th_TH": label_th})
+            if th_active:
+                record.update_field_translations("name", {"th_TH": label_th})
 
     @api.model
     def _od19_sequence_app_menus(self):
