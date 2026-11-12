@@ -100,3 +100,29 @@ class Od19DocumentInbox(models.Model):
 
     def action_reject(self):
         self.write({"state": "rejected"})
+
+    def _od19_rule_target_value(self, target, attachment=None):
+        self.ensure_one()
+        if target == "filename":
+            return (self.filename or self.name or "").lower()
+        if target == "partner":
+            return (self.suggested_partner_id.name or "").lower()
+        if target == "text" and attachment:
+            extract = self.env["od19.document.extract"].search(
+                [("attachment_id", "=", attachment.id)], limit=1,
+            )
+            return (extract.text_content or "").lower()
+        return ""
+
+    def _od19_classify_by_rules(self, attachment=None):
+        """คืน (category, partner, confidence, method) หรือ (False, False, 0.0, 'rule')"""
+        self.ensure_one()
+        rules = self.env["od19.document.classify.rule"].search(
+            [("active", "=", True)], order="sequence, id",
+        )
+        for rule in rules:
+            haystack = self._od19_rule_target_value(rule.target, attachment)
+            if haystack and rule.pattern.lower() in haystack:
+                return rule.category_id, rule.partner_id, 100.0, "rule"
+        empty = self.env["od19.document.category"]
+        return empty, self.env["res.partner"], 0.0, "rule"
