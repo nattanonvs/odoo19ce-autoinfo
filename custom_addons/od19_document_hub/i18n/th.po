@@ -1,7 +1,7 @@
 # Thai translation for od19_document_hub
 msgid ""
 msgstr ""
-"Project-Id-Version: od19_document_hub 19.0.1.0.0\n"
+"Project-Id-Version: od19_document_hub 19.0.1.1.0\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -26,3 +26,48 @@ msgstr "ผู้จัดการเอกสาร"
 #: model:res.groups,name:od19_document_hub.group_document_auditor
 msgid "Document Auditor"
 msgstr "ผู้ตรวจสอบเอกสาร"
+
+#. module: od19_document_hub
+#: model:ir.model.fields,field_description:od19_document_hub.field_ir_attachment__od19_search_text
+msgid "ค้นชื่อ/เนื้อหาไฟล์"
+msgstr "ค้นชื่อ/เนื้อหาไฟล์"
+
+#. module: od19_document_hub
+#: model:ir.model,name:od19_document_hub.model_od19_document_bulk_category_wizard
+msgid "จัดหมวดเอกสารเป็นชุด"
+msgstr "จัดหมวดเอกสารเป็นชุด"
+
+#. module: od19_document_hub
+#: model:ir.actions.act_window,name:od19_document_hub.action_od19_document_bulk_category
+msgid "จัดหมวดเป็นชุด"
+msgstr "จัดหมวดเป็นชุด"
+
+#. module: od19_document_hub
+#: model_terms:ir.ui.view,arch_db:od19_document_hub.view_od19_document_bulk_category_form
+msgid "จัดหมวดให้รายการที่เลือก"
+msgstr "จัดหมวดให้รายการที่เลือก"
+
+#. module: od19_document_hub
+#: model_terms:ir.ui.view,arch_db:od19_document_hub.view_attachment_search_od19_hub
+msgid "รับจากภายนอก"
+msgstr "รับจากภายนอก"
+
+#. module: od19_document_hub
+#: model_terms:ir.ui.view,arch_db:od19_document_hub.view_attachment_search_od19_hub
+msgid "สร้างจากระบบ"
+msgstr "สร้างจากระบบ"
+
+#. module: od19_document_hub
+#: model_terms:ir.ui.view,arch_db:od19_document_hub.view_attachment_search_od19_hub
+msgid "รอสกัดข้อความ"
+msgstr "รอสกัดข้อความ"
+
+#. module: od19_document_hub
+#: model_terms:ir.ui.view,arch_db:od19_document_hub.view_attachment_search_od19_hub
+msgid "ความลับขึ้นไป"
+msgstr "ความลับขึ้นไป"
+
+#. module: od19_document_hub
+#: model_terms:ir.ui.view,arch_db:od19_document_hub.view_attachment_search_od19_hub
+msgid "แฟ้มเนื้อหาเดียวกัน"
+msgstr "แฟ้มเนื้อหาเดียวกัน"
