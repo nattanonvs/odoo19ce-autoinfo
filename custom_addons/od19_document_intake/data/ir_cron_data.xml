@@ -1,2 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo/>
+<odoo>
+    <data noupdate="1">
+        <record id="ir_cron_od19_scan_channels" model="ir.cron">
+            <field name="name">OD19 Document: Scan intake channels</field>
+            <field name="model_id" ref="model_od19_document_channel"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_scan_channels()</field>
+            <field name="interval_number">10</field>
+            <field name="interval_type">minutes</field>
+            <field name="active">True</field>
+            <field name="nextcall" eval="(DateTime.today() + relativedelta(minutes=10)).strftime('%Y-%m-%d %H:%M:%S')"/>
+        </record>
+
+        <record id="ir_cron_od19_process_inbox" model="ir.cron">
+            <field name="name">OD19 Document: Process intake inbox</field>
+            <field name="model_id" ref="model_od19_document_inbox"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_process_inbox()</field>
+            <field name="interval_number">5</field>
+            <field name="interval_type">minutes</field>
+            <field name="active">True</field>
+            <field name="nextcall" eval="(DateTime.today() + relativedelta(minutes=5)).strftime('%Y-%m-%d %H:%M:%S')"/>
+        </record>
+    </data>
+</odoo>

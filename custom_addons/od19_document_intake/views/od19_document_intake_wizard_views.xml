@@ -1,2 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo/>
+<odoo>
+    <record id="view_od19_document_inbox_link_wizard_form" model="ir.ui.view">
+        <field name="name">od19.document.inbox.link.wizard.form</field>
+        <field name="model">od19.document.inbox.link.wizard</field>
+        <field name="arch" type="xml">
+            <form string="ยืนยันและผูกเอกสาร">
+                <group>
+                    <field name="inbox_id" readonly="1"/>
+                    <field name="category_id"/>
+                    <field name="resource_ref"/>
+                </group>
+                <footer>
+                    <button name="action_confirm" type="object" string="ยืนยันและผูก"
+                            class="btn-primary"/>
+                    <button string="ยกเลิก" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_od19_document_intake_upload_wizard_form" model="ir.ui.view">
+        <field name="name">od19.document.intake.upload.wizard.form</field>
+        <field name="model">od19.document.intake.upload.wizard</field>
+        <field name="arch" type="xml">
+            <form string="อัปโหลดยกชุด">
+                <group>
+                    <field name="channel_id"/>
+                </group>
+                <field name="line_ids">
+                    <list editable="bottom">
+                        <field name="filename"/>
+                        <field name="file" filename="filename"/>
+                    </list>
+                </field>
+                <footer>
+                    <button name="action_upload" type="object" string="อัปโหลด"
+                            class="btn-primary"/>
+                    <button string="ยกเลิก" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_od19_document_inbox_link_wizard" model="ir.actions.act_window">
+        <field name="name">ยืนยันและผูก</field>
+        <field name="res_model">od19.document.inbox.link.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

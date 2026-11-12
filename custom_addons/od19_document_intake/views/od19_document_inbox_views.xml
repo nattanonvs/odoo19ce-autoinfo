@@ -1,2 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo/>
+<odoo>
+    <record id="view_od19_document_inbox_kanban" model="ir.ui.view">
+        <field name="name">od19.document.inbox.kanban</field>
+        <field name="model">od19.document.inbox</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state">
+                <field name="state"/>
+                <field name="suggested_category_id"/>
+                <field name="confidence"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="d-flex flex-column">
+                            <strong><field name="name"/></strong>
+                            <span t-if="record.suggested_category_id.value">
+                                หมวด: <field name="suggested_category_id"/>
+                            </span>
+                            <span>ความมั่นใจ: <field name="confidence"/>%</span>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_od19_document_inbox_tree" model="ir.ui.view">
+        <field name="name">od19.document.inbox.tree</field>
+        <field name="model">od19.document.inbox</field>
+        <field name="arch" type="xml">
+            <list string="กล่องรับเข้า">
+                <field name="name"/>
+                <field name="filename"/>
+                <field name="channel_id"/>
+                <field name="state"/>
+                <field name="suggested_category_id"/>
+                <field name="confidence"/>
+                <field name="classify_method"/>
+                <field name="create_date"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_od19_document_inbox_form" model="ir.ui.view">
+        <field name="name">od19.document.inbox.form</field>
+        <field name="model">od19.document.inbox</field>
+        <field name="arch" type="xml">
+            <form string="กล่องรับเข้า">
+                <header>
+                    <button name="action_process" type="object" string="ประมวลผล"
+                            class="oe_highlight" invisible="state not in ('new', 'failed')"/>
+                    <button name="action_reject" type="object" string="ปฏิเสธ"
+                            invisible="state in ('linked', 'rejected')"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="filename"/>
+                            <field name="file" filename="filename"/>
+                            <field name="channel_id"/>
+                        </group>
+                        <group>
+                            <field name="suggested_category_id"/>
+                            <field name="suggested_partner_id"/>
+                            <field name="confidence"/>
+                            <field name="classify_method"/>
+                            <field name="attachment_id"/>
+                        </group>
+                    </group>
+                    <group string="บันทึกการประมวลผล">
+                        <field name="log" nolabel="1" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_od19_document_inbox" model="ir.actions.act_window">
+        <field name="name">กล่องรับเข้า</field>
+        <field name="res_model">od19.document.inbox</field>
+        <field name="view_mode">kanban,list,form</field>
+    </record>
+
+    <record id="action_od19_document_intake_upload" model="ir.actions.act_window">
+        <field name="name">อัปโหลดยกชุด</field>
+        <field name="res_model">od19.document.intake.upload.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

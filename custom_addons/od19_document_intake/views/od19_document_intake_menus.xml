@@ -1,2 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo/>
+<odoo>
+    <menuitem id="menu_od19_document_inbox"
+              name="กล่องรับเข้า"
+              parent="od19_document_hub.menu_od19_document_root"
+              action="action_od19_document_inbox"
+              sequence="5"/>
+    <menuitem id="menu_od19_document_intake_upload"
+              name="อัปโหลดยกชุด"
+              parent="od19_document_hub.menu_od19_document_root"
+              action="action_od19_document_intake_upload"
+              sequence="6"/>
+    <menuitem id="menu_od19_document_channel"
+              name="ช่องทางรับเอกสาร"
+              parent="od19_document_hub.menu_od19_document_root"
+              action="action_od19_document_channel"
+              sequence="20"/>
+    <menuitem id="menu_od19_document_classify_rule"
+              name="กฎจัดหมวด"
+              parent="od19_document_hub.menu_od19_document_root"
+              action="action_od19_document_classify_rule"
+              sequence="21"/>
+</odoo>
