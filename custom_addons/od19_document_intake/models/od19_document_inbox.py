@@ -3,9 +3,13 @@
 
 import base64
 import hashlib
+import json
 import logging
+import re
 
 from odoo import api, fields, models
+
+from odoo.addons.od19_ai_assistant.lib.client import AiClientError, chat_completion
 
 _logger = logging.getLogger(__name__)
 
@@ -126,3 +130,59 @@ class Od19DocumentInbox(models.Model):
                 return rule.category_id, rule.partner_id, 100.0, "rule"
         empty = self.env["od19.document.category"]
         return empty, self.env["res.partner"], 0.0, "rule"
+
+    _AI_SYSTEM_PROMPT = (
+        "คุณเป็นผู้ช่วยจัดหมวดเอกสารของบริษัทไทย "
+        "ตอบกลับเป็น JSON เท่านั้นตามรูปแบบ "
+        '{"category_code": "<รหัสหมวด>", "confidence": <0-100>}'
+    )
+
+    def _od19_classify_with_ai(self):
+        """จัดหมวดด้วย AI — คืน (category, partner, confidence, 'ai') หรือค่าว่างเมื่อล้ม"""
+        self.ensure_one()
+        empty_category = self.env["od19.document.category"]
+        empty_partner = self.env["res.partner"]
+
+        categories = self.env["od19.document.category"].search(
+            [("auto_classify", "=", True)], limit=50,
+        )
+        if not categories:
+            return empty_category, empty_partner, 0.0, "ai"
+
+        code_list = "\n".join("- %s: %s" % (c.code, c.name) for c in categories)
+        sample = (self.filename or self.name or "")[:200]
+        config = self.env["od19.ai.chat"]._get_ai_config()
+        messages = [
+            {"role": "system", "content": self._AI_SYSTEM_PROMPT},
+            {"role": "user", "content": (
+                "ชื่อไฟล์: %s\nหมวดที่มี:\n%s\n"
+                "เลือกหมวดที่เหมาะสมที่สุด" % (sample, code_list)
+            )},
+        ]
+        try:
+            answer = chat_completion(
+                config["base_url"], config["model"], messages,
+                api_key=config.get("api_key"), timeout=config.get("timeout", 60),
+            )
+        except AiClientError as exc:
+            _logger.warning("od19_document_intake: AI จัดหมวดไม่สำเร็จ: %s", exc)
+            return empty_category, empty_partner, 0.0, "ai"
+
+        match = re.search(r"\{.*\}", answer or "", re.DOTALL)
+        if not match:
+            return empty_category, empty_partner, 0.0, "ai"
+        try:
+            payload = json.loads(match.group(0))
+        except ValueError:
+            return empty_category, empty_partner, 0.0, "ai"
+
+        category = categories.filtered(
+            lambda c: c.code == str(payload.get("category_code", "")).strip()
+        )[:1]
+        if not category:
+            return empty_category, empty_partner, 0.0, "ai"
+        try:
+            confidence = float(payload.get("confidence") or 0.0)
+        except (TypeError, ValueError):
+            confidence = 0.0
+        return category, empty_partner, confidence, "ai"
