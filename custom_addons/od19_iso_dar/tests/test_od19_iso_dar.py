@@ -128,3 +128,44 @@ class TestIsoDar(TransactionCase):
             "od19_iso_dar.action_report_od19_iso_dar", dar.ids
         )
         self.assertIn(dar.name, html.decode("utf-8"))
+
+    def _approved_doc(self):
+        return self.env["od19.iso.document"].create({
+            "document_title": "เอกสารอนุมัติ",
+            "category_id": self.env["od19.iso.document.category"].search([], limit=1).id,
+            "status": "approved",
+            "revision": "00",
+        })
+
+    def test_effect_revise_keeps_approved(self):
+        doc = self._approved_doc()
+        dar = self._new_dar(request_type="revise", document_id=doc.id,
+                            reviewer_id=self.users[1].id,
+                            approver_id=self.users[2].id,
+                            final_approver_id=self.users[3].id)
+        dar.action_submit_for_review()
+        dar.with_user(self.users[1]).action_review_approve()
+        dar.with_user(self.users[2]).action_approve()
+        dar.with_user(self.users[3]).action_final_approve()
+        self.assertEqual(doc.revision, "01")
+        self.assertEqual(doc.status, "approved")
+
+    def test_effect_obsolete(self):
+        doc = self._approved_doc()
+        dar = self._new_dar(request_type="obsolete", document_id=doc.id,
+                            reviewer_id=self.users[1].id,
+                            approver_id=self.users[2].id,
+                            final_approver_id=self.users[3].id)
+        dar.action_submit_for_review()
+        dar.with_user(self.users[1]).action_review_approve()
+        dar.with_user(self.users[2]).action_approve()
+        dar.with_user(self.users[3]).action_final_approve()
+        self.assertEqual(doc.status, "obsolete")
+        self.assertFalse(doc.active)
+
+    def test_effect_not_applied_twice(self):
+        doc = self._approved_doc()
+        dar = self._new_dar(request_type="revise", document_id=doc.id, status="approved")
+        dar._apply_approval_effect()
+        dar._apply_approval_effect()
+        self.assertEqual(doc.revision, "01")

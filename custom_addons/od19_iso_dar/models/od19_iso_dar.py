@@ -104,6 +104,13 @@ class Od19IsoDar(models.Model):
     )
     effective_date = fields.Date(string="วันที่มีผล", tracking=True)
     reject_reason = fields.Text(string="เหตุผลที่ถูกตีกลับ")
+    effect_applied = fields.Boolean(
+        string="ทำผลอัตโนมัติแล้ว",
+        default=False,
+        copy=False,
+        readonly=True,
+        help="กันการทำผลหลังอนุมัติซ้ำ (idempotent guard)",
+    )
 
     # ------------------------------------------------------------------
     # Relations
@@ -268,8 +275,31 @@ class Od19IsoDar(models.Model):
             dar.message_post(body=_("ดึงกลับเป็นร่างโดย %s") % self.env.user.name)
 
     # ------------------------------------------------------------------
-    # Post-approval effect (implemented fully in T10)
+    # Post-approval effect (Task T10)
     # ------------------------------------------------------------------
     def _apply_approval_effect(self):
-        """Placeholder hook — implemented in PHASE P3 (Task T10)."""
-        return True
+        """ทำผลอัตโนมัติหลังอนุมัติ ตาม request_type (idempotent).
+
+        ทำงานครั้งเดียวต่อใบ — ป้องกันผลซ้ำด้วย ``effect_applied``
+        """
+        for dar in self:
+            if dar.effect_applied:
+                continue
+            if dar.request_type == "revise" and dar.document_id:
+                dar.document_id.action_new_revision_keep_approved()
+            elif dar.request_type == "obsolete" and dar.document_id:
+                if dar.document_id.status == "approved":
+                    dar.document_id.action_mark_obsolete()
+            elif dar.request_type in ("copy_controlled", "copy_uncontrolled"):
+                copy_type = (
+                    "controlled"
+                    if dar.request_type == "copy_controlled"
+                    else "uncontrolled"
+                )
+                self.env["od19.iso.dar.copy.record"].create({
+                    "dar_id": dar.id,
+                    "copy_type": copy_type,
+                    "issued_date": fields.Date.today(),
+                })
+            # 'new' -> ใช้ wizard (Task T11) ; 'other' -> ไม่มีผลอัตโนมัติ
+            dar.effect_applied = True
