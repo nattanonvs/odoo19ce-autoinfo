@@ -69,3 +69,15 @@ class TestIsoDar(TransactionCase):
     def test_document_required_for_revise(self):
         with self.assertRaises(Exception):
             self._new_dar(request_type="revise")
+
+    def test_security_groups_exist(self):
+        for xmlid in (
+            "od19_iso_dar.group_iso_dar_user",
+            "od19_iso_dar.group_iso_dar_controller",
+            "od19_iso_dar.group_iso_dar_manager",
+        ):
+            self.assertTrue(self.env.ref(xmlid))
+
+    def test_department_rule_exists(self):
+        rule = self.env.ref("od19_iso_dar.rule_od19_iso_dar_department")
+        self.assertIn("department_id", rule.domain_force)
