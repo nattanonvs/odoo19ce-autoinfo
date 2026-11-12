@@ -3,5 +3,6 @@
 
 from . import test_document_intake_ai
 from . import test_document_intake_channel
+from . import test_document_intake_extract
 from . import test_document_intake_rules
 from . import test_document_intake_module
