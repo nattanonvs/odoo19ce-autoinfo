@@ -29,7 +29,7 @@
        concat('โทรศัพท์ ', c.phone, ' แฟกซ์. ', cpartner.fax) as company_address_3, 
        cpartner.vat as company_tax, 
        case when cpartner.branch_code is null or cpartner.branch_code = '00000' then 'สำนักงานใหญ่' else cpartner.branch_code end as company_branch_code, 
-       COALESCE(p.name->>'th_TH', p.name->>'en_US') as partner_name, 
+       p.name as partner_name, 
        concat(p.street) as partner_address_1, 
        concat(p.street2, p.city, 
        	            case when pp.name is not null then ' จังหวัด' else '' end,
@@ -63,7 +63,7 @@
         
        regexp_replace(COALESCE(pt.note->>'th_TH', pt.note->>'en_US'), '<[^>]*>', '', 'g') AS invoice_payment_term,
        inv.invoice_date_due AS invoice_due_date,
-       COALESCE(up.name->>'th_TH', up.name->>'en_US') AS saleperson_name,
+       up.name AS saleperson_name,
        NULL::varchar AS salearea_name,
 
        pro.default_code AS product_code,

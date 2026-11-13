@@ -44,7 +44,7 @@
 	pm.id AS payment_method_id,
 	COALESCE(j.name->>'th_TH', j.name->>'en_US') AS journal,
 	j.id AS journal_id,
-	COALESCE(p.name->>'th_TH', p.name->>'en_US') AS partner_name,
+	p.name AS partner_name,
 	p.id AS partner_id,
 	am.date AS payment_date,
 	COALESCE(am.name, '') AS move_name,

@@ -28,7 +28,7 @@
         concat('โทรศัพท์ ', c.phone, ' แฟกซ์. ', c2.company_fax) as company_address_3, 
         cpartner.vat as company_tax, 
         case when c2.company_branch is null or c2.company_branch = '00000' then 'สำนักงานใหญ่' else c2.company_branch end as company_branch_code, 
-        COALESCE(p.name->>'th_TH', p.name->>'en_US') as partner_name, 
+        p.name as partner_name, 
         concat(p.street) as partner_address_1, 
         concat(p.street2, p.city, 
        	            case when pp.name is not null then ' จังหวัด' else '' end,
@@ -45,7 +45,7 @@
         pay.id as pay_id,
         pay.name as pay_name,
 	pay.date as pay_date,
-        COALESCE(up.name->>'th_TH', up.name->>'en_US') AS saleperson_name,
+        up.name AS saleperson_name,
         null::text AS salearea_name,
 		
 	inv.name as invoice_number,

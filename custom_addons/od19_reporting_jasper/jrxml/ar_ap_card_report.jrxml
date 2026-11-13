@@ -63,7 +63,7 @@
 		<![CDATA[select
     card.partner_id,
     p.ref as partner_ref,
-    COALESCE(p.name->>'th_TH', p.name->>'en_US') as partner_name,
+    p.name as partner_name,
     aam.name as doc_no,
     case when paymt.id is null then null else paymt.od19_voucher_no end as voucher_no,
     case when card.move_line_id is null then 'ยอดยกมา' else aam.ref end as reference,
