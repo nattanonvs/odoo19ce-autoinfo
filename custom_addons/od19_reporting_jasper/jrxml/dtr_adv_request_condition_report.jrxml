@@ -19,7 +19,7 @@
 	<parameter name="p_Start_Date" class="java.lang.String"/>
 	<parameter name="p_End_Date" class="java.lang.String"/>
 	<parameter name="p_Where" class="java.lang.String">
-		<defaultValueExpression><![CDATA["WHERE (req.state = 'approve' OR req.state = 'paid') AND (c.number IS NULL OR c.state = 'clear')"]]></defaultValueExpression>
+		<defaultValueExpression><![CDATA["WHERE (req.state = 'posted' OR req.state = 'reconciled')"]]></defaultValueExpression>
 	</parameter>
 	<parameter name="p_request_name" class="java.lang.String"/>
 	<parameter name="p_locale" class="java.lang.String">
@@ -42,7 +42,7 @@ COALESCE(com.company_name_thai,'') AS company_name_thai,
 COALESCE(com.company_name_en,'') AS company_name_en,
 req.date AS req_date,
 req.name AS req_number,
-COALESCE(emp.name,'') AS emp_name,
+COALESCE(emp.name->>'th_TH', emp.name->>'en_US','') AS emp_name,
 COALESCE(req.note,'') AS req_name,
 NULL::date AS due_date,
 req.amount AS cash_loans,

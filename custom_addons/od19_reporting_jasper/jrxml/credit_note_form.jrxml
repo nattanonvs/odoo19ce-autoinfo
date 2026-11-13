@@ -65,7 +65,7 @@
 					--then line.dtr_discount_type = 'percent' 
 					--else	position('%' in line.dynamic_discount ) > 0
 				--end as percent_discount,
-				uom.name as uom,  
+				COALESCE(uom.name->>'th_TH', uom.name->>'en_US') as uom,  
 				product.default_code as product_code,
 				--abs(coalesce(tax.amount,0)) as vat_order,
 				abs(coalesce(tax.amount,0)) as vat_order,
@@ -90,7 +90,7 @@
 				encode(c.company_logo,'escape') as company_logo,
 				0 as sale_id,
 				0 as picking_id,
-				( select b.name from res_partner b
+				( select COALESCE(b.name->>'th_TH', b.name->>'en_US') from res_partner b
 					where b.id = coalesce(invoice.partner_shipping_id, invoice.partner_id) ) as ship_to,
 				--(	select	string_agg(distinct customer_po, ', ')
 				--	from	sale_order

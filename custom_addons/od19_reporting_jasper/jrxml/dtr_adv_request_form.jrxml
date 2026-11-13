@@ -23,7 +23,7 @@
 req.id AS req_id,
 req.name AS doc_no,
 req.date AS doc_date,
-COALESCE(emp.name, '') AS emp_name,
+COALESCE(emp.name->>'th_TH', emp.name->>'en_US', '') AS emp_name,
 req.amount AS cash_loans,
 COALESCE(cur.currency_unit_label->>'th_TH', cur.currency_unit_label->>'en_US', '') AS label_th,
 COALESCE(cur.currency_unit_label->>'en_US', cur.currency_unit_label->>'th_TH', '') AS label_en,

@@ -131,7 +131,7 @@ GROUP BY aml.account_id]]>
             am.ref as reference,
             aml.name as label,
 			aml.partner_id AS partner_id,
-			res.name       AS partner_name,
+			COALESCE(res.name->>'th_TH', res.name->>'en_US') AS partner_name,
 			res.vat        AS partner_vat,
 			res.branch_code AS partner_branch_code,
             COALESCE(round(aml.debit ,2),0) as debit,

@@ -24,7 +24,7 @@
 	<parameter name="p_Act_Start_Date" class="java.lang.String"/>
 	<parameter name="p_Act_End_Date" class="java.lang.String"/>
 	<parameter name="p_Where" class="java.lang.String">
-		<defaultValueExpression><![CDATA["WHERE (inv.dncn = '' OR inv.dncn is null) AND inv.type in ('out_invoice', 'in_invoice')"]]></defaultValueExpression>
+		<defaultValueExpression><![CDATA["WHERE (inv.dncn = '' OR inv.dncn is null) AND inv.move_type in ('out_invoice', 'in_invoice')"]]></defaultValueExpression>
 	</parameter>
 	<parameter name="p_Group_By" class="java.lang.String"/>
 	<parameter name="p_Order_By" class="java.lang.String">
@@ -45,8 +45,8 @@ COALESCE(c.company_name_thai,'') AS company_name_thai,
 COALESCE(c.company_name_en,'') AS company_name_en,
 inv.invoice_user_id AS salesperson_id,
 inv.partner_id AS partner_id,
-pu.name AS salesperson,
-p.name AS partner_name,
+COALESCE(pu.name->>'th_TH', pu.name->>'en_US') AS salesperson,
+COALESCE(p.name->>'th_TH', p.name->>'en_US') AS partner_name,
 inv.dncn,
 inv.invoice_date AS invoice_date,
 inv.od19_actual_due_date AS actual_due_date,

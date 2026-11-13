@@ -47,7 +47,7 @@ end) AS method_th,
 	else 'Degressive'
 end) AS method_en,
 asset.value_depreciated AS accumulated_depreciation_bf,
-COALESCE(p.complete_name, p.name, '') AS partner,
+COALESCE(p.complete_name, p.name->>'th_TH', p.name->>'en_US', '') AS partner,
 '' AS serial_no,
 '' AS warranty,
 NULL::date AS warranty_end,
