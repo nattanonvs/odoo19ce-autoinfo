@@ -21,7 +21,7 @@
 	<parameter name="p_Act_Start_Date" class="java.lang.String"/>
 	<parameter name="p_Act_End_Date" class="java.lang.String"/>
 	<parameter name="p_Where" class="java.lang.String">
-		<defaultValueExpression><![CDATA["WHERE (inv.dncn = '' OR inv.dncn is null) AND inv.type in ('out_invoice', 'in_invoice')"]]></defaultValueExpression>
+		<defaultValueExpression><![CDATA["WHERE (inv.dncn = '' OR inv.dncn is null) AND inv.move_type in ('out_invoice', 'in_invoice')"]]></defaultValueExpression>
 	</parameter>
 	<parameter name="p_Group_By" class="java.lang.String"/>
 	<parameter name="p_Order_By" class="java.lang.String">

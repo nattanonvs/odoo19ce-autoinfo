@@ -168,7 +168,7 @@ order by am.name, am.date, am.invoice_date, am.invoice_date_due]]>
 		<![CDATA[SELECT
     p.id as partner_id,
     p.ref as partner_ref,
-    p.name,
+    p.name as name,
     sum(case when coalesce(am.invoice_date_due, am.date) > $P{p_As_Date}::date then agl.res_amount else 0.0 end) as sum_undue_amount,
     sum(case when coalesce(am.invoice_date_due, am.date) between $P{p_As_Date}::date - (1*$P{p_Days}) and $P{p_As_Date}::date then agl.res_amount else 0.0 end) as sum_overdue1,
     sum(case when coalesce(am.invoice_date_due, am.date) between $P{p_As_Date}::date - (2*$P{p_Days}) and $P{p_As_Date}::date - (1*$P{p_Days}+1) then agl.res_amount else 0.0 end) as sum_overdue2,
