@@ -15,7 +15,7 @@ class DocumentPage(models.Model):
         default="general",
         tracking=True,
     )
-    keywords = fields.Char("Keywords", help="Comma-separated keywords")
+    keywords = fields.Char("Search Keywords", help="Comma-separated keywords")
     is_emergency = fields.Boolean("Emergency", default=False, tracking=True)
     ticket_id = fields.Many2one(
         "helpdesk.ticket", string="Source Ticket", ondelete="set null"
