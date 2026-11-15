@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="True">
+    <record id="mis_style_bs_line" model="mis.report.style">
+        <field name="name">BS - line</field>
+        <field name="indent_level_inherit" eval="False" />
+        <field name="indent_level">1</field>
+    </record>
+    <record id="mis_style_bs_detail" model="mis.report.style">
+        <field name="name">BS - account detail</field>
+        <field name="font_style_inherit" eval="False" />
+        <field name="font_style">italic</field>
+        <field name="font_size_inherit" eval="False" />
+        <field name="font_size">x-small</field>
+        <field name="indent_level_inherit" eval="False" />
+        <field name="indent_level">2</field>
+    </record>
+    <record id="mis_style_bs_sub_total" model="mis.report.style">
+        <field name="name">BS - sub total</field>
+        <field name="background_color_inherit" eval="False" />
+        <field name="background_color">#EAD6D6</field>
+        <field name="font_weight_inherit" eval="False" />
+        <field name="font_weight">bold</field>
+    </record>
+    <record id="mis_style_bs_total" model="mis.report.style">
+        <field name="name">BS - total</field>
+        <field name="color_inherit" eval="False" />
+        <field name="color">#FFFFFF</field>
+        <field name="background_color_inherit" eval="False" />
+        <field name="background_color">#7A1C1C</field>
+        <field name="font_weight_inherit" eval="False" />
+        <field name="font_weight">bold</field>
+    </record>
+    <record id="mis_style_bs_good" model="mis.report.style">
+        <field name="name">BS - Good</field>
+        <field name="color_inherit" eval="False" />
+        <field name="color">#1B5E20</field>
+    </record>
+    <record id="mis_style_bs_bad" model="mis.report.style">
+        <field name="name">BS - Bad</field>
+        <field name="color_inherit" eval="False" />
+        <field name="color">#B71C1C</field>
+        <field name="font_weight_inherit" eval="False" />
+        <field name="font_weight">bold</field>
+    </record>
+</odoo>
