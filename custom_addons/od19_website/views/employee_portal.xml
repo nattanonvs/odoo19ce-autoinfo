@@ -25,7 +25,7 @@
                                 <h2 class="mb-1">
                                     <span t-esc="greeting"/>, <span t-esc="user.name"/>
                                 </h2>
-                                <p class="mb-0" style="opacity:0.85;">
+                                <p class="mb-0" style="opacity:0.9;">
                                     <t t-if="job_title"><span t-esc="job_title"/></t>
                                     <t t-if="job_title and department_name"> · </t>
                                     <t t-if="department_name"><span t-esc="department_name"/></t>
@@ -34,9 +34,9 @@
                             </div>
                         </div>
                         <div class="text-end">
-                            <small class="d-block mb-2" style="opacity:0.7;" t-esc="datetime.datetime.now().strftime('%A, %d %B %Y')"/>
+                            <small class="d-block mb-2" style="opacity:0.9;" t-esc="datetime.datetime.now().strftime('%A, %d %B %Y')"/>
                             <a href="/web" class="btn btn-sm od19-portal-back">
-                                <i class="fa fa-th me-1"/>กลับหน้าหลังบ้าน
+                                <i class="fa fa-th me-1" aria-hidden="true"/>กลับหน้าหลังบ้าน
                             </a>
                         </div>
                     </div>
@@ -49,7 +49,7 @@
                          data-od19-me-summary="/employee-portal/me-summary">
                         <div class="col-6 col-lg-3">
                             <a class="od19-day-card" href="/web#action=hr_attendance.hr_attendance_action">
-                                <div class="od19-day-icon"><i class="fa fa-clock-o"/></div>
+                                <div class="od19-day-icon"><i class="fa fa-clock-o" aria-hidden="true"/></div>
                                 <div class="od19-day-body">
                                     <div class="od19-day-value" data-od19-field="attendance">—</div>
                                     <div class="od19-day-label">ลงเวลาวันนี้</div>
@@ -58,7 +58,7 @@
                         </div>
                         <div class="col-6 col-lg-3">
                             <a class="od19-day-card" href="/my/approvals">
-                                <div class="od19-day-icon"><i class="fa fa-check-square-o"/></div>
+                                <div class="od19-day-icon"><i class="fa fa-check-square-o" aria-hidden="true"/></div>
                                 <div class="od19-day-body">
                                     <div class="od19-day-value" data-od19-field="approvals">—</div>
                                     <div class="od19-day-label">รออนุมัติ</div>
@@ -67,7 +67,7 @@
                         </div>
                         <div class="col-6 col-lg-3">
                             <a class="od19-day-card" href="/web#action=od19_meeting_room_booking.action_meeting_room_booking">
-                                <div class="od19-day-icon"><i class="fa fa-calendar-check-o"/></div>
+                                <div class="od19-day-icon"><i class="fa fa-calendar-check-o" aria-hidden="true"/></div>
                                 <div class="od19-day-body">
                                     <div class="od19-day-value" data-od19-field="next_booking">—</div>
                                     <div class="od19-day-label">นัดถัดไป</div>
@@ -76,7 +76,7 @@
                         </div>
                         <div class="col-6 col-lg-3">
                             <a class="od19-day-card" href="/web#action=hr_holidays.hr_leave_action_my">
-                                <div class="od19-day-icon"><i class="fa fa-plane"/></div>
+                                <div class="od19-day-icon"><i class="fa fa-plane" aria-hidden="true"/></div>
                                 <div class="od19-day-body">
                                     <div class="od19-day-value" data-od19-field="leave">—</div>
                                     <div class="od19-day-label">วันลาคงเหลือ</div>
@@ -90,12 +90,12 @@
                         <div class="col-lg-8">
                             <div class="od19-panel">
                                 <h5 class="od19-panel-title">
-                                    <i class="fa fa-calendar-o me-2" style="color:var(--od19-primary);"/>
+                                    <i class="fa fa-calendar-o me-2" style="color:var(--od19-primary);" aria-hidden="true"/>
                                     ตารางของฉัน (My Schedule)
                                 </h5>
                                 <div id="od19-my-schedule" data-od19-schedule="1">
                                     <p class="text-muted small mb-0">
-                                        <i class="fa fa-spinner fa-spin me-1"/>กำลังโหลดตาราง…
+                                        <i class="fa fa-spinner fa-spin me-1" aria-hidden="true"/>กำลังโหลดตาราง…
                                     </p>
                                 </div>
                             </div>
@@ -103,21 +103,21 @@
                         <div class="col-lg-4">
                             <div class="od19-panel">
                                 <h5 class="od19-panel-title">
-                                    <i class="fa fa-bolt me-2" style="color:var(--od19-secondary);"/>
+                                    <i class="fa fa-bolt me-2" style="color:var(--od19-secondary);" aria-hidden="true"/>
                                     ใช้บ่อย (Shortcuts)
                                 </h5>
                                 <div class="od19-shortcut-grid">
                                     <a class="od19-shortcut" href="/web#action=hr_attendance.hr_attendance_action">
-                                        <i class="fa fa-clock-o"/><span>ลงเวลา</span>
+                                        <i class="fa fa-clock-o" aria-hidden="true"/><span>ลงเวลา</span>
                                     </a>
                                     <a class="od19-shortcut" href="/my/approvals">
-                                        <i class="fa fa-check-square-o"/><span>อนุมัติ</span>
+                                        <i class="fa fa-check-square-o" aria-hidden="true"/><span>อนุมัติ</span>
                                     </a>
                                     <a class="od19-shortcut" href="/web#action=hr_expense.hr_expense_actions_my_all">
-                                        <i class="fa fa-money"/><span>ค่าใช้จ่าย</span>
+                                        <i class="fa fa-money" aria-hidden="true"/><span>ค่าใช้จ่าย</span>
                                     </a>
                                     <a class="od19-shortcut" href="/web#action=od19_meeting_room_booking.action_meeting_room_booking">
-                                        <i class="fa fa-calendar-check-o"/><span>จองห้อง</span>
+                                        <i class="fa fa-calendar-check-o" aria-hidden="true"/><span>จองห้อง</span>
                                     </a>
                                 </div>
                             </div>
@@ -133,7 +133,7 @@
                             <div class="card border-0 shadow-sm">
                                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
                                     <h5 class="mb-0" style="color:var(--od19-dark);font-weight:700;">
-                                        <i class="fa fa-bullhorn me-2" style="color:var(--od19-secondary);"/>
+                                        <i class="fa fa-bullhorn me-2" style="color:var(--od19-secondary);" aria-hidden="true"/>
                                         ประกาศล่าสุด (Latest Announcements)
                                     </h5>
                                     <a href="/web#action=od19_announcement.announcement_action"
@@ -172,7 +172,7 @@
                             <div class="od19-booking-panel">
                                 <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
                                     <h5 class="mb-0" style="color:var(--od19-dark);font-weight:700;">
-                                        <i class="fa fa-calendar-check-o me-2" style="color:var(--od19-primary);"/>
+                                        <i class="fa fa-calendar-check-o me-2" style="color:var(--od19-primary);" aria-hidden="true"/>
                                         จองห้องประชุม (Meeting Room Booking)
                                     </h5>
                                     <small class="text-muted">เลือกห้อง กรอกหัวข้อ และเวลา แล้วกดจองได้ทันที</small>
@@ -180,12 +180,12 @@
 
                                 <t t-if="booked">
                                     <div class="alert alert-success py-2 mb-3">
-                                        <i class="fa fa-check-circle me-1"/>จองห้องประชุมเรียบร้อยแล้ว เลขที่ <strong t-esc="booked"/>
+                                        <i class="fa fa-check-circle me-1" aria-hidden="true"/>จองห้องประชุมเรียบร้อยแล้ว เลขที่ <strong t-esc="booked"/>
                                     </div>
                                 </t>
                                 <t t-if="booking_error">
                                     <div class="alert alert-danger py-2 mb-3">
-                                        <i class="fa fa-exclamation-triangle me-1"/><span t-esc="booking_error"/>
+                                        <i class="fa fa-exclamation-triangle me-1" aria-hidden="true"/><span t-esc="booking_error"/>
                                     </div>
                                 </t>
 
@@ -202,16 +202,16 @@
                                                     <span t-attf-class="od19-room-badge od19-badge-#{entry['status']}" t-esc="entry['status_label']"/>
                                                 </div>
                                                 <div class="od19-room-meta">
-                                                    <i class="fa fa-users me-1"/><span t-esc="entry['room'].capacity"/> ที่นั่ง
+                                                    <i class="fa fa-users me-1" aria-hidden="true"/><span t-esc="entry['room'].capacity"/> ที่นั่ง
                                                     <t t-if="entry['room'].floor">
-                                                        <span class="mx-1">·</span><i class="fa fa-building-o me-1"/>ชั้น <span t-esc="entry['room'].floor"/>
+                                                        <span class="mx-1">·</span><i class="fa fa-building-o me-1" aria-hidden="true"/>ชั้น <span t-esc="entry['room'].floor"/>
                                                     </t>
                                                 </div>
                                                 <div class="od19-room-icons">
-                                                    <i t-if="entry['room'].has_projector" class="fa fa-video-camera" title="โปรเจคเตอร์"/>
-                                                    <i t-if="entry['room'].has_video_conference" class="fa fa-wifi" title="ประชุมทางไกล"/>
-                                                    <i t-if="entry['room'].has_whiteboard" class="fa fa-pencil-square-o" title="ไวท์บอร์ด"/>
-                                                    <i t-if="entry['room'].has_display" class="fa fa-television" title="จอแสดงผล"/>
+                                                    <i t-if="entry['room'].has_projector" class="fa fa-video-camera" role="img" aria-label="โปรเจคเตอร์" title="โปรเจคเตอร์"/>
+                                                    <i t-if="entry['room'].has_video_conference" class="fa fa-wifi" role="img" aria-label="ประชุมทางไกล" title="ประชุมทางไกล"/>
+                                                    <i t-if="entry['room'].has_whiteboard" class="fa fa-pencil-square-o" role="img" aria-label="ไวท์บอร์ด" title="ไวท์บอร์ด"/>
+                                                    <i t-if="entry['room'].has_display" class="fa fa-television" role="img" aria-label="จอแสดงผล" title="จอแสดงผล"/>
                                                 </div>
                                                 <div class="od19-room-note">
                                                     <t t-if="entry['status'] == 'busy' and entry['busy_until']">
@@ -225,7 +225,7 @@
                                                     </t>
                                                 </div>
                                                 <div class="od19-room-hint">
-                                                    <i class="fa fa-clock-o me-1"/>ดูตารางการใช้ห้อง
+                                                    <i class="fa fa-clock-o me-1" aria-hidden="true"/>ดูตารางการใช้ห้อง
                                                 </div>
                                             </a>
                                         </div>
@@ -234,16 +234,17 @@
 
                                 <!-- Room schedule popup: what is taken, past and ahead -->
                                 <t t-foreach="rooms" t-as="entry">
-                                    <div class="modal fade od19-room-modal" tabindex="-1" aria-hidden="true"
+                                    <div class="modal fade od19-room-modal" tabindex="-1" role="dialog" aria-modal="true"
+                                         t-att-aria-labelledby="'od19-room-modal-title-%s' % entry['room'].id"
                                          t-att-id="'od19-room-modal-%s' % entry['room'].id">
                                         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title">
-                                                        <i class="fa fa-calendar-check-o me-2" style="color:var(--od19-primary);"/>
+                                                    <h5 class="modal-title" t-att-id="'od19-room-modal-title-%s' % entry['room'].id">
+                                                        <i class="fa fa-calendar-check-o me-2" style="color:var(--od19-primary);" aria-hidden="true"/>
                                                         <span t-esc="entry['room'].name"/>
                                                         <small class="text-muted ms-2">
-                                                            <i class="fa fa-users me-1"/><span t-esc="entry['room'].capacity"/> ที่นั่ง
+                                                            <i class="fa fa-users me-1" aria-hidden="true"/><span t-esc="entry['room'].capacity"/> ที่นั่ง
                                                             <t t-if="entry['room'].floor">
                                                                 · ชั้น <span t-esc="entry['room'].floor"/>
                                                             </t>
@@ -253,13 +254,13 @@
                                                 </div>
                                                 <div class="modal-body">
                                                     <p class="od19-schedule-note mb-2">
-                                                        <i class="fa fa-info-circle me-1"/>
+                                                        <i class="fa fa-info-circle me-1" aria-hidden="true"/>
                                                         แสดงตารางการใช้ห้องย้อนหลัง <span t-esc="booking_window_months"/> เดือน
                                                         และล่วงหน้า <span t-esc="booking_window_months"/> เดือน
                                                     </p>
                                                     <div class="od19-room-schedule" t-att-data-room-id="entry['room'].id">
                                                         <p class="text-muted small mb-0">
-                                                            <i class="fa fa-spinner fa-spin me-1"/>กำลังโหลดตารางการใช้ห้อง…
+                                                            <i class="fa fa-spinner fa-spin me-1" aria-hidden="true"/>กำลังโหลดตารางการใช้ห้อง…
                                                         </p>
                                                     </div>
 
@@ -270,31 +271,35 @@
                                                         <div class="od19-subheading">จองห้องนี้</div>
                                                         <div class="row g-2 align-items-end">
                                                             <div class="col-lg-6">
-                                                                <label class="od19-field-label">หัวข้อการประชุม</label>
+                                                                <label class="od19-field-label" t-att-for="'od19-bk-name-%s' % entry['room'].id">หัวข้อการประชุม</label>
                                                                 <input type="text" name="name" class="form-control"
+                                                                       t-att-id="'od19-bk-name-%s' % entry['room'].id"
                                                                        placeholder="เช่น ประชุมทีมขาย" required="required"/>
                                                             </div>
                                                             <div class="col-lg-2 col-md-4">
-                                                                <label class="od19-field-label">วันที่</label>
+                                                                <label class="od19-field-label" t-att-for="'od19-bk-date-%s' % entry['room'].id">วันที่</label>
                                                                 <input type="date" name="booking_date" class="form-control"
+                                                                       t-att-id="'od19-bk-date-%s' % entry['room'].id"
                                                                        t-att-value="today.strftime('%Y-%m-%d')"
                                                                        t-att-min="min_booking_date.strftime('%Y-%m-%d')"
                                                                        t-att-max="max_booking_date.strftime('%Y-%m-%d')"
                                                                        required="required"/>
                                                             </div>
                                                             <div class="col-lg-2 col-md-4">
-                                                                <label class="od19-field-label">เริ่ม</label>
+                                                                <label class="od19-field-label" t-att-for="'od19-bk-start-%s' % entry['room'].id">เริ่ม</label>
                                                                 <input type="time" name="start_time" class="form-control"
+                                                                       t-att-id="'od19-bk-start-%s' % entry['room'].id"
                                                                        value="09:00" required="required"/>
                                                             </div>
                                                             <div class="col-lg-2 col-md-4">
-                                                                <label class="od19-field-label">ถึง</label>
+                                                                <label class="od19-field-label" t-att-for="'od19-bk-end-%s' % entry['room'].id">ถึง</label>
                                                                 <input type="time" name="end_time" class="form-control"
+                                                                       t-att-id="'od19-bk-end-%s' % entry['room'].id"
                                                                        value="10:00" required="required"/>
                                                             </div>
                                                             <div class="col-lg-12">
                                                                 <button type="submit" class="btn od19-btn-book mt-2">
-                                                                    <i class="fa fa-calendar-plus-o me-1"/>จองห้องนี้
+                                                                    <i class="fa fa-calendar-plus-o me-1" aria-hidden="true"/>จองห้องนี้
                                                                 </button>
                                                             </div>
                                                         </div>
@@ -310,8 +315,8 @@
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                     <div class="row g-2 align-items-end">
                                         <div class="col-lg-3 col-md-6">
-                                            <label class="od19-field-label">ห้องประชุม</label>
-                                            <select name="room_id" class="form-control" required="required">
+                                            <label class="od19-field-label" for="od19-book-room">ห้องประชุม</label>
+                                            <select name="room_id" id="od19-book-room" class="form-control" required="required">
                                                 <option value="">-- เลือกห้อง --</option>
                                                 <t t-foreach="rooms" t-as="entry">
                                                     <option t-att-value="entry['room'].id"
@@ -321,36 +326,36 @@
                                             </select>
                                         </div>
                                         <div class="col-lg-3 col-md-6">
-                                            <label class="od19-field-label">หัวข้อการประชุม</label>
-                                            <input type="text" name="name" class="form-control"
+                                            <label class="od19-field-label" for="od19-book-name">หัวข้อการประชุม</label>
+                                            <input type="text" name="name" id="od19-book-name" class="form-control"
                                                    placeholder="เช่น ประชุมทีมขาย" required="required"/>
                                         </div>
                                         <div class="col-lg-2 col-md-4">
-                                            <label class="od19-field-label">วันที่</label>
-                                            <input type="date" name="booking_date" class="form-control"
+                                            <label class="od19-field-label" for="od19-book-date">วันที่</label>
+                                            <input type="date" name="booking_date" id="od19-book-date" class="form-control"
                                                    t-att-value="today.strftime('%Y-%m-%d')"
                                                    t-att-min="min_booking_date.strftime('%Y-%m-%d')"
                                                    t-att-max="max_booking_date.strftime('%Y-%m-%d')"
                                                    required="required"/>
                                         </div>
                                         <div class="col-lg-1 col-md-4">
-                                            <label class="od19-field-label">เริ่ม</label>
-                                            <input type="time" name="start_time" class="form-control"
+                                            <label class="od19-field-label" for="od19-book-start">เริ่ม</label>
+                                            <input type="time" name="start_time" id="od19-book-start" class="form-control"
                                                    value="09:00" required="required"/>
                                         </div>
                                         <div class="col-lg-1 col-md-4">
-                                            <label class="od19-field-label">ถึง</label>
-                                            <input type="time" name="end_time" class="form-control"
+                                            <label class="od19-field-label" for="od19-book-end">ถึง</label>
+                                            <input type="time" name="end_time" id="od19-book-end" class="form-control"
                                                    value="10:00" required="required"/>
                                         </div>
                                         <div class="col-lg-2 col-md-6">
-                                            <label class="od19-field-label">ผู้เข้าร่วม</label>
-                                            <input type="number" name="participant_count" class="form-control"
+                                            <label class="od19-field-label" for="od19-book-participants">ผู้เข้าร่วม</label>
+                                            <input type="number" name="participant_count" id="od19-book-participants" class="form-control"
                                                    value="2" min="1"/>
                                         </div>
                                         <div class="col-lg-12">
                                             <button type="submit" class="btn od19-btn-book mt-2">
-                                                <i class="fa fa-calendar-plus-o me-1"/>จองทันที
+                                                <i class="fa fa-calendar-plus-o me-1" aria-hidden="true"/>จองทันที
                                             </button>
                                         </div>
                                     </div>
@@ -390,7 +395,7 @@
                     <div class="row mb-4">
                         <div class="col-12">
                             <h5 style="color:var(--od19-dark);font-weight:700;margin-bottom:20px;">
-                                <i class="fa fa-th-large me-2" style="color:var(--od19-primary);"/>
+                                <i class="fa fa-th-large me-2" style="color:var(--od19-primary);" aria-hidden="true"/>
                                 เมนูด่วน (Quick Access)
                             </h5>
                         </div>
@@ -400,14 +405,14 @@
                         </div>
                         <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
                             <div class="od19-portal-card">
-                                <div class="od19-portal-icon"><i class="fa fa-check-square-o"/></div>
+                                <div class="od19-portal-icon"><i class="fa fa-check-square-o" aria-hidden="true"/></div>
                                 <h5>รายการอนุมัติ</h5>
                                 <p>Approval Center</p>
-                                <a href="/my/approvals">เปิดใช้งาน →</a>
+                                <a href="/my/approvals" aria-label="เปิดใช้งาน รายการอนุมัติ">เปิดใช้งาน →</a>
                             </div>
                             <div class="od19-approval-badge d-none" data-od19-approval-summary="/my/approvals/summary">
                                 <small class="text-danger d-block mt-1">
-                                    <i class="fa fa-clock-o me-1"/>
+                                    <i class="fa fa-clock-o me-1" aria-hidden="true"/>
                                     รออนุมัติ <span class="od19-approval-count">0</span> รายการ
                                     <span class="od19-approval-age d-none">
                                         (เก่าสุด <span class="od19-approval-max-age">0</span> วัน)
@@ -417,26 +422,26 @@
                         </div>
                         <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
                             <div class="od19-portal-card">
-                                <div class="od19-portal-icon"><i class="fa fa-money"/></div>
+                                <div class="od19-portal-icon"><i class="fa fa-money" aria-hidden="true"/></div>
                                 <h5>ค่าใช้จ่าย</h5>
                                 <p>HR Expense</p>
-                                <a href="/web#action=hr_expense.hr_expense_actions_my_all">เปิดใช้งาน →</a>
+                                <a href="/web#action=hr_expense.hr_expense_actions_my_all" aria-label="เปิดใช้งาน ค่าใช้จ่าย">เปิดใช้งาน →</a>
                             </div>
                         </div>
                         <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
                             <div class="od19-portal-card">
-                                <div class="od19-portal-icon"><i class="fa fa-truck"/></div>
+                                <div class="od19-portal-icon"><i class="fa fa-truck" aria-hidden="true"/></div>
                                 <h5>จัดซื้อ</h5>
                                 <p>Purchase Requisition</p>
-                                <a href="/web#action=purchase.purchase_form_action">เปิดใช้งาน →</a>
+                                <a href="/web#action=purchase.purchase_form_action" aria-label="เปิดใช้งาน จัดซื้อ">เปิดใช้งาน →</a>
                             </div>
                         </div>
                         <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
                             <div class="od19-portal-card">
-                                <div class="od19-portal-icon"><i class="fa fa-calendar-check-o"/></div>
+                                <div class="od19-portal-icon"><i class="fa fa-calendar-check-o" aria-hidden="true"/></div>
                                 <h5>จองห้องประชุม</h5>
                                 <p>Meeting Room Booking</p>
-                                <a href="/web#action=od19_meeting_room_booking.action_meeting_room_booking">เปิดใช้งาน →</a>
+                                <a href="/web#action=od19_meeting_room_booking.action_meeting_room_booking" aria-label="เปิดใช้งาน จองห้องประชุม">เปิดใช้งาน →</a>
                             </div>
                         </div>
 
@@ -445,26 +450,26 @@
                         </div>
                         <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
                             <div class="od19-portal-card">
-                                <div class="od19-portal-icon"><i class="fa fa-users"/></div>
+                                <div class="od19-portal-icon"><i class="fa fa-users" aria-hidden="true"/></div>
                                 <h5>ฝ่ายบุคคล</h5>
                                 <p>Employee Directory</p>
-                                <a href="/web#action=hr.open_view_employee_list_my">เปิดใช้งาน →</a>
+                                <a href="/web#action=hr.open_view_employee_list_my" aria-label="เปิดใช้งาน ฝ่ายบุคคล">เปิดใช้งาน →</a>
                             </div>
                         </div>
                         <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
                             <div class="od19-portal-card">
-                                <div class="od19-portal-icon"><i class="fa fa-archive"/></div>
+                                <div class="od19-portal-icon"><i class="fa fa-archive" aria-hidden="true"/></div>
                                 <h5>ยืมอุปกรณ์</h5>
                                 <p>Asset &amp; Tool Loan</p>
-                                <a href="/web#action=od19_asset_loan.asset_loan_action">เปิดใช้งาน →</a>
+                                <a href="/web#action=od19_asset_loan.asset_loan_action" aria-label="เปิดใช้งาน ยืมอุปกรณ์">เปิดใช้งาน →</a>
                             </div>
                         </div>
                         <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
                             <div class="od19-portal-card">
-                                <div class="od19-portal-icon"><i class="fa fa-bullhorn"/></div>
+                                <div class="od19-portal-icon"><i class="fa fa-bullhorn" aria-hidden="true"/></div>
                                 <h5>ประกาศ</h5>
                                 <p>Announcements</p>
-                                <a href="/web#action=od19_announcement.announcement_action">เปิดใช้งาน →</a>
+                                <a href="/web#action=od19_announcement.announcement_action" aria-label="เปิดใช้งาน ประกาศ">เปิดใช้งาน →</a>
                             </div>
                         </div>
 
@@ -473,34 +478,34 @@
                         </div>
                         <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
                             <div class="od19-portal-card">
-                                <div class="od19-portal-icon"><i class="fa fa-book"/></div>
+                                <div class="od19-portal-icon"><i class="fa fa-book" aria-hidden="true"/></div>
                                 <h5>ฐานความรู้</h5>
                                 <p>Knowledge Base</p>
-                                <a href="/web#action=document_page.action_browse_all_content">เปิดใช้งาน →</a>
+                                <a href="/web#action=document_page.action_browse_all_content" aria-label="เปิดใช้งาน ฐานความรู้">เปิดใช้งาน →</a>
                             </div>
                         </div>
                         <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
                             <div class="od19-portal-card">
-                                <div class="od19-portal-icon"><i class="fa fa-ticket"/></div>
+                                <div class="od19-portal-icon"><i class="fa fa-ticket" aria-hidden="true"/></div>
                                 <h5>แจ้งปัญหาภายใน</h5>
                                 <p>Internal Issue / Helpdesk</p>
-                                <a href="/web#action=helpdesk_mgmt.helpdesk_ticket_action">เปิดใช้งาน →</a>
+                                <a href="/web#action=helpdesk_mgmt.helpdesk_ticket_action" aria-label="เปิดใช้งาน แจ้งปัญหาภายใน">เปิดใช้งาน →</a>
                             </div>
                         </div>
                         <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
                             <div class="od19-portal-card">
-                                <div class="od19-portal-icon"><i class="fa fa-bar-chart"/></div>
+                                <div class="od19-portal-icon"><i class="fa fa-bar-chart" aria-hidden="true"/></div>
                                 <h5>แดชบอร์ด</h5>
                                 <p>My Dashboard</p>
-                                <a href="/web">เปิดใช้งาน →</a>
+                                <a href="/web" aria-label="เปิดใช้งาน แดชบอร์ด">เปิดใช้งาน →</a>
                             </div>
                         </div>
                         <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
                             <div class="od19-portal-card">
-                                <div class="od19-portal-icon"><i class="fa fa-book"/></div>
+                                <div class="od19-portal-icon"><i class="fa fa-book" aria-hidden="true"/></div>
                                 <h5>คู่มือการใช้งาน</h5>
                                 <p>User Guide</p>
-                                <a href="/web#action=web_tour.tour_action">เปิดใช้งาน →</a>
+                                <a href="/web#action=web_tour.tour_action" aria-label="เปิดใช้งาน คู่มือการใช้งาน">เปิดใช้งาน →</a>
                             </div>
                         </div>
                     </div>
@@ -509,26 +514,26 @@
                     <div class="row mb-4">
                         <div class="col-12">
                             <h5 style="color:var(--od19-dark);font-weight:700;margin-bottom:20px;">
-                                <i class="fa fa-bolt me-2" style="color:var(--od19-secondary);"/>
+                                <i class="fa fa-bolt me-2" style="color:var(--od19-secondary);" aria-hidden="true"/>
                                 ทำงานด่วน (Quick Actions)
                             </h5>
                         </div>
                         <div class="col-md-6 mb-3">
                             <a href="/web#action=helpdesk_mgmt.helpdesk_ticket_action"
                                class="btn btn-primary btn-lg w-100 text-start" style="background:var(--od19-primary);border:none;">
-                                <i class="fa fa-plus-circle me-2"/>แจ้งปัญหาใหม่
+                                <i class="fa fa-plus-circle me-2" aria-hidden="true"/>แจ้งปัญหาใหม่
                             </a>
                         </div>
                         <div class="col-md-6 mb-3">
                             <a href="/web#action=od19_asset_loan.asset_loan_action"
-                               class="btn btn-lg w-100 text-start" style="background:var(--od19-secondary);border:none;color:#fff;">
-                                <i class="fa fa-plus-circle me-2"/>ขอยืมอุปกรณ์
+                               class="btn btn-lg w-100 text-start" style="background:var(--od19-secondary);border:none;color:#2a1a1a;font-weight:600;">
+                                <i class="fa fa-plus-circle me-2" aria-hidden="true"/>ขอยืมอุปกรณ์
                             </a>
                         </div>
                         <div class="col-md-6 mb-3">
                             <a href="/web#action=od19_meeting_room_booking.action_meeting_room_booking"
                                class="btn btn-lg w-100 text-start" style="background:#6b1f1f;border:none;color:#fff;">
-                                <i class="fa fa-calendar-plus-o me-2"/>จองห้องประชุม
+                                <i class="fa fa-calendar-plus-o me-2" aria-hidden="true"/>จองห้องประชุม
                             </a>
                         </div>
                     </div>

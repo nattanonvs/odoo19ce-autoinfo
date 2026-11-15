@@ -19,7 +19,7 @@
 	<parameter name="p_Start_Date" class="java.lang.String"/>
 	<parameter name="p_End_Date" class="java.lang.String"/>
 	<parameter name="p_Where" class="java.lang.String">
-		<defaultValueExpression><![CDATA["WHERE (req.state = 'approve' OR req.state = 'paid') AND (c.number IS NULL OR c.state = 'clear')"]]></defaultValueExpression>
+		<defaultValueExpression><![CDATA["WHERE (req.state = 'posted' OR req.state = 'reconciled')"]]></defaultValueExpression>
 	</parameter>
 	<parameter name="p_request_name" class="java.lang.String"/>
 	<parameter name="p_locale" class="java.lang.String">

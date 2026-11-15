@@ -14,14 +14,14 @@
              data-od19-recognition-summary="/my/recognition/summary">
             <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
                 <h5 class="mb-0">
-                    <i class="fa fa-heart me-2" style="color:var(--od19-primary);"/>
+                    <i class="fa fa-heart me-2" style="color:var(--od19-primary);" aria-hidden="true"/>
                     ขอบคุณเพื่อนร่วมงาน (Team Wall)
                 </h5>
                 <a href="/my/recognition" class="btn btn-sm btn-outline-primary">ให้ Kudos / ดูทั้งหมด</a>
             </div>
             <div class="od19-kudos-feed">
                 <p class="text-muted small mb-0">
-                    <i class="fa fa-spinner fa-spin me-1"/>กำลังโหลด…
+                    <i class="fa fa-spinner fa-spin me-1" aria-hidden="true"/>กำลังโหลด…
                 </p>
             </div>
             <div class="od19-celebrations mt-3 d-none"></div>
@@ -34,17 +34,17 @@
             <div class="container mt-4">
                 <t t-if="given">
                     <div class="alert alert-success py-2">
-                        <i class="fa fa-check-circle me-1"/>ส่ง Kudos เรียบร้อยแล้ว ขอบคุณ!
+                        <i class="fa fa-check-circle me-1" aria-hidden="true"/>ส่ง Kudos เรียบร้อยแล้ว ขอบคุณ!
                     </div>
                 </t>
                 <t t-if="error">
                     <div class="alert alert-danger py-2">
-                        <i class="fa fa-exclamation-triangle me-1"/><span t-esc="error"/>
+                        <i class="fa fa-exclamation-triangle me-1" aria-hidden="true"/><span t-esc="error"/>
                     </div>
                 </t>
 
                 <h3 class="mb-3">
-                    <i class="fa fa-heart me-2" style="color:var(--od19-primary);"/>
+                    <i class="fa fa-heart me-2" style="color:var(--od19-primary);" aria-hidden="true"/>
                     ขอบคุณเพื่อนร่วมงาน (Recognition)
                 </h3>
 
@@ -55,8 +55,8 @@
                             <form action="/my/recognition/give" method="post" class="od19-kudos-form">
                                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                 <div class="mb-2">
-                                    <label class="od19-field-label">เพื่อนร่วมงาน</label>
-                                    <select name="recipient_id" class="form-control" required="required">
+                                    <label class="od19-field-label" for="od19-kudos-recipient">เพื่อนร่วมงาน</label>
+                                    <select id="od19-kudos-recipient" name="recipient_id" class="form-control" required="required">
                                         <option value="">-- เลือกเพื่อนร่วมงาน --</option>
                                         <t t-foreach="employees" t-as="emp">
                                             <option t-att-value="emp.id" t-att-selected="'selected' if prefill_recipient_id and prefill_recipient_id == emp.id else None" t-esc="emp.name"/>
@@ -64,8 +64,8 @@
                                     </select>
                                 </div>
                                 <div class="mb-2">
-                                    <label class="od19-field-label">ป้าย</label>
-                                    <select name="badge_id" class="form-control">
+                                    <label class="od19-field-label" for="od19-kudos-badge">ป้าย</label>
+                                    <select id="od19-kudos-badge" name="badge_id" class="form-control">
                                         <option value="">-- ไม่ระบุ --</option>
                                         <t t-foreach="badges" t-as="badge">
                                             <option t-att-value="badge.id" t-att-selected="'selected' if prefill_badge_id and prefill_badge_id == badge.id else None" t-esc="badge.name"/>
@@ -73,28 +73,28 @@
                                     </select>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="od19-field-label">ข้อความขอบคุณ</label>
-                                    <textarea name="message" class="form-control" rows="3"
+                                    <label class="od19-field-label" for="od19-kudos-message">ข้อความขอบคุณ</label>
+                                    <textarea id="od19-kudos-message" name="message" class="form-control" rows="3"
                                               maxlength="500" required="required"
                                               placeholder="ขอบคุณสำหรับ..."></textarea>
                                 </div>
                                 <button type="submit" class="btn btn-primary w-100"
                                         style="background:var(--od19-primary);border:none;">
-                                    <i class="fa fa-paper-plane me-1"/>ส่ง Kudos
+                                    <i class="fa fa-paper-plane me-1" aria-hidden="true"/>ส่ง Kudos
                                 </button>
                             </form>
                         </div>
 
                         <div class="od19-recognition-panel">
                             <h5 class="mb-3">
-                                <i class="fa fa-birthday-cake me-2" style="color:var(--od19-secondary);"/>
+                                <i class="fa fa-birthday-cake me-2" style="color:var(--od19-secondary);" aria-hidden="true"/>
                                 เดือนนี้มีอะไร
                             </h5>
                             <t t-if="celebrations['birthdays']">
                                 <div class="od19-celebration-title">วันเกิด</div>
                                 <ul class="list-unstyled mb-2">
                                     <t t-foreach="celebrations['birthdays']" t-as="b">
-                                        <li><i class="fa fa-birthday-cake me-1" style="color:#e91e63;"/><span t-esc="b['name']"/> · วันที่ <span t-esc="b['day']"/><a class="od19-celebration-greet" t-attf-href="/my/recognition?recipient_id=#{b['employee_id']}&amp;badge_id=#{b['badge_id'] or ''}">อวยพร</a></li>
+                                        <li><i class="fa fa-birthday-cake me-1" style="color:#e91e63;" aria-hidden="true"/><span t-esc="b['name']"/> · วันที่ <span t-esc="b['day']"/><a class="od19-celebration-greet" t-attf-href="/my/recognition?recipient_id=#{b['employee_id']}&amp;badge_id=#{b['badge_id'] or ''}" t-attf-aria-label="อวยพร #{b['name']}">อวยพร</a></li>
                                     </t>
                                 </ul>
                             </t>
@@ -102,7 +102,7 @@
                                 <div class="od19-celebration-title">ครบรอบการทำงาน</div>
                                 <ul class="list-unstyled mb-0">
                                     <t t-foreach="celebrations['anniversaries']" t-as="a">
-                                        <li><i class="fa fa-trophy me-1" style="color:var(--od19-secondary);"/><span t-esc="a['name']"/> · <span t-esc="a['years']"/> ปี<a class="od19-celebration-greet" t-attf-href="/my/recognition?recipient_id=#{a['employee_id']}&amp;badge_id=#{a['badge_id'] or ''}">อวยพร</a></li>
+                                        <li><i class="fa fa-trophy me-1" style="color:var(--od19-secondary);" aria-hidden="true"/><span t-esc="a['name']"/> · <span t-esc="a['years']"/> ปี<a class="od19-celebration-greet" t-attf-href="/my/recognition?recipient_id=#{a['employee_id']}&amp;badge_id=#{a['badge_id'] or ''}" t-attf-aria-label="อวยพร #{a['name']}">อวยพร</a></li>
                                     </t>
                                 </ul>
                             </t>
@@ -120,10 +120,10 @@
                                     <div class="od19-kudos-item mb-3 pb-3 border-bottom">
                                         <div class="d-flex align-items-center gap-2 mb-1">
                                             <span class="od19-kudos-badge" t-att-style="'background:%s;' % item['badge_color']">
-                                                <i t-attf-class="fa #{item['badge_icon']}"/>
+                                                <i t-attf-class="fa #{item['badge_icon']}" aria-hidden="true"/>
                                             </span>
                                             <strong t-esc="item['author']"/>
-                                            <i class="fa fa-arrow-right text-muted"/>
+                                            <i class="fa fa-arrow-right text-muted" aria-hidden="true"/>
                                             <strong t-esc="item['recipient']"/>
                                             <small class="text-muted ms-auto" t-esc="item['date']"/>
                                         </div>

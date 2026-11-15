@@ -394,8 +394,22 @@ class Website(models.Model):
                     "od19_website: enabled the cookies bar on %r", website.name,
                 )
 
+        # The Terms page used to live at /terms, but Odoo's ``account`` module
+        # owns that route (its invoice-terms controller shadows any website
+        # page on the same path).  The legal page is kept at ``/terms-of-use``;
+        # because the page records are noupdate="1", the XML change alone does
+        # not migrate a database that already carries the old URL, so we
+        # normalise it here.  Idempotent.
+        terms_view = self.env.ref(
+            "od19_website.od19_terms_page", raise_if_not_found=False,
+        )
+        if terms_view:
+            self.env["website.page"].sudo().search([
+                ("view_id", "=", terms_view.id), ("url", "!=", "/terms-of-use"),
+            ]).write({"url": "/terms-of-use"})
+
         legal_pages = self.env["website.page"].sudo().search([
-            ("url", "in", ("/privacy", "/terms")),
+            ("url", "in", ("/privacy", "/terms-of-use")),
         ])
         for page in legal_pages:
             vals = {}

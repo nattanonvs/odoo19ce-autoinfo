@@ -40,7 +40,7 @@
 	pay.id AS payment_id,
 	pm.name AS payment_method,
 	pm.id AS payment_method_id,
-	j.name AS journal,
+	COALESCE(j.name->>'th_TH', j.name->>'en_US') AS journal,
 	j.id AS journal_id,
 	p.name AS partner_name,
 	p.id AS partner_id,
