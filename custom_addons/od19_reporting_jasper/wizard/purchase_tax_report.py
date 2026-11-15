@@ -95,6 +95,9 @@ class PurchaseTaxReport(models.TransientModel):
         period_format = "เดือน {0} ปี {1}" if self.p_language == "thai" else "{0}, {1}"
 
         parameters = self.get_common_parameters()
+        # purchase_tax_report.jrxml declares p_language but not p_locale, and
+        # jasperstarter fails on parameters the report does not declare.
+        parameters.pop("p_locale", None)
         parameters.update(
             {
                 "p_Print_By": self._legacy_print_by(),

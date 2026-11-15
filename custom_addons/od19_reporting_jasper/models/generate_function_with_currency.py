@@ -387,11 +387,12 @@ class JasperSqlSetup(models.AbstractModel):
     def _create_views(self):
         """Reporting views consumed by the legacy ``.jrxml`` templates."""
         tools.drop_view_if_exists(self.env.cr, "company_address_header_report")
-        # Odoo 19 no longer stores res_partner.display_name; fall back to name.
-        company_name = (
-            "cpartner.display_name"
-            if self._has_column("res_partner", "display_name")
-            else "cpartner.name"
+        # Odoo 19 stores res_partner.name as translated jsonb (and no longer
+        # exposes res_partner.display_name as a column).  Unwrap the payload so
+        # company_name_thai is a plain string instead of the raw jsonb dict.
+        company_name = "COALESCE(NULLIF(%s, ''), %s)" % (
+            self._text_column("res_partner", "cpartner", "name", "th_TH"),
+            self._text_column("res_partner", "cpartner", "name", "en_US"),
         )
         self.env.cr.execute("""
             CREATE OR REPLACE VIEW public.company_address_header_report AS

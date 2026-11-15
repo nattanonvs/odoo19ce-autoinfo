@@ -75,7 +75,7 @@
 	    ,prod.default_code as product_code
 	    ,cash_line.name as inv_description
 	    ,cash_line.quantity as qty
-	    ,uom.name as uom
+	    ,COALESCE(uom.name->>'th_TH', uom.name->>'en_US') as uom
 	    ,cash_line.price_unit as price_unit
 	    ,cash_line.discount as discount
 	    ,'' as discount_type
@@ -85,7 +85,7 @@
 		,(cash.amount - COALESCE(cash.od19_wht_amount, 0.00)) as amount_net
 		,convert_num_th_with_currency(cash.amount, cash.currency_id) AS bill_amount_total_bahttext
 		,convert_num_en_with_currency(cash.amount, cash.currency_id) AS bill_amount_total_engtext
-		,jn.name as pay_journal_name
+		,COALESCE(jn.name->>'th_TH', jn.name->>'en_US') as pay_journal_name
 		,case when jn.type = 'cash' then 1 else 0 end as is_cash
 		,case when jn.type = 'bank' then 1 else 0 end as is_bank_transfer
 		,case when cash.cheque_id is not null then 1 else 0 end as is_cheque
