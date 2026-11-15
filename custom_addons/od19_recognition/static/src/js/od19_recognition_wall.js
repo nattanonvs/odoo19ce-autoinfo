@@ -18,9 +18,9 @@
             return '<div class="od19-kudos-item mb-2">' +
                 '<div class="d-flex align-items-center gap-2">' +
                 '<span class="od19-kudos-badge" style="background:' + esc(item.badge_color) + '">' +
-                '<i class="fa ' + esc(item.badge_icon) + '"></i></span>' +
+                '<i class="fa ' + esc(item.badge_icon) + '" aria-hidden="true"></i></span>' +
                 '<strong>' + esc(item.author) + '</strong>' +
-                '<i class="fa fa-arrow-right text-muted" style="font-size:0.7rem;"></i>' +
+                '<i class="fa fa-arrow-right text-muted" style="font-size:0.7rem;" aria-hidden="true"></i>' +
                 '<strong>' + esc(item.recipient) + '</strong>' +
                 '<small class="text-muted ms-auto">' + esc(item.date) + '</small></div>' +
                 '<div class="od19-kudos-msg">' + esc(item.message) + '</div></div>';
@@ -36,10 +36,10 @@
         if (!container || !celebrations) return;
         var parts = [];
         (celebrations.birthdays || []).forEach(function (b) {
-            parts.push('<a class="od19-celebration-pill" href="' + greetHref(b.employee_id, b.badge_id) + '"><i class="fa fa-birthday-cake me-1" style="color:#e91e63;"></i>' + esc(b.name) + '</a>');
+            parts.push('<a class="od19-celebration-pill" href="' + greetHref(b.employee_id, b.badge_id) + '" aria-label="อวยพร ' + esc(b.name) + '"><i class="fa fa-birthday-cake me-1" style="color:#e91e63;" aria-hidden="true"></i>' + esc(b.name) + '</a>');
         });
         (celebrations.anniversaries || []).forEach(function (a) {
-            parts.push('<a class="od19-celebration-pill" href="' + greetHref(a.employee_id, a.badge_id) + '"><i class="fa fa-trophy me-1" style="color:#f39200;"></i>' + esc(a.name) + ' ' + esc(a.years) + ' ปี</a>');
+            parts.push('<a class="od19-celebration-pill" href="' + greetHref(a.employee_id, a.badge_id) + '" aria-label="อวยพร ' + esc(a.name) + '"><i class="fa fa-trophy me-1" style="color:#f39200;" aria-hidden="true"></i>' + esc(a.name) + ' ' + esc(a.years) + ' ปี</a>');
         });
         if (parts.length) {
             container.innerHTML = '<div class="od19-celebration-title">เดือนนี้</div>' + parts.join('');
