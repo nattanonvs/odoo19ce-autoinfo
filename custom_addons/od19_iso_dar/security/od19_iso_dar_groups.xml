@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="module_category_od19_iso_dar" model="ir.module.category">
+        <field name="name">ISO Document Action Request</field>
+        <field name="sequence">92</field>
+    </record>
+
+    <record id="privilege_od19_iso_dar" model="res.groups.privilege">
+        <field name="name">ISO Document Action Request</field>
+        <field name="category_id" ref="module_category_od19_iso_dar"/>
+    </record>
+
+    <record id="group_iso_dar_user" model="res.groups">
+        <field name="name">DAR User</field>
+        <field name="privilege_id" ref="privilege_od19_iso_dar"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <record id="group_iso_dar_controller" model="res.groups">
+        <field name="name">DAR Document Controller</field>
+        <field name="privilege_id" ref="privilege_od19_iso_dar"/>
+        <field name="implied_ids" eval="[(4, ref('group_iso_dar_user'))]"/>
+    </record>
+
+    <record id="group_iso_dar_manager" model="res.groups">
+        <field name="name">DAR Manager</field>
+        <field name="privilege_id" ref="privilege_od19_iso_dar"/>
+        <field name="implied_ids" eval="[(4, ref('group_iso_dar_controller'))]"/>
+    </record>
+
+</odoo>

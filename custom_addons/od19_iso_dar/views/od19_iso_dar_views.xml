@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ==================== Wizard action (ต้องมาก่อนปุ่มใน header) ==================== -->
+    <record id="action_od19_iso_dar_create_document" model="ir.actions.act_window">
+        <field name="name">สร้างเอกสารใหม่จาก DAR</field>
+        <field name="res_model">od19.iso.dar.create.document</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- ==================== List ==================== -->
+    <record id="view_od19_iso_dar_list" model="ir.ui.view">
+        <field name="name">od19.iso.dar.list</field>
+        <field name="model">od19.iso.dar</field>
+        <field name="arch" type="xml">
+            <list string="ใบคำขอ DAR">
+                <field name="name"/>
+                <field name="request_type"/>
+                <field name="document_id"/>
+                <field name="department_id"/>
+                <field name="requester_id"/>
+                <field name="effective_date"/>
+                <field name="status" widget="badge"
+                       decoration-info="status in ('draft','review')"
+                       decoration-warning="status in ('approval','final_approval')"
+                       decoration-success="status in ('approved','closed')"
+                       decoration-danger="status in ('rejected','cancelled')"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ==================== Kanban ==================== -->
+    <record id="view_od19_iso_dar_kanban" model="ir.ui.view">
+        <field name="name">od19.iso.dar.kanban</field>
+        <field name="model">od19.iso.dar</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="status">
+                <field name="name"/>
+                <field name="request_type"/>
+                <field name="department_id"/>
+                <field name="status"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_content">
+                            <div><strong><field name="name"/></strong></div>
+                            <div><field name="request_type"/></div>
+                            <div><field name="department_id"/></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- ==================== Form ==================== -->
+    <record id="view_od19_iso_dar_form" model="ir.ui.view">
+        <field name="name">od19.iso.dar.form</field>
+        <field name="model">od19.iso.dar</field>
+        <field name="arch" type="xml">
+            <form string="ใบคำขอ DAR">
+                <header>
+                    <button name="action_submit_for_review" type="object"
+                            string="ส่งตรวจทาน" class="btn-primary"
+                            invisible="status != 'draft'"/>
+                    <button name="action_review_approve" type="object"
+                            string="ตรวจทานผ่าน" class="btn-success"
+                            invisible="status != 'review'"/>
+                    <button name="action_review_reject" type="object"
+                            string="ตรวจทานไม่ผ่าน" class="btn-danger"
+                            invisible="status != 'review'"/>
+                    <button name="action_approve" type="object"
+                            string="อนุมัติ" class="btn-success"
+                            invisible="status != 'approval'"/>
+                    <button name="action_approve_reject" type="object"
+                            string="ไม่อนุมัติ" class="btn-danger"
+                            invisible="status != 'approval'"/>
+                    <button name="action_final_approve" type="object"
+                            string="อนุมัติสุดท้าย" class="btn-success"
+                            invisible="status != 'final_approval'"/>
+                    <button name="action_final_reject" type="object"
+                            string="ไม่อนุมัติสุดท้าย" class="btn-danger"
+                            invisible="status != 'final_approval'"/>
+                    <button name="action_close" type="object"
+                            string="ปิดใบ" class="btn-primary"
+                            invisible="status != 'approved'"/>
+                    <button name="%(action_od19_iso_dar_create_document)d"
+                            type="action"
+                            string="สร้างเอกสารใหม่"
+                            class="btn-primary"
+                            context="{'active_id': id, 'active_model': 'od19.iso.dar'}"
+                            invisible="status != 'approved' or request_type != 'new'"/>
+                    <button name="action_cancel" type="object"
+                            string="ยกเลิก" class="btn-secondary"
+                            invisible="status in ('approved','cancelled','closed')"/>
+                    <field name="status" widget="statusbar"
+                           statusbar_visible="draft,review,approval,final_approval,approved"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1" placeholder="DC26-001"/></h1>
+                        <h2><field name="request_type" placeholder="ประเภทคำขอ"/></h2>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="document_id"
+                                   readonly="request_type == 'new'"/>
+                            <field name="category_id"/>
+                            <field name="department_id"/>
+                            <field name="standard_ids" widget="many2many_tags"/>
+                            <field name="iso_clause"/>
+                        </group>
+                        <group>
+                            <field name="requester_id"/>
+                            <field name="effective_date"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="รายละเอียด">
+                            <field name="reason" placeholder="เหตุผล / ความจำเป็น"/>
+                            <field name="description" placeholder="รายละเอียดคำขอ"/>
+                            <field name="reject_reason" readonly="1"/>
+                        </page>
+                        <page string="รายการเปลี่ยนแปลง">
+                            <field name="change_line_ids">
+                                <list editable="bottom">
+                                    <field name="field_changed"/>
+                                    <field name="before_value"/>
+                                    <field name="after_value"/>
+                                    <field name="impact"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="ทะเบียนสำเนา">
+                            <field name="copy_record_ids">
+                                <list editable="bottom">
+                                    <field name="copy_type"/>
+                                    <field name="recipient_id"/>
+                                    <field name="copy_number"/>
+                                    <field name="issued_date"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="การอนุมัติ">
+                            <group>
+                                <field name="reviewer_id"/>
+                                <field name="approver_id"/>
+                                <field name="final_approver_id"/>
+                            </group>
+                        </page>
+                        <page string="เอกสารแนบ">
+                            <field name="attachment_ids" widget="many2many_binary"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ==================== Search ==================== -->
+    <record id="view_od19_iso_dar_search" model="ir.ui.view">
+        <field name="name">od19.iso.dar.search</field>
+        <field name="model">od19.iso.dar</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="document_id"/>
+                <field name="department_id"/>
+                <field name="requester_id"/>
+                <filter name="filter_draft" string="ร่าง"
+                        domain="[('status','=','draft')]"/>
+                <filter name="filter_pending" string="รออนุมัติ"
+                        domain="[('status','in',['review','approval','final_approval'])]"/>
+                <filter name="filter_approved" string="อนุมัติแล้ว"
+                        domain="[('status','in',['approved','closed'])]"/>
+                <group>
+                    <filter name="group_status" string="สถานะ"
+                            context="{'group_by':'status'}"/>
+                    <filter name="group_type" string="ประเภท"
+                            context="{'group_by':'request_type'}"/>
+                    <filter name="group_department" string="แผนก"
+                            context="{'group_by':'department_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ==================== Action ==================== -->
+    <record id="action_od19_iso_dar" model="ir.actions.act_window">
+        <field name="name">ใบคำขอ DAR</field>
+        <field name="res_model">od19.iso.dar</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="view_od19_iso_dar_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">สร้างใบคำขอ DAR ใบแรก</p>
+        </field>
+    </record>
+
+    <!-- ==================== Menu (ใต้ ISO Management > ควบคุมเอกสาร) ==================== -->
+    <menuitem id="menu_od19_iso_dar"
+              name="ใบคำขอ DAR"
+              parent="od19_iso_document_control.menu_iso_document_control"
+              action="action_od19_iso_dar"
+              sequence="20"/>
+
+</odoo>
