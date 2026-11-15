@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ===================== Search ===================== -->
+    <record id="view_od19_health_result_search" model="ir.ui.view">
+        <field name="name">od19.health.result.search</field>
+        <field name="model">od19.health.result</field>
+        <field name="arch" type="xml">
+            <search string="ผลการตรวจสุขภาพระบบ">
+                <field name="check_id"/>
+                <field name="check_code"/>
+                <field name="message"/>
+                <field name="run_at"/>
+                <filter name="filter_warning" string="เตือนขึ้นไป"
+                        domain="[('state', 'in', ['warning', 'critical'])]"/>
+                <filter name="filter_critical" string="วิกฤต" domain="[('state', '=', 'critical')]"/>
+                <separator/>
+                <filter name="filter_today" string="วันนี้"
+                        domain="[('run_at', '&gt;=', context_today().strftime('%Y-%m-%d 00:00:00'))]"/>
+                <filter name="filter_7days" string="7 วันล่าสุด"
+                        domain="[('run_at', '&gt;=', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d 00:00:00'))]"/>
+                <group name="groupby">
+                    <filter name="group_check" string="การตรวจ" context="{'group_by': 'check_id'}"/>
+                    <filter name="group_category" string="หมวด" context="{'group_by': 'category'}"/>
+                    <filter name="group_state" string="สถานะ" context="{'group_by': 'state'}"/>
+                    <filter name="group_severity" string="ความรุนแรง" context="{'group_by': 'severity'}"/>
+                    <filter name="group_run_at" string="ช่วงเวลา" context="{'group_by': 'run_at:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ===================== List ===================== -->
+    <record id="view_od19_health_result_list" model="ir.ui.view">
+        <field name="name">od19.health.result.list</field>
+        <field name="model">od19.health.result</field>
+        <field name="arch" type="xml">
+            <list string="ผลการตรวจสุขภาพระบบ" create="false"
+                  decoration-danger="state == 'critical'"
+                  decoration-warning="state == 'warning'">
+                <field name="run_at"/>
+                <field name="check_id"/>
+                <field name="category" optional="hide"/>
+                <field name="state" widget="badge"
+                       decoration-danger="state == 'critical'"
+                       decoration-warning="state == 'warning'"
+                       decoration-success="state == 'ok'"
+                       decoration-muted="state == 'unknown'"/>
+                <field name="severity"/>
+                <field name="value_label"/>
+                <field name="message"/>
+                <field name="duration_ms" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ===================== Form (อ่านเท่านั้น) ===================== -->
+    <record id="view_od19_health_result_form" model="ir.ui.view">
+        <field name="name">od19.health.result.form</field>
+        <field name="model">od19.health.result</field>
+        <field name="arch" type="xml">
+            <form string="ผลการตรวจสุขภาพระบบ" create="false" edit="false">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="check_id"/>
+                            <field name="run_at"/>
+                            <field name="state"/>
+                            <field name="severity"/>
+                        </group>
+                        <group>
+                            <field name="value"/>
+                            <field name="value_label"/>
+                            <field name="duration_ms"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <group string="ข้อความผลตรวจ">
+                        <field name="message" nolabel="1"/>
+                    </group>
+                    <group string="รายละเอียด (JSON)" invisible="not details">
+                        <field name="details" nolabel="1" widget="json"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ===================== Graph ===================== -->
+    <record id="view_od19_health_result_graph" model="ir.ui.view">
+        <field name="name">od19.health.result.graph</field>
+        <field name="model">od19.health.result</field>
+        <field name="arch" type="xml">
+            <graph string="แนวโน้มค่าที่วัด" type="line">
+                <field name="run_at" interval="hour"/>
+                <field name="value" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_od19_health_result_graph_state" model="ir.ui.view">
+        <field name="name">od19.health.result.graph.state</field>
+        <field name="model">od19.health.result</field>
+        <field name="arch" type="xml">
+            <graph string="สัดส่วนสถานะ" type="bar">
+                <field name="check_id"/>
+                <field name="state"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- ===================== Pivot ===================== -->
+    <record id="view_od19_health_result_pivot" model="ir.ui.view">
+        <field name="name">od19.health.result.pivot</field>
+        <field name="model">od19.health.result</field>
+        <field name="arch" type="xml">
+            <pivot string="สรุปผลการตรวจ">
+                <field name="check_id" type="row"/>
+                <field name="state" type="col"/>
+                <field name="value" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- ===================== Actions ===================== -->
+    <record id="action_od19_health_result" model="ir.actions.act_window">
+        <field name="name">ผลการตรวจสุขภาพระบบ</field>
+        <field name="res_model">od19.health.result</field>
+        <field name="view_mode">list,form,graph,pivot</field>
+        <field name="search_view_id" ref="view_od19_health_result_search"/>
+        <field name="context">{'search_default_filter_7days': 1}</field>
+    </record>
+
+    <record id="action_od19_health_result_trend" model="ir.actions.act_window">
+        <field name="name">แนวโน้มค่าที่วัด</field>
+        <field name="res_model">od19.health.result</field>
+        <field name="view_mode">graph,pivot</field>
+        <field name="search_view_id" ref="view_od19_health_result_search"/>
+        <field name="context">{'search_default_group_check': 1}</field>
+    </record>
+
+</odoo>

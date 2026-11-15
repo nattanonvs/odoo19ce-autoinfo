@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ===================== Search ===================== -->
+    <record id="view_od19_health_maintenance_search" model="ir.ui.view">
+        <field name="name">od19.health.maintenance.search</field>
+        <field name="model">od19.health.maintenance</field>
+        <field name="arch" type="xml">
+            <search string="หน้าต่างซ่อมบำรุง">
+                <field name="name"/>
+                <field name="user_id"/>
+                <field name="check_ids"/>
+                <filter name="filter_active" string="เปิดใช้งาน" domain="[('active', '=', True)]"/>
+                <filter name="filter_running" string="กำลังดำเนินการ"
+                        domain="[('start_datetime', '&lt;=', datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')), ('end_datetime', '&gt;=', datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))]"/>
+                <filter name="filter_suppress" string="ระงับการแจ้งเตือน"
+                        domain="[('suppress_notifications', '=', True)]"/>
+                <group name="groupby">
+                    <filter name="group_user" string="ผู้รับผิดชอบ" context="{'group_by': 'user_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ===================== List ===================== -->
+    <record id="view_od19_health_maintenance_list" model="ir.ui.view">
+        <field name="name">od19.health.maintenance.list</field>
+        <field name="model">od19.health.maintenance</field>
+        <field name="arch" type="xml">
+            <list string="หน้าต่างซ่อมบำรุง"
+                  decoration-success="state == 'done'"
+                  decoration-warning="state == 'running'">
+                <field name="name"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'scheduled'"
+                       decoration-warning="state == 'running'"
+                       decoration-success="state == 'done'"/>
+                <field name="start_datetime"/>
+                <field name="end_datetime"/>
+                <field name="user_id" optional="show"/>
+                <field name="suppress_notifications" optional="show"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <field name="active" invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ===================== Form ===================== -->
+    <record id="view_od19_health_maintenance_form" model="ir.ui.view">
+        <field name="name">od19.health.maintenance.form</field>
+        <field name="model">od19.health.maintenance</field>
+        <field name="arch" type="xml">
+            <form string="หน้าต่างซ่อมบำรุง">
+                <sheet>
+                    <widget name="web_ribbon" title="เก็บถาวร" bg_color="text-bg-danger"
+                            invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name" string="หัวข้องานซ่อม"/>
+                        <h1><field name="name" placeholder="เช่น อัปเกรดระบบประจำเดือน"/></h1>
+                    </div>
+                    <group>
+                        <group string="ช่วงเวลา">
+                            <field name="start_datetime"/>
+                            <field name="end_datetime"/>
+                            <field name="state"/>
+                        </group>
+                        <group string="ผู้รับผิดชอบ">
+                            <field name="user_id"/>
+                            <field name="active" widget="boolean_toggle"/>
+                            <field name="suppress_notifications"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <group string="การตรวจที่ระงับการแจ้งเตือน">
+                        <field name="check_ids" widget="many2many_tags"
+                               placeholder="เว้นว่าง = ระงับทุกการตรวจ"/>
+                    </group>
+                    <group string="รายละเอียด">
+                        <field name="description" nolabel="1" placeholder="อธิบายขอบเขตงานซ่อม"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ===================== Calendar ===================== -->
+    <record id="view_od19_health_maintenance_calendar" model="ir.ui.view">
+        <field name="name">od19.health.maintenance.calendar</field>
+        <field name="model">od19.health.maintenance</field>
+        <field name="arch" type="xml">
+            <calendar string="ตารางซ่อมบำรุง" date_start="start_datetime"
+                      date_stop="end_datetime" color="user_id" mode="month">
+                <field name="name"/>
+                <field name="user_id"/>
+                <field name="state"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- ===================== Action ===================== -->
+    <record id="action_od19_health_maintenance" model="ir.actions.act_window">
+        <field name="name">หน้าต่างซ่อมบำรุง</field>
+        <field name="res_model">od19.health.maintenance</field>
+        <field name="view_mode">list,calendar,form</field>
+        <field name="search_view_id" ref="view_od19_health_maintenance_search"/>
+        <field name="context">{'search_default_filter_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">ยังไม่มีหน้าต่างซ่อมบำรุง</p>
+            <p>กำหนดช่วงเวลาซ่อมเพื่อระงับการแจ้งเตือนจากงานที่รู้อยู่แล้ว</p>
+        </field>
+    </record>
+
+</odoo>

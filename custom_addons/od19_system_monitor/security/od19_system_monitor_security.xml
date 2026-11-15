@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ===================== Privilege ===================== -->
+    <!-- ชื่อ "System Health Monitor" แยกจาก privilege ของ core และของ
+         od19_dashboard อย่างชัดเจน เพื่อไม่ให้ชนกันในหน้า Access Rights -->
+    <record id="res_groups_privilege_od19_health" model="res.groups.privilege">
+        <field name="name">System Health Monitor</field>
+        <field name="category_id" ref="base.module_category_productivity"/>
+        <field name="sequence">86</field>
+    </record>
+
+    <!-- ===================== Groups ===================== -->
+    <record id="group_od19_health_user" model="res.groups">
+        <field name="name">System Health User</field>
+        <field name="comment">ดูสถานะสุขภาพระบบ ผลการตรวจ และเหตุการณ์ — รับทราบ/เลื่อนเหตุได้</field>
+        <field name="privilege_id" ref="res_groups_privilege_od19_health"/>
+        <field name="implied_ids" eval="[Command.link(ref('base.group_user'))]"/>
+    </record>
+
+    <record id="group_od19_health_manager" model="res.groups">
+        <field name="name">System Health Manager</field>
+        <field name="comment">จัดการการตรวจ เกณฑ์ หน้าต่างซ่อมบำรุง และตั้งค่าระบบเฝ้าระวังทั้งหมด</field>
+        <field name="privilege_id" ref="res_groups_privilege_od19_health"/>
+        <field name="implied_ids" eval="[Command.link(ref('group_od19_health_user'))]"/>
+    </record>
+
+    <!-- ผู้ดูแลระบบได้สิทธิ์ผู้จัดการโดยอัตโนมัติ เพื่อใช้งานได้ทันทีหลังติดตั้ง -->
+    <record id="base.group_system" model="res.groups">
+        <field name="implied_ids" eval="[Command.link(ref('group_od19_health_manager'))]"/>
+    </record>
+
+    <!-- ===================== Record rules ===================== -->
+    <!-- ข้อมูลเฝ้าระวังเป็น telemetry ของระบบ ไม่ใช่ข้อมูลส่วนบุคคล
+         จึงคุมด้วยสิทธิ์กลุ่ม (ir.model.access) เป็นหลัก และเพิ่มกฎอ่านตาม
+         บริษัทของตัวเอง เพื่อความสอดคล้องกับโมดูลอื่นในโปรเจกต์ -->
+    <record id="rule_od19_health_check_company" model="ir.rule">
+        <field name="name">Health check: ตามบริษัท</field>
+        <field name="model_id" ref="model_od19_health_check"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[Command.link(ref('group_od19_health_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_od19_health_result_company" model="ir.rule">
+        <field name="name">Health result: ตามบริษัท</field>
+        <field name="model_id" ref="model_od19_health_result"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[Command.link(ref('group_od19_health_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_od19_health_incident_company" model="ir.rule">
+        <field name="name">Health incident: ตามบริษัท</field>
+        <field name="model_id" ref="model_od19_health_incident"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[Command.link(ref('group_od19_health_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_od19_health_watchdog_company" model="ir.rule">
+        <field name="name">Health watchdog: ตามบริษัท</field>
+        <field name="model_id" ref="model_od19_health_watchdog"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[Command.link(ref('group_od19_health_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- ผู้จัดการไม่ถูกจำกัดด้วยกฎข้างบน (รวมกันแบบ OR) -->
+    <record id="rule_od19_health_manager" model="ir.rule">
+        <field name="name">Health: manager full access</field>
+        <field name="model_id" ref="model_od19_health_check"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_od19_health_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <!-- ===================== Sequence ===================== -->
+    <record id="seq_od19_health_incident" model="ir.sequence">
+        <field name="name">OD19 Health Incident</field>
+        <field name="code">od19.health.incident</field>
+        <field name="prefix">HLT/%(year)s/</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+</odoo>

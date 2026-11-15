@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ===================== การ์ดสุขภาพระบบ (Dashboard) ===================== -->
+    <!-- สไตล์เดียวกับ Dashboard ปัจจุบัน: การ์ด + สีสถานะ red/yellow/green/grey -->
+    <record id="view_od19_health_dashboard_kanban" model="ir.ui.view">
+        <field name="name">od19.health.dashboard.kanban</field>
+        <field name="model">od19.health.check</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="category" class="o_kanban_small_column">
+                <field name="id"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="category"/>
+                <field name="last_state"/>
+                <field name="last_value_label"/>
+                <field name="last_message"/>
+                <field name="last_run"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_global_click">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="o_kanban_record_title fw-bold"><field name="name"/></span>
+                                <field name="last_state" widget="badge"
+                                       decoration-danger="last_state == 'critical'"
+                                       decoration-warning="last_state == 'warning'"
+                                       decoration-success="last_state == 'ok'"
+                                       decoration-muted="last_state == 'unknown'"/>
+                            </div>
+                            <div class="fs-4 fw-bold mt-2"><field name="last_value_label"/></div>
+                            <div class="text-muted small"><field name="last_message"/></div>
+                            <div class="text-muted small mt-1">
+                                <i class="fa fa-clock-o me-1" aria-label="ตรวจล่าสุด"/>
+                                <field name="last_run"/>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- ===================== Action (Dashboard) ===================== -->
+    <record id="action_od19_health_dashboard" model="ir.actions.act_window">
+        <field name="name">แดชบอร์ดสุขภาพระบบ</field>
+        <field name="res_model">od19.health.check</field>
+        <field name="view_mode">kanban,list,graph</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_od19_health_dashboard_kanban')}),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_od19_health_check_list')}),
+            (0, 0, {'view_mode': 'graph', 'view_id': ref('view_od19_health_check_graph')})]"/>
+        <field name="search_view_id" ref="view_od19_health_check_search"/>
+        <field name="limit">25</field>
+        <field name="context">{'search_default_filter_active': 1}</field>
+    </record>
+
+    <!-- ===================== พยากรณ์ความจุ (Capacity forecast, P5) ===================== -->
+    <record id="view_od19_health_capacity_wizard_form" model="ir.ui.view">
+        <field name="name">od19.health.capacity.wizard.form</field>
+        <field name="model">od19.health.capacity.wizard</field>
+        <field name="arch" type="xml">
+            <form string="พยากรณ์ความจุระบบ">
+                <group>
+                    <field name="forecast_days"/>
+                    <field name="state" widget="badge"
+                           decoration-danger="state == 'critical'"
+                           decoration-warning="state == 'warning'"
+                           decoration-success="state == 'ok'"/>
+                    <field name="sample_days"/>
+                    <field name="generated_at"/>
+                </group>
+                <group>
+                    <group string="ฐานข้อมูล (Database)">
+                        <field name="db_current_label"/>
+                        <field name="db_per_day_label"/>
+                        <field name="db_forecast_label"/>
+                    </group>
+                    <group string="Filestore">
+                        <field name="filestore_current_label"/>
+                        <field name="filestore_per_day_label"/>
+                        <field name="filestore_forecast_label"/>
+                    </group>
+                </group>
+                <group string="สรุป">
+                    <field name="summary" nolabel="1"/>
+                </group>
+                <footer>
+                    <button name="action_compute" type="object" string="คำนวณใหม่" class="btn-primary"/>
+                    <button string="ปิด" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_od19_health_capacity" model="ir.actions.act_window">
+        <field name="name">พยากรณ์ความจุระบบ</field>
+        <field name="res_model">od19.health.capacity.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

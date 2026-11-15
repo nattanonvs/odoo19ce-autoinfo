@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- การตั้งค่าอยู่ในหน้า Settings → หมวด "System Health Monitor"
+         เข้าถึงได้เฉพาะกลุ่มผู้จัดการระบบเฝ้าระวัง (และผู้ดูแลระบบ) -->
+    <record id="res_config_settings_view_form_od19_system_monitor" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.od19.system.monitor</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="System Health Monitor" string="System Health Monitor"
+                     name="od19_system_monitor"
+                     groups="od19_system_monitor.group_od19_health_manager">
+
+                    <block title="การเฝ้าระวังสุขภาพระบบ" id="od19_health_watch_settings">
+                        <setting string="เปิดใช้การเฝ้าระวังสุขภาพระบบ"
+                                 help="ปิดชั่วคราวเพื่อหยุดการตรวจทั้งหมด (cron จะไม่บันทึกผลการตรวจ)">
+                            <field name="od19_health_enabled"/>
+                        </setting>
+                        <setting string="เก็บผลการตรวจย้อนหลัง"
+                                 help="ล้างผลการตรวจที่เก่ากว่าจำนวนวันที่กำหนด เพื่อไม่ให้ฐานข้อมูลโตไม่จำกัด"
+                                 invisible="not od19_health_enabled">
+                            <div class="text-muted content-group mt16">
+                                <span>เก็บผลการตรวจ </span>
+                                <field name="od19_health_retention_days" class="text-center"
+                                       style="width: 5rem;"/>
+                                <span> วัน</span>
+                            </div>
+                        </setting>
+                    </block>
+
+                    <block title="การแจ้งเตือนและสรุปรายวัน" id="od19_health_notify_settings">
+                        <setting string="ส่งสรุปสุขภาพประจำวัน"
+                                 help="ส่งสรุปเหตุการณ์และสถานะสุขภาพให้ผู้รับผิดชอบทุกวันทำการ">
+                            <field name="od19_health_digest_enabled"/>
+                            <div class="content-group mt16"
+                                 invisible="not od19_health_digest_enabled">
+                                <div class="row mt16">
+                                    <label for="od19_health_digest_hour" class="col-lg-3 o_light_label"/>
+                                    <field name="od19_health_digest_hour"/>
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+
+                    <block title="ผู้ช่วยวินิจฉัยด้วย AI (โหมดอ่านอย่างเดียว)"
+                           id="od19_health_ai_settings">
+                        <setting string="เปิดใช้การวินิจฉัยด้วย AI"
+                                 help="โหมด A: AI อ่านข้อมูลเหตุการณ์เพื่อสรุปสาเหตุเป็นภาษาไทยเท่านั้น ห้ามสั่งแก้ไขระบบ อนุมัติ หรือชำระเงิน">
+                            <field name="od19_health_ai_triage_enabled"/>
+                        </setting>
+                    </block>
+
+                    <block title="สัญญาณชีพจากตัวเฝ้าชั้นนอก" id="od19_health_watchdog_settings">
+                        <setting string="โทเคนรับสัญญาณชีพ (heartbeat)"
+                                 help="สคริปต์ภายนอกต้องส่งค่านี้มาที่ส่วนหัว X-Health-Token เมื่อเรียก POST /od19/health/heartbeat">
+                            <field name="od19_health_heartbeat_token"/>
+                        </setting>
+                        <setting string="โฟลเดอร์ข้อมูล (data-dir)"
+                                 help="ใช้คำนวณขนาด filestore เมื่อไม่ได้ตั้งค่าใน odoo.conf">
+                            <field name="od19_health_data_dir"/>
+                        </setting>
+                    </block>
+
+                    <block title="สุขอนามัยของ log" id="od19_health_log_settings">
+                        <setting string="หมุนไฟล์ log ขณะรัน"
+                                 help="ติดตั้ง log handler แบบหมุนไฟล์จากฝั่ง custom (ไม่แก้โค้ด core) — มีผลหลังรีสตาร์ท Odoo">
+                            <field name="od19_health_log_rotation_enabled"/>
+                            <div class="content-group mt16"
+                                 invisible="not od19_health_log_rotation_enabled">
+                                <div class="row mt16">
+                                    <label for="od19_health_log_max_bytes" class="col-lg-3 o_light_label"/>
+                                    <field name="od19_health_log_max_bytes"/>
+                                </div>
+                                <div class="row">
+                                    <label for="od19_health_log_backup_count" class="col-lg-3 o_light_label"/>
+                                    <field name="od19_health_log_backup_count"/>
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="od19_system_monitor_config_settings_action" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="context">{'module': 'od19_system_monitor', 'bin_size': False}</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ===================== Search ===================== -->
+    <record id="view_od19_health_rule_search" model="ir.ui.view">
+        <field name="name">od19.health.rule.search</field>
+        <field name="model">od19.health.rule</field>
+        <field name="arch" type="xml">
+            <search string="เกณฑ์สุขภาพระบบ">
+                <field name="name"/>
+                <field name="check_id"/>
+                <filter name="filter_active" string="เปิดใช้งาน" domain="[('active', '=', True)]"/>
+                <group name="groupby">
+                    <filter name="group_check" string="การตรวจ" context="{'group_by': 'check_id'}"/>
+                    <filter name="group_severity" string="ความรุนแรง" context="{'group_by': 'severity'}"/>
+                    <filter name="group_metric" string="ค่าที่เทียบ" context="{'group_by': 'metric'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ===================== List ===================== -->
+    <record id="view_od19_health_rule_list" model="ir.ui.view">
+        <field name="name">od19.health.rule.list</field>
+        <field name="model">od19.health.rule</field>
+        <field name="arch" type="xml">
+            <list string="เกณฑ์สุขภาพระบบ"
+                  decoration-danger="severity in ('critical', 'emergency')"
+                  decoration-warning="severity == 'warning'">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="check_id"/>
+                <field name="metric"/>
+                <field name="operator"/>
+                <field name="threshold" optional="show"/>
+                <field name="threshold_text" optional="show"/>
+                <field name="severity" widget="badge"
+                       decoration-danger="severity in ('critical', 'emergency')"
+                       decoration-warning="severity == 'warning'"
+                       decoration-info="severity == 'info'"/>
+                <field name="check_state"/>
+                <field name="fingerprint_window_minutes" optional="hide"/>
+                <field name="escalate_after_minutes" optional="show"/>
+                <field name="escalate_severity" optional="show"/>
+                <field name="active" invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ===================== Form ===================== -->
+    <record id="view_od19_health_rule_form" model="ir.ui.view">
+        <field name="name">od19.health.rule.form</field>
+        <field name="model">od19.health.rule</field>
+        <field name="arch" type="xml">
+            <form string="เกณฑ์สุขภาพระบบ">
+                <sheet>
+                    <widget name="web_ribbon" title="เก็บถาวร" bg_color="text-bg-danger"
+                            invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name" string="ชื่อเกณฑ์"/>
+                        <h1><field name="name" placeholder="เช่น อีเมลค้างส่งเกิน 100 ฉบับ"/></h1>
+                    </div>
+                    <group>
+                        <group string="ขอบเขต">
+                            <field name="check_id"/>
+                            <field name="sequence"/>
+                            <field name="active" widget="boolean_toggle"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="ผลลัพธ์เมื่อตรงเงื่อนไข">
+                            <field name="severity"/>
+                            <field name="check_state"/>
+                        </group>
+                    </group>
+                    <group string="เงื่อนไข">
+                        <group>
+                            <field name="metric"/>
+                            <field name="operator"/>
+                        </group>
+                        <group>
+                            <field name="threshold" invisible="metric != 'value'"
+                                   required="metric == 'value'"/>
+                            <field name="threshold_text" invisible="metric not in ('status', 'message')"
+                                   required="metric in ('status', 'message')"/>
+                        </group>
+                    </group>
+                    <group string="การยุบรวมสัญญาณซ้ำ (dedup) และการยกระดับ">
+                        <group>
+                            <field name="fingerprint_window_minutes"
+                                   help="ช่วงเวลาที่จะไม่แจ้งซ้ำสำหรับเหตุเดิม (นาที)"/>
+                        </group>
+                        <group>
+                            <field name="escalate_after_minutes"/>
+                            <field name="escalate_severity"
+                                   invisible="escalate_after_minutes &lt;= 0"
+                                   required="escalate_after_minutes &gt; 0"/>
+                        </group>
+                    </group>
+                    <group string="การแจ้งเตือน">
+                        <field name="notify_event"/>
+                        <field name="notify_group_ids" widget="many2many_tags"/>
+                        <field name="notify_user_ids" widget="many2many_tags"/>
+                    </group>
+                    <group string="คำอธิบาย">
+                        <field name="description" nolabel="1" placeholder="อธิบายเหตุผล/แนวทางแก้ไข"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ===================== Action ===================== -->
+    <record id="action_od19_health_rule" model="ir.actions.act_window">
+        <field name="name">เกณฑ์สุขภาพระบบ</field>
+        <field name="res_model">od19.health.rule</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_od19_health_rule_search"/>
+        <field name="context">{'search_default_filter_active': 1}</field>
+    </record>
+
+</odoo>

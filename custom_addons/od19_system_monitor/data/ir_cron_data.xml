@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        cron ของระบบเฝ้าระวังสุขภาพ (P2)
+        รูปแบบอ้างอิงจาก core: odoo/addons/base/data/ir_cron_data.xml (Odoo 19)
+        ใช้ field name / model_id / state=code / code ตาม API ของ Odoo 19
+    -->
+
+    <!-- รันการตรวจทั้งหมดทุก 5 นาที (รวมการยกระดับเหตุการณ์ด้วย) -->
+    <record id="ir_cron_od19_health_run_checks" model="ir.cron">
+        <field name="name">OD19 Health: Run checks</field>
+        <field name="model_id" ref="model_od19_health_check"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_run_checks()</field>
+        <field name="interval_number">5</field>
+        <field name="interval_type">minutes</field>
+        <field name="priority">3</field>
+    </record>
+
+    <!-- สรุปรายวัน (จะส่งจริงเฉพาะชั่วโมงที่ตั้งไว้และวันจันทร์–ศุกร์) -->
+    <record id="ir_cron_od19_health_digest" model="ir.cron">
+        <field name="name">OD19 Health: Daily digest</field>
+        <field name="model_id" ref="model_od19_health_incident"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_send_digest()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">hours</field>
+        <field name="priority">4</field>
+    </record>
+
+    <!-- ล้างผลการตรวจเก่าตามระยะเก็บ (ค่าเริ่มต้น 90 วัน) -->
+    <record id="ir_cron_od19_health_prune" model="ir.cron">
+        <field name="name">OD19 Health: Prune old results</field>
+        <field name="model_id" ref="model_od19_health_result"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_prune()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="priority">8</field>
+    </record>
+</odoo>

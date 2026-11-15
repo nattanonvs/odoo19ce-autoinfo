@@ -1,0 +1,17 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_od19_health_check_user,od19.health.check user,model_od19_health_check,group_od19_health_user,1,0,0,0
+access_od19_health_check_manager,od19.health.check manager,model_od19_health_check,group_od19_health_manager,1,1,1,1
+access_od19_health_result_user,od19.health.result user,model_od19_health_result,group_od19_health_user,1,0,0,0
+access_od19_health_result_manager,od19.health.result manager,model_od19_health_result,group_od19_health_manager,1,1,1,1
+access_od19_health_rule_user,od19.health.rule user,model_od19_health_rule,group_od19_health_user,1,0,0,0
+access_od19_health_rule_manager,od19.health.rule manager,model_od19_health_rule,group_od19_health_manager,1,1,1,1
+access_od19_health_incident_user,od19.health.incident user,model_od19_health_incident,group_od19_health_user,1,1,0,0
+access_od19_health_incident_manager,od19.health.incident manager,model_od19_health_incident,group_od19_health_manager,1,1,1,1
+access_od19_health_watchdog_user,od19.health.watchdog user,model_od19_health_watchdog,group_od19_health_user,1,0,0,0
+access_od19_health_watchdog_manager,od19.health.watchdog manager,model_od19_health_watchdog,group_od19_health_manager,1,1,1,1
+access_od19_health_maintenance_user,od19.health.maintenance user,model_od19_health_maintenance,group_od19_health_user,1,0,0,0
+access_od19_health_maintenance_manager,od19.health.maintenance manager,model_od19_health_maintenance,group_od19_health_manager,1,1,1,1
+access_od19_health_ai_triage_user,od19.health.ai.triage user,model_od19_health_ai_triage,group_od19_health_user,1,1,1,1
+access_od19_health_ai_triage_manager,od19.health.ai.triage manager,model_od19_health_ai_triage,group_od19_health_manager,1,1,1,1
+access_od19_health_capacity_wizard_user,od19.health.capacity.wizard user,model_od19_health_capacity_wizard,group_od19_health_user,1,1,1,1
+access_od19_health_capacity_wizard_manager,od19.health.capacity.wizard manager,model_od19_health_capacity_wizard,group_od19_health_manager,1,1,1,1

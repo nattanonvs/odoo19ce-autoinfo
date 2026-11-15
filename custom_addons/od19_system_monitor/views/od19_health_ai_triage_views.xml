@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ===================== Search ===================== -->
+    <record id="view_od19_health_ai_triage_search" model="ir.ui.view">
+        <field name="name">od19.health.ai.triage.search</field>
+        <field name="model">od19.health.ai.triage</field>
+        <field name="arch" type="xml">
+            <search string="การวินิจฉัยด้วย AI">
+                <field name="incident_id"/>
+                <field name="model_name"/>
+                <field name="summary"/>
+                <field name="run_at"/>
+                <filter name="filter_done" string="สำเร็จ" domain="[('state', '=', 'done')]"/>
+                <filter name="filter_error" string="ผิดพลาด" domain="[('state', '=', 'error')]"/>
+                <separator/>
+                <filter name="filter_today" string="วันนี้"
+                        domain="[('run_at', '&gt;=', context_today().strftime('%Y-%m-%d 00:00:00'))]"/>
+                <group name="groupby">
+                    <filter name="group_state" string="สถานะ" context="{'group_by': 'state'}"/>
+                    <filter name="group_model" string="โมเดล" context="{'group_by': 'model_name'}"/>
+                    <filter name="group_provider" string="ผู้ให้บริการ" context="{'group_by': 'provider'}"/>
+                    <filter name="group_run_at" string="ช่วงเวลา" context="{'group_by': 'run_at:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ===================== List ===================== -->
+    <record id="view_od19_health_ai_triage_list" model="ir.ui.view">
+        <field name="name">od19.health.ai.triage.list</field>
+        <field name="model">od19.health.ai.triage</field>
+        <field name="arch" type="xml">
+            <list string="การวินิจฉัยด้วย AI" create="false" edit="false"
+                  decoration-danger="state == 'error'">
+                <field name="run_at"/>
+                <field name="incident_id"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'done'"
+                       decoration-danger="state == 'error'"/>
+                <field name="provider" optional="hide"/>
+                <field name="model_name" optional="show"/>
+                <field name="summary"/>
+                <field name="duration_ms" optional="show"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ===================== Form (อ่านเท่านั้น) ===================== -->
+    <record id="view_od19_health_ai_triage_form" model="ir.ui.view">
+        <field name="name">od19.health.ai.triage.form</field>
+        <field name="model">od19.health.ai.triage</field>
+        <field name="arch" type="xml">
+            <form string="การวินิจฉัยด้วย AI" create="false" edit="false">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="incident_id" string="เหตุการณ์"/>
+                        <h1><field name="incident_id" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="run_at"/>
+                            <field name="provider"/>
+                            <field name="model_name"/>
+                        </group>
+                        <group>
+                            <field name="state"/>
+                            <field name="duration_ms"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="บทสรุปการวินิจฉัย" name="summary">
+                            <field name="summary" nolabel="1" readonly="1"/>
+                        </page>
+                        <page string="ข้อมูลที่ส่งให้ AI" name="prompt">
+                            <field name="prompt" nolabel="1" readonly="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ===================== Action ===================== -->
+    <record id="action_od19_health_ai_triage" model="ir.actions.act_window">
+        <field name="name">การวินิจฉัยด้วย AI</field>
+        <field name="res_model">od19.health.ai.triage</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_od19_health_ai_triage_search"/>
+        <field name="context">{'search_default_filter_today': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">ยังไม่มีการวินิจฉัยด้วย AI</p>
+            <p>เปิดใช้โหมด AI ในหน้าตั้งค่า แล้วกด "วินิจฉัยด้วย AI" จากหน้าของเหตุการณ์</p>
+        </field>
+    </record>
+
+</odoo>

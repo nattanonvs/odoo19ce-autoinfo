@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ===================== Search ===================== -->
+    <record id="view_od19_health_incident_search" model="ir.ui.view">
+        <field name="name">od19.health.incident.search</field>
+        <field name="model">od19.health.incident</field>
+        <field name="arch" type="xml">
+            <search string="เหตุการณ์สุขภาพระบบ">
+                <field name="name"/>
+                <field name="check_id"/>
+                <field name="target"/>
+                <field name="description"/>
+                <filter name="filter_open" string="ยังเปิดอยู่"
+                        domain="[('state', 'in', ['open', 'acknowledged', 'snoozed'])]"/>
+                <filter name="filter_unacknowledged" string="ยังไม่รับทราบ"
+                        domain="[('state', '=', 'open')]"/>
+                <filter name="filter_escalated" string="ยกระดับแล้ว" domain="[('escalated', '=', True)]"/>
+                <separator/>
+                <filter name="filter_critical" string="วิกฤต"
+                        domain="[('severity', 'in', ['critical', 'emergency'])]"/>
+                <group name="groupby">
+                    <filter name="group_check" string="การตรวจ" context="{'group_by': 'check_id'}"/>
+                    <filter name="group_severity" string="ความรุนแรง" context="{'group_by': 'severity'}"/>
+                    <filter name="group_state" string="สถานะ" context="{'group_by': 'state'}"/>
+                    <filter name="group_close_reason" string="เหตุผลที่ปิด" context="{'group_by': 'close_reason'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ===================== List ===================== -->
+    <record id="view_od19_health_incident_list" model="ir.ui.view">
+        <field name="name">od19.health.incident.list</field>
+        <field name="model">od19.health.incident</field>
+        <field name="arch" type="xml">
+            <list string="เหตุการณ์สุขภาพระบบ"
+                  decoration-danger="severity in ('critical', 'emergency') and state != 'closed'"
+                  decoration-warning="severity == 'warning' and state != 'closed'"
+                  decoration-muted="state == 'closed'">
+                <field name="name"/>
+                <field name="check_id"/>
+                <field name="target" optional="hide"/>
+                <field name="severity" widget="badge"
+                       decoration-danger="severity in ('critical', 'emergency')"
+                       decoration-warning="severity == 'warning'"
+                       decoration-info="severity == 'info'"/>
+                <field name="check_state" optional="hide"/>
+                <field name="state" widget="badge"
+                       decoration-danger="state == 'open'"
+                       decoration-warning="state == 'snoozed'"
+                       decoration-info="state == 'acknowledged'"
+                       decoration-muted="state == 'closed'"/>
+                <field name="occurrence_count" optional="show"/>
+                <field name="escalated" optional="hide"/>
+                <field name="first_seen" optional="hide"/>
+                <field name="last_seen"/>
+                <field name="acknowledged_by" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ===================== Form ===================== -->
+    <record id="view_od19_health_incident_form" model="ir.ui.view">
+        <field name="name">od19.health.incident.form</field>
+        <field name="model">od19.health.incident</field>
+        <field name="arch" type="xml">
+            <form string="เหตุการณ์สุขภาพระบบ">
+                <header>
+                    <button name="action_acknowledge" type="object" string="รับทราบ"
+                            class="btn-primary" icon="fa-check"
+                            invisible="state in ('acknowledged', 'closed')"/>
+                    <button name="action_snooze" type="object" string="เลื่อน 4 ชั่วโมง"
+                            icon="fa-clock-o" invisible="state == 'closed'"/>
+                    <button name="action_run_triage" type="object" string="วินิจฉัยด้วย AI"
+                            icon="fa-magic" invisible="not ai_triage_enabled"/>
+                    <button name="action_close" type="object" string="ปิดเหตุการณ์"
+                            icon="fa-times" invisible="state == 'closed'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="open,acknowledged,snoozed,closed"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="ข้อมูลเหตุการณ์">
+                            <field name="check_id"/>
+                            <field name="target"/>
+                            <field name="severity" widget="badge"
+                                   decoration-danger="severity in ('critical', 'emergency')"
+                                   decoration-warning="severity == 'warning'"
+                                   decoration-info="severity == 'info'"/>
+                            <field name="check_state"/>
+                            <field name="rule_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="การเกิดเหตุ">
+                            <field name="first_seen"/>
+                            <field name="last_seen"/>
+                            <field name="occurrence_count"/>
+                            <field name="escalated"/>
+                            <field name="escalated_at" invisible="not escalated"/>
+                            <field name="previous_severity" invisible="not escalated"/>
+                        </group>
+                    </group>
+                    <group string="การแจ้งเตือน">
+                        <group>
+                            <field name="last_notified_at"/>
+                            <field name="notification_count"/>
+                        </group>
+                        <group>
+                            <field name="acknowledged_by"/>
+                            <field name="acknowledged_at"/>
+                            <field name="snoozed_until" invisible="state != 'snoozed'"/>
+                            <field name="closed_by" invisible="state != 'closed'"/>
+                            <field name="closed_at" invisible="state != 'closed'"/>
+                            <field name="close_reason" invisible="state != 'closed'"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="รายละเอียด" name="description">
+                            <field name="description" nolabel="1"/>
+                        </page>
+                        <page string="การวินิจฉัยด้วย AI" name="triage">
+                            <field name="triage_ids" readonly="1">
+                                <list create="false" edit="false" delete="false">
+                                    <field name="run_at"/>
+                                    <field name="state" widget="badge"
+                                           decoration-success="state == 'done'"
+                                           decoration-danger="state == 'error'"/>
+                                    <field name="model_name"/>
+                                    <field name="summary"/>
+                                    <field name="duration_ms"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="ลายนิ้วมือ (dedup)" name="fingerprint">
+                            <group>
+                                <field name="fingerprint"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ===================== Graph ===================== -->
+    <record id="view_od19_health_incident_graph" model="ir.ui.view">
+        <field name="name">od19.health.incident.graph</field>
+        <field name="model">od19.health.incident</field>
+        <field name="arch" type="xml">
+            <graph string="เหตุการณ์ตามความรุนแรง" type="bar">
+                <field name="severity"/>
+                <field name="check_id"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- ===================== Actions ===================== -->
+    <record id="action_od19_health_incident" model="ir.actions.act_window">
+        <field name="name">เหตุการณ์สุขภาพระบบ</field>
+        <field name="res_model">od19.health.incident</field>
+        <field name="view_mode">list,form,graph</field>
+        <field name="search_view_id" ref="view_od19_health_incident_search"/>
+        <field name="context">{'search_default_filter_open': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">ไม่มีเหตุการณ์ค้าง — ระบบเป็นปกติ</p>
+        </field>
+    </record>
+
+    <record id="action_od19_health_incident_open" model="ir.actions.act_window">
+        <field name="name">เหตุการณ์ที่ยังเปิดอยู่</field>
+        <field name="res_model">od19.health.incident</field>
+        <field name="view_mode">list,form,graph</field>
+        <field name="domain">[('state', 'in', ['open', 'acknowledged', 'snoozed'])]</field>
+        <field name="context">{'search_default_filter_open': 1}</field>
+    </record>
+
+</odoo>

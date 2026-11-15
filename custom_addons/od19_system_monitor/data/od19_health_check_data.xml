@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        นิยามการตรวจสุขภาพระบบชุดเริ่มต้น (P2)
+        ค่าทั้งหมดเป็น "ค่าเริ่มต้นที่สมเหตุสมผล" และแก้ไขได้จากหน้าจอ
+        company_id = False เพื่อให้ใช้ได้ทุกบริษัทโดยไม่ต้องตั้งซ้ำ
+    -->
+
+    <!-- 1) จังหวะการทำงานของ cron กลางของระบบเฝ้าระวังเอง (dead-man switch) -->
+    <record id="check_cron_heartbeat" model="od19.health.check">
+        <field name="name">จังหวะการทำงานของ cron เฝ้าระวัง</field>
+        <field name="code">cron_heartbeat</field>
+        <field name="sequence">10</field>
+        <field name="category">queue</field>
+        <field name="check_type">cron_heartbeat</field>
+        <field name="cron_id" ref="ir_cron_od19_health_run_checks"/>
+        <field name="interval_minutes">5</field>
+        <field name="max_age_minutes">30</field>
+        <field name="warning_threshold">90</field>
+        <field name="critical_threshold">240</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <!-- 2) คิวอีเมลค้างส่ง / ส่งไม่สำเร็จ -->
+    <record id="check_mail_queue" model="od19.health.check">
+        <field name="name">คิวอีเมลค้างส่ง</field>
+        <field name="code">mail_queue</field>
+        <field name="sequence">20</field>
+        <field name="category">queue</field>
+        <field name="check_type">mail_queue</field>
+        <field name="interval_minutes">15</field>
+        <field name="warning_threshold">25</field>
+        <field name="critical_threshold">100</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <!-- 3) งาน cron เลยกำหนด (สัญญาณว่าคิวงานตัน) -->
+    <record id="check_cron_backlog" model="od19.health.check">
+        <field name="name">งาน cron เลยกำหนด</field>
+        <field name="code">cron_backlog</field>
+        <field name="sequence">30</field>
+        <field name="category">queue</field>
+        <field name="check_type">cron_backlog</field>
+        <field name="interval_minutes">15</field>
+        <field name="warning_threshold">5</field>
+        <field name="critical_threshold">20</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <!-- 4) ขนาดฐานข้อมูล (MB) -->
+    <record id="check_db_size" model="od19.health.check">
+        <field name="name">ขนาดฐานข้อมูล</field>
+        <field name="code">db_size</field>
+        <field name="sequence">40</field>
+        <field name="category">capacity</field>
+        <field name="check_type">db_size</field>
+        <field name="interval_minutes">60</field>
+        <field name="warning_threshold">5000</field>
+        <field name="critical_threshold">10000</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <!-- 5) ขนาด filestore (MB) -->
+    <record id="check_filestore_size" model="od19.health.check">
+        <field name="name">ขนาด filestore</field>
+        <field name="code">filestore_size</field>
+        <field name="sequence">50</field>
+        <field name="category">capacity</field>
+        <field name="check_type">filestore_size</field>
+        <field name="interval_minutes">60</field>
+        <field name="warning_threshold">20000</field>
+        <field name="critical_threshold">50000</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <!-- 6) session store (จำนวนไฟล์) -->
+    <record id="check_session_store" model="od19.health.check">
+        <field name="name">session store</field>
+        <field name="code">session_store</field>
+        <field name="sequence">60</field>
+        <field name="category">data</field>
+        <field name="check_type">session_store</field>
+        <field name="interval_minutes">60</field>
+        <field name="warning_threshold">5000</field>
+        <field name="critical_threshold">20000</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <!-- 7) ความสดของตัวเฝ้าชั้นนอก (mutual watchdog) -->
+    <record id="check_watchdog_heartbeat" model="od19.health.check">
+        <field name="name">ความสดของตัวเฝ้าชั้นนอก</field>
+        <field name="code">watchdog_heartbeat</field>
+        <field name="sequence">70</field>
+        <field name="category">availability</field>
+        <field name="check_type">watchdog_heartbeat</field>
+        <field name="interval_minutes">5</field>
+        <field name="max_age_minutes">30</field>
+        <field name="warning_threshold">30</field>
+        <field name="critical_threshold">60</field>
+        <field name="company_id" eval="False"/>
+    </record>
+</odoo>

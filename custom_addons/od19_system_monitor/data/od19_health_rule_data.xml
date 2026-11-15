@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        เกณฑ์ตัดสินความรุนแรงชุดเริ่มต้น (P3)
+        ทุกเกณฑ์เป็นการ "อ่านค่า" และตั้ง notify_event = od19_health_alert
+        โดยส่งถึงกลุ่ม System Health Manager เป็นค่าเริ่มต้น (แก้ไขได้จากหน้าจอ)
+        เกณฑ์ที่รุนแรงจะมีการยกระดับ (escalation) เมื่อไม่มีการรับทราบตามเวลา
+    -->
+
+    <!-- ================= จังหวะ cron เฝ้าระวัง ================= -->
+    <record id="rule_cron_heartbeat_warning" model="od19.health.rule">
+        <field name="name">cron เฝ้าระวังไม่ทำงานเกิน 90 นาที</field>
+        <field name="check_id" ref="check_cron_heartbeat"/>
+        <field name="sequence">10</field>
+        <field name="metric">value</field>
+        <field name="operator">gt</field>
+        <field name="threshold">90</field>
+        <field name="severity">warning</field>
+        <field name="check_state">warning</field>
+        <field name="fingerprint_window_minutes">120</field>
+        <field name="notify_event">od19_health_alert</field>
+        <field name="notify_group_ids" eval="[Command.link(ref('group_od19_health_manager'))]"/>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="rule_cron_heartbeat_critical" model="od19.health.rule">
+        <field name="name">cron เฝ้าระวังไม่ทำงานเกิน 4 ชั่วโมง</field>
+        <field name="check_id" ref="check_cron_heartbeat"/>
+        <field name="sequence">20</field>
+        <field name="metric">value</field>
+        <field name="operator">gt</field>
+        <field name="threshold">240</field>
+        <field name="severity">critical</field>
+        <field name="check_state">critical</field>
+        <field name="fingerprint_window_minutes">120</field>
+        <field name="escalate_after_minutes">60</field>
+        <field name="escalate_severity">emergency</field>
+        <field name="notify_event">od19_health_alert</field>
+        <field name="notify_group_ids" eval="[Command.link(ref('group_od19_health_manager'))]"/>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <!-- ================= คิวอีเมลค้างส่ง ================= -->
+    <record id="rule_mail_queue_warning" model="od19.health.rule">
+        <field name="name">อีเมลค้างส่งเกิน 25 ฉบับ</field>
+        <field name="check_id" ref="check_mail_queue"/>
+        <field name="sequence">10</field>
+        <field name="metric">value</field>
+        <field name="operator">gt</field>
+        <field name="threshold">25</field>
+        <field name="severity">warning</field>
+        <field name="check_state">warning</field>
+        <field name="fingerprint_window_minutes">60</field>
+        <field name="notify_event">od19_health_alert</field>
+        <field name="notify_group_ids" eval="[Command.link(ref('group_od19_health_manager'))]"/>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="rule_mail_queue_critical" model="od19.health.rule">
+        <field name="name">อีเมลค้างส่งเกิน 100 ฉบับ</field>
+        <field name="check_id" ref="check_mail_queue"/>
+        <field name="sequence">20</field>
+        <field name="metric">value</field>
+        <field name="operator">gt</field>
+        <field name="threshold">100</field>
+        <field name="severity">critical</field>
+        <field name="check_state">critical</field>
+        <field name="fingerprint_window_minutes">60</field>
+        <field name="escalate_after_minutes">60</field>
+        <field name="escalate_severity">emergency</field>
+        <field name="notify_event">od19_health_alert</field>
+        <field name="notify_group_ids" eval="[Command.link(ref('group_od19_health_manager'))]"/>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <!-- ================= งาน cron เลยกำหนด ================= -->
+    <record id="rule_cron_backlog_warning" model="od19.health.rule">
+        <field name="name">งาน cron เลยกำหนดเกิน 5 งาน</field>
+        <field name="check_id" ref="check_cron_backlog"/>
+        <field name="sequence">10</field>
+        <field name="metric">value</field>
+        <field name="operator">gt</field>
+        <field name="threshold">5</field>
+        <field name="severity">warning</field>
+        <field name="check_state">warning</field>
+        <field name="fingerprint_window_minutes">60</field>
+        <field name="notify_event">od19_health_alert</field>
+        <field name="notify_group_ids" eval="[Command.link(ref('group_od19_health_manager'))]"/>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="rule_cron_backlog_critical" model="od19.health.rule">
+        <field name="name">งาน cron เลยกำหนดเกิน 20 งาน</field>
+        <field name="check_id" ref="check_cron_backlog"/>
+        <field name="sequence">20</field>
+        <field name="metric">value</field>
+        <field name="operator">gt</field>
+        <field name="threshold">20</field>
+        <field name="severity">critical</field>
+        <field name="check_state">critical</field>
+        <field name="fingerprint_window_minutes">60</field>
+        <field name="escalate_after_minutes">60</field>
+        <field name="escalate_severity">emergency</field>
+        <field name="notify_event">od19_health_alert</field>
+        <field name="notify_group_ids" eval="[Command.link(ref('group_od19_health_manager'))]"/>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <!-- ================= ขนาดฐานข้อมูล ================= -->
+    <record id="rule_db_size_warning" model="od19.health.rule">
+        <field name="name">ฐานข้อมูลใหญ่เกิน 5 GB</field>
+        <field name="check_id" ref="check_db_size"/>
+        <field name="sequence">10</field>
+        <field name="metric">value</field>
+        <field name="operator">gt</field>
+        <field name="threshold">5000</field>
+        <field name="severity">warning</field>
+        <field name="check_state">warning</field>
+        <field name="fingerprint_window_minutes">1440</field>
+        <field name="notify_event">od19_health_alert</field>
+        <field name="notify_group_ids" eval="[Command.link(ref('group_od19_health_manager'))]"/>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="rule_db_size_critical" model="od19.health.rule">
+        <field name="name">ฐานข้อมูลใหญ่เกิน 10 GB</field>
+        <field name="check_id" ref="check_db_size"/>
+        <field name="sequence">20</field>
+        <field name="metric">value</field>
+        <field name="operator">gt</field>
+        <field name="threshold">10000</field>
+        <field name="severity">critical</field>
+        <field name="check_state">critical</field>
+        <field name="fingerprint_window_minutes">1440</field>
+        <field name="escalate_after_minutes">1440</field>
+        <field name="escalate_severity">emergency</field>
+        <field name="notify_event">od19_health_alert</field>
+        <field name="notify_group_ids" eval="[Command.link(ref('group_od19_health_manager'))]"/>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <!-- ================= ขนาด filestore ================= -->
+    <record id="rule_filestore_size_warning" model="od19.health.rule">
+        <field name="name">filestore ใหญ่เกิน 20 GB</field>
+        <field name="check_id" ref="check_filestore_size"/>
+        <field name="sequence">10</field>
+        <field name="metric">value</field>
+        <field name="operator">gt</field>
+        <field name="threshold">20000</field>
+        <field name="severity">warning</field>
+        <field name="check_state">warning</field>
+        <field name="fingerprint_window_minutes">1440</field>
+        <field name="notify_event">od19_health_alert</field>
+        <field name="notify_group_ids" eval="[Command.link(ref('group_od19_health_manager'))]"/>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="rule_filestore_size_critical" model="od19.health.rule">
+        <field name="name">filestore ใหญ่เกิน 50 GB</field>
+        <field name="check_id" ref="check_filestore_size"/>
+        <field name="sequence">20</field>
+        <field name="metric">value</field>
+        <field name="operator">gt</field>
+        <field name="threshold">50000</field>
+        <field name="severity">critical</field>
+        <field name="check_state">critical</field>
+        <field name="fingerprint_window_minutes">1440</field>
+        <field name="escalate_after_minutes">1440</field>
+        <field name="escalate_severity">emergency</field>
+        <field name="notify_event">od19_health_alert</field>
+        <field name="notify_group_ids" eval="[Command.link(ref('group_od19_health_manager'))]"/>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <!-- ================= session store ================= -->
+    <record id="rule_session_store_warning" model="od19.health.rule">
+        <field name="name">session store เกิน 5,000 ไฟล์</field>
+        <field name="check_id" ref="check_session_store"/>
+        <field name="sequence">10</field>
+        <field name="metric">value</field>
+        <field name="operator">gt</field>
+        <field name="threshold">5000</field>
+        <field name="severity">warning</field>
+        <field name="check_state">warning</field>
+        <field name="fingerprint_window_minutes">1440</field>
+        <field name="notify_event">od19_health_alert</field>
+        <field name="notify_group_ids" eval="[Command.link(ref('group_od19_health_manager'))]"/>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="rule_session_store_critical" model="od19.health.rule">
+        <field name="name">session store เกิน 20,000 ไฟล์</field>
+        <field name="check_id" ref="check_session_store"/>
+        <field name="sequence">20</field>
+        <field name="metric">value</field>
+        <field name="operator">gt</field>
+        <field name="threshold">20000</field>
+        <field name="severity">critical</field>
+        <field name="check_state">critical</field>
+        <field name="fingerprint_window_minutes">1440</field>
+        <field name="escalate_after_minutes">1440</field>
+        <field name="escalate_severity">emergency</field>
+        <field name="notify_event">od19_health_alert</field>
+        <field name="notify_group_ids" eval="[Command.link(ref('group_od19_health_manager'))]"/>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <!-- ================= ตัวเฝ้าชั้นนอก ================= -->
+    <record id="rule_watchdog_stale" model="od19.health.rule">
+        <field name="name">ตัวเฝ้าชั้นนอกขาดตอน (status = stale)</field>
+        <field name="check_id" ref="check_watchdog_heartbeat"/>
+        <field name="sequence">10</field>
+        <field name="metric">status</field>
+        <field name="operator">eq</field>
+        <field name="threshold_text">stale</field>
+        <field name="severity">warning</field>
+        <field name="check_state">warning</field>
+        <field name="fingerprint_window_minutes">60</field>
+        <field name="notify_event">od19_health_alert</field>
+        <field name="notify_group_ids" eval="[Command.link(ref('group_od19_health_manager'))]"/>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="rule_watchdog_critical" model="od19.health.rule">
+        <field name="name">ตัวเฝ้าชั้นนอกเงียบเกิน 60 นาที</field>
+        <field name="check_id" ref="check_watchdog_heartbeat"/>
+        <field name="sequence">20</field>
+        <field name="metric">value</field>
+        <field name="operator">gt</field>
+        <field name="threshold">60</field>
+        <field name="severity">critical</field>
+        <field name="check_state">critical</field>
+        <field name="fingerprint_window_minutes">60</field>
+        <field name="escalate_after_minutes">30</field>
+        <field name="escalate_severity">emergency</field>
+        <field name="notify_event">od19_health_alert</field>
+        <field name="notify_group_ids" eval="[Command.link(ref('group_od19_health_manager'))]"/>
+        <field name="company_id" eval="False"/>
+    </record>
+</odoo>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ===================== เมนูหลัก ===================== -->
+    <menuitem id="menu_od19_health_root"
+              name="System Health"
+              sequence="86"
+              groups="od19_system_monitor.group_od19_health_user"/>
+
+    <!-- ===================== ภาพรวม ===================== -->
+    <menuitem id="menu_od19_health_dashboard"
+              name="Dashboard"
+              parent="menu_od19_health_root"
+              action="action_od19_health_dashboard"
+              sequence="10"
+              groups="od19_system_monitor.group_od19_health_user"/>
+
+    <menuitem id="menu_od19_health_incident"
+              name="Incidents"
+              parent="menu_od19_health_root"
+              action="action_od19_health_incident_open"
+              sequence="20"
+              groups="od19_system_monitor.group_od19_health_user"/>
+
+    <menuitem id="menu_od19_health_check"
+              name="Checks"
+              parent="menu_od19_health_root"
+              action="action_od19_health_check"
+              sequence="30"
+              groups="od19_system_monitor.group_od19_health_user"/>
+
+    <menuitem id="menu_od19_health_result"
+              name="Results"
+              parent="menu_od19_health_root"
+              action="action_od19_health_result"
+              sequence="40"
+              groups="od19_system_monitor.group_od19_health_user"/>
+
+    <menuitem id="menu_od19_health_watchdog"
+              name="Watchdogs"
+              parent="menu_od19_health_root"
+              action="action_od19_health_watchdog"
+              sequence="50"
+              groups="od19_system_monitor.group_od19_health_user"/>
+
+    <menuitem id="menu_od19_health_ai_triage"
+              name="AI Triage"
+              parent="menu_od19_health_root"
+              action="action_od19_health_ai_triage"
+              sequence="60"
+              groups="od19_system_monitor.group_od19_health_user"/>
+
+    <menuitem id="menu_od19_health_capacity"
+              name="Capacity Forecast"
+              parent="menu_od19_health_root"
+              action="action_od19_health_capacity"
+              sequence="70"
+              groups="od19_system_monitor.group_od19_health_user"/>
+
+    <!-- ===================== การตั้งค่า ===================== -->
+    <menuitem id="menu_od19_health_configuration"
+              name="Configuration"
+              parent="menu_od19_health_root"
+              sequence="90"
+              groups="od19_system_monitor.group_od19_health_manager"/>
+
+    <menuitem id="menu_od19_health_rule"
+              name="Alert Rules"
+              parent="menu_od19_health_configuration"
+              action="action_od19_health_rule"
+              sequence="10"
+              groups="od19_system_monitor.group_od19_health_manager"/>
+
+    <menuitem id="menu_od19_health_maintenance"
+              name="Maintenance Windows"
+              parent="menu_od19_health_configuration"
+              action="action_od19_health_maintenance"
+              sequence="20"
+              groups="od19_system_monitor.group_od19_health_manager"/>
+
+    <menuitem id="menu_od19_health_settings"
+              name="Settings"
+              parent="menu_od19_health_configuration"
+              action="od19_system_monitor_config_settings_action"
+              sequence="90"
+              groups="base.group_system"/>
+
+</odoo>
