@@ -246,11 +246,16 @@ class HelpdeskTicket(models.Model):
         partners = self._get_notification_partners()
         if not partners:
             return
+        subject = (
+            _("เรื่องฉุกเฉิน: %s") % self.name
+            if self.emergency
+            else _("สร้างเรื่องใหม่: %s") % self.name
+        )
         self.env["notification.service"].notify(
             partners,
             _("เรื่อง %(number)s ถูกสร้างแล้ว") % {"number": self.number},
             event="issue_updated",
-            subject=_("สร้างเรื่องใหม่: %s") % self.name,
+            subject=subject,
         )
 
     def _notify_assigned(self):
@@ -266,14 +271,15 @@ class HelpdeskTicket(models.Model):
         )
 
     def write(self, vals):
-        previous_assignees = None
-        if "user_id" in vals:
-            previous_assignees = {rec.id: rec.user_id.id for rec in self}
         res = super().write(vals)
-        if previous_assignees is not None and vals.get("user_id"):
+        if "user_id" in vals and vals["user_id"]:
             for record in self:
-                if previous_assignees.get(record.id) != record.user_id.id:
-                    record._notify_assigned()
+                record._notify_assigned()
+        if "priority" in vals:
+            for record in self:
+                record.message_post(
+                    body=_("ปรับความสำคัญเป็น %s") % record._priority_label()
+                )
         return res
 
     # ------------------------------------------------------------------

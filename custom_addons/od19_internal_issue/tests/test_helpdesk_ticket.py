@@ -84,3 +84,24 @@ class TestInternalIssueTicket(TransactionCase):
         self.assertFalse(ticket.team_id)
         self.assertEqual(ticket.queue_position, 0)
         self.assertEqual(ticket.queue_ahead_count, 0)
+
+    def test_emergency_creates_notification(self):
+        # NOTE (T11): ใช้ base.user_admin แทน self.env.user เพราะ self.env.user
+        # (superuser) มี partner เป็น inactive -> notify() จะกรองทิ้ง; admin มี
+        # partner active และเป็นสมาชิกทีม Triage ที่ ticket ถูก route ไป
+        admin = self.env.ref("base.user_admin")
+        ticket = self._create_ticket(emergency=True, user_id=admin.id)
+        queue = self.env["od19.notification.queue"].search(
+            [("event", "=", "issue_updated")]
+        )
+        self.assertTrue(queue)
+
+    def test_assign_notifies_assignee(self):
+        # NOTE (T11): ใช้ base.user_admin (partner active) แทน self.env.user
+        admin = self.env.ref("base.user_admin")
+        ticket = self._create_ticket()
+        ticket.write({"user_id": admin.id})
+        queue = self.env["od19.notification.queue"].search(
+            [("event", "=", "issue_assigned")]
+        )
+        self.assertTrue(queue)
