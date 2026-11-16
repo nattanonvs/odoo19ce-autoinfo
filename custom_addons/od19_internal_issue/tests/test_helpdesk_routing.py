@@ -10,11 +10,17 @@ class TestInternalIssueRouting(TransactionCase):
         cls.Team = cls.env["helpdesk.ticket.team"]
         cls.Rule = cls.env["helpdesk.routing.rule"]
 
+        # seed data มีทีมที่ใช้ stream เดียวกัน (it_support/improvement) อยู่แล้ว
+        # ทีมของเทสต์จึงต้องมี sequence ต่ำกว่าเพื่อให้ชนะ search(..., limit=1)
         cls.team_it = cls.Team.create(
-            {"name": "IT Support (test)", "issue_stream": "it_support"}
+            {
+                "name": "IT Support (test)",
+                "issue_stream": "it_support",
+                "sequence": 1,
+            }
         )
         cls.team_triage = cls.Team.create(
-            {"name": "Triage (test)", "is_triage_team": True}
+            {"name": "Triage (test)", "is_triage_team": True, "sequence": 2}
         )
 
     def test_route_by_issue_stream(self):
@@ -69,7 +75,7 @@ class TestInternalIssueRouting(TransactionCase):
 
     def test_routing_rule_scoped_by_issue_stream(self):
         team_improve = self.Team.create(
-            {"name": "Improve (test)", "issue_stream": "improvement"}
+            {"name": "Improve (test)", "issue_stream": "improvement", "sequence": 3}
         )
         self.Rule.create(
             {

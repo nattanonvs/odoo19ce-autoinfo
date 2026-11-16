@@ -76,8 +76,11 @@ class TestInternalIssueTicket(TransactionCase):
 
     def test_queue_position_zero_without_team(self):
         # ต้องส่ง user_id=False เพื่อกัน OCA _compute_team_id auto-assign ทีม
-        # จาก user_id.helpdesk_team_ids (ผู้ใช้ปัจจุบันเป็นสมาชิกทีมอยู่แล้ว)
+        # จาก user_id.helpdesk_team_ids
+        # seed data จะ route 'unsure' ไปทีม Triage — เคลียร์ team_id ออกเพื่อทดสอบ
+        # สาขา "ไม่มีทีม" ของ _compute_queue_position
         ticket = self._create_ticket(user_id=False)
+        ticket.team_id = False
         self.assertFalse(ticket.team_id)
         self.assertEqual(ticket.queue_position, 0)
         self.assertEqual(ticket.queue_ahead_count, 0)
