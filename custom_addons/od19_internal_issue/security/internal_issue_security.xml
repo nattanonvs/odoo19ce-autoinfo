@@ -15,7 +15,7 @@
             ('visibility', '=', 'public'),
             '&amp;',
                 ('visibility', '=', 'department'),
-                ('visibility_department_id', 'in', [user.employee_id.department_id.id, False]),
+                ('visibility_department_id', 'in', [user.od19_department_id.id, False]),
             '&amp;',
                 ('visibility', '=', 'private'),
                 '|',

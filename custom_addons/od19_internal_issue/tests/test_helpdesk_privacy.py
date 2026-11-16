@@ -13,6 +13,24 @@ class TestInternalIssuePrivacy(TransactionCase):
         cls.user_b = cls.env["res.users"].create(
             {"name": "User B", "login": "priv_b_issue_test"}
         )
+        cls.dept_x = cls.env["hr.department"].create({"name": "Dept X (test)"})
+        cls.dept_y = cls.env["hr.department"].create({"name": "Dept Y (test)"})
+        cls.user_x = cls._user_with_department(
+            "User X", "priv_x_issue_test", cls.dept_x
+        )
+        cls.user_y = cls._user_with_department(
+            "User Y", "priv_y_issue_test", cls.dept_y
+        )
+
+    @classmethod
+    def _user_with_department(cls, name, login, department):
+        user = cls.env["res.users"].create({"name": name, "login": login})
+        # od19_security_roles mirrors the department from hr.employee on create,
+        # which would clear it here; set it explicitly for a deterministic fixture.
+        user.with_context(od19_skip_department_sync=True).write(
+            {"od19_department_id": department.id}
+        )
+        return user
 
     def _ticket(self, visibility, **overrides):
         vals = {
@@ -26,7 +44,8 @@ class TestInternalIssuePrivacy(TransactionCase):
 
     def test_public_visible_to_others(self):
         ticket = self._ticket("public")
-        self.assertTrue(ticket.with_user(self.user_b).read(["name"]))
+        visible = self.Ticket.with_user(self.user_b).search([("id", "=", ticket.id)])
+        self.assertEqual(visible, ticket)
 
     def test_private_hidden_from_others(self):
         ticket = self._ticket("private")
@@ -37,3 +56,13 @@ class TestInternalIssuePrivacy(TransactionCase):
         ticket = self._ticket("private")
         visible = self.Ticket.with_user(self.user_a).search([("id", "=", ticket.id)])
         self.assertEqual(visible, ticket)
+
+    def test_department_visible_to_same_department(self):
+        ticket = self._ticket("department", visibility_department_id=self.dept_x.id)
+        visible = self.Ticket.with_user(self.user_x).search([("id", "=", ticket.id)])
+        self.assertEqual(visible, ticket)
+
+    def test_department_hidden_from_other_department(self):
+        ticket = self._ticket("department", visibility_department_id=self.dept_x.id)
+        visible = self.Ticket.with_user(self.user_y).search([("id", "=", ticket.id)])
+        self.assertFalse(visible)
