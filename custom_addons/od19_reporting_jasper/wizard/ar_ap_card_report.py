@@ -94,7 +94,12 @@ class ArApCardReport(models.TransientModel):
     def get_parameters(self):
         """Values handed to jasperstarter as ``-P key=value``."""
         partner_ids = self.customer_ids if self.p_Type == "ar" else self.vendor_ids
+        # ar_ap_card_report.jrxml declares neither p_language nor p_locale, and
+        # jasperstarter fails on parameters the report does not declare, so keep
+        # only p_DateFormat from the shared defaults.
         parameters = self.get_common_parameters()
+        parameters.pop("p_language", None)
+        parameters.pop("p_locale", None)
         parameters.update(
             {
                 "p_AccountCodeText": ", ".join(self.account_ids.mapped("code"))

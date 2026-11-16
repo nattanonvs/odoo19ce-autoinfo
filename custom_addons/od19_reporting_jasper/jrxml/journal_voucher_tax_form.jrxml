@@ -12,7 +12,7 @@
 	</parameter>
 	<queryString>
 		<![CDATA[SELECT
-  COALESCE((SELECT t.name->>'th_TH' FROM account_tax t WHERE t.id = amti.tax_line_id), '') AS vat_name
+  COALESCE((SELECT COALESCE(t.name->>'th_TH', t.name->>'en_US') FROM account_tax t WHERE t.id = amti.tax_line_id), '') AS vat_name
  ,COALESCE(amti.tax_invoice_number,'') AS vat_no
  ,amti.tax_invoice_date AS vat_date
  ,COALESCE(amti.tax_base_amount,0) AS vat_toal_amount

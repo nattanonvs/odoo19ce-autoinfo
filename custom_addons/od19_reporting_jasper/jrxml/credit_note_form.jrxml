@@ -65,7 +65,7 @@
 					--then line.dtr_discount_type = 'percent' 
 					--else	position('%' in line.dynamic_discount ) > 0
 				--end as percent_discount,
-				uom.name as uom,  
+				COALESCE(uom.name->>'th_TH', uom.name->>'en_US') as uom,  
 				product.default_code as product_code,
 				--abs(coalesce(tax.amount,0)) as vat_order,
 				abs(coalesce(tax.amount,0)) as vat_order,

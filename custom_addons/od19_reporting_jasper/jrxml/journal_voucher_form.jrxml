@@ -56,7 +56,7 @@
 	,am.date
 	,COALESCE(am.ref,'') AS ref
 	,''::varchar AS je_type
-	,COALESCE(je.name->>'th_TH','') AS je_name
+	,COALESCE(je.name->>'th_TH', je.name->>'en_US','') AS je_name
 	,''::varchar AS voucher_title_general
 	,''::varchar AS voucher_title_receive
 	,''::varchar AS voucher_title_pay
@@ -71,7 +71,7 @@
 	,COALESCE(pn.vat,'') AS partner_tax
 	,COALESCE(pn.branch_code,'') AS partner_branch
 
-	,(SELECT CONCAT(a.code_store->>(am.company_id::text),' ',COALESCE(a.name->>'th_TH',''))
+	,(SELECT CONCAT(a.code_store->>(am.company_id::text),' ',COALESCE(a.name->>'th_TH', a.name->>'en_US',''))
 		FROM account_account a
 		WHERE a.id=al.account_id
 	)AS voucher_account_name
@@ -91,7 +91,7 @@
 	,NULL::numeric AS vat_amount
 	,NULL::integer AS invoice_id
 
-	,COALESCE((SELECT concat(a.code, ' ', COALESCE(a.name->>'th_TH',''))
+	,COALESCE((SELECT concat(a.code, ' ', COALESCE(a.name->>'th_TH', a.name->>'en_US',''))
 		FROM account_analytic_account a
 		WHERE a.id IN (SELECT jsonb_object_keys(al.analytic_distribution)::integer)
 		LIMIT 1
@@ -112,7 +112,7 @@
 		WHERE a.user_id = am.create_uid LIMIT 1
 	) AS prepare_name
 
-	,(SELECT j.name->>'th_TH'
+	,(SELECT COALESCE(j.name->>'th_TH', j.name->>'en_US')
 		FROM resource_resource a
 		LEFT JOIN hr_employee b ON a.id = b.resource_id
 		LEFT JOIN hr_version v ON v.id = b.current_version_id
@@ -120,7 +120,7 @@
 		WHERE a.user_id = am.create_uid LIMIT 1
 	) AS prepare_position
 
-	,(SELECT d.name->>'th_TH'
+	,(SELECT COALESCE(d.name->>'th_TH', d.name->>'en_US')
 		FROM resource_resource a
 		LEFT JOIN hr_employee b ON a.id = b.resource_id
 		LEFT JOIN hr_version v ON v.id = b.current_version_id
@@ -137,12 +137,12 @@
 	,(SELECT b.name FROM resource_resource a
 		LEFT JOIN hr_employee b ON a.id = b.resource_id
 		WHERE a.user_id = (SELECT a.done_by FROM (SELECT * FROM tier_review WHERE model='account.move' and res_id=am.id and status='approved' ORDER BY sequence DESC LIMIT 2) a ORDER BY a.sequence LIMIT 1)) AS pre_approved_name
-	,(SELECT d.name->>'th_TH' FROM resource_resource a
+	,(SELECT COALESCE(d.name->>'th_TH', d.name->>'en_US') FROM resource_resource a
 		LEFT JOIN hr_employee b ON a.id = b.resource_id
 		LEFT JOIN hr_version v ON v.id = b.current_version_id
 		LEFT JOIN hr_department d ON d.id = v.department_id
 		WHERE a.user_id = (SELECT a.done_by FROM (SELECT * FROM tier_review WHERE model='account.move' and res_id=am.id and status='approved' ORDER BY sequence DESC LIMIT 2) a ORDER BY a.sequence LIMIT 1)) AS pre_department
-	,(SELECT j.name->>'th_TH' FROM resource_resource a
+	,(SELECT COALESCE(j.name->>'th_TH', j.name->>'en_US') FROM resource_resource a
 		LEFT JOIN hr_employee b ON a.id = b.resource_id
 		LEFT JOIN hr_version v ON v.id = b.current_version_id
 		LEFT JOIN hr_job j ON j.id = v.job_id
@@ -156,12 +156,12 @@
 	,(SELECT b.name FROM resource_resource a
 		LEFT JOIN hr_employee b ON a.id = b.resource_id
 		WHERE a.user_id = (SELECT done_by FROM tier_review WHERE model='account.move' and res_id=am.id and status='approved' ORDER BY sequence DESC LIMIT 1)) AS approved_name
-	,(SELECT d.name->>'th_TH' FROM resource_resource a
+	,(SELECT COALESCE(d.name->>'th_TH', d.name->>'en_US') FROM resource_resource a
 		LEFT JOIN hr_employee b ON a.id = b.resource_id
 		LEFT JOIN hr_version v ON v.id = b.current_version_id
 		LEFT JOIN hr_department d ON d.id = v.department_id
 		WHERE a.user_id = (SELECT done_by FROM tier_review WHERE model='account.move' and res_id=am.id and status='approved' ORDER BY sequence DESC LIMIT 1)) AS approved_department
-	,(SELECT j.name->>'th_TH' FROM resource_resource a
+	,(SELECT COALESCE(j.name->>'th_TH', j.name->>'en_US') FROM resource_resource a
 		LEFT JOIN hr_employee b ON a.id = b.resource_id
 		LEFT JOIN hr_version v ON v.id = b.current_version_id
 		LEFT JOIN hr_job j ON j.id = v.job_id
