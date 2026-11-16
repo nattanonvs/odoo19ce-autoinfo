@@ -1,3 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+
+    <record id="view_helpdesk_queue_request_tree" model="ir.ui.view">
+        <field name="name">helpdesk.queue.request.list</field>
+        <field name="model">helpdesk.queue.request</field>
+        <field name="arch" type="xml">
+            <list string="คำขอแซงคิว">
+                <field name="name"/>
+                <field name="ticket_id"/>
+                <field name="requested_by"/>
+                <field name="approver_reporter_head_id"/>
+                <field name="approver_team_head_id"/>
+                <field name="state" widget="badge"/>
+                <field name="deadline"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_helpdesk_queue_request_form" model="ir.ui.view">
+        <field name="name">helpdesk.queue.request.form</field>
+        <field name="model">helpdesk.queue.request</field>
+        <field name="arch" type="xml">
+            <form string="คำขอแซงคิว">
+                <header>
+                    <button name="action_submit" type="object" string="ส่งคำขอ"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_approve_reporter_head" type="object"
+                            string="หัวหน้าแผนกอนุมัติ" class="btn-success"
+                            invisible="state != 'waiting_reporter_head'"/>
+                    <button name="action_approve_team_head" type="object"
+                            string="หัวหน้าทีมอนุมัติ" class="btn-success"
+                            invisible="state != 'waiting_team_head'"/>
+                    <button name="action_reject" type="object" string="ปฏิเสธ"
+                            class="btn-danger"
+                            invisible="state not in ('draft','waiting_reporter_head','waiting_team_head')"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,waiting_reporter_head,waiting_team_head,approved"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="ticket_id"/>
+                            <field name="requested_by"/>
+                            <field name="reason"/>
+                        </group>
+                        <group>
+                            <field name="approver_reporter_head_id"/>
+                            <field name="reporter_head_approved"/>
+                            <field name="approver_team_head_id"/>
+                            <field name="team_head_approved"/>
+                        </group>
+                    </group>
+                    <group string="ตำแหน่งแทรก (ผู้อนุมัติเลือก)">
+                        <field name="insert_before_id"/>
+                        <field name="deadline"/>
+                        <field name="decision_note"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_helpdesk_queue_request" model="ir.actions.act_window">
+        <field name="name">คำขอแซงคิว</field>
+        <field name="res_model">helpdesk.queue.request</field>
+        <field name="view_mode">list,form</field>
+        <field name="path">internal-issue-queue-requests</field>
+    </record>
+
 </odoo>
