@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from odoo import _, api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 from .internal_issue_common import QUEUE_REQUEST_STATE
 
@@ -53,7 +53,12 @@ class HelpdeskQueueRequest(models.Model):
             if rec.state != "draft":
                 raise UserError(_("ส่งได้เฉพาะคำขอสถานะร่างเท่านั้น"))
             if not rec.deadline:
-                rec.deadline = fields.Datetime.now() + timedelta(hours=24)
+                hours = float(
+                    self.env["ir.config_parameter"]
+                    .sudo()
+                    .get_param("od19_internal_issue.jump_window_hours", 24)
+                )
+                rec.deadline = fields.Datetime.now() + timedelta(hours=hours)
             rec.state = "waiting_reporter_head"
             rec.ticket_id.consent_state = "jump_requested"
             rec._notify_approvers()
@@ -77,9 +82,31 @@ class HelpdeskQueueRequest(models.Model):
 
     def action_reject(self):
         for rec in self:
+            if rec.state not in (
+                "draft",
+                "waiting_reporter_head",
+                "waiting_team_head",
+            ):
+                raise UserError(_("ไม่อนุญาตให้ปฏิเสธคำขอในสถานะนี้"))
             rec.state = "rejected"
             rec.ticket_id.consent_state = "accepted"
             rec._notify_outcome()
+
+    @api.constrains("insert_before_id")
+    def _check_insert_before(self):
+        for rec in self:
+            if not rec.insert_before_id or not rec.ticket_id:
+                continue
+            if rec.insert_before_id == rec.ticket_id:
+                raise ValidationError(_("ไม่สามารถแทรกเรื่องก่อนตัวเองได้"))
+            if (
+                rec.ticket_id.team_id
+                and rec.insert_before_id.team_id
+                and rec.ticket_id.team_id != rec.insert_before_id.team_id
+            ):
+                raise ValidationError(
+                    _("ตำแหน่งแทรกต้องอยู่ในคิวของทีมเดียวกับเรื่องที่ขอแซง")
+                )
 
     def _apply_insertion(self):
         self.ensure_one()
@@ -87,7 +114,8 @@ class HelpdeskQueueRequest(models.Model):
         if not ticket:
             return
         if self.insert_before_id:
-            ticket.queue_sequence = self.insert_before_id.queue_sequence - 1
+            # clamp ไม่ให้ค่าติดลบสะสมเมื่อแทรกซ้ำหลายครั้ง
+            ticket.queue_sequence = max(self.insert_before_id.queue_sequence - 1, 0)
         else:
             ticket.queue_sequence = 0
         ticket.is_priority_inserted = True
