@@ -182,8 +182,38 @@ class HelpdeskTicket(models.Model):
         self.jump_window_deadline = fields.Datetime.now() + timedelta(hours=hours)
 
     def _apply_routing(self, vals):
-        """เติม team_id/category_id จาก issue_stream + routing rules (ดู T04)."""
-        # implementation completed in Task T04
+        """เติม team_id/category_id/issue_stream อัตโนมัติจาก issue_stream + routing rules.
+
+        ลำดับ:
+        1) ผู้ส่งตั้ง team_id เอง -> เคารพ
+        2) issue_stream -> ทีมที่ผูก stream นั้น
+        3) 'unsure' -> ทีม Triage
+        4) helpdesk.routing.rule (keyword) ที่ match -> ทีมของกฎชนะการ assign
+           จาก stream/triage (เพราะเป็นเงื่อนไขเฉพาะเจาะจงกว่า) + เสริม category
+        """
+        if vals.get("team_id"):
+            return vals
+
+        Team = self.env["helpdesk.ticket.team"]
+        stream = vals.get("issue_stream") or "unsure"
+
+        team = Team.browse()
+        if stream == "unsure":
+            team = Team.search([("is_triage_team", "=", True)], limit=1)
+        else:
+            team = Team.search([("issue_stream", "=", stream)], limit=1)
+
+        # keyword rules: กฎที่ match กำหนดทีมปลายทางได้ (ชนะค่า stream/triage)
+        text = "%s %s" % (vals.get("name") or "", vals.get("description") or "")
+        rule = self.env["helpdesk.routing.rule"]._match_text(text)
+        if rule:
+            if rule.team_id:
+                team = rule.team_id
+            if not vals.get("category_id") and rule.category_id:
+                vals["category_id"] = rule.category_id.id
+
+        if team:
+            vals["team_id"] = team.id
         return vals
 
     # ------------------------------------------------------------------
