@@ -181,6 +181,17 @@ class HelpdeskTicket(models.Model):
         )
         self.jump_window_deadline = fields.Datetime.now() + timedelta(hours=hours)
 
+    def action_request_jump(self):
+        """เปิดคำขอแซงคิว (ถูกเรียกจากปุ่มบนฟอร์ม)."""
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_window",
+            "res_model": "helpdesk.queue.request",
+            "view_mode": "form",
+            "target": "current",
+            "context": {"default_ticket_id": self.id},
+        }
+
     def _apply_routing(self, vals):
         """เติม team_id/category_id/issue_stream อัตโนมัติจาก issue_stream + routing rules.
 
