@@ -1,1 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_helpdesk_queue_request_user,helpdesk.queue.request.user,model_helpdesk_queue_request,base.group_user,1,1,1,0
+access_helpdesk_queue_request_manager,helpdesk.queue.request.manager,model_helpdesk_queue_request,helpdesk_mgmt.group_helpdesk_manager,1,1,1,1
+access_helpdesk_routing_rule_user,helpdesk.routing.rule.user,model_helpdesk_routing_rule,base.group_user,1,0,0,0
+access_helpdesk_routing_rule_manager,helpdesk.routing.rule.manager,model_helpdesk_routing_rule,helpdesk_mgmt.group_helpdesk_manager,1,1,1,1
