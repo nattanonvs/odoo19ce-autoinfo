@@ -205,7 +205,7 @@ class HelpdeskTicket(models.Model):
 
         # keyword rules: กฎที่ match กำหนดทีมปลายทางได้ (ชนะค่า stream/triage)
         text = "%s %s" % (vals.get("name") or "", vals.get("description") or "")
-        rule = self.env["helpdesk.routing.rule"]._match_text(text)
+        rule = self.env["helpdesk.routing.rule"]._match_text(text, stream)
         if rule:
             if rule.team_id:
                 team = rule.team_id

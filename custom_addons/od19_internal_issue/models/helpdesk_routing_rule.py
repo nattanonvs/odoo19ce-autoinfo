@@ -27,12 +27,18 @@ class HelpdeskRoutingRule(models.Model):
     active = fields.Boolean(default=True)
 
     @api.model
-    def _match_text(self, text):
-        """คืน rule แรกที่ keyword ปรากฏใน ``text`` (เรียงตาม sequence)."""
+    def _match_text(self, text, issue_stream=None):
+        """คืน rule แรกที่ keyword ปรากฏใน ``text`` (เรียงตาม sequence, id).
+
+        กรองตาม ``issue_stream``: กฎที่ผูก stream ไว้จะถูกใช้เฉพาะเมื่อตรงกับ
+        ``issue_stream`` ที่ส่งมา ส่วนกฎที่ปล่อย stream ว่างใช้ได้กับทุกประเภท
+        """
         text = (text or "").lower()
         if not text:
             return self.browse()
         for rule in self.search([("active", "=", True)], order="sequence, id"):
+            if rule.issue_stream and rule.issue_stream != issue_stream:
+                continue
             if rule.keyword and rule.keyword.lower() in text:
                 return rule
         return self.browse()

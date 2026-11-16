@@ -66,3 +66,57 @@ class TestInternalIssueRouting(TransactionCase):
             }
         )
         self.assertEqual(ticket.team_id, self.team_it)
+
+    def test_routing_rule_scoped_by_issue_stream(self):
+        team_improve = self.Team.create(
+            {"name": "Improve (test)", "issue_stream": "improvement"}
+        )
+        self.Rule.create(
+            {
+                "name": "Alpha (IT only)",
+                "keyword": "alpha",
+                "issue_stream": "it_support",
+                "team_id": self.team_triage.id,
+                "sequence": 1,
+            }
+        )
+        # stream ตรงกับกฎ -> กฎชนะ (override ทีมจาก stream)
+        t_same = self.Ticket.create(
+            {
+                "name": "alpha issue",
+                "description": "<p>x</p>",
+                "issue_stream": "it_support",
+            }
+        )
+        self.assertEqual(t_same.team_id, self.team_triage)
+        # stream ไม่ตรงกับกฎ -> กฎต้องไม่ถูกใช้ -> fallback ไปทีมของ stream
+        t_other = self.Ticket.create(
+            {
+                "name": "alpha issue",
+                "description": "<p>x</p>",
+                "issue_stream": "improvement",
+            }
+        )
+        self.assertEqual(t_other.team_id, team_improve)
+
+    def test_routing_rule_fills_category(self):
+        category = self.env["helpdesk.ticket.category"].create(
+            {"name": "Network (test)"}
+        )
+        self.Rule.create(
+            {
+                "name": "Net rule",
+                "keyword": "network",
+                "team_id": self.team_it.id,
+                "category_id": category.id,
+                "sequence": 1,
+            }
+        )
+        ticket = self.Ticket.create(
+            {
+                "name": "network outage",
+                "description": "<p>x</p>",
+                "issue_stream": "unsure",
+            }
+        )
+        self.assertEqual(ticket.category_id, category)
