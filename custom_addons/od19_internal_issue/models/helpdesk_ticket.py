@@ -225,10 +225,14 @@ class HelpdeskTicket(models.Model):
         )
 
     def write(self, vals):
+        previous_assignees = None
+        if "user_id" in vals:
+            previous_assignees = {rec.id: rec.user_id.id for rec in self}
         res = super().write(vals)
-        if "user_id" in vals and vals["user_id"]:
+        if previous_assignees is not None and vals.get("user_id"):
             for record in self:
-                record._notify_assigned()
+                if previous_assignees.get(record.id) != record.user_id.id:
+                    record._notify_assigned()
         return res
 
     # ------------------------------------------------------------------

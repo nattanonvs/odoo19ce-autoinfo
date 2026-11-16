@@ -47,3 +47,37 @@ class TestInternalIssueTicket(TransactionCase):
     def test_jump_window_deadline_set_on_create(self):
         ticket = self._create_ticket()
         self.assertTrue(ticket.jump_window_deadline)
+
+    def test_queue_position_orders_by_priority_then_sequence(self):
+        team = self.env["helpdesk.ticket.team"].create({"name": "Queue Test Team"})
+        t_crit = self._create_ticket(team_id=team.id, impact="I3", urgency="U3")  # P3
+        t_low_a = self._create_ticket(team_id=team.id, impact="I1", urgency="U1")  # P0, seq 10
+        t_low_b = self._create_ticket(
+            team_id=team.id, impact="I1", urgency="U1", queue_sequence=5
+        )  # P0, seq 5
+
+        self.assertEqual(t_crit.queue_position, 1)
+        self.assertEqual(t_crit.queue_ahead_count, 0)
+        self.assertEqual(t_low_b.queue_position, 2)
+        self.assertEqual(t_low_b.queue_ahead_count, 1)
+        self.assertEqual(t_low_a.queue_position, 3)
+        self.assertEqual(t_low_a.queue_ahead_count, 2)
+
+    def test_queue_position_excludes_closed_stage(self):
+        team = self.env["helpdesk.ticket.team"].create({"name": "Queue Close Team"})
+        closed_stage = self.env["helpdesk.ticket.stage"].create(
+            {"name": "Closed", "closed": True}
+        )
+        t_open = self._create_ticket(team_id=team.id)
+        t_closed = self._create_ticket(team_id=team.id, stage_id=closed_stage.id)
+
+        self.assertEqual(t_open.queue_position, 1)
+        self.assertEqual(t_closed.queue_position, 0)
+
+    def test_queue_position_zero_without_team(self):
+        # ต้องส่ง user_id=False เพื่อกัน OCA _compute_team_id auto-assign ทีม
+        # จาก user_id.helpdesk_team_ids (ผู้ใช้ปัจจุบันเป็นสมาชิกทีมอยู่แล้ว)
+        ticket = self._create_ticket(user_id=False)
+        self.assertFalse(ticket.team_id)
+        self.assertEqual(ticket.queue_position, 0)
+        self.assertEqual(ticket.queue_ahead_count, 0)
