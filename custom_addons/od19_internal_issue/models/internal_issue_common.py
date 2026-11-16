@@ -52,7 +52,7 @@ PRIORITY_LABEL = {
 
 
 def score_to_priority(impact, urgency):
-    """แปลง Impact × Urgency เป็นค่า priority ของ OCA ('0'..'3')."""
+    """แปลง Impact + Urgency (ผลรวม 2..6) เป็นค่า priority ของ OCA ('0'..'3')."""
     i = int(impact[1]) if impact else 1
     u = int(urgency[1]) if urgency else 1
     return _SCORE_TO_PRIORITY.get(i + u, "1")
