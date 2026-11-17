@@ -1,6 +1,7 @@
 /* ============================================================
  * OD19 UI Defaults — Form readability (ระบบ-wide)
- * เป้าหมาย: แยกชั้น Label / Input / Value ให้อ่านง่าย
+ * สเปกสุดท้าย (ผู้ใช้ยืนยัน): ช่อง "ว่าง" (Entry field) = Liquid Glass
+ *                            ช่อง "มีข้อมูล" (Filled)   = สไตล์ดั้งเดิมของ Odoo (ไม่แตะ)
  * ปรับจากสไตล์ native ของ Odoo 19 โดยไม่แตะ core และไม่เปลี่ยนโครงสร้าง
  * ใช้ inset box-shadow แทน border เพื่อไม่ให้ layout ขยับ
  * Brand accent: Maroon #9E2424
@@ -19,17 +20,8 @@
     font-weight: 500;
 }
 
-/* 2) ช่องกรอก — เห็นขอบเขตแม้ยังไม่กรอก */
-.o_form_view .o_field_widget input.o_input,
-.o_form_view .o_field_widget textarea.o_input,
-.o_form_view .o_field_widget select.o_input {
-    background-color: #f8f9fb;
-    border-radius: 4px;
-    box-shadow: inset 0 -1px 0 #dcdfe4;
-    transition: background-color .15s ease, box-shadow .15s ease;
-}
-
-/* 2b) เฉพาะช่องที่ยังไม่ได้เติม (edit mode) — สไตล์ "Liquid Glass"
+/* 2) เฉพาะช่องที่ยังไม่ได้เติม (edit mode) — สไตล์ "Liquid Glass"
+   สเปกสุดท้าย: ช่องว่าง = glass · ช่องมีข้อมูล = ปล่อยเป็นดั้งเดิมของ Odoo (ไม่เขียนทับ)
    ใช้ o_od19_field_empty ที่เติมจาก JS เฉพาะตอนแก้ไข จึงไม่กระทบช่องที่มีข้อมูล
    - แผ่นกระจกโปร่งแสง (backdrop blur) + ไฮไลต์ขาวด้านบน + ขอบในบางเบา + เงานุ่ม
    - พื้นฟอร์ม Odoo เรียบสีขาว จึงอาศัย "ไฮไลต์ + เงา + เฉดเย็นจาง" ให้อ่านเป็นกระจกได้
@@ -47,19 +39,28 @@
         inset 0 1px 0 rgba(255, 255, 255, .95),
         inset 0 -1px 0 rgba(199, 206, 218, .55),
         0 6px 16px -8px rgba(31, 41, 55, .25);
+    transition: background-color .15s ease, box-shadow .15s ease;
 }
 
-.o_form_view .o_field_widget input.o_input:hover,
-.o_form_view .o_field_widget textarea.o_input:hover,
-.o_form_view .o_field_widget select.o_input:hover {
-    background-color: #f2f4f7;
-    box-shadow: inset 0 -1px 0 #c4c9d1;
+/* 2b) hover / focus — ปรับเฉพาะช่องว่าง (glass) เท่านั้น
+   ช่องที่มีข้อมูลปล่อยให้เป็นพฤติกรรมดั้งเดิมของ Odoo (ไม่แตะ) */
+.o_form_view .o_field_widget.o_od19_field_empty input.o_input:hover,
+.o_form_view .o_field_widget.o_od19_field_empty textarea.o_input:hover,
+.o_form_view .o_field_widget.o_od19_field_empty select.o_input:hover {
+    background-color: rgba(238, 243, 250, .78);
+    box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, .85),
+        inset 0 1px 0 rgba(255, 255, 255, .95),
+        inset 0 -1px 0 rgba(199, 206, 218, .65),
+        0 8px 18px -8px rgba(31, 41, 55, .28);
 }
 
-.o_form_view .o_field_widget input.o_input:focus,
-.o_form_view .o_field_widget textarea.o_input:focus,
-.o_form_view .o_field_widget select.o_input:focus {
+.o_form_view .o_field_widget.o_od19_field_empty input.o_input:focus,
+.o_form_view .o_field_widget.o_od19_field_empty textarea.o_input:focus,
+.o_form_view .o_field_widget.o_od19_field_empty select.o_input:focus {
     background-color: #ffffff;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
     box-shadow: inset 0 -2px 0 #9E2424, 0 0 0 3px rgba(158, 36, 36, .10);
 }
 
