@@ -83,6 +83,23 @@
     </template>
 
     <!-- ============================================================ -->
+    <!-- Staff shortcut: Employee Portal link in the navbar            -->
+    <!-- Shown only to signed-in users so the public navigation stays  -->
+    <!-- free of staff-only links (see website_menu.od19_configure_    -->
+    <!-- menus, which keeps /employee-portal out of the public menu).  -->
+    <!-- ============================================================ -->
+    <template id="od19_nav_employee_portal" name="Auto-Info Navbar Employee Portal"
+              inherit_id="website.navbar_nav" priority="20">
+        <xpath expr="//t[@t-out='0']" position="after">
+            <li class="nav-item od19-nav-portal" t-if="not request.env.user._is_public()">
+                <a class="nav-link" href="/employee-portal">
+                    <i class="fa fa-lock me-1"/>Employee Portal
+                </a>
+            </li>
+        </xpath>
+    </template>
+
+    <!-- ============================================================ -->
     <!-- Header phone/email: replace Odoo hardcoded fake data          -->
     <!-- ============================================================ -->
     <template id="od19_header_text_element" name="Auto-Info Header Text Element"

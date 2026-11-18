@@ -271,6 +271,31 @@ a:hover { color: #7A1B1B; }
 .od19-footer-staff { color: #c2c9d3; text-decoration: none; }
 .od19-footer-staff:hover { color: #fff; text-decoration: underline; }
 
+/* The website footer element carries ``o_footer`` and a colour combination
+   (``o_cc2``), and Odoo paints links inside it with ``.o_footer a:not(.btn)``
+   / ``.o_cc2 a:not(.btn)`` (specificity 0,2,1).  Those outrank the single-class
+   rules above and rendered the footer links a dark, barely-legible colour on
+   the dark background, so the palette is re-applied under ``#wrapwrap``
+   (specificity 1,1,1) to win the cascade. */
+#wrapwrap .od19-footer a {
+    color: #c2c9d3;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+#wrapwrap .od19-footer a:hover {
+    color: var(--od19-secondary);
+}
+#wrapwrap .od19-footer a.od19-footer-legal,
+#wrapwrap .od19-footer a.od19-footer-staff {
+    color: #c2c9d3;
+    text-decoration: none;
+}
+#wrapwrap .od19-footer a.od19-footer-legal:hover,
+#wrapwrap .od19-footer a.od19-footer-staff:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
 /* ---------- Employee Portal ---------- */
 .od19-portal-hero {
     background: linear-gradient(135deg, #2a1a1a 0%, #9E2424 100%);
