@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from odoo import _, api, fields, models
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import AccessError, UserError, ValidationError
 
 from .internal_issue_common import QUEUE_REQUEST_STATE
 
@@ -30,10 +30,20 @@ class HelpdeskQueueRequest(models.Model):
         QUEUE_REQUEST_STATE, string="สถานะ", default="draft", tracking=True
     )
     approver_reporter_head_id = fields.Many2one(
-        comodel_name="res.users", string="หัวหน้าแผนกผู้แจ้ง"
+        comodel_name="res.users",
+        string="หัวหน้าแผนกผู้แจ้ง",
+        compute="_compute_approvers",
+        store=True,
+        readonly=False,
+        help="ค่าเริ่มต้นจากหัวหน้าแผนกต้นสังกัดผู้แจ้ง; ถ้าไม่มีให้ใช้หัวหน้าทีมเจ้าของคิว",
     )
     approver_team_head_id = fields.Many2one(
-        comodel_name="res.users", string="หัวหน้าทีมเจ้าของคิว"
+        comodel_name="res.users",
+        string="หัวหน้าทีมเจ้าของคิว",
+        compute="_compute_approvers",
+        store=True,
+        readonly=False,
+        help="ค่าเริ่มต้นจากหัวหน้า (Team Leader) ของทีมเจ้าของคิว",
     )
     reporter_head_approved = fields.Boolean(string="หัวหน้าแผนกอนุมัติ")
     team_head_approved = fields.Boolean(string="หัวหน้าทีมอนุมัติ")
@@ -46,8 +56,46 @@ class HelpdeskQueueRequest(models.Model):
     decision_note = fields.Text(string="บันทึกการตัดสินใจ")
 
     # ------------------------------------------------------------------
+    # Compute
+    # ------------------------------------------------------------------
+    @api.depends(
+        "ticket_id",
+        "ticket_id.team_id",
+        "ticket_id.reported_by_id",
+        "requested_by",
+    )
+    def _compute_approvers(self):
+        for rec in self:
+            team_head = rec.ticket_id.team_id.user_id
+            reporter = rec.ticket_id.reported_by_id or rec.requested_by
+            department = reporter.od19_department_id
+            reporter_head = department.manager_id.user_id if department else False
+            rec.approver_team_head_id = team_head
+            # Edge case: ผู้แจ้งไม่มีแผนก/หัวหน้าแผนก -> ใช้หัวหน้าทีมเจ้าของคิวชั้นแรก
+            rec.approver_reporter_head_id = reporter_head or team_head
+
+    # ------------------------------------------------------------------
     # Workflow
     # ------------------------------------------------------------------
+    def _check_approval_right(self, *approvers):
+        """ยืนยันว่าผู้ใช้ปัจจุบันเป็นผู้อนุมัติที่กำหนด หรือเป็นผู้จัดการ Helpdesk.
+
+        superuser (``env.su``) ผ่านเสมอ เพื่อไม่ให้กระทบสคริปต์ระบบ/การทดสอบ
+        """
+        self.ensure_one()
+        if self.env.su:
+            return
+        if any(approver and self.env.user == approver for approver in approvers):
+            return
+        if self.env.user.has_group("helpdesk_mgmt.group_helpdesk_manager"):
+            return
+        raise AccessError(
+            _(
+                "เฉพาะผู้อนุมัติที่กำหนดไว้ (หรือผู้จัดการ Helpdesk) "
+                "เท่านั้นที่อนุมัติ/ปฏิเสธคำขอแซงคิวได้"
+            )
+        )
+
     def action_submit(self):
         for rec in self:
             if rec.state != "draft":
@@ -67,6 +115,7 @@ class HelpdeskQueueRequest(models.Model):
         for rec in self:
             if rec.state != "waiting_reporter_head":
                 raise UserError(_("คำขอนี้ยังไม่พร้อมให้หัวหน้าแผนกอนุมัติ"))
+            rec._check_approval_right(rec.approver_reporter_head_id)
             rec.reporter_head_approved = True
             rec.state = "waiting_team_head"
             rec._notify_approvers()
@@ -75,6 +124,7 @@ class HelpdeskQueueRequest(models.Model):
         for rec in self:
             if rec.state != "waiting_team_head":
                 raise UserError(_("คำขอนี้ยังไม่พร้อมให้หัวหน้าทีมอนุมัติ"))
+            rec._check_approval_right(rec.approver_team_head_id)
             rec.team_head_approved = True
             rec.state = "approved"
             rec._apply_insertion()
@@ -88,6 +138,11 @@ class HelpdeskQueueRequest(models.Model):
                 "waiting_team_head",
             ):
                 raise UserError(_("ไม่อนุญาตให้ปฏิเสธคำขอในสถานะนี้"))
+            if not self.env.su and self.env.user != rec.requested_by:
+                rec._check_approval_right(
+                    rec.approver_reporter_head_id,
+                    rec.approver_team_head_id,
+                )
             rec.state = "rejected"
             rec.ticket_id.consent_state = "accepted"
             rec._notify_outcome()

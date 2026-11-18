@@ -2,7 +2,7 @@ from datetime import timedelta
 from unittest.mock import patch
 
 from odoo import fields
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase, tagged
 
 
@@ -192,3 +192,51 @@ class TestInternalIssueQueueRequest(TransactionCase):
         )
         with self.assertRaises(ValidationError):
             self._request(ticket, insert_before_id=other_team_ticket.id)
+
+    def test_default_approvers_from_team_and_department(self):
+        # มีหัวหน้าทีม -> approver_team_head_id = Team Leader
+        # ผู้แจ้งไม่มีแผนก -> approver_reporter_head_id fallback ไปหัวหน้าทีม
+        self.team.user_id = self.head_b.id
+        ticket = self._ticket("defaults-team-head")
+        request = self.Request.create(
+            {"ticket_id": ticket.id, "requested_by": self.reporter.id, "reason": "x"}
+        )
+        self.assertEqual(request.approver_team_head_id, self.head_b)
+        self.assertEqual(request.approver_reporter_head_id, self.head_b)
+
+    def test_default_reporter_head_from_department_manager(self):
+        department = self.env["hr.department"].create({"name": "QR Dept (test)"})
+        department.manager_id = self.env["hr.employee"].create(
+            {"name": "QR Manager", "user_id": self.head_a.id}
+        )
+        self.reporter.with_context(od19_skip_department_sync=True).write(
+            {"od19_department_id": department.id}
+        )
+        ticket = self._ticket("defaults-dept-head")
+        request = self.Request.create(
+            {"ticket_id": ticket.id, "requested_by": self.reporter.id, "reason": "x"}
+        )
+        self.assertEqual(request.approver_reporter_head_id, self.head_a)
+
+    @patch("requests.post")
+    def test_non_approver_cannot_approve(self, mock_post):
+        mock_post.return_value.status_code = 200
+        ticket = self._ticket("auth-guard")
+        request = self._request(ticket)
+        request.action_submit()
+
+        # head_b เป็นเพียงผู้ใช้ภายใน ไม่ใช่ผู้อนุมัติชั้นแรก และไม่ใช่ manager
+        with self.assertRaises(AccessError):
+            request.with_user(self.head_b).action_approve_reporter_head()
+
+    @patch("requests.post")
+    def test_assigned_approver_can_approve(self, mock_post):
+        mock_post.return_value.status_code = 200
+        ticket = self._ticket("auth-ok")
+        request = self._request(ticket)
+        request.action_submit()
+
+        # patch notify เพื่อไม่ให้ทดสอบนี้ผูกกับ ACL ของโมดูลแจ้งเตือน
+        with patch.object(type(request), "_notify_approvers"):
+            request.with_user(self.head_a).action_approve_reporter_head()
+        self.assertEqual(request.state, "waiting_team_head")
