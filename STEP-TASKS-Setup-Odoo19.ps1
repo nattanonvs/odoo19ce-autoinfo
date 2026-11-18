@@ -3,15 +3,17 @@
     STEP-TASKS : ลงทะเบียน Windows Scheduled Tasks ของ Odoo 19 (Run as Administrator, one-time)
 
 .DESCRIPTION
-    สคริปต์นี้ตั้งค่าตารางงานอัตโนมัติ 3 งาน ให้ชี้ไปที่สคริปต์ชุด STEP-* อย่างถูกต้อง
+    สคริปต์นี้ตั้งค่าตารางงานอัตโนมัติ 4 งาน ให้ชี้ไปที่สคริปต์ชุด STEP-* อย่างถูกต้อง
     และตั้งค่าให้งาน backup ทำงานได้แม้ไม่มีใครล็อกอินอยู่ (เดิมตั้งเป็น Interactive only
     ทำให้งานตี 3 ของวันที่ 1 ไม่รันเมื่อไม่มี session)
 
-      [1/3] Odoo19 Auto Start        : At log on ของผู้ใช้ปัจจุบัน -> STEP-3 (RunLevel Highest)
-      [2/3] Odoo19 Monthly Backup    : วันที่ 1 ของทุกเดือน 03:00 -> STEP-4, logon type S4U
-      [3/3] Cloudflare DDNS - Odoo19 : ทุก 5 นาที -> STEP-DDNS
+      [1/4] Odoo19 Auto Start           : At log on ของผู้ใช้ปัจจุบัน -> STEP-3 (RunLevel Highest)
+      [2/4] Odoo19 Monthly Backup       : วันที่ 1 ของทุกเดือน 03:00 -> STEP-4, logon type S4U
+      [3/4] Cloudflare DDNS - Odoo19    : ทุก 5 นาที -> STEP-DDNS
+      [4/4] Odoo19 Weekly Backup Verify : ทุกสัปดาห์ (อาทิตย์) 04:00 -> STEP-5 restore drill, logon type S4U
 
     ใช้ -TriggerTime ของงาน backup ตามต้องการ (ค่าเริ่มต้น 03:00)
+    ใช้ -VerifyDay / -VerifyTime ของงานตรวจสอบสำรองตามต้องการ (ค่าเริ่มต้น Sunday 04:00)
     งานที่มีอยู่แล้วจะถูกปรับเฉพาะ action / principal / settings โดยไม่แตะ trigger เดิม
     ยกเว้นงานที่ยังไม่มี จึงจะสร้างใหม่พร้อม trigger
 
@@ -27,11 +29,13 @@
     powershell -ExecutionPolicy Bypass -File .\STEP-TASKS-Setup-Odoo19.ps1 -TriggerTime 02:30
 
 .EXAMPLE
-    # ลบ task ทั้ง 3 ตัวออก
+    # ลบ task ทั้งหมดที่สคริปต์นี้ดูแลออก
     powershell -ExecutionPolicy Bypass -File .\STEP-TASKS-Setup-Odoo19.ps1 -RemoveTasks
 #>
 param(
     [string]$TriggerTime = "03:00",
+    [string]$VerifyDay = "Sunday",
+    [string]$VerifyTime = "04:00",
     [switch]$RemoveTasks,
     [switch]$NoPause
 )
@@ -42,10 +46,12 @@ $Root       = $PSScriptRoot
 $TaskStart  = "Odoo19 Auto Start"
 $TaskBackup = "Odoo19 Monthly Backup"
 $TaskDdns   = "Cloudflare DDNS - Odoo19"
+$TaskVerify = "Odoo19 Weekly Backup Verify"
 $User       = "$env:USERDOMAIN\$env:USERNAME"
 
 $Step3 = Join-Path $Root "STEP-3-Start-Odoo19.ps1"
 $Step4 = Join-Path $Root "STEP-4-Backup-Odoo19.ps1"
+$Step5 = Join-Path $Root "STEP-5-Verify-Backup-Odoo19.ps1"
 $Ddns  = Join-Path $Root "STEP-DDNS-Cloudflare-Odoo19.ps1"
 
 $PowerShellExe = Join-Path $env:SystemRoot "System32\WindowsPowerShell\v1.0\powershell.exe"
@@ -133,6 +139,66 @@ function New-OdooMonthlyTaskXml {
 "@
 }
 
+# สร้าง Task XML สำหรับงานรายสัปดาห์ แบบ logon type S4U
+# ใช้รูปแบบเดียวกับงานรายเดือน แต่เปลี่ยน trigger เป็น ScheduleByWeek
+function New-OdooWeeklyTaskXml {
+    param(
+        [string]$UserId, [string]$Time, [string]$DayOfWeek, [string]$Argument, [string]$Description
+    )
+    $parts = $Time.Split(':')
+    $sb = (Get-Date -Hour ([int]$parts[0]) -Minute ([int]$parts[1]) -Second 0).ToString("yyyy-MM-dd'T'HH:mm:ss")
+
+    return @"
+<?xml version="1.0" encoding="UTF-16"?>
+<Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <RegistrationInfo>
+    <Description>$Description</Description>
+  </RegistrationInfo>
+  <Principals>
+    <Principal id="Author">
+      <UserId>$UserId</UserId>
+      <LogonType>S4U</LogonType>
+      <RunLevel>HighestAvailable</RunLevel>
+    </Principal>
+  </Principals>
+  <Settings>
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
+    <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
+    <AllowHardTerminate>true</AllowHardTerminate>
+    <StartWhenAvailable>true</StartWhenAvailable>
+    <RunOnlyIfNetworkAvailable>false</RunOnlyIfNetworkAvailable>
+    <Enabled>true</Enabled>
+    <AllowStartOnDemand>true</AllowStartOnDemand>
+    <IdleSettings>
+      <StopOnIdleEnd>false</StopOnIdleEnd>
+      <RestartOnIdle>false</RestartOnIdle>
+    </IdleSettings>
+    <ExecutionTimeLimit>PT4H</ExecutionTimeLimit>
+    <Priority>7</Priority>
+  </Settings>
+  <Triggers>
+    <CalendarTrigger>
+      <StartBoundary>$sb</StartBoundary>
+      <ScheduleByWeek>
+        <WeeksInterval>1</WeeksInterval>
+        <DaysOfWeek>
+          <$DayOfWeek />
+        </DaysOfWeek>
+      </ScheduleByWeek>
+    </CalendarTrigger>
+  </Triggers>
+  <Actions Context="Author">
+    <Exec>
+      <Command>$PowerShellExe</Command>
+      <Arguments>$Argument</Arguments>
+      <WorkingDirectory>$Root</WorkingDirectory>
+    </Exec>
+  </Actions>
+</Task>
+"@
+}
+
 # ===================== ตรวจสิทธิ์ Administrator =====================
 $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
 $isAdmin  = ([Security.Principal.WindowsPrincipal]$identity).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
@@ -155,7 +221,7 @@ $hasWarning = $false
 
 try {
     if ($RemoveTasks) {
-        foreach ($name in @($TaskStart, $TaskBackup, $TaskDdns)) {
+        foreach ($name in @($TaskStart, $TaskBackup, $TaskDdns, $TaskVerify)) {
             if (Get-ScheduledTask -TaskName $name -ErrorAction SilentlyContinue) {
                 Unregister-ScheduledTask -TaskName $name -Confirm:$false
                 Write-Host "  ลบ task: $name" -ForegroundColor DarkYellow
@@ -166,12 +232,12 @@ try {
             }
         }
     } else {
-        foreach ($path in @($Step3, $Step4, $Ddns)) {
+        foreach ($path in @($Step3, $Step4, $Step5, $Ddns)) {
             if (-not (Test-Path -LiteralPath $path)) { throw "ไม่พบสคริปต์ที่จำเป็น: $path" }
         }
 
         # ---------- 1. Auto Start (At log on) ----------
-        Write-Head "[1/3] $TaskStart"
+        Write-Head "[1/4] $TaskStart"
         $priStart = New-ScheduledTaskPrincipal -UserId $User -LogonType Interactive -RunLevel Highest
         $actStart = New-OdooTaskAction $Step3 "-NoPause"
         $setStart = New-OdooTaskSettings
@@ -185,7 +251,7 @@ try {
         $summary += "OK       $TaskStart (AtLogOn -> STEP-3)"
 
         # ---------- 2. Monthly Backup (run whether logged on or not) ----------
-        Write-Head "[2/3] $TaskBackup"
+        Write-Head "[2/4] $TaskBackup"
         $priBackup = New-ScheduledTaskPrincipal -UserId $User -LogonType S4U -RunLevel Highest
         $actBackup = New-OdooTaskAction $Step4 "-Database odoo19_pdev"
         $setBackup = New-OdooTaskSettings
@@ -227,7 +293,7 @@ try {
         }
 
         # ---------- 3. Cloudflare DDNS ----------
-        Write-Head "[3/3] $TaskDdns"
+        Write-Head "[3/4] $TaskDdns"
         $actDdns = New-OdooTaskAction $Ddns ""
         $existingDdns = Get-ScheduledTask -TaskName $TaskDdns -ErrorAction SilentlyContinue
         if ($existingDdns) {
@@ -246,6 +312,51 @@ try {
             Write-Host "  สร้าง task ใหม่: ทุก 5 นาที -> STEP-DDNS" -ForegroundColor Green
             $summary += "OK       $TaskDdns (สร้างใหม่ ทุก 5 นาที)"
         }
+
+        # ---------- 4. Weekly Backup Verify (restore drill) ----------
+        Write-Head "[4/4] $TaskVerify"
+        $priVerify = New-ScheduledTaskPrincipal -UserId $User -LogonType S4U -RunLevel Highest
+        $actVerify = New-OdooTaskAction $Step5 "-Database odoo19_pdev"
+        $setVerify = New-OdooTaskSettings
+
+        $existingVerify = Get-ScheduledTask -TaskName $TaskVerify -ErrorAction SilentlyContinue
+        if ($existingVerify) {
+            Set-ScheduledTask -TaskName $TaskVerify -Action $actVerify -Principal $priVerify -Settings $setVerify | Out-Null
+            Write-Host "  ปรับ task เดิม: action -> STEP-5, logon type -> S4U (ไม่ต้องเก็บรหัสผ่าน)" -ForegroundColor Green
+            Write-Host "  trigger เดิมยังคงอยู่ ($VerifyDay รายสัปดาห์)" -ForegroundColor Gray
+            $summary += "OK       $TaskVerify (logon type -> S4U, action -> STEP-5)"
+        } else {
+            if ($VerifyTime -notmatch '^\d{1,2}:\d{2}$') {
+                throw "รูปแบบ -VerifyTime ต้องเป็น HH:mm (เช่น 04:00) แต่ได้รับ: $VerifyTime"
+            }
+            $validDays = @('Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday')
+            if ($VerifyDay -notin $validDays) {
+                throw "ค่า -VerifyDay ต้องเป็นหนึ่งใน: $($validDays -join ', ') แต่ได้รับ: $VerifyDay"
+            }
+
+            $xml = New-OdooWeeklyTaskXml -UserId $User -Time $VerifyTime -DayOfWeek $VerifyDay `
+                -Argument $actVerify.Arguments `
+                -Description "Weekly restore drill of odoo19_pdev backup (STEP-5-Verify-Backup-Odoo19.ps1)"
+            Register-ScheduledTask -TaskName $TaskVerify -Xml $xml -Force | Out-Null
+            Write-Host "  สร้าง task ใหม่: ทุกสัปดาห์ ($VerifyDay) เวลา $VerifyTime -> STEP-5, logon type S4U" -ForegroundColor Green
+            $summary += "OK       $TaskVerify (สร้างใหม่ weekly $VerifyDay $VerifyTime)"
+        }
+
+        # ---------- ตรวจสอบผลงาน verify ให้ตรงตามเงื่อนไข ----------
+        $verifyXml = Export-ScheduledTask -TaskName $TaskVerify
+        $vchecks = @(
+            @{ Name = "logon type = S4U (รันได้แม้ไม่มีใครล็อกอิน)"; Ok = ($verifyXml -match '<LogonType>S4U</LogonType>') },
+            @{ Name = "trigger = รายสัปดาห์ (ScheduleByWeek)";        Ok = ($verifyXml -match '<ScheduleByWeek>') },
+            @{ Name = "action -> STEP-5-Verify-Backup-Odoo19.ps1";    Ok = ($verifyXml -match 'STEP-5-Verify-Backup-Odoo19\.ps1') }
+        )
+        foreach ($c in $vchecks) {
+            if ($c.Ok) {
+                Write-Host "    [OK]   $($c.Name)" -ForegroundColor Green
+            } else {
+                Write-Host "    [WARN] $($c.Name)" -ForegroundColor Yellow
+                $hasWarning = $true
+            }
+        }
     }
 
     # ---------- สรุปผล ----------
@@ -255,13 +366,13 @@ try {
     foreach ($line in $summary) { Write-Host "  $line" -ForegroundColor White }
 
     Write-Host "`n--- สถานะ task ปัจจุบัน ---" -ForegroundColor Gray
-    Get-ScheduledTask | Where-Object { $_.TaskName -in @($TaskStart, $TaskBackup, $TaskDdns) } | ForEach-Object {
+    Get-ScheduledTask | Where-Object { $_.TaskName -in @($TaskStart, $TaskBackup, $TaskDdns, $TaskVerify) } | ForEach-Object {
         Write-Host ("  {0,-28} [{1}]  logonType={2}  runLevel={3}" -f `
             $_.TaskName, $_.State, $_.Principal.LogonType, $_.Principal.RunLevel) -ForegroundColor Gray
     }
 
     if ($RemoveTasks) {
-        Write-Host "`nลบ task ทั้ง 3 ตัวเรียบร้อย" -ForegroundColor Green
+        Write-Host "`nลบ task ทั้งหมดที่สคริปต์นี้ดูแลเรียบร้อย" -ForegroundColor Green
     } elseif ($hasWarning) {
         Write-Host "`nSTEP-TASKS เสร็จสิ้น แต่มีข้อที่ไม่ผ่านการตรวจสอบ (ดู [WARN] ด้านบน)" -ForegroundColor Yellow
     } else {
