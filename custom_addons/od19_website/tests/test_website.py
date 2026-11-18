@@ -264,6 +264,29 @@ class TestNavigationIA(HttpCase):
         self.assertIn('class="od19-footer-staff"', html)
         self.assertIn('href="/employee-portal"', html)
 
+    def test_navbar_portal_shortcut_only_when_logged_in(self):
+        """Signed-in users get an Employee Portal shortcut in the navbar;
+        anonymous visitors never see it (the public nav stays staff-free)."""
+        anonymous_html = self.url_open("/").text
+        self.assertNotIn(
+            "od19-nav-portal",
+            anonymous_html,
+            "the navbar portal shortcut must stay hidden for anonymous visitors",
+        )
+
+        user = self.env["res.users"].create({
+            "name": "Nav Portal User",
+            "login": "od19_nav_portal_user",
+            "email": "od19.nav.portal@example.com",
+            "group_ids": [Command.link(self.env.ref("base.group_user").id)],
+        })
+        # HttpCase patches the credential check, so only the login must exist.
+        self.authenticate(user.login, "test")
+
+        member_html = self.url_open("/").text
+        self.assertIn("od19-nav-portal", member_html)
+        self.assertIn('href="/employee-portal"', member_html)
+
     def test_inner_pages_have_breadcrumb(self):
         """Every inner content page exposes a breadcrumb linked back home."""
         for path in (
