@@ -1,6 +1,6 @@
 /** @odoo-module **/
 
-import { Component } from "@odoo/owl";
+import { Component, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useHotkey } from "@web/core/hotkeys/hotkey_hook";
 import { aiPanelState, toggleAiPanel } from "./ai_panel";
@@ -16,12 +16,13 @@ export class Od19AiSystrayItem extends Component {
     static props = {};
 
     setup() {
-        this.aiPanelState = aiPanelState;
+        // Subscribe to the shared panel state (direct reads do not subscribe).
+        this.panelState = useState(aiPanelState);
         useHotkey("alt+shift+p", () => toggleAiPanel());
     }
 
     get isOpen() {
-        return this.aiPanelState.open;
+        return this.panelState.open;
     }
 
     toggle() {

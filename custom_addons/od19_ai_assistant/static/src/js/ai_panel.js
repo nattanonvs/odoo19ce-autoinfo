@@ -27,6 +27,9 @@ export class AiPanel extends Component {
     setup() {
         this.notification = useService("notification");
         this.messagesRef = useRef("messages");
+        // Read the shared module-level reactive through useState so this
+        // component subscribes to its changes (a direct read would not).
+        this.panelState = useState(aiPanelState);
         this.state = useState({
             chats: [],
             activeChatId: false,
@@ -39,15 +42,25 @@ export class AiPanel extends Component {
             pendingDraft: null,
             chips: [],
         });
+        this._wasOpen = false;
         onPatched(() => {
+            if (this.panelState.open !== this._wasOpen) {
+                this._wasOpen = this.panelState.open;
+                if (this.panelState.open) {
+                    // Load the model-aware chips when the panel becomes visible;
+                    // the current page context is guaranteed to be ready then.
+                    this.loadChips();
+                }
+            }
             if (this.state.streaming) {
                 this.scrollToBottom();
             }
         });
         useBus(this.env.bus, "ACTION_MANAGER:UPDATE", () => {
-            this.loadChips();
+            // This event fires before the action service exposes the new
+            // controller, so defer the read until the page context settles.
+            setTimeout(() => this.loadChips(), 50);
         });
-        this.loadChips();
     }
 
     get pageContext() {
@@ -64,7 +77,7 @@ export class AiPanel extends Component {
     }
 
     get isOpen() {
-        return aiPanelState.open;
+        return this.panelState.open;
     }
 
     async loadChips() {
