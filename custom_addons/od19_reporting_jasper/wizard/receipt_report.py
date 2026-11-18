@@ -56,7 +56,7 @@ class ReceiptReport(models.TransientModel):
         for payment in payments:
             if payment.payment_type != "inbound":
                 raise ValidationError(_("Document is not Customer Receipt."))
-            if payment.state not in ("posted", "reconciled"):
+            if payment.state not in ("in_process", "paid"):
                 raise ValidationError(
                     _("Customer Receipt(s) is not ready to Print.")
                 )
