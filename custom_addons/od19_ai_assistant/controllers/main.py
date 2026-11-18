@@ -20,10 +20,6 @@ from odoo import fields, http
 from odoo.exceptions import AccessError
 from odoo.http import request
 
-from ..lib.client import AiClientError, chat_completion_stream
-from ..models.od19_ai_capability import DRAFT_MARKER
-from ..models.od19_ai_chat import MAX_TOOL_ROUNDS
-
 _logger = logging.getLogger(__name__)
 
 
@@ -32,8 +28,20 @@ def _sse(payload):
     return "data: %s\n\n" % json.dumps(payload, ensure_ascii=False)
 
 
-def _stream_answer(registry, uid, context, chat_id, question):
+def _page_context(env, payload):
+    """Resolve the (optional) page context carried by a request payload."""
+    model = payload.get("model")
+    res_id = payload.get("res_id")
+    if not model or not res_id:
+        return None
+    return env["od19.ai.assistant"].build_context(
+        model, int(res_id), payload.get("view_type") or "form"
+    )
+
+
+def _stream_answer(registry, uid, context, chat_id, question, payload=None):
     """Generator yielding SSE events for one assistant answer."""
+    payload = payload or {}
     with registry.cursor() as cr:
         env = odoo.api.Environment(cr, uid, context)
         chat = None
@@ -42,78 +50,13 @@ def _stream_answer(registry, uid, context, chat_id, question):
             if not chat.exists() or chat.user_id.id != uid:
                 yield _sse({"type": "error", "message": "ไม่พบบทสนทนานี้"})
                 return
-            if not question:
-                yield _sse({"type": "error", "message": "กรุณากรอกคำถามก่อน"})
-                return
-
-            config = chat._get_ai_config()
-            system_prompt = chat._build_system_prompt(config["system_prompt"])
-            tool_model = env["od19.ai.tool"]
-            chat.write({"state": "draft", "prompt": False})
-            chat._post_message("user", question)
-
-            answer = None
-            for _round in range(MAX_TOOL_ROUNDS):
-                buffer = []
-                for token in chat_completion_stream(
-                    config["base_url"],
-                    config["model"],
-                    chat._build_messages(system_prompt),
-                    api_key=config["api_key"],
-                    timeout=config["timeout"],
-                ):
-                    buffer.append(token)
-                    yield _sse({"type": "delta", "content": token})
-
-                raw = "".join(buffer)
-                call = chat._parse_tool_call(raw)
-                if not call:
-                    answer = raw
-                    yield _sse({"type": "round_end", "kind": "answer"})
-                    break
-
-                # The streamed text was a tool request, not an answer:
-                # tell the browser to drop it and show a tool chip instead.
-                yield _sse({"type": "round_end", "kind": "tool"})
-                name, arguments = call
-                chat._post_message("assistant", raw)
-                yield _sse({"type": "tool", "name": name, "status": "running"})
-                result = tool_model.execute(name, arguments)
-                if result.startswith(DRAFT_MARKER):
-                    draft = json.loads(result[len(DRAFT_MARKER):])
-                    chat._post_message(
-                        "tool", "เสนอร่างเอกสาร: %s" % draft.get("model_label", "")
-                    )
-                    yield _sse({"type": "draft", "draft": draft})
-                else:
-                    chat._post_message("tool", result)
-                yield _sse({"type": "tool", "name": name, "status": "done"})
-            else:
-                answer = (
-                    "ขออภัย ระบบเรียกใช้เครื่องมือหลายรอบเกินไป "
-                    "กรุณาตั้งคำถามให้เฉพาะเจาะจงมากขึ้น"
-                )
-                yield _sse({"type": "round_end", "kind": "answer"})
-                yield _sse({"type": "delta", "content": answer})
-
-            chat._post_message("assistant", answer)
-            chat.write({"state": "done", "model_used": config["model"]})
-            yield _sse(
-                {"type": "done", "chat_id": chat.id, "model": config["model"]}
-            )
-        except AiClientError as exc:
-            if chat:
-                chat._post_message("system", "เกิดข้อผิดพลาด: %s" % exc)
-                chat.write({"state": "error"})
-            yield _sse({"type": "error", "message": str(exc)})
+            page_ctx = _page_context(env, payload)
+            for event in env["od19.ai.assistant"].stream(
+                question, ctx=page_ctx, chat=chat
+            ):
+                yield _sse(event)
         except Exception as exc:  # noqa: BLE001 - keep the stream alive
             _logger.exception("OD19 AI stream failed")
-            if chat:
-                try:
-                    chat._post_message("system", "เกิดข้อผิดพลาด: %s" % exc)
-                    chat.write({"state": "error"})
-                except Exception:  # noqa: BLE001
-                    pass
             yield _sse({"type": "error", "message": str(exc)})
 
 
@@ -175,6 +118,30 @@ class Od19AiChatController(http.Controller):
         )
         return {"id": record.id, "name": record.display_name}
 
+    @http.route("/od19_ai/ask", type="jsonrpc", auth="user")
+    def ask(self, question=None, model=None, res_id=None,
+            view_type=None, chat_id=None, **kwargs):
+        assistant = request.env["od19.ai.assistant"]
+        ctx = None
+        if model and res_id:
+            ctx = assistant.build_context(model, int(res_id), view_type or "form")
+        chat = None
+        if chat_id:
+            candidate = request.env["od19.ai.chat"].browse(int(chat_id))
+            if candidate.exists() and candidate.user_id.id == request.env.uid:
+                chat = candidate
+        return assistant.ask(question or "", ctx=ctx, chat=chat)
+
+    @http.route("/od19_ai/suggest", type="jsonrpc", auth="user")
+    def suggest(self, model=None, res_id=None, view_type=None, **kwargs):
+        assistant = request.env["od19.ai.assistant"]
+        ctx = None
+        if model and res_id:
+            ctx = assistant.build_context(model, int(res_id), view_type or "form")
+        elif model:
+            ctx = {"model": model, "view_type": view_type or "list"}
+        return {"chips": assistant.suggest_actions(ctx)}
+
     @http.route(
         "/od19_ai/chat/stream",
         type="http",
@@ -199,6 +166,7 @@ class Od19AiChatController(http.Controller):
             context,
             int(payload.get("chat_id") or 0),
             (payload.get("message") or "").strip(),
+            payload,
         )
         headers = [
             ("Content-Type", "text/event-stream; charset=utf-8"),

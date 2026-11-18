@@ -13,10 +13,10 @@ from odoo.tests.common import (
 )
 
 CHAT_COMPLETION = (
-    "odoo.addons.od19_ai_assistant.models.od19_ai_chat.chat_completion"
+    "odoo.addons.od19_ai_assistant.models.od19_ai_assistant.chat_completion"
 )
 STREAM_COMPLETION = (
-    "odoo.addons.od19_ai_assistant.controllers.main.chat_completion_stream"
+    "odoo.addons.od19_ai_assistant.models.od19_ai_assistant.chat_completion_stream"
 )
 AI_CLIENT_ERROR = "odoo.addons.od19_ai_assistant.lib.client.AiClientError"
 

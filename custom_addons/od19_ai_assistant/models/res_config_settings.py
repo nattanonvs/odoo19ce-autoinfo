@@ -3,7 +3,7 @@
 
 from odoo import api, fields, models
 
-from .od19_ai_chat import PROVIDER_PRESETS
+from .od19_ai_assistant import PROVIDER_PRESETS
 
 
 class ResConfigSettings(models.TransientModel):
