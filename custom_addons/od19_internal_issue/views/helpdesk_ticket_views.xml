@@ -100,4 +100,18 @@
         </field>
     </record>
 
+    <!-- Portal: แสดงตำแหน่งคิวให้ผู้แจ้ง -->
+    <template id="portal_helpdesk_ticket_queue"
+              inherit_id="helpdesk_mgmt.portal_helpdesk_ticket_page"
+              name="Ticket Portal: queue position">
+        <xpath expr="//div[@id='card_body']" position="inside">
+            <div class="mb-3">
+                <p>
+                    ตำแหน่งในคิว: <span t-field="ticket.queue_position"/>
+                    (มีงานก่อนหน้า <span t-field="ticket.queue_ahead_count"/> งาน)
+                </p>
+            </div>
+        </xpath>
+    </template>
+
 </odoo>

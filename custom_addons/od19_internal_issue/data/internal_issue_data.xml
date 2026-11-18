@@ -80,4 +80,11 @@
         <field name="value">24</field>
     </record>
 
+    <!-- Email alias: รับเรื่องเข้าทีม Triage -->
+    <record id="alias_issue_triage" model="mail.alias">
+        <field name="alias_name">internal-issue</field>
+        <field name="alias_model_id" ref="helpdesk_mgmt.model_helpdesk_ticket"/>
+        <field name="alias_defaults">{'issue_stream': 'unsure'}</field>
+    </record>
+
 </odoo>

@@ -66,3 +66,12 @@ class TestInternalIssuePrivacy(TransactionCase):
         ticket = self._ticket("department", visibility_department_id=self.dept_x.id)
         visible = self.Ticket.with_user(self.user_y).search([("id", "=", ticket.id)])
         self.assertFalse(visible)
+
+    def test_triage_email_alias_configured(self):
+        alias = self.env.ref(
+            "od19_internal_issue.alias_issue_triage", raise_if_not_found=False
+        )
+        self.assertTrue(alias, "ต้องมีบันทึก alias email ของทีม Triage")
+        self.assertEqual(alias.alias_name, "internal-issue")
+        self.assertEqual(alias.alias_model_id.model, "helpdesk.ticket")
+        self.assertIn("issue_stream", alias.alias_defaults or "")
