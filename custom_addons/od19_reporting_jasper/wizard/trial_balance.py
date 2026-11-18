@@ -152,9 +152,9 @@ class TrialBalanceReport(models.TransientModel):
     def action_clear_journal(self):
         self.ensure_one()
         self.journal_ids = self.env["account.journal"].browse(0)
-        return {"type": "ir.actions.do_nothing"}
+        return {"type": "ir.actions.client", "tag": "soft_reload"}
 
     def action_clear_analytic(self):
         self.ensure_one()
         self.analytic_account_ids = self.env["account.analytic.account"].browse(0)
-        return {"type": "ir.actions.do_nothing"}
+        return {"type": "ir.actions.client", "tag": "soft_reload"}
