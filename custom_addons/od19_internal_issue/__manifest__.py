@@ -1,6 +1,6 @@
 {
     "name": "Internal Issue Management",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.0.1",
     "category": "Internal Operations",
     "summary": "ระบบรับแจ้งเรื่อง/ปัญหาภายใน พร้อมคิวที่เป็นธรรมและการแซงคิวแบบอนุมัติ 2 ชั้น",
     "description": """
