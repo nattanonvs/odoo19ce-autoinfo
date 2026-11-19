@@ -1,0 +1,44 @@
+/* OD19 UI Defaults -- collapsible chatter panel.
+ *
+ * Adds a chevron button on the chatter topbar (see chatter_collapse.xml /
+ * chatter_collapse.js) that collapses or expands the whole panel. The state is
+ * driven purely by the `active` marker on that button, so no extra class has to
+ * be injected on the chatter root -- the selectors below use :has(), the same
+ * technique already used by mail's own form_renderer.scss.
+ */
+
+/* 1. Collapsed: keep only the thin topbar, which holds the toggle button. */
+.o-mail-Chatter:has(.o-od19-chatter-collapse.active) .o-mail-Chatter-content {
+    display: none !important;
+}
+
+.o-mail-Chatter:has(.o-od19-chatter-collapse.active) .o-mail-Chatter-top > *:not(.o-mail-Chatter-topbar) {
+    display: none !important;
+}
+
+.o-mail-Chatter:has(.o-od19-chatter-collapse.active) .o-mail-Chatter-topbar > *:not(.o-od19-chatter-collapse) {
+    display: none !important;
+}
+
+.o-mail-Chatter:has(.o-od19-chatter-collapse.active) .o-mail-Chatter-topbar {
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* 2. Collapsed aside chatter: shrink the whole column to a thin strip. */
+.o-mail-ChatterContainer.o-aside:has(.o-od19-chatter-collapse.active) {
+    flex-grow: 0;
+    flex-shrink: 0;
+    width: 2.5rem;
+    min-width: 0;
+}
+
+.o-mail-ChatterContainer.o-aside:has(.o-od19-chatter-collapse.active) .o-mail-Chatter-top {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+/* 3. The toggle button itself must never be squeezed out. */
+.o-od19-chatter-collapse {
+    flex-shrink: 0;
+}
