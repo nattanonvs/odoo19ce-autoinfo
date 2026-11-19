@@ -69,10 +69,12 @@ class TestDocumentPullSale(AccountTestInvoicingCommon):
             {
                 "res_model": "account.move",
                 "res_id": invoice.id,
-                "source_ref": "sale.order,%s" % so.id,
             }
         )
-        wizard._onchange_source_ref()
+        wizard.source_ids.filtered(
+            lambda r: r.source_model == "sale.order" and r.source_id == so.id
+        ).selected = True
+        wizard._onchange_source_ids()
         self.assertEqual(len(wizard.line_ids), 1)
         wizard.action_pull()
         self.assertEqual(len(invoice.invoice_line_ids), 1)

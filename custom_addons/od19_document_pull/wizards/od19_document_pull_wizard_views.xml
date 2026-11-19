@@ -12,25 +12,41 @@
                         <field name="partner_id"/>
                     </group>
                     <group>
-                        <field name="source_ref"
-                               options="{'no_create': True}"/>
                         <field name="mode" widget="radio"/>
                     </group>
                 </group>
+                <group>
+                    <field name="source_type_filter"/>
+                </group>
+                <field name="source_ids" nolabel="1">
+                    <list create="false" delete="false" editable="bottom"
+                          decoration-info="selected">
+                        <field name="selected"/>
+                        <field name="source_type" force_save="1"/>
+                        <field name="name" force_save="1"/>
+                        <field name="partner_id" optional="show" force_save="1"/>
+                        <field name="remaining" force_save="1"/>
+                        <!-- readonly + force_save: ต้องอยู่ใน view และต้องถูกส่งกลับตอน save
+                             ไม่งั้น client จะตัดทิ้ง -> source_model/source_id = False -> KeyError -->
+                        <field name="source_model" column_invisible="1" force_save="1"/>
+                        <field name="source_id" column_invisible="1" force_save="1"/>
+                        <field name="sequence" column_invisible="1"/>
+                    </list>
+                </field>
                 <field name="line_ids" invisible="mode != 'select'">
                     <list create="false" delete="false" editable="bottom">
                         <field name="selected"/>
-                        <field name="source_name"/>
-                        <field name="product_id"/>
-                        <field name="name"/>
-                        <field name="qty_to_pull"/>
-                        <field name="product_uom_id" optional="show"/>
-                        <field name="price_unit"/>
-                        <field name="res_model" column_invisible="1"/>
-                        <field name="res_id" column_invisible="1"/>
+                        <field name="source_name" force_save="1"/>
+                        <field name="product_id" force_save="1"/>
+                        <field name="name" force_save="1"/>
+                        <field name="qty_to_pull" force_save="1"/>
+                        <field name="product_uom_id" optional="show" force_save="1"/>
+                        <field name="price_unit" force_save="1"/>
+                        <field name="res_model" column_invisible="1" force_save="1"/>
+                        <field name="res_id" column_invisible="1" force_save="1"/>
                     </list>
                 </field>
-                <div class="alert alert-info" role="alert" invisible="not source_ref">
+                <div class="alert alert-info" role="alert" invisible="not source_ids">
                     All lines are pulled in document order. Choose
                     "Select lines" to pick individual lines.
                 </div>
@@ -51,19 +67,26 @@
                 <field name="res_model" invisible="1"/>
                 <field name="res_id" invisible="1"/>
                 <field name="state" invisible="1"/>
-                <field name="source_ids" invisible="1"/>
                 <group invisible="state != 'choose'">
-                    <field name="source_id" options="{'no_create': True}"/>
+                    <field name="source_type_filter"/>
                 </group>
+                <field name="source_ids" nolabel="1" invisible="state != 'choose'">
+                    <list create="false" delete="false" editable="bottom"
+                          decoration-info="selected">
+                        <field name="selected"/>
+                        <field name="name" force_save="1"/>
+                        <field name="source_ref" column_invisible="1" force_save="1"/>
+                    </list>
+                </field>
                 <div invisible="state != 'confirm'">
                     <div class="alert alert-warning" role="alert">
                         <field name="remove_summary" nolabel="1"/>
                     </div>
                     <field name="source_line_ids" nolabel="1">
                         <list create="false" delete="false">
-                            <field name="product_id"/>
-                            <field name="name"/>
-                            <field name="quantity"/>
+                            <field name="product_id" force_save="1"/>
+                            <field name="name" force_save="1"/>
+                            <field name="quantity" force_save="1"/>
                         </list>
                     </field>
                 </div>

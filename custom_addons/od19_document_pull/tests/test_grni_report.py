@@ -95,10 +95,12 @@ class TestGrniReport(AccountTestInvoicingCommon):
             {
                 "res_model": "account.move",
                 "res_id": bill.id,
-                "source_ref": "purchase.order,%s" % po.id,
             }
         )
-        wizard._onchange_source_ref()
+        wizard.source_ids.filtered(
+            lambda r: r.source_model == "purchase.order" and r.source_id == po.id
+        ).selected = True
+        wizard._onchange_source_ids()
         wizard.action_pull()
         # The Thai tax module (l10n_th_account_tax) blocks posting a purchase
         # bill with VAT until its tax invoice number and date are filled in.
