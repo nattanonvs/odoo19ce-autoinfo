@@ -241,9 +241,24 @@ class HelpdeskTicket(models.Model):
             partners |= self.partner_id
         return partners
 
+    def _get_escalation_partners(self):
+        """หัวหน้าทีมเจ้าของเรื่อง + หัวหน้าทีม Triage (สำหรับเหตุฉุกเฉิน)."""
+        self.ensure_one()
+        partners = self.env["res.partner"]
+        if self.team_id.user_id:
+            partners |= self.team_id.user_id.partner_id
+        triage = self.env["helpdesk.ticket.team"].search(
+            [("is_triage_team", "=", True)], limit=1
+        )
+        if triage.user_id:
+            partners |= triage.user_id.partner_id
+        return partners
+
     def _notify_created(self):
         self.ensure_one()
         partners = self._get_notification_partners()
+        if self.emergency:
+            partners |= self._get_escalation_partners()
         if not partners:
             return
         subject = (
@@ -260,22 +275,45 @@ class HelpdeskTicket(models.Model):
 
     def _notify_assigned(self):
         self.ensure_one()
-        if not self.user_id:
+        partners = self._get_notification_partners()
+        if not partners:
             return
         self.env["notification.service"].notify(
-            self.user_id.partner_id,
-            _("คุณได้รับมอบหมายเรื่อง %(number)s: %(title)s")
+            partners,
+            _("เรื่อง %(number)s ได้รับมอบหมายแล้ว: %(title)s")
             % {"number": self.number, "title": self.name},
             event="issue_assigned",
             subject=_("มอบหมายเรื่องใหม่"),
         )
 
+    def _notify_stage_changed(self):
+        self.ensure_one()
+        partners = self._get_notification_partners()
+        if not partners:
+            return
+        self.env["notification.service"].notify(
+            partners,
+            _("เรื่อง %(number)s เปลี่ยนสถานะเป็น %(stage)s")
+            % {"number": self.number, "stage": self.stage_id.name or ""},
+            event="issue_updated",
+            subject=_("อัปเดตสถานะเรื่อง"),
+        )
+
     def write(self, vals):
+        old_assignees = {}
+        if "user_id" in vals:
+            old_assignees = {rec.id: rec.user_id.id for rec in self}
         res = super().write(vals)
+        # แจ้งผู้รับผิดชอบเฉพาะเมื่อผู้รับผิดชอบเปลี่ยนจริง (กัน notify ซ้ำ)
         if "user_id" in vals and vals["user_id"]:
             for record in self:
-                record._notify_assigned()
-        if "priority" in vals:
+                if old_assignees.get(record.id) != record.user_id.id:
+                    record._notify_assigned()
+        if "stage_id" in vals:
+            for record in self:
+                record._notify_stage_changed()
+        # audit: ครอบทั้งการตั้ง priority ตรง ๆ และการ recompute จาก impact/urgency
+        if "priority" in vals or "impact" in vals or "urgency" in vals:
             for record in self:
                 record.message_post(
                     body=_("ปรับความสำคัญเป็น %s") % record._priority_label()
@@ -287,4 +325,4 @@ class HelpdeskTicket(models.Model):
     # ------------------------------------------------------------------
     def _priority_label(self):
         self.ensure_one()
-        return PRIORITY_LABEL.get(self.priority, self.priority or "")
+        return PRIORITY_LABEL.get(self.priority, self.priority or "-")

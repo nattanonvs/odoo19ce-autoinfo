@@ -105,3 +105,89 @@ class TestInternalIssueTicket(TransactionCase):
             [("event", "=", "issue_assigned")]
         )
         self.assertTrue(queue)
+
+    # ------------------------------------------------------------------
+    # Phase 2 follow-ups: emergency fan-out (M2) / stage notify (M3) / minors
+    # ------------------------------------------------------------------
+    def _active_user(self, name, login):
+        return self.env["res.users"].create({"name": name, "login": login})
+
+    def test_emergency_notifies_team_leader(self):
+        # M2: เรื่องฉุกเฉินต้อง fan-out ไปหัวหน้าทีมเจ้าของเรื่อง
+        # (หัวหน้าทีมไม่ใช่ผู้แจ้ง/ผู้รับผิดชอบ จึงไม่ถูกแจ้งในเส้นทางปกติ)
+        reporter = self._active_user("Esc Reporter", "esc_reporter_test")
+        leader = self._active_user("Esc Leader", "esc_leader_test")
+        team = self.env["helpdesk.ticket.team"].create(
+            {"name": "Esc Team", "user_id": leader.id}
+        )
+        self._create_ticket(
+            team_id=team.id, emergency=True, reported_by_id=reporter.id
+        )
+        queue = self.env["od19.notification.queue"].search(
+            [
+                ("event", "=", "issue_updated"),
+                ("partner_id", "=", leader.partner_id.id),
+            ]
+        )
+        self.assertTrue(queue, "เรื่องฉุกเฉินต้องแจ้งหัวหน้าทีมเจ้าของเรื่อง")
+
+    def test_non_emergency_skips_team_leader(self):
+        # คุม M2: เรื่องปกติต้องไม่ fan-out ไปหัวหน้าทีม
+        reporter = self._active_user("Norm Reporter", "norm_reporter_test")
+        leader = self._active_user("Norm Leader", "norm_leader_test")
+        team = self.env["helpdesk.ticket.team"].create(
+            {"name": "Norm Team", "user_id": leader.id}
+        )
+        self._create_ticket(team_id=team.id, reported_by_id=reporter.id)
+        queue = self.env["od19.notification.queue"].search(
+            [
+                ("event", "=", "issue_updated"),
+                ("partner_id", "=", leader.partner_id.id),
+            ]
+        )
+        self.assertFalse(queue, "เรื่องปกติไม่ต้องแจ้งหัวหน้าทีม")
+
+    def test_stage_change_notifies_reporters(self):
+        # M3: เปลี่ยน stage_id ต้องแจ้งเตือน (นับเพิ่มจากตอนสร้าง)
+        reporter = self._active_user("Stage Reporter", "stage_reporter_test")
+        ticket = self._create_ticket(reported_by_id=reporter.id)
+        domain = [
+            ("event", "=", "issue_updated"),
+            ("partner_id", "=", reporter.partner_id.id),
+        ]
+        before = self.env["od19.notification.queue"].search_count(domain)
+        stage = self.env["helpdesk.ticket.stage"].create(
+            {"name": "Stage Notify (test)"}
+        )
+        ticket.write({"stage_id": stage.id})
+        after = self.env["od19.notification.queue"].search_count(domain)
+        self.assertGreater(after, before, "เปลี่ยนสถานะต้องแจ้งผู้เกี่ยวข้อง")
+
+    def test_assign_same_user_twice_notifies_once(self):
+        # m4: มอบหมายผู้เดิมซ้ำต้องไม่ notify ซ้ำ
+        reporter = self._active_user("Dedup Reporter", "dedup_reporter_test")
+        assignee = self._active_user("Dedup Assignee", "dedup_assignee_test")
+        team = self.env["helpdesk.ticket.team"].create(
+            {"name": "Dedup Team", "user_ids": [(4, assignee.id)]}
+        )
+        ticket = self._create_ticket(team_id=team.id, reported_by_id=reporter.id)
+        ticket.write({"user_id": assignee.id})
+        first = self.env["od19.notification.queue"].search_count(
+            [("event", "=", "issue_assigned")]
+        )
+        ticket.write({"user_id": assignee.id})
+        second = self.env["od19.notification.queue"].search_count(
+            [("event", "=", "issue_assigned")]
+        )
+        self.assertGreater(first, 0)
+        self.assertEqual(first, second, "มอบหมายผู้เดิมซ้ำต้องไม่แจ้งเตือนซ้ำ")
+
+    def test_priority_recompute_writes_audit_message(self):
+        # m6: audit ต้องครอบการ recompute จาก impact/urgency ด้วย
+        ticket = self._create_ticket(impact="I1", urgency="U1")
+        ticket.impact = "I3"
+        ticket.urgency = "U3"
+        self.assertTrue(
+            any("ปรับความสำคัญ" in (m.body or "") for m in ticket.message_ids),
+            "การ recompute priority ต้องมี audit log",
+        )
