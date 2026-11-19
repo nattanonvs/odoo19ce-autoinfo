@@ -77,4 +77,4 @@ class AccountMove(models.Model):
 
     def _od19_get_source_document(self):
         self.ensure_one()
-        return self.invoice_origin or self.ref or self.name
+        return self.invoice_origin or self.ref or False
