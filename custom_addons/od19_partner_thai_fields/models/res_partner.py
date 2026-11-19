@@ -47,6 +47,27 @@ class ResPartner(models.Model):
                     )
                 )
 
+    @api.depends("is_company", "country_code", "branch_code", "company_registry")
+    def _compute_l10n_th_branch_name(self):
+        """Drive the Thai branch label from ``branch_code`` when it is set.
+
+        Core l10n_th only fills ``l10n_th_branch_name`` for companies whose
+        country is Thailand, deriving it from ``company_registry``. Thai
+        partners here often have no country set, so the core value stays empty
+        even when ``branch_code`` is filled in. Keep the core result as a
+        fallback, then override it with the 5-digit branch code
+        (``00000`` = head office).
+        """
+        super()._compute_l10n_th_branch_name()
+        for partner in self:
+            code = (partner.branch_code or "").strip()
+            if partner.is_company and code:
+                partner.l10n_th_branch_name = (
+                    self.env._("Headquarter")
+                    if code == "00000"
+                    else self.env._("Branch %(code)s", code=code)
+                )
+
 
 class ResCompany(models.Model):
     _inherit = "res.company"
