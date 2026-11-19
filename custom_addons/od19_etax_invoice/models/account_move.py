@@ -96,10 +96,17 @@ class AccountMove(models.Model):
         self.ensure_one()
         document = self.od19_etax_document_ids[:1]
         if not document:
+            parent = self.parent_id or self.reversed_entry_id
+            source_document = (
+                parent.od19_etax_document_ids[:1]
+                if parent
+                else self.env["od19.etax.document"]
+            )
             document = self.env["od19.etax.document"].create({
                 "move_id": self.id,
                 "company_id": self.company_id.id,
                 "document_type": self._od19_etax_default_type(),
+                "source_document_id": source_document.id or False,
             })
         return {
             "type": "ir.actions.act_window",
