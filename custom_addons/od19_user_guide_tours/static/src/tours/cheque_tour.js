@@ -1,6 +1,6 @@
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { stepUtils, waitForAction } from "@od19_user_guide_tours/tours/tour_utils";
+import { stepUtils, navSection, navItem, waitForAction } from "@od19_user_guide_tours/tours/tour_utils";
 import { markup } from "@odoo/owl";
 
 /**
@@ -22,8 +22,16 @@ registry.category("web_tour.tours").add("od19_cheque_tour", {
         ),
 
         {
-            trigger: ".o_menu_sections .o_nav_entry:text('Cheques')",
-            content: markup(_t("Open the <b>Cheques</b> menu.")),
+            // Cheques sits under the "Treasury" dropdown (od19_ui_defaults),
+            // not at the top level of the navbar.
+            trigger: navSection("Treasury"),
+            content: markup(_t("Open the <b>Treasury</b> menu (Cheques, Advance Payments, Petty Cash).")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: navItem("Cheques"),
+            content: markup(_t("Open <b>Cheques</b>.")),
             tooltipPosition: "bottom",
             run: "click",
         },

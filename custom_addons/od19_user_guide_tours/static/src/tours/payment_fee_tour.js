@@ -28,8 +28,10 @@ registry.category("web_tour.tours").add("od19_payment_fee_tour", {
             run: "click",
         },
         {
-            trigger: navItem("Payments"),
-            content: markup(_t("เปิด <b>Payments / รายการจ่ายผู้ขาย</b>")),
+            // od19_accounting_payment_voucher_reports renames the core
+            // Vendors ▸ Payments menu to "รายการจ่ายทั้งหมด / All Payments".
+            trigger: navItem("รายการจ่ายทั้งหมด / All Payments"),
+            content: markup(_t("เปิด <b>รายการจ่ายทั้งหมด / All Payments</b>")),
             tooltipPosition: "bottom",
             run: "click",
         },

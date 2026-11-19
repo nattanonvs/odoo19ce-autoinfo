@@ -7,7 +7,7 @@ import { markup } from "@odoo/owl";
  * OD19 Accounting Clearing Wizards Tour
  *
  * Walks the user through the four clearing wizards of od19_accounting_features,
- * all reachable from Accounting > Accounting (the "Accounting" section):
+ * all reachable from Accounting ▸ Accounting Entries:
  *  - Period Clearing          (period-end open items)
  *  - VAT Clearing (ภ.พ.30)    (output/input VAT settlement)
  *  - WHT Clearing             (withholding tax settlement)
@@ -24,8 +24,8 @@ registry.category("web_tour.tours").add("od19_accounting_clearing_tour", {
             markup(_t("Let's clear the period, VAT, WHT and suspense accounts."))
         ),
         {
-            trigger: navSection("Accounting"),
-            content: markup(_t("Open the <b>Accounting</b> menu.")),
+            trigger: navSection("Accounting Entries"),
+            content: markup(_t("Open the <b>Accounting Entries</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
@@ -57,8 +57,8 @@ registry.category("web_tour.tours").add("od19_accounting_clearing_tour", {
 
         // --- VAT Clearing (ภ.พ.30) ---
         {
-            trigger: navSection("Accounting"),
-            content: markup(_t("Reopen the <b>Accounting</b> menu.")),
+            trigger: navSection("Accounting Entries"),
+            content: markup(_t("Reopen the <b>Accounting Entries</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
@@ -88,8 +88,8 @@ registry.category("web_tour.tours").add("od19_accounting_clearing_tour", {
 
         // --- WHT Clearing ---
         {
-            trigger: navSection("Accounting"),
-            content: markup(_t("Reopen the <b>Accounting</b> menu.")),
+            trigger: navSection("Accounting Entries"),
+            content: markup(_t("Reopen the <b>Accounting Entries</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
@@ -119,8 +119,8 @@ registry.category("web_tour.tours").add("od19_accounting_clearing_tour", {
 
         // --- Suspense / Intercompany Clearing ---
         {
-            trigger: navSection("Accounting"),
-            content: markup(_t("Reopen the <b>Accounting</b> menu.")),
+            trigger: navSection("Accounting Entries"),
+            content: markup(_t("Reopen the <b>Accounting Entries</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
