@@ -74,3 +74,45 @@
     max-height: none;
     width: 360px;
 }
+
+/* ---------------------------------------------------------------------------
+ * Systray button — blend the AI "magic" icon with the other navbar (systray)
+ * entries instead of rendering with the browser's default button background.
+ * Tokens mirror web/static/src/webclient/navbar/navbar.variables.scss.
+ * ------------------------------------------------------------------------ */
+.o_main_navbar .o_od19_ai_systray {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--o-navbar-height, 46px);
+    margin: 0;
+    padding: 0 var(--NavBar-entry-padding-right, .315em) 0 var(--NavBar-entry-padding-left, .315em);
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: rgba(255, 255, 255, .9);
+    font-size: 1em;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color .15s ease, color .15s ease;
+
+    &:hover,
+    &:focus,
+    &:focus-visible {
+        color: #fff;
+        background: rgba(0, 0, 0, .08);
+        outline: none;
+        box-shadow: none;
+    }
+
+    &.active,
+    &[aria-expanded="true"] {
+        color: #fff;
+        background: rgba(0, 0, 0, .18);
+    }
+
+    .fa {
+        font-size: 1rem;
+        line-height: 1;
+    }
+}
