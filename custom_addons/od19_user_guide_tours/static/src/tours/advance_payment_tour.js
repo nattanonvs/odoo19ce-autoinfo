@@ -1,6 +1,6 @@
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { stepUtils, navSection } from "@od19_user_guide_tours/tours/tour_utils";
+import { stepUtils, navSection, navItem } from "@od19_user_guide_tours/tours/tour_utils";
 import { markup } from "@odoo/owl";
 
 /**
@@ -21,8 +21,16 @@ registry.category("web_tour.tours").add("od19_advance_payment_tour", {
         ),
 
         {
-            trigger: navSection("Advance Payments"),
-            content: markup(_t("Open the <b>Advance Payments</b> menu.")),
+            // Advance Payments sits under the "Treasury" dropdown
+            // (od19_ui_defaults), not at the top level of the navbar.
+            trigger: navSection("Treasury"),
+            content: markup(_t("Open the <b>Treasury</b> menu (Cheques, Advance Payments, Petty Cash).")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: navItem("Advance Payments"),
+            content: markup(_t("Open <b>Advance Payments</b>.")),
             tooltipPosition: "bottom",
             run: "click",
         },
