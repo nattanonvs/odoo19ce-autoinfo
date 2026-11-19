@@ -47,16 +47,38 @@ TOOL_PROTOCOL = (
     "ห้ามสมมติข้อมูลเอง หากไม่พบให้แจ้งผู้ใช้ตามจริง"
 )
 
+# Guidance appended to the system prompt on EVERY call, regardless of the
+# (editable) base prompt, so answer quality cannot regress when an admin
+# customises ``od19_ai.system_prompt``.
+QUALITY_GUIDE = (
+    "\n\nแนวทางการตอบ (สำคัญมาก):\n"
+    "- ตอบเป็นภาษาไทยที่กระชับ ชัดเจน และสุภาพ\n"
+    "- ยึดข้อเท็จจริงจากข้อมูลในระบบเท่านั้น ห้ามเดา ห้ามกุตัวเลขหรือข้อมูล "
+    "หากข้อมูลไม่พอให้บอกตามตรง\n"
+    "- เมื่อคำถามเกี่ยวกับข้อมูลในระบบ (ลูกค้า สินค้า ใบสั่งขาย/ซื้อ ใบแจ้งหนี้ "
+    "สต็อก พนักงาน ยอดขาย ภาษี ลูกหนี้) ต้องดึงข้อมูลจริงด้วยเครื่องมือก่อนตอบเสมอ\n"
+    "- หากมีบริบทหน้าจอ (เอกสารที่กำลังเปิดอยู่ พร้อมรหัสเอกสาร) "
+    "ให้ดึงและใช้ข้อมูลจริงของเอกสารนั้นประกอบการตอบก่อน\n"
+    "- วิเคราะห์ให้เห็นภาพ: เริ่มด้วยสรุปประเด็นสำคัญ แล้วตามด้วยรายละเอียด "
+    "และตัวเลขที่เกี่ยวข้อง\n"
+    "- ให้ข้อเสนอแนะเชิงปฏิบัติหรือสิ่งที่ควรทำต่อเมื่อเหมาะสม\n"
+    "- จัดรูปแบบให้อ่านง่าย ใช้หัวข้อย่อย/รายการเมื่อมีหลายประเด็น "
+    "และระบุหน่วยเงินกับวันที่ให้ครบ\n"
+    "- ถ้าคำถามกำกวมหรือข้อมูลไม่พอ ให้ถามกลับให้ชัดเจนแทนการเดา"
+)
+
 # Used when neither ir.config_parameter nor odoo.conf provides a value.
 DEFAULTS = {
     "provider": "ollama",
     "base_url": "http://localhost:11434/v1",
     "model": "qwen2.5:7b",
     "system_prompt": (
-        "You are a helpful assistant for a Thai accounting ERP (Odoo 19). "
-        "Answer in Thai unless asked otherwise."
+        "คุณคือผู้ช่วยอัจฉริยะของระบบ ERP บัญชีไทย (Odoo 19) "
+        "ช่วยผู้ใช้เรื่องการใช้งานระบบ การบัญชี และการวิเคราะห์ข้อมูลธุรกิจ "
+        "ด้วยความเป็นมืออาชีพ ถูกต้อง และเป็นมิตร"
     ),
     "timeout": 60,
+    "temperature": 0.2,
 }
 
 PROVIDER_PRESETS = {
@@ -155,6 +177,16 @@ class Od19AiAssistant(models.AbstractModel):
         except (TypeError, ValueError):
             timeout = DEFAULTS["timeout"]
 
+        temperature_raw = resolve("temperature")
+        try:
+            temperature = (
+                float(temperature_raw)
+                if temperature_raw not in (None, "")
+                else DEFAULTS["temperature"]
+            )
+        except (TypeError, ValueError):
+            temperature = DEFAULTS["temperature"]
+
         return {
             "provider": provider,
             "base_url": resolve("base_url")
@@ -164,6 +196,7 @@ class Od19AiAssistant(models.AbstractModel):
             "api_key": resolve("api_key") or "",
             "system_prompt": resolve("system_prompt") or DEFAULTS["system_prompt"],
             "timeout": timeout,
+            "temperature": temperature,
         }
 
     # ------------------------------------------------------------------
@@ -194,8 +227,8 @@ class Od19AiAssistant(models.AbstractModel):
 
     @api.model
     def _build_system_prompt(self, base_prompt, ctx=None):
-        """Append the compact tool index (and optional page brief)."""
-        prompt = base_prompt
+        """Append the always-on quality guide, tool index and page brief."""
+        prompt = (base_prompt or "") + QUALITY_GUIDE
         index = self.env["od19.ai.tool"].prompt_index()
         if index:
             prompt = prompt + TOOL_PROTOCOL % index
@@ -325,6 +358,7 @@ class Od19AiAssistant(models.AbstractModel):
                     messages,
                     api_key=config["api_key"],
                     timeout=config["timeout"],
+                    temperature=config["temperature"],
                 )
                 call = self._parse_tool_call(raw)
                 if not call:
@@ -398,6 +432,7 @@ class Od19AiAssistant(models.AbstractModel):
                     messages,
                     api_key=config["api_key"],
                     timeout=config["timeout"],
+                    temperature=config["temperature"],
                 ):
                     buffer.append(token)
                     yield {"type": "delta", "content": token}

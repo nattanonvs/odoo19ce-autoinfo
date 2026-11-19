@@ -39,6 +39,7 @@ class TestOd19AiAssistant(TransactionCase):
         self.assertEqual(config["base_url"], "http://localhost:11434/v1")
         self.assertEqual(config["model"], "qwen2.5:7b")
         self.assertEqual(config["timeout"], 60)
+        self.assertEqual(config["temperature"], 0.2)
 
     def test_config_uses_groq_provider_preset(self):
         params = self.env["ir.config_parameter"].sudo()
@@ -86,7 +87,7 @@ class TestOd19AiAssistant(TransactionCase):
         chat = self.env["od19.ai.chat"].create({})
         captured = []
 
-        def fake_chat_completion(base_url, model, messages, api_key=None, timeout=None):
+        def fake_chat_completion(base_url, model, messages, api_key=None, timeout=None, **kwargs):
             captured.append([(m["role"], m["content"]) for m in messages])
             return "ตอบครั้งที่ %d" % len(captured)
 
@@ -185,7 +186,7 @@ class TestOd19AiAssistant(TransactionCase):
         chat = self.env["od19.ai.chat"].create({"prompt": "หาคู่ค้าชื่อทดสอบ"})
         calls = {"n": 0}
 
-        def fake_chat_completion(base_url, model, messages, api_key=None, timeout=None):
+        def fake_chat_completion(base_url, model, messages, api_key=None, timeout=None, **kwargs):
             calls["n"] += 1
             if calls["n"] == 1:
                 return '{"tool": "search_partners", "arguments": {"keyword": "ทดสอบ"}}'
@@ -375,7 +376,7 @@ class TestOd19AiChatHttp(HttpCase):
     def test_stream_endpoint_emits_sse(self):
         chat = self._make_chat(self.chat_user)
 
-        def fake_stream(base_url, model, messages, api_key=None, timeout=None):
+        def fake_stream(base_url, model, messages, api_key=None, timeout=None, **kwargs):
             yield "สวัสดี"
             yield "ครับ"
 
@@ -653,6 +654,13 @@ class TestCapabilityIndex(TransactionCase):
         prompt = self.env["od19.ai.chat"]._build_system_prompt("BASE")
         self.assertIn("tool_help", prompt)
         self.assertIn("search_partners", prompt)
+
+    def test_system_prompt_always_includes_quality_guide(self):
+        # The quality guide must survive any custom base prompt so answer
+        # quality (analysis, no fabrication) never regresses.
+        prompt = self.env["od19.ai.chat"]._build_system_prompt("BASE")
+        self.assertIn("แนวทางการตอบ", prompt)
+        self.assertIn("ห้ามเดา", prompt)
 
 
 @tagged("post_install", "-at_install")

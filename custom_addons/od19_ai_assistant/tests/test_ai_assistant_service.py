@@ -29,6 +29,7 @@ class TestOd19AiAssistantService(TransactionCase):
         config = self._brain()._get_ai_config()
         self.assertEqual(config["provider"], "ollama")
         self.assertEqual(config["timeout"], 60)
+        self.assertEqual(config["temperature"], 0.2)
 
     def test_parse_tool_call_delegated(self):
         self.assertEqual(
@@ -52,6 +53,17 @@ class TestOd19AiAssistantService(TransactionCase):
         with self.assertRaises(UserError):
             self._brain().ask("   ")
 
+    def test_ask_forwards_temperature(self):
+        captured = {}
+
+        def fake(base_url, model, messages, api_key=None, timeout=None, **kwargs):
+            captured.update(kwargs)
+            return "ตอบ"
+
+        with patch(CHAT_COMPLETION, side_effect=fake):
+            self._brain().ask("สวัสดี")
+        self.assertEqual(captured.get("temperature"), 0.2)
+
     def test_ask_with_chat_persists_history(self):
         chat = self.env["od19.ai.chat"].create({})
         with patch(CHAT_COMPLETION, return_value="ตอบ"):
@@ -63,7 +75,7 @@ class TestOd19AiAssistantService(TransactionCase):
         self.env["res.partner"].create({"name": "บริษัท ทดสอบ จำกัด"})
         calls = {"n": 0}
 
-        def fake(base_url, model, messages, api_key=None, timeout=None):
+        def fake(base_url, model, messages, api_key=None, timeout=None, **kwargs):
             calls["n"] += 1
             if calls["n"] == 1:
                 return '{"tool": "search_partners", "arguments": {"keyword": "ทดสอบ"}}'
@@ -75,7 +87,7 @@ class TestOd19AiAssistantService(TransactionCase):
         self.assertIn("บริษัท ทดสอบ จำกัด", result["answer"])
 
     def test_ask_exceeding_rounds_returns_fallback(self):
-        def always_tool(base_url, model, messages, api_key=None, timeout=None):
+        def always_tool(base_url, model, messages, api_key=None, timeout=None, **kwargs):
             return '{"tool": "search_partners", "arguments": {}}'
 
         with patch(CHAT_COMPLETION, side_effect=always_tool):
@@ -98,7 +110,7 @@ class TestOd19AiAssistantService(TransactionCase):
     def test_stream_yields_delta_then_done(self):
         chat = self.env["od19.ai.chat"].create({})
 
-        def fake_stream(base_url, model, messages, api_key=None, timeout=None):
+        def fake_stream(base_url, model, messages, api_key=None, timeout=None, **kwargs):
             for token in ("สวัสดี", "ครับ"):
                 yield token
 
