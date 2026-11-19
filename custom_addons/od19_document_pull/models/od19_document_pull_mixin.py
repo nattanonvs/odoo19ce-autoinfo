@@ -8,13 +8,31 @@ helpers here only deal with guards and with opening the wizards, so the
 mechanism stays in one place (Lean & Maintainable).
 """
 
-from odoo import _, models
+from odoo import _, api, models
 from odoo.exceptions import UserError
 
 
 class Od19DocumentPullMixin(models.AbstractModel):
     _name = "od19.document.pull.mixin"
     _description = "OD19 Document Pull Mixin"
+
+    @api.model
+    def _od19_pull_type_selection(self):
+        """Options for the wizards' "pull type" filter.
+
+        Keyed by the source model name so the wizards can narrow the rows on
+        the server, and holds every type the mechanism can ever offer (the
+        field description is built without a specific destination document,
+        so the list can not be narrowed per record here).
+        """
+        return [
+            ("all", _("All Types / ทุกประเภท")),
+            ("purchase.order", _("Purchase Order / ใบสั่งซื้อ")),
+            ("account.move", _("Previous Vendor Bill / ใบวางบิลเดิม")),
+            ("sale.order", _("Sale Order / ใบสั่งขาย")),
+            ("stock.picking", _("Receipt/Delivery / ใบรับ-ใบส่งของ")),
+            ("purchase.request", _("Purchase Request / ใบขอซื้อ")),
+        ]
 
     # ------------------------------------------------------------------
     # Contract — override in the destination model

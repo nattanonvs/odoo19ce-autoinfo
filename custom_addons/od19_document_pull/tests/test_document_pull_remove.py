@@ -83,10 +83,13 @@ class TestDocumentPullRemove(AccountTestInvoicingCommon):
             {
                 "res_model": "account.move",
                 "res_id": bill.id,
-                "source_ref": "purchase.order,%s" % self.po.id,
             }
         )
-        wizard._onchange_source_ref()
+        wizard.source_ids.filtered(
+            lambda r: r.source_model == "purchase.order"
+            and r.source_id == self.po.id
+        ).selected = True
+        wizard._onchange_source_ids()
         wizard.action_pull()
         return bill
 
@@ -94,6 +97,11 @@ class TestDocumentPullRemove(AccountTestInvoicingCommon):
         return self.env["od19.document.pull.remove.wizard"].create(
             {"res_model": "account.move", "res_id": bill.id}
         )
+
+    def _select_source(self, wizard, source):
+        """Tick the remove-wizard row that points at ``source``."""
+        ref = "%s,%s" % (source._name, source.id)
+        wizard.source_ids.filtered(lambda r: r.source_ref == ref).selected = True
 
     def test_bound_sources_lists_purchase_order(self):
         bill = self._bill_with_pulled_line()
@@ -112,11 +120,24 @@ class TestDocumentPullRemove(AccountTestInvoicingCommon):
         self.assertEqual(len(wizard.source_ids), 1)
         self.assertIn(self.po.display_name, wizard.source_ids.name)
 
+    def test_source_type_filter_narrows_bound_sources(self):
+        """The pull type filter keeps only bound sources of that type."""
+        bill = self._bill_with_pulled_line()
+        wizard = self._open_remove_wizard(bill)
+        self.assertEqual(len(wizard.source_ids), 1)
+        wizard.source_type_filter = "sale.order"
+        wizard._onchange_source_type_filter()
+        self.assertFalse(wizard.source_ids)
+        wizard.source_type_filter = "purchase.order"
+        wizard._onchange_source_type_filter()
+        self.assertEqual(len(wizard.source_ids), 1)
+        self.assertIn(self.po.display_name, wizard.source_ids.name)
+
     def test_remove_wizard_two_states_and_confirm_removes_lines(self):
         bill = self._bill_with_pulled_line()
         wizard = self._open_remove_wizard(bill)
         self.assertEqual(wizard.state, "choose")
-        wizard.source_id = "purchase.order,%s" % self.po.id
+        self._select_source(wizard, self.po)
         wizard.action_select_source()
         self.assertEqual(wizard.state, "confirm")
         self.assertEqual(len(wizard.source_line_ids), 1)
@@ -127,7 +148,7 @@ class TestDocumentPullRemove(AccountTestInvoicingCommon):
     def test_action_back_clears_preview(self):
         bill = self._bill_with_pulled_line()
         wizard = self._open_remove_wizard(bill)
-        wizard.source_id = "purchase.order,%s" % self.po.id
+        self._select_source(wizard, self.po)
         wizard.action_select_source()
         self.assertEqual(wizard.state, "confirm")
         wizard.action_back()
@@ -155,7 +176,7 @@ class TestDocumentPullRemove(AccountTestInvoicingCommon):
             }
         )
         wizard = self._open_remove_wizard(bill)
-        wizard.source_id = "purchase.order,%s" % self.po.id
+        self._select_source(wizard, self.po)
         wizard.action_select_source()
         wizard.action_remove()
         self.assertEqual(len(bill.invoice_line_ids), 1)
@@ -180,6 +201,6 @@ class TestDocumentPullRemove(AccountTestInvoicingCommon):
             )
         bill.action_post()
         wizard = self._open_remove_wizard(bill)
-        wizard.source_id = "purchase.order,%s" % self.po.id
+        self._select_source(wizard, self.po)
         with self.assertRaises(UserError):
             wizard.action_select_source()

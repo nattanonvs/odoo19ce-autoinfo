@@ -36,7 +36,10 @@ class PurchaseOrder(models.Model):
             {
                 "model": "purchase.request",
                 "label": _("Purchase Request / ใบขอซื้อ"),
-                "domain": [("state", "in", ("approved", "in_progress"))],
+                "domain": [
+                    ("state", "in", ("approved", "in_progress")),
+                    ("line_ids.supplier_id", "=", self.partner_id.id),
+                ],
             },
         ]
 

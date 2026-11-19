@@ -31,9 +31,10 @@ class Od19DocumentPullRemoveWizard(models.TransientModel):
         inverse_name="wizard_id",
         string="Source Documents / เอกสารต้นทาง",
     )
-    source_id = fields.Reference(
-        selection="_selection_source_id",
-        string="Source Document / เอกสารต้นทาง",
+    source_type_filter = fields.Selection(
+        selection="_od19_source_type_selection",
+        string="Pull Type / ประเภทการดึง",
+        default="all",
     )
     source_line_ids = fields.One2many(
         comodel_name="od19.document.pull.remove.line",
@@ -54,17 +55,17 @@ class Od19DocumentPullRemoveWizard(models.TransientModel):
         return self.env[self.res_model].browse(self.res_id)
 
     @api.model
-    def _selection_source_id(self):
-        # Static and context-independent: the ORM evaluates a Reference
-        # selection on an empty recordset both when rendering the widget and
-        # when validating the stored value.
-        return [
-            ("purchase.order", _("Purchase Order / ใบสั่งซื้อ")),
-            ("sale.order", _("Sale Order / ใบสั่งขาย")),
-            ("account.move", _("Invoice/Bill / ใบแจ้งหนี้/ใบวางบิล")),
-            ("purchase.request", _("Purchase Request / ใบขอซื้อ")),
-            ("stock.picking", _("Transfer / ใบรับ-ส่งสินค้า")),
-        ]
+    def _od19_source_type_selection(self):
+        """Delegate to the shared mixin list (keeps one source of truth)."""
+        return self.env["od19.document.pull.mixin"]._od19_pull_type_selection()
+
+    def _od19_selected_source(self):
+        """Return the source document ticked on the wizard."""
+        self.ensure_one()
+        selected = self.source_ids.filtered("selected")
+        if len(selected) > 1:
+            raise UserError(_("Please select only one source document."))
+        return selected._od19_get_source() if selected else False
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -77,8 +78,15 @@ class Od19DocumentPullRemoveWizard(models.TransientModel):
     def _onchange_target(self):
         self._od19_build_bound_sources()
 
+    @api.onchange("source_type_filter")
+    def _onchange_source_type_filter(self):
+        """Rebuild the bound-source rows when the pull type filter changes."""
+        self.source_line_ids = [Command.clear()]
+        self._od19_build_bound_sources()
+
     def _od19_build_bound_sources(self):
         self.ensure_one()
+        type_filter = self.source_type_filter
         commands = []
         if self.res_model and self.res_id:
             target = self._od19_get_target().exists()
@@ -91,17 +99,20 @@ class Od19DocumentPullRemoveWizard(models.TransientModel):
                         }
                     )
                     for source, count in target._od19_pull_bound_sources()
+                    if type_filter in (None, False, "all")
+                    or source._name == type_filter
                 ]
         self.source_ids = [Command.clear()] + commands
 
-    @api.depends("source_line_ids", "source_id")
+    @api.depends("source_line_ids", "source_ids.selected")
     def _compute_remove_summary(self):
         for wizard in self:
             count = len(wizard.source_line_ids)
-            if wizard.source_id and count:
+            source = wizard.source_ids.filtered("selected")[:1]
+            if source and count:
                 wizard.remove_summary = _(
                     "Document %(name)s will have %(count)s line(s) removed.",
-                    name=wizard.source_id.display_name,
+                    name=source.name,
                     count=count,
                 )
             else:
@@ -125,9 +136,9 @@ class Od19DocumentPullRemoveWizard(models.TransientModel):
         self.ensure_one()
         target = self._od19_get_target()
         target._od19_pull_check_editable()
-        if not self.source_id:
+        source = self._od19_selected_source()
+        if not source:
             raise UserError(_("Please select the source document to remove."))
-        source = self.source_id
         target._od19_pull_check_source(source)
         lines = self._od19_push_preview_lines(target, source)
         if not lines:
@@ -163,7 +174,8 @@ class Od19DocumentPullRemoveWizard(models.TransientModel):
         self.ensure_one()
         target = self._od19_get_target()
         target._od19_pull_check_editable()
-        if not self.source_id:
+        source = self._od19_selected_source()
+        if not source:
             raise UserError(_("No source document selected."))
-        target._od19_pull_remove(self.source_id)
+        target._od19_pull_remove(source)
         return {"type": "ir.actions.act_window_close"}

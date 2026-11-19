@@ -32,6 +32,7 @@ class TestDocumentPullViews(TransactionCase):
             "od19_document_pull.view_od19_document_pull_wizard_form"
         )
         self.assertIn("action_pull", arch)
+        self.assertIn("source_type_filter", arch)
 
     def test_purchase_order_form_has_pull_buttons(self):
         arch = self._view_arch(
@@ -48,3 +49,4 @@ class TestDocumentPullViews(TransactionCase):
         self.assertIn("action_select_source", arch)
         self.assertIn("action_remove", arch)
         self.assertIn("action_back", arch)
+        self.assertIn("source_type_filter", arch)
