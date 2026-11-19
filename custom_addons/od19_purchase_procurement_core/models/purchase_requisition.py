@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
 
@@ -108,6 +110,41 @@ class PurchaseRequisitionLine(models.Model):
         "product_qty",
         "product_uom_id",
     }
+
+    od19_qty_received = fields.Float(
+        string="Received",
+        compute="_compute_od19_qty_received",
+        digits="Product Unit",
+    )
+
+    @api.depends(
+        "requisition_id.purchase_ids.state",
+        "requisition_id.purchase_ids.order_line.qty_received",
+    )
+    def _compute_od19_qty_received(self):
+        # Mirrors the core ``_compute_ordered_qty`` call-off roll-up but sums the
+        # ``qty_received`` of the purchase order lines instead of the ordered
+        # quantity, so an agreement line reflects how much was actually received.
+        line_found = defaultdict(set)
+        for line in self:
+            total = 0.0
+            for po in line.requisition_id.purchase_ids.filtered(
+                lambda purchase_order: purchase_order.state == "purchase"
+            ):
+                for po_line in po.order_line.filtered(
+                    lambda order_line: order_line.product_id == line.product_id
+                ):
+                    if po_line.product_uom_id != line.product_uom_id:
+                        total += po_line.product_uom_id._compute_quantity(
+                            po_line.qty_received, line.product_uom_id
+                        )
+                    else:
+                        total += po_line.qty_received
+            if line.product_id not in line_found[line.requisition_id]:
+                line.od19_qty_received = total
+                line_found[line.requisition_id].add(line.product_id)
+            else:
+                line.od19_qty_received = 0.0
 
     @api.model_create_multi
     def create(self, vals_list):

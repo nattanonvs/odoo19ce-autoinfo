@@ -9,6 +9,9 @@
                 <field name="od19_entry_mode"/>
                 <field name="od19_approval_state" readonly="1"/>
             </xpath>
+            <xpath expr="//field[@name='qty_ordered']" position="after">
+                <field name="od19_qty_received" optional="show" column_invisible="parent.requisition_type == 'purchase_template'"/>
+            </xpath>
             <xpath expr="//header" position="inside">
                 <button name="action_od19_submit_for_approval"
                         type="object"
