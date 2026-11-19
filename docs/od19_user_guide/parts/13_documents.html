@@ -1,0 +1,415 @@
+<!--Part
+id=documents
+title=เอกสาร ความรู้ และการลงนาม
+icon=📄
+sub=ศูนย์รวมเอกสารและหมวดหมู่ · ดึงรายการจากเอกสารต้นทาง · เลขที่เอกสารไทย · การลงนามอิเล็กทรอนิกส์ · ประกาศองค์กร · คลังความรู้
+-->
+
+<section class="part" id="documents">
+
+  <div class="part-head">
+    <h2 class="part-title"><span class="part-icon">📄</span> ส่วนที่ 13 · เอกสาร ความรู้ และการลงนาม</h2>
+    <p class="part-sub">
+      ส่วนนี้ว่าด้วยการบริหาร “เอกสาร” ขององค์กรตั้งแต่ต้นน้ำถึงปลายน้ำ — ศูนย์รวมเอกสารแนบและหมวดหมู่,
+      การดึงรายการจากเอกสารต้นทางเข้าสู่เอกสารปลายทาง, เลขที่เอกสารแบบไทย,
+      การส่งเอกสารให้ลงนามอิเล็กทรอนิกส์, การประกาศแจ้งพนักงาน และคลังความรู้ภายในองค์กร
+      โดยทุกโมดูลอยู่บนข้อมูลจริงของระบบ (ไม่มีการสมมติข้อมูลนอกโค้ด)
+    </p>
+  </div>
+
+  <nav class="toc mini">
+    <h3>สารบัญส่วนนี้</h3>
+    <ol>
+      <li><a href="#doc-1">ศูนย์เอกสาร (คลังเอกสารกลาง)</a></li>
+      <li><a href="#doc-2">ดึงรายการจากเอกสารต้นทาง (Document Pull)</a></li>
+      <li><a href="#doc-3">เลขที่เอกสารไทย (Thai Document Sequence)</a></li>
+      <li><a href="#doc-4">การลงนามเอกสารอิเล็กทรอนิกส์ (Document Signing)</a></li>
+      <li><a href="#doc-5">ประกาศองค์กร (Announcement)</a></li>
+      <li><a href="#doc-6">คลังความรู้ (Knowledge Enhanced)</a></li>
+    </ol>
+  </nav>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="doc-1"><span class="mtag">od19_document_hub</span> ศูนย์เอกสาร (คลังเอกสารกลาง)</h3>
+  <p>
+    โมดูลนี้เป็น <strong>ศูนย์กลาง metadata ของเอกสารแนบ</strong> (<code>ir.attachment</code>) ในระบบ —
+    เพิ่มหมวดหมู่เอกสาร, ชั้นความเป็นส่วนตัว, ที่มา, นโยบายอายุการเก็บรักษา และจัดทำดัชนีค้นหาแบบข้อความ
+    เพื่อให้ค้นหาและจัดระเบียบไฟล์แนบที่เกิดจากทุกโมดูลได้จากที่เดียว
+  </p>
+
+  <h4>เมนู</h4>
+  <ul>
+    <li><span class="path">ศูนย์เอกสาร › คลังเอกสารกลาง</span> — รายการเอกสารแนบทั้งหมด (ทุกผู้ใช้ที่อยู่ในกลุ่ม Document User)</li>
+    <li><span class="path">ศูนย์เอกสาร › หมวดหมู่เอกสาร</span> — จัดการโครงสร้างหมวด (เฉพาะผู้จัดการเอกสาร)</li>
+    <li><span class="path">ศูนย์เอกสาร › นโยบายการเก็บรักษา</span> — กำหนดอายุ/การจัดการเมื่อครบกำหนด (เฉพาะผู้จัดการเอกสาร)</li>
+  </ul>
+
+  <h4>ขั้นตอนใช้งาน — จำแนกและจัดเก็บเอกสาร</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดคลังเอกสารกลาง</span> เข้าแอป <span class="path">ศูนย์เอกสาร › คลังเอกสารกลาง</span> จะเห็นรายการไฟล์แนบทั้งระบบ</li>
+    <li><span class="stitle">เปิดเอกสารแนบ</span> คลิกที่รายการเพื่อเปิดฟอร์ม แล้วเลื่อนลงมาที่กลุ่ม <strong>“ศูนย์เอกสาร (OD19)”</strong></li>
+    <li><span class="stitle">ระบุหมวดและที่มา</span> เลือก <span class="pill">หมวดเอกสาร</span> และ <span class="pill">ที่มา</span> (รับจากภายนอก / สร้างจากระบบ / ยกมาจาก Odoo 15)</li>
+    <li><span class="stitle">ใส่ข้อมูลอ้างอิง</span> กรอก <span class="pill">วันที่บนเอกสาร</span>, <span class="pill">คู่ค้า</span>, <span class="pill">แผนก</span>, <span class="pill">ระดับความลับ</span> และ <span class="pill">เลขอ้างอิงต้นทาง</span></li>
+    <li><span class="stitle">กำหนดนโยบายอายุ (ถ้ามี)</span> เลือก <span class="pill">นโยบายอายุ</span> ระบบจะคำนวณ <span class="pill">ครบกำหนดเก็บรักษา</span> จากวันที่บนเอกสาร + อายุของนโยบายให้อัตโนมัติ</li>
+    <li><span class="stitle">ล็อกห้ามทำลาย (ถ้าจำเป็น)</span> เปิด <span class="pill">ห้ามทำลาย</span> สำหรับเอกสารที่อยู่ระหว่างข้อพิพาท/ตรวจสอบ</li>
+    <li><span class="stitle">บันทึก</span> กดบันทึก ระบบติดป้ายสถานะการสกัดข้อความให้เอง</li>
+  </ol>
+
+  <h4>ฟิลด์สำคัญบนเอกสารแนบ</h4>
+  <table>
+    <thead><tr><th>ฟิลด์</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">หมวดเอกสาร</span></td><td>หมวดที่ผูกกับเอกสาร (โมดูลย่อยของ <code>od19.document.category</code>)</td></tr>
+      <tr><td><span class="pill">ที่มา</span></td><td><span class="badge b-gray">รับจากภายนอก</span> <span class="badge b-blue">สร้างจากระบบ</span> <span class="badge b-amber">ยกมาจาก Odoo 15</span></td></tr>
+      <tr><td><span class="pill">ระดับความลับ</span></td><td>สาธารณะ / ภายใน / ความลับ / ลับมาก (ค่าเริ่มต้น = ภายใน)</td></tr>
+      <tr><td><span class="pill">นโยบายอายุ</span> + <span class="pill">ครบกำหนดเก็บรักษา</span></td><td>นโยบายกำหนดอายุ (เดือน) แล้วระบบคำนวณวันครบกำหนดให้ (อ่านอย่างเดียว)</td></tr>
+      <tr><td><span class="pill">ห้ามทำลาย</span></td><td>Legal hold — กันไม่ให้ทำลายเอกสารแม้ครบกำหนด</td></tr>
+      <tr><td><span class="pill">ระเบียนที่ใช้ไฟล์เดียวกัน</span></td><td>นับไฟล์แนบที่ checksum ตรงกัน (ตรวจจับเอกสารซ้ำ)</td></tr>
+      <tr><td><span class="pill">สถานะสกัดข้อความ</span></td><td>ยังไม่เข้าคิว / รอสกัด / สกัดแล้ว / ล้มเหลว / ข้าม</td></tr>
+    </tbody>
+  </table>
+
+  <h4>หมวดหมู่และนโยบายการเก็บรักษา</h4>
+  <div class="grid two">
+    <div class="tile">
+      <div class="t">🗂️ หมวดหมู่เอกสาร</div>
+      <p>มีชื่อ, รหัส (ห้ามซ้ำ), หมวดแม่, ชื่อเต็ม (คำนวณ), นโยบายอายุเริ่มต้น, จัดหมวดอัตโนมัติ และโมเดลที่ผูกได้</p>
+    </div>
+    <div class="tile">
+      <div class="t">⏳ นโยบายการเก็บรักษา</div>
+      <p>กำหนดอายุ (เดือน, ต้อง &gt; 0), การจัดการเมื่อครบกำหนด (ทบทวน / เก็บถาวร / ทำลาย) และอ้างอิงกฎหมาย</p>
+    </div>
+  </div>
+  <p>หมวดหมู่ที่ติดตั้งมาให้เริ่มต้นได้แก่ <span class="badge b-blue">จัดซื้อ (PUR)</span>, <span class="badge b-blue">ใบสั่งซื้อ (PUR_PO)</span>, <span class="badge b-blue">ขาย (SAL)</span>, <span class="badge b-blue">ใบกำกับภาษี (SAL_TAX)</span>, <span class="badge b-gray">ทรัพยากรบุคคล (HR)</span>, <span class="badge b-gray">ISO</span> และ <span class="badge b-gray">รายงานที่ระบบสร้าง (RPT)</span></p>
+
+  <h4>การค้นหาและตัวกรอง</h4>
+  <ul>
+    <li>ตัวกรองสำเร็จรูป: <span class="badge b-blue">รับจากภายนอก</span>, <span class="badge b-blue">สร้างจากระบบ</span>, <span class="badge b-amber">รอสกัดข้อความ</span></li>
+    <li>จัดกลุ่มได้ตาม: หมวดเอกสาร · ที่มา · แผนก</li>
+    <li>ค้นหาชื่อไฟล์ด้วยดัชนี trigram (ติดตั้งส่วนขยาย <code>pg_trgm</code> อัตโนมัติก่อนติดตั้งโมดูล)</li>
+  </ul>
+
+  <h4>สิทธิ์การใช้งาน</h4>
+  <table>
+    <thead><tr><th>กลุ่ม</th><th>สิทธิ์</th></tr></thead>
+    <tbody>
+      <tr><td>Document User</td><td>อ่านเอกสารแนบ, หมวดหมู่ และนโยบายได้ (อ่านเท่านั้น)</td></tr>
+      <tr><td>Document Manager</td><td>อ่าน/เพิ่ม/แก้ไข/ลบ หมวดหมู่และนโยบายการเก็บรักษา (สืบทอดสิทธิ์ User)</td></tr>
+      <tr><td>Document Auditor</td><td>กลุ่มสำหรับตรวจสอบ (สืบทอดสิทธิ์ User)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout tip">
+    <strong>เคล็ดลับ:</strong> ตั้ง <span class="pill">นโยบายอายุเริ่มต้น</span> ที่ระดับหมวดหมู่ เพื่อให้เอกสารที่อยู่ในหมวดนั้นได้นโยบายอายุอัตโนมัติ ลดการกรอกซ้ำ
+  </div>
+  <div class="callout warn">
+    <strong>ข้อควรระวัง:</strong> <span class="pill">ครบกำหนดเก็บรักษา</span> เป็นค่าที่คำนวณจาก <span class="pill">วันที่บนเอกสาร</span> + อายุของนโยบาย ถ้าไม่กรอกวันที่บนเอกสาร ระบบจะไม่คำนวณวันครบกำหนดให้
+  </div>
+
+  <hr>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="doc-2"><span class="mtag">od19_document_pull</span> ดึงรายการจากเอกสารต้นทาง (Document Pull)</h3>
+  <p>
+    โมดูลนี้ให้ <strong>กลไกกลางสำหรับ “ดึงรายการ (lines) จากเอกสารต้นทาง”</strong> เข้าสู่เอกสารปลายทาง
+    พร้อมบันทึกความสัมพันธ์ (lineage) และมีตัวช่วยยืนยันก่อนลบรายการที่ดึงมา ช่วยลดการคีย์ซ้ำเมื่อสร้างเอกสารที่อ้างอิงกัน
+  </p>
+
+  <h4>เอกสารที่รองรับ</h4>
+  <table>
+    <thead><tr><th>เอกสารปลายทาง</th><th>เอกสารต้นทางที่ดึงได้</th><th>เงื่อนไข</th></tr></thead>
+    <tbody>
+      <tr><td>ใบวางบิลผู้ขาย (in_invoice)</td><td>ใบสั่งซื้อ</td><td>คู่ค้าตรงกัน และสถานะเป็น ยืนยันแล้ว/เสร็จสิ้น</td></tr>
+      <tr><td>ใบวางบิลผู้ขาย (in_invoice)</td><td>ใบวางบิลเดิม (ที่ลงบัญชีแล้ว)</td><td>คู่ค้าเดียวกัน และลงบัญชีแล้ว</td></tr>
+      <tr><td>ใบวางบิลผู้ขาย (in_invoice)</td><td>ใบรับของ (incoming)</td><td>คู่ค้าเดียวกัน และรับของเสร็จสิ้น (done)</td></tr>
+      <tr><td>ใบแจ้งหนี้ขาย (out_invoice)</td><td>ใบสั่งขาย</td><td>คู่ค้าตรงกัน และสถานะเป็น ยืนยันแล้ว/เสร็จสิ้น</td></tr>
+      <tr><td>ใบแจ้งหนี้ขาย (out_invoice)</td><td>ใบส่งของ (outgoing)</td><td>คู่ค้าเดียวกัน และส่งของเสร็จสิ้น (done)</td></tr>
+      <tr><td>ใบสั่งซื้อ</td><td>ใบขอซื้อ</td><td>สถานะ อนุมัติแล้ว/กำลังดำเนินการ</td></tr>
+    </tbody>
+  </table>
+
+  <h4>เมนูและปุ่ม</h4>
+  <ul>
+    <li>บนฟอร์ม <strong>ใบวางบิล/ใบแจ้งหนี้</strong> มีปุ่ม <span class="badge b-gray">ดึงรายการจากเอกสารต้นทาง</span> และ <span class="badge b-gray">จัดการ/ลบเอกสารต้นทาง</span> (แสดงเมื่อเอกสารยังเป็นฉบับร่าง)</li>
+    <li>บนฟอร์ม <strong>ใบสั่งซื้อ</strong> มีปุ่ม <span class="badge b-gray">Pull Lines</span> และ <span class="badge b-gray">Manage Source</span> (แสดงเมื่อสถานะ ร่าง/ส่งแล้ว)</li>
+    <li>คอลัมน์ในตารางรายการ: <span class="pill">เอกสารต้นทาง</span> แสดงที่มา/จำนวนบรรทัด</li>
+    <li>รายงาน <span class="path">การจัดซื้อ › รายงาน › GRNI ของรับแล้วยังไม่วางบิล</span> — รายการที่รับของแล้วแต่ยังไม่วางบิล</li>
+  </ul>
+
+  <h4>ขั้นตอน — ดึงรายการจากเอกสารต้นทาง</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดเอกสารปลายทาง</span> สร้างหรือเปิดใบวางบิล/ใบแจ้งหนี้/ใบสั่งซื้อที่ยังเป็นฉบับร่าง</li>
+    <li><span class="stitle">กดปุ่มดึงรายการ</span> เลือก <span class="badge b-gray">ดึงรายการจากเอกสารต้นทาง</span> ระบบเปิดหน้าต่างดึงรายการ</li>
+    <li><span class="stitle">เลือกเอกสารต้นทาง</span> เลือก <span class="pill">เอกสารต้นทาง</span> จากรายการที่ตรงเงื่อนไข (คู่ค้า/สถานะ)</li>
+    <li><span class="stitle">เลือกรูปแบบการดึง</span> เลือกโหมด <span class="pill">ทั้งหมดตามลำดับเอกสาร</span> หรือ <span class="pill">เลือกรายบรรทัด</span></li>
+    <li><span class="stitle">ตรวจรายการ</span> ในโหมดเลือกรายบรรทัด ให้ติ๊กเลือกบรรทัดที่ต้องการ (มีคอลัมน์ จำนวนคงเหลือ, ราคา/หน่วย)</li>
+    <li><span class="stitle">กดดึงรายการ</span> กดปุ่ม <span class="badge b-green">ดึงรายการ</span> รายการจะถูกสร้างเข้าเอกสารปลายทางตามลำดับ</li>
+  </ol>
+
+  <h4>สถานะของตัวช่วยดึง/ลบ</h4>
+  <div class="flow">
+    <span class="stp">เลือกเอกสารต้นทาง</span>
+    <span class="arrow">→</span>
+    <span class="stp">ยืนยันการลบ</span>
+    <span class="arrow">→</span>
+    <span class="stp">ลบรายการเสร็จสิ้น</span>
+  </div>
+  <p>หน้าต่าง “จัดการ/ลบเอกสารต้นทาง” มี 2 ขั้นตอน ปุ่ม <span class="badge b-blue">Continue</span>, <span class="badge b-red">ยืนยันการลบ</span> และ <span class="badge b-gray">ย้อนกลับ</span> พร้อมแสดงสรุปจำนวนบรรทัดที่จะลบและตัวอย่างรายการก่อนยืนยัน</p>
+
+  <div class="callout note">
+    <strong>หมายเหตุ:</strong> ระบบดึงเฉพาะบรรทัดที่ “ยังไม่ถูกดึงไปแล้ว” และมีจำนวนคงเหลือ (ยังไม่วางบิล) เพื่อกันข้อมูลซ้ำ
+  </div>
+  <div class="callout warn">
+    <strong>ข้อควรระวัง:</strong> จัดการ/ลบรายการต้นทางได้เฉพาะเมื่อเอกสารปลายทางยังเป็นฉบับร่าง (ใบสั่งซื้อใช้สถานะ ร่าง/ส่งแล้ว) หากเอกสารยืนยันแล้ว ระบบจะไม่อนุญาต
+  </div>
+
+  <hr>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="doc-3"><span class="mtag">od19_document_sequence</span> เลขที่เอกสารไทย (Thai Document Sequence)</h3>
+  <p>
+    โมดูลนี้ต่อยอดจากชุดเลขรันแบบไทยของ OCA (<code>l10n_th_base_sequence</code>) โดยเพิ่ม
+    <strong>ชื่อเดือนภาษาไทย</strong> เข้าไปในตัวแปรของลำดับเลขรัน (Sequence) ทำให้สร้างรูปแบบเลขที่เอกสารไทยได้ยืดหยุ่นขึ้น
+    (เช่น มีชื่อเดือนเต็ม/ย่อ Thai ในเลขที่เอกสาร) ควบคู่กับปีพุทธศักราชที่มีให้อยู่แล้ว
+  </p>
+
+  <h4>ไม่มีเมนูของตัวเอง</h4>
+  <p>
+    โมดูลนี้ไม่มีเมนูเฉพาะ — ทำงานเบื้องหลังโดยขยายความสามารถของ <code>ir.sequence</code> ให้กับทุกลำดับเลขในระบบ
+    ตั้งค่าลำดับได้ที่ <span class="path">การตั้งค่า › เทคนิค › ลำดับเลข (Sequences)</span>
+  </p>
+
+  <h4>ตัวแปรที่ใช้ได้ในรูปแบบเลขรัน</h4>
+  <table>
+    <thead><tr><th>ตัวแปร</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><code>%(month_th)s</code></td><td>ชื่อเดือนภาษาไทยแบบเต็ม (เช่น มกราคม)</td></tr>
+      <tr><td><code>%(month_th_short)s</code></td><td>ชื่อเดือนภาษาไทยแบบย่อ (เช่น ม.ค.)</td></tr>
+      <tr><td><code>%(range_month_th)s</code> / <code>%(range_month_th_short)s</code></td><td>ชื่อเดือนไทยสำหรับช่วงวันที่ (range)</td></tr>
+      <tr><td><code>%(current_month_th)s</code> / <code>%(current_month_th_short)s</code></td><td>ชื่อเดือนไทยของวันที่ปัจจุบัน</td></tr>
+      <tr><td><code>%(range_end_month_th)s</code> / <code>%(range_end_month_th_short)s</code></td><td>ชื่อเดือนไทยของวันสิ้นสุดช่วง (ถ้ามี)</td></tr>
+    </tbody>
+  </table>
+
+  <h4>ขั้นตอน — ตั้งเลขที่เอกสารแบบไทย</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดลำดับเลข</span> ไปที่ <span class="path">การตั้งค่า › เทคนิค › ลำดับเลข</span></li>
+    <li><span class="stitle">เปิดลำดับที่ต้องการ</span> ค้นหาและเปิดรายการลำดับ (เช่น ของใบกำกับภาษี/ใบเสนอราคา)</li>
+    <li><span class="stitle">แก้ Prefix/จำนวนหลัก</span> ปรับช่อง <span class="pill">Prefix</span> และ <span class="pill">Padding</span> ตามรูปแบบที่ต้องการ</li>
+    <li><span class="stitle">แทรกตัวแปรไทย</span> ใส่ <code>%(month_th)s</code> หรือ <code>%(month_th_short)s</code> ในรูปแบบ (ใช้ <code>%(year)s</code> สำหรับปีพุทธศักราชจากชุดฐานไทย)</li>
+    <li><span class="stitle">บันทึกและทดสอบ</span> บันทึก แล้วสร้างเอกสารใหม่เพื่อตรวจรูปแบบเลขที่ออกมา</li>
+  </ol>
+
+  <div class="callout note">
+    <strong>หมายเหตุ:</strong> ตัวแปรชื่อเดือนไทยจะได้ค่าว่างถ้าเดือนอยู่นอกช่วง 1–12 (เช่น วันที่ไม่ถูกต้อง)
+  </div>
+
+  <hr>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="doc-4"><span class="mtag">od19_document_sign</span> การลงนามเอกสารอิเล็กทรอนิกส์ (Document Signing)</h3>
+  <p>
+    โมดูลนี้ให้ระบบ <strong>ส่งเอกสารให้ลงนามอิเล็กทรอนิกส์</strong> ทั้งจากหน้าจอหลังบ้าน (Backend)
+    และจากพอร์ทัลลูกค้า (Portal) — มีเทมเพลตการลงนามพร้อมบทบาทผู้ลงนามเรียงลำดับ, กำหนดเส้นตายการลงนาม,
+    ลงนามหลายคนแบบรวมลายมือชื่อ, ปฏิเสธพร้อมเหตุผล และงานตั้งเวลา (Cron) หมดอายุอัตโนมัติ
+  </p>
+
+  <h4>เมนู</h4>
+  <ul>
+    <li><span class="path">Signing › Documents</span> — รายการเอกสารที่ส่งลงนาม (ผู้ใช้ทั่วไป)</li>
+    <li><span class="path">Signing › Templates</span> — เทมเพลตการลงนาม (ผู้จัดการเท่านั้น)</li>
+  </ul>
+
+  <h4>ขั้นตอน — ส่งเอกสารให้ลงนาม</h4>
+  <ol class="steps">
+    <li><span class="stitle">สร้างเทมเพลต (ครั้งแรก)</span> ที่ <span class="path">Signing › Templates</span> กำหนดชื่อ, เนื้อหาเอกสาร และบทบาทผู้ลงนาม (เรียงตามลำดับ, ระบุผู้ลงนามเริ่มต้นได้)</li>
+    <li><span class="stitle">สร้างเอกสารลงนาม</span> ที่ <span class="path">Signing › Documents</span> กดสร้าง เลือก <span class="pill">เทมเพลต</span> ระบบจะดึงเนื้อหาและสร้างผู้ลงนามตามบทบาทให้อัตโนมัติ</li>
+    <li><span class="stitle">ตรวจเนื้อหาและผู้ลงนาม</span> ปรับ <span class="pill">เนื้อหาเอกสาร</span>, <span class="pill">ผู้ติดต่อหลัก</span>, <span class="pill">อ้างอิง</span> และ <span class="pill">กำหนดลงนามภายใน</span></li>
+    <li><span class="stitle">ตรวจผู้ลงนาม</span> ตรวจว่าผู้ลงนามทุกคนมีผู้ติดต่อและอีเมลครบถ้วน (ระบบบังคับ)</li>
+    <li><span class="stitle">ส่งให้ลงนาม</span> กดปุ่ม <span class="badge b-green">Send for Signature</span> สถานะเปลี่ยนเป็น “ส่งแล้ว” และระบบส่งอีเมลพร้อมลิงก์ให้ผู้ลงนามแต่ละคน</li>
+    <li><span class="stitle">ผู้ลงนามลงนามผ่านพอร์ทัล</span> ผู้ลงนามเปิดลิงก์ ลงนามด้วยชุดลงนาม หรือปฏิเสธพร้อมระบุเหตุผล</li>
+    <li><span class="stitle">ปิดงาน</span> เมื่อผู้ลงนามครบทุกคน เอกสารจะเปลี่ยนเป็น “ลงนามแล้ว” และแนบไฟล์ PDF ที่มีลายมือชื่อเข้าเธรด (Chatter)</li>
+  </ol>
+
+  <h4>สถานะเอกสาร</h4>
+  <div class="flow">
+    <span class="stp">ฉบับร่าง (Draft)</span>
+    <span class="arrow">→</span>
+    <span class="stp">ส่งแล้ว (Sent)</span>
+    <span class="arrow">→</span>
+    <span class="stp">ลงนามแล้ว (Signed)</span>
+  </div>
+  <table>
+    <thead><tr><th>สถานะ</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge b-gray">Draft</span></td><td>ฉบับร่าง ยังไม่ส่งให้ลงนาม แก้ไขเนื้อหา/ผู้ลงนามได้</td></tr>
+      <tr><td><span class="badge b-amber">Sent</span></td><td>ส่งให้ลงนามแล้ว รอผู้ลงนามดำเนินการ</td></tr>
+      <tr><td><span class="badge b-green">Signed</span></td><td>ลงนามครบทุกคนแล้ว</td></tr>
+      <tr><td><span class="badge b-red">Refused</span></td><td>มีผู้ลงนามปฏิเสธ พร้อมเหตุผล</td></tr>
+      <tr><td><span class="badge b-gray">Expired</span></td><td>เลยกำหนดลงนามภายใน ระบบตั้งเวลาเปลี่ยนสถานะให้อัตโนมัติ</td></tr>
+    </tbody>
+  </table>
+
+  <h4>ปุ่มสำคัญบนฟอร์มเอกสาร</h4>
+  <table>
+    <thead><tr><th>ปุ่ม</th><th>การทำงาน</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge b-green">Send for Signature</span></td><td>ส่งเอกสารให้ลงนาม (แสดงเมื่อสถานะฉบับร่าง)</td></tr>
+      <tr><td><span class="badge b-blue">Resend</span></td><td>ส่งซ้ำให้ผู้ลงนามที่ยังไม่ลงนาม (แสดงเมื่อส่งแล้ว)</td></tr>
+      <tr><td><span class="badge b-amber">Mark Expired</span></td><td>ทำเครื่องหมายหมดอายุ (แสดงเมื่อส่งแล้ว)</td></tr>
+      <tr><td><span class="badge b-gray">Reset to Draft</span></td><td>รีเซ็ตกลับฉบับร่าง ล้างลายมือชื่อ (แสดงเมื่อลงนาม/ปฏิเสธ/หมดอายุ)</td></tr>
+      <tr><td><span class="badge b-blue">Print</span></td><td>พิมพ์รายงาน PDF “เอกสารลงนาม” พร้อมตารางลายมือชื่อ</td></tr>
+    </tbody>
+  </table>
+
+  <h4>ฟิลด์สำคัญ</h4>
+  <ul>
+    <li><span class="pill">เลขที่ (Number)</span> — ออกอัตโนมัติรูปแบบ <code>DS-ปี-เลขรัน</code></li>
+    <li><span class="pill">เนื้อหาเอกสาร</span> — ดึงจากเทมเพลต แก้ไขได้</li>
+    <li><span class="pill">ผู้ลงนาม</span> — ตารางผู้ลงนาม (บทบาท, ผู้ติดต่อ, สถานะ, วันที่ลงนาม)</li>
+    <li><span class="pill">ผู้ลงนามถัดไป</span> — ผู้ลงนามคนถัดไปที่ยังไม่ลงนาม (ตามลำดับ)</li>
+    <li><span class="pill">ลายมือชื่อรวม</span> — ลายมือชื่อล่าสุด + ผู้ลงนาม + เวลา (แท็บ Signature)</li>
+  </ul>
+
+  <h4>สิทธิ์การใช้งาน</h4>
+  <table>
+    <thead><tr><th>กลุ่ม</th><th>สิทธิ์</th></tr></thead>
+    <tbody>
+      <tr><td>Document Signing User</td><td>สร้าง/แก้ไข/ส่งเอกสารลงนามและติดตามสถานะ; ดูเทมเพลตได้ (อ่านเท่านั้น)</td></tr>
+      <tr><td>Document Signing Manager</td><td>จัดการเทมเพลตและเอกสารลงนามทั้งหมด (สืบทอดสิทธิ์ User)</td></tr>
+      <tr><td>ผู้ดูแลระบบ (System)</td><td>สืบทอดสิทธิ์ Manager โดยอัตโนมัติ</td></tr>
+    </tbody>
+  </table>
+  <p class="footnote">พอร์ทัล: <span class="path">/my/documents</span> (รายการ), <span class="path">/my/documents/&lt;id&gt;</span> (รายละเอียด), <span class="path">/my/documents/sign/&lt;id&gt;</span> (หน้าลงนาม) — ป้องกันด้วยโทเคนความปลอดภัยแยกต่อผู้ลงนาม</p>
+
+  <div class="callout danger">
+    <strong>ข้อห้าม/ความเสี่ยง:</strong> ผู้ลงนามทุกคนต้องมี “ผู้ติดต่อ” และ “อีเมล” มิฉะนั้นระบบจะไม่ยอมให้ส่ง (ขึ้นข้อผิดพลาด) และผู้ลงนามที่ลงนามแล้วจะลงนามซ้ำไม่ได้
+  </div>
+  <div class="callout tip">
+    <strong>เคล็ดลับ:</strong> ใช้เทมเพลตกับสัญญาที่ใช้ซ้ำบ่อย (เช่น NDA) เพื่อให้ระบบสร้างผู้ลงนามตามบทบาทและลำดับให้ทันทีทุกครั้ง
+  </div>
+
+  <hr>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="doc-5"><span class="mtag">od19_announcement</span> ประกาศองค์กร (Announcement)</h3>
+  <p>
+    โมดูลนี้ใช้ <strong>ประกาศข่าวสารภายในองค์กร</strong> พร้อมเก็บ “หลักฐานการอ่าน (Read Receipts)”
+    และส่งแจ้งเตือนได้หลายช่องทาง (ผ่านระบบแจ้งเตือนรวมขององค์กร)
+    เหมาะกับประกาศทั่วไป ประกาศเตือน และประกาศที่บังคับให้รับทราบ
+  </p>
+
+  <h4>เมนู</h4>
+  <ul>
+    <li><span class="path">Announcements › Announcements</span> — รายการประกาศ</li>
+  </ul>
+
+  <h4>ขั้นตอน — สร้างและเผยแพร่ประกาศ</h4>
+  <ol class="steps">
+    <li><span class="stitle">สร้างประกาศ</span> ที่ <span class="path">Announcements › Announcements</span> กดสร้าง ใส่ <span class="pill">หัวข้อ</span> และ <span class="pill">เนื้อหา</span></li>
+    <li><span class="stitle">เลือกประเภท</span> เลือก <span class="pill">ประเภท</span> — <span class="badge b-blue">ข้อมูล</span>, <span class="badge b-amber">เตือน</span> หรือ <span class="badge b-red">บังคับ</span></li>
+    <li><span class="stitle">กำหนดกลุ่มเป้าหมาย</span> เลือก <span class="pill">เป้าหมาย</span> — ทั้งบริษัท / ตามแผนก / ตามบทบาท แล้วระบุแผนกหรือบทบาทที่เกี่ยวข้อง</li>
+    <li><span class="stitle">ตั้งวันหมดอายุ (ถ้ามี)</span> ใส่ <span class="pill">วันหมดอายุ</span> เพื่อให้ระบบเลิกเผยแพร่อัตโนมัติเมื่อหมดอายุ</li>
+    <li><span class="stitle">เผยแพร่</span> กดปุ่ม <span class="badge b-green">Publish</span> หรือเปิดสวิตช์ <span class="pill">เผยแพร่</span> — ประกาศประเภท “เตือน/บังคับ” จะส่งแจ้งเตือนไปยังกลุ่มเป้าหมายทันที</li>
+    <li><span class="stitle">ติดตามการอ่าน</span> ดูได้ที่แท็บ <span class="pill">Read Receipts</span> ว่ามีใครอ่านแล้วบ้างและอ่านเมื่อไหร่</li>
+  </ol>
+
+  <h4>ฟิลด์สำคัญ</h4>
+  <table>
+    <thead><tr><th>ฟิลด์</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">ประเภท</span></td><td>ข้อมูล / เตือน / บังคับ (ค่าเริ่มต้น = ข้อมูล)</td></tr>
+      <tr><td><span class="pill">เป้าหมาย</span></td><td>ทั้งบริษัท / แผนก / บทบาท</td></tr>
+      <tr><td><span class="pill">วันหมดอายุ</span></td><td>วันที่ระบบจะเลิกเผยแพร่ประกาศอัตโนมัติ</td></tr>
+      <tr><td><span class="pill">เผยแพร่</span> + <span class="pill">วันที่เผยแพร่</span></td><td>สถานะและวันที่เริ่มเผยแพร่ (บันทึกอัตโนมัติ)</td></tr>
+      <tr><td><span class="pill">จำนวนผู้อ่าน</span></td><td>นับจำนวนผู้ที่กดรับทราบประกาศ</td></tr>
+    </tbody>
+  </table>
+
+  <h4>ปุ่มสำคัญ</h4>
+  <ul>
+    <li><span class="badge b-green">Publish</span> — เผยแพร่ประกาศ (แสดงเมื่อยังไม่เผยแพร่)</li>
+    <li><span class="badge b-gray">Unpublish</span> — ยกเลิกการเผยแพร่ (แสดงเมื่อเผยแพร่แล้ว)</li>
+    <li>การ “รับทราบ” จะบันทึก Read Receipt ต่อผู้ใช้หนึ่งคนต่อหนึ่งประกาศ</li>
+  </ul>
+
+  <h4>สิทธิ์และขอบเขต</h4>
+  <table>
+    <thead><tr><th>กลุ่ม</th><th>สิทธิ์</th></tr></thead>
+    <tbody>
+      <tr><td>ผู้ใช้ทั่วไป (User)</td><td>อ่านประกาศ (อ่านเท่านั้น) และบันทึกการรับทราบของตัวเองได้</td></tr>
+      <tr><td>ผู้ดูแลระบบ (System)</td><td>สร้าง/แก้ไข/ลบ/เผยแพร่ประกาศได้ทั้งหมด</td></tr>
+      <tr><td>ขอบเขตแผนก</td><td>ผู้ใช้ที่มีบทบาทลึกระดับแผนกจะเห็นเฉพาะประกาศของแผนกตัวเองและประกาศที่ไม่ระบุแผนก</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout note">
+    <strong>หมายเหตุ:</strong> งานตั้งเวลาประจำวันจะเลิกเผยแพร่ประกาศที่เลยวันหมดอายุให้อัตโนมัติ
+  </div>
+  <div class="callout warn">
+    <strong>ข้อควรระวัง:</strong> ประกาศจะส่งแจ้งเตือนอัตโนมัติเฉพาะประเภท “เตือน” และ “บังคับ” ประกาศประเภท “ข้อมูล” จะไม่ส่งแจ้งเตือน
+  </div>
+
+  <hr>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="doc-6"><span class="mtag">od19_knowledge_enhanced</span> คลังความรู้ (Knowledge Enhanced)</h3>
+  <p>
+    โมดูลนี้ยกระดับ <strong>คลังความรู้ภายในองค์กร</strong> ให้ฉลาดขึ้น โดยขยายโมเดลหน้าความรู้
+    (<code>document.page</code>) เพิ่มหมวดหมู่ความรู้, คำค้น, การค้นหาแบบข้อความเต็ม และเทมเพลตบทความ
+    พร้อมผูกกับตั๋วบริการ (Helpdesk) เพื่อสร้างบทความจากเคสที่แก้ไขแล้ว
+  </p>
+
+  <h4>เมนู</h4>
+  <ul>
+    <li><span class="path">Knowledge › Articles</span> — บทความความรู้ (อยู่ภายในแอป Knowledge ที่มีอยู่แล้ว)</li>
+  </ul>
+
+  <h4>ขั้นตอน — สร้างบทความความรู้</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดคลังความรู้</span> ไปที่ <span class="path">Knowledge › Articles</span></li>
+    <li><span class="stitle">สร้างบทความ</span> กดสร้าง กำหนด <span class="pill">ชื่อบทความ</span> และเนื้อหา</li>
+    <li><span class="stitle">จัดหมวดความรู้</span> เลือก <span class="pill">หมวดความรู้</span> — <span class="badge b-blue">ขั้นตอน (Procedure)</span>, <span class="badge b-amber">แก้ปัญหา (Troubleshooting)</span>, FAQ หรือ ทั่วไป</li>
+    <li><span class="stitle">ใส่คำค้น</span> กรอก <span class="pill">คำค้น</span> (คั่นด้วยจุลภาค) เพื่อให้ค้นเจอง่ายขึ้น</li>
+    <li><span class="stitle">ตั้งค่าฉุกเฉิน (ถ้ามี)</span> เปิด <span class="pill">ฉุกเฉิน</span> สำหรับบทความที่ต้องเข้าถึงด่วน</li>
+    <li><span class="stitle">ผูกกับตั๋ว (ถ้ามี)</span> เลือก <span class="pill">ตั๋วต้นทาง</span> เมื่อสร้างบทความจากเคส Helpdesk</li>
+    <li><span class="stitle">บันทึก</span> ระบบจะสร้างข้อความล้วน (Content plain) ให้อัตโนมัติเพื่อช่วยค้นหา</li>
+  </ol>
+
+  <h4>ฟิลด์สำคัญ</h4>
+  <table>
+    <thead><tr><th>ฟิลด์</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">หมวดความรู้</span></td><td>ขั้นตอน / แก้ปัญหา / FAQ / ทั่วไป (ค่าเริ่มต้น = ทั่วไป)</td></tr>
+      <tr><td><span class="pill">คำค้น</span></td><td>คำสำคัญคั่นด้วยจุลภาค ช่วยการค้นหา</td></tr>
+      <tr><td><span class="pill">ฉุกเฉิน</span></td><td>ทำเครื่องหมายบทความที่ต้องเข้าถึงด่วน</td></tr>
+      <tr><td><span class="pill">ตั๋วต้นทาง</span></td><td>ลิงก์ไปยังตั๋ว Helpdesk ต้นทาง</td></tr>
+      <tr><td><span class="pill">เนื้อหา (ล้วน)</span></td><td>ข้อความล้วนที่สกัดจากเนื้อหา ใช้เพิ่มประสิทธิภาพการค้นหา (คำนวณอัตโนมัติ)</td></tr>
+    </tbody>
+  </table>
+
+  <h4>การค้นหาและตัวกรอง</h4>
+  <ul>
+    <li>ค้นหาได้จาก ชื่อ, คำค้น, เนื้อหา (ล้วน) และหมวดความรู้</li>
+    <li>ตัวกรองสำเร็จรูป: <span class="badge b-red">ฉุกเฉิน</span>, <span class="badge b-blue">ขั้นตอน</span>, <span class="badge b-amber">แก้ปัญหา</span></li>
+    <li>จัดกลุ่มตาม หมวด หรือ ผู้เขียน (Contributor)</li>
+    <li>มีเทมเพลตบทความ “แก้ปัญหา” (Problem / Cause / Solution / Prevention) ให้ใช้เป็นโครงเริ่มต้น</li>
+  </ul>
+
+  <h4>สิทธิ์การใช้งาน</h4>
+  <table>
+    <thead><tr><th>กลุ่ม</th><th>สิทธิ์</th></tr></thead>
+    <tbody>
+      <tr><td>ผู้ใช้ทั่วไป</td><td>อ่าน/เขียน/สร้างบทความความรู้ (ไม่มีสิทธิ์ลบ)</td></tr>
+      <tr><td>ผู้ดูแลระบบ (System)</td><td>อ่าน/เขียน/สร้าง/ลบบทความได้ทั้งหมด</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout tip">
+    <strong>เคล็ดลับ:</strong> ใช้ <span class="pill">ตั๋วต้นทาง</span> เพื่อเชื่อมโยงบทความกับเคส Helpdesk — ช่วยให้เกิดคลังความรู้ที่โตจากงานบริการจริง
+  </div>
+  <div class="callout note">
+    <strong>หมายเหตุ:</strong> แอป Knowledge ถูกกำหนดให้ผู้ใช้ภายในทุกคนมองเห็นอัตโนมัติ จึงไม่ต้องตั้งสิทธิ์เพิ่มเพื่อเข้าถึงเมนู
+  </div>
+
+</section>

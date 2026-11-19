@@ -60,6 +60,7 @@ from steps import (  # noqa: E402
     s08_opening,
     s09_sequences,
     s10_attachments,
+    s11_outstanding_real_docs,
 )
 
 # ทะเบียน step ตามลำดับการโหลดที่กำหนด (ห้ามสลับลำดับ)
@@ -75,6 +76,8 @@ STEPS = (
     ('s08_opening', s08_opening, 'ยอดยกมา: AR/AP/สินค้า/สินทรัพย์/WHT/เบิกล่วงหน้า/เช็ค'),
     ('s09_sequences', s09_sequences, 'ความต่อเนื่องของเลขรัน (Sequence)'),
     ('s10_attachments', s10_attachments, 'ไฟล์แนบของข้อมูลที่ย้ายแล้ว (ir.attachment)'),
+    ('s11_outstanding_real_docs', s11_outstanding_real_docs,
+     'เอกสารจริงลูกหนี้/เจ้าหนี้คงค้าง ณ วันตัดยอด (ลบชั้นข้อมูลซ้ำ + สร้างใบจริง + JE entry)'),
 )
 
 _ALL_IDS = [s[0] for s in STEPS]

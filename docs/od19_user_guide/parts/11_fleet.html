@@ -1,0 +1,313 @@
+<!--Part
+id=fleet
+title=ยานพาหนะและขนส่ง
+icon=🚚
+sub=ทะเบียนรถและต้นทุนค่าใช้จ่ายรถ · แจ้งเตือนวันหมดอายุประกัน/ภาษี (Act) · ใบขนส่ง เส้นทาง และการส่งของ
+-->
+
+<section class="part" id="fleet">
+
+  <div class="part-head">
+    <h2 class="part-title"><span class="part-icon">🚚</span> ส่วนที่ 11 · ยานพาหนะและขนส่ง</h2>
+    <p class="part-sub">
+      ดูแล<b>ยานพาหนะ</b>ขององค์กรตั้งแต่ทะเบียนรถ การผูกค่าใช้จ่ายเข้ากับแผนกและบัญชีวิเคราะห์ พร้อม<b>แจ้งเตือนล่วงหน้า</b>
+      เมื่อประกันหรือภาษี (พ.ร.บ./Act) ใกล้หมดอายุ และเมื่อการซ่อมบำรุงเสร็จสิ้น · อีกทั้งครอบคลุมงาน<b>ขนส่ง</b>
+      ผ่านใบขนส่ง (Transport Order) ที่ผูกกับรถ พนักงานขับ เส้นทาง และใบโอนย้ายสินค้า พร้อมการอนุมัติเมื่อมูลค่าขนส่งสูง
+    </p>
+  </div>
+
+  <nav class="toc mini">
+    <h3>สารบัญส่วนนี้</h3>
+    <ol>
+      <li><a href="#fleet-1">บัญชีและต้นทุนยานพาหนะ</a></li>
+      <li><a href="#fleet-2">แจ้งเตือนประกัน/ภาษี (Act) และงานซ่อม</a></li>
+      <li><a href="#fleet-3">ใบขนส่ง เส้นทาง และการส่งของ</a></li>
+    </ol>
+  </nav>
+
+  <h3 class="mod" id="fleet-1"><span class="mtag">od19_fleet_accounting</span> บัญชีและต้นทุนยานพาหนะ</h3>
+  <p>
+    โมดูลนี้ต่อยอดจากแอป <strong>Fleet</strong> (ยานพาหนะ) มาตรฐานของ Odoo เพื่อให้สามารถ
+    <b>จำแนกและปันส่วนค่าใช้จ่ายของรถ</b> ได้อย่างเป็นระบบ — ผูกรถเข้ากับ <span class="pill">แผนก</span>
+    และ <span class="pill">บัญชีวิเคราะห์</span> กำหนด<b>หมวดหมู่ค่าใช้จ่าย</b>เริ่มต้นของรถ และคำนวณ
+    <b>ต้นทุนรวม</b>ของรถจากรายการซ่อม/บริการทั้งหมด
+  </p>
+
+  <h4>วัตถุประสงค์</h4>
+  <ul>
+    <li>กำหนดหมวดหมู่ค่าใช้จ่ายของรถ (น้ำมัน, ซ่อมบำรุง, ประกัน, ทะเบียน/ภาษี, ทางด่วน/ที่จอด, ล้างรถ, ค่าเสื่อมราคา, อื่น ๆ)</li>
+    <li>ผูกค่าใช้จ่ายรถเข้ากับ <b>แผนก</b> และ <b>บัญชีวิเคราะห์</b> เพื่อนำไปวิเคราะห์ต้นทุนอย่างถูกต้อง</li>
+    <li>เห็นต้นทุนรวมของรถแต่ละคันแบบอัตโนมัติ</li>
+  </ul>
+
+  <h4>เมนู</h4>
+  <p>
+    อยู่ภายใต้แอปยานพาหนะ: <span class="path">ยานพาหนะ › รถยนต์ › Fleet Accounting › Expense Categories</span>
+    (เมนูการตั้งค่าของโมดูลนี้เห็นเฉพาะผู้จัดการฝ่ายยานพาหนะ)
+  </p>
+
+  <h4>ข้อมูลที่ถูกเพิ่มบนใบรถและรายการซ่อม</h4>
+  <table>
+    <thead><tr><th>โมเดล</th><th>ฟิลด์ที่เพิ่ม</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>รถยนต์ (<code>fleet.vehicle</code>)</td>
+        <td><span class="pill">Department</span> · <span class="pill">Analytic Account</span> · <span class="pill">Default Expense Category</span> · <span class="pill">Total Expense</span></td>
+        <td>แผนกที่รถสังกัด, บัญชีวิเคราะห์, หมวดหมู่ค่าใช้จ่ายเริ่มต้น และยอดค่าใช้จ่ายรวม (คำนวณให้อัตโนมัติ)</td>
+      </tr>
+      <tr>
+        <td>รายการซ่อม/บริการ (<code>fleet.vehicle.log.services</code>)</td>
+        <td><span class="pill">Expense Category</span> · <span class="pill">Analytic Account</span> · <span class="pill">Department</span></td>
+        <td>หมวดหมู่ค่าใช้จ่ายของรายการนั้น พร้อมแผนกและบัญชีวิเคราะห์ที่ใช้ปันส่วนต้นทุน</td>
+      </tr>
+      <tr>
+        <td>หมวดหมู่ค่าใช้จ่าย (<code>od19.vehicle.expense.category</code>)</td>
+        <td><span class="pill">Name</span> · <span class="pill">Code</span> · <span class="pill">Expense Type</span> · <span class="pill">Expense Account</span> · <span class="pill">Active</span></td>
+        <td>รหัสและชื่อหมวดหมู่, ประเภทค่าใช้จ่าย, บัญชีค่าใช้จ่ายปลายทางที่ผูกไว้ และสถานะใช้งาน</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="footnote">
+    ประเภทค่าใช้จ่าย (<code>expense_type</code>) มีให้เลือก: น้ำมัน (fuel), ซ่อมบำรุง (maintenance),
+    ประกัน (insurance), ทะเบียนและภาษี (registration), ทางด่วน/ที่จอด (toll), ล้างรถ (washing),
+    ค่าเสื่อมราคา (depreciation) และอื่น ๆ (other)
+  </p>
+
+  <h4>ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">สร้างหมวดหมู่ค่าใช้จ่ายของรถ</span>
+      ไปที่ <span class="path">ยานพาหนะ › Fleet Accounting › Expense Categories</span> แล้วกดสร้างใหม่
+      กรอกชื่อ (Name), รหัส (Code), เลือกประเภทค่าใช้จ่าย (Expense Type) และผูกบัญชีค่าใช้จ่าย (Expense Account)
+      โดยบัญชีที่เลือกได้จะจำกัดเฉพาะประเภทบัญชี <code>expense</code> หรือ <code>expense_direct_cost</code></li>
+    <li><span class="stitle">ตั้งค่าเริ่มต้นบนใบรถ</span>
+      เปิดฟอร์มรถยนต์ ส่วน <strong>Accounting</strong> กำหนด <span class="pill">Department</span>,
+      <span class="pill">Default Expense Category</span> และ <span class="pill">Analytic Account</span>
+      ระบบจะแสดง <span class="pill">Total Expense</span> เป็นยอดรวมของทุกรายการซ่อม/บริการให้อัตโนมัติ</li>
+    <li><span class="stitle">บันทึกรายการซ่อม/บริการ</span>
+      สร้างรายการใน <code>fleet.vehicle.log.services</code> เมื่อเลือกรถ ระบบจะ<b>เติมค่าอัตโนมัติ</b>
+      (แผนก, บัญชีวิเคราะห์, หมวดหมู่ค่าใช้จ่าย) ตามค่าเริ่มต้นของรถ — ปรับแก้เป็นรายรายการได้</li>
+    <li><span class="stitle">ตรวจสอบต้นทุน</span>
+      กลับไปที่ใบรถเพื่อดูยอด <span class="pill">Total Expense</span> ที่รวมทุกรายการแล้ว หรือใช้มุมมองรายการซ่อมที่เพิ่มคอลัมน์หมวดหมู่และแผนก</li>
+  </ol>
+
+  <h4>สิทธิ์การใช้งาน</h4>
+  <table>
+    <thead><tr><th>กลุ่มผู้ใช้</th><th>สิทธิ์บนหมวดหมู่ค่าใช้จ่าย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge b-blue">Fleet / User</span></td><td>อ่าน · สร้าง · แก้ไข (ลบไม่ได้)</td></tr>
+      <tr><td><span class="badge b-green">Fleet / Manager</span></td><td>อ่าน · สร้าง · แก้ไข · ลบ (เต็มรูปแบบ)</td></tr>
+    </tbody>
+  </table>
+  <p>
+    โมดูลนี้ยังติดตั้ง <b>กฎขอบเขตตามแผนก</b> บนโมเดลรถยนต์: ผู้ใช้ที่มีบทบาทขอบเขตแผนก
+    (<code>group_od19_department_scope</code>) จะเห็นเฉพาะรถของแผนกตัวเองและรถที่ยัง<b>ไม่ระบุแผนก</b>
+    (เพื่อความปลอดภัยของข้อมูล) ส่วนผู้ใช้ระดับบริหาร/บัญชี/คลัง (<code>group_od19_department_all</code>)
+    จะเห็นรถทุกแผนก
+  </p>
+  <div class="callout warn">
+    เนื่องจากการเห็นรายการอิงตามแผนก ถ้าเปิดฟอร์มรถแล้วไม่พบรถบางคัน ให้ตรวจว่า
+    <span class="pill">Department</span> ของรถถูกกำหนดไว้แผนกใด และบัญชีผู้ใช้มีบทบาทขอบเขตแผนกใดอยู่
+  </div>
+
+  <h3 class="mod" id="fleet-2"><span class="mtag">od19_fleet_notification</span> แจ้งเตือนประกัน/ภาษี (Act) และงานซ่อม</h3>
+  <p>
+    โมดูลนี้เพิ่มการ<b>แจ้งเตือนอัตโนมัติ</b>ที่เกี่ยวกับรถยนต์ 2 เรื่องหลัก คือ
+    (1) วันหมดอายุของ<b>ประกันภัย</b>และ<b>ภาษี/พ.ร.บ. (Act)</b> โดยเตือนล่วงหน้าตามจำนวนวันที่กำหนด
+    และ (2) แจ้งเตือนเมื่อ<b>งานซ่อม/บริการเสร็จสิ้น</b> ให้ผู้จัดการรถและพนักงานขับทราบ
+  </p>
+
+  <h4>วัตถุประสงค์</h4>
+  <ul>
+    <li>บันทึกวันหมดอายุประกันและภาษี (Act) ของรถแต่ละคัน</li>
+    <li>ตั้งจำนวนวันล่วงหน้าที่ต้องการให้แจ้งเตือนก่อนวันหมดอายุได้เอง</li>
+    <li>ส่งอีเมล/การแจ้งเตือนสรุปให้ผู้จัดการยานพาหนะเป็น<b>รอบรายสัปดาห์</b></li>
+    <li>แจ้งเตือนทันทีเมื่อมีรายการซ่อมที่ปรับสถานะเป็น “เสร็จสิ้น”</li>
+  </ul>
+
+  <h4>เมนู</h4>
+  <p>
+    โมดูลนี้<b>ไม่มีเมนูแยกของตัวเอง</b> — ฟิลด์และตัวแจ้งเตือนถูกเพิ่มเข้าไปใน<b>ฟอร์มรถยนต์</b>มาตรฐานโดยตรง
+    ในแท็บใหม่ชื่อ <span class="pill">Insurance &amp; Act</span> ภายใต้ <span class="path">ยานพาหนะ › รถยนต์</span>
+  </p>
+
+  <h4>ฟิลด์สำคัญบนใบรถ</h4>
+  <table>
+    <thead><tr><th>ฟิลด์</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">Insurance Expiry Date</span> / วันที่หมดอายุประกัน</td><td>วันหมดอายุของกรมธรรม์ประกันภัยรถ</td></tr>
+      <tr><td><span class="pill">Act Expiry Date</span> / วันที่หมดอายุภาษี (Act)</td><td>วันหมดอายุของภาษี/พ.ร.บ. รถ</td></tr>
+      <tr><td><span class="pill">Insurance Reminder Days</span></td><td>จำนวนวันล่วงหน้าก่อนหมดอายุประกันที่จะเริ่มเตือน (ค่าเริ่มต้น 30 วัน)</td></tr>
+      <tr><td><span class="pill">Act Reminder Days</span></td><td>จำนวนวันล่วงหน้าก่อนหมดอายุภาษีที่จะเริ่มเตือน (ค่าเริ่มต้น 30 วัน)</td></tr>
+      <tr><td><span class="pill">Service Done Notified</span><br><span class="footnote">(บนรายการซ่อม/บริการ)</span></td><td>บันทึกว่าการแจ้งเตือน “ซ่อมเสร็จ” ของรายการนั้นถูกส่งไปแล้ว เพื่อกันส่งซ้ำ</td></tr>
+    </tbody>
+  </table>
+
+  <h4>ลำดับการทำงาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">กรอกวันหมดอายุบนใบรถ</span>
+      เปิดฟอร์มรถยนต์แท็บ <span class="pill">Insurance &amp; Act</span> กรอกวันหมดอายุประกันและภาษี (Act)
+      พร้อมจำนวนวันล่วงหน้าที่ต้องการให้เตือนในแต่ละด้าน</li>
+    <li><span class="stitle">รอรอบแจ้งเตือนรายสัปดาห์ (อัตโนมัติ)</span>
+      ระบบตั้งเวลา (cron) ทำงานสัปดาห์ละครั้ง เพื่อตรวจรถทุกคันที่มีวันหมดอายุ แล้วรวบรวมรายการที่ “ใกล้ถึง/เลยกำหนด” ตามจำนวนวันเตือนที่ตั้งไว้</li>
+    <li><span class="stitle">ระบบส่งการแจ้งเตือนให้ผู้จัดการ</span>
+      ผู้รับคือผู้ใช้ในกลุ่ม <b>Fleet / Manager</b> (และผู้รับสำรองที่กำหนดระดับบริษัทถ้ามี) โดยส่งผ่านระบบแจ้งเตือนหลายช่องทาง
+      (<code>notification.service</code>) หากติดตั้งไว้ มิฉะนั้นจะส่งอีเมลผ่านเทมเพลตแทน</li>
+    <li><span class="stitle">แจ้งเตือนเมื่อซ่อมเสร็จ</span>
+      เมื่อเปลี่ยนสถานะของรายการซ่อม/บริการเป็น <b>เสร็จสิ้น (done)</b> ระบบจะส่งการแจ้งเตือนให้<b>ผู้จัดการรถและพนักงานขับ</b>ของรถคันนั้น
+      พร้อมบันทึกข้อความไว้ในประวัติ (chatter) ของรายการซ่อมเพื่อการตรวจสอบย้อนหลัง</li>
+  </ol>
+
+  <div class="grid two">
+    <div class="tile"><div class="t">📅 เตือนล่วงหน้าก่อนหมดอายุ</div><p>กำหนดจำนวนวันเตือนแยกได้ทั้งประกันและภาษี (ค่าเริ่มต้น 30 วัน)</p></div>
+    <div class="tile"><div class="t">🔴 แจ้งเมื่อเลยกำหนดแล้ว</div><p>รายการที่หมดอายุแล้วจะแสดงสถานะ “หมดอายุแล้ว X วัน” และเน้นสีแดงในอีเมล</p></div>
+    <div class="tile"><div class="t">🔧 แจ้งเมื่อซ่อมเสร็จ</div><p>ส่งให้ผู้จัดการรถและพนักงานขับ พร้อมรายละเอียดประเภทงาน วัน และค่าใช้จ่าย</p></div>
+    <div class="tile"><div class="t">🔔 รองรับหลายช่องทาง</div><p>ใช้ระบบแจ้งเตือนหลายช่องทางเมื่อมี ถ้าไม่มีจะใช้เทมเพลตอีเมลสำรอง</p></div>
+  </div>
+
+  <div class="callout note">
+    <strong>ผู้รับการแจ้งเตือน:</strong> ระบบเลือกผู้รับจากกลุ่ม <b>Fleet / Manager</b> โดยอัตโนมัติ
+    หากกำหนดผู้รับสำรอง (<span class="pill">od19_fleet_notification_recipient_id</span>) ที่ระดับบริษัทไว้
+    จะถูกรวมเป็นผู้รับเพิ่มด้วย — และผู้รับต้องมีอีเมลจึงจะได้รับการแจ้งเตือนทางอีเมล
+  </div>
+  <div class="callout warn">
+    ถ้าไม่มีผู้จัดการยานพาหนะในระบบ (และไม่ได้ตั้งผู้รับสำรอง) ระบบจะ<b>ไม่ส่ง</b>การแจ้งเตือน
+    และจะบันทึกเป็นเพียงข้อความในบันทึกระบบเท่านั้น จึงควรมีผู้ใช้กลุ่ม Fleet / Manager อย่างน้อย 1 คนเสมอ
+  </div>
+
+  <h3 class="mod" id="fleet-3"><span class="mtag">od19_transportation</span> ใบขนส่ง เส้นทาง และการส่งของ</h3>
+  <p>
+    โมดูลนี้จัดการงาน<b>ขนส่ง</b>โดยตรง ผ่านเอกสาร <b>ใบขนส่ง (Transport Order)</b> ที่ผูกกับรถ (จากแอป Fleet)
+    พนักงานขับ (จากแอป HR) เส้นทาง (Transport Route) และ<b>ใบโอนย้ายสินค้า (Transfer)</b> ของคลังสินค้า
+    เพื่อติดตามการส่งของตั้งแต่เริ่มต้นจนถึงปลายทาง พร้อมมุมมองเส้นทางมาตรฐานสำหรับใช้ซ้ำ
+  </p>
+
+  <h4>วัตถุประสงค์</h4>
+  <ul>
+    <li>สร้างใบขนส่งระบุต้นทาง-ปลายทาง ระยะทาง และค่าขนส่ง</li>
+    <li>ผูกใบขนส่งเข้ากับรถ พนักงานขับ รวมถึงใบโอนย้ายสินค้าที่เกี่ยวข้อง</li>
+    <li>ติดตามสถานะการขนส่งตั้งแต่ร่าง → อนุมัติ → ระหว่างทาง → ส่งถึง</li>
+    <li>กำหนดเกณฑ์<b>อนุมัติตามมูลค่าขนส่ง</b>ด้วยกลไกอนุมัติหลายชั้น</li>
+  </ul>
+
+  <h4>เมนู</h4>
+  <p>
+    อยู่ภายใต้แอปคลังสินค้า: <span class="path">คลังสินค้า › การดำเนินการ › Transportation › Transport Orders</span>
+    และ <span class="path">คลังสินค้า › การดำเนินการ › Transportation › Transport Routes</span>
+  </p>
+
+  <h4>สถานะของใบขนส่ง</h4>
+  <div class="flow">
+    <span class="stp">ร่าง (Draft)</span>
+    <span class="arrow">→</span>
+    <span class="stp">รออนุมัติ (Waiting Approval)</span>
+    <span class="arrow">→</span>
+    <span class="stp">ยืนยัน (Confirmed)</span>
+    <span class="arrow">→</span>
+    <span class="stp">ระหว่างขนส่ง (In Transit)</span>
+    <span class="arrow">→</span>
+    <span class="stp">ส่งถึงแล้ว (Delivered)</span>
+  </div>
+  <table>
+    <thead><tr><th>สถานะ</th><th>ความหมาย / สิ่งที่เกิด</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge b-gray">Draft</span></td><td>เอกสารใหม่ ยังไม่ยืนยัน — เลขที่ออกอัตโนมัติรูปแบบ <code>TO/ปี/เลขรัน</code></td></tr>
+      <tr><td><span class="badge b-amber">Waiting Approval</span></td><td>รออนุมัติ เพราะค่าขนส่งถึงเกณฑ์ที่ต้องอนุมัติ (ดูหัวข้อถัดไป)</td></tr>
+      <tr><td><span class="badge b-blue">Confirmed</span></td><td>ยืนยันแล้ว พร้อมออกเดินทาง</td></tr>
+      <tr><td><span class="badge b-green">In Transit</span></td><td>เริ่มขนส่ง บันทึกเวลาออกเดินทางอัตโนมัติ</td></tr>
+      <tr><td><span class="badge b-green">Delivered</span></td><td>ส่งถึงปลายทาง บันทึกเวลาถึงอัตโนมัติ</td></tr>
+      <tr><td><span class="badge b-red">Cancelled</span></td><td>ยกเลิก (ยกเลิกได้ทุกสถานะ ยกเว้นที่ส่งถึงแล้ว)</td></tr>
+    </tbody>
+  </table>
+
+  <h4>ฟิลด์สำคัญบนใบขนส่ง</h4>
+  <table>
+    <thead><tr><th>ฟิลด์</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">Reference</span></td><td>เลขที่ใบขนส่ง ออกอัตโนมัติ (<code>TO/ปี/…</code>) แก้ไขไม่ได้</td></tr>
+      <tr><td><span class="pill">Date</span></td><td>วันที่ของใบขนส่ง (ค่าเริ่มต้น = วันนี้)</td></tr>
+      <tr><td><span class="pill">Vehicle / Driver</span></td><td>รถและพนักงานขับ (ต้องระบุทั้งสองก่อนยืนยัน)</td></tr>
+      <tr><td><span class="pill">Route / Origin / Destination</span></td><td>เส้นทางอ้างอิง และต้นทาง/ปลายทาง (ต้นทาง-ปลายทางจำเป็นต้องกรอก)</td></tr>
+      <tr><td><span class="pill">Distance (km)</span></td><td>ระยะทางเป็นกิโลเมตร</td></tr>
+      <tr><td><span class="pill">Transport Cost</span> / <span class="pill">Currency</span></td><td>ค่าขนส่งและสกุลเงิน (มีผลต่อเกณฑ์การอนุมัติ)</td></tr>
+      <tr><td><span class="pill">Transfers</span></td><td>รายการใบโอนย้ายสินค้า (stock.picking) ที่ผูกกับใบขนส่งนี้</td></tr>
+      <tr><td><span class="pill">Departure / Arrival Time</span></td><td>เวลาออกเดินทาง/ถึงปลายทาง (บันทึกอัตโนมัติเมื่อเปลี่ยนสถานะ)</td></tr>
+      <tr><td><span class="pill">Notes</span></td><td>หมายเหตุเพิ่มเติม</td></tr>
+    </tbody>
+  </table>
+
+  <h4>ฟิลด์ของเส้นทาง (Transport Route)</h4>
+  <p>
+    ใช้เก็บเส้นทางมาตรฐานเพื่อเรียกใช้ซ้ำ: <span class="pill">Route Name</span>, <span class="pill">Code</span>,
+    <span class="pill">Origin</span>, <span class="pill">Destination</span>, <span class="pill">Distance (km)</span>,
+    <span class="pill">Estimated Hours</span> และ <span class="pill">Active</span>
+  </p>
+
+  <h4>ปุ่มการทำงาน</h4>
+  <table>
+    <thead><tr><th>ปุ่ม</th><th>การทำงาน</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge b-blue">Confirm</span> (ยืนยัน)</td><td>ต้องมีรถและพนักงานขับก่อน ถ้าค่าขนส่งถึงเกณฑ์อนุมัติ เอกสารจะไปสถานะ “รออนุมัติ” แทน</td></tr>
+      <tr><td><span class="badge b-blue">Start Transit</span> (เริ่มขนส่ง)</td><td>ใช้ได้เมื่อสถานะ “ยืนยัน” แล้ว — บันทึกเวลาออกเดินทาง</td></tr>
+      <tr><td><span class="badge b-green">Deliver</span> (ส่งถึง)</td><td>ใช้ได้เมื่ออยู่ระหว่างขนส่ง — บันทึกเวลาถึง</td></tr>
+      <tr><td><span class="badge b-red">Cancel</span> (ยกเลิก)</td><td>ยกเลิกใบขนส่ง (ยกเลิกเอกสารที่ส่งถึงแล้วไม่ได้)</td></tr>
+    </tbody>
+  </table>
+
+  <h4>ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">เตรียมเส้นทาง (ถ้าต้องการ)</span>
+      สร้างเส้นทางล่วงหน้าที่ <span class="path">คลังสินค้า › Transportation › Transport Routes</span>
+      ระบุต้นทาง ปลายทาง ระยะทาง และเวลาที่คาดว่าจะใช้</li>
+    <li><span class="stitle">สร้างใบขนส่งและกรอกรายละเอียด</span>
+      สร้างที่ <span class="path">คลังสินค้า › Transportation › Transport Orders</span>
+      กรอกวันที่ เลือกรถ พนักงานขับ เส้นทาง ต้นทาง-ปลายทาง ระยะทาง และค่าขนส่ง</li>
+    <li><span class="stitle">ผูกใบโอนย้ายสินค้า (ถ้ามี)</span>
+      ในแท็บ <span class="pill">Transfers</span> เชื่อมรายการโอนย้ายสินค้าที่จะให้ขนส่ง (หรือผูกจากด้านใบโอนย้ายโดยตรง — ดูหัวข้อถัดไป)</li>
+    <li><span class="stitle">ยืนยันใบขนส่ง</span>
+      กด <b>Confirm</b> — ถ้าค่าขนส่งไม่ถึงเกณฑ์อนุมัติ เอกสารจะยืนยันทันที มิฉะนั้นจะเข้าสู่สถานะ “รออนุมัติ”</li>
+    <li><span class="stitle">อนุมัติ (กรณีค่าขนส่งสูง)</span>
+      ผู้มีสิทธิ์อนุมัติ (ผู้จัดการคลังสินค้า) ทำการอนุมัติตามกระบวนการ จากนั้นกด <b>Confirm</b> อีกครั้งเพื่อยืนยัน</li>
+    <li><span class="stitle">เริ่มขนส่งและส่งถึง</span>
+      กด <b>Start Transit</b> เพื่อเริ่ม และ <b>Deliver</b> เมื่อถึงปลายทาง (ระบบบันทึกเวลาให้อัตโนมัติ)</li>
+  </ol>
+
+  <h4>การอนุมัติตามมูลค่าขนส่ง (Tier Validation)</h4>
+  <p>เกณฑ์อนุมัติที่ตั้งไว้ล่วงหน้าในระบบเป็นดังนี้:</p>
+  <table>
+    <thead><tr><th>ค่าขนส่ง (สกุลเงินบริษัท)</th><th>ผลลัพธ์เมื่อกดยืนยัน</th></tr></thead>
+    <tbody>
+      <tr><td>น้อยกว่า 50,000</td><td>ยืนยันได้ทันที ไม่ต้องอนุมัติ</td></tr>
+      <tr><td>50,000 ขึ้นไป</td><td>ต้องได้รับการอนุมัติจาก <b>ผู้จัดการคลังสินค้า</b> (Stock Manager) ก่อน จึงจะยืนยันได้</td></tr>
+    </tbody>
+  </table>
+  <div class="callout note">
+    ถ้ายืนยันใบขนส่งที่ยังรออนุมัติอยู่ ระบบจะแจ้งเตือนว่าต้องรอการอนุมัติตามชั้นให้ครบก่อน
+    เมื่อชั้นอนุมัติครบแล้วจึงกดยืนยันซ้ำได้ — รายการที่รออนุมัติจะปรากฏในศูนย์อนุมัติกลาง (Approval Center)
+  </div>
+
+  <h4>การเชื่อมโยงกับใบโอนย้ายสินค้า</h4>
+  <p>
+    ใบโอนย้ายสินค้า (<code>stock.picking</code>) มีฟิลด์ <span class="pill">Transport Order</span> ให้เลือกผูกกับใบขนส่ง
+    และมีปุ่มเรียกดู <b>Transport Orders</b> เพื่อเปิดดูใบขนส่งที่เกี่ยวข้องกับใบโอนย้ายนั้น ช่วยให้เชื่อมโยงงานคลัง
+    กับการขนส่งเข้าด้วยกัน
+  </p>
+
+  <h4>สิทธิ์การใช้งาน</h4>
+  <table>
+    <thead><tr><th>กลุ่มผู้ใช้</th><th>สิทธิ์บนใบขนส่งและเส้นทาง</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge b-blue">Inventory / User</span></td><td>อ่าน · สร้าง · แก้ไข (ลบไม่ได้)</td></tr>
+      <tr><td><span class="badge b-green">Inventory / Manager</span></td><td>อ่าน · สร้าง · แก้ไข · ลบ · เป็นผู้อนุมัติใบขนส่งมูลค่าสูง</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    ต้องระบุ <b>รถ</b> และ <b>พนักงานขับ</b> ทุกครั้งก่อนกดยืนยัน และต้องมี <b>ต้นทาง/ปลายทาง</b> ครบ
+    มิฉะนั้นระบบจะไม่อนุญาตให้ยืนยัน
+  </div>
+  <div class="callout tip">
+    ใช้ตัวกรองในหน้ารายการใบขนส่ง (แยกตามสถานะ รถ พนักงานขับ หรือจัดกลุ่มตามสถานะ) เพื่อติดตามงานขนส่งที่ค้างอยู่
+    และใช้มุมมองเส้นทางเพื่อสร้างใบขนส่งใหม่ได้เร็วขึ้นโดยเลือกเส้นทางที่บันทึกไว้
+  </div>
+
+</section>

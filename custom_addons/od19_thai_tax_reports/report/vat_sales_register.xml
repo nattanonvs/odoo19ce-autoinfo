@@ -27,14 +27,15 @@
                     <table class="table table-sm table-bordered mt-3">
                         <thead class="thead-light">
                             <tr>
-                                <th class="text-center" style="width:5%">ลำดับ</th>
-                                <th class="text-center" style="width:10%">วันที่</th>
-                                <th class="text-center" style="width:15%">เลขที่เอกสาร</th>
+                                <th class="text-center" style="width:4%">ลำดับ</th>
+                                <th class="text-center" style="width:9%">วันที่</th>
+                                <th class="text-center" style="width:10%">ประเภท</th>
+                                <th class="text-center" style="width:14%">เลขที่เอกสาร</th>
                                 <th class="text-center">ชื่อลูกค้า</th>
-                                <th class="text-center" style="width:12%">เลขผู้เสียภาษี</th>
+                                <th class="text-center" style="width:11%">เลขผู้เสียภาษี</th>
                                 <th class="text-right" style="width:12%">ยอดก่อนภาษี</th>
-                                <th class="text-right" style="width:10%">ภาษีขาย</th>
-                                <th class="text-right" style="width:12%">ยอดรวม</th>
+                                <th class="text-right" style="width:9%">ภาษีขาย</th>
+                                <th class="text-right" style="width:11%">ยอดรวม</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -48,6 +49,7 @@
                                     <td class="text-center">
                                         <span t-out="line['invoice_date']" t-options='{"widget": "date"}'/>
                                     </td>
+                                    <td class="text-center"><span t-esc="line['doc_type']"/></td>
                                     <td><span t-esc="line['name']"/></td>
                                     <td><span t-esc="line['partner_name']"/></td>
                                     <td class="text-center">
@@ -65,7 +67,7 @@
                                 </tr>
                             </t>
                             <tr class="font-weight-bold">
-                                <td colspan="5" class="text-right">รวมทั้งสิ้น</td>
+                                <td colspan="6" class="text-right">รวมทั้งสิ้น</td>
                                 <td class="text-right">
                                     <span t-esc="'{:,.2f}'.format(total_tax_base)"/>
                                 </td>

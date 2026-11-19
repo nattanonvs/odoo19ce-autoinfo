@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="True">
+
+    <record id="mis_report_balance_sheet" model="mis.report">
+        <field name="name">งบแสดงฐานะทางการเงิน (Balance Sheet)</field>
+        <field name="description">งบดุลตาม account_type ของ Odoo 19 — ยอดคงเหลือสะสมจากต้นกาล</field>
+    </record>
+
+    <!-- ============================== สินทรัพย์ ============================== -->
+    <record id="mis_kpi_bs_assets_cash" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_assets_cash</field>
+        <field name="description">เงินสดและรายการเทียบเท่าเงินสด</field>
+        <field name="sequence">10</field>
+        <field name="style_id" ref="mis_style_bs_line" />
+        <field name="auto_expand_accounts" eval="True" />
+        <field name="auto_expand_accounts_style_id" ref="mis_style_bs_detail" />
+        <field name="compare_method">diff</field>
+        <field name="expression">bale[][('account_type', '=', 'asset_cash')]</field>
+    </record>
+
+    <record id="mis_kpi_bs_assets_receivable" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_assets_receivable</field>
+        <field name="description">ลูกหนี้การค้าและลูกหนี้อื่น</field>
+        <field name="sequence">20</field>
+        <field name="style_id" ref="mis_style_bs_line" />
+        <field name="auto_expand_accounts" eval="True" />
+        <field name="auto_expand_accounts_style_id" ref="mis_style_bs_detail" />
+        <field name="compare_method">diff</field>
+        <field name="expression">bale[][('account_type', '=', 'asset_receivable')]</field>
+    </record>
+
+    <record id="mis_kpi_bs_assets_current" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_assets_current</field>
+        <field name="description">สินทรัพย์หมุนเวียนอื่น</field>
+        <field name="sequence">30</field>
+        <field name="style_id" ref="mis_style_bs_line" />
+        <field name="auto_expand_accounts" eval="True" />
+        <field name="auto_expand_accounts_style_id" ref="mis_style_bs_detail" />
+        <field name="compare_method">diff</field>
+        <field name="expression">bale[][('account_type', '=', 'asset_current')]</field>
+    </record>
+
+    <record id="mis_kpi_bs_assets_prepayments" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_assets_prepayments</field>
+        <field name="description">ค่าใช้จ่ายจ่ายล่วงหน้า</field>
+        <field name="sequence">40</field>
+        <field name="style_id" ref="mis_style_bs_line" />
+        <field name="auto_expand_accounts" eval="True" />
+        <field name="auto_expand_accounts_style_id" ref="mis_style_bs_detail" />
+        <field name="compare_method">diff</field>
+        <field name="expression">bale[][('account_type', '=', 'asset_prepayments')]</field>
+    </record>
+
+    <record id="mis_kpi_bs_assets_non_current" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_assets_non_current</field>
+        <field name="description">สินทรัพย์ไม่หมุนเวียนอื่น</field>
+        <field name="sequence">50</field>
+        <field name="style_id" ref="mis_style_bs_line" />
+        <field name="auto_expand_accounts" eval="True" />
+        <field name="auto_expand_accounts_style_id" ref="mis_style_bs_detail" />
+        <field name="compare_method">diff</field>
+        <field name="expression">bale[][('account_type', '=', 'asset_non_current')]</field>
+    </record>
+
+    <record id="mis_kpi_bs_assets_fixed" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_assets_fixed</field>
+        <field name="description">ที่ดิน อาคารและอุปกรณ์</field>
+        <field name="sequence">60</field>
+        <field name="style_id" ref="mis_style_bs_line" />
+        <field name="auto_expand_accounts" eval="True" />
+        <field name="auto_expand_accounts_style_id" ref="mis_style_bs_detail" />
+        <field name="compare_method">diff</field>
+        <field name="expression">bale[][('account_type', '=', 'asset_fixed')]</field>
+    </record>
+
+    <record id="mis_kpi_bs_assets_total" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_assets_total</field>
+        <field name="description">รวมสินทรัพย์</field>
+        <field name="sequence">70</field>
+        <field name="style_id" ref="mis_style_bs_sub_total" />
+        <field name="compare_method">diff</field>
+        <field name="expression">bs_assets_cash + bs_assets_receivable + bs_assets_current + bs_assets_prepayments + bs_assets_non_current + bs_assets_fixed</field>
+    </record>
+
+    <!-- ============================== หนี้สิน ============================== -->
+    <record id="mis_kpi_bs_liab_payable" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_liab_payable</field>
+        <field name="description">เจ้าหนี้การค้าและเจ้าหนี้อื่น</field>
+        <field name="sequence">110</field>
+        <field name="style_id" ref="mis_style_bs_line" />
+        <field name="auto_expand_accounts" eval="True" />
+        <field name="auto_expand_accounts_style_id" ref="mis_style_bs_detail" />
+        <field name="compare_method">diff</field>
+        <field name="expression">- bale[][('account_type', '=', 'liability_payable')]</field>
+    </record>
+
+    <record id="mis_kpi_bs_liab_credit_card" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_liab_credit_card</field>
+        <field name="description">เจ้าหนี้บัตรเครดิต</field>
+        <field name="sequence">120</field>
+        <field name="style_id" ref="mis_style_bs_line" />
+        <field name="auto_expand_accounts" eval="True" />
+        <field name="auto_expand_accounts_style_id" ref="mis_style_bs_detail" />
+        <field name="compare_method">diff</field>
+        <field name="expression">- bale[][('account_type', '=', 'liability_credit_card')]</field>
+    </record>
+
+    <record id="mis_kpi_bs_liab_current" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_liab_current</field>
+        <field name="description">หนี้สินหมุนเวียนอื่น</field>
+        <field name="sequence">130</field>
+        <field name="style_id" ref="mis_style_bs_line" />
+        <field name="auto_expand_accounts" eval="True" />
+        <field name="auto_expand_accounts_style_id" ref="mis_style_bs_detail" />
+        <field name="compare_method">diff</field>
+        <field name="expression">- bale[][('account_type', '=', 'liability_current')]</field>
+    </record>
+
+    <record id="mis_kpi_bs_liab_non_current" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_liab_non_current</field>
+        <field name="description">หนี้สินไม่หมุนเวียน</field>
+        <field name="sequence">140</field>
+        <field name="style_id" ref="mis_style_bs_line" />
+        <field name="auto_expand_accounts" eval="True" />
+        <field name="auto_expand_accounts_style_id" ref="mis_style_bs_detail" />
+        <field name="compare_method">diff</field>
+        <field name="expression">- bale[][('account_type', '=', 'liability_non_current')]</field>
+    </record>
+
+    <record id="mis_kpi_bs_liab_total" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_liab_total</field>
+        <field name="description">รวมหนี้สิน</field>
+        <field name="sequence">150</field>
+        <field name="style_id" ref="mis_style_bs_sub_total" />
+        <field name="compare_method">diff</field>
+        <field name="expression">bs_liab_payable + bs_liab_credit_card + bs_liab_current + bs_liab_non_current</field>
+    </record>
+
+    <!-- ============================== ส่วนของผู้ถือหุ้น ============================== -->
+    <record id="mis_kpi_bs_equity_share" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_equity_share</field>
+        <field name="description">ทุนและส่วนเกินมูลค่าหุ้น</field>
+        <field name="sequence">210</field>
+        <field name="style_id" ref="mis_style_bs_line" />
+        <field name="auto_expand_accounts" eval="True" />
+        <field name="auto_expand_accounts_style_id" ref="mis_style_bs_detail" />
+        <field name="compare_method">diff</field>
+        <field name="expression">- bale[][('account_type', '=', 'equity')]</field>
+    </record>
+
+    <record id="mis_kpi_bs_equity_retained" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_equity_retained</field>
+        <field name="description">กำไร(ขาดทุน)สะสมยกมา</field>
+        <field name="sequence">220</field>
+        <field name="style_id" ref="mis_style_bs_line" />
+        <field name="auto_expand_accounts" eval="True" />
+        <field name="auto_expand_accounts_style_id" ref="mis_style_bs_detail" />
+        <field name="compare_method">diff</field>
+        <field name="expression">- bale[][('account_type', '=', 'equity_unaffected')]</field>
+    </record>
+
+    <record id="mis_kpi_bs_net_result" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_net_result</field>
+        <field name="description">กำไร(ขาดทุน)สุทธิสำหรับงวด</field>
+        <field name="sequence">230</field>
+        <field name="style_id" ref="mis_style_bs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">-(bale[][('account_type', 'in', ('income', 'income_other'))] + bale[][('account_type', 'in', ('expense', 'expense_other', 'expense_depreciation', 'expense_direct_cost'))])</field>
+    </record>
+
+    <record id="mis_kpi_bs_equity_total" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_equity_total</field>
+        <field name="description">รวมส่วนของผู้ถือหุ้น</field>
+        <field name="sequence">240</field>
+        <field name="style_id" ref="mis_style_bs_sub_total" />
+        <field name="compare_method">diff</field>
+        <field name="expression">bs_equity_share + bs_equity_retained + bs_net_result</field>
+    </record>
+
+    <!-- ============================== รวมและตรวจสอบ ============================== -->
+    <record id="mis_kpi_bs_liab_equity_total" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_liab_equity_total</field>
+        <field name="description">รวมหนี้สินและส่วนของผู้ถือหุ้น</field>
+        <field name="sequence">310</field>
+        <field name="style_id" ref="mis_style_bs_total" />
+        <field name="compare_method">diff</field>
+        <field name="expression">bs_liab_total + bs_equity_total</field>
+    </record>
+
+    <record id="mis_kpi_bs_check" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_check</field>
+        <field name="description">ผลต่าง (สินทรัพย์ − หนี้สินและส่วนของผู้ถือหุ้น)</field>
+        <field name="sequence">320</field>
+        <field name="compare_method">none</field>
+        <field name="style_expression">'BS - Good' if abs(bs_check) &lt; 0.005 else 'BS - Bad'</field>
+        <field name="expression">bs_assets_total - bs_liab_equity_total</field>
+    </record>
+
+</odoo>

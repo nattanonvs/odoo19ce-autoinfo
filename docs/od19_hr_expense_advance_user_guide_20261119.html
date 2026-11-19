@@ -1,0 +1,787 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>คู่มือการใช้งาน — เบิกค่าใช้จ่าย (Expense) และเงินทดรองจ่าย (Advance) ฉบับผู้ใช้งาน</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --maroon:#9E2424;
+    --maroon-dark:#7c1b1b;
+    --maroon-soft:#fbf5f5;
+    --maroon-line:#ecd7d7;
+    --ink:#24211f;
+    --muted:#6b6560;
+    --line:#e3e3e3;
+    --paper:#ffffff;
+    --bg:#eceef1;
+    --ok:#1f7a4d;
+    --okbg:#e8f5ee;
+    --warn:#8a6a1b;
+    --warnbg:#fdf6e3;
+    --info:#1f5fa8;
+    --infobg:#ecf3fb;
+    --danger:#a12b2b;
+    --dangerbg:#fdeeee;
+    --radius:14px;
+    --shadow:0 6px 20px rgba(36,33,31,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Sarabun","Noto Sans Thai",Tahoma,"Arial Unicode MS",sans-serif;
+    font-size:15px;
+    line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+  }
+  .doc{
+    max-width:920px;
+    margin:0 auto;
+    background:var(--paper);
+    box-shadow:var(--shadow);
+  }
+  /* ---------- Cover ---------- */
+  .cover{
+    background:linear-gradient(150deg,#8f2020 0%,#b13a3a 55%,#9E2424 100%);
+    color:#fff;
+    padding:64px 56px 52px;
+    position:relative;
+    overflow:hidden;
+  }
+  .cover::after{
+    content:"";
+    position:absolute;
+    right:-120px;top:-120px;
+    width:340px;height:340px;
+    border-radius:50%;
+    background:rgba(255,255,255,.07);
+  }
+  .cover::before{
+    content:"";
+    position:absolute;
+    right:60px;bottom:-140px;
+    width:240px;height:240px;
+    border-radius:50%;
+    background:rgba(255,255,255,.05);
+  }
+  .brandline{display:flex;align-items:center;gap:12px;margin-bottom:34px}
+  .brandmark{
+    width:38px;height:38px;border-radius:10px;
+    background:#fff;color:var(--maroon);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:22px;
+    box-shadow:0 3px 10px rgba(0,0,0,.18);
+  }
+  .brandline small{font-size:13px;letter-spacing:.08em;opacity:.9;text-transform:uppercase}
+  .cover h1{
+    font-size:34px;line-height:1.35;margin:0 0 8px;font-weight:700;letter-spacing:.01em;
+  }
+  .cover h2{
+    font-size:19px;font-weight:400;margin:0 0 26px;opacity:.95;
+  }
+  .cover .lede{
+    font-size:15px;max-width:660px;opacity:.95;
+    border-left:3px solid rgba(255,255,255,.55);padding-left:16px;margin-bottom:30px;
+  }
+  .meta{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:10px;position:relative;z-index:2;
+  }
+  .meta div{
+    background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.22);
+    border-radius:10px;padding:10px 14px;
+    backdrop-filter:blur(4px);
+  }
+  .meta span{display:block;font-size:11.5px;opacity:.85;letter-spacing:.03em}
+  .meta strong{font-size:14px;font-weight:600}
+  /* ---------- Body ---------- */
+  .body{padding:0 56px 70px}
+  h2.sec{
+    font-size:22px;font-weight:700;color:var(--maroon-dark);
+    margin:52px 0 6px;padding-bottom:10px;
+    border-bottom:2px solid var(--maroon-line);
+    display:flex;align-items:center;gap:12px;
+  }
+  h2.sec .num{
+    flex:0 0 auto;
+    background:var(--maroon);color:#fff;
+    width:34px;height:34px;border-radius:9px;
+    display:inline-flex;align-items:center;justify-content:center;
+    font-size:17px;font-weight:700;
+  }
+  h3{font-size:17.5px;font-weight:600;color:var(--ink);margin:30px 0 8px}
+  h4{font-size:15.5px;font-weight:600;color:var(--maroon-dark);margin:20px 0 6px}
+  p{margin:8px 0}
+  a{color:var(--maroon);text-decoration:none}
+  a:hover{text-decoration:underline}
+  strong{font-weight:600}
+  ul,ol{margin:8px 0;padding-left:22px}
+  li{margin:4px 0}
+  code{
+    font-family:"Cascadia Code",Consolas,"Courier New",monospace;
+    background:#f4f1ef;border:1px solid #e7e2df;border-radius:5px;
+    padding:1px 6px;font-size:13px;color:#5a3b3b;
+  }
+  /* ---------- TOC ---------- */
+  .toc{
+    background:var(--maroon-soft);
+    border:1px solid var(--maroon-line);
+    border-radius:var(--radius);
+    padding:22px 26px;margin:34px 0 10px;
+  }
+  .toc h3{margin:0 0 12px;color:var(--maroon-dark);font-size:16px}
+  .toc ol{columns:2;column-gap:34px;list-style:none;padding:0;margin:0;counter-reset:t}
+  .toc li{counter-increment:t;margin:5px 0;font-size:14px}
+  .toc li a{display:flex;gap:8px;color:var(--ink)}
+  .toc li a::before{
+    content:counter(t);flex:0 0 auto;
+    color:var(--maroon);font-weight:600;min-width:20px;
+  }
+  /* ---------- Cards / callouts ---------- */
+  .card{
+    border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px 22px;margin:16px 0;background:#fff;
+  }
+  .grid{display:grid;gap:14px}
+  .grid.two{grid-template-columns:1fr 1fr}
+  .grid.three{grid-template-columns:1fr 1fr 1fr}
+  .tile{
+    border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:#fff;
+  }
+  .tile .t{font-weight:600;color:var(--maroon-dark);font-size:14.5px;display:flex;align-items:center;gap:8px}
+  .tile p{margin:6px 0 0;color:var(--muted);font-size:13.5px}
+  .callout{
+    border-radius:12px;padding:13px 16px 13px 46px;margin:14px 0;
+    position:relative;border:1px solid;font-size:14px;
+  }
+  .callout::before{
+    position:absolute;left:14px;top:12px;font-size:16px;font-weight:700;
+  }
+  .callout.note{background:var(--infobg);border-color:#cfe0f3;color:#173f6e}
+  .callout.note::before{content:"i";font-style:italic}
+  .callout.tip{background:var(--okbg);border-color:#cdeddc;color:#155e3b}
+  .callout.tip::before{content:"✓"}
+  .callout.warn{background:var(--warnbg);border-color:#efe0b3;color:#6b5214}
+  .callout.warn::before{content:"!"}
+  .callout.danger{background:var(--dangerbg);border-color:#f1cccc;color:#7c2020}
+  .callout.danger::before{content:"✕"}
+  /* ---------- Steps ---------- */
+  ol.steps{list-style:none;padding:0;margin:14px 0;counter-reset:s}
+  ol.steps>li{
+    counter-increment:s;position:relative;
+    padding:2px 0 16px 46px;margin:0;
+  }
+  ol.steps>li::before{
+    content:counter(s);
+    position:absolute;left:0;top:0;
+    width:30px;height:30px;border-radius:50%;
+    background:var(--maroon);color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:14px;
+  }
+  ol.steps>li::after{
+    content:"";position:absolute;left:14.5px;top:30px;bottom:0;
+    width:2px;background:var(--maroon-line);
+  }
+  ol.steps>li:last-child::after{display:none}
+  ol.steps>li .stitle{font-weight:600}
+  /* ---------- Tables ---------- */
+  table{
+    width:100%;border-collapse:collapse;margin:14px 0;font-size:13.8px;
+    border:1px solid var(--maroon-line);border-radius:10px;overflow:hidden;
+  }
+  thead th{
+    background:var(--maroon);color:#fff;font-weight:600;
+    text-align:left;padding:10px 12px;font-size:13.5px;
+  }
+  tbody td{padding:9px 12px;border-top:1px solid var(--line);vertical-align:top}
+  tbody tr:nth-child(even){background:#fcfafa}
+  .req{color:var(--maroon);font-weight:600}
+  /* ---------- Badges ---------- */
+  .badge{
+    display:inline-block;padding:2px 10px;border-radius:999px;
+    font-size:12.5px;font-weight:600;border:1px solid;
+  }
+  .b-gray{background:#f1f1f1;border-color:#ddd;color:#555}
+  .b-blue{background:var(--infobg);border-color:#cfe0f3;color:#1a4d86}
+  .b-green{background:var(--okbg);border-color:#cdeddc;color:#155e3b}
+  .b-red{background:var(--dangerbg);border-color:#f1cccc;color:#7c2020}
+  .b-amber{background:var(--warnbg);border-color:#efe0b3;color:#6b5214}
+  /* state flow */
+  .flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:12px 0}
+  .flow .stp{
+    background:#fff;border:1px solid var(--maroon-line);border-radius:8px;
+    padding:6px 12px;font-size:13px;font-weight:500;
+  }
+  .flow .arrow{color:var(--maroon);font-weight:700}
+  .kbd{
+    font-family:Consolas,monospace;background:#2b2b2b;color:#fff;
+    border-radius:6px;padding:1px 8px;font-size:12.5px;
+  }
+  .pill{
+    display:inline-block;background:var(--maroon-soft);border:1px solid var(--maroon-line);
+    color:var(--maroon-dark);border-radius:8px;padding:1px 9px;font-size:12.5px;font-weight:600;
+  }
+  hr{border:none;border-top:1px solid var(--line);margin:34px 0}
+  .anchor{scroll-margin-top:20px}
+  .footnote{color:var(--muted);font-size:12.8px}
+  .doc-footer{
+    text-align:center;color:var(--muted);font-size:12.5px;
+    padding:22px 56px 34px;border-top:1px solid var(--line);
+  }
+  /* ---------- Print ---------- */
+  @media print{
+    body{background:#fff;font-size:11.5pt}
+    .doc{max-width:none;box-shadow:none;margin:0}
+    .cover{padding:40px 34px;border-radius:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .body,.doc-footer{padding-left:34px;padding-right:34px}
+    h2.sec{page-break-after:avoid}
+    h3,h4{page-break-after:avoid}
+    .card,.callout,.tile,table,ol.steps>li{page-break-inside:avoid}
+    thead th{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    tbody tr:nth-child(even){-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .toc,.cover,.badge,.tile,.callout{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    a{color:var(--ink);text-decoration:none}
+  }
+  @page{size:A4;margin:14mm 12mm}
+  @media (max-width:720px){
+    .body,.cover{padding-left:22px;padding-right:22px}
+    .toc ol{columns:1}
+    .grid.two,.grid.three{grid-template-columns:1fr}
+    .cover h1{font-size:26px}
+  }
+</style>
+</head>
+<body>
+<article class="doc">
+
+  <!-- ============ COVER ============ -->
+  <header class="cover">
+    <div class="brandline">
+      <div class="brandmark">A</div>
+      <small>AutoInfo · Odoo 19 Community · ERP User Handbook</small>
+    </div>
+    <h1>คู่มือการใช้งาน<br>เบิกค่าใช้จ่าย &amp; เงินทดรองจ่าย</h1>
+    <h2>ระบบ HR Expense &amp; Employee Advance — ฉบับผู้ใช้งาน</h2>
+    <p class="lede">
+      อธิบายขั้นตอนการยื่นใบเบิกค่าใช้จ่าย (Expense Reimbursement) และการเบิกเงินทดรองจ่าย
+      (Employee Advance) ตั้งแต่ต้นจนจบ — ครอบคลุมการยื่น, การอนุมัติ, การจ่ายเงิน,
+      การเคลียร์เงินทดรอง และการพิมพ์เอกสาร สำหรับพนักงานผู้ใช้งานทั่วไป
+    </p>
+    <div class="meta">
+      <div><span>เวอร์ชันคู่มือ</span><strong>v1.0 · 19 พ.ย. 2569</strong></div>
+      <div><span>ขอบเขต</span><strong>พนักงาน + ภาคผนวกทุกบทบาท</strong></div>
+      <div><span>โมดูลอ้างอิง</span><strong>od19_hr_expense_* · od19_hr_advance</strong></div>
+      <div><span>ระบบพื้นฐาน</span><strong>Odoo 19 CE (custom_addons)</strong></div>
+    </div>
+  </header>
+
+  <div class="body">
+
+    <!-- ============ TOC ============ -->
+    <nav class="toc">
+      <h3>สารบัญ</h3>
+      <ol>
+        <li><a href="#s1">เกี่ยวกับคู่มือนี้</a></li>
+        <li><a href="#s2">เริ่มต้นใช้งานและภาพรวมเมนู</a></li>
+        <li><a href="#s3">การเบิกค่าใช้จ่าย (Expense)</a></li>
+        <li><a href="#s4">เงินทดรองจ่ายพนักงาน (Advance)</a></li>
+        <li><a href="#s5">ภาคผนวก ก — คู่มือผู้อนุมัติ</a></li>
+        <li><a href="#s6">ภาคผนวก ข — คู่มือฝ่ายบัญชี</a></li>
+        <li><a href="#s7">ภาคผนวก ค — คู่มือผู้ดูแลระบบ</a></li>
+        <li><a href="#s8">ภาคผนวก ง — ตารางสถานะ &amp; คำถามที่พบบ่อย</a></li>
+      </ol>
+    </nav>
+
+    <!-- ============ 1 ============ -->
+    <h2 class="sec anchor" id="s1"><span class="num">1</span>เกี่ยวกับคู่มือนี้</h2>
+    <p>คู่มือนี้อธิบายวิธีใช้งานระบบสองส่วนที่เกี่ยวเนื่องกัน ได้แก่ <strong>การเบิกค่าใช้จ่าย</strong>
+      (คืนเงินให้พนักงานที่จ่ายไปก่อน) และ <strong>เงินทดรองจ่าย</strong> (เบิกเงินล่วงหน้าก่อนไปใช้จ่ายจริง)
+      โดยเขียนจากพฤติกรรมจริงของโมดูลในระบบนี้</p>
+
+    <h3>1.1 ความแตกต่างระหว่าง Expense กับ Advance</h3>
+    <div class="grid two">
+      <div class="tile">
+        <div class="t">🧾 เบิกค่าใช้จ่าย (Expense)</div>
+        <p>พนักงาน <strong>จ่ายเงินไปก่อน</strong> แล้วนำหลักฐาน (ใบเสร็จ/ใบกำกับภาษี) มายื่นขอคืนเงิน
+          ระบบบันทึกเป็นเจ้าหนี้พนักงาน แล้วจ่ายคืนให้เมื่ออนุมัติครบ</p>
+      </div>
+      <div class="tile">
+        <div class="t">💰 เงินทดรองจ่าย (Advance)</div>
+        <p>พนักงาน <strong>ขอเงินล่วงหน้า</strong> ก่อนเดินทาง/ไปทำงาน ระบบจ่ายเงินจริงออกไปก่อน
+          แล้วภายหลังจึงนำค่าใช้จ่ายมา <strong>เคลียร์</strong> หักกลบ และคืนเงินส่วนที่เหลือ</p>
+      </div>
+    </div>
+
+    <div class="callout note">
+      เปรียบเทียบสั้น ๆ: <strong>Expense = ขอคืนเงินทีหลัง</strong> ·
+      <strong>Advance = ยืมเงินไปก่อน แล้วมาเคลียร์</strong>
+    </div>
+
+    <h3>1.2 โมดูลที่เกี่ยวข้อง</h3>
+    <table>
+      <thead><tr><th>โมดูล</th><th>หน้าที่หลัก</th><th>บทบาทที่เห็นผล</th></tr></thead>
+      <tbody>
+        <tr><td><code>od19_hr_expense_enhanced</code></td><td>ฟีเจอร์ค่าใช้จ่ายขั้นสูง — เบี้ยเลี้ยง ม.42(3), ค่าเดินทางตามระยะทาง, ใบรับรองแทนใบเสร็จ, สถานะเงินสด, ภาษีหัก ณ ที่จ่าย, สมุดรถพนักงาน, ส่งออก XLSX</td><td>พนักงาน / บัญชี</td></tr>
+        <tr><td><code>od19_hr_expense_thai</code></td><td>สายอนุมัติ 3 ชั้น, วิธีจ่ายคืน (เงินสด/โอน/เช็ค), ปุ่มจ่ายคืนพนักงานจริง</td><td>พนักงาน / ผู้อนุมัติ</td></tr>
+        <tr><td><code>od19_hr_expense_portal</code></td><td>หน้า Portal พนักงาน (<code>/my/expenses</code>), วิซาร์ดยื่นใบเบิกด่วน, มุมมอง Kanban “ใบเบิกของฉัน”, รายงานใบสรุป</td><td>พนักงาน</td></tr>
+        <tr><td><code>od19_hr_advance</code></td><td>ใบเบิกเงินทดรองจ่าย: อนุมัติ 2 ชั้น, จ่ายเงินจริง, เคลียร์และคืนเงินส่วนที่เหลือ</td><td>พนักงาน / บัญชี</td></tr>
+      </tbody>
+    </table>
+
+    <h3>1.3 บทบาทและสิทธิ์โดยสรุป</h3>
+    <table>
+      <thead><tr><th>บทบาท</th><th>สิ่งที่ทำได้</th></tr></thead>
+      <tbody>
+        <tr><td><strong>พนักงาน</strong> (Employee)</td><td>ยื่นใบเบิกค่าใช้จ่าย, ยื่นใบเบิกเงินทดรอง, ติดตามสถานะของตนเอง</td></tr>
+        <tr><td><strong>หัวหน้าแผนก</strong> (Department Manager)</td><td>อนุมัติชั้นที่ 1 ของทั้ง Expense และ Advance (มอบหมายต่อได้)</td></tr>
+        <tr><td><strong>ฝ่ายบัญชี</strong> (Account Manager)</td><td>อนุมัติชั้นที่ 2, บันทึกบัญชี, จ่ายเงินทดรอง, จ่ายคืนพนักงาน, เคลียร์เงินทดรอง, ภาษีหัก ณ ที่จ่าย</td></tr>
+        <tr><td><strong>CEO</strong> (Expense CEO Approver)</td><td>อนุมัติชั้นที่ 3 ของค่าใช้จ่าย</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ============ 2 ============ -->
+    <h2 class="sec anchor" id="s2"><span class="num">2</span>เริ่มต้นใช้งานและภาพรวมเมนู</h2>
+    <p>ทุกอย่างเริ่มจากแอปหลัก <strong>Expenses</strong> ในแถบเมนูด้านบน ระบบนี้เพิ่มเมนูให้ใช้งานดังนี้</p>
+
+    <table>
+      <thead><tr><th>เมนู</th><th>อยู่ใต้</th><th>ใช้ทำอะไร</th><th>ใครเห็น</th></tr></thead>
+      <tbody>
+        <tr><td><strong>ยื่นใบเบิกค่าใช้จ่าย</strong></td><td>Expenses</td><td>เปิดวิซาร์ดยื่นใบเบิกแบบเร็ว (4 ขั้น)</td><td>พนักงานทุกคน</td></tr>
+        <tr><td><strong>ใบเบิกของฉัน</strong></td><td>Expenses</td><td>มุมมอง Kanban/ลิสต์ เฉพาะใบเบิกของตนเอง</td><td>พนักงานทุกคน</td></tr>
+        <tr><td><strong>Employee Advances</strong> <span class="pill">เงินทดรอง</span></td><td>Expenses</td><td>สร้าง/ติดตามใบเบิกเงินทดรองจ่าย</td><td>พนักงานทุกคน</td></tr>
+        <tr><td><strong>Expenses</strong> (เมนูเดิมของ Odoo)</td><td>—</td><td>รายการใบเบิกทั้งหมด (สำหรับผู้มีสิทธิ์/หัวหน้า/บัญชี)</td><td>ตามสิทธิ์</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout tip">
+      <strong>ทางเข้าแบบเร็ว:</strong> พนักงานยังเข้าใช้งานผ่านพอร์ทัลได้ที่เมนูบัญชีของฉัน →
+      <strong>ใบเบิกค่าใช้จ่าย</strong> หรือเปิด URL <code>/my/expenses</code> โดยตรงได้ทันที
+    </div>
+
+    <h3>2.1 ก่อนเริ่ม — เตรียมข้อมูลให้พร้อม</h3>
+    <ul>
+      <li>บัญชีผู้ใช้ต้อง <strong>ผูกกับข้อมูลพนักงาน</strong> (Employee) แล้ว มิฉะนั้นระบบจะไม่รู้ว่าใครเป็นผู้เบิก</li>
+      <li>ถ้าเป็นการเดินทางด้วยรถยนต์ ควรขึ้นทะเบียน <strong>รถของฉัน</strong> ไว้ที่เมนู Expenses → <em>My Vehicles</em> ล่วงหน้า</li>
+      <li>เตรียม <strong>หลักฐานการใช้จ่าย</strong> (ใบเสร็จ/ใบกำกับภาษี) ให้พร้อมก่อนบันทึก</li>
+    </ul>
+
+    <!-- ============ 3 ============ -->
+    <h2 class="sec anchor" id="s3"><span class="num">3</span>การเบิกค่าใช้จ่าย (Expense)</h2>
+    <p>ระบบมี <strong>3 ช่องทาง</strong> ในการยื่นใบเบิก เลือกใช้ตามความสะดวก ผลลัพธ์ปลายทางเหมือนกัน (สร้างเอกสาร <code>hr.expense</code>)</p>
+
+    <h3>3.1 เปรียบเทียบช่องทางยื่นใบเบิก</h3>
+    <div class="grid three">
+      <div class="tile">
+        <div class="t">1) วิซาร์ดด่วน</div>
+        <p>เมนู <strong>Expenses → ยื่นใบเบิกค่าใช้จ่าย</strong> กรอกเร็ว 4 ขั้น เหมาะกับการเบิกทั่วไป/ค่าเดินทาง</p>
+      </div>
+      <div class="tile">
+        <div class="t">2) ใบเบิกของฉัน</div>
+        <p>เมนู <strong>Expenses → ใบเบิกของฉัน</strong> ดูรายการของตัวเองแบบ Kanban แยกตามสถานะ</p>
+      </div>
+      <div class="tile">
+        <div class="t">3) พอร์ทัล</div>
+        <p>เปิด <code>/my/expenses</code> ใช้ง่ายบนมือถือ มีบันทึกร่างอัตโนมัติ</p>
+      </div>
+    </div>
+
+    <h3>3.2 ยื่นใบเบิกผ่านวิซาร์ด “ยื่นใบเบิกค่าใช้จ่าย”</h3>
+    <ol class="steps">
+      <li><span class="stitle">เปิดวิซาร์ด</span> — ไปที่เมนู <strong>Expenses → ยื่นใบเบิกค่าใช้จ่าย</strong> หน้าต่างกรอกข้อมูลจะเปิดขึ้น</li>
+      <li><span class="stitle">ขั้นที่ 1 — ข้อมูลเบื้องต้น</span> เลือก <em>หมวดค่าใช้จ่าย</em>, <em>พนักงาน</em> (ค่าเริ่มต้นคือตัวเอง), <em>วันที่</em> เกิดค่าใช้จ่าย และกรอก <em>รายละเอียด</em></li>
+      <li><span class="stitle">ขั้นที่ 2 — จำนวนเงิน</span> หากเป็นค่าใช้จ่ายทั่วไปให้กรอก <em>จำนวนเงิน</em>; หากเป็นค่าเดินทางตามระยะทาง ระบบจะเปลี่ยนไปกรอก <em>ระยะทาง (กม.)</em> แทน แล้วคิดยอดให้อัตโนมัติ</li>
+      <li><span class="stitle">ขั้นที่ 3 — รายละเอียดการเดินทาง</span> (แสดงเฉพาะค่าเดินทาง) กรอก <em>ต้นทาง</em> และ <em>ปลายทาง</em></li>
+      <li><span class="stitle">ขั้นที่ 4 — การส่ง</span> ติ๊ก <strong>ส่งอนุมัติทันที</strong> หากพร้อมส่งเข้าสายอนุมัติ หรือปล่อยว่างเพื่อเก็บเป็นฉบับร่างก่อน</li>
+      <li><span class="stitle">ยืนยัน</span> กดปุ่ม <strong>ยื่นใบเบิก</strong> ระบบจะสร้างเอกสารและเปิดหน้าใบเบิกให้ทันที</li>
+    </ol>
+
+    <h4>ตารางฟิลด์ในวิซาร์ด</h4>
+    <table>
+      <thead><tr><th>ฟิลด์</th><th>คำอธิบาย</th><th>บังคับ</th></tr></thead>
+      <tbody>
+        <tr><td>หมวดค่าใช้จ่าย</td><td>เลือกจากรายการที่เปิดให้เบิกได้ (แฟล็ก <em>Can be expensed</em>)</td><td class="req">ใช่</td></tr>
+        <tr><td>พนักงาน</td><td>ผู้เบิก (ค่าเริ่มต้น = พนักงานที่ผูกกับบัญชีผู้ใช้)</td><td class="req">ใช่</td></tr>
+        <tr><td>วันที่</td><td>วันที่เกิดค่าใช้จ่าย (ค่าเริ่มต้น = วันนี้)</td><td class="req">ใช่</td></tr>
+        <tr><td>รายละเอียด</td><td>คำอธิบายสั้นของรายการ</td><td>—</td></tr>
+        <tr><td>จำนวนเงิน</td><td>กรอกเมื่อเป็นค่าใช้จ่ายทั่วไป</td><td>ตามประเภท</td></tr>
+        <tr><td>ระยะทาง (กม.) / รถของฉัน / อัตราต่อ กม.</td><td>กรอกเมื่อเป็น <strong>ค่าเดินทางตามระยะทาง</strong> — ยอดรวมคำนวณให้อัตโนมัติ</td><td>ตามประเภท</td></tr>
+        <tr><td>ต้นทาง / ปลายทาง</td><td>จุดเริ่ม–สิ้นสุดการเดินทาง (เฉพาะค่าเดินทาง)</td><td>—</td></tr>
+        <tr><td>ส่งอนุมัติทันที</td><td>ติ๊ก = ส่งเข้าสายอนุมัติทันที / ไม่ติ๊ก = เก็บเป็นฉบับร่าง</td><td>—</td></tr>
+      </tbody>
+    </table>
+
+    <h3>3.3 ยื่นใบเบิกผ่านพอร์ทัล (สำหรับพนักงาน)</h3>
+    <p>เปิด URL <code>/my/expenses</code> หรือเข้าจากเมนูบัญชีของฉัน</p>
+    <ol class="steps">
+      <li><span class="stitle">เข้าสู่หน้าพอร์ทัล</span> ระบบแสดงเฉพาะใบเบิกของตนเอง (ถูกจำกัดด้วย Record Rule — เห็นได้เฉพาะของตัวเอง แม้รู้ URL ของผู้อื่นก็เปิดไม่ได้)</li>
+      <li><span class="stitle">กดปุ่ม “ยื่นใบเบิก”</span> ที่มุมซ้ายบนของหน้ารายการ</li>
+      <li><span class="stitle">กรอกแบบฟอร์ม</span> เลือกหมวดค่าใช้จ่าย, วันที่, รายละเอียด และจำนวนเงิน (หรือระยะทางหากเป็นค่าเดินทาง)</li>
+      <li><span class="stitle">ส่งอนุมัติ</span> ติ๊ก “ส่งอนุมัติทันที” แล้วกด <strong>ยื่นใบเบิก</strong></li>
+      <li><span class="stitle">ติดตามสถานะ</span> เปิดรายการเพื่อดูสถานะการอนุมัติด้านขวา</li>
+    </ol>
+
+    <div class="callout tip">
+      <strong>บันทึกร่างอัตโนมัติ:</strong> ข้อมูลที่กรอกในฟอร์มพอร์ทัลจะถูกเก็บไว้ในเบราว์เซอร์อัตโนมัติ
+      หากอินเทอร์เน็ตหลุดแล้วกลับมา เพียงเปิดหน้าเดิมอีกครั้งข้อมูลจะกลับมาเอง ร่างจะถูกล้างเมื่อยื่นสำเร็จ
+      และมีปุ่ม “ล้างร่างที่บันทึกไว้” หากต้องการเคลียร์เอง
+    </div>
+    <div class="callout note">
+      <strong>คำนวณระยะทางจากแผนที่ (ถ้าผู้ดูแลเปิดใช้):</strong> กรอกต้นทาง–ปลายทาง แล้วกด
+      “คำนวณระยะทางจากแผนที่” ระบบจะเติมระยะทางให้ ยังแก้ไขตัวเลขเองได้ตามจริง ค่าเริ่มต้นของระบบคือ <strong>ปิด</strong>
+    </div>
+
+    <h3>3.4 ประเภทค่าใช้จ่ายพิเศษ</h3>
+    <p>นอกจากค่าใช้จ่ายทั่วไป ระบบรองรับการเบิกแบบพิเศษ เพิ่มเติมได้ในหน้าเอกสารใบเบิก (แถบหลังบ้าน)</p>
+
+    <h4>ก) ค่าเดินทางตามระยะทาง (Mileage)</h4>
+    <ul>
+      <li>เลือกหมวด “ค่าเดินทางตามระยะทาง / Mileage” แล้วกรอก <em>ระยะทาง (กม.)</em>, เลือก <em>รถของฉัน</em>, <em>ต้นทาง</em>, <em>ปลายทาง</em>, <em>วันที่เดินทาง</em></li>
+      <li>ยอดเงินคำนวณอัตโนมัติ = ระยะทาง × <strong>อัตราต่อ กม.</strong> ของบริษัท (ตั้งค่าโดยผู้ดูแล) พนักงานไม่ต้องกรอกจำนวนเงินเอง</li>
+      <li>ระบบบันทึกประเภทยานพาหนะและป้ายทะเบียน ณ เวลาที่เบิกไว้ด้วย (เป็นข้อมูลอ้างอิงแบบ snapshot)</li>
+    </ul>
+
+    <h4>ข) เบี้ยเลี้ยงตาม ม.42(3) (Per Diem)</h4>
+    <table>
+      <thead><tr><th>ฟิลด์</th><th>คำอธิบาย</th></tr></thead>
+      <tbody>
+        <tr><td>เบี้ยเลี้ยง</td><td>ติ๊กเพื่อระบุว่ารายการนี้เป็นเบี้ยเลี้ยงตามมาตรา 42(3)</td></tr>
+        <tr><td>พื้นที่</td><td>ในประเทศ / ต่างประเทศ (มีวงเงินต่อวันคนละอัตรา)</td></tr>
+        <tr><td>จำนวนวัน</td><td>จำนวนวันที่ได้รับเบี้ยเลี้ยง</td></tr>
+        <tr><td>วงเงินมาตรฐานต่อวัน</td><td>แสดงอัตโนมัติจากนโยบายบริษัท (อ่านเท่านั้น)</td></tr>
+        <tr><td>วงเงินเบี้ยเลี้ยง</td><td>= วงเงินต่อวัน × จำนวนวัน (อ่านเท่านั้น)</td></tr>
+        <tr><td>เกินวงเงิน</td><td>ระบบติ๊กให้อัตโนมัติเมื่อยอดเกินวงเงิน</td></tr>
+        <tr><td>เหตุผลที่เกินวงเงิน</td><td><strong>บังคับกรอก</strong> เมื่อเกินวงเงิน</td></tr>
+      </tbody>
+    </table>
+
+    <h4>ค) ประเภทเอกสารประกอบและภาษีซื้อ</h4>
+    <table>
+      <thead><tr><th>ประเภทเอกสาร</th><th>ความหมาย</th><th>หมายเหตุ</th></tr></thead>
+      <tbody>
+        <tr><td>ใบกำกับภาษี (Tax Invoice)</td><td>เอกสารที่มี VAT — เครดิตภาษีซื้อได้</td><td>ใช้ทั่วไป</td></tr>
+        <tr><td>ใบเสร็จรับเงิน (Receipt)</td><td>เอกสารรับเงินทั่วไป</td><td>—</td></tr>
+        <tr><td>ใบรับรองแทนใบเสร็จรับเงิน (Payment Certificate)</td><td>ใช้เมื่อไม่มีใบเสร็จ — เป็นเอกสารรับรองการจ่ายเงิน</td><td>ต้องกรอก <em>เลขที่ใบรับรอง</em>; <em>เครดิตภาษีซื้อ = ไม่ได้</em> และมีปุ่มพิมพ์ใบรับรองโดยเฉพาะ</td></tr>
+      </tbody>
+    </table>
+
+    <h3>3.5 สายการอนุมัติค่าใช้จ่าย (3 ชั้น ตามลำดับ)</h3>
+    <p>ใบเบิกค่าใช้จ่ายต้องผ่านการอนุมัติเรียงตามลำดับ ผู้อนุมัติสามารถ “มอบหมายต่อ (Forward)” ให้ผู้ใช้อื่นในกลุ่มเดียวกันได้</p>
+    <div class="flow">
+      <span class="stp">1. หัวหน้าแผนก</span><span class="arrow">→</span>
+      <span class="stp">2. ฝ่ายบัญชี</span><span class="arrow">→</span>
+      <span class="stp">3. CEO</span><span class="arrow">→</span>
+      <span class="stp">อนุมัติ / บันทึกบัญชี / จ่ายคืน</span>
+    </div>
+    <table>
+      <thead><tr><th>ชั้น</th><th>ผู้อนุมัติ (กลุ่ม)</th><th>ผลเมื่อผ่าน</th></tr></thead>
+      <tbody>
+        <tr><td>ชั้นที่ 1</td><td>หัวหน้าแผนก (HR Expense Manager)</td><td>ส่งต่อไปยังชั้นที่ 2</td></tr>
+        <tr><td>ชั้นที่ 2</td><td>ฝ่ายบัญชี (Account Manager)</td><td>ส่งต่อไปยังชั้นที่ 3</td></tr>
+        <tr><td>ชั้นที่ 3</td><td>CEO (Expense CEO Approver)</td><td>ครบทุกชั้น → <strong>อนุมัติแล้ว (Approved)</strong></td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout warn">
+      <strong>ข้อยกเว้นตามวงเงิน:</strong> หากยอดใบเบิกเกินเกณฑ์ที่กำหนด (ค่าเริ่มต้น 5,000 บาท
+      ปรับได้โดยผู้ดูแล) ระบบจะตั้งค่าธง <em>Require Second Approval</em> เป็น “ต้องอนุมัติเพิ่ม” โดยอัตโนมัติ
+    </div>
+
+    <h3>3.6 ติดตามสถานะการอนุมัติ</h3>
+    <p>เปิดรายการใบเบิกของตนเอง จะเห็นแถบสถานะด้านบน และ timeline การอนุมัติด้านขวา (แสดงว่าใครอนุมัติแล้ว/กำลังรอใคร)</p>
+    <div class="flow">
+      <span class="stp">ฉบับร่าง</span><span class="arrow">→</span>
+      <span class="stp">ส่งอนุมัติ</span><span class="arrow">→</span>
+      <span class="stp">อนุมัติแล้ว</span><span class="arrow">→</span>
+      <span class="stp">บันทึกบัญชี</span><span class="arrow">→</span>
+      <span class="stp">กำลังจ่าย</span><span class="arrow">→</span>
+      <span class="stp">จ่ายแล้ว</span>
+    </div>
+    <p class="footnote">สถานะ “ถูกปฏิเสธ (Refused)” จะแสดงเมื่อผู้อนุมัติขั้นใดขั้นหนึ่งปฏิเสธ</p>
+
+    <h3>3.7 รายงานและเอกสารที่พิมพ์ได้</h3>
+    <table>
+      <thead><tr><th>รายงาน</th><th>เข้าถึงจาก</th><th>เนื้อหา</th></tr></thead>
+      <tbody>
+        <tr><td><strong>ใบสรุปการเบิกค่าใช้จ่าย</strong></td><td>เปิดใบเบิก → Print → Expense Reimbursement Summary</td><td>ข้อมูลพนักงาน/แผนก, รายการและยอดเงิน, รายละเอียดค่าเดินทาง (ถ้ามี), จำนวนเงินเป็นตัวอักษร, ช่องลงนาม 3 ฝ่าย (ผู้เบิก / ผู้อนุมัติ / ผู้จ่ายเงิน)</td></tr>
+        <tr><td><strong>ใบรับรองแทนใบเสร็จรับเงิน</strong></td><td>เปิดใบเบิกที่เป็น Payment Certificate → ปุ่ม “พิมพ์ใบรับรองแทนใบเสร็จ”</td><td>ผู้จ่ายเงิน (บริษัท), เลขที่/วันที่ใบรับรอง, ผู้รับเงิน, รายการและยอดเงินเป็นตัวอักษร, ข้อความระบุว่าไม่มี VAT, ลายเซ็น 3 ฝ่าย</td></tr>
+        <tr><td><strong>รายงาน Excel (XLSX)</strong></td><td>หน้ารายการใบเบิก → ปุ่ม Export XLSX</td><td>คอลัมน์ พนักงาน, แผนก, วันที่, รายละเอียด, หมวด, จำนวนเงิน, สถานะ, สถานะเงินสด (กรองตามช่วงวันที่/พนักงาน/แผนกได้)</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ============ 4 ============ -->
+    <h2 class="sec anchor" id="s4"><span class="num">4</span>เงินทดรองจ่ายพนักงาน (Advance)</h2>
+    <p>ใช้เมื่อพนักงานต้องใช้เงินล่วงหน้า (เช่น ไปต่างจังหวัด ประสานงานภาคสนาม) — ระบบจะ
+      <strong>จ่ายเงินจริง</strong> ให้ก่อน แล้วภายหลังนำค่าใช้จ่ายมาเคลียร์</p>
+
+    <h3>4.1 เข้าเมนู</h3>
+    <p>ไปที่ <strong>Expenses → Employee Advances</strong> จะเห็นรายการใบเบิกเงินทดรองทั้งหมด
+      (ใช้ตัวกรอง <em>My Advances</em> เพื่อดูเฉพาะของตนเอง)</p>
+
+    <h3>4.2 สร้างใบเบิกเงินทดรอง</h3>
+    <ol class="steps">
+      <li><span class="stitle">กดสร้างใหม่ (New)</span> ที่หน้า Employee Advances</li>
+      <li><span class="stitle">กรอกข้อมูลหลัก</span> ตามตารางด้านล่าง</li>
+      <li><span class="stitle">บันทึก</span> เอกสารจะได้เลขที่อัตโนมัติรูปแบบ <code>HRADV/ปี/เลขรัน</code> (เช่น <code>HRADV/2026/00001</code>)</li>
+      <li><span class="stitle">ยื่นอนุมัติ</span> กดปุ่ม <strong>Submit for Approval</strong> เพื่อเข้าสายอนุมัติ 2 ชั้น</li>
+    </ol>
+
+    <table>
+      <thead><tr><th>ฟิลด์</th><th>คำอธิบาย</th><th>บังคับ</th></tr></thead>
+      <tbody>
+        <tr><td>Number (เลขที่)</td><td>ออกอัตโนมัติ ไม่ต้องกรอก</td><td>—</td></tr>
+        <tr><td>Employee (พนักงาน)</td><td>ผู้ขอเบิกเงินทดรอง</td><td class="req">ใช่</td></tr>
+        <tr><td>Employee Contact</td><td>ผู้ติดต่อของพนักงาน (คำนวณให้อัตโนมัติ)</td><td>—</td></tr>
+        <tr><td>Department (แผนก)</td><td>ดึงจากข้อมูลพนักงาน (อ่านเท่านั้น)</td><td>—</td></tr>
+        <tr><td>Request Date (วันที่ขอเบิก)</td><td>ค่าเริ่มต้น = วันนี้</td><td class="req">ใช่</td></tr>
+        <tr><td>Amount (จำนวนเงิน)</td><td>ยอดเงินที่ขอเบิก ต้องมากกว่า 0</td><td class="req">ใช่</td></tr>
+        <tr><td>Currency (สกุลเงิน)</td><td>ค่าเริ่มต้น = สกุลเงินบริษัท</td><td class="req">ใช่</td></tr>
+        <tr><td>Purpose (วัตถุประสงค์)</td><td>ระบุว่าเบิกไปใช้ทำอะไร</td><td>—</td></tr>
+        <tr><td>Employee Advance Account</td><td>บัญชีลูกหนี้พนักงาน/เงินทดรอง ที่ใช้ติดตามยอดคงค้างจนเคลียร์ครบ</td><td class="req">ใช่</td></tr>
+        <tr><td>Payment Journal (สมุดจ่ายเงิน)</td><td>สมุดธนาคาร/เงินสดที่จะใช้จ่าย (เว้นว่างได้ ระบบจะเลือกให้)</td><td>—</td></tr>
+        <tr><td>Company / Notes</td><td>บริษัท และหมายเหตุภายใน</td><td>—</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout note">
+      ในหน้าฟอร์มยังมีส่วน <strong>Clearing</strong> (ยอดเคลียร์แล้ว / ยอดคงเหลือ) และ
+      <strong>Documents</strong> (เอกสารจ่ายเงิน/เอกสารเคลียร์) ซึ่งระบบจะเติมให้เองเมื่อดำเนินการ — ผู้ใช้ไม่ต้องกรอก
+      และแท็บ <strong>Cleared Expenses</strong> จะแสดงรายการค่าใช้จ่ายที่นำมาเคลียร์แล้ว
+    </div>
+
+    <h3>4.3 สายการอนุมัติเงินทดรอง (2 ชั้น)</h3>
+    <div class="flow">
+      <span class="stp">1. หัวหน้างาน</span><span class="arrow">→</span>
+      <span class="stp">2. ฝ่ายบัญชี</span><span class="arrow">→</span>
+      <span class="stp">อนุมัติแล้ว (พร้อมจ่าย)</span>
+    </div>
+    <table>
+      <thead><tr><th>ชั้น</th><th>ผู้อนุมัติ (กลุ่ม)</th></tr></thead>
+      <tbody>
+        <tr><td>ชั้นที่ 1</td><td>หัวหน้างาน (HR Expense Manager)</td></tr>
+        <tr><td>ชั้นที่ 2</td><td>ฝ่ายบัญชี (Account Manager)</td></tr>
+      </tbody>
+    </table>
+
+    <h3>4.4 ขั้นตอนสถานะของเงินทดรอง</h3>
+    <div class="flow">
+      <span class="stp">ฉบับร่าง</span><span class="arrow">→</span>
+      <span class="stp">รออนุมัติ</span><span class="arrow">→</span>
+      <span class="stp">อนุมัติแล้ว</span><span class="arrow">→</span>
+      <span class="stp">จ่ายเงินแล้ว</span><span class="arrow">→</span>
+      <span class="stp">เคลียร์ครบ</span>
+    </div>
+    <p>ปุ่มที่ปรากฏจะเปลี่ยนตามสถานะ:</p>
+    <table>
+      <thead><tr><th>สถานะ</th><th>ปุ่มที่ใช้ได้</th><th>ผู้ทำ</th></tr></thead>
+      <tbody>
+        <tr><td>ฉบับร่าง (Draft)</td><td>Submit for Approval, Cancel</td><td>พนักงาน</td></tr>
+        <tr><td>รออนุมัติ (Waiting Approval)</td><td>อนุมัติที่แท็บการอนุมัติ, Cancel</td><td>ผู้อนุมัติ</td></tr>
+        <tr><td>อนุมัติแล้ว (Approved)</td><td>Pay Advance, Cancel</td><td>ฝ่ายบัญชี</td></tr>
+        <tr><td>จ่ายเงินแล้ว (Paid)</td><td>Clear</td><td>ฝ่ายบัญชี / HR Manager</td></tr>
+        <tr><td>เคลียร์ครบ (Cleared)</td><td>—</td><td>—</td></tr>
+        <tr><td>ยกเลิก (Cancelled)</td><td>Reset to Draft</td><td>ผู้มีสิทธิ์</td></tr>
+      </tbody>
+    </table>
+    <div class="callout warn">
+      ใบเบิกที่ <strong>จ่ายเงินแล้ว</strong> หรือ <strong>เคลียร์ครบ</strong> จะ <strong>ยกเลิกไม่ได้</strong>
+      และระบบจะไม่ยอมให้ลบ — ต้องดำเนินการเคลียร์ให้ครบแทน
+    </div>
+
+    <h3>4.5 การเคลียร์เงินทดรอง</h3>
+    <p>เมื่อใช้เงินทดรองไปแล้ว พนักงานนำ <strong>ค่าใช้จ่าย (Expense)</strong> ที่เกิดขึ้นจริงมาเคลียร์หักกลบ
+      และคืนเงินส่วนที่เหลือกลับบริษัท (ขั้นตอนนี้ทำโดย <strong>ฝ่ายบัญชี / HR Manager</strong>)</p>
+    <ol class="steps">
+      <li><span class="stitle">เปิดใบเบิกเงินทดรองที่สถานะ “จ่ายเงินแล้ว”</span> แล้วกดปุ่ม <strong>Clear</strong></li>
+      <li><span class="stitle">เลือกค่าใช้จ่ายที่จะนำมาเคลียร์</span> ในฟิลด์ <em>Cleared Expenses</em> (เลือกได้เฉพาะค่าใช้จ่ายของพนักงานคนเดียวกันและยังไม่เคยถูกเคลียร์)</li>
+      <li><span class="stitle">กรอกเงินคืน (ถ้ามี)</span> ในฟิลด์ <em>Returned Amount</em> และเลือก <em>สมุดรับเงินคืน</em> (บังคับเลือกเมื่อมียอดคืน)</li>
+      <li><span class="stitle">ระบุวันที่เคลียร์</span> ในฟิลด์ <em>Clearing Date</em></li>
+      <li><span class="stitle">ยืนยัน</span> ระบบสร้างรายการบัญชีหักกลบและ reconcile ให้อัตโนมัติ</li>
+    </ol>
+
+    <div class="grid two">
+      <div class="tile">
+        <div class="t">กฎการเคลียร์</div>
+        <p>• ต้องเคลียร์เฉพาะใบเบิกที่ <strong>จ่ายเงินแล้ว</strong><br>
+        • ต้องมีอย่างน้อย 1 อย่าง: ค่าใช้จ่าย หรือ เงินคืน<br>
+        • ยอดเคลียร์รวม (ค่าใช้จ่าย+เงินคืน) <strong>ห้ามเกินยอดคงเหลือ</strong><br>
+        • เงินคืนต้องไม่ติดลบ และต้องเลือกสมุดบัญชี</p>
+      </div>
+      <div class="tile">
+        <div class="t">การเคลียร์บางส่วน</div>
+        <p>เคลียร์ไม่ครบได้ — ใบเบิกจะคงสถานะ “จ่ายเงินแล้ว” และเคลียร์เพิ่มได้ภายหลัง
+        เมื่อยอดคงเหลือเหลือ ≈ 0 ระบบจะเปลี่ยนเป็น <strong>เคลียร์ครบ (Cleared)</strong> ให้เอง</p>
+      </div>
+    </div>
+
+    <h4>ความเชื่อมโยงกับค่าใช้จ่าย (Expense)</h4>
+    <p>เมื่อเคลียร์แล้ว ระบบจะบันทึกว่าค่าใช้จ่ายรายการนั้นถูกนำไปใช้กับใบเบิกเงินทดรองใบใด
+      (ค่าใช้จ่าย 1 รายการเคลียร์กับเงินทดรองได้เพียงใบเดียว) และจะปรากฏในแท็บ <em>Cleared Expenses</em> ของใบเบิกเงินทดรองนั้น</p>
+
+    <!-- ============ 5 ============ -->
+    <h2 class="sec anchor" id="s5"><span class="num">5</span>ภาคผนวก ก — คู่มือผู้อนุมัติ</h2>
+    <p>ผู้อนุมัติจะเข้ามุมมองที่หน้ารายการใบเบิก (ทั้ง Expense และ Employee Advances) แล้วเปิดเอกสารที่ต้องการตรวจ</p>
+
+    <h3>5.1 หัวหน้าแผนก (ชั้นที่ 1)</h3>
+    <ul>
+      <li>ตรวจความถูกต้องของรายการ หลักฐาน และวงเงิน</li>
+      <li>กด <strong>Approve</strong> ที่แท็บการอนุมัติเพื่อผ่านไปชั้นถัดไป หรือ <strong>Refuse</strong> เพื่อปฏิเสธ (พร้อมใส่เหตุผล)</li>
+      <li>หากติดธุระ ใช้ปุ่ม <strong>Forward</strong> เพื่อมอบหมายให้ผู้อนุมัติคนอื่นในกลุ่มเดียวกัน</li>
+    </ul>
+
+    <h3>5.2 ฝ่ายบัญชี (ชั้นที่ 2 ของ Expense · ชั้นที่ 2 ของ Advance)</h3>
+    <ul>
+      <li>อนุมัติผ่านชั้นบัญชี</li>
+      <li>ตรวจบัญชี/หมวดค่าใช้จ่ายที่บันทึก และความถูกต้องของภาษี (ดูภาคผนวก ข)</li>
+    </ul>
+
+    <h3>5.3 CEO (ชั้นที่ 3 ของ Expense)</h3>
+    <ul>
+      <li>อนุมัติชั้นสุดท้ายของค่าใช้จ่าย เมื่อครบทุกชั้นแล้วเอกสารจะเป็น “อนุมัติแล้ว”</li>
+    </ul>
+
+    <div class="callout note">
+      ระบบใช้กลไกอนุมัติแบบมีลำดับ (Sequential) — ต้องอนุมัติชั้นก่อนหน้าให้ครบก่อน จึงจะถึงคิวของชั้นถัดไป
+    </div>
+
+    <!-- ============ 6 ============ -->
+    <h2 class="sec anchor" id="s6"><span class="num">6</span>ภาคผนวก ข — คู่มือฝ่ายบัญชี</h2>
+
+    <h3>6.1 การจ่ายเงินทดรอง (Pay Advance)</h3>
+    <ul>
+      <li>เปิดใบเบิกเงินทดรองสถานะ <strong>อนุมัติแล้ว</strong> แล้วกด <strong>Pay Advance</strong></li>
+      <li>ระบบสร้างรายการจ่ายเงิน (outbound payment) ให้พนักงาน: เดบิตบัญชีลูกหนี้พนักงาน / เครดิตเงินสด–ธนาคาร</li>
+      <li>สถานะเปลี่ยนเป็น <strong>จ่ายเงินแล้ว</strong> พร้อมบันทึกเลขที่เอกสารจ่ายและวันที่จ่ายไว้ในฟอร์ม</li>
+    </ul>
+
+    <h3>6.2 การเคลียร์เงินทดรอง</h3>
+    <p>ดูรายละเอียดขั้นตอนในหัวข้อ 4.5 — เมื่อเคลียร์ ระบบจะสร้างรายการบัญชี:
+      เดบิตบัญชีค่าใช้จ่าย (ตามค่าใช้จ่ายที่เลือก), เดบิตเงินสด/ธนาคาร (เงินคืน — ถ้ามี),
+      เครดิตบัญชีลูกหนี้พนักงาน และทำ reconciliation ให้อัตโนมัติ</p>
+
+    <h3>6.3 การจ่ายคืนพนักงาน (Reimburse Employee)</h3>
+    <p>สำหรับใบเบิกค่าใช้จ่ายที่พนักงานจ่ายเอง (โหมด own_account) เมื่อบันทึกบัญชีแล้ว
+      จะมีปุ่ม <strong>Reimburse Employee</strong> ให้กดเพื่อสร้างรายการจ่ายคืนจริง</p>
+    <table>
+      <thead><tr><th>วิธีจ่ายคืน</th><th>สมุดที่ระบบเลือก</th></tr></thead>
+      <tbody>
+        <tr><td>เงินสด (Cash)</td><td>สมุดประเภทเงินสด</td></tr>
+        <tr><td>โอนธนาคาร (Bank Transfer)</td><td>สมุดประเภทธนาคาร</td></tr>
+        <tr><td>เช็ค (Cheque)</td><td>สมุดประเภทธนาคาร</td></tr>
+      </tbody>
+    </table>
+    <p class="footnote">ระบบจะ post รายการจ่ายและ reconcile กับเจ้าหนี้พนักงานให้อัตโนมัติ พร้อมบันทึกวันที่จ่ายคืน</p>
+
+    <h3>6.4 ภาษีหัก ณ ที่จ่าย (WHT) บนรายการจ่ายค่าใช้จ่าย</h3>
+    <p>บนรายการจ่ายค่าใช้จ่าย (account.payment) สามารถระบุประเภทภาษีหักได้ (1% / 2% / 3% / 5%)
+      พร้อมมูลค่าคิดภาษีและบัญชีที่เกี่ยวข้อง ระบบคำนวณยอดภาษีหักให้อัตโนมัติ</p>
+
+    <h3>6.5 สถานะเงินสดของค่าใช้จ่าย (เบิกเงินสดไปใช้)</h3>
+    <p>ค่าใช้จ่ายที่จ่ายเป็นเงินสดมีสถานะเงินสดคู่ขนานให้ติดตาม — ไม่ใช่ทุกใบจะต้องใช้ครบทุกขั้น:</p>
+    <div class="flow">
+      <span class="stp">ยังไม่ได้รับเงิน</span><span class="arrow">→</span>
+      <span class="stp">ได้รับเงินแล้ว</span><span class="arrow">→</span>
+      <span class="stp">ใช้เงินแล้ว</span><span class="arrow">→</span>
+      <span class="stp">คืนเงินแล้ว</span>
+    </div>
+    <p>ปุ่มที่เกี่ยวข้อง: <strong>Receive Cash</strong>, <strong>Use Cash</strong>, <strong>Return Cash</strong> (เปิดวิซาร์ดคืนเงิน พร้อมสร้างรายการบัญชีได้) และ <strong>Reset Cash</strong> (สำหรับผู้ดูแล)</p>
+
+    <!-- ============ 7 ============ -->
+    <h2 class="sec anchor" id="s7"><span class="num">7</span>ภาคผนวก ค — คู่มือผู้ดูแลระบบ</h2>
+
+    <h3>7.1 นโยบายบริษัท (Settings → Companies)</h3>
+    <table>
+      <thead><tr><th>ค่า</th><th>ความหมาย</th></tr></thead>
+      <tbody>
+        <tr><td>วงเงินเบี้ยเลี้ยงต่อวัน — ในประเทศ</td><td>อัตรามาตรฐานเบี้ยเลี้ยง ม.42(3) สำหรับในประเทศ</td></tr>
+        <tr><td>วงเงินเบี้ยเลี้ยงต่อวัน — ต่างประเทศ</td><td>อัตรามาตรฐานเบี้ยเลี้ยงต่างประเทศ</td></tr>
+        <tr><td>อัตราค่าเดินทางต่อ กม.</td><td>ใช้คำนวณยอดเงินของค่าเดินทางตามระยะทาง</td></tr>
+      </tbody>
+    </table>
+
+    <h3>7.2 ตั้งค่าระบบ (Settings → Technical → System Parameters)</h3>
+    <table>
+      <thead><tr><th>Key</th><th>ค่า</th><th>ใช้ทำอะไร</th></tr></thead>
+      <tbody>
+        <tr><td><code>od19_hr_expense_portal.map_provider</code></td><td>เช่น <code>ors</code></td><td>เปิดใช้ปุ่มคำนวณระยะทางจากแผนที่ (ต้องตั้งคู่กับ key ถัดไป)</td></tr>
+        <tr><td><code>od19_hr_expense_portal.map_api_key</code></td><td>API Key ของผู้ให้บริการ</td><td>คีย์ถูกเก็บและใช้เฉพาะฝั่งเซิร์ฟเวอร์ ไม่ส่งไปยังเบราว์เซอร์</td></tr>
+        <tr><td><code>od19_hr_expense_thai.second_approval_threshold</code></td><td>ตัวเลข เช่น <code>5000</code></td><td>เกณฑ์ยอดที่ทำให้ใบเบิกต้อง “อนุมัติเพิ่ม”</td></tr>
+      </tbody>
+    </table>
+    <div class="callout tip">
+      ปุ่ม “คำนวณระยะทางจากแผนที่” จะแสดงก็ต่อเมื่อตั้งค่าทั้ง <em>map_provider</em> และ <em>map_api_key</em> แล้วเท่านั้น (ค่าเริ่มต้น = ปิด)
+    </div>
+
+    <h3>7.3 สมุดรถของพนักงาน (Expenses → My Vehicles)</h3>
+    <p>พนักงานสามารถขึ้นทะเบียนรถของตนเอง (ประเภทยานพาหนะ + ป้ายทะเบียน) เพื่อให้เลือกใช้ตอนเบิกค่าเดินทาง
+      — พนักงานเห็นเฉพาะรถของตัวเอง ส่วน HR Manager / Account Manager เห็นทั้งหมด</p>
+
+    <!-- ============ 8 ============ -->
+    <h2 class="sec anchor" id="s8"><span class="num">8</span>ภาคผนวก ง — ตารางสถานะ &amp; คำถามที่พบบ่อย</h2>
+
+    <h3>8.1 สรุปสถานะทั้งหมด</h3>
+    <table>
+      <thead><tr><th>เอกสาร</th><th>สถานะ</th><th>ความหมาย</th></tr></thead>
+      <tbody>
+        <tr><td rowspan="7">ค่าใช้จ่าย<br>(Expense)</td><td><span class="badge b-gray">ฉบับร่าง</span></td><td>ยังไม่ส่งอนุมัติ แก้ไขได้</td></tr>
+        <tr><td><span class="badge b-blue">ส่งอนุมัติ</span></td><td>อยู่ในสายอนุมัติ</td></tr>
+        <tr><td><span class="badge b-green">อนุมัติแล้ว</span></td><td>ผ่านทุกชั้นอนุมัติ</td></tr>
+        <tr><td><span class="badge b-green">บันทึกบัญชี</span></td><td>ลงบัญชีแล้ว</td></tr>
+        <tr><td><span class="badge b-green">กำลังจ่าย</span></td><td>อยู่ในขั้นจ่ายเงิน</td></tr>
+        <tr><td><span class="badge b-green">จ่ายแล้ว</span></td><td>จ่ายเงินให้พนักงานแล้ว</td></tr>
+        <tr><td><span class="badge b-red">ถูกปฏิเสธ</span></td><td>ผู้อนุมัติปฏิเสธ</td></tr>
+        <tr><td rowspan="6">เงินทดรอง<br>(Advance)</td><td><span class="badge b-gray">ฉบับร่าง</span></td><td>กำลังจัดทำ</td></tr>
+        <tr><td><span class="badge b-amber">รออนุมัติ</span></td><td>อยู่ในสายอนุมัติ 2 ชั้น</td></tr>
+        <tr><td><span class="badge b-blue">อนุมัติแล้ว</span></td><td>พร้อมจ่ายเงิน</td></tr>
+        <tr><td><span class="badge b-green">จ่ายเงินแล้ว</span></td><td>จ่ายเงินจริงแล้ว รอเคลียร์</td></tr>
+        <tr><td><span class="badge b-green">เคลียร์ครบ</span></td><td>หักกลบครบถ้วนแล้ว</td></tr>
+        <tr><td><span class="badge b-red">ยกเลิก</span></td><td>ถูกยกเลิก (รีเซ็ตกลับได้)</td></tr>
+      </tbody>
+    </table>
+
+    <h3>8.2 คำถามที่พบบ่อย</h3>
+    <div class="card">
+      <h4>ยื่นใบเบิกแล้ว อยากแก้ไข ต้องทำอย่างไร?</h4>
+      <p>หากยังเป็น “ฉบับร่าง” แก้ไขได้เลย หากส่งอนุมัติไปแล้ว การแก้ไขขึ้นกับสถานะและสิทธิ์ — โดยทั่วไปให้ติดต่อผู้อนุมัติหรือฝ่ายบัญชีเพื่อขอปฏิเสธแล้วยื่นใหม่</p>
+    </div>
+    <div class="card">
+      <h4>ค่าเดินทางตามระยะทาง ต้องกรอกจำนวนเงินเองไหม?</h4>
+      <p>ไม่ต้อง ระบบคำนวณจาก <em>ระยะทาง × อัตราต่อ กม.</em> ของบริษัทให้อัตโนมัติ</p>
+    </div>
+    <div class="card">
+      <h4>เบี้ยเลี้ยงเกินวงเงิน ทำได้ไหม?</h4>
+      <p>ทำได้ แต่ระบบบังคับให้กรอก “เหตุผลที่เกินวงเงิน” และจะแสดงธงว่าเกินวงเงินเพื่อให้ผู้อนุมัติพิจารณา</p>
+    </div>
+    <div class="card">
+      <h4>ใบเบิกเงินทดรอง ใครเป็นคนเคลียร์?</h4>
+      <p>ขั้นตอนเคลียร์ทำโดย <strong>ฝ่ายบัญชี หรือ HR Manager</strong> พนักงานมีหน้าที่นำค่าใช้จ่ายและเงินส่วนที่เหลือมาส่งมอบ</p>
+    </div>
+    <div class="card">
+      <h4>เคลียร์เงินทดรองได้บางส่วนไหม?</h4>
+      <p>ได้ ใบเบิกจะคงสถานะ “จ่ายเงินแล้ว” และเคลียร์เพิ่มได้ภายหลัง จนกว่ายอดคงเหลือจะเหลือศูนย์ จึงจะเปลี่ยนเป็น “เคลียร์ครบ”</p>
+    </div>
+    <div class="card">
+      <h4>ยอดหน้า Portal ไม่ขึ้น รายการหาย?</h4>
+      <p>ตรวจว่าบัญชีผู้ใช้ผูกกับข้อมูลพนักงานและมีสิทธิ์เข้าถึงรายการนั้น หรือทำ Hard Refresh (<span class="kbd">Ctrl</span>+<span class="kbd">Shift</span>+<span class="kbd">R</span>) ล้างแคชเบราว์เซอร์ก่อน</p>
+    </div>
+
+    <hr>
+    <p class="footnote">
+      เอกสารนี้จัดทำจากโค้ดจริงของโมดูล <code>od19_hr_expense_enhanced</code>, <code>od19_hr_expense_thai</code>,
+      <code>od19_hr_expense_portal</code> และ <code>od19_hr_advance</code> — หากมีการปรับปรุงระบบ
+      ให้ปรับปรุงคู่มือนี้ให้สอดคล้องกัน
+    </p>
+  </div>
+
+  <div class="doc-footer">
+    AutoInfo · คู่มือการใช้งานเบิกค่าใช้จ่ายและเงินทดรองจ่าย · v1.0 · 19 พฤศจิกายน 2569
+  </div>
+</article>
+</body>
+</html>

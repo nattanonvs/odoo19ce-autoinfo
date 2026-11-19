@@ -1,0 +1,533 @@
+<!--Part
+id=acc-core
+title=บัญชีและการเงิน — แกนหลัก
+icon=💰
+sub=คุณสมบัติบัญชีไทย · เช็ค · DN/CN · Prepare Payments · เงินสดย่อย · ค่าธรรมเนียมธนาคาร · กระทบยอด · เงินล่วงหน้า · บังคับบัญชีวิเคราะห์
+-->
+
+<section class="part" id="acc-core">
+
+  <div class="part-head">
+    <h2 class="part-title"><span class="part-icon">💰</span> ส่วนที่ 2 · บัญชีและการเงิน — แกนหลัก</h2>
+    <p class="part-sub">
+      ส่วนนี้อธิบาย “เครื่องมือบัญชีหลัก” ที่ทีมบัญชี-การเงินใช้ทุกวัน ตั้งแต่การปรับ/ยกเลิกรายการ,
+      การตั้งหนี้-จ่ายชำระ, เช็ค, ใบเพิ่มหนี้/ใบลดหนี้, การเตรียมจ่าย (Prepare Payments),
+      เงินสดย่อย, ค่าธรรมเนียมธนาคาร, เงินล่วงหน้า และการกระทบยอดปิดงวด (VAT/WHT/บัญชีพัก)
+      โดยทุกอย่างอิงกับโมดูล <code>od19_accounting_*</code> ที่ปรับแต่งขึ้นสำหรับการใช้งานจริง
+    </p>
+  </div>
+
+  <nav class="toc mini">
+    <h3>สารบัญส่วนนี้</h3>
+    <ol>
+      <li><a href="#acc1-1">Od19 Accounting Features</a></li>
+      <li><a href="#acc1-2">Cheque Management</a></li>
+      <li><a href="#acc1-3">Debit Note / Credit Note / Remaster</a></li>
+      <li><a href="#acc1-4">Prepare Payment (Billing)</a></li>
+      <li><a href="#acc1-5">Petty Cash</a></li>
+      <li><a href="#acc1-6">Payment Fee</a></li>
+      <li><a href="#acc1-7">Accounting Reconcile UI</a></li>
+      <li><a href="#acc1-8">Advance Payment</a></li>
+      <li><a href="#acc1-9">Accounting Analytic Require</a></li>
+    </ol>
+  </nav>
+
+  <!-- ================= acc1-1 ================= -->
+  <h3 class="mod" id="acc1-1"><span class="mtag">od19_accounting_features</span> คุณสมบัติบัญชีแกนหลัก และการกระทบยอดปิดงวด</h3>
+  <p>
+    โมดูลนี้เป็น <strong>ศูนย์กลางของคุณสมบัติบัญชีสำหรับระบบไทย</strong> รวมงานที่ทีมบัญชีต้องใช้เป็นประจำ ได้แก่
+    การบังคับใส่เหตุผลตอนยกเลิกรายการ, ช่องผู้จ่าย/ผู้รับเงิน, ลิงก์ตรวจสอบภาษีของกรมสรรพากร (BOT),
+    วันครบกำหนดของเงินล่วงหน้า, เลขที่ใบสำคัญจ่ายที่แสดงบนบิลซื้อ, การกันเลขที่อ้างอิงใบกำกับซื้อซ้ำ,
+    กฎ “ตั้งหนี้ก่อนจ่าย”, โครงสร้างภาษีหัก ณ ที่จ่ายบนใบสำคัญจ่าย และ
+    <strong>wizard กระทบยอดปิดงวด</strong> ที่ทีมบัญชีใช้ล้างยอดบัญชีคุมตอนปิดงวด
+  </p>
+  <div class="grid three">
+    <div class="tile"><div class="t">🧾 คุณสมบัติใบวางบิล/ใบกำกับ</div><p>เหตุผลยกเลิก, ผู้จ่าย/ผู้รับ, ลิงก์ BOT, วันครบกำหนดจริง, เลขที่ชำระเงิน</p></div>
+    <div class="tile"><div class="t">🔒 การควบคุมข้อมูล</div><p>กันเลขที่ใบกำกับซื้อซ้ำ และบังคับตั้งหนี้ก่อนจ่าย (AP)</p></div>
+    <div class="tile"><div class="t">🧮 กระทบยอดปิดงวด</div><p>ล้างยอดบัญชีคุมงวด (VAT ภ.พ.30, WHT, บัญชีพัก/ระหว่างบริษัท)</p></div>
+  </div>
+
+  <h4>เมนูการใช้งาน</h4>
+  <ul>
+    <li><strong>Period Clearing</strong> — <span class="path">การบัญชี › รายการบันทึกบัญชี (Journal Entries) › Period Clearing</span></li>
+    <li><strong>VAT Clearing (ภ.พ.30)</strong> — <span class="path">การบัญชี › รายการบันทึกบัญชี › VAT Clearing (ภ.พ.30)</span></li>
+    <li><strong>WHT Clearing</strong> — <span class="path">การบัญชี › รายการบันทึกบัญชี › WHT Clearing (ภาษีหัก ณ ที่จ่าย)</span></li>
+    <li><strong>Suspense / Intercompany Clearing</strong> — <span class="path">การบัญชี › รายการบันทึกบัญชี › Suspense / Intercompany Clearing (บัญชีพัก)</span></li>
+    <li><strong>การตั้งค่า</strong> — <span class="path">การบัญชี › การตั้งค่า (Configuration) › Settings</span> (กลุ่ม “Accounts Payable (ทำจ่าย)”, “Revenue Department (BOT)”, “Period Clearing Default Accounts”)</li>
+    <li><strong>ใบวางบิล</strong> — เปิดใบแจ้งหนี้ลูกค้า แล้วพิมพ์รายงาน <em>Billing Note</em> ผ่านเมนูพิมพ์</li>
+  </ul>
+
+  <h4>ขั้นตอนการใช้งาน — ยกเลิกรายการพร้อมเหตุผล</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดเอกสาร</span> เปิดใบกำกับ/รายการบัญชีที่ต้องการยกเลิก (ต้องอยู่สถานะ ร่าง หรือ ลงบัญชีแล้ว)</li>
+    <li><span class="stitle">กดปุ่ม Cancel</span> ระบบจะเปิดหน้าต่าง “Cancel Reason” ให้กรอกเหตุผลแทนการยกเลิกทันที</li>
+    <li><span class="stitle">กรอกเหตุผลและยืนยัน</span> พิมพ์เหตุผล แล้วกด <span class="pill">Confirm Cancel</span> ระบบจะยกเลิกทุกรายการที่เลือกและบันทึกเหตุผลไว้</li>
+    <li><span class="stitle">ตรวจสอบย้อนหลัง</span> เหตุผลจะแสดงที่ส่วนบนของฟอร์ม (ฟิลด์ <span class="pill">od19_cancel_reason</span>) แบบอ่านอย่างเดียว</li>
+  </ol>
+  <div class="callout note">
+    เหตุผลการยกเลิกถูกเก็บแยกต่างหากและไม่ถูกล้างเมื่อคัดลอกเอกสาร (copy) จึงใช้เป็นหลักฐานตรวจสอบย้อนหลังได้
+  </div>
+
+  <h4>ขั้นตอนการใช้งาน — กระทบยอดปิดงวด (Period Clearing)</h4>
+  <ol class="steps">
+    <li><span class="stitle">เลือกช่วงวันที่และบัญชีคุม</span> กรอก <span class="pill">Date From</span> / <span class="pill">Date To</span> และเลือกบัญชีคุมที่ต้องการล้าง (เว้นว่าง = สแกนทุกบัญชีที่กระทบยอดได้)</li>
+    <li><span class="stitle">โหลดรายการค้าง</span> กด <span class="pill">Load Open Items</span> ระบบจัดกลุ่มรายการที่ลงบัญชีแล้วแต่ยังไม่กระทบยอด ตามบัญชีและคู่ค้า</li>
+    <li><span class="stitle">ตรวจสอบยอด</span> ดูตาราง Debit / Credit / Balance ของแต่ละกลุ่มก่อนล้าง</li>
+    <li><span class="stitle">กระทบยอด</span> กด <span class="pill">Reconcile</span> ระบบจะตัดรายการค้างทั้งหมดในงวดให้อัตโนมัติ แล้วโหลดผลลัพธ์ใหม่</li>
+  </ol>
+  <div class="callout tip">
+    Period Clearing ใช้ตัวช่วยกลาง <code>_od19_reconcile_move_lines</code> ตัวเดียวกับที่ใช้ในงาน other flows (เช็ค/เงินสดย่อย/เงินล่วงหน้า) จึงทำให้วิธีตัดบัญชีสอดคล้องกันทั้งระบบ
+  </div>
+
+  <h4>ขั้นตอนการใช้งาน — ล้างบัญชีภาษีมูลค่าเพิ่ม ภ.พ.30</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิด wizard</span> <span class="path">การบัญชี › รายการบันทึกบัญชี › VAT Clearing (ภ.พ.30)</span></li>
+    <li><span class="stitle">เลือกวันที่และบัญชี</span> กำหนด <span class="pill">As of Date</span>, บัญชีภาษีขาย, บัญชีภาษีซื้อ, บัญชีค้างจ่าย และบัญชีรอขอคืน (ดึงค่าจากการตั้งค่าให้อัตโนมัติ)</li>
+    <li><span class="stitle">ตรวจยอดสุทธิ</span> ระบบคำนวณยอดภาษีขาย–ภาษีซื้อ และแสดง <span class="pill">Net VAT</span> พร้อมประเภท (ค้างจ่าย / รอขอคืน / สุทธิเป็นศูนย์)</li>
+    <li><span class="stitle">โหลดและล้างยอด</span> กด <span class="pill">Load Open Items</span> แล้วกด <span class="pill">Clear &amp; Reconcile</span> ระบบตั้งรายการปิดงวดเพื่อโอนยอดสุทธิและกระทบยอดบัญชีคุมทั้งหมด</li>
+  </ol>
+  <p>
+    หลักการเดียวกันนี้ใช้กับ <strong>WHT Clearing</strong> (รวมภาษีหัก ณ ที่จ่ายค้างจ่ายไปยังบัญชีนำส่ง — เลือกได้ว่าจะลงรายการปิดงวดหรือไม่)
+    และ <strong>Suspense / Intercompany Clearing</strong> (กระทบยอดบัญชีพักและบัญชีระหว่างบริษัท ไม่ลงรายการปิดงวด)
+  </p>
+
+  <div class="flow">
+    <span class="stp">เลือกงวด/บัญชีคุม</span>
+    <span class="arrow">→</span>
+    <span class="stp">Load Open Items</span>
+    <span class="arrow">→</span>
+    <span class="stp">ตรวจยอดคงค้าง</span>
+    <span class="arrow">→</span>
+    <span class="stp">Clear &amp; Reconcile</span>
+    <span class="arrow">→</span>
+    <span class="stp">ยอดบัญชีคุมเป็นศูนย์</span>
+  </div>
+
+  <h4>ฟิลด์และปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>รายการ</th><th>อยู่ที่ไหน</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">od19_cancel_reason</span></td><td>ฟอร์มใบกำกับ</td><td>เหตุผลการยกเลิก (อ่านอย่างเดียว แสดงเมื่อมีค่า)</td></tr>
+      <tr><td><span class="pill">od19_payer_id</span> / <span class="pill">od19_payee_id</span></td><td>ใบกำกับ (เงินล่วงหน้า) และใบสำคัญจ่าย</td><td>ผู้จ่าย/ผู้รับเงินจริง</td></tr>
+      <tr><td><span class="pill">BOT</span> (ปุ่ม)</td><td>มุมขวาบนของใบกำกับ</td><td>เปิดลิงก์ตรวจสอบภาษีของกรมสรรพากร</td></tr>
+      <tr><td><span class="pill">od19_actual_due_date</span></td><td>ใบกำกับ</td><td>วันครบกำหนดจริง (เงินล่วงหน้า = วันที่ใบกำกับ + 30 วัน)</td></tr>
+      <tr><td><span class="pill">od19_payment_number</span></td><td>บิลซื้อ (vendor bill)</td><td>เลขที่ใบสำคัญจ่าย/ใบลดหนี้ที่ตัดกับบิลนี้</td></tr>
+      <tr><td><span class="pill">od19_wht_type_id</span> / <span class="pill">od19_wht_rate</span> / <span class="pill">od19_wht_invoice_amount</span></td><td>ใบสำคัญจ่าย (ขาออก)</td><td>ประเภท/อัตราภาษีหัก ณ ที่จ่าย และยอดที่คำนวณจากยอดก่อนภาษีของบิลที่กระทบยอด</td></tr>
+      <tr><td><span class="pill">บังคับตั้งหนี้ก่อนจ่าย (AP)</span></td><td>การตั้งค่า</td><td>เปิด/ปิดการบังคับว่าการจ่ายชำระเจ้าหนี้ต้องผูกบิลซื้อ</td></tr>
+      <tr><td><span class="pill">BOT URL (รายการภาษี)</span></td><td>การตั้งค่า</td><td>URL ฐานของระบบตรวจสอบภาษี (ค่าเริ่มต้น <code>https://www.rd.go.th/</code>)</td></tr>
+    </tbody>
+  </table>
+
+  <h4>การควบคุมและสถานะ</h4>
+  <ul>
+    <li><strong>บังคับตั้งหนี้ก่อนจ่าย:</strong> เมื่อเปิดใช้งาน การจ่ายชำระเจ้าหนี้ (outbound) ที่ไม่ได้อ้างอิงบิลซื้อจะ <span class="badge b-red">post ไม่ได้</span> — ยกเว้นการจ่ายคืนค่าใช้จ่ายให้พนักงาน</li>
+    <li><strong>กันเลขที่ใบกำกับซื้อซ้ำ:</strong> ระบบไม่ยอมให้คู่ค้ารายเดียวกัน (ในบริษัทเดียวกัน) ใช้เลขที่อ้างอิง (ref) ซ้ำบนบิลซื้อ/ใบลดหนี้ซื้อ เพื่อกันบันทึกเจ้าหนี้และภาษีซื้อซ้ำซ้อน</li>
+  </ul>
+  <div class="callout warn">
+    การล้างยอดด้วย Clearing wizard จะ <strong>ลงรายการบัญชีปิดงวดจริง</strong> และแก้ยอดบัญชีคุม ควรตรวจช่วงวันที่และบัญชีให้ถูกต้องก่อนกด Clear &amp; Reconcile และควรมีข้อมูลสำรอง (backup) ก่อนปิดงวด
+  </div>
+  <div class="callout note">
+    ทีมบัญชี (Accountant) จะเห็นเมนู Clearing ต่าง ๆ ส่วนการตั้งค่า AP/BOT อยู่ในกลุ่มผู้ดูแลระบบ
+  </div>
+
+  <!-- ================= acc1-2 ================= -->
+  <h3 class="mod" id="acc1-2"><span class="mtag">od19_accounting_cheque</span> การบริหารเช็ค (รับ–จ่าย) และสมุดเช็ค</h3>
+  <p>
+    โมดูลนี้เพิ่มระบบ <strong>บริหารเช็ค</strong> ทั้งฝั่งลูกค้า (เช็ครับ) และผู้ขาย (เช็คจ่าย) พร้อม
+    <strong>สมุดเช็ค</strong> ที่ออกเลขเช็คเป็นชุด และรายงาน <strong>พิมพ์เช็ค</strong> โดยเมื่อยืนยันเช็ค
+    ระบบจะสร้างและลงบันทึกรายการบัญชีให้อัตโนมัติ และเมื่อเช็คเด้ง/ยกเลิก จะกลับรายการบัญชีให้ครบถ้วน
+  </p>
+
+  <h4>เมนูการใช้งาน</h4>
+  <ul>
+    <li><strong>Cheques</strong> — <span class="path">การบัญชี › Cheques</span></li>
+    <li><strong>Cheque Books</strong> — <span class="path">การบัญชี › การตั้งค่า (Configuration) › Cheque Books</span></li>
+    <li><strong>บัญชีเช็คของบริษัท</strong> — <span class="path">การตั้งค่า › บริษัท › แท็บ General Information</span> (กลุ่ม “Cheque Management”)</li>
+  </ul>
+
+  <h4>สถานะเช็ค (State flow)</h4>
+  <div class="flow">
+    <span class="stp">Available/Draft</span>
+    <span class="arrow">→</span>
+    <span class="stp">Confirmed</span>
+    <span class="arrow">→</span>
+    <span class="stp">To Pay</span>
+    <span class="arrow">→</span>
+    <span class="stp">Deposited</span>
+    <span class="arrow">→</span>
+    <span class="stp">Cleared</span>
+    <span class="arrow">→</span>
+    <span class="stp">Paid</span>
+  </div>
+  <p>
+    สถานะที่เบี่ยงออกได้แก่ <span class="badge b-red">Bounced</span> (เช็คเด้ง — ระบบกลับรายการรับ/นำฝากทั้งหมด) และ
+    <span class="badge b-gray">Cancelled</span> (ยกเลิก — กลับรายการทุกใบที่สร้างไว้)
+  </p>
+
+  <h4>ขั้นตอนการใช้งาน — สมุดเช็คและออกเลขเช็ค</h4>
+  <ol class="steps">
+    <li><span class="stitle">สร้างสมุดเช็ค</span> ไปที่ Cheque Books กดสร้าง เลือก <span class="pill">Bank Account</span> (journal), <span class="pill">First Cheque No</span> และ <span class="pill">Quantity</span></li>
+    <li><span class="stitle">ออกรายการเช็ค</span> กด <span class="pill">Generate Cheques</span> ระบบสร้างใบเช็คย่อยตามจำนวน (สถานะ Available) — กด <span class="pill">Clear Cheques</span> เพื่อล้างใบที่ออกผิด</li>
+    <li><span class="stitle">ยืนยันสมุดเช็ค</span> กด <span class="pill">Confirm</span> ระบบออกรหัสสมุด (รูปแบบ <code>CB/ปี/รัน 5 หลัก</code>)</li>
+    <li><span class="stitle">ปิดสมุด</span> เมื่อใช้หมด กด <span class="pill">Done</span></li>
+  </ol>
+
+  <h4>ขั้นตอนการใช้งาน — เช็ครับจากลูกค้า</h4>
+  <ol class="steps">
+    <li><span class="stitle">สร้าง/เปิดเช็ค</span> เลือก <span class="pill">Cheque Type = Customer (Received)</span> กรอกคู่ค้า จำนวน วันเช็ค ครบกำหนด และธนาคาร</li>
+    <li><span class="stitle">ยืนยันรับเช็ค</span> กด <span class="pill">Confirm</span> → ระบบลงบันทึก <em>Dr บัญชีเช็ครับ / Cr ลูกหนี้</em></li>
+    <li><span class="stitle">นำฝากเช็ค</span> เมื่อถึงกำหนด กด <span class="pill">Deposit</span> → ระบบลงบันทึก <em>Dr ธนาคาร / Cr บัญชีเช็ครับ</em></li>
+    <li><span class="stitle">เคลียร์เช็ค</span> กด <span class="pill">Clear</span> เมื่อธนาคารเรียกเก็บสำเร็จ</li>
+    <li><span class="stitle">ตัดบัญชีลูกหนี้ (ถ้าต้องการ)</span> กด <span class="pill">Reconcile</span> เพื่อตัดรายการรับเช็คกับใบแจ้งหนี้เดิม</li>
+  </ol>
+
+  <h4>ขั้นตอนการใช้งาน — เช็คจ่ายให้ผู้ขาย</h4>
+  <ol class="steps">
+    <li><span class="stitle">เลือกเช็คจากสมุด</span> เปิดใบสำคัญจ่าย (ขาออก) แล้วเลือก <span class="pill">Paid Cheque</span> จากรายการเช็คสถานะ Available พร้อมกรอก <span class="pill">Pay To</span></li>
+    <li><span class="stitle">ลงบันทึกการจ่าย</span> เมื่อ post ใบสำคัญจ่าย ระบบดึงข้อมูลเข้าสู่ใบเช็ค (ผู้รับ, จำนวน, วัน) อัตโนมัติ</li>
+    <li><span class="stitle">ออกรายการวางจ่าย</span> ที่ใบเช็ค กด <span class="pill">To Pay</span> → ระบบลงบันทึก <em>Dr เจ้าหนี้ / Cr บัญชีเช็คจ่าย</em></li>
+    <li><span class="stitle">จ่ายจริง</span> กด <span class="pill">Mark Paid</span> → ระบบลงบันทึก <em>Dr บัญชีเช็คจ่าย / Cr ธนาคาร</em></li>
+    <li><span class="stitle">พิมพ์เช็ค</span> กดปุ่ม <span class="pill">Print Cheque</span> เพื่อพิมพ์ตามฟอร์ม</li>
+  </ol>
+
+  <div class="flow">
+    <span class="stp">Draft</span>
+    <span class="arrow">→</span>
+    <span class="stp">Confirmed</span>
+    <span class="arrow">→</span>
+    <span class="stp">To Pay / Deposited</span>
+    <span class="arrow">→</span>
+    <span class="stp">Cleared</span>
+    <span class="arrow">→</span>
+    <span class="stp">Paid</span>
+    <span class="arrow">→ (ถ้าเด้ง)</span>
+    <span class="stp">Bounced</span>
+  </div>
+
+  <h4>ฟิลด์และปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>ปุ่ม/ฟิลด์</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">cheque_type</span></td><td>Customer (เช็ครับ) หรือ Supplier (เช็คจ่าย)</td></tr>
+      <tr><td><span class="pill">amount</span> / <span class="pill">cheque_date</span> / <span class="pill">due_date</span></td><td>จำนวนเงิน, วันที่เช็ค, วันครบกำหนด</td></tr>
+      <tr><td><span class="pill">ac_payee</span></td><td>พิมพ์ “A/C PAYEE ONLY” บนเช็ค</td></tr>
+      <tr><td><span class="pill">Deposit</span> / <span class="pill">To Pay</span></td><td>ดำเนินการนำฝาก (เช็ครับ) / วางจ่าย (เช็คจ่าย)</td></tr>
+      <tr><td><span class="pill">Mark Paid</span></td><td>ปิดงานเมื่อจ่ายจริง</td></tr>
+      <tr><td><span class="pill">Bounce</span></td><td>ตั้งสถานะเช็คเด้ง และกลับรายการบัญชีที่สร้างไว้</td></tr>
+      <tr><td><span class="pill">Back to Available</span></td><td>คืนใบเช็คกลับสู่สถานะว่าง (กลับรายการก่อน)</td></tr>
+    </tbody>
+  </table>
+
+  <h4>การตั้งค่าและสิทธิ์</h4>
+  <p>
+    ต้องกำหนดในหน้าบริษัท (แท็บ General Information) ได้แก่ <span class="pill">Cheque Received Account</span>,
+    <span class="pill">Cheque Paid Account</span>, <span class="pill">Cheque Return Account</span> และ
+    <span class="pill">Default A/C Payee</span> จึงจะยืนยันเช็คได้
+  </p>
+  <div class="callout warn">
+    ระบบตรวจสอบความถูกต้องอัตโนมัติ: จำนวนเช็คต้อง <strong>มากกว่าศูนย์</strong> (ยกเว้นใบที่ยังว่าง), วันครบกำหนดต้อง
+    <strong>ไม่น้อยกว่า</strong> วันเช็ค และเลขที่เช็คต้อง <strong>ไม่ซ้ำ</strong> ภายในสมุดเดียวกัน
+  </div>
+
+  <!-- ================= acc1-3 ================= -->
+  <h3 class="mod" id="acc1-3"><span class="mtag">od19_accounting_dncn</span> ใบเพิ่มหนี้ / ใบลดหนี้ / ออกใบแจ้งหนี้ใหม่</h3>
+  <p>
+    โมดูลนี้เพิ่มปุ่มและกระบวนการสำหรับ <strong>ใบเพิ่มหนี้ (Debit Note)</strong>,
+    <strong>ใบลดหนี้ (Credit Note)</strong> และ <strong>ออกใบแจ้งหนี้ใหม่ (Remaster Invoice)</strong>
+    โดยผูกกับใบแจ้งหนี้ต้นทาง และบังคับให้ระบุ “เหตุผล” ก่อนลงบัญชี (สอดคล้องหลักเกณฑ์ภาษีไทย)
+  </p>
+
+  <h4>เมนูการใช้งาน</h4>
+  <ul>
+    <li><strong>สร้างเอกสาร</strong> — เปิดใบแจ้งหนี้ที่ <span class="badge b-green">ลงบัญชีแล้ว</span> แล้วใช้ปุ่มบนหัวฟอร์ม (Debit Note / Credit Note / Remaster)</li>
+    <li><strong>DN/CN Reasons</strong> — <span class="path">การบัญชี › การตั้งค่า (Configuration) › DN/CN Reasons</span> (จัดการรายการเหตุผล)</li>
+  </ul>
+
+  <h4>ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดใบแจ้งหนี้ต้นทาง</span> เปิดใบแจ้งหนี้/ใบกำกับที่ลงบัญชีแล้ว (ทั้งฝั่งขายและซื้อ)</li>
+    <li><span class="stitle">เลือกสร้างเอกสาร</span> กด <span class="pill">Debit Note</span> (ใบเพิ่มหนี้), <span class="pill">Credit Note</span> (ใบลดหนี้) หรือ <span class="pill">Remaster</span> (ออกใบแจ้งหนี้ใหม่)</li>
+    <li><span class="stitle">กรอกรายละเอียด</span> ระบบคัดลอกรายการจากต้นทาง: Debit Note คัดลอกบรรทัดที่ราคาเป็นศูนย์ (ไว้เพิ่มค่าบริการ/ภาษี), Remaster คัดลอกทั้งจำนวน ส่วน Credit Note เปิดฟอร์มใบลดหนี้พร้อมลิงก์ต้นทาง</li>
+    <li><span class="stitle">ระบุเหตุผล</span> เลือก <span class="pill">Reason</span> และกรอก <span class="pill">Remark</span> (จำเป็นก่อนลงบัญชี)</li>
+    <li><span class="stitle">ลงบัญชี</span> กด <span class="pill">Confirm/Post</span> เอกสารถึงจะเปลี่ยนเป็นสถานะลงบัญชี</li>
+  </ol>
+
+  <div class="flow">
+    <span class="stp">ใบแจ้งหนี้ต้นทาง (Posted)</span>
+    <span class="arrow">→</span>
+    <span class="stp">สร้าง DN / CN / Remaster</span>
+    <span class="arrow">→</span>
+    <span class="stp">ระบุเหตุผล</span>
+    <span class="arrow">→</span>
+    <span class="stp">ลงบัญชี (Posted)</span>
+    <span class="arrow">→ (เฉพาะ CN)</span>
+    <span class="stp">ตัดกับใบต้นทาง</span>
+  </div>
+
+  <h4>ฟิลด์และปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>ฟิลด์/ปุ่ม</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">dncn</span></td><td>ประเภท: Debit Note (ใบเพิ่มหนี้) / Credit Note (ใบลดหนี้) / Remaster</td></tr>
+      <tr><td><span class="pill">parent_id</span> + ปุ่ม <span class="pill">Parent Invoice</span></td><td>ใบแจ้งหนี้ต้นทาง และปุ่มกระโดดไปดูต้นทาง</td></tr>
+      <tr><td><span class="pill">reason_id</span> / <span class="pill">remark</span></td><td>เหตุผล (จากรายการ DN/CN Reasons) และคำอธิบายเพิ่มเติม</td></tr>
+      <tr><td><span class="pill">partner_tax_name</span> / <span class="pill">partner_branch_code</span></td><td>ข้อมูลภาษีของคู่ค้า (ชื่อในใบกำกับ, รหัสสาขา) สำหรับพิมพ์ใบกำกับ</td></tr>
+    </tbody>
+  </table>
+  <div class="callout note">
+    ใบลดหนี้ (Credit Note) เมื่อลงบัญชีแล้ว ระบบจะ <strong>กระทบยอดกับใบแจ้งหนี้ต้นทางให้อัตโนมัติ</strong>
+    เพื่อไม่ให้ยอดลูกหนี้/เจ้าหนี้ค้างเกินจริง
+  </div>
+  <div class="callout warn">
+    เอกสาร DN/CN/Remaster <strong>ต้องระบุเหตุผลก่อนลงบัญชี</strong> หากไม่มีระบบจะไม่ยอมให้ post
+  </div>
+
+  <!-- ================= acc1-4 ================= -->
+  <h3 class="mod" id="acc1-4"><span class="mtag">od19_accounting_prepayment</span> การเตรียมจ่าย (Prepare Payments / Billing)</h3>
+  <p>
+    โมดูลนี้ยกระดับเอกสาร “Prepare Payments” (เดิมใน Odoo 15) ขึ้นมาบนเอกสาร OCA <code>account.billing</code>
+    ฝั่งเจ้าหนี้ โดยรวมบิลซื้อหลายใบมารวมเป็นชุดเดียวเพื่อเตรียมจ่าย และเพิ่มปุ่มลัดกลับไปยังชุดที่เกี่ยวข้อง
+    โมดูลนี้ <strong>ไม่สร้างโมเดลซ้ำ</strong> เพียงปรับเมนู ปุ่ม และสิทธิ์การเข้าถึง
+  </p>
+
+  <h4>เมนูการใช้งาน</h4>
+  <ul>
+    <li><strong>Prepare Payments</strong> — <span class="path">การบัญชี › เจ้าหนี้ (Payables) › Prepare Payments</span></li>
+  </ul>
+
+  <h4>ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">รวมบิลเพื่อเตรียมจ่าย</span> ไปที่เมนู Prepare Payments สร้างเอกสารใหม่ เลือกบิลซื้อ (vendor bills) ที่จะจ่ายรวมกันในชุดเดียว</li>
+    <li><span class="stitle">ตรวจสอบจากฝั่งบิล</span> เปิดบิลซื้อ จะเห็นปุ่ม <span class="pill">Prepare Payments</span> นับจำนวนชุดที่บิลนี้ถูกจัดอยู่</li>
+    <li><span class="stitle">ตรวจสอบจากฝั่งใบสั่งซื้อ</span> เปิดใบสั่งซื้อ (Purchase Order) จะเห็นปุ่มเดียวกันสำหรับชุดที่รวมบิลของออเดอร์นั้น</li>
+    <li><span class="stitle">ตรวจสอบจากฝั่งใบสำคัญจ่าย</span> เปิดใบสำคัญจ่าย จะเห็นปุ่มนับชุดที่จ่ายชุดนั้น</li>
+    <li><span class="stitle">จ่ายชำระ</span> ดำเนินการจ่ายตามขั้นตอนของใบสำคัญจ่าย (Payment Vouchers) ตามปกติ</li>
+  </ol>
+
+  <h4>ฟิลด์และปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>รายการ</th><th>อยู่ที่ไหน</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td>ปุ่ม <span class="pill">Prepare Payments</span></td><td>บิลซื้อ / ใบสั่งซื้อ / ใบสำคัญจ่าย</td><td>เปิดชุดเตรียมจ่ายที่เอกสารนั้นสังกัดอยู่</td></tr>
+      <tr><td><span class="pill">bill_type = in_invoice</span></td><td>เอกสาร account.billing</td><td>แสดงเฉพาะฝั่งเจ้าหนี้เท่านั้น</td></tr>
+    </tbody>
+  </table>
+
+  <h4>สิทธิ์การเข้าถึง</h4>
+  <p>
+    เมนู Prepare Payments ถูกควบคุมด้วยกลุ่มสิทธิ์ <strong>Prepare Payments</strong> (หมวด Payables Preparation)
+    โดยผู้จัดการบัญชีและผู้ดูแลระบบจะได้รับสิทธิ์นี้โดยอัตโนมัติ และสมาชิกจะสืบทอดสิทธิ์งานใบแจ้งหนี้มาตรฐาน
+  </p>
+  <div class="callout note">
+    เดิมเมนูฝั่งผู้ขายถูกเรียกว่า “Billing” และเมนูใบสำคัญจ่ายก็ใช้คำว่า “Payment” ซ้ำกัน — โมดูลนี้เปลี่ยนชื่อผู้ขายเป็น
+    “Prepare Payments” และเมนูใบสำคัญจ่ายเป็น “Payment Vouchers” เพื่อไม่ให้สับสน
+  </div>
+
+  <!-- ================= acc1-5 ================= -->
+  <h3 class="mod" id="acc1-5"><span class="mtag">od19_accounting_petty_cash</span> เงินสดย่อย (Petty Cash)</h3>
+  <p>
+    โมดูลนี้เพิ่มระบบ <strong>กองทุนเงินสดย่อย</strong> และ <strong>รายการเบิกจ่าย/เติมเงิน</strong>
+    พร้อมเอกสาร <strong>ใบรับรองแทนใบเสร็จรับเงิน</strong> สำหรับกรณีที่ผู้รับเงินไม่สามารถออกใบเสร็จได้
+  </p>
+
+  <h4>เมนูการใช้งาน</h4>
+  <ul>
+    <li><strong>Funds</strong> — <span class="path">การบัญชี › Petty Cash › Funds</span></li>
+    <li><strong>Transactions</strong> — <span class="path">การบัญชี › Petty Cash › Transactions</span></li>
+  </ul>
+
+  <h4>สถานะ</h4>
+  <div class="flow">
+    <span class="stp">Draft</span>
+    <span class="arrow">→</span>
+    <span class="stp">Posted</span>
+    <span class="arrow">→</span>
+    <span class="stp">Cancelled</span>
+  </div>
+  <p>กองทุนเงินสดย่อยมีสถานะ <span class="badge b-green">Active</span> / <span class="badge b-gray">Inactive</span></p>
+
+  <h4>ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">ตั้งกองทุน</span> ไปที่ Funds กดสร้าง กรอกชื่อ เลือก <span class="pill">Petty Cash Account</span> (บัญชีประเภทเงินสด) และ <span class="pill">Initial Amount</span></li>
+    <li><span class="stitle">สร้างรายการ</span> ไปที่ Transactions กดสร้าง เลือกกองทุน เลือก <span class="pill">Type</span> = Expense (เบิกจ่าย) หรือ Replenishment (เติมเงิน)</li>
+    <li><span class="stitle">ระบุบัญชีค่าใช้จ่าย</span> กรณี Expense ต้องเลือก <span class="pill">Expense Account</span> และ <span class="pill">Journal</span></li>
+    <li><span class="stitle">ระบุประเภทเอกสาร</span> เลือก <span class="pill">Document Type</span>: ใบกำกับภาษี / ใบเสร็จรับเงิน / ใบรับรองแทนใบเสร็จรับเงิน</li>
+    <li><span class="stitle">ลงบัญชี</span> กด <span class="pill">Post</span> → ระบบสร้างและลงบันทึกรายการบัญชีอัตโนมัติ</li>
+    <li><span class="stitle">ตัดบัญชี / ยกเลิก</span> กด <span class="pill">Reconcile</span> เพื่อกระทบยอด หรือ <span class="pill">Cancel</span> / <span class="pill">Reset to Draft</span></li>
+    <li><span class="stitle">พิมพ์ใบรับรอง</span> ถ้าเป็น “ใบรับรองแทนใบเสร็จ” กดปุ่ม <span class="pill">พิมพ์ใบรับรองแทนใบเสร็จ</span></li>
+  </ol>
+
+  <h4>ฟิลด์และปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>รายการ</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">balance</span> (กองทุน)</td><td>ยอดคงเหลือ = ยอดตั้งต้น − เบิกจ่าย + เติมเงิน (นับเฉพาะรายการ Posted)</td></tr>
+      <tr><td><span class="pill">transaction_type</span></td><td>Expense (หักจากกองทุน) / Replenishment (เพิ่มเข้ากองทุน)</td></tr>
+      <tr><td><span class="pill">od19_document_type</span></td><td>ประเภทเอกสารประกอบ (ภาษีซื้อหักได้หรือไม่)</td></tr>
+      <tr><td><span class="pill">od19_certificate_number</span> / <span class="pill">od19_payee_name</span></td><td>เลขที่ใบรับรอง และชื่อผู้รับเงิน (พิมพ์บนใบรับรอง)</td></tr>
+      <tr><td><span class="pill">od19_vat_creditable</span></td><td>ภาษีซื้อหักได้ — เป็นเท็จเมื่อใช้ใบรับรองแทนใบเสร็จ</td></tr>
+    </tbody>
+  </table>
+
+  <h4>การตั้งค่า</h4>
+  <div class="callout warn">
+    ต้องมี <span class="pill">Expense Account</span> และ <span class="pill">Journal</span> ก่อนลงบัญชีรายการเบิกจ่าย และระบบจะ
+    <strong>ห้ามเบิกเกินยอดคงเหลือ</strong>ของกองทุน จำนวนเงินต้องมากกว่าศูนย์เสมอ
+  </div>
+  <div class="callout note">
+    ใบรับรองแทนใบเสร็จรับเงินไม่นำภาษีซื้อมาหักได้ เพราะผู้รับเงินไม่ได้จดทะเบียน VAT — ยอดทั้งหมดจะบันทึกเป็นค่าใช้จ่าย
+  </div>
+
+  <!-- ================= acc1-6 ================= -->
+  <h3 class="mod" id="acc1-6"><span class="mtag">od19_accounting_payment_fee</span> ค่าธรรมเนียมการจ่าย (Payment Fee / Bank Charges)</h3>
+  <p>
+    โมดูลนี้เพิ่มการบันทึก <strong>ค่าธรรมเนียมธนาคารหรือค่าบริการ</strong> ที่ถูกหักจากยอดโอนจริง
+    บนใบสำคัญจ่าย โดยระบบจะปรับยอดบัญชีเงินสด/ธนาคารและลงบรรทัดค่าใช้จ่ายให้เอง
+  </p>
+
+  <h4>เมนูการใช้งาน</h4>
+  <ul>
+    <li>เปิดใบสำคัญจ่าย — <span class="path">การบัญชี › เจ้าหนี้/ลูกหนี้ › Payments</span> ฟิลด์จะอยู่หลังช่อง <span class="pill">Amount</span></li>
+  </ul>
+
+  <h4>ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดใบสำคัญจ่าย</span> สร้างหรือเปิดใบสำคัญจ่ายตามปกติ</li>
+    <li><span class="stitle">กรอกค่าธรรมเนียม</span> ใส่ยอดใน <span class="pill">fee_amount</span> (Payment Fee)</li>
+    <li><span class="stitle">เลือกบัญชีค่าธรรมเนียม</span> ระบบจะแสดงช่อง <span class="pill">fee_account_id</span> (บังคับเมื่อมียอดค่าธรรมเนียม) เลือกบัญชีค่าใช้จ่าย เช่น ค่าธรรมเนียมธนาคาร</li>
+    <li><span class="stitle">ลงบัญชี</span> กด <span class="pill">Post</span> → ระบบปรับยอดบัญชีเงินสด/ธนาคารและเพิ่มบรรทัดค่าใช้จ่ายให้อัตโนมัติ</li>
+  </ol>
+
+  <h4>หลักการลงบัญชี</h4>
+  <table>
+    <thead><tr><th>กรณี</th><th>ผลต่อบัญชีธนาคาร</th><th>ผลต่อบัญชีค่าธรรมเนียม</th></tr></thead>
+    <tbody>
+      <tr><td>รับเงินจากลูกค้า (Inbound)</td><td>รับเข้าลดลงเท่ายอดค่าธรรมเนียม</td><td>เดบิตค่าใช้จ่ายค่าธรรมเนียม</td></tr>
+      <tr><td>จ่ายให้ผู้ขาย (Outbound)</td><td>จ่ายออกเพิ่มขึ้นเท่ายอดค่าธรรมเนียม</td><td>เดบิตค่าใช้จ่ายค่าธรรมเนียม</td></tr>
+    </tbody>
+  </table>
+  <div class="callout warn">
+    ค่าธรรมเนียมต้อง <strong>ไม่ติดลบ</strong> และถ้ามียอดค่าธรรมเนียมแต่ไม่เลือกบัญชี ระบบจะไม่ยอมให้ post
+  </div>
+
+  <!-- ================= acc1-7 ================= -->
+  <h3 class="mod" id="acc1-7"><span class="mtag">od19_accounting_reconcile_ui</span> หน้าจอกระทบยอด (OCA Bridge)</h3>
+  <p>
+    โมดูลนี้เป็น <strong>สะพานเชื่อม (bridge)</strong> ที่ <strong>ไม่มีตรรกะธุรกิจของตัวเอง</strong>
+    ทำหน้าที่เชื่อมแกนบัญชี OD19 เข้ากับหน้าจอกระบวนการกระทบยอดด้วยมือของ OCA (<code>account_reconcile_oca</code>)
+    และติดตั้งอัตโนมัติเมื่อมีทั้งสองฝ่ายอยู่แล้ว
+  </p>
+
+  <h4>เมนูการใช้งาน</h4>
+  <ul>
+    <li><strong>Reconcile</strong> — <span class="path">การบัญชี › การบัญชี (Accounting) › Reconcile</span></li>
+    <li>เมนูบริบท <strong>Reconcile</strong> บนหน้าบัญชีและหน้าคู่ค้า</li>
+  </ul>
+
+  <h4>ผู้ใช้เห็นอะไรเพิ่มขึ้น</h4>
+  <ul>
+    <li>หน้าจอสำหรับ <strong>จับคู่รายการค้างด้วยมือ</strong> (manual matching) สำหรับรายการที่ wizard ปิดงวดจัดการให้ไม่ได้</li>
+    <li>เมนูบริบท “Reconcile” ที่เปิดจากหน้าบัญชีหรือคู่ค้าได้ทันที</li>
+  </ul>
+  <div class="callout note">
+    เพราะแกนบัญชีไม่ผูกกับ OCA โดยตรง การติดตั้งโมดูลอื่นแบบเดี่ยวอาจไม่ได้หน้าจอนี้มาโดยอัตโนมัติ
+    ให้ติดตั้งโมดูล bridge นี้ (หรือรันสคริปต์ติดตั้งแบบ <code>-All</code>) เพื่อให้ได้หน้าจอกระทบยอด
+  </div>
+  <div class="callout tip">
+    งานปิดงวดรายวัน (VAT/WHT/บัญชีพัก) ยังใช้ wizard ในโมดูล <span class="mtag">od19_accounting_features</span> เป็นหลัก
+    ส่วนหน้าจอนี้เหมาะกับรายการค้างที่เหลือและต้องการจับคู่เอง
+  </div>
+
+  <!-- ================= acc1-8 ================= -->
+  <h3 class="mod" id="acc1-8"><span class="mtag">od19_accounting_advance</span> เงินล่วงหน้า (Advance Payment)</h3>
+  <p>
+    โมดูลนี้เพิ่มเอกสาร <strong>เงินรับล่วงหน้า / เงินจ่ายล่วงหน้า</strong> ของทั้งลูกค้าและผู้ขาย
+    รองรับการรับ/จ่าย<strong>เงินมัดจำ (ที่ต้องคิด VAT)</strong>, <strong>เงินประกัน (คืนได้ ไม่คิด VAT)</strong>
+    และ <strong>เงินล่วงหน้า (ไม่มีผล VAT ทันที)</strong> พร้อมระบบตัดยอดเมื่อนำไปใช้
+  </p>
+
+  <h4>เมนูการใช้งาน</h4>
+  <ul>
+    <li><strong>Advance Payments</strong> — <span class="path">การบัญชี › Advance Payments</span></li>
+  </ul>
+
+  <h4>สถานะ</h4>
+  <div class="flow">
+    <span class="stp">Draft</span>
+    <span class="arrow">→</span>
+    <span class="stp">Posted</span>
+    <span class="arrow">→</span>
+    <span class="stp">Reconciled</span>
+    <span class="arrow">→</span>
+    <span class="stp">Cancelled</span>
+  </div>
+
+  <h4>ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">สร้างเอกสาร</span> กดสร้าง ระบบออกรหัส (รูปแบบ <code>ADV/ปี/รัน 5 หลัก</code>) อัตโนมัติ</li>
+    <li><span class="stitle">เลือกประเภท</span> ระบุ <span class="pill">Type</span> = Customer (รับล่วงหน้า) / Supplier (จ่ายล่วงหน้า)</li>
+    <li><span class="stitle">เลือกชนิดเงินล่วงหน้า</span> เลือก <span class="pill">Advance Kind</span>: Deposit (มัดจำ, คิด VAT) / Security (เงินประกัน) / Prepayment (ล่วงหน้าทั่วไป)</li>
+    <li><span class="stitle">กรอกข้อมูลและบัญชี</span> กรอกคู่ค้า จำนวน วันที่ เลือก <span class="pill">Advance Account</span> และ <span class="pill">Journal</span></li>
+    <li><span class="stitle">ตั้งค่าภาษี (ตามกรณี)</span> ถ้าเป็น Deposit เลือก <span class="pill">VAT</span>; ถ้าเป็น Supplier เลือก <span class="pill">WHT</span> (ระบบคำนวณยอดสุทธิให้)</li>
+    <li><span class="stitle">ลงบัญชี</span> กด <span class="pill">Post</span> → ระบบสร้างรายการบัญชี (รวมบรรทัด VAT/WHT)</li>
+    <li><span class="stitle">ตัดยอดเมื่อใช้</span> กด <span class="pill">Reconcile</span> เพื่อตัดกับใบแจ้งหนี้ที่เกี่ยวข้อง จนยอดคงเหลือเป็นศูนย์จึงเป็นสถานะ Reconciled</li>
+  </ol>
+
+  <h4>ฟิลด์และปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>รายการ</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">od19_advance_kind</span></td><td>Deposit (VAT) / Security (คืนได้) / Prepayment (ล่วงหน้าทั่วไป)</td></tr>
+      <tr><td><span class="pill">amount</span> / <span class="pill">used_amount</span> / <span class="pill">remaining_amount</span></td><td>ยอดล่วงหน้า / ยอดที่ใช้ไป / ยอดคงเหลือ</td></tr>
+      <tr><td><span class="pill">advance_account_id</span></td><td>บัญชีเงินจ่าย/รับล่วงหน้า</td></tr>
+      <tr><td><span class="pill">od19_tax_id</span> / <span class="pill">od19_tax_amount</span></td><td>VAT (เฉพาะชนิด Deposit) และยอด VAT</td></tr>
+      <tr><td><span class="pill">od19_wht_tax_id</span> / <span class="pill">od19_wht_amount</span></td><td>ภาษีหัก ณ ที่จ่าย (เฉพาะผู้ขาย)</td></tr>
+    </tbody>
+  </table>
+  <div class="callout note">
+    Demo/ทดสอบ: สำหรับเงินล่วงหน้าผู้ขายที่มี WHT ยอดเงินสดที่จ่ายจริงจะหักภาษี ณ ที่จ่ายแล้ว
+    (ยอดสุทธิ = ยอดรวมรวม VAT − WHT)
+  </div>
+  <div class="callout warn">
+    จำนวนเงินต้อง <strong>มากกว่าศูนย์</strong> และต้องเลือก <span class="pill">Journal</span> ก่อนลงบัญชี
+    การยกเลิกทำได้เฉพาะเอกสารที่ Posted หรือ Reconciled แล้ว
+  </div>
+  <p class="footnote">
+    หมายเหตุการบัญชี: การออกหนังสือรับรองการหักภาษี ณ ที่จ่าย (50 ตาวิ) ของเงินล่วงหน้าผู้ขายยังไม่ได้ทำอัตโนมัติในปัจจุบัน
+  </p>
+
+  <!-- ================= acc1-9 ================= -->
+  <h3 class="mod" id="acc1-9"><span class="mtag">od19_accounting_analytic_require</span> บังคับบัญชีวิเคราะห์ (Analytic Require)</h3>
+  <p>
+    โมดูลนี้กำหนดให้ <strong>บัญชีบางบัญชี หรือสมุดบัญชีบางสมุด ต้องมีบัญชีวิเคราะห์ (Analytic)</strong>
+    มิฉะนั้นจะไม่สามารถลงบัญชีรายการได้ — ช่วยให้การวิเคราะห์ต้นทุนครบถ้วนตามนโยบายบริษัท
+  </p>
+
+  <h4>เมนูการใช้งาน</h4>
+  <ul>
+    <li><strong>การตั้งค่า</strong> — <span class="path">การตั้งค่า › บริษัท › แท็บ Accounting › กลุ่ม Analytic Requirement</span></li>
+    <li><strong>แจ้งเตือนบนฟอร์มรายการบัญชี</strong> — <span class="path">การบัญชี › รายการบันทึกบัญชี</span> (มีกล่องข้อความเตือนด้านบน)</li>
+  </ul>
+
+  <h4>ขั้นตอนการตั้งค่าและการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">ตั้งเงื่อนไขการบังคับ</span> ไปที่หน้าบริษัท แท็บ Accounting กรอก <span class="pill">od19_analytic_required_account_ids</span> (บัญชีที่ต้องมีวิเคราะห์) และ/หรือ <span class="pill">od19_analytic_require_journal_ids</span> (สมุดบัญชีที่ต้องมีวิเคราะห์)</li>
+    <li><span class="stitle">กรอกบัญชีวิเคราะห์ในรายการ</span> เมื่อสร้างรายการบัญชีที่เข้าเงื่อนไข ต้องระบุ <span class="pill">Analytic Distribution</span> (หรือบัญชีวิเคราะห์) ในบรรทัดที่เข้าเงื่อนไข</li>
+    <li><span class="stitle">ลงบัญชี</span> กด <span class="pill">Post</span> ระบบตรวจสอบทุกบรรทัด — ถ้าขาดบัญชีวิเคราะห์จะแจ้งข้อผิดพลาดและไม่ยอมให้ลง</li>
+  </ol>
+
+  <h4>หลักการตรวจสอบ</h4>
+  <ul>
+    <li>บรรทัด “ต้องมีวิเคราะห์” คือบรรทัดที่ <strong>บัญชีอยู่ในรายการที่บังคับ</strong> หรือ <strong>สมุดบัญชีอยู่ในรายการที่บังคับ</strong></li>
+    <li>บรรทัดประเภทหัวข้อ (Section) และหมายเหตุ (Note) จะถูกข้ามการตรวจสอบ</li>
+    <li>ถ้าเว้นว่างทั้งสองรายการ ระบบจะไม่บังคับเลย</li>
+  </ul>
+  <div class="callout tip">
+    ใช้วิธี “บังคับตามสมุดบัญชี” ให้ครอบคลุมทุกบรรทัดของสมุดนั้น หรือ “บังคับตามบัญชี” เพื่อเจาะจงเฉพาะบัญชีต้นทุน
+  </div>
+  <div class="callout warn">
+    ถ้าลงบัญชีไม่ได้พร้อมข้อความ “Analytic account is required…” ให้กลับไปเพิ่ม Analytic Distribution
+    ในบรรทัดที่ระบบระบุ แล้วลงบัญชีอีกครั้ง
+  </div>
+
+</section>

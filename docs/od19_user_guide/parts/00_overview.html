@@ -1,0 +1,192 @@
+<!--Part
+id=overview
+title=ภาพรวมระบบและวิธีใช้คู่มือ
+icon=🧭
+sub=แนวคิดกลางของระบบ · การนำทาง · การอนุมัติหลายชั้น · บทบาทผู้ใช้ · เลขที่เอกสาร · สัญลักษณ์ในคู่มือ
+-->
+
+<section class="part" id="overview">
+
+  <div class="part-head">
+    <h2 class="part-title"><span class="part-icon">🧭</span> ส่วนที่ 1 · ภาพรวมระบบและวิธีใช้คู่มือ</h2>
+    <p class="part-sub">
+      อธิบายสิ่งที่เหมือนกันทั้งระบบ — โครงสร้างเมนู, กลไกการอนุมัติหลายชั้น (Tier Validation),
+      บทบาทผู้ใช้, การออกเลขที่เอกสาร และวิธีอ่านคู่มือ — เพื่อให้ทุกส่วนที่เหลือในเล่มนี้อ่านได้ต่อเนื่องกัน
+    </p>
+  </div>
+
+  <nav class="toc mini">
+    <h3>สารบัญส่วนนี้</h3>
+    <ol>
+      <li><a href="#ov-1">ระบบนี้คืออะไร</a></li>
+      <li><a href="#ov-2">โครงสร้างเมนูหลักของระบบ</a></li>
+      <li><a href="#ov-3">แนวคิดการอนุมัติหลายชั้น (Tier Validation)</a></li>
+      <li><a href="#ov-4">บทบาทและสิทธิ์ผู้ใช้ (Security Roles)</a></li>
+      <li><a href="#ov-5">เอกสารและเลขที่เอกสาร</a></li>
+      <li><a href="#ov-6">การนำทางและทางลัด</a></li>
+      <li><a href="#ov-7">สัญลักษณ์ที่ใช้ในคู่มือนี้</a></li>
+      <li><a href="#ov-8">แผนผังโดเมนและจำนวนโมดูล</a></li>
+    </ol>
+  </nav>
+
+  <h3 class="mod" id="ov-1"><span class="mtag">overview</span> ระบบนี้คืออะไร</h3>
+  <p>
+    ระบบนี้คือ <strong>Odoo 19 Community Edition</strong> ที่ทาง AutoInfo ปรับแต่งเพิ่มผ่านโมดูลของตัวเอง
+    (ขึ้นต้นด้วย <code>od19_</code>) เพื่อรองรับกระบวนการทำงานจริงขององค์กร ทั้งงานบัญชี-การเงิน, การขาย,
+    การจัดซื้อ, คลังสินค้า, บุคคลและค่าใช้จ่าย, ระบบคุณภาพ ISO, โครงการ, บริการหลังการขาย, ยานพาหนะ,
+    เอกสาร และผู้ช่วย AI
+  </p>
+  <div class="grid three">
+    <div class="tile">
+      <div class="t">🧩 ทำงานครบวงจร</div>
+      <p>ตั้งแต่ต้นน้ำ (ขอซื้อ, ขาย, รับเข้า) ถึงปลายน้ำ (ใบกำกับภาษี, จ่ายเงิน, ส่งของ, บริการ)</p>
+    </div>
+    <div class="tile">
+      <div class="t">✅ มีการอนุมัติเป็นชั้น</div>
+      <p>เอกสารสำคัญผ่านการอนุมัติตามลำดับชั้นหัวหน้างาน → บัญชี → ผู้บริหาร ตามที่กำหนด</p>
+    </div>
+    <div class="tile">
+      <div class="t">🇹🇭 ปรับให้เข้ากับประเทศไทย</div>
+      <p>ใบกำกับภาษี, เลขที่เอกสารไทย, ภาษีหัก ณ ที่จ่าย, ฟอนต์ไทย และฟิลด์เฉพาะไทย</p>
+    </div>
+  </div>
+
+  <h3 class="mod" id="ov-2"><span class="mtag">overview</span> โครงสร้างเมนูหลักของระบบ</h3>
+  <p>
+    หลังเข้าสู่ระบบ จะเห็นแถบเมนูด้านบน (Top Bar) และไอคอนแอป (App Switcher) ที่มุมซ้ายบน
+    การเข้าถึงแต่ละโดเมนทำได้โดยกดที่ไอคอนแอป แล้วเลือกเมนูย่อยของโดเมนนั้น
+  </p>
+  <table>
+    <thead><tr><th>โดเมน (แอป)</th><th>ใช้ทำอะไร</th><th>ส่วนในคู่มือ</th></tr></thead>
+    <tbody>
+      <tr><td>บัญชี (Accounting)</td><td>ใบกำกับภาษี, จ่ายเงิน, กระทบยอด, งบการเงิน, เงินทดรอง</td><td>ส่วนที่ 2–3</td></tr>
+      <tr><td>การขาย (Sales)</td><td>ใบเสนอราคา, ใบสั่งขาย, สัญญา, วางบิล, เก็บเงิน</td><td>ส่วนที่ 4</td></tr>
+      <tr><td>จัดซื้อ (Purchase)</td><td>ใบขอซื้อ, ใบสั่งซื้อ, รับของ, วางบิลผู้ขาย</td><td>ส่วนที่ 5</td></tr>
+      <tr><td>คลังสินค้า (Inventory)</td><td>รับเข้า-จ่ายออก, โอนย้าย, นับสต๊อก, มูลค่าสินค้า</td><td>ส่วนที่ 6</td></tr>
+      <tr><td>บุคคลและค่าใช้จ่าย (HR)</td><td>ค่าใช้จ่าย, เงินทดรอง, ลงเวลา, จองห้องประชุม</td><td>ส่วนที่ 7</td></tr>
+      <tr><td>ระบบคุณภาพ (ISO)</td><td>เอกสารควบคุม, ความเสี่ยง, CAPA, ตรวจสอบภายใน, สอบเทียบ</td><td>ส่วนที่ 8</td></tr>
+      <tr><td>โครงการ (Project)</td><td>โครงการ, ต้นทุน/วิเคราะห์, เวลาทำงาน, เรียกเก็บ</td><td>ส่วนที่ 9</td></tr>
+      <tr><td>บริการและหลังการขาย</td><td>ใบรับประกัน, บัตรบริการ, QC, Helpdesk, RMA</td><td>ส่วนที่ 10</td></tr>
+      <tr><td>ยานพาหนะและขนส่ง</td><td>รถ, ประกัน/แจ้งเตือน, ใบขนส่ง, เส้นทาง</td><td>ส่วนที่ 11</td></tr>
+      <tr><td>ทรัพย์สิน (Assets)</td><td>ยืม-คืนทรัพย์สิน, จำหน่าย/ตัดจำหน่าย</td><td>ส่วนที่ 12</td></tr>
+      <tr><td>เอกสารและความรู้</td><td>ศูนย์รวมเอกสาร, ดึงเอกสาร, ลงนาม, ประกาศ, คลังความรู้</td><td>ส่วนที่ 13</td></tr>
+      <tr><td>เว็บไซต์และบุคลากร</td><td>เว็บไซต์องค์กร, พอร์ทัลพนักงาน, ตำแหน่งงาน</td><td>ส่วนที่ 14</td></tr>
+      <tr><td>ผู้ช่วย AI และแดชบอร์ด</td><td>แชท AI, แดชบอร์ด, รายงาน Jasper</td><td>ส่วนที่ 15</td></tr>
+      <tr><td>สิทธิ์และการอนุมัติ</td><td>บทบาทธุรกิจ, สิทธิ์เข้าถึง, ศูนย์อนุมัติกลาง, แจ้งเตือน</td><td>ส่วนที่ 16</td></tr>
+      <tr><td>การตั้งค่าและยูทิลิตี้</td><td>ฟิลด์/ฟอนต์ไทย, เลขที่เอกสาร, การนำทาง, ร่างอัตโนมัติ</td><td>ส่วนที่ 17</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="mod" id="ov-3"><span class="mtag">base_tier_validation</span> แนวคิดการอนุมัติหลายชั้น (Tier Validation)</h3>
+  <p>
+    เอกสารสำคัญ เช่น ใบเบิกค่าใช้จ่าย, เงินทดรอง, ใบขอซื้อ, ใบสั่งขาย ใช้ระบบ
+    <strong>การอนุมัติเป็นชั้น (Tier Validation)</strong> ร่วมกันทั้งระบบ โดยแต่ละเอกสารมี “ชั้นการอนุมัติ”
+    (Tier) ที่ผูกกับกลุ่มผู้ใช้ (User Group) และมีลำดับก่อน-หลัง
+  </p>
+  <div class="flow">
+    <span class="stp">รออนุมัติ (Waiting)</span>
+    <span class="arrow">→</span>
+    <span class="stp">ชั้น 1 · หัวหน้างาน</span>
+    <span class="arrow">→</span>
+    <span class="stp">ชั้น 2 · บัญชี/ฝ่ายที่เกี่ยวข้อง</span>
+    <span class="arrow">→</span>
+    <span class="stp">ชั้น 3 · ผู้บริหาร (ถ้ากำหนด)</span>
+    <span class="arrow">→</span>
+    <span class="stp">อนุมัติครบ (Approved)</span>
+  </div>
+  <div class="callout note">
+    <strong>ลำดับชั้น:</strong> ระบบเรียงชั้นตามค่า <code>sequence</code> ของ Tier — เลขมากจะพิจารณาก่อน
+    และถ้าตั้ง “อนุมัติตามลำดับ” (approve_sequence) ผู้ใช้จะอนุมัติข้ามชั้นไม่ได้จนกว่าชั้นก่อนหน้าจะครบ
+  </div>
+  <table>
+    <thead><tr><th>ปุ่ม/สถานะ</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge b-gray">Request Validation</span> / ยื่นขออนุมัติ</td><td>ส่งเอกสารเข้าสู่กระบวนการอนุมัติ (สถานะเปลี่ยนเป็น “รออนุมัติ”)</td></tr>
+      <tr><td><span class="badge b-green">Approve</span> / อนุมัติ</td><td>อนุมัติในชั้นที่ตัวเองมีสิทธิ์</td></tr>
+      <tr><td><span class="badge b-red">Refuse</span> / ไม่อนุมัติ</td><td>ปฏิเสธ พร้อมระบุเหตุผล เอกสารจะกลับสู่สถานะร่างหรือถูกยกเลิก</td></tr>
+      <tr><td><span class="badge b-amber">Forward</span> / ส่งต่อ</td><td>มอบการพิจารณาให้ผู้ใช้อื่น (เฉพาะเอกสารที่เปิดใช้ has_forward)</td></tr>
+      <tr><td><span class="badge b-blue">Reset</span> / รีเซ็ต</td><td>เริ่มกระบวนการอนุมัติใหม่</td></tr>
+    </tbody>
+  </table>
+  <p class="footnote">
+    เอกสารที่มีป้าย “รอฉันอนุมัติ” จะปรากฏในเมนู <strong>Approval Center</strong> (ศูนย์อนุมัติกลาง) — ดูรายละเอียดที่ส่วนที่ 15
+  </p>
+
+  <h3 class="mod" id="ov-4"><span class="mtag">od19_security_roles · od19_role_catalog</span> บทบาทและสิทธิ์ผู้ใช้ (Security Roles)</h3>
+  <p>
+    ระบบกำหนดบทบาทธุรกิจ (Business Roles) ไว้ล่วงหน้า แล้วผูกกับสิทธิ์การเข้าถึงเมนูและข้อมูล
+    ผู้ดูแลระบบสามารถกำหนดบทบาทให้พนักงานแต่ละคนได้ การมองเห็นเมนู/ปุ่มจะขึ้นกับบทบาทและกลุ่มสิทธิ์
+  </p>
+  <div class="grid two">
+    <div class="tile"><div class="t">👤 พนักงานทั่วไป (User)</div><p>เห็นเมนูของตัวเอง (ใบเบิกของฉัน, ลงเวลา, จองห้อง) สร้างและยื่นเอกสารของตัวเอง</p></div>
+    <div class="tile"><div class="t">👔 หัวหน้างาน (Manager)</div><p>อนุมัติเอกสารของลูกทีม, ดูรายงานของแผนก</p></div>
+    <div class="tile"><div class="t">🧾 ฝ่ายบัญชี (Accountant)</div><p>ตรวจ/อนุมัติด้านการเงิน, ออกใบกำกับภาษี, จ่ายเงิน, ปิดงวด</p></div>
+    <div class="tile"><div class="t">🛡️ ผู้ดูแลระบบ (Admin)</div><p>ตั้งค่าทั้งหมด, กำหนดบทบาท, จัดการโมดูลและ Workflow</p></div>
+  </div>
+  <div class="callout warn">
+    ถ้าไม่เห็นเมนูหรือปุ่มที่คู่มืออ้างถึง ให้ตรวจสอบว่า “บทบาท/กลุ่มสิทธิ์” ของบัญชีผู้ใช้ได้รับสิทธิ์นั้นแล้วหรือยัง —
+    ดูส่วนที่ 15 · แพลตฟอร์มและสิทธิ์
+  </div>
+
+  <h3 class="mod" id="ov-5"><span class="mtag">od19_document_sequence · od19_thai_localization_base</span> เอกสารและเลขที่เอกสาร</h3>
+  <p>
+    เอกสารทุกประเภทจะได้ <strong>เลขที่เอกสารแบบไทย</strong> อัตโนมัติเมื่อถึงขั้นตอนที่กำหนด
+    (เช่น ตอนยืนยัน หรือตอนออกใบกำกับภาษี) รูปแบบมักเป็น <code>PREFIX/ปี/เลขรัน</code>
+    โดยปีเป็นปีพุทธศักราชหรือ ค.ศ. ตามการตั้งค่า
+  </p>
+  <ul>
+    <li>เลขที่บางประเภทออกตอน “ยืนยัน” (Confirm) บางประเภทออกตอน “ลงบัญชี/ออกใบกำกับภาษี”</li>
+    <li>เลขที่ที่ออกแล้วมัก <strong>แก้ไขไม่ได้</strong> เพื่อรักษาความต่อเนื่องทางบัญชี-ภาษี</li>
+    <li>บางโมดูลมีปุ่ม “ออกเลขใหม่/ดึงเลข” (เช่น ใบกำกับภาษี, ใบเสนอราคา)</li>
+  </ul>
+
+  <h3 class="mod" id="ov-6"><span class="mtag">od19_web_navigation · od19_offline_draft</span> การนำทางและทางลัด</h3>
+  <ul>
+    <li><strong>ย้อนกลับ/ไปข้างหน้า:</strong> แถบนำทางบนหน้าจอมีปุ่ม Back/Forward ช่วยสลับหน้าเร็ว</li>
+    <li><strong>ร่างอัตโนมัติ (Offline Draft):</strong> ฟอร์มที่กรอกค้างไว้จะถูกบันทึกเป็นร่างอัตโนมัติ ป้องกันข้อมูลหายเมื่อเน็ตหลุด/ปิดหน้า</li>
+    <li><strong>คำใบ้ฟิลด์ (Field Hints):</strong> ฟิลด์สำคัญจะมีข้อความช่วยอธิบายการกรอก</li>
+    <li><strong>ทางลัดพนักงาน:</strong> รวมเมนูที่พนักงานใช้บ่อยไว้ด้วยกัน (ค่าใช้จ่าย, ลงเวลา, จองห้อง, ประกาศ)</li>
+  </ul>
+  <div class="callout tip">
+    ใช้ช่องค้นหาด้านบนสุดของคู่มือนี้ (หรือกด <span class="kbd">Ctrl</span> + <span class="kbd">K</span>) เพื่อค้นข้ามทุกส่วนในเล่มทันที
+  </div>
+
+  <h3 class="mod" id="ov-7">สัญลักษณ์ที่ใช้ในคู่มือนี้</h3>
+  <table>
+    <thead><tr><th>สัญลักษณ์</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge b-blue">i</span> กล่องสีฟ้า</td><td>หมายเหตุ (note) — ข้อควรรู้เพิ่มเติม</td></tr>
+      <tr><td><span class="badge b-green">✓</span> กล่องสีเขียว</td><td>เคล็ดลับ (tip) — แนวทางที่ช่วยให้ทำงานเร็วขึ้น</td></tr>
+      <tr><td><span class="badge b-amber">!</span> กล่องสีเหลือง</td><td>ข้อควรระวัง (warning)</td></tr>
+      <tr><td><span class="badge b-red">✕</span> กล่องสีแดง</td><td>ข้อห้าม/ความเสี่ยง (danger) — อาจกระทบข้อมูลหรือบัญชี</td></tr>
+      <tr><td><span class="path">เมนู › เมนูย่อย</span></td><td>เส้นทาง (path) ไปยังเมนูในระบบ</td></tr>
+      <tr><td><span class="pill">ฟิลด์</span></td><td>ชื่อฟิลด์/ค่าในหน้าจอ</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="mod" id="ov-8">แผนผังโดเมนและจำนวนโมดูล</h3>
+  <p>คู่มือเล่มนี้แบ่งเป็น 17 ส่วน ครอบคลุมโมดูล <code>od19_*</code> ทั้งหมดในระบบ:</p>
+  <table>
+    <thead><tr><th>ส่วน</th><th>ชื่อส่วน</th><th>โมดูลอ้างอิง</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>ภาพรวมระบบและวิธีใช้คู่มือ</td><td>overview (แนวคิดกลาง)</td></tr>
+      <tr><td>2</td><td>บัญชีและการเงิน — แกนหลัก</td><td>od19_accounting_features · cheque · dncn · prepayment · petty_cash · payment_fee · reconcile_ui · advance · analytic_require</td></tr>
+      <tr><td>3</td><td>บัญชีและการเงิน — รายงานและภาษี</td><td>od19_etax_invoice · thai_tax_reports · mis_balance_sheet · accounting_reporting · money_in_report · operational_closure · doubtful_debt · payment_voucher_reports · currency_rate_bot · billing_request</td></tr>
+      <tr><td>4</td><td>การขายและลูกค้า</td><td>od19_sale* · od19_sales_*</td></tr>
+      <tr><td>5</td><td>การจัดซื้อและผู้จำหน่าย</td><td>od19_purchase_*</td></tr>
+      <tr><td>6</td><td>สินค้าคงคลังและคลังสินค้า</td><td>od19_stock_* · od19_inventory_* · goods_issue · product_return · delivery_label</td></tr>
+      <tr><td>7</td><td>บุคคลและค่าใช้จ่ายพนักงาน</td><td>od19_hr_* · meeting_room_booking · recognition</td></tr>
+      <tr><td>8</td><td>ระบบคุณภาพ ISO</td><td>od19_iso_*</td></tr>
+      <tr><td>9</td><td>โครงการและต้นทุน</td><td>od19_project_*</td></tr>
+      <tr><td>10</td><td>บริการและหลังการขาย</td><td>od19_service_* · quality_control · helpdesk_extension · after_sales_reporting · internal_issue</td></tr>
+      <tr><td>11</td><td>ยานพาหนะและขนส่ง</td><td>od19_fleet_* · od19_transportation</td></tr>
+      <tr><td>12</td><td>ทรัพย์สิน (ยืม/จำหน่าย)</td><td>od19_asset_*</td></tr>
+      <tr><td>13</td><td>เอกสาร ความรู้ และการลงนาม</td><td>od19_document_* · announcement · knowledge_enhanced</td></tr>
+      <tr><td>14</td><td>เว็บไซต์และบุคลากร</td><td>od19_website</td></tr>
+      <tr><td>15</td><td>ผู้ช่วย AI และแดชบอร์ด</td><td>od19_ai_assistant · dashboard · *_jasper · reporting_jasper</td></tr>
+      <tr><td>16</td><td>สิทธิ์และการอนุมัติ</td><td>od19_security_roles · role_catalog · approval_center · notification_multi_channel</td></tr>
+      <tr><td>17</td><td>การตั้งค่าและยูทิลิตี้</td><td>od19_thai_* · partner_thai_fields · web_navigation · offline_draft · field_hints · ui_defaults · apps_filter · misc_features</td></tr>
+    </tbody>
+  </table>
+
+</section>

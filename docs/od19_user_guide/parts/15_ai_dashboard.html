@@ -1,0 +1,405 @@
+<!--Part
+id=ai
+title=ผู้ช่วย AI และแดชบอร์ด
+icon=🤖
+sub=แชทผู้ช่วย AI · แดชบอร์ดผู้บริหารพร้อมตัวสร้างในเบราว์เซอร์ · รายงาน JasperReports · ทัวร์แนะนำการใช้งาน
+-->
+
+<section class="part" id="ai">
+
+  <div class="part-head">
+    <h2 class="part-title"><span class="part-icon">🤖</span> ส่วนที่ 15 · ผู้ช่วย AI และแดชบอร์ด</h2>
+    <p class="part-sub">
+      ส่วนนี้รวมเครื่องมือช่วยตัดสินใจและช่วยทำงานที่อยู่ปลายทางของข้อมูลทั้งระบบ ได้แก่
+      <strong>ผู้ช่วย AI</strong> ที่ถามข้อมูลจริงจาก Odoo ผ่านแชท, <strong>แดชบอร์ดผู้บริหาร</strong>
+      ที่สร้างและออกแบบเองได้ในเบราว์เซอร์, <strong>ระบบรายงาน JasperReports</strong> สำหรับพิมพ์ฟอร์มและรายงานตามแบบราชการ/องค์กร
+      และ <strong>ทัวร์แนะนำการใช้งาน</strong> ที่พาเรียนรู้แต่ละโมดูลทีละขั้นตอน
+    </p>
+  </div>
+
+  <nav class="toc mini">
+    <h3>สารบัญส่วนนี้</h3>
+    <ol>
+      <li><a href="#ai-1">ผู้ช่วย AI (แชทและเครื่องมืออ่านข้อมูล)</a></li>
+      <li><a href="#ai-2">แดชบอร์ดผู้บริหารและตัวสร้างแดชบอร์ด</a></li>
+      <li><a href="#ai-3">ระบบรายงาน JasperReports</a></li>
+      <li><a href="#ai-4">ทัวร์แนะนำการใช้งาน (User Guide)</a></li>
+    </ol>
+  </nav>
+
+  <h3 class="mod" id="ai-1"><span class="mtag">od19_ai_assistant</span> ผู้ช่วย AI (แชทและเครื่องมืออ่านข้อมูล)</h3>
+  <p>
+    โมดูล <code>od19_ai_assistant</code> เป็นผู้ช่วย AI แบบ <strong>ติดตั้งในองค์กรเอง (self-hosted)</strong>
+    ทำงานกับปลายทางที่รองรับ OpenAI API (ค่าเริ่มต้นคือ <strong>Ollama</strong> ในเครื่อง, ทางเลือกคือ <strong>Groq</strong>)
+    โดยผู้ช่วยจะ <strong>อ่านข้อมูลจริงจาก Odoo</strong> ผ่านชุด “เครื่องมือ” (Tools) แล้วตอบกลับเป็นภาษาไทย
+    การอ่านทั้งหมดใช้สิทธิ์ของผู้ใช้ที่ถามจริง (ไม่ใช้สิทธิ์ผู้ดูแล) จึงเห็นได้เฉพาะข้อมูลที่ตัวเองมีสิทธิ์
+  </p>
+  <div class="grid three">
+    <div class="tile">
+      <div class="t">💬 ถาม-ตอบจากข้อมูลจริง</div>
+      <p>ค้นคู่ค้า สินค้า ใบสั่งขาย/ซื้อ ใบแจ้งหนี้ รายการบัญชี ยอดคงคลัง และพนักงาน พร้อมสรุปยอดขาย/ภาษี</p>
+    </div>
+    <div class="tile">
+      <div class="t">🔒 อ่านอย่างเดียวเป็นค่าเริ่มต้น</div>
+      <p>โหมด <span class="pill">read_only</span> ห้ามเขียนข้อมูลใด ๆ การสร้างเอกสารร่างเป็นโหมดเสริมที่ต้องเปิดเอง</p>
+    </div>
+    <div class="tile">
+      <div class="t">🧾 มีบันทึกการใช้งาน</div>
+      <p>ทุกครั้งที่เรียกเครื่องมือจะถูกบันทึกพร้อมผู้ใช้ ผลลัพธ์ และเวลา (ปิดบังข้อมูลลับอัตโนมัติ)</p>
+    </div>
+  </div>
+
+  <h4>จุดเข้าใช้งาน (เมนู)</h4>
+  <ul>
+    <li><span class="path">ผู้ช่วย AI › แชทผู้ช่วย AI</span> — หน้าจอแชทแบบสนทนา (ไคลเอนต์)</li>
+    <li><span class="path">ผู้ช่วย AI › ประวัติการสนทนา</span> — รายการบทสนทนาทั้งหมด (แบบฟอร์มและลิสต์)</li>
+    <li>การตั้งค่าปลายทาง AI: <span class="path">การตั้งค่า › ทั่วไป › ผู้ช่วย AI</span></li>
+    <li>โหมดความสามารถต่อผู้ใช้: <span class="path">การตั้งค่า › ผู้ใช้ › แท็บค่ากำหนดส่วนตัว › ผู้ช่วย AI</span></li>
+  </ul>
+
+  <h4>ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดแชท</span> เข้าเมนู <span class="path">ผู้ช่วย AI › แชทผู้ช่วย AI</span></li>
+    <li><span class="stitle">เริ่มบทสนทนาใหม่</span> กด “สร้าง” จะได้บทสนทนาสถานะ <span class="badge b-gray">ฉบับร่าง</span> เจ้าของคือผู้ใช้ปัจจุบัน</li>
+    <li><span class="stitle">พิมพ์คำถาม</span> ในช่อง <span class="pill">คำถามถัดไป</span> (เช่น “สรุปยอดค้างชำระของลูกค้ารายใหญ่ให้หน่อย”)</li>
+    <li><span class="stitle">กดปุ่ม “ส่ง”</span> ระบบจะส่งคำถามพร้อมประวัติทั้งหมดไปยังปลายทาง AI</li>
+    <li><span class="stitle">อ่านคำตอบ</span> บทสนทนาจะแสดงข้อความทีละรายการ แต่ละรายการมีป้ายบทบาท <span class="badge b-blue">ผู้ใช้</span> <span class="badge b-green">ผู้ช่วย</span> <span class="badge b-amber">ระบบ</span> <span class="badge b-gray">เครื่องมือ</span></li>
+    <li><span class="stitle">ตรวจสถานะ</span> เมื่อได้คำตอบสถานะจะเป็น <span class="badge b-green">สำเร็จ</span> และบันทึก “โมเดลที่ใช้” ไว้ให้</li>
+  </ol>
+
+  <h4>สถานะของบทสนทนา</h4>
+  <div class="flow">
+    <span class="stp">ฉบับร่าง (draft)</span>
+    <span class="arrow">→</span>
+    <span class="stp">ส่งคำถาม</span>
+    <span class="arrow">→</span>
+    <span class="stp">สำเร็จ (done)</span>
+    <span class="arrow">/</span>
+    <span class="stp">ผิดพลาด (error)</span>
+  </div>
+  <table>
+    <thead><tr><th>สถานะ</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge b-gray">ฉบับร่าง</span></td><td>ยังไม่มีการถามคำถาม หรือเพิ่งสร้างบทสนทนา</td></tr>
+      <tr><td><span class="badge b-green">สำเร็จ</span></td><td>ได้คำตอบจากโมเดลเรียบร้อยแล้ว</td></tr>
+      <tr><td><span class="badge b-red">ผิดพลาด</span></td><td>เชื่อมต่อปลายทาง AI ไม่ได้ — จะมีข้อความแจ้งเตือนและบันทึกข้อผิดพลาดไว้ในบทสนทนา</td></tr>
+    </tbody>
+  </table>
+
+  <h4>ฟิลด์และปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>รายการ</th><th>คำอธิบาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">ผู้ถาม</span> (user_id)</td><td>ผู้ใช้เจ้าของบทสนทนา (กำหนดอัตโนมัติ เป็นแบบอ่านอย่างเดียว)</td></tr>
+      <tr><td><span class="pill">โมเดลที่ใช้</span> (model_used)</td><td>ชื่อโมเดล AI ที่ตอบคำถามนั้น</td></tr>
+      <tr><td><span class="pill">จำนวนข้อความ</span> (message_count)</td><td>จำนวนข้อความทั้งหมดในบทสนทนา</td></tr>
+      <tr><td><span class="pill">บทสนทนา</span> (message_ids)</td><td>รายการข้อความ (บทบาท, ผู้ส่ง, เวลา, เนื้อหา) แสดงแบบอ่านอย่างเดียว</td></tr>
+      <tr><td><span class="pill">คำถามถัดไป</span> (prompt)</td><td>ช่องกรอกคำถามที่จะส่งรอบถัดไป</td></tr>
+      <tr><td><span class="badge b-blue">ส่ง</span> (action_ask)</td><td>ปุ่มหลักในฟอร์ม — ส่งคำถามและรับคำตอบ</td></tr>
+    </tbody>
+  </table>
+
+  <h4>เครื่องมือที่ผู้ช่วยเรียกใช้ได้</h4>
+  <p>ผู้ช่วยจะเลือกเรียกเครื่องมือตามคำถามเอง โดยส่งกลับเป็น JSON เพื่อขอข้อมูลก่อนตอบจริง (จำกัดไม่เกิน 5 รอบต่อคำถาม)</p>
+  <table>
+    <thead><tr><th>กลุ่ม</th><th>เครื่องมือ</th></tr></thead>
+    <tbody>
+      <tr><td>ค้นหาเฉพาะทาง</td><td><code>search_partners</code> · <code>search_products</code> · <code>search_sale_orders</code> · <code>search_purchase_orders</code> · <code>search_invoices</code> · <code>search_journal_items</code> · <code>search_stock_quants</code> · <code>search_employees</code></td></tr>
+      <tr><td>สรุปยอด</td><td><code>sales_summary</code> (ยอดขายรายเดือน) · <code>tax_summary</code> (ภาษีซื้อ/ขาย) · <code>overdue_receivables</code> (ลูกหนี้ค้างชำระ)</td></tr>
+      <tr><td>สำรวจทั่วไป</td><td><code>list_models</code> · <code>describe_model</code> · <code>search_records</code> · <code>aggregate_records</code> (เฉพาะโมเดลที่ผู้ใช้มีสิทธิ์อ่าน)</td></tr>
+      <tr><td>เมตา/ช่วยเหลือ</td><td><code>tool_help</code> (ดูพารามิเตอร์ของเครื่องมือ)</td></tr>
+      <tr><td>ร่างเอกสาร (โหมดเสริม)</td><td><code>draft_record</code> (เสนอสร้างเอกสารร่าง ต้องยืนยันก่อนสร้างจริง)</td></tr>
+    </tbody>
+  </table>
+
+  <h4>สิทธิ์การเข้าถึง</h4>
+  <ul>
+    <li>ทุกเครื่องมืออ่านข้อมูลด้วย <strong>สิทธิ์ของผู้ใช้ปัจจุบัน</strong> — Model ACL และ Record Rule มีผลเหมือนหน้าจอ Odoo ปกติ</li>
+    <li>เครื่องมือที่โมเดลต้นทางยังไม่ติดตั้งในฐานข้อมูลจะถูกซ่อนโดยอัตโนมัติ</li>
+    <li><strong>โหมดความสามารถ:</strong> <span class="pill">read_only</span> (ค่าเริ่มต้น) และ <span class="pill">read_draft</span> (เปิดสร้างร่างได้) — ตั้งได้ทั้งระดับระบบ (General Settings) และระดับผู้ใช้</li>
+    <li><strong>โหมด read_draft</strong> สร้างเอกสารร่างด้วยสิทธิ์ของผู้ใช้ (ไม่ sudo) เฉพาะโมเดลในรายการที่อนุญาต และบังคับสถานะเป็น <code>draft</code> เสมอ</li>
+    <li><strong>บันทึกการเรียกเครื่องมือ:</strong> ผู้ใช้ทั่วไปเห็นเฉพาะของตัวเอง ผู้ดูแลระบบเห็นทั้งหมด (ข้อมูลลับอย่างรหัสผ่าน/คีย์ถูกปิดบังอัตโนมัติ)</li>
+  </ul>
+
+  <h4>การตั้งค่าปลายทาง AI</h4>
+  <table>
+    <thead><tr><th>ฟิลด์</th><th>ค่าเริ่มต้น</th><th>หมายเหตุ</th></tr></thead>
+    <tbody>
+      <tr><td>ปลายทาง (Provider)</td><td>Ollama</td><td>ตั้งค่าแล้วระบบจะเติม Base URL / Model ให้ หรือใช้ Groq ได้</td></tr>
+      <tr><td>Base URL</td><td><code>http://localhost:11434/v1</code></td><td>ปลายทางแบบ OpenAI-compatible</td></tr>
+      <tr><td>โมเดล</td><td><code>qwen2.5:7b</code></td><td>ชื่อโมเดลของปลายทางนั้น</td></tr>
+      <tr><td>API Key</td><td>ว่าง</td><td>เว้นว่างได้หากใช้ Ollama ภายในเครื่อง (ฟิลด์แบบรหัสผ่าน)</td></tr>
+      <tr><td>Timeout</td><td>60 วินาที</td><td>ระยะเวลารอคำตอบสูงสุด</td></tr>
+      <tr><td>System Prompt</td><td>พรอมป์ภาษาไทยค่าเริ่มต้น</td><td>ปรับบุคลิก/วิธีตอบของผู้ช่วย</td></tr>
+      <tr><td>Capability Mode</td><td>read_only</td><td>โหมดอ่านอย่างเดียว หรือเปิดสร้างร่าง</td></tr>
+    </tbody>
+  </table>
+  <div class="callout tip">
+    ค่าปลายทาง/คีย์ยังอ่านจากไฟล์ <code>odoo.conf</code> ได้ด้วยคีย์ <code>od19_ai_provider</code>, <code>od19_ai_base_url</code>,
+    <code>od19_ai_model</code>, <code>od19_ai_api_key</code>, <code>od19_ai_timeout</code>, <code>od19_ai_system_prompt</code>
+    จึงไม่ต้องฝังรหัสลับในหน้าจอ ในกรณี deploy ที่เข้มงวด
+  </div>
+  <div class="callout warn">
+    หากสถานะขึ้น <span class="badge b-red">ผิดพลาด</span> ให้ตรวจว่าเปิดปลายทาง AI ไว้จริง (เช่น บริการ Ollama กำลังทำงาน)
+    และค่า Base URL / โมเดล ถูกต้อง — แก้ไขได้ที่ <span class="path">การตั้งค่า › ทั่วไป › ผู้ช่วย AI</span>
+  </div>
+  <div class="callout note">
+    ผู้ช่วยถูกกำกับให้ <strong>ตอบตามข้อมูลที่พบจริงเท่านั้น</strong> (ห้ามสมมติเอง) หากคำถามกว้างเกินจนต้องเรียกเครื่องมือเกิน 5 รอบ
+    ระบบจะแจ้งให้ตั้งคำถามให้เฉพาะเจาะจงขึ้น
+  </div>
+
+  <h3 class="mod" id="ai-2"><span class="mtag">od19_dashboard</span> แดชบอร์ดผู้บริหารและตัวสร้างแดชบอร์ด</h3>
+  <p>
+    โมดูล <code>od19_dashboard</code> ให้ <strong>แดชบอร์ดตามบทบาท</strong> (เจ้าของกิจการ/ผู้บริหาร/หัวหน้างานปฏิบัติการ)
+    พร้อม <strong>ตัวออกแบบแดชบอร์ดในเบราว์เซอร์</strong> ที่ลาก-จัดเรียง-ย่อขยายวิดเจ็ตได้เอง
+    ข้อมูลอ่านจาก <strong>รายการต้นทางที่กำหนดไว้ล่วงหน้า (Data Source)</strong> เท่านั้น เพื่อความปลอดภัยและความสม่ำเสมอ
+  </p>
+  <div class="grid three">
+    <div class="tile"><div class="t">🎯 แดชบอร์ดตามบทบาท</div><p>มาพร้อมชุดสำเร็จรูป Owner / Management / Operational ตามโซนสรุป–เตือน–แนวโน้ม–รายละเอียด</p></div>
+    <div class="tile"><div class="t">🧩 วิดเจ็ต 5 แบบ</div><p>KPI Value · Bar · Line · Pie · List (KPI มีการเทียบช่วงก่อนหน้าเป็น % ได้)</p></div>
+    <div class="tile"><div class="t">🚦 กฎสถานะ + สูตร</div><p>สี แดง/เหลือง/เขียว/เทา จากกฎที่เรียงลำดับ และสูตรคำนวณ 14 แบบ</p></div>
+  </div>
+
+  <h4>จุดเข้าใช้งาน (เมนู)</h4>
+  <ul>
+    <li><span class="path">แดชบอร์ด (Dashboards) › Custom Dashboards › My Dashboards</span> — หน้าจอแดชบอร์ด/ตัวออกแบบ</li>
+    <li><span class="path">แดชบอร์ด › Custom Dashboards › Configuration › Dashboards</span> — จัดการแดชบอร์ดทั้งหมด (ผู้จัดการ)</li>
+    <li><span class="path">แดชบอร์ด › Custom Dashboards › Configuration › Data Sources</span> — จัดการรายการต้นทางข้อมูล</li>
+  </ul>
+  <div class="callout note">
+    ตัวออกแบบถูกวางไว้ <strong>ภายในแอป “แดชบอร์ด” (Dashboards) มาตรฐาน</strong> ไม่ได้สร้างแอปใหม่ซ้ำซ้อน
+  </div>
+
+  <h4>ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">เตรียม Data Source</span> เปิด <span class="path">Configuration › Data Sources</span> แล้วสร้างรายการใหม่ ระบุ <span class="pill">ชื่อ</span>, <span class="pill">โมเดล</span> (เช่น <code>sale.order</code>) และเพิ่ม <span class="pill">Available Fields</span> พร้อมกำหนดชนิดเป็น measure / group by / date</li>
+    <li><span class="stitle">เปิดตัวดูแดชบอร์ด</span> เข้า <span class="path">Custom Dashboards › My Dashboards</span></li>
+    <li><span class="stitle">เลือกแดชบอร์ดและช่วงเวลา</span> เลือกจากแถบเครื่องมือ แล้วกด “Refresh data” เพื่อโหลดค่าใหม่</li>
+    <li><span class="stitle">สร้างแดชบอร์ดใหม่</span> กด “สร้าง” ตั้งชื่อ แล้วกด “Create”</li>
+    <li><span class="stitle">เข้าสู่โหมดออกแบบ</span> สลับเป็น “Customize” แล้วเพิ่มวิดเจ็ตจาก Data Source เลือกประเภท (KPI/Bar/Line/Pie/List) และหน่วยแสดงผล</li>
+    <li><span class="stitle">จัดวางและตกแต่ง</span> ลากเพื่อจัดลำดับ และย่อ/ขยายผ่านขนาดกริด (กว้าง 2–12 คอลัมน์, สูง 1–6 แถว)</li>
+    <li><span class="stitle">กำหนดกฎสถานะและสูตร (ถ้าต้องการ)</span> ตั้งค่าสีเตือนและสูตรคำนวณตามหัวข้อด้านล่าง แล้วบันทึก</li>
+  </ol>
+
+  <h4>ฟิลด์และปุ่มสำคัญ (แดชบอร์ด)</h4>
+  <table>
+    <thead><tr><th>ฟิลด์</th><th>คำอธิบาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">Audience</span> (audience)</td><td>บทบาทเป้าหมาย: Owner / Executive, Management, Operational Lead</td></tr>
+      <tr><td><span class="pill">เจ้าของ</span> (owner_id)</td><td>ผู้ที่ออกแบบแดชบอร์ดและแก้ไขได้</td></tr>
+      <tr><td><span class="pill">Visible to Groups / Users</span></td><td>กำหนดผู้ที่มองเห็น (เว้นว่าง = ผู้ใช้ภายในทุกคน)</td></tr>
+      <tr><td><span class="pill">Shared</span> (shared)</td><td>เปิดให้ใช้ร่วม หรือเก็บเป็นส่วนตัวกับเจ้าของ</td></tr>
+      <tr><td><span class="pill">Is Default</span> (is_default)</td><td>แดชบอร์ดเริ่มต้นของบทบาทนั้น</td></tr>
+      <tr><td><span class="pill">ช่วงเวลาเริ่มต้น</span> (default_date_range)</td><td>ค่าเริ่มต้น เช่น 30 วันล่าสุด, เดือนนี้, ปีนี้</td></tr>
+      <tr><td><span class="pill">สี</span> (color)</td><td>สีเน้นของหัวแดชบอร์ด</td></tr>
+    </tbody>
+  </table>
+
+  <h4>วิดเจ็ต (ฟิลด์สำคัญ)</h4>
+  <p>แต่ละวิดเจ็ตอ้าง <span class="pill">Data Source</span> แล้วกำหนด measure (ค่า), group by (แกน), date field + date range (ช่วงเวลา) และเขียนเงื่อนไขกรอง (domain) เพิ่มได้</p>
+  <table>
+    <thead><tr><th>องค์ประกอบ</th><th>ตัวเลือก/หน้าที่</th></tr></thead>
+    <tbody>
+      <tr><td>ประเภทวิดเจ็ต</td><td><span class="pill">KPI Value</span> · <span class="pill">Bar Chart</span> · <span class="pill">Line Chart</span> · <span class="pill">Pie Chart</span> · <span class="pill">List</span></td></tr>
+      <tr><td>รูปแบบค่า</td><td><span class="pill">Number</span> · <span class="pill">Currency</span> · <span class="pill">Percent</span> · <span class="pill">Hours</span></td></tr>
+      <tr><td>ช่วงเวลา</td><td>All Time · Today · Yesterday · Last 7/30/90 Days · This Month/Quarter/Year · Next 7 Days · Overdue</td></tr>
+      <tr><td>เป้าหมาย (goal_value)</td><td>ใช้เทียบกับค่าเป้าหมายและในสูตร % of Goal</td></tr>
+      <tr><td>Show Period Comparison</td><td>แสดงส่วนต่างเทียบช่วงก่อนหน้า</td></tr>
+      <tr><td>ขนาดกริด (grid_w / grid_h)</td><td>กว้าง 2–12 คอลัมน์ สูง 1–6 แถว</td></tr>
+    </tbody>
+  </table>
+
+  <h4>กฎสถานะ (Status Rules)</h4>
+  <p>ตารางกฎจะถูกประเมินจากบนลงล่าง ใช้กฎแรกที่เข้าข่าย (first-match-wins) แล้วลงสีให้วิดเจ็ต/แท่งกราฟ/ชิ้นพาย/แถวรายการ ตัวเทียบทางขวาเลือกได้หลากหลาย</p>
+  <table>
+    <thead><tr><th>ตัวเทียบ (Compare Type)</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td>Constant value</td><td>เทียบกับค่าคงที่ที่ระบุ</td></tr>
+      <tr><td>Goal</td><td>เทียบกับเป้าหมายของวิดเจ็ต</td></tr>
+      <tr><td>Percent of goal</td><td>เทียบกับเปอร์เซ็นต์ของเป้าหมาย</td></tr>
+      <tr><td>Another widget</td><td>เทียบกับวิดเจ็ตอื่น</td></tr>
+      <tr><td>Previous / YtY / MtM / QtQ</td><td>เทียบกับช่วงก่อนหน้า / ปีก่อน / เดือนก่อน / ไตรมาสก่อน</td></tr>
+    </tbody>
+  </table>
+  <div class="flow">
+    <span class="stp">สีเทา (grey)</span>
+    <span class="arrow">←</span>
+    <span class="stp">เขียว (green)</span>
+    <span class="arrow">←</span>
+    <span class="stp">เหลือง (yellow)</span>
+    <span class="arrow">←</span>
+    <span class="stp">แดง (red)</span>
+  </div>
+
+  <h4>สูตรคำนวณ (Formula Engine) — 14 แบบ</h4>
+  <p>ใช้ได้ 4 โหมด: Single measure · Preset formula · Custom expression · Library formula โดยสูตรสำเร็จรูปที่ให้มา ได้แก่</p>
+  <div class="grid two">
+    <div class="tile"><div class="t">📐 อัตราส่วน/ผลต่าง</div><p>Ratio (A ÷ B) · Difference (A − B) · Growth % · Share % · Variance · Conversion Rate</p></div>
+    <div class="tile"><div class="t">➕ รวม/ค่าเฉลี่ย/อื่น ๆ</div><p>Sum · Average · Weighted Average · % of Goal · Min · Max · Cumulative Change · Run Rate</p></div>
+  </div>
+  <div class="callout tip">
+    ในโหมดออกแบบมี <strong>Live Preview</strong> แสดงค่าที่คำนวณได้และจำนวนเรคคอร์ดที่วิดเจ็ตจะดึงมา
+    ก่อนบันทึกจริง — ช่วยลดการตั้งค่าผิด นอกจากนี้ยังตั้ง <strong>สูตรที่ตั้งชื่อไว้ใช้ซ้ำ</strong> (Library Formula)
+    ให้หลายวิดเจ็ตใช้ร่วมกันได้
+  </div>
+
+  <h4>แดชบอร์ดสำเร็จรูปที่ให้มา</h4>
+  <ul>
+    <li><strong>Owner Executive Dashboard</strong> — รายได้เดือนนี้ (เทียบเป้าหมาย), ลูกหนี้ค้างชำระ, ใบสั่งขายยืนยันแล้ว, งานส่งล่าช้า, แนวโน้ม/สัดส่วนรายได้</li>
+    <li><strong>Management Dashboard</strong> — ชุดสำหรับผู้บริหารระดับกลางตามโซนสรุป–เตือน–แนวโน้ม–รายละเอียด</li>
+    <li><strong>Operational Lead Dashboard</strong> — ชุดสำหรับหัวหน้างานปฏิบัติการ</li>
+  </ul>
+  <p class="footnote">ชุดสำเร็จรูปติดตั้งแบบ <code>noupdate</code> จึงไม่ทับการปรับแต่งที่ผู้ใช้ทำเองในภายหลัง</p>
+
+  <h4>สิทธิ์การเข้าถึง</h4>
+  <table>
+    <thead><tr><th>บทบาท</th><th>สิทธิ์</th></tr></thead>
+    <tbody>
+      <tr><td>Dashboard Designer</td><td>ออกแบบ/ปรับแต่งแดชบอร์ดของตัวเอง และแชร์ให้ผู้อื่น</td></tr>
+      <tr><td>Dashboard Manager</td><td>จัดการแดชบอร์ดที่แชร์ทั้งหมด และดูแล Data Sources (ผู้ดูแลระบบได้บทบาทนี้โดยอัตโนมัติ)</td></tr>
+      <tr><td>ผู้ใช้ทั่วไป</td><td>ดูแดชบอร์ดที่แชร์ไว้หรือที่ตัวเองเป็นเจ้าของเท่านั้น</td></tr>
+    </tbody>
+  </table>
+  <div class="callout warn">
+    วิดเจ็ตอ่านได้เฉพาะโมเดล/ฟิลด์ที่ประกาศไว้ใน <strong>Data Sources</strong> เท่านั้น จึงไม่สามารถสุ่มดึงตารางใดก็ได้จากหน้าจอ
+    หากต้องการแหล่งข้อมูลใหม่ ให้เพิ่มที่ <span class="path">Configuration › Data Sources</span> โดยผู้จัดการก่อน
+  </div>
+
+  <h3 class="mod" id="ai-3"><span class="mtag">od19_reporting_jasper</span> ระบบรายงาน JasperReports</h3>
+  <p>
+    โมดูล <code>od19_reporting_jasper</code> เป็น <strong>พื้นฐานการพิมพ์รายงาน/ฟอร์ม</strong> ด้วยเทมเพลต
+    <strong>JasperReports (.jrxml)</strong> ที่พอร์ตจากระบบเดิม และรองรับ <strong>QWeb (PDF)</strong>
+    ใช้สำหรับพิมพ์ฟอร์มและรายงานตามแบบขององค์กร/ราชการ (ใบกำกับภาษี, วางบิล, AR/AP, งบทดลอง, งบกำไรขาดทุน, ใบสำคัญ ฯลฯ)
+  </p>
+  <div class="grid three">
+    <div class="tile"><div class="t">🖨️ วิซาร์ดพิมพ์</div><p>เลือกพารามิเตอร์ (ภาษา/ปี พ.ศ./รูปแบบวันที่/ช่วงข้อมูล) แล้วสั่งสร้างเป็น PDF และ XLSX</p></div>
+    <div class="tile"><div class="t">🔗 ผูกกับเอกสาร</div><p>ปรากฏเป็นรายการ “Print” บนฟอร์มของเอกสารที่เกี่ยวข้อง (เช่น ใบแจ้งหนี้)</p></div>
+    <div class="tile"><div class="t">✉️ ส่งอีเมลได้</div><p>หลังสร้างเสร็จสามารถกด “Send by Email” พร้อมไฟล์แนบให้ผู้รับ</p></div>
+  </div>
+
+  <h4>จุดเข้าใช้งาน (เมนู)</h4>
+  <ul>
+    <li><span class="path">บัญชี › การตั้งค่า › Reports › Report Templates</span> — ทะเบียนเทมเพลต (QWeb / JasperServer)</li>
+    <li><span class="path">บัญชี › การตั้งค่า › Reports › Report Actions</span> — ผูกเทมเพลตกับปุ่มพิมพ์ของโมเดล</li>
+    <li><span class="path">บัญชี › การตั้งค่า › Reports › Jasper Database Connection</span> — การเชื่อมต่อฐานข้อมูลที่ JasperStarter ใช้</li>
+    <li>ตัววิซาร์ดพิมพ์จะปรากฏในเมนูพิมพ์ (Print) ของเอกสารที่ผูกไว้ เช่น “(J-Report OD15) Customer Invoice Form”</li>
+  </ul>
+
+  <h4>ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">ตรวจการเชื่อมต่อฐานข้อมูล</span> ที่ <span class="path">Configuration › Reports › Jasper Database Connection</span> — ค่าเริ่มต้นดึงจาก <code>odoo.conf</code> ปกติมีเรคคอร์ดเดียวก็เพียงพอ</li>
+    <li><span class="stitle">เปิดเอกสารและเลือกพิมพ์</span> บนฟอร์มเอกสาร เปิดเมนู Print แล้วเลือกฟอร์มที่ต้องการ</li>
+    <li><span class="stitle">เลือกเอกสาร ISO (ถ้ามี)</span> เลือก “ISO Document” เพื่อนำเลขทะเบียนISO มาต่อท้ายชื่อไฟล์และพิมพ์ลงรายงาน (ไม่เลือกก็ได้)</li>
+    <li><span class="stitle">กำหนดพารามิเตอร์</span> เลือก <span class="pill">ภาษา</span>, <span class="pill">ปีคริสตศักราช/พุทธศักราช (AD/BE)</span> และ <span class="pill">รูปแบบวันที่</span></li>
+    <li><span class="stitle">กด “Generate”</span> ระบบจะคอมไพล์เทมเพลต (ถ้าจำเป็น) แล้วสร้างไฟล์</li>
+    <li><span class="stitle">ดาวน์โหลดผลลัพธ์</span> หน้าจอจะเปลี่ยนเป็นโหมดผลลัพธ์ แสดงไฟล์ PDF และ XLSX</li>
+    <li><span class="stitle">Re-Print หรือส่งอีเมล</span> กด “Re-Print” เพื่อกลับไปแก้พารามิเตอร์ (ค่าที่กรอกคงอยู่) หรือ “Send by Email” เพื่อส่งให้ผู้รับ</li>
+  </ol>
+
+  <h4>สถานะของตัวช่วยพิมพ์</h4>
+  <div class="flow">
+    <span class="stp">input (ป้อนพารามิเตอร์)</span>
+    <span class="arrow">→</span>
+    <span class="stp">Generate</span>
+    <span class="arrow">→</span>
+    <span class="stp">output (แสดงไฟล์)</span>
+  </div>
+  <p class="footnote">ปุ่ม “Re-Print” จะสลับกลับไปสถานะ input โดยล้างไฟล์เก่าออก แต่คงค่าพารามิเตอร์เดิมไว้เพื่อพิมพ์ซ้ำ</p>
+
+  <h4>ฟิลด์และปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>รายการ</th><th>คำอธิบาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">ISO Document</span> / <span class="pill">ISO No.</span></td><td>เลขทะเบียนจากเอกสารควบคุม ISO ที่ดึงมาแสดงในรายงาน</td></tr>
+      <tr><td><span class="pill">ภาษา</span> (p_language)</td><td>Thai / English</td></tr>
+      <tr><td><span class="pill">ปีที่แสดง</span> (date_type)</td><td>AD = คริสตศักราช · BE = พุทธศักราช</td></tr>
+      <tr><td><span class="pill">รูปแบบวันที่</span> (date_format)</td><td>เลือกได้มากกว่า 30 รูปแบบ เช่น dd-MM-yyyy</td></tr>
+      <tr><td><span class="pill">PDF / XLSX</span></td><td>ไฟล์ผลลัพธ์หลังสร้าง (ดาวน์โหลดได้)</td></tr>
+      <tr><td><span class="badge b-green">Generate</span></td><td>สร้างรายงาน (สถานะ input)</td></tr>
+      <tr><td><span class="badge b-gray">Re-Print</span></td><td>กลับไปแก้พารามิเตอร์ (สถานะ output)</td></tr>
+      <tr><td><span class="badge b-blue">Send by Email</span></td><td>เปิดหน้าต่างส่งอีเมลพร้อมไฟล์แนบ (แสดงเมื่อมีผู้รับ)</td></tr>
+    </tbody>
+  </table>
+
+  <h4>การตั้งค่าระบบรายงาน</h4>
+  <table>
+    <thead><tr><th>รายการ</th><th>ฟิลด์/หมายเหตุ</th></tr></thead>
+    <tbody>
+      <tr><td>Report Template</td><td><strong>ชื่อ</strong>, <strong>โมเดล</strong>, <strong>ประเภท</strong> (QWeb PDF / JasperServer), <strong>JasperServer URL</strong> (เมื่อเลือก JasperServer), เนื้อหาเทมเพลต (แก้ XML ในตัว)</td></tr>
+      <tr><td>Report Action</td><td><strong>ชื่อ</strong>, <strong>เทมเพลต</strong>, โมเดล (ดึงจากเทมเพลต), สถานะใช้งาน — ใช้ผูกเป็นปุ่มพิมพ์บนเอกสาร</td></tr>
+      <tr><td>Jasper DB Connection</td><td>Driver (PostgreSQL), Host, Port, Database, User, Password, โฟลเดอร์ JDBC — ค่าเริ่มต้นจาก <code>odoo.conf</code></td></tr>
+    </tbody>
+  </table>
+
+  <h4>สิทธิ์และความปลอดภัย</h4>
+  <ul>
+    <li>การเชื่อมต่อฐานข้อมูลของ JasperReports ตั้งค่าได้ที่หน้าจอ และมีแท็บ <strong>Role Creation Script</strong> ที่แสดงสคริปต์ SQL สำหรับสร้าง role แบบอ่านอย่างเดียว (รันครั้งเดียวโดยผู้ดูแล PostgreSQL)</li>
+    <li>ไม่มีการสร้าง role อัตโนมัติบนฐานข้อมูล — ต้องตั้งค่าอย่างชัดเจนเพื่อความปลอดภัย</li>
+    <li>รหัสผ่านของการเชื่อมต่อถูกเก็บแบบรหัสผ่าน และค่าเริ่มต้นอ่านจากไฟล์ตั้งค่า ไม่ฝังในโค้ด</li>
+  </ul>
+  <div class="callout warn">
+    การสร้างรายงานต้องใช้ <strong>Java / JasperStarter</strong> ที่มาพร้อมโมดูล —
+    ระบบจะคอมไพล์ <code>.jrxml</code> เป็น <code>.jasper</code> อัตโนมัติเมื่อไฟล์เทมเพลตใหม่กว่าไฟล์ที่คอมไพล์แล้ว
+  </div>
+  <div class="callout danger">
+    ระวังการส่งพารามิเตอร์ที่ไม่ตรงกับที่เทมเพลต <code>.jrxml</code> ประกาศไว้ — JasperStarter อาจล้มเหลวได้
+    (เทมเพลตบางตัวไม่รับพารามิเตอร์บางตัว) ให้ใช้ค่าที่หน้าจอวิซาร์ดเตรียมไว้เท่านั้น
+  </div>
+  <div class="callout tip">
+    โมดูลนี้เป็น “พื้นฐาน” ของระบบรายงาน — ฟอร์มพิมพ์จำนวนมาก (ใบกำกับภาษี, วางบิล,
+    AR/AP Aging, บัญชีแยกประเภท, งบทดลอง, งบกำไรขาดทุน, ใบสำคัญรับ/จ่าย, การ์ดทรัพย์สิน ฯลฯ)
+    ขยายจากวิซาร์ดพิมพ์ตัวเดียวกัน จึงเรียนรู้ครั้งเดียวใช้ได้กับทุกฟอร์ม
+  </div>
+
+  <h3 class="mod" id="ai-4"><span class="mtag">od19_user_guide_tours</span> ทัวร์แนะนำการใช้งาน (User Guide)</h3>
+  <p>
+    โมดูล <code>od19_user_guide_tours</code> ให้ <strong>ทัวร์แนะนำการใช้งานแบบอินเทอร์แอกทีฟ</strong>
+    ที่ครอบคลุมทุกโมดูลธุรกิจของ OD19 โดยแต่ละทัวร์จะ <strong>เริ่มเองโดยอัตโนมัติเมื่อผู้ใช้เปิดแอปนั้นเป็นครั้งแรก</strong>
+    และยังเปิดย้อนดูได้จากเมนู User Guide หรือจากลิงก์โดยตรง
+  </p>
+  <div class="grid three">
+    <div class="tile"><div class="t">🚀 เริ่มอัตโนมัติตามแอป</div><p>เปิดแอปครั้งแรก จะเห็นทัวร์ของแอปนั้นทันที ไม่ต้องไปตามหาเอง</p></div>
+    <div class="tile"><div class="t">🗂️ รวมไว้ที่ User Guide</div><p>ศูนย์รวมทัวร์ทั้งหมดสำหรับผู้ใช้ทุกคน (ไม่ใช่แค่ผู้ดูแลระบบ)</p></div>
+    <div class="tile"><div class="t">🔁 ทบทวนได้เสมอ</div><p>ทัวร์ที่นับว่า “ดูแล้ว” เฉพาะเมื่อทำจนจบขั้นตอนสุดท้ายเท่านั้น</p></div>
+  </div>
+
+  <h4>จุดเข้าใช้งาน (เมนู)</h4>
+  <ul>
+    <li><span class="path">User Guide › Interactive Tours</span> — รายการทัวร์ทั้งหมด (ผู้ใช้ภายในทุกคน)</li>
+    <li><span class="path">การตั้งค่า › เทคนิค › Tours</span> — จัดการทัวร์ (ผู้ดูแลระบบ)</li>
+    <li>ลิงก์โดยตรง: <code>/odoo?tour=&lt;ชื่อทัวร์&gt;</code></li>
+  </ul>
+
+  <h4>ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดแอปที่ต้องการ</span> เมื่อเปิดแอปครั้งแรก ทัวร์ที่ผูกกับแอปนั้นจะเริ่มขึ้นเองโดยอัตโนมัติ</li>
+    <li><span class="stitle">ทำตามขั้นตอน</span> แต่ละขั้นมีคำอธิบายพร้อมตำแหน่งชี้ไปที่เมนู/ปุ่มที่ถูกต้อง</li>
+    <li><span class="stitle">ทำจนจบ</span> เมื่อถึงขั้นตอนสุดท้าย ระบบจะบันทึกว่าผู้ใช้ “ดูทัวร์นี้แล้ว”</li>
+    <li><span class="stitle">เปิดทบทวนเอง (ถ้าต้องการ)</span> เข้า <span class="path">User Guide › Interactive Tours</span> เลือกทัวร์แล้วกดปุ่ม Onboarding</li>
+    <li><span class="stitle">เปิดผ่านลิงก์</span> ใช้ที่อยู่รูปแบบ <code>/odoo?tour=&lt;ชื่อทัวร์&gt;</code> ได้เช่นกัน</li>
+  </ol>
+
+  <h4>กลไกการทำงาน (แนวคิดสำคัญ)</h4>
+  <ul>
+    <li>ทัวร์แต่ละตัวถูกประกาศสองที่: เป็นเรคคอร์ด <code>web_tour.tour</code> ในฐานข้อมูล (เพื่อให้แสดงในรายการและเปิดได้) และเป็นรีจิสทรีของขั้นตอนในไฟล์ JS</li>
+    <li>ตั้งค่าทัวร์แนะนำเป็น <span class="pill">custom = True</span> เพื่อไม่ให้ปนกับคิวการแนะนำตัว (onboarding) ตามลำดับของ Odoo มาตรฐาน</li>
+    <li>มีบริการฝั่งหน้าเว็บ (guide tour service) คอยผูก “เมนูรากของแอป → ทัวร์” แล้วเริ่มทัวร์เมื่อเปิดแอปนั้น</li>
+    <li>การนับว่า “ดูแล้ว” ใช้กลไกมาตรฐานของ Odoo (consume) ซึ่งเกิดเมื่อผู้ใช้ทำถึงขั้นตอนสุดท้าย — ทัวร์ที่ทำไม่จบจะถูกเสนออีกครั้งเมื่อเปิดแอปครั้งต่อไป</li>
+  </ul>
+
+  <h4>สิทธิ์การเข้าถึง</h4>
+  <ul>
+    <li>เมนู <strong>User Guide</strong> และรายการทัวร์ เปิดให้ <strong>ผู้ใช้ภายในทุกคน</strong></li>
+    <li>การจัดการ/แก้ไขทัวร์อยู่ในพื้นที่ผู้ดูแลระบบ (<span class="path">การตั้งค่า › เทคนิค › Tours</span>)</li>
+    <li>ทัวร์จะเริ่มอัตโนมัติเฉพาะผู้ใช้ที่เปิดตัวเลือกการแนะนำ (tour) ไว้</li>
+  </ul>
+  <div class="callout tip">
+    ทัวร์ครอบคลุมตั้งแต่ผู้ช่วย AI, แดชบอร์ด, รายงาน Jasper, การขาย/จัดซื้อ, คลังสินค้า, บัญชี,
+    บุคคลและค่าใช้จ่าย, โครงการ, ISO, ยานพาหนะ, ทรัพย์สิน, เอกสาร ไปจนถึงสิทธิ์และความปลอดภัย —
+    เหมาะใช้ฝึกพนักงานใหม่ให้เข้าใจระบบทีละส่วน
+  </div>
+  <div class="callout note">
+    ปุ่ม <strong>Onboarding</strong> ท้ายแถวคือปุ่มเริ่มทัวร์สำหรับผู้ใช้ ส่วนปุ่ม <strong>Testing</strong> สงวนไว้สำหรับนักพัฒนา
+  </div>
+
+</section>

@@ -1,0 +1,474 @@
+<!--Part
+id=service
+title=บริการและหลังการขาย
+icon=🛠️
+sub=ประกัน/เคลม · บัตรบริการและสัญญาบริการรายงวด · QC ควบคุมคุณภาพ · Helpdesk ลูกค้า-ภายใน · รายงาน KPI หลังการขาย · ข้อร้องเรียนภายใน
+-->
+
+<section class="part" id="service">
+
+  <div class="part-head">
+    <h2 class="part-title"><span class="part-icon">🛠️</span> ส่วนที่ 10 · บริการและหลังการขาย</h2>
+    <p class="part-sub">
+      ส่วนนี้รวบรวมงานบริการหลังการขายทั้งวงจร — ตั้งแต่ <strong>ใบรับประกันสินค้าและ Lot/Serial</strong>,
+      <strong>การเคลม/RMA</strong>, <strong>บัตรบริการ (บำรุงรักษาเชิงป้องกัน)</strong>, <strong>สัญญาบริการเรียกเก็บรายงวด (PM/AMC)</strong>,
+      ไปจนถึง <strong>การควบคุมคุณภาพ QC</strong> ขาเข้า-ขาออก, <strong>ศูนย์ Helpdesk</strong> ทั้งฝั่งลูกค้าและภายในองค์กร,
+      <strong>รายงาน KPI หลังการขาย</strong> และ <strong>ระบบแจ้งปัญหาภายในพร้อมการอนุมัติเป็นชั้น</strong>
+    </p>
+  </div>
+
+  <nav class="toc mini">
+    <h3>สารบัญส่วนนี้</h3>
+    <ol>
+      <li><a href="#svc-1">od19_service_warranty — ประกันสินค้า และใบเคลม/RMA</a></li>
+      <li><a href="#svc-2">od19_service_card — บัตรบริการ/บำรุงรักษาเชิงป้องกัน และ SLA</a></li>
+      <li><a href="#svc-3">od19_service_contract — สัญญาบริการเรียกเก็บรายงวด (PM/AMC)</a></li>
+      <li><a href="#svc-4">od19_quality_control — ตรวจสอบคุณภาพขาเข้า/ขาออก และ Nonconformity</a></li>
+      <li><a href="#svc-5">od19_helpdesk_extension — Helpdesk ภายใน vs บริการลูกค้า</a></li>
+      <li><a href="#svc-6">od19_after_sales_reporting — รายงาน KPI และแดชบอร์ดหลังการขาย</a></li>
+      <li><a href="#svc-7">od19_internal_issue — แจ้งปัญหาภายใน ความเป็นส่วนตัว และการอนุมัติ</a></li>
+    </ol>
+  </nav>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="svc-1"><span class="mtag">od19_service_warranty</span> ประกันสินค้า และใบเคลม/RMA</h3>
+
+  <h4>1) วัตถุประสงค์</h4>
+  <p>
+    จัดการ <strong>ประกันสินค้า</strong> และ <strong>การเคลม</strong> บนพื้นฐานของโมดูลซ่อม (repair) โดยเพิ่มระยะเวลาประกันระดับสินค้า,
+    สถานะประกันระดับ Lot/Serial และเอกสาร <strong>ใบเคลม/RMA</strong> (<code>od19.warranty.claim</code>) ที่เชื่อมกับใบสั่งซ่อม
+    (repair order) เพื่อให้ตรวจได้ว่าอุปกรณ์ที่มาเคลมยังอยู่ในระยะประกันหรือไม่
+  </p>
+
+  <h4>2) เมนู</h4>
+  <table>
+    <thead><tr><th>เมนู / ตำแหน่ง</th><th>ใช้ทำอะไร</th><th>กลุ่มสิทธิ์</th></tr></thead>
+    <tbody>
+      <tr><td><span class="path">Repair (การซ่อม) › Warranty Claims</span></td><td>สร้างและติดตามใบเคลม/ประกัน/RMA</td><td>ผู้ใช้ทั่วไป</td></tr>
+      <tr><td><span class="path">สินค้า › แท็บ Inventory › กลุ่ม Warranty</span></td><td>ตั้งชนิด/ระยะเวลาประกันของสินค้า</td><td>ผู้ใช้ทั่วไป</td></tr>
+      <tr><td><span class="path">คลังสินค้า › Lot/Serial › กลุ่ม Warranty</span></td><td>ตั้งวันเริ่มประกัน และดูวันหมดอายุ/สถานะประกัน</td><td>ผู้ใช้ทั่วไป</td></tr>
+      <tr><td><span class="path">Repair › ใบสั่งซ่อม › ฟิลด์ Warranty Claim</span></td><td>แสดงใบเคลมต้นทางของใบสั่งซ่อม</td><td>ผู้ใช้ทั่วไป</td></tr>
+    </tbody>
+  </table>
+
+  <h4>3) ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">ตั้งค่าประกันของสินค้า</span> เปิดสินค้า → แท็บ <strong>Inventory</strong> → กลุ่ม <strong>Warranty</strong> เลือก <span class="pill">Warranty Type</span> (<code>none/days/months/years</code>) และกรอก <span class="pill">Warranty Duration (days)</span></li>
+    <li><span class="stitle">ตั้งวันเริ่มประกันที่ Lot/Serial (ถ้ามี)</span> เปิด Lot/Serial → กลุ่ม <strong>Warranty</strong> กรอก <span class="pill">Warranty Start Date</span> ระบบจะคำนวณ <span class="pill">Warranty End Date</span> และ <span class="pill">Warranty Status</span> ให้อัตโนมัติ (ตัวคูณ: วัน = ×1, เดือน = ×30, ปี = ×365)</li>
+    <li><span class="stitle">สร้างใบเคลม</span> ไปที่ <span class="path">Repair › Warranty Claims</span> กด New ระบุลูกค้า, สินค้า, Lot/Serial, ประเภทเคลม, วันที่เคลม และรายละเอียดปัญหา</li>
+    <li><span class="stitle">ตรวจสถานะประกัน</span> ระบบคำนวณ <span class="pill">Under Warranty</span> ให้เอง — ถ้าผูก Lot/Serial จะใช้สถานะของ Lot, ถ้าไม่ผูกจะคำนวณจากระยะประกันสินค้า + วันเริ่มประกัน</li>
+    <li><span class="stitle">ดำเนินการเคลม</span> กด <span class="badge b-blue">Confirm</span> → <span class="badge b-blue">Start</span> → <span class="badge b-green">Done</span> และกรอก <span class="pill">Resolution Notes</span></li>
+    <li><span class="stitle">ส่งซ่อม</span> กด <span class="badge b-gray">Create Repair Order</span> เพื่อสร้างใบสั่งซ่อมที่ผูกกลับมาที่ใบเคลมนี้ (สถานะจะเปลี่ยนเป็น กำลังดำเนินการ)</li>
+  </ol>
+
+  <h4>4) สถานะ</h4>
+  <div class="flow">
+    <span class="stp">Draft</span><span class="arrow">→</span>
+    <span class="stp">Confirmed</span><span class="arrow">→</span>
+    <span class="stp">In Progress</span><span class="arrow">→</span>
+    <span class="stp">Done</span>
+  </div>
+  <p>นอกเส้นทางหลักมี <span class="badge b-red">Rejected</span> (ไม่รับเคลม) และ <span class="badge b-gray">Cancelled</span> (ยกเลิก) — ใบเคลมที่ Done/Rejected จะถูกยกเลิกหรือปฏิเสธซ้ำไม่ได้</p>
+
+  <h4>5) ฟิลด์/ปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>ฟิลด์/ปุ่ม</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">Claim Type</span></td><td>ประเภทเคลม: Warranty / RMA (คืนสินค้า) / Repair (ซ่อม)</td></tr>
+      <tr><td><span class="pill">Under Warranty</span></td><td>สถานะ “อยู่ในประกัน” คำนวณอัตโนมัติ ใช้ตัดสินใจคิดค่าซ่อม</td></tr>
+      <tr><td><span class="pill">Warranty Start Date</span></td><td>วันเริ่มประกัน (ปกติคือวันส่งมอบ) ใช้กับประกันระดับสินค้าเมื่อไม่มี Lot/Serial</td></tr>
+      <tr><td><span class="pill">Repair Order</span></td><td>ใบสั่งซ่อมที่ผูกกับใบเคลม</td></tr>
+      <tr><td><span class="badge b-gray">Create Repair Order</span></td><td>สร้างใบสั่งซ่อมจากใบเคลมโดยดึงข้อมูลลูกค้า/สินค้า/ประกันมาให้</td></tr>
+    </tbody>
+  </table>
+  <p class="footnote">เลขที่ใบเคลมออกอัตโนมัติรูปแบบ <code>WC/ปี/เลขรัน</code> (5 หลัก ไม่เสนอซ้ำ)</p>
+
+  <h4>6) สิทธิ์การใช้งาน</h4>
+  <ul>
+    <li><strong>ผู้ใช้ทั่วไป (Internal User):</strong> ดู/แก้ไข/สร้างใบเคลมได้ แต่ <strong>ลบไม่ได้</strong></li>
+    <li><strong>ผู้จัดการบัญชี (Account Manager):</strong> ลบใบเคลมได้</li>
+  </ul>
+
+  <div class="callout tip">
+    <strong>เคล็ดลับ:</strong> ถ้าต้องการให้ระบบรู้จักวันหมดอายุประกันที่แม่นยำ ให้ตั้ง <span class="pill">Warranty Start Date</span> ที่ <strong>Lot/Serial</strong> เสมอ
+    เพราะระบบจะใช้สถานะประกันของ Lot เป็นหลัก และยังตั้งวันเริ่มให้ใบเคลมอัตโนมัติเมื่อเลือก Lot
+  </div>
+  <div class="callout warn">
+    <strong>ข้อควรระวัง:</strong> ถ้าไม่ผูก Lot/Serial และไม่ได้กรอกวันเริ่มประกัน ระบบจะรายงานว่า <em>ไม่อยู่ในประกัน</em> ทันที — ตรวจก่อนตัดสินใจคิดค่าซ่อม
+  </div>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="svc-2"><span class="mtag">od19_service_card</span> บัตรบริการ/บำรุงรักษาเชิงป้องกัน และ SLA</h3>
+
+  <h4>1) วัตถุประสงค์</h4>
+  <p>
+    บันทึก <strong>บัตรบริการ</strong> (<code>od19.service.card</code>) สำหรับติดตามงานบำรุงรักษาเชิงป้องกัน (PM) การซ่อมแก้ไข การตรวจสอบ และการติดตั้งอุปกรณ์
+    พร้อมคำนวณ <strong>วันนัดบริการครั้งถัดไป</strong>, ติดตาม <strong>SLA</strong> (เวลาที่ต้องทำให้เสร็จ) และบันทึก <strong>เวลาที่ใช้ทำงาน</strong> เพื่อนำไปออกบิล
+  </p>
+
+  <h4>2) เมนู</h4>
+  <table>
+    <thead><tr><th>เมนู / ตำแหน่ง</th><th>ใช้ทำอะไร</th><th>กลุ่มสิทธิ์</th></tr></thead>
+    <tbody>
+      <tr><td><span class="path">คลังสินค้า › Operations › Service Cards</span></td><td>สร้างและติดตามบัตรบริการทั้งหมด</td><td>ผู้ใช้ทั่วไป</td></tr>
+      <tr><td><span class="path">สินค้า › แท็บ Inventory</span></td><td>ตั้งค่า <span class="pill">Default Service Interval (days)</span> ให้สินค้า</td><td>ผู้ใช้ทั่วไป</td></tr>
+    </tbody>
+  </table>
+
+  <h4>3) ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">สร้างบัตรบริการ</span> ไปที่ <span class="path">คลังสินค้า › Operations › Service Cards</span> กด New ระบุลูกค้า, สินค้า, Lot/Serial, วันที่ให้บริการ และ <span class="pill">Service Type</span></li>
+    <li><span class="stitle">กำหนดรอบบริการ</span> กรอก <span class="pill">Service Interval (days)</span> ระบบจะคำนวณ <span class="pill">Next Service Date</span> ให้ (หรือดึงค่าตั้งต้นจากสินค้าได้)</li>
+    <li><span class="stitle">กำหนด SLA และทีม</span> กรอก <span class="pill">SLA (hours)</span> เลือก <span class="pill">Service Team</span> (แผนก) และ <span class="pill">Technician</span> ระบบจะคำนวณ <span class="pill">SLA Deadline</span> จากเวลาสร้าง + ชั่วโมง SLA</li>
+    <li><span class="stitle">บันทึกเวลาทำงาน</span> กรอก <span class="pill">Start Time</span> และ <span class="pill">End Time</span> ระบบจะคำนวณ <span class="pill">Duration (hours)</span> ให้</li>
+    <li><span class="stitle">ยืนยันและปิดงาน</span> กด <span class="badge b-blue">Confirm</span> → <span class="badge b-green">Done</span> (ถ้าปิดแล้วจะยกเลิกหรือรีเซ็ตไม่ได้)</li>
+    <li><span class="stitle">ผูกการออกบิล</span> เลือก <span class="pill">Sale Order</span> ที่จะใช้เรียกเก็บค่าบริการนี้</li>
+  </ol>
+
+  <h4>4) สถานะและตัวชี้วัด</h4>
+  <div class="flow">
+    <span class="stp">Draft</span><span class="arrow">→</span>
+    <span class="stp">Confirmed</span><span class="arrow">→</span>
+    <span class="stp">Done</span>
+    <span class="arrow">·</span>
+    <span class="stp">Cancelled → Draft</span>
+  </div>
+  <table>
+    <thead><tr><th>ตัวชี้วัด</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">Next Service Date</span></td><td>วันนัดบริการครั้งถัดไป = วันให้บริการ + รอบบริการ</td></tr>
+      <tr><td><span class="pill">SLA Deadline</span></td><td>กำหนดเวลาที่ต้องทำให้เสร็จ = เวลาสร้าง + ชั่วโมง SLA</td></tr>
+      <tr><td><span class="pill">SLA Breached</span></td><td><span class="badge b-red">เกิน SLA</span> เมื่อเลยกำหนดและงานยังไม่ Done/Cancelled</td></tr>
+    </tbody>
+  </table>
+
+  <h4>5) ฟิลด์/ปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>ฟิลด์/ปุ่ม</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">Service Type</span></td><td>Preventive (บำรุงรักษา) / Corrective (ซ่อม) / Inspection (ตรวจสอบ) / Installation (ติดตั้ง) / Other</td></tr>
+      <tr><td><span class="pill">Service Team</span></td><td>แผนกที่รับผิดชอบงานนี้ (อ้างอิงแผนก HR)</td></tr>
+      <tr><td><span class="pill">Sale Order</span></td><td>ใบสั่งขายสำหรับออกบิลค่าบริการ</td></tr>
+      <tr><td><span class="badge b-gray">Reset to Draft</span></td><td>นำบัตรที่ยกเลิกกลับมาเป็นฉบับร่าง</td></tr>
+    </tbody>
+  </table>
+  <p class="footnote">เลขที่บัตรบริการออกอัตโนมัติรูปแบบ <code>SC/ปี/เลขรัน</code> (5 หลัก) · ในหน้ารายการมีตัวกรอง <span class="badge b-red">SLA Breached</span> และปุ่มกลุ่มข้อมูลตามลูกค้า/สินค้า/ประเภท/สถานะ</p>
+
+  <h4>6) สิทธิ์การใช้งาน</h4>
+  <ul>
+    <li><strong>ผู้ใช้ทั่วไป (Internal User):</strong> ดู/แก้ไข/สร้างบัตรบริการได้ แต่ <strong>ลบไม่ได้</strong></li>
+    <li><strong>ผู้จัดการบัญชี (Account Manager):</strong> ลบบัตรบริการได้</li>
+  </ul>
+
+  <div class="callout tip">
+    <strong>เคล็ดลับ:</strong> ตรวจงานที่กำลังจะถึงกำหนดด้วยตัวกรอง <span class="badge b-red">SLA Breached</span> และคอลัมน์ <span class="pill">Next Service Date</span> เพื่อวางแผนเข้าบริการล่วงหน้า
+  </div>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="svc-3"><span class="mtag">od19_service_contract</span> สัญญาบริการเรียกเก็บรายงวด (PM/AMC)</h3>
+
+  <h4>1) วัตถุประสงค์</h4>
+  <p>
+    ส่วนเสริมบาง ๆ บน <strong>OCA contract</strong> เพื่อทำ <strong>สัญญาบริการ</strong> แบบเรียกเก็บรายงวด (PM/AMC)
+    โดยเพิ่มการเชื่อมกับ <strong>บัตรบริการ (แผน PM)</strong> และ <strong>อุปกรณ์ที่รับประกัน (Lot/Serial)</strong>,
+    รองรับการ <strong>ต่ออายุสัญญา</strong> (กดเองหรืออัตโนมัติ) และ <strong>แจ้งเตือนก่อนครบกำหนด</strong>
+  </p>
+
+  <h4>2) เมนู</h4>
+  <table>
+    <thead><tr><th>เมนู / ตำแหน่ง</th><th>ใช้ทำอะไร</th><th>กลุ่มสิทธิ์</th></tr></thead>
+    <tbody>
+      <tr><td><span class="path">บัญชี › ลูกค้า (Customers) › Service Contracts</span></td><td>สร้าง/ดูสัญญาบริการรายงวด (กรองเฉพาะสัญญาที่ติ๊กเป็นสัญญาบริการ)</td><td>ผู้ใช้ใบแจ้งหนี้/บัญชี</td></tr>
+      <tr><td><span class="path">สัญญา › แท็บ Service</span></td><td>ตั้งค่าต่ออายุ + ผูกบัตรบริการ PM + อุปกรณ์ที่รับประกัน</td><td>ผู้ใช้ทั่วไป</td></tr>
+    </tbody>
+  </table>
+
+  <h4>3) ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">สร้างสัญญาบริการ</span> ไปที่ <span class="path">บัญชี › ลูกค้า › Service Contracts</span> กด New (ค่าเริ่มต้นจะติ๊ก <span class="pill">Service Contract</span> และตั้งประเภทเป็น “ขาย” ให้แล้ว) แล้วเพิ่มคู่สัญญาและบรรทัดสัญญาที่มีวันสิ้นสุด</li>
+    <li><span class="stitle">ตั้งค่าการต่ออายุ</span> ในแท็บ <strong>Service</strong> ตั้ง <span class="pill">Auto Renew</span>, <span class="pill">Renewal Interval (Months)</span> (ค่าเริ่มต้น 12) และ <span class="pill">Renewal Notice (Days)</span> (ค่าเริ่มต้น 30)</li>
+    <li><span class="stitle">ผูกอุปกรณ์และแผน PM</span> เพิ่ม <span class="pill">Covered Warranty Lots</span> (อุปกรณ์ที่รับประกัน) และสร้างบัตรบริการใน <span class="pill">Service Cards (PM)</span> ได้จากแท็บนี้เลย</li>
+    <li><span class="stitle">เรียกเก็บเงินรายงวด</span> ระบบ OCA จะออกใบแจ้งหนี้อัตโนมัติตามรอบ (รายเดือน/รายปี) ให้เอง</li>
+    <li><span class="stitle">ต่ออายุ</span> กด <span class="badge b-gray">Renew Contract</span> เพื่อขยายวันสิ้นสุดของบรรทัดสัญญาออกไปตามจำนวนเดือนที่ตั้งไว้</li>
+  </ol>
+
+  <h4>4) สถานะและการแจ้งเตือน</h4>
+  <table>
+    <thead><tr><th>รายการ</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">Expiring Soon</span></td><td>สัญญาใกล้หมดอายุ (เหลือไม่เกินจำนวนวันที่ตั้งแจ้งเตือน)</td></tr>
+      <tr><td><span class="pill">Auto Renew</span></td><td>เปิดไว้ = ระบบต่ออายุอัตโนมัติเมื่อครบกำหนด</td></tr>
+      <tr><td><span class="pill">Renewal Notice Sent</span></td><td>ตั้งค่าแล้วแจ้งเตือนแล้ว (กันแจ้งซ้ำ)</td></tr>
+    </tbody>
+  </table>
+  <p>
+    งานประจำวัน (cron) ชื่อ <strong>Service Contracts: Renewal &amp; Expiry Reminder (OD19)</strong> ทำงานทุกวันเวลา 06:00 น.
+    จะต่ออายุสัญญาที่เปิด Auto Renew และสร้าง <span class="pill">กิจกรรม (Activity)</span> เตือนผู้รับผิดชอบเมื่อสัญญาใกล้หมดอายุ
+  </p>
+
+  <h4>5) ฟิลด์/ปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>ฟิลด์/ปุ่ม</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">Service Contract</span></td><td>ติ๊กเพื่อจัดการสัญญานี้เป็นสัญญาบริการรายงวด</td></tr>
+      <tr><td><span class="pill">Service Cards</span> (stat button)</td><td>จำนวนบัตรบริการ/แผน PM ภายใต้สัญญา กดเพื่อเปิดรายการ</td></tr>
+      <tr><td><span class="badge b-gray">Renew Contract</span></td><td>ขยายวันสิ้นสุดทุกบรรทัดสัญญาตามจำนวนเดือนต่ออายุ</td></tr>
+    </tbody>
+  </table>
+
+  <h4>6) สิทธิ์การใช้งาน</h4>
+  <ul>
+    <li><strong>ผู้ใช้ใบแจ้งหนี้/บัญชี (Invoice/Billing):</strong> เข้าถึงเมนู Service Contracts และฟิลด์ทั้งหมด</li>
+    <li>ผู้ใช้ทั่วไปที่เข้าถึงสัญญาได้เห็นแท็บ Service และกดต่ออายุได้</li>
+  </ul>
+
+  <div class="callout note">
+    <strong>หมายเหตุ:</strong> โมดูลนี้ใช้กลไกของ <strong>OCA contract</strong> เป็นแกน จึงต้องมี submodule <code>third_party/oca/contract</code> (branch 19.0) อยู่ใน <code>addons_path</code>
+    — ตาราง <strong>Service Cards KPI</strong> ในส่วนรายงาน (หัวข้อถัดไป) จะสะท้อนงาน PM ที่ผูกกับสัญญาเหล่านี้ด้วย
+  </div>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="svc-4"><span class="mtag">od19_quality_control</span> ตรวจสอบคุณภาพ (QC) ขาเข้า/ขาออก และ Nonconformity</h3>
+
+  <h4>1) วัตถุประสงค์</h4>
+  <p>
+    บันทึก <strong>การตรวจสอบคุณภาพ</strong> (<code>od19.qc.inspection</code>) สำหรับของขาเข้า (Incoming), ของขาออก (Outgoing) และระหว่างผลิต (In-Process)
+    โดยผูกกับใบรับ-ส่งสินค้า (stock picking) และเมื่อตรวจไม่ผ่านสามารถ <strong>ออกใบความไม่สอดคล้อง (Nonconformity/CAPA) ตามระบบ ISO</strong> ได้ทันที
+  </p>
+
+  <h4>2) เมนู</h4>
+  <table>
+    <thead><tr><th>เมนู / ตำแหน่ง</th><th>ใช้ทำอะไร</th><th>กลุ่มสิทธิ์</th></tr></thead>
+    <tbody>
+      <tr><td><span class="path">คลังสินค้า › Operations › QC Inspections</span></td><td>สร้างและติดตามการตรวจสอบคุณภาพ</td><td>ผู้ใช้ทั่วไป</td></tr>
+      <tr><td><span class="path">คลังสินค้า › ใบรับ-ส่งสินค้า › ปุ่ม QC</span></td><td>เปิดรายการ QC ที่ผูกกับใบรับ-ส่งนั้น</td><td>ผู้ใช้ทั่วไป</td></tr>
+    </tbody>
+  </table>
+
+  <h4>3) ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">สร้างใบตรวจ</span> ไปที่ <span class="path">คลังสินค้า › Operations › QC Inspections</span> กด New เลือก <span class="pill">Inspection Type</span> (Incoming/Outgoing/In-Process), คู่ค้า, สินค้า และผูกใบรับ-ส่ง (ถ้ามี)</li>
+    <li><span class="stitle">กรอกจำนวน</span> ระบุ <span class="pill">Quantity Tested</span> และ <span class="pill">Quantity Accepted</span> — ระบบจะคำนวณ <span class="pill">Quantity Rejected</span> ให้ (จำนวนรับต้องไม่เกินจำนวนทดสอบ)</li>
+    <li><span class="stitle">(ตัวเลือก) ตรวจตามเกณฑ์</span> เพิ่มบรรทัด <span class="pill">Inspection Lines</span> ระบุ พารามิเตอร์, ค่าคาดหวัง, ค่าที่วัดได้ — ผลรายบรรทัด <em>ผ่าน/ไม่ผ่าน</em> คำนวณให้อัตโนมัติ (เทียบแบบไม่สนตัวพิมพ์)</li>
+    <li><span class="stitle">ตัดสินผล</span> กด <span class="badge b-blue">Start</span> → <span class="badge b-green">Pass</span> หรือ <span class="badge b-red">Fail</span> (ระบบกันไม่ให้ปิดเป็น Pass ถ้าผลเป็น Fail)</li>
+    <li><span class="stitle">ออก Nonconformity</span> เมื่องานไม่ผ่าน กด <span class="badge b-red">Create Nonconformity</span> เพื่อสร้างใบความไม่สอดคล้องตาม ISO พร้อมดึงข้อมูลสินค้า/จำนวนมาให้</li>
+  </ol>
+
+  <h4>4) สถานะและตัวชี้วัด</h4>
+  <div class="flow">
+    <span class="stp">Draft</span><span class="arrow">→</span>
+    <span class="stp">In Progress</span><span class="arrow">→</span>
+    <span class="stp">Passed / Failed</span>
+  </div>
+  <p>สถานะ <span class="badge b-gray">Cancelled</span> ใช้ยกเลิกใบตรวจที่ยังไม่เสร็จ · ผลลัพธ์ <span class="pill">Result</span> คำนวณอัตโนมัติ: ถ้ามีบรรทัดตรวจ จะ Fail เมื่อมีบรรทัดใด Fail; ถ้าไม่มี ให้เทียบจำนวนรับกับจำนวนทดสอบ</p>
+
+  <h4>5) ฟิลด์/ปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>ฟิลด์/ปุ่ม</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">Quantity Tested / Accepted / Rejected</span></td><td>จำนวนที่ทดสอบ, ผ่าน, และไม่ผ่าน (คำนวณให้)</td></tr>
+      <tr><td><span class="pill">Inspection Lines</span></td><td>เกณฑ์ตรวจย่อยรายพารามิเตอร์ พร้อมผลผ่าน/ไม่ผ่านอัตโนมัติ</td></tr>
+      <tr><td><span class="pill">Nonconformity</span></td><td>ใบความไม่สอดคล้องที่สร้างจากใบตรวจที่ไม่ผ่าน (แสดงแบบอ่านเท่านั้น)</td></tr>
+    </tbody>
+  </table>
+  <p class="footnote">เลขที่ใบตรวจออกรูปแบบ <code>QC/ปี/เลขรัน</code> (5 หลัก) · ใบรับ-ส่งสินค้ามีปุ่ม <span class="badge b-gray">QC</span> แสดงจำนวนใบตรวจที่ผูกอยู่</p>
+
+  <h4>6) สิทธิ์การใช้งาน</h4>
+  <ul>
+    <li><strong>ผู้ใช้ทั่วไป (Internal User):</strong> ดู/แก้ไข/สร้างใบตรวจและบรรทัดตรวจได้ แต่ <strong>ลบไม่ได้</strong></li>
+    <li><strong>ผู้จัดการบัญชี (Account Manager):</strong> ลบได้</li>
+  </ul>
+
+  <div class="callout warn">
+    <strong>ข้อควรระวัง:</strong> จำนวน “รับได้” ต้องไม่เกิน “ทดสอบ” และต้องไม่ติดลบ — ระบบจะไม่อนุญาตให้บันทึก
+    และใบตรวจที่ Passed/Failed แล้วจะยกเลิกไม่ได้
+  </div>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="svc-5"><span class="mtag">od19_helpdesk_extension</span> Helpdesk ภายใน vs บริการลูกค้า</h3>
+
+  <h4>1) วัตถุประสงค์</h4>
+  <p>
+    แยกศูนย์บริการออกเป็นสองโหมดอย่างชัดเจนบน OCA helpdesk_mgmt — <strong>Internal IT Helpdesk</strong> (คำร้องจากพนักงาน, ไม่มีรายได้)
+    และ <strong>Customer Sales Services</strong> (งานบริการลูกค้าที่มีรายได้ เช่น ซ่อม ติดตั้ง บำรุงรักษา รับประกัน) พร้อมแยกสิทธิ์การมองเห็นตามทีม
+  </p>
+
+  <h4>2) เมนู</h4>
+  <table>
+    <thead><tr><th>เมนู</th><th>ใช้ทำอะไร</th><th>กลุ่มสิทธิ์</th></tr></thead>
+    <tbody>
+      <tr><td><span class="path">Helpdesk › Internal Helpdesk › Internal Tickets</span></td><td>คำร้อง IT ของพนักงานทั้งหมด</td><td>Internal Helpdesk User</td></tr>
+      <tr><td><span class="path">Helpdesk › Internal Helpdesk › My Internal Tickets</span></td><td>เฉพาะคำร้อง IT ที่มอบหมายให้ฉัน</td><td>Internal Helpdesk User</td></tr>
+      <tr><td><span class="path">การขาย › Sales Services › Service Tickets</span></td><td>งานบริการลูกค้าทั้งหมด (มีค่าบริการ)</td><td>Sales Services User</td></tr>
+      <tr><td><span class="path">การขาย › Sales Services › My Service Tickets</span></td><td>เฉพาะงานบริการลูกค้าของฉัน</td><td>Sales Services User</td></tr>
+    </tbody>
+  </table>
+
+  <h4>3) ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">สร้างทีมและเลือกชนิดทีม</span> ไปที่หน้าทีม Helpdesk เลือก <span class="pill">Team Type</span> เป็น <em>Internal IT Helpdesk</em> หรือ <em>Customer Sales Services</em> (ค่าเริ่มต้น = Internal)</li>
+    <li><span class="stitle">เปิดตั๋ว</span> สร้างตั๋วในทีมที่ต้องการ — ชนิดทีมจะถูกดึงมาแสดงที่ตั๋วโดยอัตโนมัติ</li>
+    <li><span class="stitle">(งานลูกค้า) กรอกข้อมูลบริการ</span> ในกลุ่ม <strong>Service Information</strong> ของตั๋วลูกค้า ระบุ <span class="pill">Service Type</span>, สินค้า, Lot/Serial, ช่างเทคนิค, ใบสั่งขาย และวันนัด</li>
+    <li><span class="stitle">คิดค่าบริการ</span> กรอก <span class="pill">Service Cost</span> แล้วกด <span class="badge b-blue">Create Invoice</span> เพื่อสร้างใบแจ้งหนี้ให้ลูกค้า (ลิงก์กลับที่ช่อง <span class="pill">Invoice</span>)</li>
+    <li><span class="stitle">ปิดงาน</span> บันทึก <span class="pill">Resolution</span> และเลื่อนขั้นไปจนถึงขั้น Invoiced (ขั้นปิด) ของทีม Sales Services</li>
+  </ol>
+
+  <h4>4) สถานะ/ขั้นงาน</h4>
+  <table>
+    <thead><tr><th>ทีม</th><th>ขั้นงาน (Stages)</th></tr></thead>
+    <tbody>
+      <tr><td>Internal IT Helpdesk</td><td>New → In Progress → Resolved → Closed</td></tr>
+      <tr><td>Sales Services</td><td>New → Confirmed → On Site → Done → Invoiced</td></tr>
+    </tbody>
+  </table>
+
+  <h4>5) ฟิลด์/ปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>ฟิลด์/ปุ่ม</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">Team Type</span></td><td>ชนิดทีมของตั๋ว (แสดงผลจากทีม) ใช้แยกขอบเขตข้อมูล</td></tr>
+      <tr><td><span class="pill">Service Type</span></td><td>Repair / Installation / Maintenance / Warranty / Inspection / Other</td></tr>
+      <tr><td><span class="pill">Technician</span></td><td>พนักงานช่างเทคนิค (อ้างอิงพนักงาน HR)</td></tr>
+      <tr><td><span class="badge b-blue">Create Invoice</span></td><td>สร้างใบแจ้งหนี้ลูกค้าจากตั๋วบริการ (แสดงเฉพาะตั๋วลูกค้า)</td></tr>
+    </tbody>
+  </table>
+
+  <h4>6) สิทธิ์การใช้งาน</h4>
+  <ul>
+    <li><strong>Internal Helpdesk User:</strong> เห็นเฉพาะตั๋ว/ทีมชนิด <em>Internal</em> (กฎข้อมูลจำกัดตามชนิดทีม)</li>
+    <li><strong>Sales Services User:</strong> เห็นเฉพาะตั๋ว/ทีมชนิด <em>Customer Service</em></li>
+    <li>ทั้งสองกลุ่มสร้าง/แก้ไขตั๋วได้ แต่ <strong>ลบไม่ได้</strong> (ลบได้เฉพาะผู้จัดการ)</li>
+  </ul>
+
+  <div class="callout note">
+    <strong>หมายเหตุ:</strong> เพื่อไม่ให้เมนูซ้ำซ้อน งาน IT ภายในถูกจัดเป็น <em>ส่วนย่อย</em> ภายใต้แอป Helpdesk เดียวกัน
+    ส่วนงานบริการลูกค้าอยู่ใต้แอป <strong>การขาย</strong> และตัวกรอง <span class="badge b-gray">Internal IT</span> / <span class="badge b-gray">Sales Services</span> ช่วยแบ่งมุมมองในหน้าเดียว
+  </div>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="svc-6"><span class="mtag">od19_after_sales_reporting</span> รายงาน KPI และแดชบอร์ดหลังการขาย</h3>
+
+  <h4>1) วัตถุประสงค์</h4>
+  <p>
+    รวม <strong>รายงาน KPI หลังการขาย</strong> แบบอ่านเท่านั้น (read-only) หกด้าน — ตั๋วบริการ, การเคลม/ประกัน, บัตรบริการ,
+    การคืนสินค้า, การตรวจคุณภาพ และความพึงพอใจลูกค้า — พร้อม <strong>แดชบอร์ดหลังการขาย</strong> ที่ดึงทั้งหกด้านมาไว้หน้าเดียว
+  </p>
+
+  <h4>2) เมนู</h4>
+  <table>
+    <thead><tr><th>เมนู</th><th>ตัวชี้วัดหลัก</th></tr></thead>
+    <tbody>
+      <tr><td><span class="path">การขาย › After-Sales Reporting › After-Sales Dashboard</span></td><td>แดชบอร์ดรวมหลังการขาย</td></tr>
+      <tr><td><span class="path">… › Service Tickets</span></td><td>จำนวนตั๋วบริการตามทีม/ชนิดงาน/ขั้น</td></tr>
+      <tr><td><span class="path">… › Warranty Claims</span></td><td>จำนวนเคลม และเวลาดำเนินการเฉลี่ย (วัน)</td></tr>
+      <tr><td><span class="path">… › Service Cards</span></td><td>บัตรบริการ เกิน SLA ครบกำหนด และเลยกำหนด</td></tr>
+      <tr><td><span class="path">… › Product Returns</span></td><td>การคืนสินค้าตามเหตุผล/จำนวน/มูลค่าคืนเงิน</td></tr>
+      <tr><td><span class="path">… › Quality Control</span></td><td>ผลตรวจสอบ ผ่าน/ไม่ผ่าน และอัตราผ่าน</td></tr>
+      <tr><td><span class="path">… › Customer Satisfaction</span></td><td>คะแนนความพึงพอใจเฉลี่ยตามช่วงเวลา</td></tr>
+    </tbody>
+  </table>
+
+  <h4>3) ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดรายงาน</span> เลือกเมนู KPI ที่ต้องการ ใต้ <span class="path">การขาย › After-Sales Reporting</span></li>
+    <li><span class="stitle">สลับมุมมอง</span> แต่ละรายงานดูได้ 3 แบบ — <strong>Pivot</strong>, <strong>Graph</strong> และ <strong>List</strong></li>
+    <li><span class="stitle">เจาะกลุ่มข้อมูล</span> ลากฟิลด์ (ทีม, ชนิดงาน, สถานะ, บริษัท) เป็นแถว/คอลัมน์ แล้ววัดค่าจากคอลัมน์ผลรวม</li>
+    <li><span class="stitle">ดูแดชบอร์ดรวม</span> เปิด <span class="path">After-Sales Dashboard</span> เพื่อดู KPI สรุป + การแจ้งเตือน (เช่น บัตรเกินกำหนด, เกิน SLA, Nonconformity)</li>
+  </ol>
+
+  <h4>4) ตัวชี้วัดเด่น</h4>
+  <table>
+    <thead><tr><th>รายงาน</th><th>ตัวชี้วัด</th></tr></thead>
+    <tbody>
+      <tr><td>ตั๋วบริการ</td><td><span class="pill">ticket_count</span> ตามทีม/ชนิดงาน/ขั้น</td></tr>
+      <tr><td>เคลม/ประกัน</td><td><span class="pill">claim_count</span>, <span class="pill">avg_turnaround_days</span> (เวลาดำเนินการเฉลี่ยของเคลมที่ปิดแล้ว)</td></tr>
+      <tr><td>บัตรบริการ</td><td><span class="pill">card_count</span>, <span class="pill">sla_breach_count</span>, <span class="pill">due_count</span>, <span class="pill">overdue_count</span></td></tr>
+      <tr><td>คืนสินค้า</td><td><span class="pill">return_count</span>, <span class="pill">total_quantity</span>, <span class="pill">total_refund_amount</span></td></tr>
+      <tr><td>ตรวจคุณภาพ</td><td><span class="pill">inspection_count</span>, <span class="pill">pass_count</span>, <span class="pill">fail_count</span>, <span class="pill">nc_count</span>, <span class="pill">pass_rate</span></td></tr>
+      <tr><td>ความพึงพอใจ</td><td><span class="pill">survey_count</span>, <span class="pill">completed_count</span>, <span class="pill">avg_score</span>, <span class="pill">avg_csat</span></td></tr>
+    </tbody>
+  </table>
+
+  <h4>5) แดชบอร์ดและฟิลด์/ปุ่มสำคัญ</h4>
+  <ul>
+    <li><strong>After-Sales Service Dashboard</strong> มี KPI สรุป 6 การ์ด (ตั๋วที่ยังไม่ปิด, เคลม, บัตรครบกำหนด, การคืนสินค้า, การตรวจคุณภาพ, คะแนนความพึงพอใจ) และโซนแจ้งเตือน (บัตรเกินกำหนด, เกิน SLA, Nonconformity, มูลค่าคืนเงิน)</li>
+    <li>กราฟรายละเอียด: ตั๋วตามชนิด/ขั้น, เคลมตามสถานะ, บัตรตามชนิด, คืนสินค้าตามเหตุผล, ผลตรวจ, คะแนนตามช่วงเวลา</li>
+  </ul>
+
+  <h4>6) สิทธิ์การใช้งาน</h4>
+  <ul>
+    <li><strong>ผู้ใช้ทั่วไป (Internal User):</strong> <strong>อ่านได้อย่างเดียว</strong> — รายงานทั้งหมดไม่มีปุ่มสร้าง/แก้ไข/ลบ</li>
+    <li>ข้อมูลถูกกรองตาม <strong>บริษัท</strong> ที่ผู้ใช้สังกัด (กฎหลายบริษัท) อัตโนมัติ</li>
+  </ul>
+
+  <div class="callout tip">
+    <strong>เคล็ดลับ:</strong> รายงานเป็นมุมมองแบบสรุป (ไม่มีคอลัมน์วันที่) จึงคิดผลจากข้อมูลทั้งหมด ให้ใช้ตัวกรองในตัวรายงาน (เช่น ทีม/สถานะ/บริษัท) เพื่อเจาะดูเป็นรายกลุ่ม
+  </div>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="svc-7"><span class="mtag">od19_internal_issue</span> แจ้งปัญหาภายใน ความเป็นส่วนตัว และการอนุมัติ</h3>
+
+  <h4>1) วัตถุประสงค์</h4>
+  <p>
+    ต่อยอดจาก OCA helpdesk_mgmt ให้เป็นระบบ <strong>แจ้งปัญหาภายในองค์กร</strong> พร้อม <strong>การควบคุมความเป็นส่วนตัว</strong>
+    (สาธารณะ/แผนก/ส่วนตัว), <strong>ธงเหตุฉุกเฉิน</strong>, <strong>การอนุมัติเป็นชั้น (Tier Validation)</strong> ก่อนเริ่มดำเนินการ,
+    <strong>การแจ้งเตือนหลายช่องทาง</strong> เมื่อมอบหมาย/อัปเดต และบันทึก <strong>แนวทางแก้ไข</strong> ที่นำไปทำคลังความรู้ต่อได้
+  </p>
+
+  <h4>2) เมนู</h4>
+  <p>ไม่มีเมนูใหม่ — ระบบต่อยอดจากหน้าตั๋ว Helpdesk เดิม โดยเพิ่มฟิลด์และแท็บ <strong>Internal</strong> ในฟอร์มตั๋ว (รวมถึงหน้าหมวดหมู่ที่มีช่องผู้รับผิดชอบ/ทีมตั้งต้น)</p>
+
+  <h4>3) ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">ตั้งค่าความเป็นส่วนตัว</span> สร้างตั๋ว เลือก <span class="pill">Visibility</span> เป็น <em>Public</em> (ทุกคนเห็น), <em>Department</em> (เฉพาะแผนกเดียวกัน — ต้องระบุแผนก), หรือ <em>Private</em> (เฉพาะผู้แจ้ง/ผู้รับผิดชอบ)</li>
+    <li><span class="stitle">ระบุผู้แจ้งและความเร่งด่วน</span> ตั้ง <span class="pill">Reported By</span> และติ๊ก <span class="pill">Emergency</span> ถ้าเป็นเรื่องฉุกเฉิน</li>
+    <li><span class="stitle">ส่งตรวจสอบ</span> กด <span class="badge b-blue">ส่งตรวจสอบ</span> เอกสารจะเข้าสู่กระบวนการอนุมัติ (สถานะเป็น <em>ส่งตรวจสอบแล้ว</em>)</li>
+    <li><span class="stitle">อนุมัติ/ปฏิเสธ</span> ผู้อนุมัติกด <span class="badge b-green">ตรวจสอบผ่าน</span> (เมื่อครบทุกชั้นจะเปลี่ยนเป็น <em>ตรวจสอบผ่าน</em>) หรือ <span class="badge b-red">ปฏิเสธ</span> (กลับเป็นฉบับร่าง)</li>
+    <li><span class="stitle">ดำเนินการและปิด</span> เมื่อตรวจสอบผ่านแล้วกด <span class="badge b-gray">เริ่มดำเนินการ</span> → กรอก <span class="pill">Resolution</span> → <span class="badge b-green">เสร็จสิ้น</span></li>
+  </ol>
+
+  <h4>4) สถานะ/การอนุมัติ</h4>
+  <div class="flow">
+    <span class="stp">ร่าง</span><span class="arrow">→</span>
+    <span class="stp">ส่งตรวจสอบแล้ว</span><span class="arrow">→</span>
+    <span class="stp">ตรวจสอบผ่าน</span><span class="arrow">→</span>
+    <span class="stp">กำลังดำเนินการ</span><span class="arrow">→</span>
+    <span class="stp">เสร็จสิ้น</span>
+  </div>
+  <table>
+    <thead><tr><th>ชั้นการอนุมัติ</th><th>เงื่อนไข</th><th>ผู้อนุมัติ</th></tr></thead>
+    <tbody>
+      <tr><td>Urgent (เหตุฉุกเฉิน)</td><td>ติ๊ก <span class="pill">Emergency</span></td><td>กลุ่มผู้ดูแลระบบ (ปรับได้)</td></tr>
+      <tr><td>Standard (เรื่องทั่วไป)</td><td>ไม่ใช่เหตุฉุกเฉิน</td><td>อย่างน้อย 1 ชั้น</td></tr>
+    </tbody>
+  </table>
+  <p class="footnote">ระบบกันการเปลี่ยนสถานะ “ร่าง → ตรวจสอบผ่าน” ตรง ๆ หากรอบการอนุมัติยังไม่ผ่าน</p>
+
+  <h4>5) ฟิลด์/ปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>ฟิลด์/ปุ่ม</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">Visibility</span></td><td>ระดับการมองเห็น: Public / Department / Private</td></tr>
+      <tr><td><span class="pill">Department</span></td><td>แผนกที่ผูกกับปัญหา (แสดงเมื่อเลือกแบบแผนก)</td></tr>
+      <tr><td><span class="pill">Reported By</span></td><td>ผู้แจ้งปัญหา (ค่าเริ่มต้น = ผู้ใช้ปัจจุบัน)</td></tr>
+      <tr><td><span class="pill">Emergency</span></td><td>ทำเครื่องหมายว่าเป็นเหตุฉุกเฉิน → เข้ากระบวนการอนุมัติเร่งด่วน</td></tr>
+      <tr><td><span class="pill">Resolution</span></td><td>สาเหตุและแนวทางแก้ไข (แปลงเป็นบทความคลังความรู้ได้)</td></tr>
+      <tr><td><span class="pill">Default Assignee / Default Team</span></td><td>ที่หน้าหมวดหมู่ — มอบหมายผู้รับผิดชอบ/ทีมให้ตั๋วอัตโนมัติเมื่อเลือกหมวดนี้</td></tr>
+    </tbody>
+  </table>
+
+  <h4>6) สิทธิ์การใช้งาน</h4>
+  <ul>
+    <li><strong>ผู้ใช้ทั่วไป:</strong> เห็นตั๋วแบบ Public ทั้งหมด, แบบ Department เฉพาะแผนกของตัวเอง, และแบบ Private เฉพาะที่ตัวเองเป็นผู้แจ้งหรือผู้รับผิดชอบ</li>
+    <li><strong>ขอบเขตตามแผนก (Department Scope):</strong> ผู้ใช้บางบทบาทเห็นเฉพาะตั๋วของแผนกตัวเองและตั๋วที่ยังไม่ระบุแผนก (กันข้อมูลหลุดแบบ fail-safe)</li>
+    <li><strong>บทบาทระดับบริหาร/บัญชี/คลัง:</strong> เห็นได้ทุกแผนก</li>
+  </ul>
+
+  <div class="callout tip">
+    <strong>เคล็ดลับ:</strong> กรอก <span class="pill">Resolution</span> ทุกครั้งที่ปิดงาน — ข้อความนี้ใช้เป็นต้นทางของบทความในคลังความรู้ และช่วยให้ปัญหาซ้ำแก้ได้เร็วขึ้น
+  </div>
+  <div class="callout warn">
+    <strong>ข้อควรระวัง:</strong> การเลือก <em>Department</em> โดยไม่ระบุแผนก อาจทำให้ผู้แจ้งเห็นข้อมูลผิดขอบเขต — ระบบจึงบังคับให้ระบุ <span class="pill">Department</span> เมื่อเลือกโหมดนี้
+  </div>
+
+</section>

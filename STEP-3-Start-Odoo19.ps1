@@ -188,26 +188,50 @@ Get-Service -Name "postgresql*" -ErrorAction SilentlyContinue |
 
 Start-Sleep -Seconds 2
 
-# 1e. หมุน log เก่า (ทำได้เฉพาะตอนนี้ เพราะ Odoo หยุดแล้ว)
+# 1e. หมุน log เก่า (ทำได้เฉพาะตอนนี้ เพราะ Odoo และ Nginx หยุดแล้ว)
 #     บน Windows Odoo ใช้ logging.FileHandler จึงถือไฟล์ log เปิดไว้ตลอดเวลา
 #     การ rename ไฟล์ขณะ Odoo รันจะล้มเหลว (file in use) จึงต้องหมุนตอนเริ่มระบบ
-$LogDir      = Join-Path $Root "logs"
+#     ครอบคลุมทุก log ที่โตต่อเนื่องและไม่มีกลไกหมุนของตัวเอง:
+#       - odoo_server.log                        : log หลักของ Odoo
+#       - nginx\...\logs\odoo_access.log+error.log: nginx เขียนทุก request (ไม่มี rotation)
+#       - ddns_update.log                        : งาน DDNS เขียนทุก 5 นาที
+#     เก็บ archive รวมไว้ที่ logs\ และลบเมื่อเกิน $LogRetainDays
+$LogDir        = Join-Path $Root "logs"
+$NginxLogDir   = Join-Path $NginxDir "logs"
 $LogRetainDays = 30
-if (Test-Path -LiteralPath $OdooLog) {
-    $logItem = Get-Item -LiteralPath $OdooLog -ErrorAction SilentlyContinue
-    if ($logItem -and $logItem.Length -gt 0) {
-        if (-not (Test-Path -LiteralPath $LogDir)) { New-Item -ItemType Directory -Path $LogDir -Force | Out-Null }
-        $archive = Join-Path $LogDir ("odoo_server_{0}.log" -f (Get-Date -Format "yyyyMMdd_HHmmss"))
-        Move-Item -LiteralPath $OdooLog -Destination $archive -Force
-        Write-Host ("  หมุน log เก่า ({0:N0} KB) -> {1}" -f ($logItem.Length / 1KB), $archive) -ForegroundColor DarkYellow
-        Get-ChildItem -LiteralPath $LogDir -Filter "odoo_server_*.log" -ErrorAction SilentlyContinue |
-            Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-$LogRetainDays) } |
-            ForEach-Object {
-                Write-Host "  ลบ log เก่าเกิน $LogRetainDays วัน: $($_.Name)" -ForegroundColor DarkGray
-                Remove-Item -LiteralPath $_.FullName -Force -ErrorAction SilentlyContinue
-            }
+$LogStamp      = Get-Date -Format "yyyyMMdd_HHmmss"
+if (-not (Test-Path -LiteralPath $LogDir)) { New-Item -ItemType Directory -Path $LogDir -Force | Out-Null }
+
+function Move-OdooLogArchive([string]$Source, [string]$ArchiveBase) {
+    if (-not (Test-Path -LiteralPath $Source)) { return }
+    $item = Get-Item -LiteralPath $Source -ErrorAction SilentlyContinue
+    if (-not $item -or $item.Length -eq 0) { return }
+    $archive = Join-Path $LogDir ("{0}_{1}.log" -f $ArchiveBase, $LogStamp)
+    try {
+        Move-Item -LiteralPath $Source -Destination $archive -Force -ErrorAction Stop
+        Write-Host ("  หมุน log ({0:N0} KB) -> {1}" -f ($item.Length / 1KB), $archive) -ForegroundColor DarkYellow
+    } catch {
+        # ไฟล์อาจยังถูก process อื่นถืออยู่ (เช่น nginx ที่เพิ่งถูกสั่งปิด) - รอบถัดไปจะหมุนให้เอง
+        Write-Host "  เตือน: หมุน log ไม่สำเร็จ ($Source) - ข้ามรอบนี้" -ForegroundColor Yellow
     }
 }
+
+Move-OdooLogArchive -Source $OdooLog -ArchiveBase "odoo_server"
+Move-OdooLogArchive -Source (Join-Path $NginxLogDir "odoo_access.log") -ArchiveBase "nginx_odoo_access"
+Move-OdooLogArchive -Source (Join-Path $NginxLogDir "error.log")       -ArchiveBase "nginx_error"
+Move-OdooLogArchive -Source (Join-Path $Root "ddns_update.log")        -ArchiveBase "ddns_update"
+
+# ลบ archive ที่เกินอายุ (ทำเสมอ ไม่ผูกกับว่ามีไฟล์ให้หมุนในรอบนี้หรือไม่)
+# จับเฉพาะชื่อไฟล์ที่เกิดจากการหมุน เพื่อไม่ให้ลบ log รายเดือนของงานอื่น (เช่น backup_YYYY-MM.log)
+Get-ChildItem -LiteralPath $LogDir -File -ErrorAction SilentlyContinue |
+    Where-Object {
+        $_.Name -match '^(odoo_server|nginx_odoo_access|nginx_error|ddns_update)_\d{8}_\d{6}\.log$' -and
+        $_.LastWriteTime -lt (Get-Date).AddDays(-$LogRetainDays)
+    } |
+    ForEach-Object {
+        Write-Host "  ลบ log เก่าเกิน $LogRetainDays วัน: $($_.Name)" -ForegroundColor DarkGray
+        Remove-Item -LiteralPath $_.FullName -Force -ErrorAction SilentlyContinue
+    }
 
 # ==========================================================================
 # 2. ตรวจสอบ / เริ่ม PostgreSQL + ตัด session ของฐานข้อมูลอื่น

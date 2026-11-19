@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>OD19 — Empty field styles</title>
+<style>
+  :root{
+    --ink:#1f2937;
+    --label:#374151;
+    --label-dim:#9aa1ab;
+    --maroon:#9E2424;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:"Sarabun","Noto Sans Thai","Leelawadee UI",Tahoma,sans-serif;
+    background:#ffffff;
+    color:var(--ink);
+    padding:22px 26px 26px;
+    width:1200px;
+  }
+  .page-head{margin-bottom:16px;}
+  .page-head h1{font-size:19px;margin:0 0 4px;letter-spacing:.2px;}
+  .page-head p{margin:0;font-size:12.5px;color:#6b7280;}
+
+  .card{
+    position:relative;
+    border:1px solid #e5e8ee;
+    border-radius:14px;
+    padding:14px 16px 16px;
+    margin-bottom:16px;
+    overflow:hidden;
+    background:#fbfcfe;
+  }
+  /* soft mesh backdrop so the glass variant reads as glass */
+  .card::before{
+    content:"";
+    position:absolute;inset:0;
+    background:
+      radial-gradient(340px 150px at 12% 0%, rgba(120,150,255,.16), transparent 70%),
+      radial-gradient(320px 160px at 92% 28%, rgba(255,140,180,.14), transparent 70%),
+      radial-gradient(300px 150px at 60% 120%, rgba(120,220,210,.14), transparent 70%),
+      linear-gradient(#fbfcfe,#f4f7fb);
+    z-index:0;
+  }
+  .card > *{position:relative;z-index:1;}
+
+  .card-head{display:flex;align-items:flex-start;gap:11px;margin-bottom:11px;}
+  .num{
+    flex:0 0 26px;height:26px;width:26px;border-radius:8px;
+    background:var(--maroon);color:#fff;font-weight:700;font-size:13px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .card-head h3{margin:0;font-size:14.5px;}
+  .card-head .desc{margin:2px 0 0;font-size:12px;color:#6b7280;}
+  .card-head .tag{
+    font-size:10.5px;color:#8a9099;border:1px solid #dfe3ea;border-radius:999px;
+    padding:1px 8px;margin-left:6px;vertical-align:middle;
+  }
+
+  /* ---- form row (mimics Odoo: label column + input column) ---- */
+  .rows{display:flex;flex-direction:column;gap:9px;}
+  .row{display:flex;align-items:center;gap:14px;}
+  .row .lbl{
+    flex:0 0 168px;text-align:right;
+    font-size:12.5px;font-weight:600;color:var(--label);
+  }
+  .row .lbl.dim{color:var(--label-dim);font-weight:500;}
+  .row .cell{flex:1 1 auto;}
+
+  input.f{
+    width:100%;height:34px;padding:0 11px;
+    font:inherit;font-size:13px;color:var(--ink);
+    border:0;outline:0;border-radius:6px;
+    background:transparent;
+    transition:background-color .15s ease, box-shadow .15s ease, border-color .15s ease;
+  }
+  input.f::placeholder{color:#b6bcc6;}
+  .hint{
+    font-size:10.5px;color:#98a0ad;margin-top:3px;
+  }
+
+  /* =====================  1) Muted Slot  ===================== */
+  [data-style="1"] input.f.empty{
+    background:#f1f4f9;
+    box-shadow:inset 0 0 0 1px #e6eaf1;
+  }
+  [data-style="1"] input.f.filled{
+    background:#ffffff;
+    box-shadow:inset 0 -1px 0 #d7dce4;
+  }
+
+  /* =====================  2) Dashed Hint  ===================== */
+  [data-style="2"] input.f.empty{
+    background:transparent;
+    border:1px dashed #c9d1dd;
+  }
+  [data-style="2"] input.f.filled{
+    background:#ffffff;
+    box-shadow:inset 0 -1px 0 #cfd5de;
+  }
+
+  /* =====================  3) Underline Only  ===================== */
+  [data-style="3"] input.f.empty{
+    background:transparent;
+    border-bottom:1px dotted #cfd6e0;
+    border-radius:0;
+  }
+  [data-style="3"] input.f.filled{
+    background:transparent;
+    border-bottom:1px solid #b9c1cd;
+    border-radius:0;
+  }
+
+  /* =====================  4) Accent Edge  ===================== */
+  [data-style="4"] input.f.empty{
+    background:#f6f8fb;
+    box-shadow:inset 3px 0 0 rgba(158,36,36,.55), inset 0 0 0 1px #e7ebf1;
+  }
+  [data-style="4"] input.f.filled{
+    background:#ffffff;
+    box-shadow:inset 0 -1px 0 #d7dce4;
+  }
+
+  /* =====================  5) Liquid Glass  ===================== */
+  [data-style="5"] input.f.empty{
+    background:rgba(255,255,255,.42);
+    -webkit-backdrop-filter:blur(10px) saturate(150%);
+    backdrop-filter:blur(10px) saturate(150%);
+    border:1px solid rgba(255,255,255,.72);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.85),
+      inset 0 -1px 0 rgba(255,255,255,.35),
+      0 6px 16px -8px rgba(31,41,55,.28);
+    border-radius:9px;
+  }
+  [data-style="5"] input.f.filled{
+    background:rgba(255,255,255,.9);
+    border:1px solid rgba(255,255,255,.9);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 6px 14px -10px rgba(31,41,55,.35);
+    border-radius:9px;
+  }
+
+  .foot{font-size:11px;color:#8a9099;margin-top:6px;}
+  body.only .card{display:none;}
+  body.only .card.show{display:block;}
+  body.only .page-head{display:none;}
+</style>
+</head>
+<body>
+
+  <div class="page-head">
+    <h1>OD19 — รูปแบบช่องกรอกที่ยังว่าง (Empty field) · 5 แบบ</h1>
+    <p>แต่ละการ์ดเทียบ "ช่องที่ยังไม่กรอก" กับ "ช่องที่มีข้อมูลแล้ว" ในบริบทฟอร์มเดียวกัน — เป้าหมาย: แยกได้แต่ไม่รกตา</p>
+  </div>
+
+  <!-- 1 -->
+  <div class="card" data-style="1">
+    <div class="card-head">
+      <div class="num">1</div>
+      <div>
+        <h3>Muted Slot <span class="tag">นิ่งสุด · เนียนสุด</span></h3>
+        <p class="desc">ช่องว่างเป็นพื้นเทาอ่อนมาก + ขอบบางๆ 1px · ช่องที่มีค่าเป็นพื้นขาวมีเส้นใต้จาง</p>
+      </div>
+    </div>
+    <div class="rows">
+      <div class="row"><div class="lbl dim">ชื่อลูกค้า</div><div class="cell"><input class="f empty" placeholder=""></div></div>
+      <div class="row"><div class="lbl">ชื่อลูกค้า</div><div class="cell"><input class="f filled" value="บริษัท ตัวอย่าง จำกัด"></div></div>
+    </div>
+  </div>
+
+  <!-- 2 -->
+  <div class="card" data-style="2">
+    <div class="card-head">
+      <div class="num">2</div>
+      <div>
+        <h3>Dashed Hint <span class="tag">ชัดที่สุด · เป็นสัญญาณ "กรอกตรงนี้"</span></h3>
+        <p class="desc">ช่องว่างใช้เส้นประบางรอบช่อง · พื้นใส · ช่องที่มีค่าเป็นพื้นขาวเส้นใต้</p>
+      </div>
+    </div>
+    <div class="rows">
+      <div class="row"><div class="lbl dim">ชื่อลูกค้า</div><div class="cell"><input class="f empty" placeholder=""></div></div>
+      <div class="row"><div class="lbl">ชื่อลูกค้า</div><div class="cell"><input class="f filled" value="บริษัท ตัวอย่าง จำกัด"></div></div>
+    </div>
+  </div>
+
+  <!-- 3 -->
+  <div class="card" data-style="3">
+    <div class="card-head">
+      <div class="num">3</div>
+      <div>
+        <h3>Underline Only <span class="tag">มินิมอล · คงความสะอาดเดิม</span></h3>
+        <p class="desc">ช่องว่างมีแค่เส้นใต้แบบจุด (dotted) ริ้วบาง · ไม่มีพื้นหลังเลย · ช่องที่มีค่าเส้นใต้ทึบขึ้นนิด</p>
+      </div>
+    </div>
+    <div class="rows">
+      <div class="row"><div class="lbl dim">ชื่อลูกค้า</div><div class="cell"><input class="f empty" placeholder=""></div></div>
+      <div class="row"><div class="lbl">ชื่อลูกค้า</div><div class="cell"><input class="f filled" value="บริษัท ตัวอย่าง จำกัด"></div></div>
+    </div>
+  </div>
+
+  <!-- 4 -->
+  <div class="card" data-style="4">
+    <div class="card-head">
+      <div class="num">4</div>
+      <div>
+        <h3>Accent Edge <span class="tag">มีสีแบรนด์นิดเดียว</span></h3>
+        <p class="desc">ช่องว่างมีแถบเลือดหมูบางๆ ด้านซ้าย + พื้นเทาอ่อน · ช่องที่มีค่าเป็นพื้นขาว</p>
+      </div>
+    </div>
+    <div class="rows">
+      <div class="row"><div class="lbl dim">ชื่อลูกค้า</div><div class="cell"><input class="f empty" placeholder=""></div></div>
+      <div class="row"><div class="lbl">ชื่อลูกค้า</div><div class="cell"><input class="f filled" value="บริษัท ตัวอย่าง จำกัด"></div></div>
+    </div>
+  </div>
+
+  <!-- 5 -->
+  <div class="card" data-style="5">
+    <div class="card-head">
+      <div class="num">5</div>
+      <div>
+        <h3>Liquid Glass <span class="tag">กระจกฝ้าแท้ · backdrop-blur</span></h3>
+        <p class="desc">ช่องว่างเป็นแผ่นกระจกโปร่งแสง เบลอพื้นหลัง + ขอบไฮไลต์ขาวด้านบน (ดูเป็นกระจกจริง)</p>
+      </div>
+    </div>
+    <div class="rows">
+      <div class="row"><div class="lbl dim">ชื่อลูกค้า</div><div class="cell"><input class="f empty" placeholder=""></div></div>
+      <div class="row"><div class="lbl">ชื่อลูกค้า</div><div class="cell"><input class="f filled" value="บริษัท ตัวอย่าง จำกัด"></div></div>
+    </div>
+    <div class="foot">หมายเหตุ: เอฟเฟกต์เบลอกระจกจะเห็นชัดเมื่อมีพื้นหลังเป็นสี/ลวดลาย (ในหน้า Odoo จริง พื้นหลังฟอร์มมักเรียบ จึงจะดูละมุนกว่าในภาพนี้)</div>
+  </div>
+
+<script>
+  (function(){
+    var m = location.search.match(/[?&]only=(\d)/);
+    if(m){
+      document.body.classList.add("only");
+      var card = document.querySelector('.card[data-style="'+m[1]+'"]');
+      if(card){ card.classList.add("show"); }
+    }
+  })();
+</script>
+</body>
+</html>

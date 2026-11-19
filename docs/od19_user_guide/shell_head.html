@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>คู่มือการใช้งานระบบ Odoo 19 — AutoInfo ERP ฉบับเต็ม</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --maroon:#9E2424;
+    --maroon-dark:#7c1b1b;
+    --maroon-soft:#fbf5f5;
+    --maroon-line:#ecd7d7;
+    --ink:#24211f;
+    --muted:#6b6560;
+    --line:#e3e3e3;
+    --paper:#ffffff;
+    --bg:#eceef1;
+    --ok:#1f7a4d;
+    --okbg:#e8f5ee;
+    --warn:#8a6a1b;
+    --warnbg:#fdf6e3;
+    --info:#1f5fa8;
+    --infobg:#ecf3fb;
+    --danger:#a12b2b;
+    --dangerbg:#fdeeee;
+    --radius:14px;
+    --shadow:0 6px 20px rgba(36,33,31,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Sarabun","Noto Sans Thai",Tahoma,"Arial Unicode MS",sans-serif;
+    font-size:15px;
+    line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+  }
+  .doc{
+    max-width:940px;
+    margin:0 auto;
+    background:var(--paper);
+    box-shadow:var(--shadow);
+  }
+  /* ---------- Search ---------- */
+  .searchbar{
+    position:sticky;top:0;z-index:50;
+    background:rgba(255,255,255,.96);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--maroon-line);
+    padding:10px 56px;
+    display:flex;align-items:center;gap:12px;
+  }
+  .searchbar .sbox{
+    flex:1;position:relative;
+  }
+  .searchbar input{
+    width:100%;font-family:inherit;font-size:15px;
+    padding:10px 40px 10px 40px;
+    border:1px solid var(--maroon-line);border-radius:10px;
+    background:#fff;color:var(--ink);outline:none;
+  }
+  .searchbar input:focus{border-color:var(--maroon);box-shadow:0 0 0 3px var(--maroon-soft)}
+  .searchbar .sicon{
+    position:absolute;left:13px;top:50%;transform:translateY(-50%);
+    color:var(--maroon);font-size:15px;pointer-events:none;
+  }
+  .searchbar .sclear{
+    position:absolute;right:10px;top:50%;transform:translateY(-50%);
+    border:none;background:none;color:var(--muted);cursor:pointer;font-size:16px;
+    display:none;padding:2px 6px;border-radius:6px;
+  }
+  .searchbar .sclear:hover{background:var(--maroon-soft);color:var(--maroon)}
+  .searchbar .scount{color:var(--muted);font-size:13px;white-space:nowrap}
+  .search-results{
+    position:absolute;top:calc(100% + 6px);left:0;right:0;
+    background:#fff;border:1px solid var(--maroon-line);border-radius:12px;
+    box-shadow:0 12px 30px rgba(36,33,31,.16);
+    max-height:60vh;overflow:auto;display:none;z-index:60;
+  }
+  .search-results.open{display:block}
+  .search-results .sr{
+    display:block;padding:10px 16px;border-bottom:1px solid var(--line);
+    text-decoration:none;color:var(--ink);cursor:pointer;
+  }
+  .search-results .sr:last-child{border-bottom:none}
+  .search-results .sr:hover,.search-results .sr.active{background:var(--maroon-soft)}
+  .search-results .sr .crumb{font-size:11.5px;color:var(--maroon);font-weight:600;letter-spacing:.02em}
+  .search-results .sr .ttl{font-weight:600;font-size:14px}
+  .search-results .sr .snp{font-size:12.5px;color:var(--muted)}
+  .search-results .sempty{padding:16px;color:var(--muted);font-size:13.5px}
+  mark.hit{background:#ffe9a8;color:#6b5214;border-radius:3px;padding:0 2px}
+  /* ---------- Cover ---------- */
+  .cover{
+    background:linear-gradient(150deg,#8f2020 0%,#b13a3a 55%,#9E2424 100%);
+    color:#fff;
+    padding:64px 56px 52px;
+    position:relative;
+    overflow:hidden;
+  }
+  .cover::after{
+    content:"";
+    position:absolute;
+    right:-120px;top:-120px;
+    width:340px;height:340px;
+    border-radius:50%;
+    background:rgba(255,255,255,.07);
+  }
+  .cover::before{
+    content:"";
+    position:absolute;
+    right:60px;bottom:-140px;
+    width:240px;height:240px;
+    border-radius:50%;
+    background:rgba(255,255,255,.05);
+  }
+  .brandline{display:flex;align-items:center;gap:12px;margin-bottom:34px}
+  .brandmark{
+    width:38px;height:38px;border-radius:10px;
+    background:#fff;color:var(--maroon);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:22px;
+    box-shadow:0 3px 10px rgba(0,0,0,.18);
+  }
+  .brandline small{font-size:13px;letter-spacing:.08em;opacity:.9;text-transform:uppercase}
+  .cover h1{
+    font-size:34px;line-height:1.35;margin:0 0 8px;font-weight:700;letter-spacing:.01em;
+  }
+  .cover h2{
+    font-size:19px;font-weight:400;margin:0 0 26px;opacity:.95;
+  }
+  .cover .lede{
+    font-size:15px;max-width:680px;opacity:.95;
+    border-left:3px solid rgba(255,255,255,.55);padding-left:16px;margin-bottom:30px;
+  }
+  .meta{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:10px;position:relative;z-index:2;
+  }
+  .meta div{
+    background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.22);
+    border-radius:10px;padding:10px 14px;
+    backdrop-filter:blur(4px);
+  }
+  .meta span{display:block;font-size:11.5px;opacity:.85;letter-spacing:.03em}
+  .meta strong{font-size:14px;font-weight:600}
+  /* ---------- Body ---------- */
+  .body{padding:0 56px 70px}
+  h2.sec{
+    font-size:22px;font-weight:700;color:var(--maroon-dark);
+    margin:52px 0 6px;padding-bottom:10px;
+    border-bottom:2px solid var(--maroon-line);
+    display:flex;align-items:center;gap:12px;
+  }
+  h2.sec .num{
+    flex:0 0 auto;
+    background:var(--maroon);color:#fff;
+    width:34px;height:34px;border-radius:9px;
+    display:inline-flex;align-items:center;justify-content:center;
+    font-size:17px;font-weight:700;
+  }
+  h3{font-size:17.5px;font-weight:600;color:var(--ink);margin:30px 0 8px}
+  h4{font-size:15.5px;font-weight:600;color:var(--maroon-dark);margin:20px 0 6px}
+  p{margin:8px 0}
+  a{color:var(--maroon);text-decoration:none}
+  a:hover{text-decoration:underline}
+  strong{font-weight:600}
+  ul,ol{margin:8px 0;padding-left:22px}
+  li{margin:4px 0}
+  code{
+    font-family:"Cascadia Code",Consolas,"Courier New",monospace;
+    background:#f4f1ef;border:1px solid #e7e2df;border-radius:5px;
+    padding:1px 6px;font-size:13px;color:#5a3b3b;
+  }
+  /* ---------- TOC ---------- */
+  .toc{
+    background:var(--maroon-soft);
+    border:1px solid var(--maroon-line);
+    border-radius:var(--radius);
+    padding:22px 26px;margin:34px 0 10px;
+  }
+  .toc h3{margin:0 0 12px;color:var(--maroon-dark);font-size:16px}
+  .toc ol{columns:2;column-gap:34px;list-style:none;padding:0;margin:0;counter-reset:t}
+  .toc li{counter-increment:t;margin:5px 0;font-size:14px}
+  .toc li a{display:flex;gap:8px;color:var(--ink)}
+  .toc li a::before{
+    content:counter(t);flex:0 0 auto;
+    color:var(--maroon);font-weight:600;min-width:20px;
+  }
+  .toc.mini{background:#fff;border-style:dashed;margin:16px 0 8px}
+  .toc.mini ol{columns:2}
+  .toc.mini li a::before{content:"›";min-width:14px}
+  /* ---------- Master TOC ---------- */
+  .mtoc{
+    background:var(--maroon-soft);border:1px solid var(--maroon-line);
+    border-radius:var(--radius);padding:22px 26px;margin:34px 0 10px;
+  }
+  .mtoc h3{margin:0 0 12px;color:var(--maroon-dark);font-size:16px}
+  .mtoc ol.lvl1{list-style:none;padding:0;margin:0;counter-reset:tp}
+  .mtoc ol.lvl1 > li{counter-increment:tp;margin:12px 0;padding-bottom:12px;border-bottom:1px dashed var(--maroon-line)}
+  .mtoc ol.lvl1 > li:last-child{border-bottom:none;padding-bottom:0}
+  .mtoc .tocpart > a{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15.5px;color:var(--maroon-dark)}
+  .mtoc .tocpart > a::before{
+    content:counter(tp);flex:0 0 auto;background:var(--maroon);color:#fff;
+    width:26px;height:26px;border-radius:7px;display:inline-flex;
+    align-items:center;justify-content:center;font-size:14px;font-weight:700;
+  }
+  .mtoc .tocico{font-size:17px}
+  .mtoc .tocsub{color:var(--muted);font-size:13px;margin:4px 0 0 36px}
+  .mtoc .tocmods{list-style:none;padding:8px 0 0 36px;margin:0;columns:2;column-gap:26px}
+  .mtoc .tocmods li{margin:3px 0;font-size:13.5px;break-inside:avoid}
+  .mtoc .tocmods a{color:var(--ink);display:inline-flex;gap:6px}
+  .mtoc .tocmods a::before{content:"›";color:var(--maroon);font-weight:700}
+  /* ---------- Parts ---------- */
+  .part{padding-top:8px;scroll-margin-top:80px}
+  .part + .part{border-top:3px double var(--maroon-line);margin-top:56px}
+  .part-head{margin-top:44px}
+  .part-title{
+    font-size:26px;font-weight:700;color:#fff;margin:0;
+    background:linear-gradient(120deg,#8f2020,#b13a3a 70%,#9E2424);
+    border-radius:12px;padding:16px 22px;
+    display:flex;align-items:center;gap:14px;
+  }
+  .part-title .part-icon{font-size:26px}
+  .part-sub{color:var(--muted);font-size:14px;margin:10px 2px 0}
+  h3.mod{
+    font-size:19px;font-weight:700;color:var(--maroon-dark);
+    margin:38px 0 4px;padding:0 0 8px;
+    border-bottom:1px solid var(--maroon-line);
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    scroll-margin-top:88px;
+  }
+  h3.mod .mtag{
+    font-size:11.5px;font-weight:600;color:var(--maroon);
+    background:var(--maroon-soft);border:1px solid var(--maroon-line);
+    border-radius:999px;padding:2px 10px;
+  }
+  /* ---------- Cards / callouts ---------- */
+  .card{
+    border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px 22px;margin:16px 0;background:#fff;
+  }
+  .grid{display:grid;gap:14px}
+  .grid.two{grid-template-columns:1fr 1fr}
+  .grid.three{grid-template-columns:1fr 1fr 1fr}
+  .tile{
+    border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:#fff;
+  }
+  .tile .t{font-weight:600;color:var(--maroon-dark);font-size:14.5px;display:flex;align-items:center;gap:8px}
+  .tile p{margin:6px 0 0;color:var(--muted);font-size:13.5px}
+  .callout{
+    border-radius:12px;padding:13px 16px 13px 46px;margin:14px 0;
+    position:relative;border:1px solid;font-size:14px;
+  }
+  .callout::before{
+    position:absolute;left:14px;top:12px;font-size:16px;font-weight:700;
+  }
+  .callout.note{background:var(--infobg);border-color:#cfe0f3;color:#173f6e}
+  .callout.note::before{content:"i";font-style:italic}
+  .callout.tip{background:var(--okbg);border-color:#cdeddc;color:#155e3b}
+  .callout.tip::before{content:"✓"}
+  .callout.warn{background:var(--warnbg);border-color:#efe0b3;color:#6b5214}
+  .callout.warn::before{content:"!"}
+  .callout.danger{background:var(--dangerbg);border-color:#f1cccc;color:#7c2020}
+  .callout.danger::before{content:"✕"}
+  /* ---------- Steps ---------- */
+  ol.steps{list-style:none;padding:0;margin:14px 0;counter-reset:s}
+  ol.steps>li{
+    counter-increment:s;position:relative;
+    padding:2px 0 16px 46px;margin:0;
+  }
+  ol.steps>li::before{
+    content:counter(s);
+    position:absolute;left:0;top:0;
+    width:30px;height:30px;border-radius:50%;
+    background:var(--maroon);color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:14px;
+  }
+  ol.steps>li::after{
+    content:"";position:absolute;left:14.5px;top:30px;bottom:0;
+    width:2px;background:var(--maroon-line);
+  }
+  ol.steps>li:last-child::after{display:none}
+  ol.steps>li .stitle{font-weight:600}
+  /* ---------- Tables ---------- */
+  table{
+    width:100%;border-collapse:collapse;margin:14px 0;font-size:13.8px;
+    border:1px solid var(--maroon-line);border-radius:10px;overflow:hidden;
+  }
+  thead th{
+    background:var(--maroon);color:#fff;font-weight:600;
+    text-align:left;padding:10px 12px;font-size:13.5px;
+  }
+  tbody td{padding:9px 12px;border-top:1px solid var(--line);vertical-align:top}
+  tbody tr:nth-child(even){background:#fcfafa}
+  .req{color:var(--maroon);font-weight:600}
+  /* ---------- Badges ---------- */
+  .badge{
+    display:inline-block;padding:2px 10px;border-radius:999px;
+    font-size:12.5px;font-weight:600;border:1px solid;
+  }
+  .b-gray{background:#f1f1f1;border-color:#ddd;color:#555}
+  .b-blue{background:var(--infobg);border-color:#cfe0f3;color:#1a4d86}
+  .b-green{background:var(--okbg);border-color:#cdeddc;color:#155e3b}
+  .b-red{background:var(--dangerbg);border-color:#f1cccc;color:#7c2020}
+  .b-amber{background:var(--warnbg);border-color:#efe0b3;color:#6b5214}
+  /* state flow */
+  .flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:12px 0}
+  .flow .stp{
+    background:#fff;border:1px solid var(--maroon-line);border-radius:8px;
+    padding:6px 12px;font-size:13px;font-weight:500;
+  }
+  .flow .arrow{color:var(--maroon);font-weight:700}
+  .kbd{
+    font-family:Consolas,monospace;background:#2b2b2b;color:#fff;
+    border-radius:6px;padding:1px 8px;font-size:12.5px;
+  }
+  .pill{
+    display:inline-block;background:var(--maroon-soft);border:1px solid var(--maroon-line);
+    color:var(--maroon-dark);border-radius:8px;padding:1px 9px;font-size:12.5px;font-weight:600;
+  }
+  .path{
+    display:inline-block;background:#f4f1ef;border:1px dashed #d9cece;border-radius:7px;
+    padding:1px 9px;font-size:13px;color:#5a3b3b;font-weight:500;
+  }
+  hr{border:none;border-top:1px solid var(--line);margin:34px 0}
+  .anchor{scroll-margin-top:88px}
+  .footnote{color:var(--muted);font-size:12.8px}
+  .doc-footer{
+    text-align:center;color:var(--muted);font-size:12.5px;
+    padding:22px 56px 34px;border-top:1px solid var(--line);
+  }
+  .toplink{
+    position:fixed;right:22px;bottom:22px;z-index:40;
+    background:var(--maroon);color:#fff;border:none;border-radius:999px;
+    padding:10px 16px;font-family:inherit;font-size:13px;font-weight:600;
+    cursor:pointer;box-shadow:0 6px 18px rgba(158,36,36,.35);display:none;
+  }
+  .toplink.show{display:block}
+  /* ---------- Print ---------- */
+  @media print{
+    body{background:#fff;font-size:11.5pt}
+    .doc{max-width:none;box-shadow:none;margin:0}
+    .searchbar,.toplink{display:none !important}
+    .cover{padding:40px 34px;border-radius:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .body,.doc-footer{padding-left:34px;padding-right:34px}
+    .part + .part{border-top:none;margin-top:0;page-break-before:always}
+    .part-title{-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-after:avoid}
+    h2.sec{page-break-after:avoid}
+    h3,h4{page-break-after:avoid}
+    h3.mod{page-break-after:avoid}
+    .card,.callout,.tile,table,ol.steps>li{page-break-inside:avoid}
+    thead th{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    tbody tr:nth-child(even){-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .toc,.cover,.badge,.tile,.callout,.part-title{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    a{color:var(--ink);text-decoration:none}
+  }
+  @page{size:A4;margin:14mm 12mm}
+  @media (max-width:720px){
+    .body,.cover,.searchbar{padding-left:20px;padding-right:20px}
+    .toc ol,.toc.mini ol{columns:1}
+    .grid.two,.grid.three{grid-template-columns:1fr}
+    .cover h1{font-size:26px}
+    .part-title{font-size:20px}
+  }
+</style>
+</head>
+<body>
+<article class="doc" id="top">
+
+  <!-- ============ SEARCH BAR ============ -->
+  <div class="searchbar" role="search">
+    <div class="sbox">
+      <span class="sicon">⌕</span>
+      <input id="guideSearch" type="search" autocomplete="off"
+             placeholder="ค้นหาทั้งคู่มือ — เช่น เงินทดรอง, ใบกำกับภาษี, อนุมัติ, ISO, ตรวจรับ…"
+             aria-label="ค้นหาในคู่มือ">
+      <button class="sclear" id="searchClear" type="button" title="ล้างคำค้น">✕</button>
+      <div class="search-results" id="searchResults"></div>
+    </div>
+    <span class="scount" id="searchCount"></span>
+  </div>
+
+  <!-- ============ COVER ============ -->
+  <header class="cover">
+    <div class="brandline">
+      <div class="brandmark">A</div>
+      <small>AutoInfo · Odoo 19 Community · ERP Full User Handbook</small>
+    </div>
+    <h1>คู่มือการใช้งานระบบ<br>Odoo 19 — AutoInfo ERP ฉบับเต็ม</h1>
+    <h2>ครอบคลุมทุกกระบวนการทำงาน ทุกเมนู ทุกโมดูลของระบบ</h2>
+    <p class="lede">
+      คู่มือฉบับรวมเล่ม อธิบายวิธีใช้งานระบบ ERP ทั้งระบบ แบ่งออกเป็น <strong>ส่วนย่อยตามโดเมนธุรกิจ</strong>
+      แต่ละส่วนมีสารบัญของตัวเอง และเมื่อรวมกันเป็นคู่มือใหญ่เล่มเดียว พร้อม
+      <strong>ช่องค้นหาข้ามทุกส่วน</strong> ในตัว — ใช้สำหรับการใช้งานจริง การอบรม และการพิมพ์เป็น A4
+    </p>
+    <div class="meta">
+      <div><span>เวอร์ชันคู่มือ</span><strong>v1.0 · 19 พ.ย. 2569</strong></div>
+      <div><span>ขอบเขต</span><strong>ทุกโมดูล custom_addons (od19_*)</strong></div>
+      <div><span>จำนวนส่วน</span><strong>{{PART_COUNT}} ส่วน · {{MOD_COUNT}} โมดูล</strong></div>
+      <div><span>ระบบพื้นฐาน</span><strong>Odoo 19 CE · AutoInfo</strong></div>
+    </div>
+  </header>
+
+  <div class="body">
+
+    <!-- ============ MASTER TOC ============ -->
+    <nav class="mtoc" id="masterToc">
+      <h3>สารบัญคู่มือฉบับเต็ม</h3>
+      {{MASTER_TOC}}
+    </nav>
+
+    <div class="callout note">
+      <strong>วิธีใช้คู่มือนี้:</strong> ใช้ช่องค้นหาด้านบนเพื่อค้นข้ามทุกส่วน ·
+      คลิกชื่อโดเมนในสารบัญเพื่อกระโดดไปยังส่วนนั้น · แต่ละส่วนมี “สารบัญส่วนนี้” ของตัวเอง ·
+      กด <span class="kbd">Ctrl</span> + <span class="kbd">P</span> เพื่อพิมพ์เป็น A4 (แต่ละส่วนจะเริ่มหน้าใหม่)
+    </div>

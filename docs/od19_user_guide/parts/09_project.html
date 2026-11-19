@@ -1,0 +1,296 @@
+<!--Part
+id=project
+title=โครงการและต้นทุน
+icon=📊
+sub=ตั้งรหัสงานไทย · ประเภทโครงการ · บัญชีวิเคราะห์ · กำไร-ขาดทุนและความเสี่ยงโครงการ · เรียกเก็บจาก Timesheet · เลขที่เอกสาร
+-->
+
+<section class="part" id="project">
+
+  <div class="part-head">
+    <h2 class="part-title"><span class="part-icon">📊</span> ส่วนที่ 9 · โครงการและต้นทุน</h2>
+    <p class="part-sub">
+      ส่วนนี้อธิบายการบริหารโครงการ (Project) ที่ผูกกับงานบริการ-บำรุงรักษา-ขายของ AutoInfo —
+      ตั้งแต่การตั้ง “รหัสงาน” (Job Number) แบบไทย, การจัดประเภทโครงการเป็นลำดับชั้น,
+      การผูกบัญชีวิเคราะห์ (Analytic Account) เพื่อคิดต้นทุน, รายงานกำไร-ขาดทุน (P&amp;L) และรายงานความเสี่ยงของโครงการ,
+      ไปจนถึงการเรียกเก็บค่าบริการจากชั่วโมงทำงาน (Timesheet → Invoice) และกติกาการออกเลขรหัสงาน/รหัสงานย่อยอัตโนมัติ
+    </p>
+  </div>
+
+  <nav class="toc mini">
+    <h3>สารบัญส่วนนี้</h3>
+    <ol>
+      <li><a href="#proj-1">od19_project_enhanced — ประเภทโครงการ, รายงาน P&amp;L/ความเสี่ยง, แจ้งเตือนกำหนดส่ง</a></li>
+      <li><a href="#proj-2">od19_project_analytic — รหัสงาน, แผนก, เจ้าของ/ผู้รับเหมา, บัญชีวิเคราะห์</a></li>
+      <li><a href="#proj-3">od19_project_timesheet_billing — เรียกเก็บค่าบริการจาก Timesheet</a></li>
+      <li><a href="#proj-4">od19_project_document_sequence — เลขรหัสงาน/รหัสงานย่อยตามแผนก</a></li>
+    </ol>
+  </nav>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="proj-1"><span class="mtag">od19_project_enhanced</span> โครงการอัจฉริยะ — ประเภทโครงการ, รายงาน P&amp;L และความเสี่ยง</h3>
+
+  <h4>1) วัตถุประสงค์</h4>
+  <p>
+    เสริมโมดูลโครงการมาตรฐานให้รองรับงานจริงของ AutoInfo — เพิ่ม <strong>ประเภทธุรกิจของโครงการ (Project Category)</strong>
+    แบบลำดับชั้น, ฟิลด์ <strong>ใบมอบหมายงาน (Job Assignment)</strong> ทั้งผู้รับผิดชอบ ผู้ประสานงาน ขอบเขตงาน และเอกสารที่ต้องส่งมอบ,
+    รายงาน <strong>กำไร-ขาดทุนโครงการ (Project P&amp;L)</strong>, รายงาน <strong>ความเสี่ยงโครงการ (Risk Report)</strong>,
+    การ <strong>แจ้งเตือนกำหนดส่งงานทางอีเมล</strong> อัตโนมัติ และการ <strong>ห้ามย้อนขั้นตอนงาน</strong> (No Backward Stage)
+  </p>
+
+  <h4>2) เมนู</h4>
+  <p>เมนูทั้งหมดอยู่ในแอป <strong>โครงการ (Project)</strong> ใต้เมนูหลักของผู้จัดการโครงการ</p>
+  <table>
+    <thead><tr><th>เมนู</th><th>ใช้ทำอะไร</th><th>กลุ่มสิทธิ์</th></tr></thead>
+    <tbody>
+      <tr><td><span class="path">โครงการ › Project Types</span></td><td>กำหนดประเภท/หมวดหมู่โครงการแบบลำดับชั้น (ใช้ทั้งในโครงการและงานย่อย)</td><td>ผู้ใช้โครงการ</td></tr>
+      <tr><td><span class="path">โครงการ › P&amp;L Report</span></td><td>ออกรายงานกำไร-ขาดทุนของโครงการตามช่วงวันที่และบริษัท</td><td>ผู้ใช้โครงการ</td></tr>
+      <tr><td><span class="path">โครงการ › Risk Report</span></td><td>รายงานความเสี่ยงโครงการ (ตาราง/กราฟ/ตารางสรุป)</td><td>ผู้ใช้โครงการ</td></tr>
+      <tr><td><span class="path">โครงการ › Projects without Job Number</span></td><td>ตรวจโครงการที่ยังไม่มีรหัสงาน (คุณภาพข้อมูล)</td><td>ผู้จัดการโครงการ</td></tr>
+      <tr><td><span class="path">โครงการ › Projects without Analytic Account</span></td><td>ตรวจโครงการที่ยังไม่ผูกบัญชีวิเคราะห์</td><td>ผู้จัดการโครงการ</td></tr>
+    </tbody>
+  </table>
+
+  <h4>3) ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">กำหนดประเภทโครงการ</span> ไปที่ <span class="path">โครงการ › Project Types</span> สร้างรายการประเภท (เช่น งานติดตั้ง, งานบำรุงรักษา) เลือก <span class="pill">Parent Type</span> ได้ถ้าต้องการจัดเป็นลำดับชั้น แล้วติ๊ก <span class="pill">Usable on Projects</span> / <span class="pill">Usable on Tasks</span> เพื่อเปิดให้เลือกใช้</li>
+    <li><span class="stitle">ระบุประเภทให้โครงการและงานย่อย</span> เปิดโครงการ → แท็บข้อมูลหลัก เลือก <span class="pill">Project Category</span> (<code>od19_project_type_id</code>) ส่วนงานย่อยเลือก <span class="pill">Project Type</span> ในฟอร์มงาน</li>
+    <li><span class="stitle">กรอกใบมอบหมายงาน</span> ในแท็บ <strong>Job Assignment</strong> ของโครงการ ระบุ <span class="pill">Responsible Persons</span>, <span class="pill">Coordinators</span>, <span class="pill">Scope of Work</span> และ <span class="pill">Document Requirements</span></li>
+    <li><span class="stitle">ออกรายงาน P&amp;L</span> ไปที่ <span class="path">โครงการ › P&amp;L Report</span> เลือกช่วงวันที่/บริษัท/โครงการ (เว้นว่าง = ทุกโครงการ) แล้วกด <span class="badge b-blue">Generate</span></li>
+    <li><span class="stitle">ตรวจรายงานความเสี่ยง</span> ไปที่ <span class="path">โครงการ › Risk Report</span> ดูค่า <span class="pill">Risk Score</span> และ <span class="pill">Risk Level</span> (สีบอกระดับ) พร้อมสลับเป็นมุมมองกราฟ/ตารางสรุป</li>
+    <li><span class="stitle">ตรวจคุณภาพข้อมูล</span> ใช้เมนู <span class="path">Projects without Job Number</span> และ <span class="path">Projects without Analytic Account</span> เพื่อตามหาโครงการที่ตั้งค่าไม่ครบ</li>
+  </ol>
+
+  <h4>4) สถานะและตัวชี้วัด</h4>
+  <p>รายงานโครงการมีตัวชี้วัดเฉพาะดังนี้</p>
+  <table>
+    <thead><tr><th>ตัวชี้วัด</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">Risk Level</span></td><td><span class="badge b-green">Low</span> ต่ำกว่า 40 · <span class="badge b-amber">Medium</span> 40–69 · <span class="badge b-red">High</span> 70 ขึ้นไป</td></tr>
+      <tr><td><span class="pill">P&amp;L Warning</span></td><td>ไม่ผูกบัญชีวิเคราะห์ / ยังไม่มีรายได้ที่รับรู้ / มียอดที่ยังไม่จัดหมวดหมู่ ต้องตรวจสอบ</td></tr>
+    </tbody>
+  </table>
+  <p>เกณฑ์คิดคะแนนความเสี่ยง (Risk Score) รวมจาก 3 เงื่อนไข: รายได้ &gt; 0 แต่กำไรขั้นต้นต่ำกว่า 15% (+40), มียอดลูกหนี้ค้างชำระ (+30), เลยกำหนดเสร็จของโครงการแล้ว (+30)</p>
+
+  <h4>5) ฟิลด์/ปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>ฟิลด์/ปุ่ม</th><th>อยู่ที่</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">Project Category</span></td><td>ฟอร์มโครงการ</td><td>ประเภทธุรกิจของโครงการ ส่วนงานย่อยใช้ <span class="pill">Project Type</span></td></tr>
+      <tr><td><span class="pill">Responsible / Coordinators</span></td><td>แท็บ Job Assignment</td><td>ผู้รับผิดชอบและผู้ประสานงานโครงการ (หลายคน)</td></tr>
+      <tr><td><span class="pill">Scope of Work / Document Requirements</span></td><td>แท็บ Job Assignment</td><td>ขอบเขตงาน และเอกสารที่ต้องส่งมอบ (พิมพ์ในใบมอบหมายงาน)</td></tr>
+      <tr><td><span class="badge b-blue">Generate</span></td><td>วิซาร์ด P&amp;L Report</td><td>สร้างผลลัพธ์รายงาน P&amp;L ตามช่วงวันที่/บริษัท</td></tr>
+      <tr><td><span class="badge b-gray">Job Assignment (PDF)</span></td><td>ปุ่มพิมพ์บนโครงการ</td><td>พิมพ์ “ใบมอบหมายงาน” พร้อมลายเซ็น 3 ฝ่าย</td></tr>
+    </tbody>
+  </table>
+
+  <h4>6) สิทธิ์การใช้งาน</h4>
+  <ul>
+    <li><strong>ผู้ใช้โครงการ (Project User):</strong> ดู/แก้ไข/สร้างประเภทโครงการ ดูรายงานความเสี่ยง (อ่านเท่านั้น) และใช้วิซาร์ด P&amp;L ได้เต็ม</li>
+    <li><strong>ผู้จัดการโครงการ (Project Manager):</strong> ลบประเภทโครงการได้ และเห็นเมนูตรวจคุณภาพข้อมูล (Projects without Job Number / Analytic Account)</li>
+  </ul>
+
+  <div class="callout tip">
+    <strong>เคล็ดลับ:</strong> ถ้าคะแนนความเสี่ยงเป็น 0 ทุกรายการ แต่โครงการยังไม่เสร็จ ให้ตรวจว่ารายได้ถูก <strong>รับรู้แล้ว</strong> หรือไม่ —
+    ระบบจะไม่คิดเงื่อนไขกำไรขั้นต้นกับโครงการที่ยังไม่มีรายได้ เพื่อไม่ให้โครงการที่อยู่ระหว่างทำกลายเป็น “เสี่ยง” ทั้งหมด
+  </div>
+  <div class="callout warn">
+    <strong>ข้อควรระวัง:</strong> งานย่อยห้ามย้อนขั้นตอน (ย้ายจากขั้นที่ <code>sequence</code> มากไปน้อยกว่า) — ผู้ใช้ทั่วไปจะย้ายไม่ได้ ระบบจะแจ้งเตือน
+    เฉพาะผู้ดูแลระบบ (Administrator) เท่านั้นที่ย้อนขั้นตอนได้
+  </div>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="proj-2"><span class="mtag">od19_project_analytic</span> รหัสงาน, แผนก, เจ้าของ/ผู้รับเหมา และบัญชีวิเคราะห์</h3>
+
+  <h4>1) วัตถุประสงค์</h4>
+  <p>
+    ขยายฟอร์มโครงการให้เก็บ <strong>รหัสงาน (Job Number)</strong>, <strong>แผนกเจ้าของงาน</strong>, <strong>เจ้าของโครงการ</strong> และ
+    <strong>ผู้รับเหมา</strong> พร้อม <strong>สร้างบัญชีวิเคราะห์อัตโนมัติ</strong> ให้ทุกโครงการ เพื่อให้คิดต้นทุน/กำไรได้ทันที
+    และกำหนด <strong>ขอบเขตข้อมูลตามแผนก</strong> (ผู้ใช้เห็นเฉพาะโครงการของแผนกตัวเอง)
+  </p>
+
+  <h4>2) เมนูและตำแหน่งบนหน้าจอ</h4>
+  <ul>
+    <li>ไม่มีเมนูใหม่ — เพิ่มฟิลด์เข้าไปใน <strong>ฟอร์มโครงการ</strong> โดยตรง</li>
+    <li>ป้ายชื่อเรื่อง (Title Bar) ของโครงการจะแสดง <span class="pill">Job Number</span> เป็นบรรทัดใหญ่ และชื่อโครงการอยู่ถัดลงมา</li>
+    <li>ฟิลด์บัญชีวิเคราะห์เปลี่ยนป้ายเป็น <span class="pill">บัญชีวิเคราะห์</span></li>
+  </ul>
+
+  <h4>3) ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">สร้างโครงการใหม่</span> ระบบสร้าง <strong>บัญชีวิเคราะห์</strong> ให้อัตโนมัติ (ใช้รหัสงานหรือชื่อโครงการเป็นชื่อบัญชี)</li>
+    <li><span class="stitle">กรอกรหัสงาน</span> ที่หัวฟอร์ม รหัสงานต้อง <strong>ไม่ซ้ำ</strong> กับโครงการอื่น (ระบบตรวจทั้งตอนบันทึกและตอนสร้าง)</li>
+    <li><span class="stitle">ระบุแผนกเจ้าของงาน</span> เลือก <span class="pill">Department</span> เพื่อใช้ในการออกรหัสงานและรายงานระดับแผนก</li>
+    <li><span class="stitle">ระบุเจ้าของและผู้รับเหมา</span> เลือก <span class="pill">Project Owner</span> (ต้องมีบทบาท Project Owner) และ <span class="pill">Contractors</span> (ต้องมีบทบาท Contractor)</li>
+    <li><span class="stitle">ตรวจบัญชีวิเคราะห์</span> ยืนยันว่าช่อง <span class="pill">บัญชีวิเคราะห์</span> มีค่า (ถ้าว่าง ให้ใช้เมนู Projects without Analytic Account ตามหา)</li>
+  </ol>
+
+  <h4>4) สถานะ/เงื่อนไข</h4>
+  <p>โมดูลนี้ไม่มี workflow สถานะของตัวเอง แต่บังคับกติกาความถูกต้อง (constraint) ดังนี้</p>
+  <div class="flow">
+    <span class="stp">กรอกรหัสงาน</span>
+    <span class="arrow">→</span>
+    <span class="stp">ตรวจไม่ซ้ำ</span>
+    <span class="arrow">→</span>
+    <span class="stp">เลือกเจ้าของ/ผู้รับเหมา</span>
+    <span class="arrow">→</span>
+    <span class="stp">ตรวจบทบาทผู้ติดต่อ</span>
+    <span class="arrow">→</span>
+    <span class="stp">บันทึก + ผูกบัญชีวิเคราะห์</span>
+  </div>
+
+  <h4>5) ฟิลด์/ปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>ฟิลด์</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">Job Number</span> (<code>job_no</code>)</td><td>รหัสงานของโครงการ — ไม่ซ้ำ, จำเป็นที่หน้าจอ</td></tr>
+      <tr><td><span class="pill">Department</span></td><td>แผนกเจ้าของงาน ใช้กำหนดรหัสงานและรายงานตามแผนก</td></tr>
+      <tr><td><span class="pill">Project Owner</span></td><td>เจ้าของโครงการ (ผู้ติดต่อที่มีบทบาท Project Owner)</td></tr>
+      <tr><td><span class="pill">Contractors</span></td><td>ผู้รับเหมาโครงการ (ผู้ติดต่อที่มีบทบาท Contractor)</td></tr>
+      <tr><td><span class="pill">บัญชีวิเคราะห์</span> (<code>account_id</code>)</td><td>บัญชีวิเคราะห์สำหรับคิดต้นทุน/กำไรของโครงการ</td></tr>
+    </tbody>
+  </table>
+
+  <h4>6) สิทธิ์การใช้งาน (ขอบเขตตามแผนก)</h4>
+  <table>
+    <thead><tr><th>กลุ่ม</th><th>มองเห็นโครงการ</th></tr></thead>
+    <tbody>
+      <tr><td>กลุ่มขอบเขตแผนก (<code>group_od19_department_scope</code>)</td><td>เฉพาะโครงการของแผนกตัวเอง + โครงการที่ยังไม่ระบุแผนก (Fail-safe) · อ่าน/แก้ไข/ลบได้ แต่ <strong>สร้างไม่ได้</strong></td></tr>
+      <tr><td>กลุ่มเห็นทุกแผนก (<code>group_od19_department_all</code>)</td><td>เห็นทุกแผนก (กฎนี้ OR กับกฎแผนก จึงชนะเมื่ออยู่ทั้งสองกลุ่ม)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout note">
+    <strong>หมายเหตุ:</strong> เจ้าของโครงการและผู้รับเหมาเลือกได้เฉพาะผู้ติดต่อที่มีบทบาทตรงกัน (Project Owner / Contractor) —
+    ถ้าเลือกคนที่ไม่มีบทบาท ระบบจะขึ้นข้อความ “Project owner must have the Project Owner role.” หรือ “All contractors must have the Contractor role.”
+  </div>
+  <div class="callout warn">
+    <strong>ข้อควรระวัง:</strong> รหัสงานต้องไม่ซ้ำ (unique) — เปลี่ยนรหัสงานที่ออกเลขไปแล้วควรทำเฉพาะกรณียืนยันได้ เพื่อไม่ให้ข้อมูลอ้างอิงสับสน
+  </div>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="proj-3"><span class="mtag">od19_project_timesheet_billing</span> เรียกเก็บค่าบริการจาก Timesheet (Timesheet → Invoice)</h3>
+
+  <h4>1) วัตถุประสงค์</h4>
+  <p>
+    ช่วยติดตามและเรียกเก็บค่าบริการจาก <strong>ชั่วโมงทำงาน (Timesheet)</strong> ของงานบริการ/โครงการ —
+    ระบุชัดว่า Timesheet ใด <strong>เรียกเก็บได้แต่ยังไม่ถูกแจ้งหนี้</strong> และสร้างใบแจ้งหนี้ตามช่วงวันที่ได้โดยอาศัยกลไกมาตรฐานของ Odoo (sale_timesheet)
+  </p>
+
+  <h4>2) เมนูและปุ่ม</h4>
+  <ul>
+    <li>เมนู: <span class="path">การขาย › การออกใบแจ้งหนี้ › Invoice Timesheets</span> (เปิดวิซาร์ดเรียกเก็บ)</li>
+    <li>ปุ่มบนฟอร์มโครงการ: ปุ่มสถิติ <span class="pill">Unbilled Timesheets</span> (แสดงเฉพาะเมื่อมีรายการ)</li>
+    <li>ปุ่มบนฟอร์มใบสั่งขาย: <span class="pill">Unbilled Timesheets</span> และ <span class="badge b-blue">Invoice Timesheets</span></li>
+  </ul>
+
+  <h4>3) ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">ยืนยันใบสั่งขาย</span> ต้องมีใบสั่งขายที่ยืนยันแล้ว (สถานะ “ใบสั่งขาย”) และมีรายการที่เป็นสินค้าบริการแบบ “เรียกเก็บตามเวลาที่ใช้ (Timesheet)”</li>
+    <li><span class="stitle">ลงเวลา (Timesheet)</span> พนักงานลงชั่วโมงทำงานผูกกับโครงการ/รายการขายนั้น</li>
+    <li><span class="stitle">ตรวจ Timesheet รอเรียกเก็บ</span> ดูปุ่ม <span class="pill">Unbilled Timesheets</span> บนฟอร์มโครงการหรือใบสั่งขาย เพื่อเปิดดูรายการที่ยังไม่เรียกเก็บ</li>
+    <li><span class="stitle">เปิดวิซาร์ดเรียกเก็บ</span> บนใบสั่งขาย กด <span class="badge b-blue">Invoice Timesheets</span> (หรือเปิดจากเมนู) เลือก <span class="pill">Sales Orders</span> และช่วงวันที่ (เว้นว่าง = ทั้งหมด)</li>
+    <li><span class="stitle">สร้างใบแจ้งหนี้</span> กด <span class="badge b-green">Create Invoices</span> ระบบจะคำนวณจำนวนที่เรียกเก็บได้ใหม่ตามช่วงวันที่แล้วสร้างใบแจ้งหนี้ พร้อมเปิดรายการใบแจ้งหนี้ให้ตรวจต่อ</li>
+  </ol>
+
+  <h4>4) สถานะ/เงื่อนไข</h4>
+  <ul>
+    <li>Timesheet ถือว่า “เรียกเก็บได้แต่ยังไม่แจ้งหนี้” เมื่อผูกกับรายการขายที่สินค้าเป็นแบบ <code>invoice_policy = 'delivery'</code> และ <code>service_type = 'timesheet'</code> และยังไม่มี <span class="pill">timesheet_invoice_id</span></li>
+    <li>ต้องยืนยันใบสั่งขายก่อนจึงจะเรียกเก็บได้ — ถ้ายังไม่ยืนยัน ระบบแจ้ง “ต้องยืนยันใบสั่งขายก่อนจึงจะเรียกเก็บเงินได้”</li>
+  </ul>
+
+  <h4>5) ฟิลด์/ปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>ฟิลด์/ปุ่ม</th><th>อยู่ที่</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">Unbilled Timesheets</span> / <span class="pill">Unbilled Hours</span></td><td>โครงการ และใบสั่งขาย</td><td>จำนวนรายการและชั่วโมงที่รอเรียกเก็บ</td></tr>
+      <tr><td><span class="badge b-blue">Invoice Timesheets</span></td><td>ฟอร์มใบสั่งขาย</td><td>เปิดวิซาร์ดเรียกเก็บจาก Timesheet สำหรับใบสั่งขายนั้น</td></tr>
+      <tr><td><span class="badge b-green">Create Invoices</span></td><td>วิซาร์ด</td><td>สร้างใบแจ้งหนี้จาก Timesheet ที่ยังไม่เรียกเก็บ (คีย์ลัด <span class="kbd">Q</span>)</td></tr>
+    </tbody>
+  </table>
+
+  <h4>6) สิทธิ์การใช้งาน</h4>
+  <p>ผู้ใช้กลุ่ม <strong>พนักงานขาย (Salesman)</strong> ใช้วิซาร์ดเรียกเก็บจาก Timesheet ได้ (อ่าน/สร้าง/แก้ไข/ลบ)</p>
+
+  <div class="callout tip">
+    <strong>เคล็ดลับ:</strong> กดปุ่มจำนวน Timesheet ค้างเพื่อเปิดดูได้ทุกครั้งที่ยอดค้างเปลี่ยน —
+    ปุ่มจะแสดงเฉพาะเมื่อมีรายการค้าง จึงไม่รบกวนเมื่อไม่มีงานค้างเรียกเก็บ
+  </div>
+  <div class="callout warn">
+    <strong>ข้อควรระวัง:</strong> การเรียกเก็บจะรวมเฉพาะ Timesheet ที่สินค้าเป็นแบบ “เรียกเก็บตามเวลาที่ใช้” เท่านั้น —
+    ถ้าไม่พบรายการที่เรียกเก็บได้ ระบบจะแจ้งให้ตรวจชนิดสินค้าของรายการขายก่อน
+  </div>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="proj-4"><span class="mtag">od19_project_document_sequence</span> เลขรหัสงาน/รหัสงานย่อยตามแผนกและพนักงานขาย</h3>
+
+  <h4>1) วัตถุประสงค์</h4>
+  <p>
+    ออก <strong>รหัสงาน (Job Number)</strong> และ <strong>รหัสงานย่อย (Task Code)</strong> อัตโนมัติ ตามรูปแบบไทยที่กำหนด —
+    ใช้ <strong>รหัสแผนก + อักษรย่อพนักงานขาย + ปี + เลขรัน</strong> โดยแยกชุดเลข (Sequence) ตามประเภทโครงการ: งาน (Job), บำรุงรักษาเชิงป้องกัน (PM), บริการ (Service) และงานขาย (Sales)
+  </p>
+
+  <h4>2) รูปแบบรหัสงาน</h4>
+  <div class="flow">
+    <span class="stp">Job: J + แผนก + ย่อ + YY-รัน</span>
+    <span class="arrow">→</span>
+    <span class="stp">PM: PM + แผนก + ย่อ + YY-รัน</span>
+    <span class="arrow">→</span>
+    <span class="stp">Service: S + แผนก + ย่อ + YY-รัน</span>
+    <span class="arrow">→</span>
+    <span class="stp">Sales: S + ย่อ + YY-รัน</span>
+  </div>
+  <table>
+    <thead><tr><th>ประเภทโครงการ</th><th>ชุดเลขที่ใช้</th><th>ตัวอย่างรหัสงาน</th></tr></thead>
+    <tbody>
+      <tr><td>Job (งาน)</td><td>Sequence ของแผนกตามประเภทงาน</td><td><code>JBNV26-0001</code></td></tr>
+      <tr><td>Preventive Maintenance (PM)</td><td>Sequence ของแผนก (PM)</td><td><code>PMBNV26-0001</code></td></tr>
+      <tr><td>Service (บริการ)</td><td>Sequence ของแผนก (Service)</td><td><code>SBNV26-0001</code></td></tr>
+      <tr><td>Sales (งานขาย)</td><td>Sequence ของพนักงานขาย (ไม่ใช้เลขแผนก)</td><td><code>SNV26-0001</code></td></tr>
+    </tbody>
+  </table>
+  <p>รหัสงานย่อย (Task Code) ใช้รูปแบบ <code>T + รหัสแผนก + อักษรย่อ + เลขรัน</code> เช่น <code>TBANV0001</code></p>
+
+  <h4>3) ขั้นตอนการตั้งค่าและการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">ตั้งชุดเลขให้แผนก</span> เปิด <span class="path">พนักงาน › แผนก</span> แท็บ <strong>Project Sequences</strong> กำหนด <span class="pill">Project Job No. Sequence</span> / <span class="pill">Project PM No. Sequence</span> / <span class="pill">Project Service No. Sequence</span> ตามประเภทงาน</li>
+    <li><span class="stitle">ตั้งอักษรย่อพนักงานขาย</span> เปิด <span class="path">ตั้งค่า › ผู้ใช้</span> กรอก <span class="pill">Initials</span> (เช่น NV) — ถ้าเว้นว่าง ระบบจะดึงอักษรตัวแรกของชื่อต้นและนามสกุลให้เอง</li>
+    <li><span class="stitle">ตั้งชุดเลขงานขาย (เฉพาะ Sales)</span> ผู้ดูแลระบบ (<code>base.group_erp_manager</code>) กำหนด <span class="pill">Sale Project Job No. Sequence</span> ให้พนักงานขาย (ใช้เลขรันเท่านั้น ส่วนคำนำหน้าถูกกำหนดเป็น S เอง)</li>
+    <li><span class="stitle">สร้างโครงการ</span> เลือก <span class="pill">Project Type</span> (Job/PM/Service/Sales) และ <span class="pill">Salesperson</span> — ระบบออก <strong>รหัสงาน</strong> ให้อัตโนมัติเมื่อบันทึก (ถ้ายังไม่กรอกเอง)</li>
+    <li><span class="stitle">สร้างงานย่อย</span> เมื่อสร้างงานในโครงการ ระบบออก <strong>รหัสงานย่อย</strong> ให้เองจากรหัสแผนกและอักษรย่อของโครงการ</li>
+  </ol>
+
+  <h4>4) สถานะ/เงื่อนไข</h4>
+  <ul>
+    <li>ถ้าเลือกประเภท <strong>Sales</strong> แต่พนักงานขายยังไม่มีชุดเลขงานขาย ระบบจะ <strong>ไม่เดาให้</strong> — จะแจ้ง “Set a Sale Project Job No. Sequence on the salesperson…”</li>
+    <li>ถ้ามีการเปลี่ยนแผนก/ประเภท/พนักงานขาย ภายหลัง และรหัสงานยังว่าง ระบบจะสร้างรหัสงานให้ใหม่</li>
+  </ul>
+
+  <h4>5) ฟิลด์/ปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>ฟิลด์</th><th>อยู่ที่</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">Project Type</span> (<code>od19_project_type</code>)</td><td>ฟอร์มโครงการ</td><td>Job / Preventive Maintenance / Service / Sales — กำหนดคำนำหน้ารหัสงาน (ค่าเริ่มต้น = Job)</td></tr>
+      <tr><td><span class="pill">Salesperson</span></td><td>ฟอร์มโครงการ</td><td>ผู้ให้อักษรย่อในรหัสงาน และเป็นเจ้าของ Sequence สำหรับประเภท Sales</td></tr>
+      <tr><td><span class="pill">Task Code</span> (<code>od19_task_code</code>)</td><td>ฟอร์มงานย่อย</td><td>รหัสงานย่อยที่สร้างอัตโนมัติเมื่อผูกงานกับโครงการ</td></tr>
+      <tr><td><span class="pill">Initials</span> (<code>od19_initials</code>)</td><td>ฟอร์มผู้ใช้</td><td>อักษรย่อพนักงานขายที่ใช้ในรหัสงาน</td></tr>
+      <tr><td><span class="pill">Project … Sequence</span></td><td>ฟอร์มแผนก / ผู้ใช้</td><td>ชุดเลขโครงการตามประเภท และชุดเลขสำหรับพนักงานขาย</td></tr>
+    </tbody>
+  </table>
+
+  <h4>6) สิทธิ์การใช้งาน</h4>
+  <ul>
+    <li>ชุดเลขของแผนกในหน้าฟอร์มแผนก — เป็นการตั้งค่าของฝ่ายบุคคล/ผู้ดูแลระบบ</li>
+    <li>ช่อง <span class="pill">Sale Project Job No. Sequence</span> บนฟอร์มผู้ใช้วางเฉพาะกลุ่ม <strong>ผู้จัดการ ERP</strong> (<code>base.group_erp_manager</code>)</li>
+  </ul>
+
+  <div class="callout note">
+    <strong>หมายเหตุ:</strong> คำนำหน้าใน Sequence ของแผนกจะถูกตั้งไว้แล้ว (เช่น <code>JB%(y)s-</code> = Job แผนก BA) —
+    ระบบจะแทรกอักษรย่อพนักงานขายไว้ <strong>ก่อนเลขปี 2 หลัก</strong> ให้อัตโนมัติ (เช่น <code>JB26-0001</code> → <code>JBNV26-0001</code>)
+  </div>
+  <div class="callout warn">
+    <strong>ข้อควรระวัง:</strong> รหัสงานที่ออกแล้วถือเป็นข้อมูลอ้างอิงสำคัญ — ก่อนเปลี่ยนแผนก/ประเภท/พนักงานขายของโครงการควรตรวจว่าไม่กระทบรหัสงานที่ใช้งานอยู่
+    และอย่าลบชุดเลข (Sequence) ของแผนกทิ้งเพราะจะทำให้ออกเลขต่อไม่ได้
+  </div>
+
+</section>

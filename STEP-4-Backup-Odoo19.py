@@ -13,6 +13,10 @@
        - ตั้งชื่อไฟล์และโฟลเดอร์ตามข้อมูลในหน้า Database Backup
        - ลบไฟล์สำรองเก่าตาม days_to_keep
        - บันทึกผลสำเร็จ/ล้มเหลวลง chatter ของ record
+    3. ตรวจความสมบูรณ์ของไฟล์ที่สร้าง (checksum + size)
+       - คำนวณ SHA256 และขนาดไฟล์ของไฟล์สำรองที่สร้างล่าสุด
+       - เขียน sidecar ``<ไฟล์สำรอง>.sha256`` ข้างไฟล์
+       - ต่อท้ายบันทึก ``backups/backup-manifest.jsonl`` เพื่อให้ STEP-5 ตรวจเทียบภายหลัง
 
 ข้อกำหนดของโปรเจกต์: ใช้ฐานข้อมูลเดียวคือ odoo19_pdev เท่านั้น
 
@@ -22,12 +26,62 @@
 """
 
 import argparse
+import glob
+import hashlib
+import json
 import os
 import sys
+from datetime import datetime
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
+
+
+def _sha256_and_size(path):
+    """คืนค่า (sha256_hex, size_bytes) ของไฟล์ แบบอ่านทีละ chunk"""
+    h = hashlib.sha256()
+    size = 0
+    with open(path, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1024 * 1024), b""):
+            h.update(chunk)
+            size += len(chunk)
+    return h.hexdigest(), size
+
+
+def _newest_backup(folder):
+    """คืน path ของไฟล์สำรองล่าสุดในโฟลเดอร์ (mtime ใหม่สุด) หรือ None"""
+    files = []
+    for pattern in ("*.dump.zip", "*.dump"):
+        files.extend(glob.glob(os.path.join(folder, pattern)))
+    if not files:
+        return None
+    return max(files, key=os.path.getmtime)
+
+
+def _record_checksum(folder, db_name, manifest_path):
+    """คำนวณ checksum + size ของไฟล์สำรองล่าสุด แล้วบันทึก sidecar + manifest"""
+    path = _newest_backup(folder)
+    if not path:
+        print(f"WARN: ไม่พบไฟล์สำรองใน {folder} (ข้ามการตรวจ checksum)")
+        return
+    digest, size = _sha256_and_size(path)
+
+    with open(path + ".sha256", "w", encoding="utf-8") as fh:
+        fh.write(f"{digest}  {os.path.basename(path)}\n")
+
+    entry = {
+        "ts": datetime.now().astimezone().isoformat(timespec="seconds"),
+        "db": db_name,
+        "file": os.path.basename(path),
+        "size_bytes": size,
+        "sha256": digest,
+    }
+    os.makedirs(os.path.dirname(manifest_path), exist_ok=True)
+    with open(manifest_path, "a", encoding="utf-8") as fh:
+        fh.write(json.dumps(entry, ensure_ascii=False) + "\n")
+
+    print(f"CHECKSUM {os.path.basename(path)} size={size} sha256={digest}")
 
 
 def main():
@@ -50,6 +104,8 @@ def main():
     from odoo.api import SUPERUSER_ID, Environment
     from odoo.modules.registry import Registry
 
+    manifest_path = os.path.join(PROJECT_ROOT, "backups", "backup-manifest.jsonl")
+
     registry = Registry(args.db)
     with registry.cursor() as cr:
         env = Environment(cr, SUPERUSER_ID, {})
@@ -62,6 +118,10 @@ def main():
             print(f"backup target: {rec.name} (keep {rec.days_to_keep} days)")
         backups.action_backup()
         cr.commit()
+
+        # ตรวจ checksum + size ของไฟล์ที่สร้างล่าสุด
+        for rec in backups:
+            _record_checksum(rec.folder, args.db, manifest_path)
 
     print("backup finished")
     return 0
