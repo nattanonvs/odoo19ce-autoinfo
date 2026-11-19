@@ -137,25 +137,36 @@ class HelpdeskTicket(models.Model):
         for rec in self:
             rec.priority = score_to_priority(rec.impact, rec.urgency)
 
-    @api.depends("team_id", "priority", "queue_sequence", "stage_id")
+    @api.depends(
+        "team_id",
+        "priority",
+        "queue_sequence",
+        "stage_id",
+        "stage_id.closed",
+    )
     def _compute_queue_position(self):
+        # คิดคิวต่อทีม: จัดกลุ่ม record ตามทีมแล้ว search ทีมละครั้ง (ลด N+1)
+        by_team = {}
         for rec in self:
             rec.queue_position = 0
             rec.queue_ahead_count = 0
-            if not rec.team_id or not rec.id:
-                continue
+            if rec.team_id and rec.id:
+                by_team.setdefault(rec.team_id.id, self.browse())
+                by_team[rec.team_id.id] |= rec
+        for team_id, records in by_team.items():
             tickets = self.search(
                 [
-                    ("team_id", "=", rec.team_id.id),
+                    ("team_id", "=", team_id),
                     ("stage_id.closed", "=", False),
                 ],
                 order="priority desc, queue_sequence asc, id asc",
             )
             ids = tickets.ids
-            if rec.id in ids:
-                position = ids.index(rec.id) + 1
-                rec.queue_position = position
-                rec.queue_ahead_count = position - 1
+            for rec in records:
+                if rec.id in ids:
+                    position = ids.index(rec.id) + 1
+                    rec.queue_position = position
+                    rec.queue_ahead_count = position - 1
 
     # ------------------------------------------------------------------
     # Create / helper
