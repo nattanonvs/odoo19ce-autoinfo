@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>OD19 — ตัวอย่างสุดท้าย: Empty = Liquid Glass · Filled = ดั้งเดิม</title>
+<style>
+  :root{
+    --ink:#1f2937;
+    --label:#374151;
+    --label-dim:#9aa1ab;
+    --maroon:#9E2424;
+    /* ค่าดั้งเดิมของ Odoo 19 (ดึงจาก source จริง) */
+    --native-border:#ccc;          /* $o-form-lightsecondary */
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:"Sarabun","Noto Sans Thai","Leelawadee UI",Tahoma,sans-serif;
+    background:#eef1f5;
+    color:var(--ink);
+    padding:22px 26px 30px;
+    width:1200px;
+  }
+  .page-head{margin-bottom:14px;}
+  .page-head h1{font-size:19px;margin:0 0 4px;letter-spacing:.2px;}
+  .page-head p{margin:0;font-size:12.5px;color:#6b7280;line-height:1.5;}
+
+  /* ---------- โครงการ์ด ---------- */
+  .block{
+    background:#ffffff;
+    border:1px solid #e2e6ec;
+    border-radius:14px;
+    padding:16px 18px 18px;
+    margin-bottom:16px;
+    box-shadow:0 1px 2px rgba(16,24,40,.04);
+  }
+  .block-head{display:flex;align-items:flex-start;gap:11px;margin-bottom:14px;}
+  .num{
+    flex:0 0 26px;height:26px;width:26px;border-radius:8px;
+    background:var(--maroon);color:#fff;font-weight:700;font-size:13px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .block-head h3{margin:0;font-size:14.5px;}
+  .block-head .desc{margin:3px 0 0;font-size:12px;color:#6b7280;line-height:1.5;}
+
+  /* ---------- ฟอร์มจำลอง (พื้นขาวเหมือนหน้าจริง) ---------- */
+  .sheet{
+    background:#ffffff;
+    border:1px solid #eceff4;
+    border-radius:10px;
+    padding:18px 20px;
+    max-width:760px;
+  }
+  .rows{display:flex;flex-direction:column;gap:14px;}
+  .row{display:flex;align-items:center;gap:16px;}
+  .row .lbl{
+    flex:0 0 150px;text-align:right;
+    font-size:12.5px;font-weight:600;color:var(--label);
+  }
+  .row .lbl.dim{color:var(--label-dim);font-weight:500;}
+  .row .cell{flex:1 1 auto;}
+  .two{display:flex;gap:16px;}
+  .two .col{flex:1 1 0;display:flex;align-items:center;gap:14px;}
+  .two .col .lbl{flex:0 0 120px;}
+
+  /* ---------- input ดั้งเดิมของ Odoo (Filled) ---------- */
+  input.f{
+    width:100%;height:32px;padding:2px 4px;
+    font:inherit;font-size:13px;color:var(--ink);
+    border:0;outline:0;border-radius:0;
+    background:transparent;
+  }
+  input.f.filled{
+    /* ตรงกับ native Odoo 19: เส้นใต้เส้นเดียว #ccc พื้นใส */
+    border-bottom:1px solid var(--native-border);
+  }
+
+  /* ---------- input Empty → Liquid Glass ----------
+     ตรงกับ CSS ที่ deploy: rgba(243,247,252,.62) + backdrop blur + inset highlight */
+  input.f.empty{
+    background:rgba(243,247,252,.62);
+    -webkit-backdrop-filter:blur(10px) saturate(150%);
+    backdrop-filter:blur(10px) saturate(150%);
+    border-radius:8px;
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,.70),
+      inset 0 1px 0 rgba(255,255,255,.95),
+      inset 0 -1px 0 rgba(199,206,218,.55),
+      0 6px 16px -8px rgba(31,41,55,.25);
+  }
+
+  /* โน้ตย่อย */
+  .note{font-size:11px;color:#8a9099;margin-top:10px;line-height:1.6;}
+
+  /* ---------- เทียบ A/B ---------- */
+  .ab{display:flex;gap:14px;}
+  .ab .panel{
+    flex:1 1 0;border:1px solid #e6eaf0;border-radius:12px;padding:14px 16px 16px;
+    background:#fff;
+  }
+  .ab .panel .cap{font-size:12px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:7px;}
+  .dot{width:9px;height:9px;border-radius:99px;display:inline-block;}
+  .dot.g{background:linear-gradient(135deg,#8fb7ff,#c7a8ff);}
+  .dot.n{background:#ccc;}
+  .ab .panel .tagline{font-size:11px;color:#8a9099;margin-top:9px;line-height:1.5;}
+
+  /* ---------- zoom (ขยายให้เห็นรายละเอียดกระจก) ---------- */
+  .zoom{
+    display:flex;align-items:center;gap:20px;
+  }
+  .zoom .zcell{flex:1 1 0;}
+  .zoom .zcell input.f{height:52px;font-size:15px;padding:0 14px;}
+  .zoom .zcell .zlbl{font-size:11px;color:#8a9099;margin-bottom:6px;}
+
+  /* พื้นหลังลาย (แสดงธรรมชาติของกระจก) */
+  .tint{
+    background:
+      radial-gradient(300px 130px at 12% 0%, rgba(120,150,255,.22), transparent 70%),
+      radial-gradient(280px 140px at 90% 30%, rgba(255,140,180,.20), transparent 70%),
+      radial-gradient(260px 130px at 55% 120%, rgba(120,220,210,.20), transparent 70%),
+      linear-gradient(#fbfcfe,#eef3fb);
+    border-radius:10px;padding:16px 18px;border:1px solid #e6eaf0;
+  }
+
+  /* ---------- CSS ที่จะใช้จริง ---------- */
+  pre.code{
+    margin:0;background:#0f172a;color:#e5e7eb;border-radius:10px;
+    padding:14px 16px;font-size:11.5px;line-height:1.65;overflow:auto;
+    font-family:"Cascadia Code",Consolas,"Courier New",monospace;
+  }
+  pre.code .k{color:#93c5fd;}
+  pre.code .v{color:#fca5a5;}
+  pre.code .c{color:#64748b;}
+</style>
+</head>
+<body>
+
+  <div class="page-head">
+    <h1>OD19 — ตัวอย่างสุดท้าย: ช่องว่าง = Liquid Glass · ช่องมีข้อมูล = ดั้งเดิมของระบบ</h1>
+    <p>แสดงบนพื้นฟอร์ม "สีขาว" เหมือนหน้าจริง · ฝั่งช่องมีข้อมูลใช้สไตล์ดั้งเดิมของ Odoo 19 (เส้นใต้เส้นเดียว #ccc พื้นใส) ไม่ปรุงแต่งเพิ่ม</p>
+  </div>
+
+  <!-- ============ 1) ฟอร์มจำลอง พื้นขาวเหมือนหน้าจริง ============ -->
+  <div class="block">
+    <div class="block-head">
+      <div class="num">1</div>
+      <div>
+        <h3>หน้าตาบนฟอร์มจริง (พื้นขาว)</h3>
+        <p class="desc">แถวที่ช่องว่าง = แผ่นกระจกฝ้า · แถวที่มีข้อมูล = เส้นใต้บางเรียบเหมือนเดิม</p>
+      </div>
+    </div>
+
+    <div class="sheet">
+      <div class="rows">
+
+        <div class="row">
+          <div class="lbl dim">ชื่อลูกค้า</div>
+          <div class="cell"><input class="f empty" placeholder=""></div>
+        </div>
+
+        <div class="row">
+          <div class="lbl">ชื่อลูกค้า</div>
+          <div class="cell"><input class="f filled" value="บริษัท ตัวอย่าง จำกัด"></div>
+        </div>
+
+        <div class="row">
+          <div class="lbl dim">เลขที่เอกสาร</div>
+          <div class="cell"><input class="f empty" placeholder=""></div>
+        </div>
+
+        <div class="row">
+          <div class="lbl">เลขที่เอกสาร</div>
+          <div class="cell"><input class="f filled" value="QT/2026/0012"></div>
+        </div>
+
+        <div class="two">
+          <div class="col">
+            <div class="lbl dim">วันที่</div>
+            <div class="cell"><input class="f empty" placeholder=""></div>
+          </div>
+          <div class="col">
+            <div class="lbl dim">กำหนดชำระ</div>
+            <div class="cell"><input class="f empty" placeholder=""></div>
+          </div>
+        </div>
+
+        <div class="two">
+          <div class="col">
+            <div class="lbl">วันที่</div>
+            <div class="cell"><input class="f filled" value="17/11/2026"></div>
+          </div>
+          <div class="col">
+            <div class="lbl">กำหนดชำระ</div>
+            <div class="cell"><input class="f filled" value="30 วัน"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="note">
+        สังเกต: ช่องว่างอ่านออกเป็น "ช่องให้กรอก" ด้วยไฮไลต์ขาวด้านบน + เงานุ่ม ส่วนช่องที่มีข้อมูลยังเรียบเหมือนเดิม → ภาพรวมยังสะอาด ไม่รกตา
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 2) เทียบ A/B ============ -->
+  <div class="block">
+    <div class="block-head">
+      <div class="num">2</div>
+      <div>
+        <h3>เทียบตรง ๆ ทีละช่อง</h3>
+        <p class="desc">ซ้าย = ช่องว่าง (Liquid Glass) · ขวา = ช่องมีข้อมูล (ดั้งเดิมของระบบ)</p>
+      </div>
+    </div>
+
+    <div class="ab">
+      <div class="panel">
+        <div class="cap"><span class="dot g"></span> Empty / Entry field → Liquid Glass</div>
+        <div class="row" style="gap:14px">
+          <div class="lbl dim" style="flex:0 0 110px">ชื่อลูกค้า</div>
+          <div class="cell"><input class="f empty" placeholder=""></div>
+        </div>
+        <div class="tagline">แผ่นกระจกโปร่งแสง เบลอฉากหลัง + ขอบไฮไลต์ขาวด้านบน + เงาล่างนุ่ม</div>
+      </div>
+
+      <div class="panel">
+        <div class="cap"><span class="dot n"></span> Filled field → ดั้งเดิมของระบบ</div>
+        <div class="row" style="gap:14px">
+          <div class="lbl" style="flex:0 0 110px">ชื่อลูกค้า</div>
+          <div class="cell"><input class="f filled" value="บริษัท ตัวอย่าง จำกัด"></div>
+        </div>
+        <div class="tagline">เส้นใต้เส้นเดียวสี #ccc · พื้นหลังใส · ไม่มีขอบ/เงาเพิ่ม (สไตล์ Odoo เดิม)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 3) ขยายให้เห็นรายละเอียด ============ -->
+  <div class="block">
+    <div class="block-head">
+      <div class="num">3</div>
+      <div>
+        <h3>ขยาย (zoom) ให้เห็นรายละเอียดของกระจก</h3>
+        <p class="desc">ทำการ์ดนี้เพื่อให้เห็นไฮไลต์/เงาชัด ๆ · ในการใช้งานจริงขนาดจะเท่าปกติ (ดูภาพที่ 1)</p>
+      </div>
+    </div>
+
+    <div class="zoom">
+      <div class="zcell">
+        <div class="zlbl">Empty → Liquid Glass</div>
+        <input class="f empty" placeholder="">
+      </div>
+      <div class="zcell">
+        <div class="zlbl">Filled → ดั้งเดิม</div>
+        <input class="f filled" value="บริษัท ตัวอย่าง จำกัด">
+      </div>
+    </div>
+
+    <div style="height:14px"></div>
+
+    <div class="zoom">
+      <div class="zcell">
+        <div class="zlbl">Empty (บนพื้นลายสี) — เห็น "ความเป็นกระจก" ชัดขึ้น</div>
+        <div class="tint"><input class="f empty" placeholder=""></div>
+      </div>
+      <div class="zcell">
+        <div class="zlbl">Filled (บนพื้นลายสี) — ยังเป็นเส้นใต้เรียบเหมือนเดิม</div>
+        <div class="tint"><input class="f filled" value="บริษัท ตัวอย่าง จำกัด"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 4) CSS ที่จะใช้จริง ============ -->
+  <div class="block">
+    <div class="block-head">
+      <div class="num">4</div>
+      <div>
+        <h3>CSS ที่จะใช้จริง (สรุป)</h3>
+        <p class="desc">Empty ได้ glass · Filled ไม่ถูกแตะเลย (คงสไตล์ดั้งเดิม)</p>
+      </div>
+    </div>
+<pre class="code"><span class="c">/* Empty field (แก้ไขอยู่) → Liquid Glass */</span>
+.o_form_view .o_field_widget.<span class="k">o_od19_field_empty</span> input.o_input,
+.o_form_view .o_field_widget.<span class="k">o_od19_field_empty</span> textarea.o_input,
+.o_form_view .o_field_widget.<span class="k">o_od19_field_empty</span> select.o_input {
+    background-color: <span class="v">rgba(243, 247, 252, .62)</span>;
+    -webkit-backdrop-filter: <span class="v">blur(10px) saturate(150%)</span>;
+    backdrop-filter: <span class="v">blur(10px) saturate(150%)</span>;
+    border-radius: <span class="v">8px</span>;
+    box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, .70),
+        inset 0 1px 0 rgba(255, 255, 255, .95),
+        inset 0 -1px 0 rgba(199, 206, 218, .55),
+        0 6px 16px -8px rgba(31, 41, 55, .25);
+}
+
+<span class="c">/* Filled field → ไม่เขียนทับ = ใช้สไตล์ดั้งเดิมของ Odoo */</span>
+<span class="c">/* (เส้นใต้เส้นเดียว #ccc พื้นใส) */</span></pre>
+    <div class="note">
+      หมายเหตุ: ตัวปัจจุบันในโมดูลยังมีกฎเหมารวมที่ให้ "ทุกช่อง" พื้นเทาอ่อน (#f8f9fb) — ถ้าตกลงตามตัวอย่างนี้ จะปรับให้กฎนั้นไม่มีผลกับช่องที่มีข้อมูล เพื่อให้ช่อง filled กลับไปเป็นดั้งเดิมจริง
+    </div>
+  </div>
+
+</body>
+</html>
