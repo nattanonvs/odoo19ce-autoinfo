@@ -5,6 +5,12 @@
  * driven purely by the `active` marker on that button, so no extra class has to
  * be injected on the chatter root -- the selectors below use :has(), the same
  * technique already used by mail's own form_renderer.scss.
+ *
+ * While collapsed the panel mirrors the main NavBar / systray (tokens come from
+ * web/static/src/webclient/navbar/navbar.variables.scss). The NavBar colours
+ * are not exposed as CSS variables, so they are hardcoded here -- the same
+ * approach od19_ai_assistant uses for its systray button -- while
+ * --o-navbar-height drives the strip width (46px fallback).
  */
 
 /* 1. Collapsed: keep only the thin topbar, which holds the toggle button. */
@@ -25,12 +31,39 @@
     overflow: hidden;
 }
 
-/* 2. Collapsed aside chatter: shrink the whole column to a thin strip. */
+/* 2. NavBar look while collapsed: system-tray background + white chevron. */
+.o-mail-Chatter:has(.o-od19-chatter-collapse.active) .o-mail-Chatter-top,
+.o-mail-Chatter:has(.o-od19-chatter-collapse.active) .o-mail-Chatter-topbar {
+    background-color: #71639e;
+}
+
+.o-mail-Chatter:has(.o-od19-chatter-collapse.active) .o-od19-chatter-collapse,
+.o-mail-Chatter:has(.o-od19-chatter-collapse.active) .o-od19-chatter-collapse .fa {
+    color: #fff !important;
+}
+
+.o-mail-Chatter:has(.o-od19-chatter-collapse.active) .o-od19-chatter-collapse {
+    justify-content: center;
+    border-radius: 0;
+    text-decoration: none;
+}
+
+.o-mail-Chatter:has(.o-od19-chatter-collapse.active) .o-od19-chatter-collapse:hover,
+.o-mail-Chatter:has(.o-od19-chatter-collapse.active) .o-od19-chatter-collapse:focus,
+.o-mail-Chatter:has(.o-od19-chatter-collapse.active) .o-od19-chatter-collapse:active {
+    color: #fff !important;
+    background-color: rgba(0, 0, 0, .08);
+    text-decoration: none;
+}
+
+/* 3. Collapsed aside chatter: shrink the whole column to a strip as wide as the
+ * NavBar is tall, so it lines up with the systray. */
 .o-mail-ChatterContainer.o-aside:has(.o-od19-chatter-collapse.active) {
     flex-grow: 0;
     flex-shrink: 0;
-    width: 2.5rem;
+    width: var(--o-navbar-height, 46px);
     min-width: 0;
+    background-color: #71639e;
 }
 
 .o-mail-ChatterContainer.o-aside:has(.o-od19-chatter-collapse.active) .o-mail-Chatter-top {
@@ -38,7 +71,11 @@
     padding-right: 0;
 }
 
-/* 3. The toggle button itself must never be squeezed out. */
+.o-mail-ChatterContainer.o-aside:has(.o-od19-chatter-collapse.active) .o-od19-chatter-collapse {
+    flex: 1 1 auto;
+}
+
+/* 4. The toggle button itself must never be squeezed out. */
 .o-od19-chatter-collapse {
     flex-shrink: 0;
 }
