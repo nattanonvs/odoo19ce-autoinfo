@@ -1,6 +1,10 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
+import logging
+
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
+
+_logger = logging.getLogger(__name__)
 
 
 class AccountMove(models.Model):
@@ -105,22 +109,50 @@ class AccountMove(models.Model):
         """
         self.ensure_one()
         parent = self.parent_id or self.reversed_entry_id
-        if (
-            not parent
-            or parent.state != "posted"
-            or self.state != "posted"
-            or parent.partner_id != self.partner_id
-        ):
+        if not parent:
+            _logger.info(
+                "Credit note %s cannot be reconciled: no parent document found.",
+                self.name or self.id,
+            )
+            return False
+        if parent.state != "posted" or self.state != "posted":
+            _logger.info(
+                "Credit note %s cannot be reconciled: parent %s (state=%s) or "
+                "credit note (state=%s) is not posted.",
+                self.name or self.id, parent.name or parent.id,
+                parent.state, self.state,
+            )
+            return False
+        if parent.partner_id != self.partner_id:
+            _logger.info(
+                "Credit note %s cannot be reconciled: partner %s differs from "
+                "parent %s partner %s.",
+                self.name or self.id, self.partner_id.display_name,
+                parent.name or parent.id, parent.partner_id.display_name,
+            )
             return False
         account = self._od19_get_dncn_open_account()
         if not account:
+            _logger.info(
+                "Credit note %s cannot be reconciled: no open receivable/"
+                "payable account resolved.",
+                self.name or self.id,
+            )
             return False
         lines = (parent.line_ids + self.line_ids).filtered_domain([
             ("account_id", "=", account.id),
             ("parent_state", "=", "posted"),
             ("reconciled", "=", False),
         ])
-        return self._od19_reconcile_move_lines(lines)
+        result = self._od19_reconcile_move_lines(lines)
+        if not result:
+            _logger.info(
+                "Credit note %s could not be matched against parent %s on "
+                "account %s (open lines: %s).",
+                self.name or self.id, parent.name or parent.id,
+                account.display_name, len(lines),
+            )
+        return result
 
     def _prepare_dncn_defaults(self, dncn_type):
         self.ensure_one()
@@ -171,35 +203,29 @@ class AccountMove(models.Model):
     def action_create_credit_note(self):
         """Create a Credit Note (ใบลดหนี้) - works for both customer and vendor."""
         self.ensure_one()
-        # Determine the correct refund move type based on the original
-        if self.move_type == "out_invoice":
-            refund_type = "out_refund"
-        elif self.move_type == "in_invoice":
-            refund_type = "in_refund"
-        elif self.move_type == "out_refund":
-            refund_type = "out_invoice"
-        elif self.move_type == "in_refund":
-            refund_type = "in_invoice"
-        else:
-            refund_type = self.move_type
-
-        ctx = dict(self.env.context)
-        ctx.update({
-            "default_move_type": refund_type,
-            "default_dncn": "cn",
-            "default_parent_id": self.id,
-            "default_partner_tax_name": self.partner_id.tax_name or self.partner_id.name,
-            "default_partner_branch_code": self.partner_id.branch_code,
-            "default_invoice_origin": self.name,
-            "default_reversed_entry_id": self.id,
+        default_values = {
+            "journal_id": self.journal_id.id,
+            "date": fields.Date.context_today(self),
+            "invoice_date": fields.Date.context_today(self),
+            "ref": _("Reversal of: %s", self.name),
+            "invoice_origin": self.name,  # Source Document points to the original
+        }
+        new_move = self._reverse_moves([default_values], cancel=False)
+        new_move.write({
+            "dncn": "cn",
+            "parent_id": self.id,  # required for Jasper / stat button
+            "reason_id": self.reason_id.id if self.reason_id else False,
+            "remark": self.remark,
+            "partner_tax_name": self.partner_id.tax_name or self.partner_id.name,
+            "partner_branch_code": self.partner_id.branch_code,
         })
         return {
             "type": "ir.actions.act_window",
             "name": "Credit Note",
             "res_model": "account.move",
+            "res_id": new_move.id,
             "view_mode": "form",
             "target": "current",
-            "context": ctx,
         }
 
     def action_remaster_invoice(self):
