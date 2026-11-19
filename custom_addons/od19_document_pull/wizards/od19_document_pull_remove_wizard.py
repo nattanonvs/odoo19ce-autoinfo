@@ -31,6 +31,11 @@ class Od19DocumentPullRemoveWizard(models.TransientModel):
         inverse_name="wizard_id",
         string="Source Documents / เอกสารต้นทาง",
     )
+    source_type_filter = fields.Selection(
+        selection="_od19_source_type_selection",
+        string="Pull Type / ประเภทการดึง",
+        default="all",
+    )
     source_line_ids = fields.One2many(
         comodel_name="od19.document.pull.remove.line",
         inverse_name="wizard_id",
@@ -48,6 +53,11 @@ class Od19DocumentPullRemoveWizard(models.TransientModel):
     def _od19_get_target(self):
         self.ensure_one()
         return self.env[self.res_model].browse(self.res_id)
+
+    @api.model
+    def _od19_source_type_selection(self):
+        """Delegate to the shared mixin list (keeps one source of truth)."""
+        return self.env["od19.document.pull.mixin"]._od19_pull_type_selection()
 
     def _od19_selected_source(self):
         """Return the source document ticked on the wizard."""
@@ -68,8 +78,15 @@ class Od19DocumentPullRemoveWizard(models.TransientModel):
     def _onchange_target(self):
         self._od19_build_bound_sources()
 
+    @api.onchange("source_type_filter")
+    def _onchange_source_type_filter(self):
+        """Rebuild the bound-source rows when the pull type filter changes."""
+        self.source_line_ids = [Command.clear()]
+        self._od19_build_bound_sources()
+
     def _od19_build_bound_sources(self):
         self.ensure_one()
+        type_filter = self.source_type_filter
         commands = []
         if self.res_model and self.res_id:
             target = self._od19_get_target().exists()
@@ -82,6 +99,8 @@ class Od19DocumentPullRemoveWizard(models.TransientModel):
                         }
                     )
                     for source, count in target._od19_pull_bound_sources()
+                    if type_filter in (None, False, "all")
+                    or source._name == type_filter
                 ]
         self.source_ids = [Command.clear()] + commands
 

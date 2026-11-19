@@ -26,6 +26,11 @@ class Od19DocumentPullWizard(models.TransientModel):
         inverse_name="wizard_id",
         string="Source Documents / เอกสารต้นทาง",
     )
+    source_type_filter = fields.Selection(
+        selection="_od19_source_type_selection",
+        string="Pull Type / ประเภทการดึง",
+        default="all",
+    )
     mode = fields.Selection(
         selection=[
             ("all_order", "All lines (document order) / ทั้งหมดตามลำดับเอกสาร"),
@@ -62,19 +67,29 @@ class Od19DocumentPullWizard(models.TransientModel):
             )
 
     @api.model
-    def _od19_source_commands(self, res_model, res_id):
+    def _od19_source_type_selection(self):
+        """Delegate to the shared mixin list (keeps one source of truth)."""
+        return self.env["od19.document.pull.mixin"]._od19_pull_type_selection()
+
+    @api.model
+    def _od19_source_commands(self, res_model, res_id, type_filter=None):
         """Build the selectable source rows for a destination document.
 
         A source document is offered only when it matches the destination's
         source specification (partner, state, ...) and still has lines left to
         pull, so the wizard never shows an irrelevant or exhausted source.
+        ``type_filter`` (a source model name) narrows the rows to one type.
         """
         target = self.env[res_model].browse(res_id).exists()
         if not target:
             return []
+        if type_filter in (None, False, "all"):
+            type_filter = None
         commands = [Command.clear()]
         sequence = 10
         for spec in target._od19_pull_source_specs():
+            if type_filter and spec["model"] != type_filter:
+                continue
             for source in self.env[spec["model"]].search(spec["domain"]):
                 remaining = len(target._od19_pull_candidate_lines(source))
                 if not remaining:
@@ -133,6 +148,17 @@ class Od19DocumentPullWizard(models.TransientModel):
         """Rebuild the candidate lines from the selected source document."""
         self.line_ids = [Command.clear()]
         self._od19_build_lines()
+
+    @api.onchange("source_type_filter")
+    def _onchange_source_type_filter(self):
+        """Rebuild the source rows when the pull type filter changes."""
+        self.line_ids = [Command.clear()]
+        commands = [Command.clear()]
+        if self.res_model and self.res_id:
+            commands = self._od19_source_commands(
+                self.res_model, self.res_id, self.source_type_filter
+            )
+        self.source_ids = commands
 
     def _od19_build_lines(self):
         self.ensure_one()

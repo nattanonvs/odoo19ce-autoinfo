@@ -105,6 +105,28 @@ class TestDocumentPullWizard(AccountTestInvoicingCommon):
         self.assertTrue(row)
         self.assertEqual(row.remaining, 1)
 
+    def test_source_type_filter_narrows_source_rows(self):
+        """Choosing a pull type keeps only the matching source rows."""
+        bill = self._new_bill()
+        wizard = self._open_wizard(bill)
+        self.assertTrue(
+            wizard.source_ids.filtered(
+                lambda r: r.source_model == "purchase.order"
+            )
+        )
+        wizard.source_type_filter = "purchase.request"
+        wizard._onchange_source_type_filter()
+        self.assertFalse(wizard.source_ids)
+        self.assertFalse(wizard.line_ids)
+        wizard.source_type_filter = "purchase.order"
+        wizard._onchange_source_type_filter()
+        self.assertTrue(
+            wizard.source_ids.filtered(
+                lambda r: r.source_model == "purchase.order"
+                and r.source_id == self.po.id
+            )
+        )
+
     def test_onchange_source_builds_lines_with_all_order_mode(self):
         bill = self._new_bill()
         wizard = self._open_wizard(bill)

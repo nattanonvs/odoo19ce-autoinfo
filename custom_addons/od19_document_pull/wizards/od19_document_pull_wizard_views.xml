@@ -15,6 +15,9 @@
                         <field name="mode" widget="radio"/>
                     </group>
                 </group>
+                <group>
+                    <field name="source_type_filter"/>
+                </group>
                 <field name="source_ids" nolabel="1">
                     <list create="false" delete="false" editable="bottom"
                           decoration-info="selected">
@@ -60,6 +63,9 @@
                 <field name="res_model" invisible="1"/>
                 <field name="res_id" invisible="1"/>
                 <field name="state" invisible="1"/>
+                <group invisible="state != 'choose'">
+                    <field name="source_type_filter"/>
+                </group>
                 <field name="source_ids" nolabel="1" invisible="state != 'choose'">
                     <list create="false" delete="false" editable="bottom"
                           decoration-info="selected">

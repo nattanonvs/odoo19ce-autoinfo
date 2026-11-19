@@ -11,8 +11,19 @@ class TestDocumentPullPurchaseRequest(TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.vendor = cls.env["res.partner"].create({"name": "PR Vendor"})
+        cls.other_vendor = cls.env["res.partner"].create(
+            {"name": "PR Other Vendor"}
+        )
         cls.product = cls.env["product.product"].create(
             {"name": "PR Product", "purchase_ok": True, "type": "consu"}
+        )
+        # The request line's ``supplier_id`` is computed from the product's
+        # sellers, so a request is only offered for the vendor that sells it.
+        cls.env["product.supplierinfo"].create(
+            {
+                "partner_id": cls.vendor.id,
+                "product_tmpl_id": cls.product.product_tmpl_id.id,
+            }
         )
 
     def _make_request(self, qty=3.0):
@@ -53,6 +64,47 @@ class TestDocumentPullPurchaseRequest(TransactionCase):
         po = self.env["purchase.order"].create({"partner_id": self.vendor.id})
         specs = po._od19_pull_source_specs()
         self.assertEqual([s["model"] for s in specs], ["purchase.request"])
+
+    def test_source_rows_only_show_partner_related_requests(self):
+        """A request is offered only for the vendor that supplies its product."""
+        request = self._make_request()
+        po = self.env["purchase.order"].create({"partner_id": self.vendor.id})
+        wizard = self.env["od19.document.pull.wizard"].create(
+            {"res_model": "purchase.order", "res_id": po.id}
+        )
+        self.assertTrue(
+            wizard.source_ids.filtered(
+                lambda r: r.source_model == "purchase.request"
+                and r.source_id == request.id
+            )
+        )
+        other_po = self.env["purchase.order"].create(
+            {"partner_id": self.other_vendor.id}
+        )
+        other_wizard = self.env["od19.document.pull.wizard"].create(
+            {"res_model": "purchase.order", "res_id": other_po.id}
+        )
+        self.assertFalse(
+            other_wizard.source_ids.filtered(
+                lambda r: r.source_model == "purchase.request"
+                and r.source_id == request.id
+            )
+        )
+
+    def test_source_rows_hide_fully_pulled_request(self):
+        """A request with no remaining line is not offered anymore."""
+        request = self._make_request()
+        po = self.env["purchase.order"].create({"partner_id": self.vendor.id})
+        self._make_wizard(po, request).action_pull()
+        wizard = self.env["od19.document.pull.wizard"].create(
+            {"res_model": "purchase.order", "res_id": po.id}
+        )
+        self.assertFalse(
+            wizard.source_ids.filtered(
+                lambda r: r.source_model == "purchase.request"
+                and r.source_id == request.id
+            )
+        )
 
     def test_pull_creates_order_line_and_allocation(self):
         request = self._make_request()

@@ -120,6 +120,19 @@ class TestDocumentPullRemove(AccountTestInvoicingCommon):
         self.assertEqual(len(wizard.source_ids), 1)
         self.assertIn(self.po.display_name, wizard.source_ids.name)
 
+    def test_source_type_filter_narrows_bound_sources(self):
+        """The pull type filter keeps only bound sources of that type."""
+        bill = self._bill_with_pulled_line()
+        wizard = self._open_remove_wizard(bill)
+        self.assertEqual(len(wizard.source_ids), 1)
+        wizard.source_type_filter = "sale.order"
+        wizard._onchange_source_type_filter()
+        self.assertFalse(wizard.source_ids)
+        wizard.source_type_filter = "purchase.order"
+        wizard._onchange_source_type_filter()
+        self.assertEqual(len(wizard.source_ids), 1)
+        self.assertIn(self.po.display_name, wizard.source_ids.name)
+
     def test_remove_wizard_two_states_and_confirm_removes_lines(self):
         bill = self._bill_with_pulled_line()
         wizard = self._open_remove_wizard(bill)
