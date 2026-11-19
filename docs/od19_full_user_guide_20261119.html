@@ -1,0 +1,814 @@
+﻿<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>คู่มือการใช้งานระบบ Odoo 19 — AutoInfo ERP ฉบับเต็ม</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --maroon:#9E2424;
+    --maroon-dark:#7c1b1b;
+    --maroon-soft:#fbf5f5;
+    --maroon-line:#ecd7d7;
+    --ink:#24211f;
+    --muted:#6b6560;
+    --line:#e3e3e3;
+    --paper:#ffffff;
+    --bg:#eceef1;
+    --ok:#1f7a4d;
+    --okbg:#e8f5ee;
+    --warn:#8a6a1b;
+    --warnbg:#fdf6e3;
+    --info:#1f5fa8;
+    --infobg:#ecf3fb;
+    --danger:#a12b2b;
+    --dangerbg:#fdeeee;
+    --radius:14px;
+    --shadow:0 6px 20px rgba(36,33,31,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Sarabun","Noto Sans Thai",Tahoma,"Arial Unicode MS",sans-serif;
+    font-size:15px;
+    line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+  }
+  .doc{
+    max-width:940px;
+    margin:0 auto;
+    background:var(--paper);
+    box-shadow:var(--shadow);
+  }
+  /* ---------- Search ---------- */
+  .searchbar{
+    position:sticky;top:0;z-index:50;
+    background:rgba(255,255,255,.96);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--maroon-line);
+    padding:10px 56px;
+    display:flex;align-items:center;gap:12px;
+  }
+  .searchbar .sbox{
+    flex:1;position:relative;
+  }
+  .searchbar input{
+    width:100%;font-family:inherit;font-size:15px;
+    padding:10px 40px 10px 40px;
+    border:1px solid var(--maroon-line);border-radius:10px;
+    background:#fff;color:var(--ink);outline:none;
+  }
+  .searchbar input:focus{border-color:var(--maroon);box-shadow:0 0 0 3px var(--maroon-soft)}
+  .searchbar .sicon{
+    position:absolute;left:13px;top:50%;transform:translateY(-50%);
+    color:var(--maroon);font-size:15px;pointer-events:none;
+  }
+  .searchbar .sclear{
+    position:absolute;right:10px;top:50%;transform:translateY(-50%);
+    border:none;background:none;color:var(--muted);cursor:pointer;font-size:16px;
+    display:none;padding:2px 6px;border-radius:6px;
+  }
+  .searchbar .sclear:hover{background:var(--maroon-soft);color:var(--maroon)}
+  .searchbar .scount{color:var(--muted);font-size:13px;white-space:nowrap}
+  .search-results{
+    position:absolute;top:calc(100% + 6px);left:0;right:0;
+    background:#fff;border:1px solid var(--maroon-line);border-radius:12px;
+    box-shadow:0 12px 30px rgba(36,33,31,.16);
+    max-height:60vh;overflow:auto;display:none;z-index:60;
+  }
+  .search-results.open{display:block}
+  .search-results .sr{
+    display:block;padding:10px 16px;border-bottom:1px solid var(--line);
+    text-decoration:none;color:var(--ink);cursor:pointer;
+  }
+  .search-results .sr:last-child{border-bottom:none}
+  .search-results .sr:hover,.search-results .sr.active{background:var(--maroon-soft)}
+  .search-results .sr .crumb{font-size:11.5px;color:var(--maroon);font-weight:600;letter-spacing:.02em}
+  .search-results .sr .ttl{font-weight:600;font-size:14px}
+  .search-results .sr .snp{font-size:12.5px;color:var(--muted)}
+  .search-results .sempty{padding:16px;color:var(--muted);font-size:13.5px}
+  mark.hit{background:#ffe9a8;color:#6b5214;border-radius:3px;padding:0 2px}
+  /* ---------- Cover ---------- */
+  .cover{
+    background:linear-gradient(150deg,#8f2020 0%,#b13a3a 55%,#9E2424 100%);
+    color:#fff;
+    padding:64px 56px 52px;
+    position:relative;
+    overflow:hidden;
+  }
+  .cover::after{
+    content:"";
+    position:absolute;
+    right:-120px;top:-120px;
+    width:340px;height:340px;
+    border-radius:50%;
+    background:rgba(255,255,255,.07);
+  }
+  .cover::before{
+    content:"";
+    position:absolute;
+    right:60px;bottom:-140px;
+    width:240px;height:240px;
+    border-radius:50%;
+    background:rgba(255,255,255,.05);
+  }
+  .brandline{display:flex;align-items:center;gap:12px;margin-bottom:34px}
+  .brandmark{
+    width:38px;height:38px;border-radius:10px;
+    background:#fff;color:var(--maroon);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:22px;
+    box-shadow:0 3px 10px rgba(0,0,0,.18);
+  }
+  .brandline small{font-size:13px;letter-spacing:.08em;opacity:.9;text-transform:uppercase}
+  .cover h1{
+    font-size:34px;line-height:1.35;margin:0 0 8px;font-weight:700;letter-spacing:.01em;
+  }
+  .cover h2{
+    font-size:19px;font-weight:400;margin:0 0 26px;opacity:.95;
+  }
+  .cover .lede{
+    font-size:15px;max-width:680px;opacity:.95;
+    border-left:3px solid rgba(255,255,255,.55);padding-left:16px;margin-bottom:30px;
+  }
+  .meta{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:10px;position:relative;z-index:2;
+  }
+  .meta div{
+    background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.22);
+    border-radius:10px;padding:10px 14px;
+    backdrop-filter:blur(4px);
+  }
+  .meta span{display:block;font-size:11.5px;opacity:.85;letter-spacing:.03em}
+  .meta strong{font-size:14px;font-weight:600}
+  /* ---------- Body ---------- */
+  .body{padding:0 56px 70px}
+  h2.sec{
+    font-size:22px;font-weight:700;color:var(--maroon-dark);
+    margin:52px 0 6px;padding-bottom:10px;
+    border-bottom:2px solid var(--maroon-line);
+    display:flex;align-items:center;gap:12px;
+  }
+  h2.sec .num{
+    flex:0 0 auto;
+    background:var(--maroon);color:#fff;
+    width:34px;height:34px;border-radius:9px;
+    display:inline-flex;align-items:center;justify-content:center;
+    font-size:17px;font-weight:700;
+  }
+  h3{font-size:17.5px;font-weight:600;color:var(--ink);margin:30px 0 8px}
+  h4{font-size:15.5px;font-weight:600;color:var(--maroon-dark);margin:20px 0 6px}
+  p{margin:8px 0}
+  a{color:var(--maroon);text-decoration:none}
+  a:hover{text-decoration:underline}
+  strong{font-weight:600}
+  ul,ol{margin:8px 0;padding-left:22px}
+  li{margin:4px 0}
+  code{
+    font-family:"Cascadia Code",Consolas,"Courier New",monospace;
+    background:#f4f1ef;border:1px solid #e7e2df;border-radius:5px;
+    padding:1px 6px;font-size:13px;color:#5a3b3b;
+  }
+  /* ---------- TOC ---------- */
+  .toc{
+    background:var(--maroon-soft);
+    border:1px solid var(--maroon-line);
+    border-radius:var(--radius);
+    padding:22px 26px;margin:34px 0 10px;
+  }
+  .toc h3{margin:0 0 12px;color:var(--maroon-dark);font-size:16px}
+  .toc ol{columns:2;column-gap:34px;list-style:none;padding:0;margin:0;counter-reset:t}
+  .toc li{counter-increment:t;margin:5px 0;font-size:14px}
+  .toc li a{display:flex;gap:8px;color:var(--ink)}
+  .toc li a::before{
+    content:counter(t);flex:0 0 auto;
+    color:var(--maroon);font-weight:600;min-width:20px;
+  }
+  .toc.mini{background:#fff;border-style:dashed;margin:16px 0 8px}
+  .toc.mini ol{columns:2}
+  .toc.mini li a::before{content:"›";min-width:14px}
+  /* ---------- Master TOC ---------- */
+  .mtoc{
+    background:var(--maroon-soft);border:1px solid var(--maroon-line);
+    border-radius:var(--radius);padding:22px 26px;margin:34px 0 10px;
+  }
+  .mtoc h3{margin:0 0 12px;color:var(--maroon-dark);font-size:16px}
+  .mtoc ol.lvl1{list-style:none;padding:0;margin:0;counter-reset:tp}
+  .mtoc ol.lvl1 > li{counter-increment:tp;margin:12px 0;padding-bottom:12px;border-bottom:1px dashed var(--maroon-line)}
+  .mtoc ol.lvl1 > li:last-child{border-bottom:none;padding-bottom:0}
+  .mtoc .tocpart > a{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15.5px;color:var(--maroon-dark)}
+  .mtoc .tocpart > a::before{
+    content:counter(tp);flex:0 0 auto;background:var(--maroon);color:#fff;
+    width:26px;height:26px;border-radius:7px;display:inline-flex;
+    align-items:center;justify-content:center;font-size:14px;font-weight:700;
+  }
+  .mtoc .tocico{font-size:17px}
+  .mtoc .tocsub{color:var(--muted);font-size:13px;margin:4px 0 0 36px}
+  .mtoc .tocmods{list-style:none;padding:8px 0 0 36px;margin:0;columns:2;column-gap:26px}
+  .mtoc .tocmods li{margin:3px 0;font-size:13.5px;break-inside:avoid}
+  .mtoc .tocmods a{color:var(--ink);display:inline-flex;gap:6px}
+  .mtoc .tocmods a::before{content:"›";color:var(--maroon);font-weight:700}
+  /* ---------- Parts ---------- */
+  .part{padding-top:8px;scroll-margin-top:80px}
+  .part + .part{border-top:3px double var(--maroon-line);margin-top:56px}
+  .part-head{margin-top:44px}
+  .part-title{
+    font-size:26px;font-weight:700;color:#fff;margin:0;
+    background:linear-gradient(120deg,#8f2020,#b13a3a 70%,#9E2424);
+    border-radius:12px;padding:16px 22px;
+    display:flex;align-items:center;gap:14px;
+  }
+  .part-title .part-icon{font-size:26px}
+  .part-sub{color:var(--muted);font-size:14px;margin:10px 2px 0}
+  h3.mod{
+    font-size:19px;font-weight:700;color:var(--maroon-dark);
+    margin:38px 0 4px;padding:0 0 8px;
+    border-bottom:1px solid var(--maroon-line);
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    scroll-margin-top:88px;
+  }
+  h3.mod .mtag{
+    font-size:11.5px;font-weight:600;color:var(--maroon);
+    background:var(--maroon-soft);border:1px solid var(--maroon-line);
+    border-radius:999px;padding:2px 10px;
+  }
+  /* ---------- Cards / callouts ---------- */
+  .card{
+    border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px 22px;margin:16px 0;background:#fff;
+  }
+  .grid{display:grid;gap:14px}
+  .grid.two{grid-template-columns:1fr 1fr}
+  .grid.three{grid-template-columns:1fr 1fr 1fr}
+  .tile{
+    border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:#fff;
+  }
+  .tile .t{font-weight:600;color:var(--maroon-dark);font-size:14.5px;display:flex;align-items:center;gap:8px}
+  .tile p{margin:6px 0 0;color:var(--muted);font-size:13.5px}
+  .callout{
+    border-radius:12px;padding:13px 16px 13px 46px;margin:14px 0;
+    position:relative;border:1px solid;font-size:14px;
+  }
+  .callout::before{
+    position:absolute;left:14px;top:12px;font-size:16px;font-weight:700;
+  }
+  .callout.note{background:var(--infobg);border-color:#cfe0f3;color:#173f6e}
+  .callout.note::before{content:"i";font-style:italic}
+  .callout.tip{background:var(--okbg);border-color:#cdeddc;color:#155e3b}
+  .callout.tip::before{content:"✓"}
+  .callout.warn{background:var(--warnbg);border-color:#efe0b3;color:#6b5214}
+  .callout.warn::before{content:"!"}
+  .callout.danger{background:var(--dangerbg);border-color:#f1cccc;color:#7c2020}
+  .callout.danger::before{content:"✕"}
+  /* ---------- Steps ---------- */
+  ol.steps{list-style:none;padding:0;margin:14px 0;counter-reset:s}
+  ol.steps>li{
+    counter-increment:s;position:relative;
+    padding:2px 0 16px 46px;margin:0;
+  }
+  ol.steps>li::before{
+    content:counter(s);
+    position:absolute;left:0;top:0;
+    width:30px;height:30px;border-radius:50%;
+    background:var(--maroon);color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:14px;
+  }
+  ol.steps>li::after{
+    content:"";position:absolute;left:14.5px;top:30px;bottom:0;
+    width:2px;background:var(--maroon-line);
+  }
+  ol.steps>li:last-child::after{display:none}
+  ol.steps>li .stitle{font-weight:600}
+  /* ---------- Tables ---------- */
+  table{
+    width:100%;border-collapse:collapse;margin:14px 0;font-size:13.8px;
+    border:1px solid var(--maroon-line);border-radius:10px;overflow:hidden;
+  }
+  thead th{
+    background:var(--maroon);color:#fff;font-weight:600;
+    text-align:left;padding:10px 12px;font-size:13.5px;
+  }
+  tbody td{padding:9px 12px;border-top:1px solid var(--line);vertical-align:top}
+  tbody tr:nth-child(even){background:#fcfafa}
+  .req{color:var(--maroon);font-weight:600}
+  /* ---------- Badges ---------- */
+  .badge{
+    display:inline-block;padding:2px 10px;border-radius:999px;
+    font-size:12.5px;font-weight:600;border:1px solid;
+  }
+  .b-gray{background:#f1f1f1;border-color:#ddd;color:#555}
+  .b-blue{background:var(--infobg);border-color:#cfe0f3;color:#1a4d86}
+  .b-green{background:var(--okbg);border-color:#cdeddc;color:#155e3b}
+  .b-red{background:var(--dangerbg);border-color:#f1cccc;color:#7c2020}
+  .b-amber{background:var(--warnbg);border-color:#efe0b3;color:#6b5214}
+  /* state flow */
+  .flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:12px 0}
+  .flow .stp{
+    background:#fff;border:1px solid var(--maroon-line);border-radius:8px;
+    padding:6px 12px;font-size:13px;font-weight:500;
+  }
+  .flow .arrow{color:var(--maroon);font-weight:700}
+  .kbd{
+    font-family:Consolas,monospace;background:#2b2b2b;color:#fff;
+    border-radius:6px;padding:1px 8px;font-size:12.5px;
+  }
+  .pill{
+    display:inline-block;background:var(--maroon-soft);border:1px solid var(--maroon-line);
+    color:var(--maroon-dark);border-radius:8px;padding:1px 9px;font-size:12.5px;font-weight:600;
+  }
+  .path{
+    display:inline-block;background:#f4f1ef;border:1px dashed #d9cece;border-radius:7px;
+    padding:1px 9px;font-size:13px;color:#5a3b3b;font-weight:500;
+  }
+  hr{border:none;border-top:1px solid var(--line);margin:34px 0}
+  .anchor{scroll-margin-top:88px}
+  .footnote{color:var(--muted);font-size:12.8px}
+  .doc-footer{
+    text-align:center;color:var(--muted);font-size:12.5px;
+    padding:22px 56px 34px;border-top:1px solid var(--line);
+  }
+  .toplink{
+    position:fixed;right:22px;bottom:22px;z-index:40;
+    background:var(--maroon);color:#fff;border:none;border-radius:999px;
+    padding:10px 16px;font-family:inherit;font-size:13px;font-weight:600;
+    cursor:pointer;box-shadow:0 6px 18px rgba(158,36,36,.35);display:none;
+  }
+  .toplink.show{display:block}
+  /* ---------- Print ---------- */
+  @media print{
+    body{background:#fff;font-size:11.5pt}
+    .doc{max-width:none;box-shadow:none;margin:0}
+    .searchbar,.toplink{display:none !important}
+    .cover{padding:40px 34px;border-radius:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .body,.doc-footer{padding-left:34px;padding-right:34px}
+    .part + .part{border-top:none;margin-top:0;page-break-before:always}
+    .part-title{-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-after:avoid}
+    h2.sec{page-break-after:avoid}
+    h3,h4{page-break-after:avoid}
+    h3.mod{page-break-after:avoid}
+    .card,.callout,.tile,table,ol.steps>li{page-break-inside:avoid}
+    thead th{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    tbody tr:nth-child(even){-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .toc,.cover,.badge,.tile,.callout,.part-title{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    a{color:var(--ink);text-decoration:none}
+  }
+  @page{size:A4;margin:14mm 12mm}
+  @media (max-width:720px){
+    .body,.cover,.searchbar{padding-left:20px;padding-right:20px}
+    .toc ol,.toc.mini ol{columns:1}
+    .grid.two,.grid.three{grid-template-columns:1fr}
+    .cover h1{font-size:26px}
+    .part-title{font-size:20px}
+  }
+</style>
+</head>
+<body>
+<article class="doc" id="top">
+
+  <!-- ============ SEARCH BAR ============ -->
+  <div class="searchbar" role="search">
+    <div class="sbox">
+      <span class="sicon">⌕</span>
+      <input id="guideSearch" type="search" autocomplete="off"
+             placeholder="ค้นหาทั้งคู่มือ — เช่น เงินทดรอง, ใบกำกับภาษี, อนุมัติ, ISO, ตรวจรับ…"
+             aria-label="ค้นหาในคู่มือ">
+      <button class="sclear" id="searchClear" type="button" title="ล้างคำค้น">✕</button>
+      <div class="search-results" id="searchResults"></div>
+    </div>
+    <span class="scount" id="searchCount"></span>
+  </div>
+
+  <!-- ============ COVER ============ -->
+  <header class="cover">
+    <div class="brandline">
+      <div class="brandmark">A</div>
+      <small>AutoInfo · Odoo 19 Community · ERP Full User Handbook</small>
+    </div>
+    <h1>คู่มือการใช้งานระบบ<br>Odoo 19 — AutoInfo ERP ฉบับเต็ม</h1>
+    <h2>ครอบคลุมทุกกระบวนการทำงาน ทุกเมนู ทุกโมดูลของระบบ</h2>
+    <p class="lede">
+      คู่มือฉบับรวมเล่ม อธิบายวิธีใช้งานระบบ ERP ทั้งระบบ แบ่งออกเป็น <strong>ส่วนย่อยตามโดเมนธุรกิจ</strong>
+      แต่ละส่วนมีสารบัญของตัวเอง และเมื่อรวมกันเป็นคู่มือใหญ่เล่มเดียว พร้อม
+      <strong>ช่องค้นหาข้ามทุกส่วน</strong> ในตัว — ใช้สำหรับการใช้งานจริง การอบรม และการพิมพ์เป็น A4
+    </p>
+    <div class="meta">
+      <div><span>เวอร์ชันคู่มือ</span><strong>v1.0 · 19 พ.ย. 2569</strong></div>
+      <div><span>ขอบเขต</span><strong>ทุกโมดูล custom_addons (od19_*)</strong></div>
+      <div><span>จำนวนส่วน</span><strong>1 ส่วน · 8 โมดูล</strong></div>
+      <div><span>ระบบพื้นฐาน</span><strong>Odoo 19 CE · AutoInfo</strong></div>
+    </div>
+  </header>
+
+  <div class="body">
+
+    <!-- ============ MASTER TOC ============ -->
+    <nav class="mtoc" id="masterToc">
+      <h3>สารบัญคู่มือฉบับเต็ม</h3>
+      <ol class="lvl1"><li class="tocpart"><a href="#overview"><span class="tocico">🧭</span>ภาพรวมระบบและวิธีใช้คู่มือ</a><div class="tocsub">แนวคิดกลางของระบบ · การนำทาง · การอนุมัติหลายชั้น · บทบาทผู้ใช้ · เลขที่เอกสาร · สัญลักษณ์ในคู่มือ</div><ul class="tocmods"><li><a href="#ov-1">overview ระบบนี้คืออะไร</a></li><li><a href="#ov-2">overview โครงสร้างเมนูหลักของระบบ</a></li><li><a href="#ov-3">base_tier_validation แนวคิดการอนุมัติหลายชั้น (Tier Validation)</a></li><li><a href="#ov-4">od19_security_roles · od19_role_catalog บทบาทและสิทธิ์ผู้ใช้ (Security Roles)</a></li><li><a href="#ov-5">od19_document_sequence · od19_thai_localization_base เอกสารและเลขที่เอกสาร</a></li><li><a href="#ov-6">od19_web_navigation · od19_offline_draft การนำทางและทางลัด</a></li><li><a href="#ov-7">สัญลักษณ์ที่ใช้ในคู่มือนี้</a></li><li><a href="#ov-8">แผนผังโดเมนและจำนวนโมดูล</a></li></ul></li></ol>
+    </nav>
+
+    <div class="callout note">
+      <strong>วิธีใช้คู่มือนี้:</strong> ใช้ช่องค้นหาด้านบนเพื่อค้นข้ามทุกส่วน ·
+      คลิกชื่อโดเมนในสารบัญเพื่อกระโดดไปยังส่วนนั้น · แต่ละส่วนมี “สารบัญส่วนนี้” ของตัวเอง ·
+      กด <span class="kbd">Ctrl</span> + <span class="kbd">P</span> เพื่อพิมพ์เป็น A4 (แต่ละส่วนจะเริ่มหน้าใหม่)
+    </div>
+
+<!--Part
+id=overview
+title=ภาพรวมระบบและวิธีใช้คู่มือ
+icon=🧭
+sub=แนวคิดกลางของระบบ · การนำทาง · การอนุมัติหลายชั้น · บทบาทผู้ใช้ · เลขที่เอกสาร · สัญลักษณ์ในคู่มือ
+-->
+
+<section class="part" id="overview">
+
+  <div class="part-head">
+    <h2 class="part-title"><span class="part-icon">🧭</span> ส่วนที่ 1 · ภาพรวมระบบและวิธีใช้คู่มือ</h2>
+    <p class="part-sub">
+      อธิบายสิ่งที่เหมือนกันทั้งระบบ — โครงสร้างเมนู, กลไกการอนุมัติหลายชั้น (Tier Validation),
+      บทบาทผู้ใช้, การออกเลขที่เอกสาร และวิธีอ่านคู่มือ — เพื่อให้ทุกส่วนที่เหลือในเล่มนี้อ่านได้ต่อเนื่องกัน
+    </p>
+  </div>
+
+  <nav class="toc mini">
+    <h3>สารบัญส่วนนี้</h3>
+    <ol>
+      <li><a href="#ov-1">ระบบนี้คืออะไร</a></li>
+      <li><a href="#ov-2">โครงสร้างเมนูหลักของระบบ</a></li>
+      <li><a href="#ov-3">แนวคิดการอนุมัติหลายชั้น (Tier Validation)</a></li>
+      <li><a href="#ov-4">บทบาทและสิทธิ์ผู้ใช้ (Security Roles)</a></li>
+      <li><a href="#ov-5">เอกสารและเลขที่เอกสาร</a></li>
+      <li><a href="#ov-6">การนำทางและทางลัด</a></li>
+      <li><a href="#ov-7">สัญลักษณ์ที่ใช้ในคู่มือนี้</a></li>
+      <li><a href="#ov-8">แผนผังโดเมนและจำนวนโมดูล</a></li>
+    </ol>
+  </nav>
+
+  <h3 class="mod" id="ov-1"><span class="mtag">overview</span> ระบบนี้คืออะไร</h3>
+  <p>
+    ระบบนี้คือ <strong>Odoo 19 Community Edition</strong> ที่ทาง AutoInfo ปรับแต่งเพิ่มผ่านโมดูลของตัวเอง
+    (ขึ้นต้นด้วย <code>od19_</code>) เพื่อรองรับกระบวนการทำงานจริงขององค์กร ทั้งงานบัญชี-การเงิน, การขาย,
+    การจัดซื้อ, คลังสินค้า, บุคคลและค่าใช้จ่าย, ระบบคุณภาพ ISO, โครงการ, บริการหลังการขาย, ยานพาหนะ,
+    เอกสาร และผู้ช่วย AI
+  </p>
+  <div class="grid three">
+    <div class="tile">
+      <div class="t">🧩 ทำงานครบวงจร</div>
+      <p>ตั้งแต่ต้นน้ำ (ขอซื้อ, ขาย, รับเข้า) ถึงปลายน้ำ (ใบกำกับภาษี, จ่ายเงิน, ส่งของ, บริการ)</p>
+    </div>
+    <div class="tile">
+      <div class="t">✅ มีการอนุมัติเป็นชั้น</div>
+      <p>เอกสารสำคัญผ่านการอนุมัติตามลำดับชั้นหัวหน้างาน → บัญชี → ผู้บริหาร ตามที่กำหนด</p>
+    </div>
+    <div class="tile">
+      <div class="t">🇹🇭 ปรับให้เข้ากับประเทศไทย</div>
+      <p>ใบกำกับภาษี, เลขที่เอกสารไทย, ภาษีหัก ณ ที่จ่าย, ฟอนต์ไทย และฟิลด์เฉพาะไทย</p>
+    </div>
+  </div>
+
+  <h3 class="mod" id="ov-2"><span class="mtag">overview</span> โครงสร้างเมนูหลักของระบบ</h3>
+  <p>
+    หลังเข้าสู่ระบบ จะเห็นแถบเมนูด้านบน (Top Bar) และไอคอนแอป (App Switcher) ที่มุมซ้ายบน
+    การเข้าถึงแต่ละโดเมนทำได้โดยกดที่ไอคอนแอป แล้วเลือกเมนูย่อยของโดเมนนั้น
+  </p>
+  <table>
+    <thead><tr><th>โดเมน (แอป)</th><th>ใช้ทำอะไร</th><th>ส่วนในคู่มือ</th></tr></thead>
+    <tbody>
+      <tr><td>บัญชี (Accounting)</td><td>ใบกำกับภาษี, จ่ายเงิน, กระทบยอด, งบการเงิน, เงินทดรอง</td><td>ส่วนที่ 2</td></tr>
+      <tr><td>การขาย (Sales)</td><td>ใบเสนอราคา, ใบสั่งขาย, สัญญา, วางบิล, เก็บเงิน</td><td>ส่วนที่ 3</td></tr>
+      <tr><td>จัดซื้อ (Purchase)</td><td>ใบขอซื้อ, ใบสั่งซื้อ, รับของ, วางบิลผู้ขาย</td><td>ส่วนที่ 4</td></tr>
+      <tr><td>คลังสินค้า (Inventory)</td><td>รับเข้า-จ่ายออก, โอนย้าย, นับสต๊อก, มูลค่าสินค้า</td><td>ส่วนที่ 5</td></tr>
+      <tr><td>บุคคลและค่าใช้จ่าย (HR)</td><td>ค่าใช้จ่าย, เงินทดรอง, ลงเวลา, จองห้องประชุม</td><td>ส่วนที่ 6</td></tr>
+      <tr><td>ระบบคุณภาพ (ISO)</td><td>เอกสารควบคุม, ความเสี่ยง, CAPA, ตรวจสอบภายใน, สอบเทียบ</td><td>ส่วนที่ 7</td></tr>
+      <tr><td>โครงการ (Project)</td><td>โครงการ, ต้นทุน/วิเคราะห์, เวลาทำงาน, เรียกเก็บ</td><td>ส่วนที่ 8</td></tr>
+      <tr><td>บริการและหลังการขาย</td><td>ใบรับประกัน, บัตรบริการ, QC, Helpdesk, RMA</td><td>ส่วนที่ 9</td></tr>
+      <tr><td>ยานพาหนะและขนส่ง</td><td>รถ, ประกัน/แจ้งเตือน, ใบขนส่ง, เส้นทาง</td><td>ส่วนที่ 10</td></tr>
+      <tr><td>ทรัพย์สิน (Assets)</td><td>ยืม-คืนทรัพย์สิน, จำหน่าย/ตัดจำหน่าย</td><td>ส่วนที่ 11</td></tr>
+      <tr><td>เอกสารและความรู้</td><td>ศูนย์รวมเอกสาร, ดึงเอกสาร, ลงนาม, ประกาศ, คลังความรู้</td><td>ส่วนที่ 12</td></tr>
+      <tr><td>เว็บไซต์และบุคลากร</td><td>เว็บไซต์องค์กร, พอร์ทัลพนักงาน, ตำแหน่งงาน</td><td>ส่วนที่ 13</td></tr>
+      <tr><td>ผู้ช่วย AI และแดชบอร์ด</td><td>แชท AI, แดชบอร์ด, รายงาน Jasper</td><td>ส่วนที่ 14</td></tr>
+      <tr><td>แพลตฟอร์มและสิทธิ์</td><td>บทบาท, ฟิลด์ไทย, ฟอนต์, การตั้งค่าระบบ, อนุมัติกลาง</td><td>ส่วนที่ 15</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="mod" id="ov-3"><span class="mtag">base_tier_validation</span> แนวคิดการอนุมัติหลายชั้น (Tier Validation)</h3>
+  <p>
+    เอกสารสำคัญ เช่น ใบเบิกค่าใช้จ่าย, เงินทดรอง, ใบขอซื้อ, ใบสั่งขาย ใช้ระบบ
+    <strong>การอนุมัติเป็นชั้น (Tier Validation)</strong> ร่วมกันทั้งระบบ โดยแต่ละเอกสารมี “ชั้นการอนุมัติ”
+    (Tier) ที่ผูกกับกลุ่มผู้ใช้ (User Group) และมีลำดับก่อน-หลัง
+  </p>
+  <div class="flow">
+    <span class="stp">รออนุมัติ (Waiting)</span>
+    <span class="arrow">→</span>
+    <span class="stp">ชั้น 1 · หัวหน้างาน</span>
+    <span class="arrow">→</span>
+    <span class="stp">ชั้น 2 · บัญชี/ฝ่ายที่เกี่ยวข้อง</span>
+    <span class="arrow">→</span>
+    <span class="stp">ชั้น 3 · ผู้บริหาร (ถ้ากำหนด)</span>
+    <span class="arrow">→</span>
+    <span class="stp">อนุมัติครบ (Approved)</span>
+  </div>
+  <div class="callout note">
+    <strong>ลำดับชั้น:</strong> ระบบเรียงชั้นตามค่า <code>sequence</code> ของ Tier — เลขมากจะพิจารณาก่อน
+    และถ้าตั้ง “อนุมัติตามลำดับ” (approve_sequence) ผู้ใช้จะอนุมัติข้ามชั้นไม่ได้จนกว่าชั้นก่อนหน้าจะครบ
+  </div>
+  <table>
+    <thead><tr><th>ปุ่ม/สถานะ</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge b-gray">Request Validation</span> / ยื่นขออนุมัติ</td><td>ส่งเอกสารเข้าสู่กระบวนการอนุมัติ (สถานะเปลี่ยนเป็น “รออนุมัติ”)</td></tr>
+      <tr><td><span class="badge b-green">Approve</span> / อนุมัติ</td><td>อนุมัติในชั้นที่ตัวเองมีสิทธิ์</td></tr>
+      <tr><td><span class="badge b-red">Refuse</span> / ไม่อนุมัติ</td><td>ปฏิเสธ พร้อมระบุเหตุผล เอกสารจะกลับสู่สถานะร่างหรือถูกยกเลิก</td></tr>
+      <tr><td><span class="badge b-amber">Forward</span> / ส่งต่อ</td><td>มอบการพิจารณาให้ผู้ใช้อื่น (เฉพาะเอกสารที่เปิดใช้ has_forward)</td></tr>
+      <tr><td><span class="badge b-blue">Reset</span> / รีเซ็ต</td><td>เริ่มกระบวนการอนุมัติใหม่</td></tr>
+    </tbody>
+  </table>
+  <p class="footnote">
+    เอกสารที่มีป้าย “รอฉันอนุมัติ” จะปรากฏในเมนู <strong>Approval Center</strong> (ศูนย์อนุมัติกลาง) — ดูรายละเอียดที่ส่วนที่ 15
+  </p>
+
+  <h3 class="mod" id="ov-4"><span class="mtag">od19_security_roles · od19_role_catalog</span> บทบาทและสิทธิ์ผู้ใช้ (Security Roles)</h3>
+  <p>
+    ระบบกำหนดบทบาทธุรกิจ (Business Roles) ไว้ล่วงหน้า แล้วผูกกับสิทธิ์การเข้าถึงเมนูและข้อมูล
+    ผู้ดูแลระบบสามารถกำหนดบทบาทให้พนักงานแต่ละคนได้ การมองเห็นเมนู/ปุ่มจะขึ้นกับบทบาทและกลุ่มสิทธิ์
+  </p>
+  <div class="grid two">
+    <div class="tile"><div class="t">👤 พนักงานทั่วไป (User)</div><p>เห็นเมนูของตัวเอง (ใบเบิกของฉัน, ลงเวลา, จองห้อง) สร้างและยื่นเอกสารของตัวเอง</p></div>
+    <div class="tile"><div class="t">👔 หัวหน้างาน (Manager)</div><p>อนุมัติเอกสารของลูกทีม, ดูรายงานของแผนก</p></div>
+    <div class="tile"><div class="t">🧾 ฝ่ายบัญชี (Accountant)</div><p>ตรวจ/อนุมัติด้านการเงิน, ออกใบกำกับภาษี, จ่ายเงิน, ปิดงวด</p></div>
+    <div class="tile"><div class="t">🛡️ ผู้ดูแลระบบ (Admin)</div><p>ตั้งค่าทั้งหมด, กำหนดบทบาท, จัดการโมดูลและ Workflow</p></div>
+  </div>
+  <div class="callout warn">
+    ถ้าไม่เห็นเมนูหรือปุ่มที่คู่มืออ้างถึง ให้ตรวจสอบว่า “บทบาท/กลุ่มสิทธิ์” ของบัญชีผู้ใช้ได้รับสิทธิ์นั้นแล้วหรือยัง —
+    ดูส่วนที่ 15 · แพลตฟอร์มและสิทธิ์
+  </div>
+
+  <h3 class="mod" id="ov-5"><span class="mtag">od19_document_sequence · od19_thai_localization_base</span> เอกสารและเลขที่เอกสาร</h3>
+  <p>
+    เอกสารทุกประเภทจะได้ <strong>เลขที่เอกสารแบบไทย</strong> อัตโนมัติเมื่อถึงขั้นตอนที่กำหนด
+    (เช่น ตอนยืนยัน หรือตอนออกใบกำกับภาษี) รูปแบบมักเป็น <code>PREFIX/ปี/เลขรัน</code>
+    โดยปีเป็นปีพุทธศักราชหรือ ค.ศ. ตามการตั้งค่า
+  </p>
+  <ul>
+    <li>เลขที่บางประเภทออกตอน “ยืนยัน” (Confirm) บางประเภทออกตอน “ลงบัญชี/ออกใบกำกับภาษี”</li>
+    <li>เลขที่ที่ออกแล้วมัก <strong>แก้ไขไม่ได้</strong> เพื่อรักษาความต่อเนื่องทางบัญชี-ภาษี</li>
+    <li>บางโมดูลมีปุ่ม “ออกเลขใหม่/ดึงเลข” (เช่น ใบกำกับภาษี, ใบเสนอราคา)</li>
+  </ul>
+
+  <h3 class="mod" id="ov-6"><span class="mtag">od19_web_navigation · od19_offline_draft</span> การนำทางและทางลัด</h3>
+  <ul>
+    <li><strong>ย้อนกลับ/ไปข้างหน้า:</strong> แถบนำทางบนหน้าจอมีปุ่ม Back/Forward ช่วยสลับหน้าเร็ว</li>
+    <li><strong>ร่างอัตโนมัติ (Offline Draft):</strong> ฟอร์มที่กรอกค้างไว้จะถูกบันทึกเป็นร่างอัตโนมัติ ป้องกันข้อมูลหายเมื่อเน็ตหลุด/ปิดหน้า</li>
+    <li><strong>คำใบ้ฟิลด์ (Field Hints):</strong> ฟิลด์สำคัญจะมีข้อความช่วยอธิบายการกรอก</li>
+    <li><strong>ทางลัดพนักงาน:</strong> รวมเมนูที่พนักงานใช้บ่อยไว้ด้วยกัน (ค่าใช้จ่าย, ลงเวลา, จองห้อง, ประกาศ)</li>
+  </ul>
+  <div class="callout tip">
+    ใช้ช่องค้นหาด้านบนสุดของคู่มือนี้ (หรือกด <span class="kbd">Ctrl</span> + <span class="kbd">K</span>) เพื่อค้นข้ามทุกส่วนในเล่มทันที
+  </div>
+
+  <h3 class="mod" id="ov-7">สัญลักษณ์ที่ใช้ในคู่มือนี้</h3>
+  <table>
+    <thead><tr><th>สัญลักษณ์</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge b-blue">i</span> กล่องสีฟ้า</td><td>หมายเหตุ (note) — ข้อควรรู้เพิ่มเติม</td></tr>
+      <tr><td><span class="badge b-green">✓</span> กล่องสีเขียว</td><td>เคล็ดลับ (tip) — แนวทางที่ช่วยให้ทำงานเร็วขึ้น</td></tr>
+      <tr><td><span class="badge b-amber">!</span> กล่องสีเหลือง</td><td>ข้อควรระวัง (warning)</td></tr>
+      <tr><td><span class="badge b-red">✕</span> กล่องสีแดง</td><td>ข้อห้าม/ความเสี่ยง (danger) — อาจกระทบข้อมูลหรือบัญชี</td></tr>
+      <tr><td><span class="path">เมนู › เมนูย่อย</span></td><td>เส้นทาง (path) ไปยังเมนูในระบบ</td></tr>
+      <tr><td><span class="pill">ฟิลด์</span></td><td>ชื่อฟิลด์/ค่าในหน้าจอ</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="mod" id="ov-8">แผนผังโดเมนและจำนวนโมดูล</h3>
+  <p>คู่มือเล่มนี้แบ่งเป็น 15 ส่วน ครอบคลุมโมดูล <code>od19_*</code> ทั้งหมดในระบบ:</p>
+  <table>
+    <thead><tr><th>ส่วน</th><th>ชื่อส่วน</th><th>โมดูลอ้างอิง</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>ภาพรวมระบบและวิธีใช้คู่มือ</td><td>overview (แนวคิดกลาง)</td></tr>
+      <tr><td>2</td><td>บัญชีและการเงิน</td><td>od19_accounting_* และโมดูลด้านการเงิน</td></tr>
+      <tr><td>3</td><td>การขายและลูกค้า</td><td>od19_sale* · od19_sales_*</td></tr>
+      <tr><td>4</td><td>การจัดซื้อและผู้จำหน่าย</td><td>od19_purchase_*</td></tr>
+      <tr><td>5</td><td>สินค้าคงคลังและคลังสินค้า</td><td>od19_stock_* · od19_inventory_*</td></tr>
+      <tr><td>6</td><td>บุคคลและค่าใช้จ่ายพนักงาน</td><td>od19_hr_* · เงินทดรอง · ค่าใช้จ่าย</td></tr>
+      <tr><td>7</td><td>ระบบคุณภาพ ISO</td><td>od19_iso_*</td></tr>
+      <tr><td>8</td><td>โครงการและต้นทุน</td><td>od19_project_*</td></tr>
+      <tr><td>9</td><td>บริการและหลังการขาย</td><td>od19_service_* · QC · Helpdesk · RMA</td></tr>
+      <tr><td>10</td><td>ยานพาหนะและขนส่ง</td><td>od19_fleet_* · od19_transportation</td></tr>
+      <tr><td>11</td><td>ทรัพย์สิน (ยืม/จำหน่าย)</td><td>od19_asset_*</td></tr>
+      <tr><td>12</td><td>เอกสาร ความรู้ และการลงนาม</td><td>od19_document_* · announcement · knowledge</td></tr>
+      <tr><td>13</td><td>เว็บไซต์และบุคลากร</td><td>od19_website</td></tr>
+      <tr><td>14</td><td>ผู้ช่วย AI และแดชบอร์ด</td><td>od19_ai_assistant · od19_dashboard · reporting</td></tr>
+      <tr><td>15</td><td>แพลตฟอร์ม สิทธิ์ และการตั้งค่า</td><td>od19_security_roles · role_catalog · thai_* · misc</td></tr>
+    </tbody>
+  </table>
+
+</section>
+
+
+  </div><!-- /.body -->
+
+  <footer class="doc-footer">
+    <p><strong>คู่มือการใช้งานระบบ Odoo 19 — AutoInfo ERP ฉบับเต็ม</strong> · v1.0</p>
+    <p>จัดทำสำหรับการใช้งานภายใน · อ้างอิงจากโมดูลจริงใน <code>custom_addons/</code> (od19_*) · สร้างเมื่อ 2026-11-19</p>
+    <p class="footnote">เอกสารนี้สร้างจากระบบจริง ณ วันที่ระบุ — หากโมดูลมีการแก้ไข ควรอัปเดตส่วนที่เกี่ยวข้องใน <code>docs/od19_user_guide/parts/</code> แล้ว build ใหม่</p>
+  </footer>
+</article>
+
+<button class="toplink" id="topLink" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑ กลับขึ้นด้านบน</button>
+
+<script>
+(function(){
+  "use strict";
+  var doc = document.querySelector('.doc');
+  var input = document.getElementById('guideSearch');
+  var clearBtn = document.getElementById('searchClear');
+  var results = document.getElementById('searchResults');
+  var countEl = document.getElementById('searchCount');
+
+  /* -------- Build index from headings -------- */
+  var index = [];
+  var partTitle = '';
+  var partId = '';
+  var modTitle = '';
+
+  var nodes = doc.querySelectorAll('h2.part-title, h3.mod, h4, h3:not(.mod)');
+  nodes.forEach(function(node){
+    var id = node.id || '';
+    if(!id && node.closest('.part') && !node.closest('.part-head')){
+      // assign nothing; skip headings without id (not linkable)
+    }
+    if(node.classList.contains('part-title')){
+      partTitle = node.textContent.replace(/\s+/g,' ').trim();
+      partId = (node.closest('.part') || {}).id || '';
+      modTitle = '';
+    } else if(node.classList.contains('mod')){
+      modTitle = node.textContent.replace(/\s+/g,' ').trim();
+    }
+    var target = node.id ? node : null;
+    if(!target) return;
+    // determine anchor element (nearest element with id)
+    var text = node.textContent.replace(/\s+/g,' ').trim();
+    var crumb = partTitle + (modTitle && !node.classList.contains('mod') ? ' › ' + modTitle : '');
+    index.push({
+      id: node.id,
+      level: node.tagName.toLowerCase(),
+      text: text,
+      crumb: crumb
+    });
+  });
+
+  function norm(s){ return (s||'').toLowerCase(); }
+
+  function findByText(container, q){
+    var walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null);
+    var n;
+    while(n = walker.nextNode()){
+      if(n.parentNode && n.parentNode.classList &&
+         (n.parentNode.classList.contains('sicon') || n.parentNode.classList.contains('scount'))) continue;
+      if(n.nodeValue && norm(n.nodeValue).indexOf(q) >= 0) return n;
+    }
+    return null;
+  }
+
+  function snippetFor(idEl, q){
+    var el = doc.querySelector('#' + CSS.escape(idEl));
+    if(!el) return '';
+    var container = el.parentElement || el;
+    var txtNode = findByText(container, q);
+    if(!txtNode){
+      // fall back to element text
+      var t = (el.textContent||'').replace(/\s+/g,' ').trim();
+      return t.slice(0,110);
+    }
+    var full = (txtNode.nodeValue||'').replace(/\s+/g,' ').trim();
+    var i = norm(full).indexOf(q);
+    var start = Math.max(0, i - 40);
+    var snip = (start>0?'…':'') + full.slice(start, start+130) + '…';
+    return snip;
+  }
+
+  function esc(s){
+    return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function clearHits(){
+    doc.querySelectorAll('mark.hit').forEach(function(m){
+      var p = m.parentNode;
+      p.replaceChild(document.createTextNode(m.textContent), m);
+      p.normalize();
+    });
+  }
+
+  function highlight(idEl, q){
+    clearHits();
+    var el = doc.querySelector('#' + CSS.escape(idEl));
+    if(!el) return;
+    var container = el.parentElement || el;
+    var n = findByText(container, q);
+    if(!n) return;
+    var val = n.nodeValue;
+    var idx = norm(val).indexOf(q);
+    if(idx < 0) return;
+    var before = val.slice(0, idx);
+    var mid = val.slice(idx, idx + q.length);
+    var after = val.slice(idx + q.length);
+    var mark = document.createElement('mark');
+    mark.className = 'hit';
+    mark.textContent = mid;
+    var frag = document.createDocumentFragment();
+    if(before) frag.appendChild(document.createTextNode(before));
+    frag.appendChild(mark);
+    if(after) frag.appendChild(document.createTextNode(after));
+    n.parentNode.replaceChild(frag, n);
+  }
+
+  var lastQ = '';
+  function run(q){
+    q = norm(q.trim());
+    lastQ = q;
+    if(!q){
+      results.classList.remove('open');
+      results.innerHTML = '';
+      countEl.textContent = '';
+      clearBtn.style.display = 'none';
+      clearHits();
+      return;
+    }
+    clearBtn.style.display = 'block';
+    var hits = index.filter(function(it){ return norm(it.text).indexOf(q) >= 0; });
+    // also search body text (limited) if few heading hits
+    var bodyHits = [];
+    if(hits.length < 6){
+      index.forEach(function(it){
+        if(hits.indexOf(it) >= 0) return;
+        var sn = snippetFor(it.id, q);
+        if(sn && norm(sn).indexOf(q) >= 0) bodyHits.push(it);
+      });
+    }
+    var all = hits.concat(bodyHits);
+    countEl.textContent = all.length ? all.length + ' ผลลัพธ์' : 'ไม่พบ';
+    if(!all.length){
+      results.innerHTML = '<div class="sempty">ไม่พบ “' + esc(q) + '” ในคู่มือนี้ — ลองคำอื่นหรือสะกดสั้นลง</div>';
+      results.classList.add('open');
+      return;
+    }
+    var html = '';
+    all.slice(0, 40).forEach(function(it){
+      html += '<a class="sr" href="#' + it.id + '" data-id="' + it.id + '">' +
+              (it.crumb ? '<div class="crumb">' + esc(it.crumb) + '</div>' : '') +
+              '<div class="ttl">' + esc(it.text) + '</div>' +
+              '<div class="snp">' + esc(snippetFor(it.id, q)) + '</div></a>';
+    });
+    results.innerHTML = html;
+    results.classList.add('open');
+    results.querySelectorAll('.sr').forEach(function(a){
+      a.addEventListener('click', function(ev){
+        ev.preventDefault();
+        var id = a.getAttribute('data-id');
+        var el = doc.querySelector('#' + CSS.escape(id));
+        if(el){
+          el.scrollIntoView({behavior:'smooth', block:'start'});
+          highlight(id, lastQ);
+        }
+        results.classList.remove('open');
+      });
+    });
+  }
+
+  var t = null;
+  input.addEventListener('input', function(){
+    clearTimeout(t);
+    var v = input.value;
+    t = setTimeout(function(){ run(v); }, 120);
+  });
+  input.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){ input.value=''; run(''); input.blur(); }
+    if(e.key === 'Enter'){
+      var first = results.querySelector('.sr');
+      if(first) first.click();
+    }
+  });
+  clearBtn.addEventListener('click', function(){ input.value=''; run(''); input.focus(); });
+  document.addEventListener('click', function(e){
+    if(!e.target.closest('.searchbar')) results.classList.remove('open');
+  });
+  document.addEventListener('keydown', function(e){
+    if((e.ctrlKey||e.metaKey) && e.key === 'k'){ e.preventDefault(); input.focus(); }
+  });
+
+  var topLink = document.getElementById('topLink');
+  window.addEventListener('scroll', function(){
+    if(window.scrollY > 600) topLink.classList.add('show');
+    else topLink.classList.remove('show');
+  });
+})();
+</script>
+</body>
+</html>

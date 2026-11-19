@@ -1,0 +1,200 @@
+  </div><!-- /.body -->
+
+  <footer class="doc-footer">
+    <p><strong>คู่มือการใช้งานระบบ Odoo 19 — AutoInfo ERP ฉบับเต็ม</strong> · v1.0</p>
+    <p>จัดทำสำหรับการใช้งานภายใน · อ้างอิงจากโมดูลจริงใน <code>custom_addons/</code> (od19_*) · สร้างเมื่อ {{BUILD_DATE}}</p>
+    <p class="footnote">เอกสารนี้สร้างจากระบบจริง ณ วันที่ระบุ — หากโมดูลมีการแก้ไข ควรอัปเดตส่วนที่เกี่ยวข้องใน <code>docs/od19_user_guide/parts/</code> แล้ว build ใหม่</p>
+  </footer>
+</article>
+
+<button class="toplink" id="topLink" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑ กลับขึ้นด้านบน</button>
+
+<script>
+(function(){
+  "use strict";
+  var doc = document.querySelector('.doc');
+  var input = document.getElementById('guideSearch');
+  var clearBtn = document.getElementById('searchClear');
+  var results = document.getElementById('searchResults');
+  var countEl = document.getElementById('searchCount');
+
+  /* -------- Build index from headings -------- */
+  var index = [];
+  var partTitle = '';
+  var partId = '';
+  var modTitle = '';
+
+  var nodes = doc.querySelectorAll('h2.part-title, h3.mod, h4, h3:not(.mod)');
+  nodes.forEach(function(node){
+    var id = node.id || '';
+    if(!id && node.closest('.part') && !node.closest('.part-head')){
+      // assign nothing; skip headings without id (not linkable)
+    }
+    if(node.classList.contains('part-title')){
+      partTitle = node.textContent.replace(/\s+/g,' ').trim();
+      partId = (node.closest('.part') || {}).id || '';
+      modTitle = '';
+    } else if(node.classList.contains('mod')){
+      modTitle = node.textContent.replace(/\s+/g,' ').trim();
+    }
+    var target = node.id ? node : null;
+    if(!target) return;
+    // determine anchor element (nearest element with id)
+    var text = node.textContent.replace(/\s+/g,' ').trim();
+    var crumb = partTitle + (modTitle && !node.classList.contains('mod') ? ' › ' + modTitle : '');
+    index.push({
+      id: node.id,
+      level: node.tagName.toLowerCase(),
+      text: text,
+      crumb: crumb
+    });
+  });
+
+  function norm(s){ return (s||'').toLowerCase(); }
+
+  function findByText(container, q){
+    var walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null);
+    var n;
+    while(n = walker.nextNode()){
+      if(n.parentNode && n.parentNode.classList &&
+         (n.parentNode.classList.contains('sicon') || n.parentNode.classList.contains('scount'))) continue;
+      if(n.nodeValue && norm(n.nodeValue).indexOf(q) >= 0) return n;
+    }
+    return null;
+  }
+
+  function snippetFor(idEl, q){
+    var el = doc.querySelector('#' + CSS.escape(idEl));
+    if(!el) return '';
+    var container = el.parentElement || el;
+    var txtNode = findByText(container, q);
+    if(!txtNode){
+      // fall back to element text
+      var t = (el.textContent||'').replace(/\s+/g,' ').trim();
+      return t.slice(0,110);
+    }
+    var full = (txtNode.nodeValue||'').replace(/\s+/g,' ').trim();
+    var i = norm(full).indexOf(q);
+    var start = Math.max(0, i - 40);
+    var snip = (start>0?'…':'') + full.slice(start, start+130) + '…';
+    return snip;
+  }
+
+  function esc(s){
+    return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function clearHits(){
+    doc.querySelectorAll('mark.hit').forEach(function(m){
+      var p = m.parentNode;
+      p.replaceChild(document.createTextNode(m.textContent), m);
+      p.normalize();
+    });
+  }
+
+  function highlight(idEl, q){
+    clearHits();
+    var el = doc.querySelector('#' + CSS.escape(idEl));
+    if(!el) return;
+    var container = el.parentElement || el;
+    var n = findByText(container, q);
+    if(!n) return;
+    var val = n.nodeValue;
+    var idx = norm(val).indexOf(q);
+    if(idx < 0) return;
+    var before = val.slice(0, idx);
+    var mid = val.slice(idx, idx + q.length);
+    var after = val.slice(idx + q.length);
+    var mark = document.createElement('mark');
+    mark.className = 'hit';
+    mark.textContent = mid;
+    var frag = document.createDocumentFragment();
+    if(before) frag.appendChild(document.createTextNode(before));
+    frag.appendChild(mark);
+    if(after) frag.appendChild(document.createTextNode(after));
+    n.parentNode.replaceChild(frag, n);
+  }
+
+  var lastQ = '';
+  function run(q){
+    q = norm(q.trim());
+    lastQ = q;
+    if(!q){
+      results.classList.remove('open');
+      results.innerHTML = '';
+      countEl.textContent = '';
+      clearBtn.style.display = 'none';
+      clearHits();
+      return;
+    }
+    clearBtn.style.display = 'block';
+    var hits = index.filter(function(it){ return norm(it.text).indexOf(q) >= 0; });
+    // also search body text (limited) if few heading hits
+    var bodyHits = [];
+    if(hits.length < 6){
+      index.forEach(function(it){
+        if(hits.indexOf(it) >= 0) return;
+        var sn = snippetFor(it.id, q);
+        if(sn && norm(sn).indexOf(q) >= 0) bodyHits.push(it);
+      });
+    }
+    var all = hits.concat(bodyHits);
+    countEl.textContent = all.length ? all.length + ' ผลลัพธ์' : 'ไม่พบ';
+    if(!all.length){
+      results.innerHTML = '<div class="sempty">ไม่พบ “' + esc(q) + '” ในคู่มือนี้ — ลองคำอื่นหรือสะกดสั้นลง</div>';
+      results.classList.add('open');
+      return;
+    }
+    var html = '';
+    all.slice(0, 40).forEach(function(it){
+      html += '<a class="sr" href="#' + it.id + '" data-id="' + it.id + '">' +
+              (it.crumb ? '<div class="crumb">' + esc(it.crumb) + '</div>' : '') +
+              '<div class="ttl">' + esc(it.text) + '</div>' +
+              '<div class="snp">' + esc(snippetFor(it.id, q)) + '</div></a>';
+    });
+    results.innerHTML = html;
+    results.classList.add('open');
+    results.querySelectorAll('.sr').forEach(function(a){
+      a.addEventListener('click', function(ev){
+        ev.preventDefault();
+        var id = a.getAttribute('data-id');
+        var el = doc.querySelector('#' + CSS.escape(id));
+        if(el){
+          el.scrollIntoView({behavior:'smooth', block:'start'});
+          highlight(id, lastQ);
+        }
+        results.classList.remove('open');
+      });
+    });
+  }
+
+  var t = null;
+  input.addEventListener('input', function(){
+    clearTimeout(t);
+    var v = input.value;
+    t = setTimeout(function(){ run(v); }, 120);
+  });
+  input.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){ input.value=''; run(''); input.blur(); }
+    if(e.key === 'Enter'){
+      var first = results.querySelector('.sr');
+      if(first) first.click();
+    }
+  });
+  clearBtn.addEventListener('click', function(){ input.value=''; run(''); input.focus(); });
+  document.addEventListener('click', function(e){
+    if(!e.target.closest('.searchbar')) results.classList.remove('open');
+  });
+  document.addEventListener('keydown', function(e){
+    if((e.ctrlKey||e.metaKey) && e.key === 'k'){ e.preventDefault(); input.focus(); }
+  });
+
+  var topLink = document.getElementById('topLink');
+  window.addEventListener('scroll', function(){
+    if(window.scrollY > 600) topLink.classList.add('show');
+    else topLink.classList.remove('show');
+  });
+})();
+</script>
+</body>
+</html>
