@@ -1,33 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
 
-    <!--
-        Tier definition for internal issues.
-        Urgent (is_emergency) issues require director approval.
-        Reviewer group: System Administrator (can be changed by admin).
-    -->
-    <record id="tier_definition_internal_issue_urgent" model="tier.definition">
-        <field name="name">Internal Issue: Urgent requires Director approval</field>
-        <field name="model_id" ref="helpdesk_mgmt.model_helpdesk_ticket"/>
-        <field name="review_type">group</field>
-        <field name="reviewer_group_id" ref="base.group_system"/>
-        <field name="definition_domain">[('is_emergency', '=', True)]</field>
+    <!-- Teams (ภายใน) -->
+    <record id="team_issue_it_support" model="helpdesk.ticket.team">
+        <field name="name">IT Support</field>
+        <field name="issue_stream">it_support</field>
         <field name="sequence">10</field>
-        <field name="notify_on_create" eval="True"/>
-        <field name="notify_on_pending" eval="True"/>
+        <field name="user_ids" eval="[(4, ref('base.user_admin'))]"/>
+    </record>
+    <record id="team_issue_improvement" model="helpdesk.ticket.team">
+        <field name="name">ข้อเสนอแนะปรับปรุง</field>
+        <field name="issue_stream">improvement</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="team_issue_iso_capa" model="helpdesk.ticket.team">
+        <field name="name">คุณภาพ / ISO (CAPA)</field>
+        <field name="issue_stream">iso_capa</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="team_issue_triage" model="helpdesk.ticket.team">
+        <field name="name">กล่องกลาง (Triage)</field>
+        <field name="is_triage_team" eval="True"/>
+        <field name="sequence">40</field>
+        <field name="user_ids" eval="[(4, ref('base.user_admin'))]"/>
     </record>
 
-    <!--
-        Tier definition for all internal issues (non-urgent).
-        Any issue requires at least one validation step.
-    -->
-    <record id="tier_definition_internal_issue_standard" model="tier.definition">
-        <field name="name">Internal Issue: Standard validation</field>
-        <field name="model_id" ref="helpdesk_mgmt.model_helpdesk_ticket"/>
-        <field name="review_type">group</field>
-        <field name="reviewer_group_id" ref="base.group_system"/>
-        <field name="definition_domain">[('is_emergency', '=', False)]</field>
+    <!-- Stages (ป้ายไทย) ผูกกับทีมภายในทั้งหมด -->
+    <record id="stage_issue_new" model="helpdesk.ticket.stage">
+        <field name="name">ใหม่</field>
+        <field name="sequence">1</field>
+        <field name="unattended" eval="True"/>
+        <field name="team_ids" eval="[(6, 0, [ref('team_issue_it_support'), ref('team_issue_improvement'), ref('team_issue_iso_capa'), ref('team_issue_triage')])]"/>
+    </record>
+    <record id="stage_issue_assigned" model="helpdesk.ticket.stage">
+        <field name="name">มอบหมายแล้ว</field>
+        <field name="sequence">2</field>
+        <field name="team_ids" eval="[(6, 0, [ref('team_issue_it_support'), ref('team_issue_improvement'), ref('team_issue_iso_capa'), ref('team_issue_triage')])]"/>
+    </record>
+    <record id="stage_issue_in_progress" model="helpdesk.ticket.stage">
+        <field name="name">กำลังดำเนินการ</field>
+        <field name="sequence">3</field>
+        <field name="team_ids" eval="[(6, 0, [ref('team_issue_it_support'), ref('team_issue_improvement'), ref('team_issue_iso_capa'), ref('team_issue_triage')])]"/>
+    </record>
+    <record id="stage_issue_waiting" model="helpdesk.ticket.stage">
+        <field name="name">รอผู้แจ้ง</field>
+        <field name="sequence">4</field>
+        <field name="team_ids" eval="[(6, 0, [ref('team_issue_it_support'), ref('team_issue_improvement'), ref('team_issue_iso_capa'), ref('team_issue_triage')])]"/>
+    </record>
+    <record id="stage_issue_resolved" model="helpdesk.ticket.stage">
+        <field name="name">แก้ไขแล้ว</field>
+        <field name="sequence">5</field>
+        <field name="team_ids" eval="[(6, 0, [ref('team_issue_it_support'), ref('team_issue_improvement'), ref('team_issue_iso_capa'), ref('team_issue_triage')])]"/>
+    </record>
+    <record id="stage_issue_closed" model="helpdesk.ticket.stage">
+        <field name="name">ปิด</field>
+        <field name="sequence">6</field>
+        <field name="closed" eval="True"/>
+        <field name="fold" eval="True"/>
+        <field name="team_ids" eval="[(6, 0, [ref('team_issue_it_support'), ref('team_issue_improvement'), ref('team_issue_iso_capa'), ref('team_issue_triage')])]"/>
+    </record>
+
+    <!-- Routing rules ตัวอย่าง (แก้/เพิ่มได้จาก Settings) -->
+    <record id="routing_rule_it_network" model="helpdesk.routing.rule">
+        <field name="name">IT: อินเทอร์เน็ต/เน็ตเวิร์ก</field>
+        <field name="keyword">internet</field>
+        <field name="issue_stream">it_support</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="routing_rule_it_printer" model="helpdesk.routing.rule">
+        <field name="name">IT: เครื่องพิมพ์</field>
+        <field name="keyword">printer</field>
+        <field name="issue_stream">it_support</field>
         <field name="sequence">20</field>
+    </record>
+
+    <!-- Config: ระยะเวลาเปิดปุ่มขอแซงคิว (ชั่วโมง) -->
+    <record id="config_jump_window_hours" model="ir.config_parameter">
+        <field name="key">od19_internal_issue.jump_window_hours</field>
+        <field name="value">24</field>
+    </record>
+
+    <!-- Email alias: รับเรื่องเข้าทีม Triage -->
+    <record id="alias_issue_triage" model="mail.alias">
+        <field name="alias_name">internal-issue</field>
+        <field name="alias_model_id" ref="helpdesk_mgmt.model_helpdesk_ticket"/>
+        <field name="alias_defaults">{'issue_stream': 'unsure'}</field>
     </record>
 
 </odoo>

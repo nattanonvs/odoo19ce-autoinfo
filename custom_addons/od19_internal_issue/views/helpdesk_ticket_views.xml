@@ -8,53 +8,52 @@
         <field name="inherit_id" ref="helpdesk_mgmt.ticket_view_form"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='category_id']" position="after">
-                <field name="visibility"/>
-                <field name="department_id"
-                       invisible="visibility != 'department'"/>
+                <field name="issue_stream"/>
                 <field name="reported_by_id"/>
-                <field name="is_emergency"/>
-                <field name="state" widget="statusbar"
-                       statusbar_visible="draft,submitted,validated,in_progress,done"
-                       statusbar_colors='{"cancelled":"danger"}'/>
+                <field name="visibility"/>
+                <field name="visibility_department_id"
+                       invisible="visibility != 'department'"/>
+                <field name="emergency"/>
             </xpath>
 
             <xpath expr="//form/header" position="inside">
-                <button name="action_submit" type="object"
-                        string="ส่งตรวจสอบ" class="btn-primary"
-                        invisible="state != 'draft'"/>
-                <button name="action_validate" type="object"
-                        string="ตรวจสอบผ่าน" class="btn-success"
-                        invisible="state not in ('submitted',)"/>
-                <button name="action_reject" type="object"
-                        string="ปฏิเสธ" class="btn-danger"
-                        invisible="state not in ('submitted',)"/>
-                <button name="action_start_work" type="object"
-                        string="เริ่มดำเนินการ"
-                        invisible="state != 'validated'"/>
-                <button name="action_done" type="object"
-                        string="เสร็จสิ้น" class="btn-success"
-                        invisible="state != 'in_progress'"/>
-                <button name="action_cancel" type="object"
-                        string="ยกเลิก" class="btn-danger"
-                        invisible="state in ('done','cancelled')"/>
-                <button name="action_reset_to_draft" type="object"
-                        string="กลับเป็นร่าง"
-                        invisible="state not in ('cancelled',)"/>
+                <button name="action_request_jump" type="object"
+                        string="ขอแซงคิว" class="btn-warning"
+                        invisible="consent_state == 'jump_requested'"/>
             </xpath>
 
             <xpath expr="//notebook/page[@name='other_info']" position="after">
-                <page string="Internal" name="internal">
+                <page string="ความเป็นธรรม &amp; คิว" name="internal_fairness">
                     <group>
-                        <group>
-                            <field name="visibility"/>
-                            <field name="department_id"/>
-                            <field name="reported_by_id"/>
-                            <field name="is_emergency"/>
-                            <field name="need_validation" readonly="1"/>
-                            <field name="validation_status" readonly="1"/>
+                        <group string="เกณฑ์ความสำคัญ">
+                            <field name="impact"/>
+                            <field name="urgency"/>
+                            <field name="priority" readonly="1"/>
+                            <field name="emergency"/>
+                        </group>
+                        <group string="คิว">
+                            <field name="queue_sequence"/>
+                            <field name="queue_position" readonly="1"/>
+                            <field name="queue_ahead_count" readonly="1"/>
+                            <field name="is_priority_inserted" readonly="1"/>
+                            <field name="insert_before_id" readonly="1"/>
                         </group>
                     </group>
-                    <field name="resolution" placeholder="Root cause and solution..."/>
+                    <group>
+                        <group string="ความเป็นส่วนตัว">
+                            <field name="visibility"/>
+                            <field name="visibility_department_id"/>
+                            <field name="reported_by_id"/>
+                        </group>
+                        <group string="การยินยอม">
+                            <field name="consent_state"/>
+                            <field name="jump_window_deadline"/>
+                        </group>
+                    </group>
+                    <group string="Knowledge Base (Phase 2)">
+                        <field name="kb_converted"/>
+                        <field name="kb_article_ref"/>
+                    </group>
                 </page>
             </xpath>
         </field>
@@ -67,8 +66,10 @@
         <field name="inherit_id" ref="helpdesk_mgmt.ticket_view_tree"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='name']" position="after">
+                <field name="issue_stream"/>
+                <field name="queue_position"/>
                 <field name="visibility"/>
-                <field name="is_emergency" widget="boolean_toggle"/>
+                <field name="emergency" widget="boolean_toggle"/>
             </xpath>
         </field>
     </record>
@@ -80,22 +81,37 @@
         <field name="inherit_id" ref="helpdesk_mgmt.helpdesk_ticket_view_search"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='name']" position="after">
+                <field name="issue_stream"/>
                 <field name="visibility"/>
-                <field name="department_id"/>
+                <field name="visibility_department_id"/>
                 <field name="reported_by_id"/>
-                <field name="is_emergency"/>
+                <field name="emergency"/>
             </xpath>
             <xpath expr="//search/group[1]" position="inside">
-                <filter string="Emergency" name="filter_emergency"
-                        domain="[('is_emergency','=',True)]"/>
-                <filter string="Public" name="filter_public"
+                <filter string="ฉุกเฉิน" name="filter_emergency"
+                        domain="[('emergency','=',True)]"/>
+                <filter string="สาธารณะ" name="filter_public"
                         domain="[('visibility','=','public')]"/>
-                <filter string="Department" name="filter_department"
+                <filter string="เฉพาะแผนก" name="filter_department"
                         domain="[('visibility','=','department')]"/>
-                <filter string="Private" name="filter_private"
+                <filter string="ส่วนตัว" name="filter_private"
                         domain="[('visibility','=','private')]"/>
             </xpath>
         </field>
     </record>
+
+    <!-- Portal: แสดงตำแหน่งคิวให้ผู้แจ้ง -->
+    <template id="portal_helpdesk_ticket_queue"
+              inherit_id="helpdesk_mgmt.portal_helpdesk_ticket_page"
+              name="Ticket Portal: queue position">
+        <xpath expr="//div[@id='card_body']" position="inside">
+            <div class="mb-3">
+                <p>
+                    ตำแหน่งในคิว: <span t-field="ticket.queue_position"/>
+                    (มีงานก่อนหน้า <span t-field="ticket.queue_ahead_count"/> งาน)
+                </p>
+            </div>
+        </xpath>
+    </template>
 
 </odoo>

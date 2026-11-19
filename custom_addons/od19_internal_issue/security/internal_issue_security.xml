@@ -4,7 +4,7 @@
     <!--
         Visibility rule for helpdesk.ticket:
         - public: everyone sees it
-        - department: only users from the same department
+        - department: only users from the given (visibility) department
         - private: only the reporter or the assignee
     -->
     <record id="internal_issue_visibility_rule" model="ir.rule">
@@ -15,7 +15,7 @@
             ('visibility', '=', 'public'),
             '&amp;',
                 ('visibility', '=', 'department'),
-                ('department_id', 'in', [user.employee_id.department_id.id, False]),
+                ('visibility_department_id', 'in', [user.od19_department_id.id, False]),
             '&amp;',
                 ('visibility', '=', 'private'),
                 '|',
