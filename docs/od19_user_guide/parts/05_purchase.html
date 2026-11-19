@@ -1,0 +1,398 @@
+<!--Part
+id=purchase
+title=การจัดซื้อและผู้จำหน่าย
+icon=📦
+sub=ใบขอซื้อ (PR) · ใบขอราคา · ใบสั่งซื้อ (PO) · การอนุมัติตามวงเงิน · เลขที่เอกสารรายแผนก · เงื่อนไขการซื้อ · การรับของและวางบิลผู้ขาย
+-->
+
+<section class="part" id="purchase">
+
+  <div class="part-head">
+    <h2 class="part-title"><span class="part-icon">📦</span> ส่วนที่ 5 · การจัดซื้อและผู้จำหน่าย</h2>
+    <p class="part-sub">
+      อธิบายกระบวนการจัดซื้อครบวงจรของ AutoInfo — ตั้งแต่การยื่น <strong>ใบขอซื้อ (Purchase Request, PR)</strong>
+      การขอราคาผู้ขาย (RFQ) การออก <strong>ใบสั่งซื้อ (Purchase Order, PO)</strong> การอนุมัติตามวงเงิน
+      การออกเลขที่เอกสารตามแผนก การกำหนดเงื่อนไขการซื้อ และการรับของ-วางบิลผู้ขาย
+      โดยอ้างอิงจากโมดูล <code>od19_purchase_*</code> ที่ติดตั้งในระบบจริง
+    </p>
+  </div>
+
+  <nav class="toc mini">
+    <h3>สารบัญส่วนนี้</h3>
+    <ol>
+      <li><a href="#pur-1">แกนการจัดซื้อและการอนุมัติ</a></li>
+      <li><a href="#pur-2">ส่วนขยายใบขอซื้อ (ไทย)</a></li>
+      <li><a href="#pur-3">การแก้ไขใบสั่งซื้อ (Revision)</a></li>
+      <li><a href="#pur-4">เลขที่เอกสารตามแผนก</a></li>
+      <li><a href="#pur-5">เงื่อนไขการซื้อ (Terms)</a></li>
+      <li><a href="#pur-6">วิซาร์ดช่วยงานจัดซื้อ</a></li>
+      <li><a href="#pur-7">การพิมพ์ด้วย Jasper (J-Report OD15)</a></li>
+    </ol>
+  </nav>
+
+  <h3 class="mod" id="pur-1"><span class="mtag">od19_purchase_procurement_core</span> แกนการจัดซื้อและการอนุมัติ</h3>
+  <p>
+    โมดูลนี้เป็น <strong>แกนกลางของการจัดซื้อ</strong> ทำหน้าที่เพิ่ม <em>กลไกการอนุมัติตามวงเงิน</em> ให้กับ
+    ใบสั่งซื้อ (Purchasing Order) และใบขอซื้อแบบข้อตกลง (Purchase Requisition) — เอกสารจะ <strong>ยืนยัน (Confirm) ไม่ได้</strong>
+    จนกว่าจะผ่านการอนุมัติจากผู้มีอำนาจตามวงเงิน รวมถึงเพิ่มฟิลด์เพื่อจำแนกวัตถุประสงค์การซื้อและตรวจสอบงบประมาณ
+  </p>
+
+  <h4>เมนูที่เกี่ยวข้อง</h4>
+  <ul>
+    <li><span class="path">จัดซื้อ › Orders › Purchase Orders</span> — ใบสั่งซื้อ พร้อมปุ่มอนุมัติในเอกสาร</li>
+    <li><span class="path">จัดซื้อ › Orders › Purchase Agreements</span> — ใบขอซื้อแบบข้อตกลง (Requisition)</li>
+    <li><span class="path">การตั้งค่า › บริษัท (Company)</span> — ฟิลด์วงเงินอนุมัติ <span class="pill">Director Approval Threshold</span></li>
+  </ul>
+
+  <h4>ขั้นตอนขออนุมัติและยืนยันใบสั่งซื้อ</h4>
+  <ol class="steps">
+    <li><span class="stitle">สร้างและกรอกรายการใบสั่งซื้อ</span> — เลือกผู้ขาย เพิ่มสินค้า/บริการ พร้อมฟิลด์เป้าหมายการจัดซื้อในแต่ละบรรทัด (ดูตารางด้านล่าง) ระบบจะคำนวณระดับผู้อนุมัติที่ต้องใช้ให้อัตโนมัติ</li>
+    <li><span class="stitle">กดปุ่ม “Submit”</span> — ยื่นเข้าสู่กระบวนการอนุมัติ สถานะอนุมัติเปลี่ยนจากร่างเป็น <span class="badge b-blue">Submitted</span></li>
+    <li><span class="stitle">ผู้มีอำนาจกดปุ่ม “Approve”</span> — ยืนยันอนุมัติ ระบบตรวจสิทธิ์ตามวงเงินอัตโนมัติ สถานะเป็น <span class="badge b-green">Approved</span></li>
+    <li><span class="stitle">กดปุ่ม “Confirm Order”</span> — ยืนยันใบสั่งซื้อได้เฉพาะเมื่ออนุมัติแล้วเท่านั้น (ปุ่มจะปรากฏเมื่อสถานะอนุมัติเป็น Approved)</li>
+  </ol>
+
+  <h4>สถานะการอนุมัติ (Approval State)</h4>
+  <div class="flow">
+    <span class="stp">Draft (ร่าง)</span>
+    <span class="arrow">→</span>
+    <span class="stp">Submitted (ยื่นขออนุมัติ)</span>
+    <span class="arrow">→</span>
+    <span class="stp">Approved (อนุมัติ)</span>
+    <span class="arrow">→</span>
+    <span class="stp">Confirm (ยืนยันใบสั่งซื้อ)</span>
+  </div>
+  <p>
+    ระบบกำหนด <strong>ระดับผู้อนุมัติที่ต้องใช้</strong> โดยอัตโนมัติจากยอดรวมของใบสั่งซื้อเทียบกับ <span class="pill">Director Approval Threshold</span>
+    ของบริษัท (ค่าเริ่มต้น 100,000 บาท) — ยอดต่ำกว่าขีด = <span class="badge b-blue">Manager</span> อนุมัติได้ / ยอดถึงหรือเกินขีด = ต้องเป็น <span class="badge b-red">Director</span>
+  </p>
+  <table>
+    <thead><tr><th>ฟิลด์ / ปุ่ม</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">Entry Mode</span></td><td>โหมดที่มา: <em>Purchase Requisition</em> (มาจากข้อตกลง) หรือ <em>Direct Purchase Order</em> (ซื้อตรง) — ระบบคำนวณจากการมีข้อตกลงอ้างอิง</td></tr>
+      <tr><td><span class="pill">Approval State</span></td><td>สถานะการอนุมัติ (Draft / Submitted / Approved) — พนักงานแก้เองไม่ได้ ต้องผ่านปุ่มเท่านั้น</td></tr>
+      <tr><td><span class="pill">Required Approval Level</span></td><td>ระดับผู้อนุมัติที่ต้องใช้ (Manager / Director) คำนวณจากวงเงินอัตโนมัติ</td></tr>
+      <tr><td><span class="pill">Budget Warning Count / Summary</span></td><td>จำนวนและสรุปรายการที่เตือนเรื่องงบประมาณ จะแสดงกล่องเตือนเหนือตารางรายการ</td></tr>
+      <tr><td><span class="badge b-gray">Submit</span></td><td>ยื่นขออนุมัติ (ปรากฏเมื่อยังเป็นร่าง)</td></tr>
+      <tr><td><span class="badge b-green">Approve</span></td><td>อนุมัติ — เห็นเฉพาะกลุ่ม Purchase Manager และ Purchase Director</td></tr>
+    </tbody>
+  </table>
+
+  <h4>ฟิลด์รายบรรทัด (Order Line)</h4>
+  <table>
+    <thead><tr><th>ฟิลด์</th><th>คำอธิบาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">Procurement Purpose</span></td><td>วัตถุประสงค์: <em>Internal</em> (ใช้ภายใน) หรือ <em>Project / Sale-linked</em> (ผูกโครงการ/งานขาย)</td></tr>
+      <tr><td><span class="pill">Item Kind</span></td><td>ประเภทสินค้า: Product หรือ Service (คำนวณจากชนิดสินค้าอัตโนมัติ)</td></tr>
+      <tr><td><span class="pill">Project</span></td><td>โครงการที่อ้างอิง — <strong>บังคับ</strong>เมื่อ Purposes เป็น Project มิฉะนั้นระบบจะไม่ยอมบันทึก</td></tr>
+      <tr><td><span class="pill">Budget Reference</span></td><td>รหัสอ้างอิงงบประมาณ ถ้าเป็นงานโครงการแต่เว้นว่าง ระบบจะขึ้นเตือน “Budget Warning”</td></tr>
+      <tr><td><span class="pill">Requires Service Acceptance</span></td><td>รายการที่เป็น “บริการ” ต้องมีขั้นตอนตรวจรับบริการ</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <strong>แก้ไขหลังอนุมัติ = รีเซ็ตการอนุมัติ:</strong> หากแก้ฟิลด์สำคัญ (คู่ค้า, ยอดเงิน, รายการ, เงื่อนไขชำระ, วันที่ เป็นต้น)
+    ระบบจะ <strong>รีเซ็ตสถานะการอนุมัติกลับเป็นร่าง</strong>โดยอัตโนมัติ เพื่อบังคับให้ขออนุมัติใหม่
+  </div>
+  <div class="callout danger">
+    ใบสั่งซื้อที่ <strong>ยืนยันแล้ว (Confirmed) ถูกปลดล็อก</strong> จะแก้ไขแบบมีนัยสำคัญไม่ได้
+    (ต้องสร้างความเปลี่ยนแปลงผ่านกระบวนการจัดซื้อใหม่) — เพื่อป้องกันการแก้เอกสารที่รับของ/วางบิลไปแล้ว
+  </div>
+
+  <h4>สิทธิ์</h4>
+  <ul>
+    <li><span class="badge b-gray">Purchase Manager</span> — อนุมัติใบสั่งซื้อที่ยอดต่ำกว่าขีดวงเงิน และอนุมัติใบขอซื้อแบบข้อตกลง (Requisition) ได้</li>
+    <li><span class="badge b-red">Purchase Director</span> — กลุ่มใหม่ที่ระบบสร้างให้ (สืบทอดสิทธิ์ Manager) อนุมัติใบสั่งซื้อที่ยอดถึงหรือเกินขีดวงเงินได้</li>
+    <li>ผู้ดูแลระบบ (<code>base.group_system</code>) ได้สิทธิ์ Purchase Director โดยอัตโนมัติ</li>
+  </ul>
+
+  <hr>
+
+  <h3 class="mod" id="pur-2"><span class="mtag">od19_purchase_request_extend</span> ส่วนขยายใบขอซื้อ (ไทย)</h3>
+  <p>
+    โมดูลนี้ต่อยอดจาก <strong>OCA Purchase Request</strong> เพิ่มฟิลด์เฉพาะองค์กรไทย ได้แก่ เหตุผลการขอซื้อ
+    ความเร่งด่วน หน่วยงานผู้ขอ ปีงบประมาณ (พ.ศ.) และการเชื่อมโยงกับใบแจ้งปัญหาหรือสินทรัพย์
+    พร้อม <strong>การแจ้งเตือนหลายช่องทาง</strong>ให้ผู้อนุมัติและผู้ขอโดยอัตโนมัติ
+  </p>
+
+  <h4>เมนูที่เกี่ยวข้อง</h4>
+  <ul>
+    <li><span class="path">จัดซื้อ › Purchase Requests</span> — ทางลัดไปยังแอปใบขอซื้อ (จำกัดเฉพาะกลุ่มผู้ใช้/หัวหน้าใบขอซื้อ)</li>
+    <li>แอป <strong>Purchase Requests</strong> (ไอคอนของระบบ) — ใช้งานเต็มรูปแบบสำหรับทีมที่ดูแลใบขอซื้อโดยเฉพาะ</li>
+  </ul>
+
+  <h4>ขั้นตอนยื่นใบขอซื้อ</h4>
+  <ol class="steps">
+    <li><span class="stitle">สร้างใบขอซื้อ</span> — ระบบเติม <span class="pill">Requesting Department</span> ให้จากแผนกของพนักงานที่ล็อกอินโดยอัตโนมัติ</li>
+    <li><span class="stitle">ระบุความเร่งด่วน</span> — เลือก <em>ปกติ / ด่วน / ด่วนพิเศษ</em> หากเลือก ด่วน หรือ ด่วนพิเศษ ต้องกรอก <span class="pill">เหตุผลในการขอซื้อ</span> มิฉะนั้นระบบจะไม่ยอมให้ยื่น</li>
+    <li><span class="stitle">กรอกรายละเอียดรายบรรทัด</span> — ระบุเหตุผลรายบรรทัดและสินทรัพย์ที่เกี่ยวข้องได้ตามต้องการ</li>
+    <li><span class="stitle">กดยื่นขออนุมัติ (To Approve)</span> — ระบบตรวจเหตุผล (ถ้าเร่งด่วน) แล้วส่ง <strong>แจ้งเตือนไปยังผู้อนุมัติ</strong>ทันที</li>
+    <li><span class="stitle">ผู้อนุมัติอนุมัติ/ปฏิเสธ</span> — ระบบแจ้งเตือนกลับไปยังผู้ขอทันทีทั้งกรณีอนุมัติและปฏิเสธ</li>
+  </ol>
+
+  <h4>ฟิลด์สำคัญ</h4>
+  <table>
+    <thead><tr><th>ฟิลด์</th><th>คำอธิบาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">เหตุผลในการขอซื้อ</span></td><td>เหตุผลประกอบคำขอ — <strong>จำเป็น</strong>เมื่อความเร่งด่วนเป็น ด่วน/ด่วนพิเศษ</td></tr>
+      <tr><td><span class="pill">ความเร่งด่วน</span></td><td>ปกติ / ด่วน / ด่วนพิเศษ (แสดงเป็นป้ายสีในหน้ารายการ)</td></tr>
+      <tr><td><span class="pill">หน่วยงานที่ขอ</span></td><td>แผนกผู้ขอ — เติมให้อัตโนมัติจากพนักงาน แก้ไขได้</td></tr>
+      <tr><td><span class="pill">ปีงบประมาณ</span></td><td>ค่าเริ่มต้นเป็นปี พ.ศ. ปัจจุบัน (ค.ศ. + 543)</td></tr>
+      <tr><td><span class="pill">แหล่งที่มาจากแจ้งปัญหา</span></td><td>อ้างอิงใบแจ้งปัญหา (Helpdesk Ticket) ที่เป็นต้นเหตุของคำขอ</td></tr>
+      <tr><td><span class="pill">Asset ที่เกี่ยวข้อง</span> (รายบรรทัด)</td><td>เชื่อมรายการกับสินทรัพย์ที่มีอยู่</td></tr>
+      <tr><td><span class="pill">Line Justification</span> (รายบรรทัด)</td><td>เหตุผลประกอบรายบรรทัด</td></tr>
+    </tbody>
+  </table>
+
+  <h4>การค้นหาและกรอง</h4>
+  <ul>
+    <li>กรองตามความเร่งด่วนได้ (ด่วนพิเศษ / ด่วน / ปกติ) และจัดกลุ่มตามความเร่งด่วนหรือหน่วยงาน</li>
+    <li>ค้นหาด้วยความเร่งด่วน หน่วยงาน ปีงบประมาณได้จากช่องค้นหา</li>
+  </ul>
+
+  <div class="callout note">
+    <strong>การแจ้งเตือน:</strong> ใช้ระบบแจ้งเตือนหลายช่องทาง (<code>notification.service</code>) โดยมีเหตุการณ์
+    <code>purchase_request_approval</code> (ถึงผู้อนุมัติ) และ <code>purchase_request_decision</code> (ถึงผู้ขอ)
+  </div>
+
+  <hr>
+
+  <h3 class="mod" id="pur-3"><span class="mtag">od19_purchase_revision</span> การแก้ไขใบสั่งซื้อ (Revision)</h3>
+  <p>
+    โมดูลนี้เพิ่ม <strong>ระบบควบคุมการแก้ไข (Revision Control)</strong> แบบ ISO ให้ใบสั่งซื้อ —
+    เมื่อต้องแก้ไขใบสั่งซื้อที่ยืนยันแล้ว ระบบจะสร้างเอกสาร <em>ฉบับแก้ไขใหม่</em> ที่เชื่อมโยงกับฉบับเดิม
+    โดยใช้เลขที่ฐานเดิมต่อท้ายด้วย <code>/R00</code>, <code>/R01</code>, … และล็อกฉบับเดิมให้เป็น “อ่านได้อย่างเดียว”
+  </p>
+
+  <h4>เมนูที่เกี่ยวข้อง</h4>
+  <ul>
+    <li><span class="path">จัดซื้อ › Orders › Purchase Orders</span> — เอกสารที่มีปุ่ม “Create Revision” และตัวนับ Revision</li>
+    <li>ปุ่มตัวเลข <span class="pill">Revisions</span> ในกล่องสถานะของใบสั่งซื้อ — เปิดรายการทุกฉบับในสายการแก้ไข</li>
+  </ul>
+
+  <h4>ขั้นตอนสร้างฉบับแก้ไข</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดใบสั่งซื้อที่ยืนยันแล้ว</span> — ต้องมีสถานะ <em>Purchase Order (ยืนยันแล้ว)</em> และยังไม่ถูกแทนที่</li>
+    <li><span class="stitle">กดปุ่ม “Create Revision”</span> — ระบบจะคัดลอกเอกสาร สร้างชื่อใหม่ต่อท้าย <code>/R01</code> (หรือถัดไป) และเปิดฉบับใหม่ให้ทันที</li>
+    <li><span class="stitle">แก้ไขฉบับใหม่</span> — ฉบับใหม่เป็นเอกสารที่ใช้งานต่อ ฉบับเดิมจะถูกทำเครื่องหมาย <span class="badge b-amber">Superseded</span> และเป็นอ่านได้อย่างเดียว</li>
+  </ol>
+
+  <h4>สถานะการแก้ไข</h4>
+  <table>
+    <thead><tr><th>สถานะ</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge b-green">Current</span></td><td>ฉบับที่ใช้งานล่าสุด แก้ไขได้ตามปรกติ</td></tr>
+      <tr><td><span class="badge b-amber">Superseded</span></td><td>ฉบับที่ถูกแทนที่ด้วยฉบับใหม่ — เป็นอ่านได้อย่างเดียว ระบบจะแสดงแถบเตือนสีเหลืองด้านบนเอกสาร</td></tr>
+    </tbody>
+  </table>
+  <p>ฟิลด์ที่แสดง: <span class="pill">Revised From</span> (อ้างอิงฉบับเดิม), <span class="pill">Revision No.</span>, <span class="pill">Base Reference</span>, <span class="pill">Revision Status</span></p>
+
+  <h4>การค้นหา</h4>
+  <ul>
+    <li>ตัวกรอง <em>Latest Only</em> (เฉพาะฉบับล่าสุด), <em>Superseded</em> (ฉบับที่ถูกแทนที่), <em>Has Revision</em> (ที่มีฉบับแก้ไข)</li>
+    <li>ในใบพิมพ์ใบสั่งซื้อ จะแสดงช่อง “Revision: R##” เมื่อเอกสารเป็นฉบับแก้ไข</li>
+  </ul>
+
+  <div class="callout warn">
+    <strong>สิทธิ์การสร้างฉบับแก้ไข:</strong> เฉพาะสมาชิกกลุ่ม <span class="badge b-red">Purchase Director</span> เท่านั้น
+    (ผู้ดูแลระบบได้สิทธิ์นี้โดยอัตโนมัติ)
+  </div>
+  <div class="callout danger">
+    เอกสารที่ถูกทำเครื่องหมาย Superseded จะ <strong>แก้ไขไม่ได้</strong> ระบบจะแจ้งให้ไปใช้ฉบับล่าสุดเสมอ
+    — ป้องกันการแก้เอกสารที่ล้าสมัย
+  </div>
+
+  <hr>
+
+  <h3 class="mod" id="pur-4"><span class="mtag">od19_purchase_document_sequence</span> เลขที่เอกสารตามแผนก</h3>
+  <p>
+    โมดูลนี้กำหนด <strong>เลขที่เอกสาร (Running Number) แยกตามหน่วยงาน</strong> สำหรับใบขอซื้อและใบสั่งซื้อ
+    แต่ละแผนกสามารถมีชุดเลขของตัวเอง โดยใบสั่งซื้อยังแยกตาม <em>ประเภทการซื้อ</em> (Local / Indent-Import / Bulk)
+    อีกด้วย
+  </p>
+
+  <h4>เมนูที่เกี่ยวข้อง</h4>
+  <ul>
+    <li><span class="path">พนักงาน › หน่วยงาน (Departments)</span> — กำหนดชุดเลขเอกสารของแต่ละแผนก</li>
+    <li><span class="path">จัดซื้อ › Orders › Purchase Orders</span> — เลือกแผนกและประเภทการซื้อที่หัวเอกสาร</li>
+  </ul>
+
+  <h4>ขั้นตอน</h4>
+  <ol class="steps">
+    <li><span class="stitle">ตั้งค่าชุดเลขที่แผนก</span> — เปิดหน่วยงาน แล้วกำหนด <span class="pill">PR Sequence</span>, <span class="pill">PO Sequence (Local)</span>, <span class="pill">PO Sequence (Indent/Import)</span> และรหัสย่อแผนก <span class="pill">Department Code</span></li>
+    <li><span class="stitle">สร้างใบสั่งซื้อ/ใบขอซื้อ</span> — เลือกแผนก (ระบบเติมจากแผนกของพนักงานให้อัตโนมัติ) และเลือกประเภทการซื้อ ระบบจะออกรunning number ตามชุดที่กำหนด</li>
+    <li><span class="stitle">เปลี่ยนแผนกหรือประเภทก่อนบันทึก</span> — หากเอกสารยังไม่มีเลข ระบบจะออกเลขให้ใหม่ตามชุดที่เลือก</li>
+  </ol>
+
+  <h4>ประเภทการซื้อและรูปแบบเลขที่</h4>
+  <table>
+    <thead><tr><th>ประเภท</th><th>รูปแบบเลข (ตัวอย่าง)</th><th>หมายเหตุ</th></tr></thead>
+    <tbody>
+      <tr><td>ใบขอซื้อ (PR)</td><td>PR, PRB, PRT, PRI, PRF, PRF/D</td><td>ตามรหัสแผนก (BA, TA, IA, FA, F/DES)</td></tr>
+      <tr><td>Local</td><td>PB, PT, PI, PF, PF/D</td><td>ซื้อในประเทศ ใช้ชุดเลขของแผนก</td></tr>
+      <tr><td>Indent / Import</td><td>IB, IT, II</td><td>สั่งนำเข้า ใช้ชุดเลขนำเข้าของแผนก</td></tr>
+      <tr><td>Bulk</td><td>BULK</td><td>ซื้อแบบเหมา ใช้ชุดเลขกลาง</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout tip">
+    คำย่อในรูปแบบเลขมาจากการตั้งค่าชุดเลขของ Odoo เช่น <code>%(y)s</code> = ปี, <code>%(month)s</code> = เดือน
+    จึงได้เลขอย่าง <code>PB2501-0001</code> (แผนก BA เดือน 01)
+  </div>
+
+  <hr>
+
+  <h3 class="mod" id="pur-5"><span class="mtag">od19_purchase_terms</span> เงื่อนไขการซื้อ (Terms)</h3>
+  <p>
+    โมดูลนี้ให้จัดเก็บ <strong>แม่แบบเงื่อนไขการซื้อ</strong> ที่ใช้ซ้ำได้ (การรับประกัน, สถานที่จัดส่ง,
+    เงื่อนไขการชำระเงิน, การขนส่ง, น้ำหนัก) แล้วเลือกใช้ในใบสั่งซื้อ พร้อมรวมเป็นข้อความเดียวแสดงบนเอกสารพิมพ์
+    นอกจากนี้ยังช่วย <strong>เติมราคาต่อหน่วยอัตโนมัติ</strong>จากข้อมูลผู้ขายของสินค้า
+  </p>
+
+  <h4>เมนูที่เกี่ยวข้อง</h4>
+  <ul>
+    <li><span class="path">จัดซื้อ › การตั้งค่า › Purchase Term Templates</span> — จัดการแม่แบบเงื่อนไข</li>
+    <li><span class="path">จัดซื้อ › Orders › Purchase Orders</span> — แท็บ “Terms” ในใบสั่งซื้อ</li>
+  </ul>
+
+  <h4>ขั้นตอน</h4>
+  <ol class="steps">
+    <li><span class="stitle">สร้างแม่แบบเงื่อนไข</span> — ไปที่เมนู Purchase Term Templates กดสร้าง ระบุชื่อ เลือก <span class="pill">ประเภทเงื่อนไข</span> และกรอกเนื้อหาเงื่อนไข</li>
+    <li><span class="stitle">เลือกเงื่อนไขในใบสั่งซื้อ</span> — เปิดแท็บ “Terms” แล้วเลือกแม่แบบในแต่ละช่อง (การรับประกัน/จัดส่ง/ชำระเงิน/ขนส่ง/น้ำหนัก)</li>
+    <li><span class="stitle">ตรวจตัวอย่างข้อความรวม</span> — ระบบจะรวมเนื้อหาทุกแม่แบบ (เรียงลำดับคงที่) ให้ดูตัวอย่าง และพิมพ์ลงใบสั่งซื้ออัตโนมัติ</li>
+  </ol>
+
+  <h4>ประเภทเงื่อนไข (Term Type)</h4>
+  <div class="grid two">
+    <div class="tile"><div class="t">🛡️ การรับประกัน / Warranty</div><p>ข้อความรับประกันสินค้า/บริการ</p></div>
+    <div class="tile"><div class="t">📍 สถานที่จัดส่ง / Delivery To</div><p>สถานที่ส่งมอบสินค้า</p></div>
+    <div class="tile"><div class="t">💰 เงื่อนไขการชำระเงิน / Payment Term</div><p>งวดและกำหนดการชำระเงิน</p></div>
+    <div class="tile"><div class="t">🚚 เงื่อนไขการขนส่ง / Shipment</div><p>ข้อตกลงการขนส่ง</p></div>
+  </div>
+  <p class="footnote">นอกจากนี้ยังมีประเภท <strong>น้ำหนัก / Weight</strong> สำหรับระบุน้ำหนักสินค้า</p>
+
+  <div class="callout tip">
+    <strong>เติมราคาอัตโนมัติ:</strong> เมื่อเลือกทั้งสินค้าและผู้ขายในบรรทัดใบสั่งซื้อ ระบบจะดึงราคาจาก
+    ข้อมูลผู้ขาย (Vendor Pricelist) ของสินค้านั้นมาใส่ให้ โดยแปลงหน่วยและสกุลเงินตามใบสั่งซื้อ
+    — ยังสามารถแก้ราคาเองได้
+  </div>
+  <div class="callout note">
+    ชื่อแม่แบบ + ประเภทเงื่อนไข ต้องไม่ซ้ำกัน (ระบบบังคับ unique)
+  </div>
+
+  <h4>สิทธิ์</h4>
+  <ul>
+    <li>ผู้ใช้ทั่วไป (<code>base.group_user</code>) — อ่าน/สร้าง/แก้ไขแม่แบบได้ แต่ลบไม่ได้</li>
+    <li><span class="badge b-gray">Purchase Manager</span> — จัดการแม่แบบได้ครบรวมทั้งลบ</li>
+  </ul>
+
+  <hr>
+
+  <h3 class="mod" id="pur-6"><span class="mtag">od19_purchase_wizards</span> วิซาร์ดช่วยงานจัดซื้อ</h3>
+  <p>
+    โมดูลนี้เพิ่ม <strong>วิซาร์ดช่วยงาน</strong>ที่ใช้บ่อยในหน้าจอใบสั่งซื้อและใบขอซื้อ ได้แก่
+    การให้ส่วนลดพิเศษ (Trade Discount) การสร้างใบแจ้งหนี้ผู้ขายจากใบสั่งซื้อ และการส่งต่อราคา/ภาษีจากใบขอซื้อไปยังใบสั่งซื้อ
+  </p>
+
+  <h4>เมนูที่เกี่ยวข้อง</h4>
+  <ul>
+    <li><span class="path">จัดซื้อ › Orders › Purchase Orders</span> — ปุ่ม “Trade Discount” และ “Create Bill” ที่หัวเอกสาร</li>
+    <li><span class="path">จัดซื้อ › Purchase Requests</span> — ฟิลด์ราคา/ส่วนลด/ภาษีในรายการใบขอซื้อ</li>
+  </ul>
+
+  <h4>1) วิซาร์ดส่วนลดพิเศษ (Trade Discount)</h4>
+  <ol class="steps">
+    <li><span class="stitle">กดปุ่ม “Trade Discount”</span> — เปิดได้เฉพาะใบสั่งซื้อสถานะ <span class="badge b-gray">ร่าง (Draft)</span></li>
+    <li><span class="stitle">เลือกประเภทส่วนลด</span> — <em>Percent (เปอร์เซ็นต์)</em> หรือ <em>Fixed Amount (จำนวนเงิน)</em> แล้วกรอกมูลค่า</li>
+    <li><span class="stitle">กด “Apply Discount”</span> — ระบบปรับส่วนลดให้ทุกรายการสินค้า (แบบจำนวนเงินจะเฉลี่ยตามสัดส่วนยอดแต่ละบรรทัด)</li>
+  </ol>
+  <div class="callout warn">
+    ส่วนลดแบบเปอร์เซ็นต์ต้องอยู่ระหว่าง 0–100 ส่วนแบบจำนวนเงินต้องมากกว่าศูนย์ และใบสั่งซื้อต้องอยู่ในสถานะร่างเท่านั้น
+  </div>
+
+  <h4>2) วิซาร์ดสร้างใบแจ้งหนี้ผู้ขาย (Create Vendor Bill)</h4>
+  <ol class="steps">
+    <li><span class="stitle">กดปุ่ม “Create Bill”</span> — ปรากฏเมื่อใบสั่งซื้อสถานะ ยืนยันแล้ว/เสร็จสิ้น (เห็นเฉพาะกลุ่มงานบัญชี-ใบแจ้งหนี้)</li>
+    <li><span class="stitle">ระบุวันที่ใบแจ้งหนี้และเลขที่อ้างอิง</span> — กรอก <span class="pill">Bill Date</span> และ <span class="pill">Bill Reference</span></li>
+    <li><span class="stitle">กด “Create Bill”</span> — ระบบสร้างใบแจ้งหนี้ผู้ขาย (Vendor Bill) จากใบสั่งซื้อ เปิดให้ตรวจสอบต่อทันที โดยข้ามรายการที่วางบิลครบแล้ว (กันวางบิลซ้ำ)</li>
+  </ol>
+
+  <h4>3) การส่งต่อข้อมูลจากใบขอซื้อไปยังใบสั่งซื้อ</h4>
+  <ul>
+    <li>ฟิลด์ <span class="pill">Vendor Reference</span> และ <span class="pill">Your Reference</span> ในใบขอซื้อ จะถูกส่งต่อไปยังใบสั่งซื้อที่สร้างจากใบขอซื้อ</li>
+    <li>ราคาต่อหน่วย (<span class="pill">Unit Price</span>), ส่วนลด (<span class="pill">Discount %</span>) และภาษี (<span class="pill">Taxes</span>)
+        ที่กรอกในรายการใบขอซื้อ จะถูกนำไปใส่ในบรรทัดใบสั่งซื้อให้อัตโนมัติ</li>
+  </ul>
+
+  <h4>สิทธิ์</h4>
+  <ul>
+    <li>วิซาร์ดส่วนลด — ผู้ใช้จัดซื้อและหัวหน้าจัดซื้อ</li>
+    <li>วิซาร์ดสร้างใบแจ้งหนี้ — ผู้ใช้จัดซื้อ และกลุ่มงานบัญชี-ใบแจ้งหนี้ (<code>account.group_account_invoice</code>)</li>
+  </ul>
+
+  <hr>
+
+  <h3 class="mod" id="pur-7"><span class="mtag">od19_purchase_jasper</span> การพิมพ์ด้วย Jasper (J-Report OD15)</h3>
+  <p>
+    โมดูลนี้ให้ <strong>แบบพิมพ์ JasperReports</strong> สำหรับโดเมนจัดซื้อ โดยพอร์ตมาจากระบบเดิม
+    ประกอบด้วยแบบฟอร์มเอกสาร (ใบสั่งซื้อ, ใบขอราคา, ใบสั่งซื้ออ้างอิงใบขอซื้อ) และชุดรายงานสรุปการจัดซื้อตามช่วงเวลา
+    ทั้งหมดปรากฏภายใต้ป้าย <strong>(J-Report OD15)</strong>
+  </p>
+
+  <h4>เมนูที่เกี่ยวข้อง</h4>
+  <ul>
+    <li><strong>แบบฟอร์มเอกสาร</strong> — เปิดจากเอกสาร <span class="path">เอกสาร › Print › (J-Report OD15)</span></li>
+    <li><strong>รายงานสรุป</strong> — <span class="path">จัดซื้อ › Reporting › Purchases Report (J-Report OD15)</span></li>
+  </ul>
+
+  <h4>แบบฟอร์มเอกสาร (Document Forms)</h4>
+  <table>
+    <thead><tr><th>รหัส</th><th>แบบฟอร์ม</th><th>เปิดจากเอกสาร</th><th>เงื่อนไขการพิมพ์</th></tr></thead>
+    <tbody>
+      <tr><td>F-P-003</td><td>Purchase Order Form (ใบสั่งซื้อ)</td><td>ใบสั่งซื้อ</td><td>สถานะ ยืนยันแล้ว/เสร็จสิ้น</td></tr>
+      <tr><td>F-P-002</td><td>Requests for Quotation (ใบขอราคา)</td><td>ใบสั่งซื้อ</td><td>สถานะ ยืนยันแล้ว/เสร็จสิ้น</td></tr>
+      <tr><td>F-P-001</td><td>Purchase Request Form (ใบสั่งซื้ออ้างอิงใบขอซื้อ)</td><td>ใบขอซื้อ</td><td>สถานะ อนุมัติแล้ว/เสร็จสิ้น</td></tr>
+    </tbody>
+  </table>
+
+  <h4>ชุดรายงานตามช่วงเวลา (Period Reports)</h4>
+  <table>
+    <thead><tr><th>รหัส</th><th>รายงาน</th></tr></thead>
+    <tbody>
+      <tr><td>r_p_001</td><td>Purchase Order By Period (ใบสั่งซื้อตามช่วงเวลา)</td></tr>
+      <tr><td>r_p_002</td><td>Received Order By Period (ใบสั่งซื้อที่รับแล้วตามช่วงเวลา)</td></tr>
+      <tr><td>r_p_003</td><td>Purchase Order Outstanding By Period (รายการใบสั่งซื้อค้างรับ)</td></tr>
+    </tbody>
+  </table>
+
+  <h4>ขั้นตอนพิมพ์รายงาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดแบบฟอร์มพิมพ์</span> — จากเอกสาร กด Print แล้วเลือก (J-Report OD15) หรือเปิดจากเมนู Reporting สำหรับรายงานสรุป</li>
+    <li><span class="stitle">กำหนดพารามิเตอร์</span> — เลือกภาษา ชนิดวันที่ (AD/BE) และรูปแบบวันที่ รวมถึงช่วงวันที่และผู้ขาย (สำหรับรายงานสรุป)</li>
+    <li><span class="stitle">แสดง/พิมพ์รายงาน</span> — ระบบสร้างไฟล์ด้วย JasperReports และเปิดแสดงผล หรือส่งอีเมลให้คู่ค้าได้</li>
+  </ol>
+
+  <h4>พารามิเตอร์ที่ใช้บ่อย</h4>
+  <table>
+    <thead><tr><th>พารามิเตอร์</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">Language</span></td><td>ภาษาของเอกสาร: Thai / English</td></tr>
+      <tr><td><span class="pill">Date Type</span></td><td>ชนิดปี: <em>AD</em> (ค.ศ.) หรือ <em>BE</em> (พ.ศ.)</td></tr>
+      <tr><td><span class="pill">Date Format</span></td><td>รูปแบบการแสดงวันที่ (เช่น dd-MM-yyyy)</td></tr>
+      <tr><td><span class="pill">Show Employee Name</span></td><td>พิมพ์ชื่อผู้จัดทำ/ผู้ตรวจสอบ/ผู้อนุมัติในช่องลงนาม</td></tr>
+      <tr><td><span class="pill">Show Signature</span></td><td>พิมพ์รูปลายเซ็นในช่องลงนาม</td></tr>
+      <tr><td><span class="pill">Start Date / To Date</span></td><td>ช่วงวันที่ของรายงาน (เฉพาะรายงานตามช่วงเวลา)</td></tr>
+      <tr><td><span class="pill">Vendor</span></td><td>กรองตามผู้ขาย (ปุ่ม Clear เพื่อล้างตัวกรอง)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout note">
+    แบบฟอร์มเอกสารจะพิมพ์ได้เฉพาะเอกสารที่อยู่ในสถานะที่กำหนด มิฉะนั้นระบบจะแจ้งว่า
+    “Only Approved Purchase Order / Request is allowed.”
+  </div>
+  <div class="callout tip">
+    รายงานตามช่วงเวลาเปิดใช้ได้จาก <span class="path">จัดซื้อ › Reporting › Purchases Report (J-Report OD15)</span>
+    โดยค่าเริ่มต้นช่วงวันที่คือตั้งแต่วันแรกของเดือนปัจจุบันถึงวันนี้ พร้อมดึงผู้ขายทั้งหมดมาไว้ให้ล่วงหน้า
+  </div>
+
+</section>

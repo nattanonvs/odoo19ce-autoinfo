@@ -1,0 +1,285 @@
+<!--Part
+id=website
+title=เว็บไซต์และบุคลากร
+icon=🌐
+sub=เว็บไซต์องค์กรสาธารณะ · เมนูนำทางและแบรนด์ · ระบบรับสมัครงาน · พอร์ทัลพนักงาน · ศูนย์อนุมัติ · SEO และ PDPA
+-->
+
+<section class="part" id="website">
+
+  <div class="part-head">
+    <h2 class="part-title"><span class="part-icon">🌐</span> ส่วนที่ 14 · เว็บไซต์และบุคลากร</h2>
+    <p class="part-sub">
+      โมดูล <code>od19_website</code> ประกอบด้วยสองด้านที่ทำงานร่วมกัน — <strong>เว็บไซต์องค์กรสาธารณะ</strong>
+      (แนะนำบริการ สินค้า ผลงาน ข่าว และช่องทางติดต่อ) และ <strong>พอร์ทัลพนักงาน</strong>
+      (พอร์ทัลส่วนตัว + ศูนย์อนุมัติ) ส่วนนี้ยังครอบคลุมระบบรับสมัครงานที่ผูกกับเว็บไซต์
+      พร้อมการตั้งค่าแบรนด์ SEO และการปฏิบัติตาม PDPA ที่ติดมากับโมดูล
+    </p>
+  </div>
+
+  <nav class="toc mini">
+    <h3>สารบัญส่วนนี้</h3>
+    <ol>
+      <li><a href="#web-1">ภาพรวมโมดูลและหน้าเว็บสาธารณะ</a></li>
+      <li><a href="#web-2">เมนูนำทาง แบรนด์ ส่วนหัว–ท้าย และการค้นหา</a></li>
+      <li><a href="#web-3">ระบบรับสมัครงาน (Careers &amp; Recruitment)</a></li>
+      <li><a href="#web-4">พอร์ทัลพนักงาน (/employee-portal)</a></li>
+      <li><a href="#web-5">ศูนย์อนุมัติพนักงาน (/my/approvals)</a></li>
+      <li><a href="#web-6">SEO, Analytics และ PDPA</a></li>
+      <li><a href="#web-7">การตั้งค่าเว็บไซต์และข้อมูลแบรนด์</a></li>
+    </ol>
+  </nav>
+
+  <h3 class="mod" id="web-1"><span class="mtag">od19_website</span> ภาพรวมโมดูลและหน้าเว็บสาธารณะ</h3>
+  <p>
+    โมดูล <code>od19_website</code> (Auto-Info Corporate Website &amp; Employee Portal) เป็นส่วนขยาย
+    บนแอป <strong>Website</strong> ของ Odoo โดยพึ่งพาโมดูลมาตรฐาน <code>website</code>, <code>website_blog</code>,
+    <code>website_crm</code>, <code>website_hr_recruitment</code>, <code>portal</code>, <code>mail</code>,
+    <code>web_tour</code> และพึ่งพาโมดูลในระบบเองได้แก่ <code>od19_announcement</code>,
+    <code>od19_meeting_room_booking</code>, <code>od19_knowledge_enhanced</code>, <code>od19_approval_center</code>
+  </p>
+  <p>หน้าเว็บที่โมดูลสร้างขึ้น (ทุกหน้าเป็นเว็บไซต์จริงที่แก้ไขได้ด้วยเครื่องมือแก้ไขเว็บของ Odoo):</p>
+  <table>
+    <thead><tr><th>หน้า</th><th>URL</th><th>ใช้ทำอะไร</th><th>ผู้เข้าถึง</th></tr></thead>
+    <tbody>
+      <tr><td>หน้าแรก</td><td><code>/</code></td><td>Hero แบรนด์ บริการ สินค้าเด่น และข่าว</td><td>สาธารณะ</td></tr>
+      <tr><td>Industrial Automation</td><td><code>/industrial-automation</code></td><td>รายละเอียดบริการระบบอัตโนมัติอุตสาหกรรม (PLC/SCADA)</td><td>สาธารณะ</td></tr>
+      <tr><td>Building Automation</td><td><code>/building-automation</code></td><td>บริการ BMS/HVAC และอาคารอัจฉริยะ</td><td>สาธารณะ</td></tr>
+      <tr><td>Terminal Automation</td><td><code>/terminal-automation</code></td><td>บริการวัดระดับถัง ควบคุมการโหลด และ TMS</td><td>สาธารณะ</td></tr>
+      <tr><td>Products</td><td><code>/products</code></td><td>แคตตาล็อกสินค้า พร้อมตัวกรองตามกลุ่มงาน</td><td>สาธารณะ</td></tr>
+      <tr><td>Quality &amp; Certifications</td><td><code>/quality-certifications</code></td><td>ISO 9001, ISO 14001, GMP, CSV และมาตรฐานอื่น</td><td>สาธารณะ</td></tr>
+      <tr><td>References</td><td><code>/portfolio</code></td><td>ผลงานโครงการตามกลุ่มอุตสาหกรรม อาคาร และคลังน้ำมัน</td><td>สาธารณะ</td></tr>
+      <tr><td>About Us</td><td><code>/about-us</code></td><td>ข้อมูลบริษัทและทีมงาน</td><td>สาธารณะ</td></tr>
+      <tr><td>Careers</td><td><code>/careers</code></td><td>ประกาศตำแหน่งงานว่างและแบบฟอร์มสมัคร</td><td>สาธารณะ</td></tr>
+      <tr><td>News &amp; Events</td><td><code>/blog</code></td><td>ข่าว กิจกรรม และบทความทางเทคนิค</td><td>สาธารณะ</td></tr>
+      <tr><td>Contact</td><td><code>/contactus</code></td><td>แบบฟอร์มขอใบเสนอราคา (RFQ) และช่องทางติดต่อ</td><td>สาธารณะ</td></tr>
+      <tr><td>Privacy Policy</td><td><code>/privacy</code></td><td>ประกาศความเป็นส่วนตัว (PDPA)</td><td>สาธารณะ</td></tr>
+      <tr><td>Terms of Use</td><td><code>/terms-of-use</code></td><td>เงื่อนไขการใช้งานเว็บไซต์</td><td>สาธารณะ</td></tr>
+      <tr><td>Cookie Policy</td><td><code>/cookie-policy</code></td><td>นโยบายคุกกี้ (สร้างโดยแกน Odoo เมื่อเปิดแถบคุกกี้)</td><td>สาธารณะ</td></tr>
+      <tr><td>Employee Portal</td><td><code>/employee-portal</code></td><td>พอร์ทัลพนักงาน (หน้าแรกหลังล็อกอิน)</td><td>เฉพาะผู้ใช้ที่ล็อกอิน</td></tr>
+      <tr><td>Approval Center</td><td><code>/my/approvals</code></td><td>ศูนย์อนุมัติ — รอฉันอนุมัติ + คำขอของฉัน</td><td>เฉพาะผู้ใช้ที่ล็อกอิน</td></tr>
+    </tbody>
+  </table>
+  <div class="callout note">
+    หน้าเว็บสาธารณะทั้งหมดสร้างเป็น <code>website.page</code> ที่ผูกกับ <code>ir.ui.view</code> จึงมีเมตา
+    (<span class="pill">website_meta_title</span> / <span class="pill">website_meta_description</span> /
+    <span class="pill">website_meta_keywords</span>) ของตัวเอง และแก้เนื้อหาได้จากหน้าบ้านผ่านปุ่ม <strong>Edit</strong>
+  </div>
+
+  <h3 class="mod" id="web-2"><span class="mtag">od19_website</span> เมนูนำทาง แบรนด์ ส่วนหัว–ท้าย และการค้นหา</h3>
+  <p>
+    โมดูลจัดเรียงเมนูด้านบนของเว็บไซต์ใหม่ให้เหลือเฉพาะเมนูของ Auto-Info โดยเมนูของโมดูลถูกประกาศไว้ใต้
+    <code>website.main_menu</code> แล้วถูกจัดวางบนเมนูบนสุดจริงของเว็บไซต์ผ่านเมธอด
+    <code>website.menu.od19_configure_menus()</code> ซึ่งทำงานทั้งตอนติดตั้ง (post-init hook) และตอนอัปเดตโมดูล
+    (ผ่านแท็ก <code>&lt;function&gt;</code>)
+  </p>
+  <table>
+    <thead><tr><th>เมนู</th><th>URL</th><th>ลำดับ</th></tr></thead>
+    <tbody>
+      <tr><td>Home</td><td><span class="path">/</span></td><td>10</td></tr>
+      <tr><td>Services › Industrial / Building / Terminal Automation</td><td>3 หน้าย่อย</td><td>20</td></tr>
+      <tr><td>Products</td><td><span class="path">/products</span></td><td>30</td></tr>
+      <tr><td>Quality</td><td><span class="path">/quality-certifications</span></td><td>35</td></tr>
+      <tr><td>About</td><td><span class="path">/about-us</span></td><td>40</td></tr>
+      <tr><td>References</td><td><span class="path">/portfolio</span></td><td>42</td></tr>
+      <tr><td>Careers</td><td><span class="path">/careers</span></td><td>45</td></tr>
+      <tr><td>News &amp; Events</td><td><span class="path">/blog</span></td><td>50</td></tr>
+      <tr><td>Contact</td><td><span class="path">/contactus</span></td><td>60</td></tr>
+    </tbody>
+  </table>
+  <p>ขณะติดตั้ง/อัปเดต ระบบจะลบเมนูซ้ำซ้อนของ Odoo อัตโนมัติ โดยจับคู่จาก <strong>URL</strong> (ไม่ใช่ชื่อ เพราะชื่อแปลได้):</p>
+  <ul>
+    <li>เมนูมาตรฐานที่ซ้ำ: <code>/blog</code>, <code>/jobs</code>, <code>/our-job-offers</code>, <code>/contactus</code>, <code>/shop</code>, <code>/events</code>, <code>/forum</code></li>
+    <li>เมนู <strong>Home</strong> ที่ติดมากับ Odoo (ผ่าน XML ID <code>website.menu_home</code>) เพื่อไม่ให้มี Home สองรายการ</li>
+    <li>เมนู <strong>Employee Portal</strong> แบบเดิมที่เคยอยู่บนแถบสาธารณะ (ย้ายไปอยู่ท้ายเว็บไซต์แล้ว)</li>
+  </ul>
+  <div class="grid two">
+    <div class="tile"><div class="t">🔝 ส่วนหัว (Header)</div><p>โลโก้ Auto-Info คงที่ · เบอร์โทร +66 2 934 5410 · ช่องค้นหาแบบอินไลน์ (แสดง 8 ผลลัพธ์) · ตัวสลับภาษา EN | ไทย</p></div>
+    <div class="tile"><div class="t">🔻 ส่วนท้าย (Footer)</div><p>แบรนด์ + โซเชียล · ลิงก์บริการ/บริษัท · ที่อยู่สำนักงานใหญ่ · Privacy / Terms / Cookie · ลิงก์พนักงาน Employee Portal</p></div>
+    <div class="tile"><div class="t">🔍 ผลการค้นหา</div><p>หน้า <code>/website/search</code> ปรับเป็นแบรนด์ พร้อมกล่องค้นหาด้านบนและตัวนับผลลัพธ์</p></div>
+    <div class="tile"><div class="t">🚫 หน้า 404</div><p>หน้า “ไม่พบหน้าที่ค้นหา” แบบแบรนด์ พร้อมปุ่มกลับหน้าแรก/ติดต่อ และลิงก์หน้ายอดนิยม</p></div>
+  </div>
+  <p>
+    นอกเหนือจากนี้ ส่วนหัวยังฝัง <strong>favicon</strong> และค่า <code>theme-color</code> สี <code>#9E2424</code>
+    ให้สอดคล้องกับแบรนด์อีกด้วย
+  </p>
+
+  <h3 class="mod" id="web-3"><span class="mtag">od19_website</span> ระบบรับสมัครงาน (Careers &amp; Recruitment)</h3>
+  <p>
+    โมดูลเพิ่มแบบจำลองงานรับสมัคร <code>od19.job.opening</code> (ตำแหน่งงานว่าง) และ <code>od19.job.application</code>
+    (ใบสมัครผู้สมัคร) พร้อมหน้าเว็บสาธารณะสำหรับประกาศตำแหน่งและยื่นใบสมัคร
+  </p>
+  <h4>เมนูหลังบ้าน</h4>
+  <p>อยู่ในแอป <strong>Website</strong> (ไม่แยกแอปใหม่):</p>
+  <ul>
+    <li><span class="path">Website › Configuration › Recruitment › Job Openings</span> — จัดการตำแหน่งงาน</li>
+    <li><span class="path">Website › Configuration › Recruitment › Applications</span> — ดูใบสมัครทั้งหมด</li>
+    <li><span class="path">Website › Configuration › Recruitment › Configuration › Published Jobs</span> — เฉพาะตำแหน่งที่ยังเปิดรับ (กลุ่มผู้ดูแลระบบ)</li>
+  </ul>
+  <h4>หน้าสาธารณะ</h4>
+  <table>
+    <thead><tr><th>เส้นทาง</th><th>หน้าที่</th></tr></thead>
+    <tbody>
+      <tr><td><code>/careers</code> , <code>/careers/page/&lt;n&gt;</code></td><td>รายการตำแหน่งงานที่เปิดรับ + การ์ดแยกตามกลุ่มงาน</td></tr>
+      <tr><td><code>/careers/&lt;job_id&gt;</code></td><td>รายละเอียดตำแหน่ง + ตำแหน่งงานที่เกี่ยวข้อง</td></tr>
+      <tr><td><code>/careers/&lt;job_id&gt;/apply</code></td><td>แบบฟอร์มสมัครสำหรับตำแหน่งที่ระบุ</td></tr>
+      <tr><td><code>/careers/apply</code></td><td>ใบสมัครแบบทั่วไป/สมัครเอง (ยังไม่ระบุตำแหน่ง)</td></tr>
+      <tr><td><code>/careers/thank-you</code></td><td>หน้ายืนยันหลังส่งใบสมัครสำเร็จ</td></tr>
+    </tbody>
+  </table>
+  <p>ค่าที่ผู้สมัครกรอกจะถูกตรวจสอบก่อนบันทึกเสมอ:</p>
+  <ul>
+    <li>ต้องมีชื่อ-นามสกุล, อีเมลที่ถูกต้อง, เบอร์โทร และยอมรับประกาศความเป็นส่วนตัว (PDPA)</li>
+    <li>แนบ <strong>เรซูเม/ซีวี</strong> 1 ไฟล์ (ไม่เกิน 10 MB) และไฟล์สนับสนุนได้สูงสุด 5 ไฟล์ (ไฟล์ละไม่เกิน 10 MB)</li>
+    <li>นามสกุลไฟล์ที่อนุญาต: pdf, doc(x), xls(x), ppt(x), jpg/jpeg/png/gif, zip, rar, txt</li>
+  </ul>
+  <p>
+    ใบสมัครจะได้ <strong>เลขที่อ้างอิง</strong> อัตโนมัติจากลำดับ <code>od19.job.application</code>
+    รูปแบบ <code>APP/ปี/เลขรัน 4 หลัก</code> และระบบจะส่งอีเมลแจ้งทีมสรรหาที่ <code>hr@auto-info.co.th</code>
+    พร้อมอีเมลตอบรับผู้สมัครอัตโนมัติ (แจ้งว่าจะติดต่อกลับภายใน 5 วันทำการ)
+  </p>
+  <h4>ขั้นตอนการลงประกาศและติดตามใบสมัคร</h4>
+  <ol class="steps">
+    <li><span class="stitle">สร้างตำแหน่งงาน</span> — ที่ <span class="path">Website › Configuration › Recruitment › Job Openings</span> กด <strong>New</strong> กรอกชื่อตำแหน่ง กลุ่มงาน ประเภทการจ้าง ระดับประสบการณ์ สถานที่ และช่วงเงินเดือน</li>
+    <li><span class="stitle">กรอกเนื้อหา</span> — ในแท็บย่อย กรอกรายละเอียดงาน, หน้าที่ความรับผิดชอบ, คุณสมบัติ และสวัสดิการ</li>
+    <li><span class="stitle">เผยแพร่</span> — เปิด <span class="pill">Published on Website</span> และเว้นวันปิดรับ (ช่อง <span class="pill">Closing Date</span>) ให้ว่างหากไม่จำกัดเวลา ตำแหน่งจะปรากฏบน <span class="path">/careers</span> ทันที</li>
+    <li><span class="stitle">รับใบสมัคร</span> — ที่ <span class="path">Recruitment › Applications</span> ใบสมัครใหม่จะอยู่ในสถานะ <span class="badge b-gray">New</span></li>
+    <li><span class="stitle">เดินสถานะ</span> — กดปุ่ม Shortlist → Schedule Interview → Send Offer → Mark as Hired (หรือ Not Selected) จนครบกระบวนการสรรหา</li>
+  </ol>
+  <div class="callout tip">
+    จำนวนใบสมัครและตำแหน่งที่ยังเปิดรับเป็นฟิลด์คำนวณ — ปุ่ม “Applications” บนฟอร์มตำแหน่งงานจะเปิดดูใบสมัครเฉพาะตำแหน่งนั้นให้ทันที
+  </div>
+  <p class="footnote">
+    โมดูลมาพร้อมข้อมูลตัวอย่างตำแหน่งงาน (ไฟล์ <code>data/job_opening_data.xml</code>) เช่น Senior Industrial Automation Engineer,
+    SCADA / HMI Software Engineer, Building Automation Engineer (GMP/CSV), Terminal Automation Service Engineer และตำแหน่งอื่น ๆ
+    เพื่อให้หน้า Careers มีเนื้อหาเริ่มต้น
+  </p>
+
+  <h3 class="mod" id="web-4"><span class="mtag">od19_website</span> พอร์ทัลพนักงาน (/employee-portal)</h3>
+  <p>
+    พอร์ทัลพนักงานคือหน้าแรกแบบส่วนตัวสำหรับพนักงานที่ล็อกอิน (ต้องมีสิทธิ์ผู้ใช้ภายใน) เปิดที่
+    <span class="path">/employee-portal</span> โดยรวบรวมงานประจำวันไว้ในหน้าเดียว
+  </p>
+  <h4>ส่วนประกอบในหน้า</h4>
+  <div class="grid two">
+    <div class="tile"><div class="t">👋 Hero ทักทาย</div><p>คำทักทายตามช่วงเวลา (เช้า/บ่าย/เย็น) · รูปหรือชื่อย่อ · ตำแหน่งและแผนก · วันที่ปัจจุบัน · ปุ่มกลับหน้าหลังบ้าน</p></div>
+    <div class="tile"><div class="t">📊 My Day Strip</div><p>4 การ์ด: ลงเวลาวันนี้ · รออนุมัติ · นัดถัดไป · วันลาคงเหลือ (โหลดแบบ lazy)</p></div>
+    <div class="tile"><div class="t">🗓️ ตารางของฉัน</div><p>รวมนัดจองห้องประชุมและวันลาที่อนุมัติแล้วในสัปดาห์ข้างหน้า พร้อมทางลัด “ใช้บ่อย”</p></div>
+    <div class="tile"><div class="t">📣 ประกาศล่าสุด</div><p>ดึงประกาศที่เผยแพร่และยังไม่หมดอายุสูงสุด 5 รายการ พร้อมป้ายระดับความสำคัญ</p></div>
+    <div class="tile"><div class="t">🏢 จองห้องประชุม</div><p>การ์ดห้องพร้อมสถานะสด (ว่าง / ถูกจองแล้ว / กำลังใช้งาน) และป๊อปอัปดูตารางการใช้ห้อง</p></div>
+    <div class="tile"><div class="t">🚀 เมนูด่วน</div><p>ปุ่มทางลัดจัดกลุ่มตามงาน/HR/ความรู้ พร้อม Quick Actions แจ้งปัญหา ขอยืมอุปกรณ์ จองห้อง</p></div>
+  </div>
+  <h4>การจองห้องประชุมจากพอร์ทัล</h4>
+  <ol class="steps">
+    <li><span class="stitle">เลือกห้อง</span> — คลิกการ์ดห้องเพื่อดูสถานะ หรือเลือกจากแบบฟอร์มด้านล่าง</li>
+    <li><span class="stitle">ดูตารางการใช้ห้อง</span> — หน้าต่างแสดงตารางย้อนหลังและล่วงหน้า 6 เดือน (ดึงจาก <code>/employee-portal/room-schedule</code>)</li>
+    <li><span class="stitle">กรอกหัวข้อ วันที่ เวลา และจำนวนผู้เข้าร่วม</span> — แล้วกด <strong>จองทันที</strong></li>
+    <li><span class="stitle">ยืนยัน</span> — การจองถูกสร้างทันที (ไม่มีขั้นอนุมัติ) และแสดงเลขที่การจอง พร้อมรายการ “การจองของฉัน”</li>
+  </ol>
+  <div class="callout warn">
+    การจองที่ผิดกฎ (เช่น เวลาทับซ้อน หรือห้องถูกใช้อยู่) ระบบจะแจ้งข้อผิดพลาดกลับมาที่หน้าเดิมทันทีโดยไม่สร้างรายการ
+  </div>
+  <h4>การนำทางเข้า–ออกพอร์ทัล</h4>
+  <ul>
+    <li>เมื่อพนักงาน (ที่มีข้อมูลพนักงานและไม่ใช่ผู้ดูแลระบบ) ล็อกอิน จะถูกพาไปที่ <code>/employee-portal</code> โดยอัตโนมัติ เว้นแต่ตั้งใจเปิดหน้าอื่น</li>
+    <li>หลังบ้านมีเมนูลัด <strong>เมนูลัดพนักงาน</strong> (ไอคอนสายฟ้า) รวมทางลัดพอร์ทัล/จองห้อง/ประกาศ/คู่มือ</li>
+    <li>กด <span class="kbd">Alt</span> + <span class="kbd">P</span> เพื่อเปิดพอร์ทัลพนักงานได้จากทุกหน้าในหลังบ้าน</li>
+  </ul>
+  <p class="footnote">
+    หน้าพอร์ทัลยิงข้อมูลแบบ lazy ผ่านปลายทาง JSON เพื่อให้หน้าโหลดเร็ว:
+    <code>/employee-portal/me-summary</code> (สรุป “วันของฉัน”) และ <code>/employee-portal/room-schedule</code> (ตารางห้อง)
+    โดยมีแคชสั้น 60 วินาทีต่อผู้ใช้
+  </p>
+
+  <h3 class="mod" id="web-5"><span class="mtag">od19_website</span> ศูนย์อนุมัติพนักงาน (/my/approvals)</h3>
+  <p>
+    หน้าศูนย์อนุมัติเป็นแบบ <strong>ดูเท่านั้น (view-only)</strong> สำหรับให้พนักงานเห็นภาพรวมการอนุมัติของตัวเอง
+    โดยรวบรวมรายการจากทุก “แหล่งอนุมัติ” ที่เปิดใช้งาน (โมดูล <code>od19_approval_center</code>) เข้าหน้าเดียว
+    ส่วนการกดอนุมัติจริงทำในหน้าจอหลังบ้านของเอกสารนั้น ๆ
+  </p>
+  <table>
+    <thead><tr><th>แท็บ</th><th>กลุ่มย่อย</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td rowspan="4">รอฉันอนุมัติ (Approver)</td><td><span class="badge b-red">Pending</span> คงค้าง</td><td>รายการที่รอฉันอนุมัติ</td></tr>
+      <tr><td><span class="badge b-blue">Incoming</span> กำลังมาถึง</td><td>รายการที่จะมาถึงคิวอนุมัติ</td></tr>
+      <tr><td><span class="badge b-green">Done</span> สำเร็จ</td><td>รายการที่อนุมัติแล้ว</td></tr>
+      <tr><td><span class="badge b-gray">Rejected</span> ปฏิเสธ</td><td>รายการที่ถูกปฏิเสธ</td></tr>
+      <tr><td rowspan="4">คำขอของฉัน (Requester)</td><td>Pending</td><td>คำขอของฉันที่รออนุมัติ</td></tr>
+      <tr><td>In progress</td><td>คำขอของฉันที่กำลังดำเนินการ</td></tr>
+      <tr><td>Done</td><td>คำขอของฉันที่อนุมัติครบแล้ว</td></tr>
+      <tr><td>Rejected</td><td>คำขอของฉันที่ถูกปฏิเสธ</td></tr>
+    </tbody>
+  </table>
+  <p>ด้านบนหน้ามีการ์ดสรุป 3 ตัวเลข (แสดงเมื่อมีรายการคงค้าง):</p>
+  <ul>
+    <li><strong>รอฉันอนุมัติ (คงค้าง)</strong> — จำนวนรายการที่รอ</li>
+    <li><strong>อายุมากที่สุด (วัน)</strong> — อายุของรายการที่นานที่สุด</li>
+    <li><strong>เกินกำหนด (Over SLA)</strong> — จำนวนรายการที่เกินเวลาที่กำหนด (แสดงเป็นสีแดง)</li>
+  </ul>
+  <div class="callout note">
+    การ์ด “รออนุมัติ” บนพอร์ทัลพนักงานดึงตัวเลขผ่านปลายทาง <code>/my/approvals/summary</code>
+    (JSON + แคช 60 วินาที) จึงไม่ต้องสแกนทุกแหล่งอนุมัติใหม่ทุกครั้งที่เปิดหน้า
+  </div>
+
+  <h3 class="mod" id="web-6"><span class="mtag">od19_website</span> SEO, Analytics และ PDPA</h3>
+  <p>โมดูลเพิ่มงาน SEO ที่เกินกว่าที่ Odoo ทำให้แล้ว พร้อมเปิดใช้คุกกี้และการปฏิบัติตาม PDPA:</p>
+  <div class="grid two">
+    <div class="tile"><div class="t">🧩 Structured Data</div><p>ฝัง <code>application/ld+json</code> แบบ schema.org ชนิด Organization + WebSite ทุกหน้า (พร้อมโลโก้ ที่อยู่ เบอร์โทร โซเชียล และช่องค้นหา)</p></div>
+    <div class="tile"><div class="t">🏷️ เมตาเสริม</div><p>เพิ่ม <code>og:locale</code> และคำอธิบายสำรอง (fallback description) สำหรับหน้าที่ไม่มีคำอธิบายของตัวเอง</p></div>
+    <div class="tile"><div class="t">🤖 robots.txt</div><p>ตั้งค่าเริ่มต้นให้กันพื้นที่ส่วนตัวออกจากดัชนี: <code>/web/</code>, <code>/my/</code>, <code>/employee-portal</code></p></div>
+    <div class="tile"><div class="t">📈 Google Analytics</div><p>ค่าจากช่อง Google Analytics ID ของบริษัทถูกส่งต่อไปยังเว็บไซต์ โดยโหลดสคริปต์แบบเคารพการยินยอมคุกกี้</p></div>
+  </div>
+  <p>ด้าน PDPA:</p>
+  <ul>
+    <li>เปิดใช้ <strong>แถบความยินยอมคุกกี้</strong> (cookies bar) ทำให้การยินยอมเป็นแบบ opt-in และแกน Odoo สร้างหน้า <code>/cookie-policy</code> ให้อัตโนมัติ</li>
+    <li>หน้า <code>/privacy</code> และ <code>/terms-of-use</code> ถูกเผยแพร่และเปิดให้จัดทำดัชนี</li>
+    <li>หน้า Terms ใช้ URL <code>/terms-of-use</code> (ไม่ใช้ <code>/terms</code> เพราะ Odoo ใช้เส้นทางนั้นสำหรับเงื่อนไขใบวางบิล) ระบบจะปรับ URL เก่าให้อัตโนมัติเมื่ออัปเดต</li>
+    <li>แบบฟอร์มสมัครงานและแบบฟอร์มติดต่อมี checkbox ยอมรับประกาศความเป็นส่วนตัวก่อนส่ง</li>
+  </ul>
+  <div class="callout tip">
+    ทุกงานตั้งค่าข้างต้นเป็นแบบ <strong>idempotent</strong> (ทำซ้ำได้ไม่พัง) จึงรันใหม่อัตโนมัติทุกครั้งที่อัปเดตโมดูล และจะไม่ทับค่าที่ผู้ดูแลแก้ไขไว้เอง
+  </div>
+
+  <h3 class="mod" id="web-7"><span class="mtag">od19_website</span> การตั้งค่าเว็บไซต์และข้อมูลแบรนด์</h3>
+  <p>
+    ข้อมูลแบรนด์ของเว็บไซต์เก็บอยู่ที่ <strong>ข้อมูลบริษัท</strong> จึงแก้จากหลังบ้านได้โดยไม่ต้องแตะโค้ด
+    ไปที่ <span class="path">การตั้งค่า › บริษัท › เลือกบริษัท › แท็บ “Website”</span>
+  </p>
+  <table>
+    <thead><tr><th>กลุ่ม</th><th>ฟิลด์</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td>Branding</td><td>Website Tagline · Primary Color · Secondary Color</td><td>สโลแกนสั้น และสีหลัก/สีเน้นของแบรนด์</td></tr>
+      <tr><td>Hero Section</td><td>Hero Title · Hero Subtitle</td><td>ข้อความบนส่วน Hero ของหน้าแรก</td></tr>
+      <tr><td>Social Media</td><td>Facebook / LinkedIn / YouTube URL</td><td>ลิงก์โซเชียล ใช้ทั้งท้ายเว็บและ Structured Data</td></tr>
+      <tr><td>Certification</td><td>Certification Body · Certificate Number · Valid Until</td><td>ข้อมูลใบรับรอง ISO 9001 ที่แสดงบนหน้า Quality</td></tr>
+      <tr><td>SEO &amp; Analytics</td><td>Google Analytics ID</td><td>รหัส GA4 (G-XXXXXXXXXX) ส่งต่อไปยังเว็บไซต์</td></tr>
+    </tbody>
+  </table>
+  <h4>ฟังก์ชันตั้งค่าอัตโนมัติที่รันตอนติดตั้ง/อัปเดต</h4>
+  <table>
+    <thead><tr><th>ฟังก์ชัน</th><th>ทำงานอะไร</th></tr></thead>
+    <tbody>
+      <tr><td><code>website.od19_setup_website</code></td><td>เปลี่ยนชื่อเว็บไซต์เริ่มต้นเป็น “Auto-Info” (แทน “My Website”)</td></tr>
+      <tr><td><code>website.menu.od19_configure_menus</code></td><td>จัดวางเมนูบนสุดและลบเมนูซ้ำซ้อนของ Odoo</td></tr>
+      <tr><td><code>blog.blog.od19_setup_blog</code></td><td>ตั้งบล็อก “News &amp; Events” แปลหมวดหมู่/แท็ก และสร้างโพสต์ตัวอย่างเมื่อบล็อกยังว่าง</td></tr>
+      <tr><td><code>website.od19_setup_seo</code></td><td>ส่งค่า Google Analytics ID ไปยังเว็บไซต์ และใส่ robots.txt เริ่มต้นเมื่อยังว่าง</td></tr>
+      <tr><td><code>website.od19_setup_pdpa</code></td><td>เปิดแถบคุกกี้ และเผยแพร่/จัดทำดัชนีหน้าด้านกฎหมาย</td></tr>
+    </tbody>
+  </table>
+  <p>
+    แคตตาล็อกสินค้า หมวดคุณภาพ ผลงานโครงการ และประเภทคำขอ (RFQ) ถูกเก็บเป็นชุดข้อมูลกลางในโค้ด
+    (<code>od19_website/models/website.py</code>) เพื่อให้หน้าเว็บต่าง ๆ และแบบฟอร์มอ้างอิงข้อมูลชุดเดียวกันได้ตลอด
+  </p>
+  <div class="callout note">
+    บล็อกของเว็บไซต์เป็น “ฮับ” เดียวที่ <code>/blog</code> โดยแยกเนื้อหาด้วยแท็ก <strong>ข่าวสาร</strong>,
+    <strong>กิจกรรม</strong> และ <strong>บทความ</strong> ภายใต้หมวดหมู่ “หมวดหมู่” แทนการแยกเป็นหลายบล็อก
+  </div>
+  <hr>
+  <p class="footnote">
+    ไฟล์ที่เกี่ยวข้อง: <code>c:\odoo-dev\odoo19\custom_addons\od19_website\__manifest__.py</code>,
+    <code>controllers\main.py</code>, <code>controllers\home.py</code>, <code>models\website_menu.py</code>,
+    <code>models\website.py</code>, <code>models\job_opening.py</code>, <code>models\job_application.py</code>,
+    <code>views\employee_portal.xml</code>, <code>views\approval_center.xml</code>, <code>views\website_templates.xml</code>
+  </p>
+
+</section>

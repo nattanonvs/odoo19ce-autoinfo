@@ -1,0 +1,571 @@
+<!--Part
+id=acc-reports
+title=บัญชีและการเงิน — รายงานและภาษี
+icon=🧾
+sub=งานบัญชีเชิงลึก: e-Tax Invoice, รายงานภาษีไทย, งบการเงิน MIS, รายงานปิดงานบัญชี, เงินเข้า, หนี้สงสัยจะสูญ, ใบสำคัญจ่าย-รับ, อัตราแลกเปลี่ยน BOT, คำขอเปิดบิลกลาง และรหัสเอกสารบัญชี
+-->
+<section class="part" id="acc-reports">
+  <div class="part-head">
+    <h2 class="part-title"><span class="part-icon">🧾</span> ส่วนที่ 3 · บัญชีและการเงิน — รายงานและภาษี</h2>
+    <p class="part-sub">
+      ส่วนนี้รวบรวมโมดูลงานบัญชีเชิงลึกของ AutoInfo ตั้งแต่การออก <b>e-Tax Invoice</b> ตามมาตรฐาน ETDA,
+      รายงานภาษีไทย (ภ.พ.30/36, ภ.ง.ด.3/53/54/50/51, ภ.ธ.40, อากรแสตมป์), งบการเงิน MIS Balance Sheet,
+      รายงานปิดงานบัญชี, รายงานเงินเข้า, หนี้สงสัยจะสูญ, ใบสำคัญจ่าย-รับเงิน,
+      การดึงอัตราแลกเปลี่ยนจากธนาคารแห่งประเทศไทย และระบบคำขอเปิดบิลกลาง (AR/AP)
+    </p>
+  </div>
+
+  <nav class="toc mini">
+    <h3>สารบัญส่วนนี้</h3>
+    <ol>
+      <li><a href="#acc2-1">e-Tax Invoice &amp; e-Receipt</a></li>
+      <li><a href="#acc2-2">รายงานภาษีไทย (Thai Tax Reports)</a></li>
+      <li><a href="#acc2-3">งบแสดงฐานะทางการเงิน (MIS Balance Sheet)</a></li>
+      <li><a href="#acc2-4">รายงานบัญชีและการเงิน (Accounting Reporting)</a></li>
+      <li><a href="#acc2-5">รายงานเงินเข้า (Money In Report)</a></li>
+      <li><a href="#acc2-6">ปิดงานบัญชีปฏิบัติการ (Operational Closure)</a></li>
+      <li><a href="#acc2-7">หนี้สงสัยจะสูญ (Doubtful Debt)</a></li>
+      <li><a href="#acc2-8">ใบสำคัญจ่าย-รับเงิน (Payment Voucher)</a></li>
+      <li><a href="#acc2-9">อัตราแลกเปลี่ยน BOT (Currency Rate Bot)</a></li>
+      <li><a href="#acc2-10">คำขอเปิดบิลกลาง (Billing Request)</a></li>
+      <li><a href="#acc2-11">รหัสเอกสารบัญชี (Document Sequences)</a></li>
+    </ol>
+  </nav>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="acc2-1"><span class="mtag">od19_etax_invoice</span> e-Tax Invoice &amp; e-Receipt (ใบกำกับภาษีอิเล็กทรอนิกส์)</h3>
+
+  <h4>วัตถุประสงค์</h4>
+  <p>
+    ออก <b>ใบกำกับภาษีอิเล็กทรอนิกส์</b> และ <b>ใบเสร็จรับเงินอิเล็กทรอนิกส์</b> ตามมาตรฐาน ETDA
+    (ขมธอ.3-2560) พร้อมไฟล์ XML ที่ผ่านการตรวจ schema (XSD), ลายเซ็นดิจิทัลแบบ XAdES และ QR Code
+    จากนั้นส่งเข้าระบบรับรองของสรรพากร (RD) ได้ในตัว
+  </p>
+
+  <h4>เมนู</h4>
+  <p><span class="path">การบัญชี (Accounting) › e-Tax Invoice</span> (เฉพาะกลุ่ม <span class="pill">group_account_invoice</span>) ประกอบด้วยเมนูย่อย</p>
+  <ul>
+    <li><b>e-Tax Documents</b> — เอกสาร e-Tax ทั้งหมด (ออก/ลงนาม/พิมพ์/ส่ง RD)</li>
+    <li><b>Signing Certificates</b> — ใบรับรองอิเล็กทรอนิกส์สำหรับลงนาม</li>
+    <li><b>Import Purchase e-Tax</b> — นำเข้าไฟล์ e-Tax จากผู้ขายเพื่อสร้างใบวางบิล</li>
+    <li><b>RD Submissions</b> — ประวัติการส่งข้อมูลให้สรรพากร</li>
+  </ul>
+
+  <h4>ขั้นตอนการออกเอกสาร</h4>
+  <ol class="steps">
+    <li><span class="stitle">สร้างเอกสาร e-Tax</span> เลือก <span class="pill">document_type</span> (ค่าเริ่มต้น = ใบกำกับภาษี) และเลือกใบแจ้งหนี้ต้นทางใน <span class="pill">move_id</span> (รับเฉพาะใบกำกับขาย/คืน/ใบเสร็จ)</li>
+    <li><span class="stitle">สร้าง XML</span> กดปุ่ม <span class="kbd">Generate XML</span> (action_generate_xml) ระบบสร้างไฟล์ XML และตรวจ schema — สถานะเปลี่ยนเป็น <span class="badge b-blue">Generated</span></li>
+    <li><span class="stitle">ลงนามดิจิทัล</span> เลือกใบรับรองใน <span class="pill">certificate_id</span> แล้วกด <span class="kbd">Sign</span> ระบบเซ็นด้วย XAdES และบันทึก digest/ผู้ลงนาม — สถานะเป็น <span class="badge b-green">Signed</span></li>
+    <li><span class="stitle">ออก PDF / พิมพ์</span> กด <span class="kbd">Generate PDF</span> แล้ว <span class="kbd">Print</span> เพื่อพิมพ์เอกสาร (มี QR Code)</li>
+    <li><span class="stitle">ส่งสรรพากร</span> กด <span class="kbd">Submit to RD</span> ระบบสร้างรายการส่งใน <b>RD Submissions</b> (ช่องทาง <span class="pill">channel</span> = mock / live)</li>
+  </ol>
+
+  <div class="flow">
+    <span class="stp">Draft</span><span class="arrow">→</span>
+    <span class="stp">Generated</span><span class="arrow">→</span>
+    <span class="stp">Signed</span><span class="arrow">→</span>
+    <span class="stp">Cancelled</span>
+  </div>
+
+  <h4>สถานะ &amp; ปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>สถานะ</th><th>ปุ่มที่ใช้ได้</th><th>หมายเหตุ</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge b-gray">Draft</span></td><td>Generate XML / Cancel</td><td>แก้ไขได้เต็มที่</td></tr>
+      <tr><td><span class="badge b-blue">Generated</span></td><td>Sign / Cancel / Reset to Draft</td><td>ต้องมีใบรับรองก่อนลงนาม</td></tr>
+      <tr><td><span class="badge b-green">Signed</span></td><td>Generate PDF / Print / Submit to RD</td><td><b>ห้าม</b> regenerate / cancel / reset</td></tr>
+      <tr><td><span class="badge b-red">Cancelled</span></td><td>Reset to Draft</td><td>—</td></tr>
+    </tbody>
+  </table>
+
+  <h4>ฟิลด์สำคัญ</h4>
+  <ul>
+    <li><span class="pill">name</span> + <span class="pill">document_type</span> + บริษัท ต้องไม่ซ้ำกัน (unique constraint)</li>
+    <li><span class="pill">source_document_id</span> — แสดงเฉพาะเมื่อออกใบลดหนี้/ใบเพิ่มหนี้/ใบยกเลิก (อ้างเอกสารเดิม)</li>
+    <li><span class="pill">type_code</span>, <span class="pill">purpose_code</span>, <span class="pill">global_id</span> — รหัสตามมาตรฐาน ETDA</li>
+    <li>ไฟล์ผลลัพธ์: <span class="pill">xml_file</span>, <span class="pill">signed_xml_file</span>, <span class="pill">pdf_file</span>, <span class="pill">digest</span>, <span class="pill">signer_subject</span>, <span class="pill">signer_serial</span></li>
+  </ul>
+
+  <h4>การนำเข้า e-Tax ฝั่งซื้อ</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดฟอร์มนำเข้า</span> จากเมนู <b>Import Purchase e-Tax</b></li>
+    <li><span class="stitle">Parse / ตรวจสอบ</span> อัปโหลดไฟล์ XML แล้วกด <span class="kbd">Parse</span> (action_parse) เพื่อตรวจความถูกต้อง</li>
+    <li><span class="stitle">สร้างใบวางบิล</span> กด <span class="kbd">Import</span> (action_import) ระบบสร้างใบวางบิลซื้อ <b>in_invoice</b> พร้อมภาษีซื้อ (input VAT)</li>
+  </ol>
+
+  <h4>สิทธิ์การใช้งาน</h4>
+  <ul>
+    <li>เมนูและเอกสาร: <span class="pill">account.group_account_invoice</span></li>
+    <li>คีย์ส่วนตัวและ passphrase ของใบรับรอง (<span class="pill">private_key</span> / <span class="pill">passphrase</span>): เห็นเฉพาะ <span class="pill">base.group_system</span> (ผู้ดูแลระบบ)</li>
+  </ul>
+
+  <div class="callout warn">
+    <b>ข้อควรระวัง:</b> เอกสารที่ <b>ลงนามแล้วห้ามแก้ไข</b> — ต้องออกใบลดหนี้/ใบยกเลิกแทน
+    และการนำเข้าไฟล์จากผู้ขายต้องตรวจเลขอ้างอิงให้ตรงกับเอกสารจริงก่อนบันทึกเป็นภาษีซื้อ
+  </div>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="acc2-2"><span class="mtag">od19_thai_tax_reports</span> รายงานภาษีไทย (Thai Tax Reports)</h3>
+
+  <h4>วัตถุประสงค์</h4>
+  <p>
+    พิมพ์รายงานภาษีไทยครบชุดจากข้อมูลบัญชีจริง ทั้งทะเบียนภาษีขาย/ซื้อ, หนังสือรับรองหัก ณ ที่จ่าย
+    และแบบแสดงรายการยื่นสรรพากร พร้อมโมดูลเสริมการยื่น e-Withholding Tax, ภาษีเงินได้รอการตัดบัญชี (TAS 12)
+    และอากรแสตมป์
+  </p>
+
+  <h4>เมนู</h4>
+  <p><span class="path">การบัญชี › รายงาน › Thai Tax Reports</span> ประกอบด้วย</p>
+  <div class="grid two">
+    <div class="tile"><div class="t">ทะเบียน &amp; หนังสือรับรอง</div><p>ทะเบียนภาษีขาย (VAT Sales Register), ทะเบียนภาษีซื้อ (VAT Purchase Register), ทะเบียนหัก ณ ที่จ่าย (WHT Register)</p></div>
+    <div class="tile"><div class="t">แบบแสดงรายการ</div><p>ภ.พ.30, ภ.พ.36, ภ.ธ.40 (SBT), ภ.ง.ด.3, ภ.ง.ด.53, ภ.ง.ด.54, ภ.ง.ด.50, ภ.ง.ด.51</p></div>
+    <div class="tile"><div class="t">การเงิน / DBD</div><p>งบการเงินส่ง NPAE, รายการ SBC3 DBD</p></div>
+    <div class="tile"><div class="t">โมดูลเสริม</div><p>e-Withholding Tax, ภาษีเงินได้รอการตัดบัญชี (Deferred Tax), อากรแสตมป์ (Stamp Duty)</p></div>
+  </div>
+
+  <h4>ขั้นตอนการพิมพ์รายงาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดวิซาร์ด</span> เลือกรายงานที่ต้องการ (ส่วนใหญ่เปิดหน้าต่างเลือกช่วงวันที่ของ <b>thai.tax.report.wizard</b>)</li>
+    <li><span class="stitle">ระบุเงื่อนไข</span> กำหนด <span class="pill">date_from</span> – <span class="pill">date_to</span>, <span class="pill">company_id</span> และ <span class="pill">report_type</span></li>
+    <li><span class="stitle">พิมพ์ / ส่งออก</span> กด <span class="kbd">Print</span> (action_print) ระบบเปิดรายงาน QWeb PDF ตามประเภทที่เลือก</li>
+  </ol>
+
+  <h4>ขอบเขตประเภทรายงาน (report_type)</h4>
+  <p>
+    มีทั้งหมด 14 ประเภท: <span class="pill">vat_sales</span>, <span class="pill">vat_purchase</span>,
+    <span class="pill">wht</span>, <span class="pill">pp30</span>, <span class="pill">pp36</span>,
+    <span class="pill">pnd3</span>, <span class="pill">pnd53</span>, <span class="pill">pnd54</span>,
+    <span class="pill">pnd50</span>, <span class="pill">pnd51</span>, <span class="pill">npae</span>,
+    <span class="pill">sbc3</span>, <span class="pill">sbt_pp40</span>, <span class="pill">stamp_duty</span>
+  </p>
+
+  <h4>e-Withholding Tax (ยื่นหัก ณ ที่จ่ายอิเล็กทรอนิกส์)</h4>
+  <ul>
+    <li>โมเดล <b>od19.ewht.submission</b> — สถานะ <span class="badge b-gray">Draft</span> <span class="badge b-gray">Accepted</span> <span class="badge b-red">Rejected</span> <span class="badge b-red">Failed</span>; ช่องทาง <span class="pill">channel</span> = mock / live</li>
+    <li>ปุ่ม <span class="kbd">Submit to Bank</span> (action_submit) และ <span class="kbd">Retry</span> (action_retry)</li>
+    <li>ดึงรายการหัก ณ ที่จ่ายจาก <span class="pill">move_ids</span> (account.withholding.move); รหัสเอกสาร <code>EWHT/%(year)s/</code></li>
+  </ul>
+
+  <h4>ภาษีเงินได้รอการตัดบัญชี (Deferred Tax / TAS 12)</h4>
+  <ol class="steps">
+    <li><span class="stitle">สร้างใบงาน</span> เปิด <b>od19.deferred.tax.worksheet</b> (สถานะ <span class="badge b-gray">Draft</span>)</li>
+    <li><span class="stitle">กรอกรายการ</span> เพิ่มบรรทัด <b>od19.deferred.tax.line</b> โดยเลือกหมวด: สินทรัพย์ถาวร / ประมาณการ / ค่าเผื่อ / สินค้าคงเหลือ / อื่น ๆ พร้อมมูลค่าตามบัญชี, ฐานภาษี และอัตราภาษี</li>
+    <li><span class="stitle">บันทึกบัญชี</span> กด <span class="kbd">Post</span> (action_post_deferred_tax) ระบบคำนวณ DTA/DTL และสร้างรายการบัญชี (ดูได้ผ่าน <span class="kbd">View Journal Entry</span>) — สถานะเป็น <span class="badge b-green">Posted</span></li>
+  </ol>
+
+  <h4>อากรแสตมป์ (Stamp Duty)</h4>
+  <div class="grid two">
+    <div class="tile"><div class="t">อัตราอากร</div><p><b>od19.stamp.duty.rate</b> รองรับแบบอัตราแบบขั้นบันได (scale) และแบบคงที่ (fixed) พร้อมฐานต่อหน่วยและเพดานสูงสุด</p></div>
+    <div class="tile"><div class="t">บันทึกอากร</div><p><b>od19.stamp.duty</b> สถานะ <span class="badge b-gray">Draft</span> → <span class="badge b-green">Paid</span> (action_mark_paid / action_reset_draft) คำนวณอัตโนมัติ</p></div>
+  </div>
+
+  <h4>สิทธิ์ &amp; ข้อควรระวัง</h4>
+  <div class="callout note">
+    <b>สิทธิ์:</b> ใช้สิทธิ์บัญชีมาตรฐานของ Odoo (group_account_invoice / group_account_readonly) ·
+    ตัวเลขทุกรายงานดึงจากใบกำกับที่ <b>post</b> แล้วเท่านั้น — ก่อนยื่นสรรพากรควรตรวจสอบว่าปิดงวดบัญชีเรียบร้อย
+    และใช้พื้นฐานจาก <span class="pill">l10n_th_account_tax</span>
+  </div>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="acc2-3"><span class="mtag">od19_mis_balance_sheet</span> งบแสดงฐานะทางการเงิน (MIS Balance Sheet)</h3>
+
+  <h4>วัตถุประสงค์</h4>
+  <p>
+    ให้ <b>งบแสดงฐานะทางการเงิน (งบดุล)</b> รูปแบบพร้อมใช้ โดยอิงกับ <b>MIS Builder</b> (OCA <span class="pill">mis_builder</span>)
+    มีการเปรียบเทียบหลายงวด และตรวจสอบความสมดุล (Assets = Liabilities + Equity) อัตโนมัติ
+  </p>
+
+  <h4>เมนู</h4>
+  <p><span class="path">การบัญชี › รายงาน › MIS Reports</span> (จาก mis_builder) เลือกงบ <b>งบแสดงฐานะทางการเงิน (Balance Sheet)</b> หรือเรียกใช้ instance ของงบ</p>
+
+  <h4>ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">เลือกงบ</span> เปิดรายงาน <b>งบแสดงฐานะทางการเงิน (Balance Sheet)</b></li>
+    <li><span class="stitle">กำหนดงวด</span> ระบบมีคอลัมน์เปรียบเทียบ 3 งวด: <b>เดือนปัจจุบัน</b>, <b>เดือนก่อน</b> (หัก 1 เดือน) และ <b>เดือนเดียวกับปีก่อน</b> (หัก 12 เดือน)</li>
+    <li><span class="stitle">เลือกสมุด/สถานะ</span> ค่าเริ่มต้นนับเฉพาะรายการที่ <b>posted</b> (<span class="pill">target_move = posted</span>)</li>
+    <li><span class="stitle">พิมพ์ / ส่งออก</span> รองรับ PDF แนวนอน (<span class="pill">landscape_pdf</span>) และเปรียบเทียบงวด (<span class="pill">comparison_mode</span>)</li>
+  </ol>
+
+  <h4>โครงสร้างตัวชี้วัด (KPIs)</h4>
+  <table>
+    <thead><tr><th>ลำดับ</th><th>กลุ่ม</th><th>ตัวอย่าง KPI</th></tr></thead>
+    <tbody>
+      <tr><td>10–70</td><td>สินทรัพย์</td><td>เงินสด, ลูกหนี้, สินทรัพย์หมุนเวียน, ค่าใช้จ่ายล่วงหน้า, สินทรัพย์ไม่หมุนเวียน, สินทรัพย์ถาวร และ<b>รวมสินทรัพย์</b></td></tr>
+      <tr><td>110–150</td><td>หนี้สิน</td><td>เจ้าหนี้, บัตรเครดิต, หนี้สินหมุนเวียน, หนี้สินไม่หมุนเวียน และ<b>รวมหนี้สิน</b></td></tr>
+      <tr><td>210–240</td><td>ส่วนของเจ้าของ</td><td>ทุนเรือนหุ้น, กำไรสะสม, ผลการดำเนินงาน และ<b>รวมส่วนของเจ้าของ</b></td></tr>
+      <tr><td>310</td><td>รวมทั้งสิ้น</td><td>หนี้สิน + ส่วนของเจ้าของ</td></tr>
+      <tr><td>320</td><td>ตรวจสอบ</td><td><b>bs_check</b> — แสดง “BS - Good” เมื่อยอดต่าง &lt; 0.005 มิฉะนั้นเป็น “BS - Bad”</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout tip">
+    <b>เคล็ดลับ:</b> สูตร KPI ใช้ฟังก์ชันของ MIS Builder (เช่น <code>bale [ ('account_type','=','asset_cash') ]</code>)
+    หากต้องเพิ่ม/ปรับตัวชี้วัด ให้แก้ที่นิยาม <b>mis.report</b> ของงบ — และปิดงวดบัญชีก่อนออกรายงานเพื่อความแม่นยำ
+  </div>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="acc2-4"><span class="mtag">od19_accounting_reporting</span> รายงานบัญชีและการเงิน (Accounting Reporting)</h3>
+
+  <h4>วัตถุประสงค์</h4>
+  <p>
+    ศูนย์รวมรายงานบริหารด้านบัญชี ได้แก่ <b>รายงานปิดงานบัญชีปฏิบัติการ</b>, <b>แดชบอร์ดควบคุมการเงิน (Finance Control Board)</b>,
+    การตั้ง <b>ช่วงเวลาบัญชี (Date Ranges)</b> และการปรับชื่อ/ป้ายเมนูบัญชีให้เป็นสองภาษา (ไทย-อังกฤษ)
+  </p>
+
+  <h4>เมนู</h4>
+  <ul>
+    <li><span class="path">การบัญชี › รายงาน › Accounting Operational Closure</span></li>
+    <li><span class="path">การบัญชี › Finance Control Board</span> (แดชบอร์ด)</li>
+    <li>เมนูหลักปรับชื่อเป็น <b>การบัญชี (Accounting)</b> และ <b>รายการบัญชี (Accounting Entries)</b></li>
+  </ul>
+
+  <h4>รายงานปิดงานบัญชีปฏิบัติการ</h4>
+  <p>เป็นมุมมอง SQL (อ่านอย่างเดียว) แสดงตัวชี้วัดค้างดำเนินการ:</p>
+  <table>
+    <thead><tr><th>ตัวชี้วัด (metric)</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td>billable_backlog</td><td>งานที่ยังไม่เปิดบิล (ค้างเปิดบิล)</td></tr>
+      <tr><td>open_receivable</td><td>ลูกหนี้ค้างชำระ</td></tr>
+      <tr><td>overdue_receivable</td><td>ลูกหนี้เกินกำหนด</td></tr>
+      <tr><td>open_payable</td><td>เจ้าหนี้ค้างชำระ</td></tr>
+      <tr><td>due_payable</td><td>เจ้าหนี้ครบกำหนดชำระ</td></tr>
+      <tr><td>cash_application_status</td><td>สถานะการนำเงินเข้า/จับคู่การชำระ</td></tr>
+      <tr><td>unreconciled_customer_items</td><td>รายการลูกค้าที่ยังไม่กระทบยอด</td></tr>
+      <tr><td>unreconciled_vendor_items</td><td>รายการเจ้าหนี้ที่ยังไม่กระทบยอด</td></tr>
+    </tbody>
+  </table>
+  <p>แต่ละบรรทัดมีฟิลด์ <span class="pill">metric_label</span>, <span class="pill">company_id</span>, <span class="pill">item_count</span> (จำนวนรายการ) และ <span class="pill">total_amount</span> (ยอดรวม)</p>
+
+  <h4>แดชบอร์ด Finance Control Board</h4>
+  <p>แดชบอร์ดที่สร้างจาก <b>od19.dashboard</b> โดยดึงข้อมูลจาก <span class="pill">account.move.line</span>, <span class="pill">account.cheque</span> และ <span class="pill">petty.cash.transaction</span> มีวิดเจ็ตเช่น</p>
+  <div class="grid three">
+    <div class="tile"><div class="t">ลูกหนี้ / เจ้าหนี้</div><p>Receivables Outstanding, Payables Outstanding, Receivables by Customer, Payables by Vendor</p></div>
+    <div class="tile"><div class="t">เช็ค</div><p>Cheques in Hand, Cheques Due (Next 7 Days), Overdue Cheques, Cheques by Status/Type</p></div>
+    <div class="tile"><div class="t">อื่น ๆ</div><p>Petty Cash Spend, Petty Cash by Type, Accounting Entries by Month</p></div>
+  </div>
+  <div class="callout note">
+    วิดเจ็ต <b>Cheques Due (Next 7 Days)</b> มีการแจ้งเตือนตามเงื่อนไข: แดงเมื่อยอด ≥ 500,000 และเหลืองเมื่อ ≥ 100,000
+  </div>
+
+  <h4>ช่วงเวลาบัญชี &amp; อื่น ๆ</h4>
+  <ul>
+    <li>สร้าง <b>date.range.type</b>: “ปีบัญชี” และ “เดือน” พร้อมสั่งสร้างช่วงเวลาอัตโนมัติ</li>
+    <li>ปรับวิซาร์ด <b>Trial Balance</b> ให้เลือกช่วงวันที่แบบปกติ (ทดแทนการเลือก date range)</li>
+  </ul>
+
+  <h4>สิทธิ์</h4>
+  <p>รายงานปิดงานบัญชี: <span class="pill">account.group_account_user</span> และ <span class="pill">account.group_account_manager</span></p>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="acc2-5"><span class="mtag">od19_accounting_money_in_report</span> รายงานเงินเข้า (Money In Report)</h3>
+
+  <h4>วัตถุประสงค์</h4>
+  <p>
+    วิเคราะห์ <b>กระแสเงินเข้า</b> ของกิจการทั้งแบบอิงใบแจ้งหนี้ (invoice-based) และอิงการรับเงินจริง (cash-based)
+    โดยแยกตามพนักงานขาย, โครงการ, หมวดสินค้า และประเภทงาน พร้อมบันทึกผลเป็นชุดข้อมูล (Run) และส่งออก Excel
+  </p>
+
+  <h4>เมนู</h4>
+  <p><span class="path">การบัญชี › รายงาน › Money In Analysis</span> ประกอบด้วย</p>
+  <ul>
+    <li><b>Generate Report</b> — เปิดวิซาร์ดสร้างรายงาน</li>
+    <li><b>Report Runs</b> — ชุดผลลัพธ์ที่สร้างไว้</li>
+    <li><b>Analysis Lines</b> — รายการวิเคราะห์รายบรรทัด</li>
+  </ul>
+
+  <h4>ขั้นตอนการสร้างรายงาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดวิซาร์ด</span> เลือก <b>Generate Report</b></li>
+    <li><span class="stitle">กำหนดเงื่อนไข</span> ระบุ <span class="pill">date_from</span> – <span class="pill">date_to</span>, <span class="pill">company_id</span> และ <span class="pill">phase</span> (เฟส 1 อิงใบแจ้งหนี้ / เฟส 2 อิงเงินสด-ใบแจ้งหนี้)</li>
+    <li><span class="stitle">กรองข้อมูล</span> เลือกได้ทั้งพนักงานขาย, โครงการ, หมวดสินค้า และ <span class="pill">job_type_values</span> (งาน / PM / บริการ / ขาย / ไม่ทราบ)</li>
+    <li><span class="stitle">สร้างชุดรายงาน</span> กด <span class="kbd">Generate</span> (action_generate_report) ระบบสร้าง Run ใหม่พร้อมบรรทัดวิเคราะห์</li>
+    <li><span class="stitle">ดูผล / ส่งออก</span> เปิดมุมมอง <b>รายการ / Pivot / กราฟ</b> หรือกด <span class="kbd">Export XLSX</span></li>
+  </ol>
+
+  <h4>สถานะของชุดรายงาน (Run)</h4>
+  <div class="flow">
+    <span class="stp">Draft</span><span class="arrow">→</span><span class="stp">Done</span>
+  </div>
+  <ul>
+    <li>สถานะ <span class="badge b-gray">Draft</span> — แก้ไข/สร้างบรรทัดได้</li>
+    <li>สถานะ <span class="badge b-green">Done</span> — <b>ล็อกข้อมูลเป็น snapshot</b> ห้ามแก้ไขและห้ามย้อนสถานะ</li>
+  </ul>
+
+  <h4>ปุ่ม &amp; สิทธิ์</h4>
+  <ul>
+    <li>ปุ่ม <span class="kbd">Open Lines</span> (รายการ/Pivot/กราฟ) และ <span class="kbd">Export XLSX</span> (สร้างไฟล์ Excel ด้วย openpyxl)</li>
+    <li>ใช้สิทธิ์บัญชีและการขายมาตรฐาน; รองรับติดตามงานผ่านพันธมิตร (mail.thread + activity)</li>
+  </ul>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="acc2-6"><span class="mtag">od19_accounting_operational_closure</span> ปิดงานบัญชีปฏิบัติการ (Operational Closure)</h3>
+
+  <h4>วัตถุประสงค์</h4>
+  <p>
+    เพิ่มสถานะ <b>การปิดงานเชิงปฏิบัติการ</b> ให้เอกสารขาย–ซื้อ เพื่อให้ทีมงานเห็นภาพว่าอะไรพร้อมออกบิล รับวางบิล หรือชำระแล้ว
+    โดยไม่ต้องดูจากบัญชีอย่างเดียว
+  </p>
+
+  <h4>สถานะที่เพิ่มในเอกสาร</h4>
+  <table>
+    <thead><tr><th>เอกสาร</th><th>ฟิลด์สถานะ</th><th>ค่าที่เป็นไปได้</th></tr></thead>
+    <tbody>
+      <tr><td>ใบสั่งขาย (Sale Order)</td><td><span class="pill">od19_invoice_closure_state</span></td><td>รอความพร้อม → พร้อมออกบิล → ออกบิลแล้ว → ชำระบางส่วน → ชำระครบ</td></tr>
+      <tr><td>ใบสั่งซื้อ (Purchase Order)</td><td><span class="pill">od19_vendor_bill_closure_state</span></td><td>รอผูกพัน → รอตรวจรับบริการ → พร้อมวางบิล → วางบิลแล้ว → ชำระบางส่วน → ชำระครบ</td></tr>
+      <tr><td>รายการบัญชี (Journal Entry)</td><td><span class="pill">od19_operational_closure_state</span></td><td>ฉบับร่าง → บันทึกแล้ว → ชำระบางส่วน → ชำระครบ</td></tr>
+    </tbody>
+  </table>
+
+  <h4>การใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">ดูสถานะใบสั่งขาย/ซื้อ</span> เปิดฟอร์มเอกสาร จะเห็นฟิลด์สถานะปิดงาน และ (บน SO) ตัวนับจำนวนใบกำกับ <span class="pill">od19_customer_invoice_count</span></li>
+    <li><span class="stitle">จำแนกโฟลว์รายการบัญชี</span> ฟิลด์ <span class="pill">od19_operational_flow</span> = ลูกค้า / ผู้ขาย / อื่น ๆ และ <span class="pill">od19_source_document</span> แสดงเอกสารต้นทาง</li>
+    <li><span class="stitle">ตรวจรับบริการ</span> บนบรรทัดใบสั่งซื้อ ติ๊ก <span class="pill">od19_service_acceptance_required</span> แล้วกดปุ่ม <span class="kbd">Accept Service</span> (action_od19_accept_service) — ทำได้หลังยืนยันใบสั่งซื้อ (committed) แล้ว</li>
+  </ol>
+
+  <div class="callout tip">
+    ฟิลด์ <span class="pill">od19_service_accepted</span> ใช้ยืนยันว่ารับบริการเรียบร้อย ซึ่งมีผลต่อความพร้อมของ <b>od19_vendor_bill_closure_state</b> (ผ่านขั้น “รอตรวจรับบริการ”) — เหมาะกับงานบริการที่ต้องตรวจรับก่อนวางบิล
+  </div>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="acc2-7"><span class="mtag">od19_accounting_doubtful_debt</span> หนี้สงสัยจะสูญ (Doubtful Debt)</h3>
+
+  <h4>วัตถุประสงค์</h4>
+  <p>
+    ตั้ง <b>ค่าเผื่อหนี้สงสัยจะสูญ</b> ตามช่วงอายุหนี้ (aging) และบันทึก <b>การตัดหนี้สูญ</b> พร้อมขั้นตอนอนุมัติ
+    และบังคับแนบหลักฐาน
+  </p>
+
+  <h4>เมนู</h4>
+  <ul>
+    <li><span class="path">การบัญชี › ลูกหนี้ › หนี้สงสัยจะสูญ (Doubtful Debt)</span>
+      <ul>
+        <li>ตั้งค่าเผื่อหนี้สงสัยจะสูญ</li>
+        <li>ตัดหนี้สูญ</li>
+      </ul>
+    </li>
+    <li><span class="path">การบัญชี › การตั้งค่า › ช่วงอายุหนี้ (Aging Buckets)</span> (เฉพาะผู้จัดการบัญชี)</li>
+  </ul>
+
+  <h4>การตั้งค่าเผื่อหนี้สงสัยจะสูญ</h4>
+  <ol class="steps">
+    <li><span class="stitle">สร้างเอกสารตั้งค่าเผื่อ</span> กำหนดสมุดรายวัน, บัญชีค่าใช้จ่าย (<span class="pill">expense_account_id</span>) และบัญชีค่าเผื่อ (<span class="pill">allowance_account_id</span>)</li>
+    <li><span class="stitle">คำนวณ</span> กด <span class="kbd">Compute</span> (action_compute) ระบบสร้างบรรทัดจากลูกหนี้คงค้างตามช่วงอายุหนี้ แล้วสรุปเป็น <span class="pill">total_balance</span> และ <span class="pill">total_provision_amount</span></li>
+    <li><span class="stitle">บันทึกบัญชี</span> กด <span class="kbd">Post</span> (action_post) ระบบสร้างรายการ เดบิตค่าใช้จ่าย / เครดิตค่าเผื่อ (ดูผ่าน <span class="kbd">View Move</span>)</li>
+  </ol>
+  <p>สถานะ: <span class="badge b-gray">Draft</span> → <span class="badge b-green">Posted</span> → <span class="badge b-red">Cancelled</span> (ย้อนกลับได้ด้วย Reset to Draft)</p>
+
+  <h4>การตัดหนี้สูญ (Write-off)</h4>
+  <ol class="steps">
+    <li><span class="stitle">สร้างเอกสารตัดหนี้</span> เลือกลูกหนี้ (partner_id) และระบุ <span class="pill">reason</span> (เหตุผล — บังคับ)</li>
+    <li><span class="stitle">แนบหลักฐาน</span> อัปโหลดเอกสารประกอบ (ระบบนับจำนวนใน <span class="pill">evidence_count</span>)</li>
+    <li><span class="stitle">อนุมัติ</span> กด <span class="kbd">Approve</span> (action_approve) — ต้องมีสิทธิ์ <span class="pill">account.group_account_manager</span></li>
+    <li><span class="stitle">บันทึกบัญชี</span> กด <span class="kbd">Post</span> (action_post) — ต้อง <b>อนุมัติแล้ว</b> และ <b>มีหลักฐานแนบ</b> ระบบสร้างรายการ เดบิตหนี้สูญ / เครดิตลูกหนี้ และกระทบยอดให้</li>
+  </ol>
+  <p>สถานะ: <span class="badge b-gray">Draft</span> → <span class="badge b-blue">Approved</span> → <span class="badge b-green">Posted</span> → <span class="badge b-red">Cancelled</span></p>
+
+  <h4>ช่วงอายุหนี้ (Aging Buckets)</h4>
+  <ul>
+    <li>โมเดล <b>od19.doubtful.debt.aging.line</b> กำหนด <span class="pill">from_days</span> – <span class="pill">to_days</span> และ <span class="pill">provision_rate</span> (0–100% — ตรวจสอบค่า)</li>
+    <li>มีวิซาร์ดตัดหนี้ช่วยสร้างเอกสารจากรายการลูกหนี้คงค้างของลูกหนี้รายนั้น (<span class="kbd">Create Write-off</span>)</li>
+  </ul>
+
+  <div class="callout danger">
+    <b>ข้อควรระวัง:</b> การณี <b>ตัดหนี้สูญ</b> มีผลทางภาษี — ต้องอนุมัติโดยผู้จัดการบัญชีและมีหลักฐานครบถ้วนเสมอ
+    เมนูหลักเห็นได้โดย <span class="pill">account.group_account_readonly</span> แต่การตั้งค่าช่วงอายุหนี้จำกัดที่ผู้จัดการบัญชี
+  </div>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="acc2-8"><span class="mtag">od19_accounting_payment_voucher_reports</span> ใบสำคัญจ่าย-รับเงิน (Payment Voucher &amp; Receipt)</h3>
+
+  <h4>วัตถุประสงค์</h4>
+  <p>
+    เพิ่มขั้นตอน <b>เตรียมจ่าย → อนุมัติ</b> ให้รายการชำระเงิน พร้อมพิมพ์ <b>ใบสำคัญจ่าย</b> และ <b>ใบสำคัญรับเงิน</b>
+    เป็นเอกสาร PDF ภาษาไทย และมีทะเบียนใบสำคัญให้ตรวจสอบ
+  </p>
+
+  <h4>เมนู</h4>
+  <ul>
+    <li><span class="path">การบัญชี › เจ้าหนี้ › ใบสำคัญจ่าย — รออนุมัติ / Payment Vouchers</span></li>
+    <li><span class="path">การบัญชี › ลูกหนี้ › ใบสำคัญรับเงิน — รออนุมัติ / Receipt Vouchers</span></li>
+  </ul>
+
+  <h4>ขั้นตอน (บนรายการชำระเงิน)</h4>
+  <ol class="steps">
+    <li><span class="stitle">เตรียมจ่าย</span> กด <span class="kbd">เตรียมจ่าย / Prepare</span> (action_od19_prepare) — สถานะเตรียมเปลี่ยนเป็น <span class="badge b-amber">Prepared</span> และบันทึกผู้เตรียม/วันที่</li>
+    <li><span class="stitle">อนุมัติ</span> กด <span class="kbd">อนุมัติ / Approve</span> (action_od19_approve) — บันทึกผู้อนุมัติ/วันที่</li>
+    <li><span class="stitle">ข้ามการอนุมัติ (ถ้าจำเป็น)</span> ผู้มีสิทธิ์อนุมัติกด <span class="kbd">ข้ามการอนุมัติ / Override</span> (action_od19_override) พร้อมระบุเหตุผล (<span class="pill">od19_override_reason</span>)</li>
+    <li><span class="stitle">ยืนยันชำระ</span> กดปุ่มยืนยันของ Odoo ตามปกติ (action_post)</li>
+    <li><span class="stitle">พิมพ์เอกสาร</span> พิมพ์ใบสำคัญจ่าย (PV) หรือใบสำคัญรับเงิน (RV) เป็น PDF</li>
+  </ol>
+
+  <h4>ปุ่ม &amp; ฟิลด์สำคัญ</h4>
+  <table>
+    <thead><tr><th>รายการ</th><th>คำอธิบาย</th></tr></thead>
+    <tbody>
+      <tr><td>Prepare / Approve / Override</td><td>ปุ่มขั้นตอนเตรียม-อนุมัติ (Override จำกัดกลุ่มผู้อนุมัติ)</td></tr>
+      <tr><td><span class="pill">od19_voucher_no</span></td><td>เลขที่ใบสำคัญ</td></tr>
+      <tr><td><span class="pill">od19_prepare_state</span></td><td>Draft / Prepared / Approved</td></tr>
+      <tr><td><span class="pill">od19_prepared_by</span> · <span class="pill">od19_prepared_date</span></td><td>ผู้เตรียม / วันที่เตรียม</td></tr>
+      <tr><td><span class="pill">od19_approved_by</span> · <span class="pill">od19_approved_date</span></td><td>ผู้อนุมัติ / วันที่อนุมัติ</td></tr>
+      <tr><td><span class="pill">od19_approval_override</span> · <span class="pill">od19_override_by</span></td><td>การข้ามอนุมัติ / ผู้ข้าม</td></tr>
+    </tbody>
+  </table>
+
+  <h4>เอกสารที่พิมพ์ได้</h4>
+  <div class="grid two">
+    <div class="tile"><div class="t">ใบสำคัญจ่าย (PV)</div><p>ธีมสีเขียว ใช้กับรายการจ่ายผู้ขาย — แสดงผู้รับเงิน, ใบวางบิลต้นทาง, ยอดเป็นตัวอักษร และช่องลงนาม</p></div>
+    <div class="tile"><div class="t">ใบสำคัญรับเงิน (RV)</div><p>ธีมสีส้ม ใช้กับรายการรับเงิน — โครงสร้างคล้ายกันพร้อมทะเบียนใบสำคัญ</p></div>
+  </div>
+
+  <div class="callout note">
+    รายการที่ยังไม่เตรียมจะไม่แสดงเลขที่ใบสำคัญ (พิมพ์เป็น “ร่าง / DRAFT”) · ใช้ฟอนต์ไทยจากโมดูล <span class="pill">od19_thai_font_support</span>
+    และรหัสเอกสารจาก <span class="pill">od19_accounting_document_sequence</span>
+  </div>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="acc2-9"><span class="mtag">od19_currency_rate_bot</span> อัตราแลกเปลี่ยน BOT (Currency Rate Bot)</h3>
+
+  <h4>วัตถุประสงค์</h4>
+  <p>
+    ดึง <b>อัตราแลกเปลี่ยนอ้างอิงจากธนาคารแห่งประเทศไทย (BOT)</b> โดยอัตโนมัติ พร้อมแสดง “มินิบาร์” อัตราแลกเปลี่ยน
+    บนเอกสารบัญชี/ขาย/ซื้อ เพื่อให้ผู้ใช้เห็นอัตราที่ใช้จริงได้ทันที
+  </p>
+
+  <h4>เมนู / การตั้งค่า</h4>
+  <ul>
+    <li><span class="path">การตั้งค่า › การบัญชี › สกุลเงิน › BOT Provider</span> — กรอก <span class="pill">BOT Token</span> (แสดงแบบรหัสผ่าน, เฉพาะผู้ดูแลระบบ)</li>
+    <li>เพิ่มบริการ <b>Bank of Thailand (BOT)</b> ในผู้ให้บริการอัตราแลกเปลี่ยน (res.currency.rate.provider)</li>
+    <li>สกุลเงิน (res.currency) เพิ่มฟิลด์ <span class="pill">bot_currency_name</span> และ <span class="pill">bot_currency_rate_type</span></li>
+  </ul>
+
+  <h4>ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">ตั้งค่า Token</span> ผู้ดูแลระบบกรอก BOT Token ที่หน้าตั้งค่า (คอลัมน์บริษัท)</li>
+    <li><span class="stitle">สร้างผู้ให้บริการ</span> สร้าง <b>res.currency.rate.provider</b> เลือกบริการ = Bank of Thailand และเลือกสกุลเงินที่ต้องใช้</li>
+    <li><span class="stitle">ดึงอัตรา</span> ระบบดึงอัตรารายวัน (DAILY_AVG_EXG_RATE) ผ่าน API ของ BOT; ปุ่มรีเฟรชอยู่บนมินิบาร์ของเอกสาร</li>
+    <li><span class="stitle">ดูมินิบาร์</span> เปิดเอกสาร (ใบกำกับ/ชำระเงิน/ใบสั่งขาย/ใบสั่งซื้อ) จะเห็นแถบ “1 [สกุล] = X THB” พร้อมวันที่อัตราและเวลาอัปเดตล่าสุด</li>
+  </ol>
+
+  <h4>มินิบาร์บนเอกสาร</h4>
+  <p>ฟิลด์ที่แสดง: <span class="pill">autoinfo_currency_bar_currency_id</span>, <span class="pill">autoinfo_currency_bar_rate</span>, <span class="pill">autoinfo_currency_bar_rate_date</span>, <span class="pill">autoinfo_currency_bar_last_update</span> พร้อมปุ่ม <span class="kbd">Refresh</span> (action_refresh_currency_rates)</p>
+
+  <h4>สิทธิ์</h4>
+  <ul>
+    <li>กลุ่ม <b>Can View Currency Rate Bar</b> (<span class="pill">group_currency_rate_bar_viewer</span>) — ดูและกดรีเฟรชมินิบาร์ได้</li>
+    <li><span class="pill">bot_token</span> เห็นเฉพาะ <span class="pill">base.group_system</span></li>
+    <li>ตัวเลือกเปิด/ปิดมินิบาร์ผ่านพารามิเตอร์ <code>od19_currency_rate_bot.enable_mini_bar</code> (ค่าเริ่มต้น = True)</li>
+  </ul>
+
+  <div class="callout warn">
+    <b>ข้อควรระวัง:</b> บริการ BOT ใช้ได้เฉพาะบริษัทที่ใช้ <b>สกุลเงินฐาน = THB</b> เท่านั้น
+    อัตราจะถูกอ้าง “1 หน่วยสกุลต่างประเทศ = X บาท” (โดย JPY คิดต่อ 100 หน่วย) และระบบมีกติกาพิเศษ: ถ้าเป็นวันที่ปัจจุบันและยังไม่ถึง 18:00 น. (เวลาไทย) จะใช้อัตราของวันก่อนหน้า
+  </div>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="acc2-10"><span class="mtag">od19_billing_request</span> คำขอเปิดบิลกลาง (Billing Request)</h3>
+
+  <h4>วัตถุประสงค์</h4>
+  <p>
+    รวมกระบวนการ <b>แจ้งขอเปิดบิล (AR/AP)</b> จากใบส่งของ (IN/OUT), ใบสั่งขาย (SO) และใบสั่งซื้อ (PO) ไว้ที่เดียว
+    โดยมีขั้นตอน: ผู้แจ้งสร้างคำขอ → บัญชีตรวจและออกบิลเป็นเอกสารปลายทาง พร้อมกันดึงซ้ำ (1 คำขอ = 1 ต้นทาง = 1 บิล)
+  </p>
+
+  <h4>เมนู</h4>
+  <p><span class="path">Billing Requests / คำขอเปิดบิล</span> ประกอบด้วย</p>
+  <ul>
+    <li><b>All Requests / คำขอทั้งหมด</b> — ดูทุกคำขอ</li>
+    <li><b>Billing Queue / คิวรอออกบิล</b> — เฉพาะคำขอที่ส่งรอออกบิล (เฉพาะกลุ่มบัญชีผู้เปิดบิล)</li>
+  </ul>
+
+  <h4>ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดคำขอ</span> สร้างคำขอใหม่ เลือก <span class="pill">direction</span> (AR–ลูกหนี้ / AP–เจ้าหนี้) และเลือก <span class="pill">origin_ref</span> (ใบส่งของ / ใบสั่งขาย / ใบสั่งซื้อ) — หรือกดปุ่ม <b>Billing Request</b> จากฟอร์ม SO/PO/ใบโอนก็ได้</li>
+    <li><span class="stitle">ดึงรายการ</span> กด <span class="kbd">Pull Lines / ดึงรายการ</span> เพื่อดึงเฉพาะบรรทัดที่ยังเปิดบิลได้ (qty_to_invoice &gt; 0) — ระบบกันการดึงซ้ำข้ามคำขอให้</li>
+    <li><span class="stitle">แนบหลักฐาน</span> เพิ่มหลักฐานในแท็บ <b>Evidence</b> (ต้องมีอย่างน้อย 1 รายการที่ยืนยันแล้วสำหรับ AR)</li>
+    <li><span class="stitle">สำหรับ AP</span> ระบุ <b>รับต้นฉบับจริงแล้ว</b> (<span class="pill">original_received</span>) ในแท็บ <b>AP Original</b></li>
+    <li><span class="stitle">ส่งให้บัญชี</span> กด <span class="kbd">Submit / ส่งให้บัญชี</span> (action_submit) — ระบบแจ้งเตือนทีมบัญชีอัตโนมัติ</li>
+    <li><span class="stitle">ออกบิล</span> บัญชีกด <span class="kbd">Create Invoice/Bill / ออกบิล</span> (action_create_invoice) ระบบสร้างใบกำกับขาย/ใบวางบิลซื้อและเชื่อมบรรทัดต้นทาง–ปลายทาง</li>
+  </ol>
+
+  <h4>สถานะ &amp; ปุ่ม</h4>
+  <div class="flow">
+    <span class="stp">Draft</span><span class="arrow">→</span>
+    <span class="stp">Submitted</span><span class="arrow">→</span>
+    <span class="stp">Invoiced</span>
+    <span class="arrow">↺</span><span class="stp">Rejected / Cancelled</span>
+  </div>
+  <table>
+    <thead><tr><th>ปุ่ม</th><th>เงื่อนไข</th><th>ผลลัพธ์</th></tr></thead>
+    <tbody>
+      <tr><td>Submit / ส่งให้บัญชี</td><td>ต้องเป็น Draft + มีบรรทัด</td><td>→ Submitted และแจ้งเตือนบัญชี</td></tr>
+      <tr><td>Create Invoice/Bill / ออกบิล</td><td>ต้องเป็น Submitted</td><td>สร้างเอกสารปลายทาง → Invoiced</td></tr>
+      <tr><td>Reject / ตีกลับ</td><td>ต้องเป็น Submitted</td><td>→ Rejected (ระบุเหตุผลได้)</td></tr>
+      <tr><td>Reset to Draft</td><td>Rejected / Cancelled</td><td>→ Draft</td></tr>
+      <tr><td>Cancel</td><td>ไม่ใช่งานที่ออกบิลแล้ว</td><td>→ Cancelled</td></tr>
+    </tbody>
+  </table>
+
+  <h4>ฟิลด์สำคัญ</h4>
+  <ul>
+    <li><span class="pill">name</span> — เลขคำขอ (AR = <code>BRI/AR/</code>, AP = <code>BRI/AP/</code>; ถ้าเปิดจากใบโอนจะสะท้อนเลขใบโอน เช่น <code>BRI/AP/WII/00008</code>)</li>
+    <li><span class="pill">requested_by_id</span>, <span class="pill">requested_employee_id</span>, <span class="pill">department_id</span> — ข้อมูลผู้แจ้งและแผนก</li>
+    <li><span class="pill">partner_id</span>, <span class="pill">move_type</span> (out_invoice / in_invoice), <span class="pill">target_move_id</span></li>
+    <li><span class="pill">ar_billing_mode</span> — โหมดวางบิล AR: ออกบิลเลย (direct) หรือวางบิลก่อน (two_step)</li>
+    <li>บรรทัด: <span class="pill">product_id</span>, <span class="pill">quantity</span>, <span class="pill">price_unit</span>, <span class="pill">discount</span>, <span class="pill">tax_ids</span> และตัวเลขควบคุม <span class="pill">qty_ordered</span> / <span class="pill">qty_already_requested</span> / <span class="pill">remaining_to_bill</span></li>
+  </ul>
+
+  <h4>หลักฐาน (Evidence)</h4>
+  <p>ชนิดหลักฐานที่เตรียมไว้: ใบส่งของ (delivery_note), PO ลูกค้า (customer_po), รายงานบริการ (service_report), ใบกำกับภาษีผู้ขาย (vendor_tax_invoice), ใบแจ้งหนี้ผู้ขาย (vendor_invoice) — สองชนิดหลังบังคับ <b>รับต้นฉบับจริง</b></p>
+
+  <h4>สิทธิ์</h4>
+  <ul>
+    <li><b>Billing Requester / ผู้แจ้งเปิดบิล</b> — เห็นเฉพาะคำขอของตัวเอง</li>
+    <li><b>Billing Accounting / บัญชีผู้เปิดบิล</b> — เห็นทุกคำขอ และเข้าถึงคิวรอออกบิล</li>
+  </ul>
+
+  <div class="callout tip">
+    กติกากันดึงซ้ำ/ออกบิลซ้ำ: ระบบล็อกบรรทัด (row lock) ขณะออกบิล, ตรวจว่าจำนวนที่ขอไม่เกินยอดคงเหลือ และตรวจจำนวนบรรทัดปลายทางให้ตรงกับคำขอก่อนเชื่อมความสัมพันธ์
+    ตั้งค่าบังคับหลักฐาน/ต้นฉบับได้ที่ระดับบริษัท (AR require evidence และ AP require original)
+  </div>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="acc2-11"><span class="mtag">od19_accounting_document_sequence</span> รหัสเอกสารบัญชี (Accounting Document Sequences)</h3>
+
+  <h4>วัตถุประสงค์</h4>
+  <p>
+    รวม <b>รหัสเอกสาร (Sequence)</b> มาตรฐานของงานบัญชีและใบสำคัญไว้ในที่เดียว เพื่อให้เลขที่เอกสารเป็นรูปแบบเดียวกันทั้งระบบ
+  </p>
+
+  <h4>เมนู / การตั้งค่า</h4>
+  <p><span class="path">การตั้งค่า › เทคนิค › Sequence</span> (ir.sequence) — โมดูลนี้สร้างรหัสไว้ล่วงหน้าแบบ <code>noupdate</code></p>
+
+  <h4>กลุ่มรหัสเอกสารหลัก</h4>
+  <div class="grid two">
+    <div class="tile"><div class="t">ขาย &amp; ล่วงหน้า</div><p>วางบิล <code>BL…</code> · เงินล่วงหน้า <code>PP…</code></p></div>
+    <div class="tile"><div class="t">เช็ค &amp; เงินสด</div><p>สมุดเช็ค · เงินสดรับ <code>CASH.IN</code> · เงินสดจ่าย <code>CASH.OUT</code></p></div>
+    <div class="tile"><div class="t">เงินทดรอง</div><p>ขอเบิก <code>ADVR</code> · เคลียร์ <code>ADVC</code> · เงินสดย่อย <code>PCR</code></p></div>
+    <div class="tile"><div class="t">ภาษี</div><p>หัก ณ ที่จ่าย (account.wht/wht1/wht2/wht3/wht53) · VAT ซื้อ/ขาย (VATP/VATS)</p></div>
+    <div class="tile"><div class="t">สินทรัพย์ &amp; อื่น ๆ</div><p>สินทรัพย์ <code>ASSC/ASLT</code> · ยกมา <code>BF</code> · ประกันภัย/รับประกัน <code>WC</code></p></div>
+    <div class="tile"><div class="t">ใบสำคัญ (Vouchers)</div><p>ชุดรหัสใบสำคัญจำนวนมาก เช่น <code>PV</code>, <code>PVC</code>, <code>RV</code>, <code>JVV</code>, <code>EDV</code>, <code>FAV</code> ฯลฯ</p></div>
+    <div class="tile"><div class="t">ใบสำคัญธนาคาร</div><p>ธ.กสิกรไทย (Kbank) เลข 023 / 609 (CA/FA/SA) · ธ.ไทยพาณิชย์ (SCB) 140 · ธ.ยูโอบี (UOB) 797</p></div>
+  </div>
+
+  <h4>การใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">ตรวจรหัสที่มีอยู่</span> เปิด <span class="path">การตั้งค่า › เทคนิค › Sequence</span> เพื่อดูหรือปรับเลขถัดไป/คำนำหน้า</li>
+    <li><span class="stitle">ใช้งานอัตโนมัติ</span> เอกสารจะดึงรหัสตาม <code>code</code> ของแต่ละโมดูล (ไม่ต้องกรอกเอง)</li>
+    <li><span class="stitle">ปรับรูปแบบ</span> แก้ prefix/padding/ช่วงเวลาได้ตามนโยบายเลขที่ของบริษัท (ทำอย่างระมัดระวัง — กระทบเอกสารเดิม)</li>
+  </ol>
+
+  <div class="callout note">
+    <b>หมายเหตุ:</b> ชุดรหัสถูกติดตั้งแบบ <code>noupdate="1"</code> จึงไม่ถูกเขียนทับเมื่ออัปเดตโมดูล ·
+    ตัวเลขและคำนำหน้าแสดงได้จริงจะขึ้นกับความละเอียดแต่ละบริษัท (company_id = False หมายถึงใช้ร่วมกันทุกบริษัท)
+  </div>
+
+  <hr>
+  <p class="footnote">
+    ส่วนที่ 3 (บัญชีและการเงิน — รายงานและภาษี) · ครอบคลุม 11 โมดูล ·
+    เนื้อหาอ้างอิงจากโค้ดโมดูลจริงใน <code>custom_addons/</code> (manifest, models, views, data, report)
+  </p>
+</section>

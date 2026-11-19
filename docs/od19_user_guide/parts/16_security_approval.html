@@ -1,0 +1,397 @@
+<!--Part
+id=security
+title=สิทธิ์และการอนุมัติ
+icon=🔐
+sub=บทบาทธุรกิจ · แคตตาล็อกบทบาท · ศูนย์อนุมัติกลาง · การแจ้งเตือนหลายช่องทาง (อีเมล · Odoo · LINE)
+-->
+
+<section class="part" id="security">
+  <div class="part-head">
+    <h2 class="part-title"><span class="part-icon">🔐</span> ส่วนที่ 16 · สิทธิ์และการอนุมัติ</h2>
+    <p class="part-sub">
+      ส่วนนี้ว่าด้วยการควบคุม “ใครเห็นอะไร และใครอนุมัติอะไร” ของทั้งระบบ ตั้งแต่ชั้นสิทธิ์กลาง (บทบาท + ขอบเขตแผนก),
+      แคตตาล็อกบทบาทธุรกิจที่กำหนดไว้ล่วงหน้าประมาณ 44 บทบาท, ศูนย์อนุมัติกลางที่รวมงานค้างอนุมัติจากทุกโมดูลไว้ที่เดียว
+      และศูนย์กลางการแจ้งเตือนที่ส่งข้อความออกได้หลายช่องทางพร้อมกัน (อีเมล, Odoo Inbox และ LINE)
+    </p>
+  </div>
+
+  <nav class="toc mini">
+    <h3>สารบัญส่วนนี้</h3>
+    <ol>
+      <li><a href="#sec-1">od19_security_roles — ชั้นควบคุมสิทธิ์กลาง</a></li>
+      <li><a href="#sec-2">od19_role_catalog — แคตตาล็อกบทบาทธุรกิจ</a></li>
+      <li><a href="#sec-3">od19_approval_center — ศูนย์อนุมัติกลาง</a></li>
+      <li><a href="#sec-4">od19_notification_multi_channel — แจ้งเตือนหลายช่องทาง</a></li>
+    </ol>
+  </nav>
+
+  <!-- ============================================================= -->
+  <!-- 1. od19_security_roles                                        -->
+  <!-- ============================================================= -->
+  <h3 class="mod" id="sec-1"><span class="mtag">od19_security_roles</span> ชั้นควบคุมสิทธิ์กลาง (Access Control Layer)</h3>
+  <p>
+    <code>od19_security_roles</code> เป็น <strong>เลเยอร์ที่ 1</strong> ของสถาปัตยกรรมสิทธิ์ในระบบ โมดูลนี้ถูกออกแบบให้
+    “ไม่รู้จัก” โมดูลธุรกิจใด ๆ จึงติดตั้งได้ก่อนโมดูลอื่นทั้งหมดโดยไม่เกิด dependency วนกัน โดยมีหน้าที่หลักคือ
+    สร้างกลุ่มความปลอดภัยกลางของ OD19, กำหนดขอบเขตข้อมูลตามแผนก และประสานค่าที่นั่ง (Privilege) ให้จัดกลุ่มบทบาทได้อย่างเป็นระเบียบ
+  </p>
+
+  <h4>วัตถุประสงค์</h4>
+  <ul>
+    <li>สร้าง Privilege ชื่อ <span class="pill">OD19 Roles</span> ไว้จัดกลุ่มบทบาทและกลุ่มสิทธิ์กลางทั้งหมด</li>
+    <li>มีกลุ่มกลาง 4 กลุ่ม ที่ใช้ร่วมกันทุกโมดูล (รายละเอียดด้านล่าง)</li>
+    <li>เก็บ <strong>แผนกของผู้ใช้</strong> (<code>od19_department_id</code>) แบบ mirror มาจากแผนกของพนักงาน เพื่อให้เขียน record rule ตามแผนกได้อย่างปลอดภัย</li>
+    <li>มี cron รายวันคอยซ่อมค่าที่นั่ง (mirror) ให้ตรงกับพนักงาน</li>
+  </ul>
+
+  <h4>เมนู</h4>
+  <p>
+    มอดูลนี้ <strong>ไม่มีเมนูของตัวเอง</strong> — ผลลัพธ์ของมันไปปรากฏในหน้าผู้ใช้ที่
+    <span class="path">การตั้งค่า › ผู้ใช้และบริษัท › ผู้ใช้</span> ในแท็บ <span class="pill">Access Rights</span>
+    ซึ่งจะเห็น Privilege “OD19 Roles” พร้อมกลุ่มกลาง และบทบาทต่าง ๆ ที่ติดตั้งจาก <code>od19_role_catalog</code>
+  </p>
+
+  <h4>กลุ่มความปลอดภัยกลาง (4 กลุ่ม)</h4>
+  <table>
+    <thead><tr><th>กลุ่ม</th><th>ความหมาย</th><th>imply กลุ่ม</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">OD19 Department Scope</span></td><td>ถูกจำกัดการมองเห็นข้อมูลตามแผนกของตนเอง (ทุกบทบาทธุรกิจต้อง imply กลุ่มนี้)</td><td><code>base.group_user</code></td></tr>
+      <tr><td><span class="pill">OD19 All Departments</span></td><td>เห็นข้อมูลของทุกแผนก ไม่ถูกจำกัดด้วยขอบเขตแผนก (บัญชี / คลัง / ผู้บริหาร)</td><td><code>base.group_user</code></td></tr>
+      <tr><td><span class="pill">OD19 Role Manager</span></td><td>จัดการบทบาท (<code>res.users.role</code>) และมอบหมายบทบาทให้ผู้ใช้</td><td><code>base.group_erp_manager</code></td></tr>
+      <tr><td><span class="pill">OD19 Credit Approver</span></td><td>อนุมัติวงเงินเครดิตของลูกค้า (ใช้ร่วมกับ <code>od19_sales_customer_risk_gate</code>)</td><td><code>base.group_user</code></td></tr>
+    </tbody>
+  </table>
+  <div class="callout note">
+    กลุ่ม <code>base.group_system</code> (ผู้ดูแลระบบ) ได้ <strong>Role Manager</strong> และ <strong>All Departments</strong> ไปโดยอัตโนมัติ
+    จึงจัดการบทบาทและเห็นทุกแผนกได้ทันทีโดยไม่ต้องตั้งค่าเพิ่ม
+  </div>
+
+  <h4>ฟิลด์สำคัญ</h4>
+  <ul>
+    <li><span class="pill">od19_department_id</span> — แผนกของผู้ใช้ (อ่านอย่างเดียวในหน้าจอ เพราะถูก mirror มาจากพนักงานอัตโนมัติ)</li>
+    <li><span class="pill">od19_department_code</span> — รหัสแผนก (ดึงมาจากแผนกโดยตรง ไม่เก็บซ้ำ)</li>
+    <li>บน <code>hr.department</code>: เพิ่ม <span class="pill">code</span> (รหัสย่อแผนก) และ <span class="pill">od19_member_user_ids</span> (ผู้ใช้ที่ผูกขอบเขตกับแผนกนี้)</li>
+  </ul>
+
+  <h4>กลไกการทำงาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">แผนกจากพนักงานคือแหล่งความจริง</span> — เมื่อสร้าง/แก้ไขพนักงาน (<code>hr.employee</code>) ระบบจะดึง <code>department_id</code> มาเขียนลง <code>od19_department_id</code> ของผู้ใช้ที่ผูกอยู่</li>
+    <li><span class="stitle">ซิงก์อัตโนมัติเมื่อเปลี่ยนแผนก/ผู้ใช้</span> — ถ้าแก้แผนกของพนักงานหรือสลับผู้ใช้ที่ผูก ระบบจะคำนวณและปรับแผนก mirrored ใหม่ให้ทันที</li>
+    <li><span class="stitle">ซิงก์เมื่อผู้ใช้เปลี่ยนบริษัท</span> — การเปลี่ยนบริษัทหลัก/บริษัทที่สังกัดของผู้ใช้จะทริกเกอร์ซิงก์ใหม่เช่นกัน</li>
+    <li><span class="stitle">cron ซ่อมค่าประจำวัน</span> — งาน <strong>“OD19: Repair Department Mirror (Users)”</strong> รันทุกวันเวลา 03:00 เพื่อกวาดแก้ค่าที่คลาดเคลื่อน (จากการนำเข้าข้อมูลหรือแก้ SQL ตรง)</li>
+  </ol>
+  <div class="footnote">
+    ค่าที่นั่งถูกออกแบบให้ซิงก์เป็นแบบ idempotent (รันซ้ำได้ผลเท่าเดิม) และกันการเรียกซ้ำด้วย context flag ภายในเมื่อตัวซิงก์เขียนค่ากลับเข้าผู้ใช้
+  </div>
+
+  <h4>สิทธิ์การเข้าถึง</h4>
+  <p>
+    มอดูลนี้ไม่ได้เพิ่ม ACL ของโมเดลธุรกิจใด (ไฟล์ <code>ir.model.access.csv</code> ไม่มีระเบียน) การคุมสิทธิ์อาศัยกลุ่มกลางข้างต้น
+    และการกำหนดบทบาทให้ผู้ใช้เป็นหลัก โดยการมอบบทบาททำได้ที่หน้าผู้ใช้ (เมนูผู้ใช้ + กลุ่มบทบาท)
+  </p>
+
+  <div class="callout tip">
+    ผู้ใช้ใหม่จะได้บทบาท “พนักงานทั่วไป” โดยอัตโนมัติ (ดู <code>od19_role_catalog</code>) ทำให้ถูกจำกัดขอบเขตตามแผนกของตนเองทันที
+  </div>
+  <div class="callout warn">
+    แผนกในหน้าผู้ใช้เป็น <strong>ฟิลด์อ่านอย่างเดียว</strong> — อย่าพยายามแก้ตรงนั้น ให้แก้ที่แผนกของพนักงานแทน
+    แล้วรอให้ระบบซิงก์ (หรือรัน cron) เพื่อให้ค่ากลับมาตรงกัน
+  </div>
+
+  <hr>
+
+  <!-- ============================================================= -->
+  <!-- 2. od19_role_catalog                                          -->
+  <!-- ============================================================= -->
+  <h3 class="mod" id="sec-2"><span class="mtag">od19_role_catalog</span> แคตตาล็อกบทบาทธุรกิจ (Business Roles)</h3>
+  <p>
+    <code>od19_role_catalog</code> เป็น <strong>เลเยอร์ที่ 2</strong> ทำหน้าที่เก็บเฉพาะ “ข้อมูล” (data only) คือประกาศ
+    บทบาทธุรกิจของบริษัทเป็นระเบียน <code>res.users.role</code> ประมาณ <strong>44 บทบาท</strong> แล้วผูกแต่ละบทบาทเข้ากับ
+    กลุ่มสิทธิ์ (User Group) ที่มีอยู่จริงใน Odoo core, OCA และโมดูล OD19 ต่าง ๆ
+  </p>
+
+  <h4>วัตถุประสงค์</h4>
+  <ul>
+    <li>รวมบทบาทธุรกิจไว้ที่เดียว เพื่อให้ผู้ดูแลมอบหมายงานให้พนักงานได้ด้วย “ชื่อบทบาท” ที่สื่อความหมาย ไม่ต้องเลือกกลุ่มสิทธิ์ทีละหลายกลุ่ม</li>
+    <li>ผูกแต่ละบทบาทเข้ากับกลุ่มสิทธิ์จริงที่กระจายอยู่ในทุกโมดูล (ฝั่งขาย, จัดซื้อ, คลัง, บัญชี, ISO, รายงาน ฯลฯ)</li>
+    <li>บังคับหลักการ <strong>แยกหน้าที่ (Segregation of Duties)</strong> เช่น บทบาทที่อนุมัติเครดิตต้องไม่ใช่บทบาทฝ่ายขาย</li>
+  </ul>
+
+  <h4>เมนู</h4>
+  <p>
+    ไม่มีเมนูของตัวเอง — บทบาททั้งหมดแสดงอยู่ใต้ Privilege <span class="pill">OD19 Roles</span> ใน
+    <span class="path">การตั้งค่า › ผู้ใช้และบริษัท › ผู้ใช้</span> (แท็บ Access Rights) โดยผู้ที่มีสิทธิ์ <strong>Role Manager</strong> จึงจะมอบหมายได้
+  </p>
+
+  <h4>โครงสร้างบทบาท (10 ครอบครัว A–J)</h4>
+  <p>บทบาทถูกจัดเป็น 10 ครอบครัว แยกไฟล์ข้อมูล 3 ไฟล์ เพื่อให้อ่านและดูแลง่าย:</p>
+  <div class="grid two">
+    <div class="tile"><div class="t">A. Governance / IT</div><p>ผู้จัดการระบบ · ผู้ดูแลสิทธิ์การเข้าถึง · ผู้ดูแลการเชื่อมต่อ</p></div>
+    <div class="tile"><div class="t">B. Sales</div><p>พนักงานขาย · ผู้จัดการขาย · ผู้อำนวยการขาย · ผู้ตรวจสอบเครดิต · เจ้าหน้าที่โครงการขาย</p></div>
+    <div class="tile"><div class="t">C. Purchase</div><p>เจ้าหน้าที่จัดซื้อ · ผู้จัดการจัดซื้อ · ผู้อำนวยการจัดซื้อ</p></div>
+    <div class="tile"><div class="t">D. Inventory &amp; Logistics</div><p>เจ้าหน้าที่คลัง · ผู้จัดการคลัง · เจ้าหน้าที่เบิกจ่ายสินค้า · เจ้าหน้าที่ขนส่ง · ผู้ตรวจสอบสต็อก</p></div>
+    <div class="tile"><div class="t">E. Accounting &amp; Finance</div><p>นักบัญชี · ผู้จัดการการเงิน · แคชเชียร์/เงินสดย่อย · เจ้าหน้าที่เช็ค · เจ้าหน้าที่ภาษีหัก ณ ที่จ่าย</p></div>
+    <div class="tile"><div class="t">F. After-Sales / Service</div><p>ที่ปรึกษาบริการ · ผู้ตรวจสอบคุณภาพ (QC) · ผู้ลงนามเอกสาร · ผู้จัดการลงนาม · ผู้จัดการสัญญาบริการ</p></div>
+    <div class="tile"><div class="t">G. Human Resources</div><p>เจ้าหน้าที่บุคคล · ผู้จัดการบุคคล · ผู้ดูแลยานพาหนะ · ผู้ดูแลห้องประชุม · ผู้อนุมัติค่าใช้จ่าย (CEO)</p></div>
+    <div class="tile"><div class="t">H. ISO / Quality / Risk</div><p>ผู้ควบคุมเอกสาร ISO · ผู้ตรวจประเมินภายใน · ผู้รับผิดชอบความเสี่ยง · กรรมการทบทวนฝ่ายบริหาร · ผู้ดูแลคุณภาพผู้ขาย</p></div>
+    <div class="tile"><div class="t">I. Reporting &amp; Dashboard</div><p>ผู้ใช้แดชบอร์ด · ผู้จัดการแดชบอร์ด · ผู้ดูรายงาน (Jasper) · นักวิเคราะห์รายงาน</p></div>
+    <div class="tile"><div class="t">J. Support &amp; Collaboration</div><p>พนักงานทั่วไป · ผู้ใช้ห้องประชุม · ผู้ใช้ Helpdesk ภายใน · ผู้ใช้ Knowledge</p></div>
+  </div>
+
+  <h4>บทบาทสำคัญที่ควรรู้</h4>
+  <table>
+    <thead><tr><th>บทบาท</th><th>ผูกกับกลุ่ม</th><th>หมายเหตุ</th></tr></thead>
+    <tbody>
+      <tr><td>พนักงานทั่วไป</td><td><code>base.group_user</code> · <code>group_od19_department_scope</code></td><td>บทบาทพื้นฐาน มอบให้ผู้ใช้ใหม่ทุกคนอัตโนมัติ (is_default)</td></tr>
+      <tr><td>ผู้จัดการระบบ</td><td><code>base.group_system</code> · <code>base.group_erp_manager</code> · <code>group_od19_department_all</code></td><td>ดูแลตั้งค่าทั้งระบบ เห็นทุกแผนก</td></tr>
+      <tr><td>ผู้จัดการการเงิน</td><td><code>account.group_account_manager</code> · <code>group_od19_credit_approver</code></td><td>อนุมัติวงเงินเครดิตได้ (คู่กับผู้ตรวจสอบเครดิต)</td></tr>
+      <tr><td>ผู้ตรวจสอบเครดิต</td><td><code>group_od19_credit_reviewer</code> · <code>group_od19_credit_approver</code></td><td>แยกหน้าที่ — ห้ามมอบให้พนักงานขายคนเดียวกัน</td></tr>
+      <tr><td>ผู้อำนวยการขาย / จัดซื้อ</td><td>กลุ่ม Director ของเวิร์กโฟลว์ขาย/จัดซื้อ</td><td>อนุมัติเอกสารมูลค่าสูงตามวงเงิน</td></tr>
+    </tbody>
+  </table>
+
+  <h4>ขั้นตอน: มอบบทบาทให้พนักงาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดหน้าผู้ใช้</span> — ไปที่ <span class="path">การตั้งค่า › ผู้ใช้และบริษัท › ผู้ใช้</span> แล้วเปิดบัญชีผู้ใช้ที่ต้องการ</li>
+    <li><span class="stitle">เปิดแท็บ Access Rights</span> — หา Privilege <span class="pill">OD19 Roles</span></li>
+    <li><span class="stitle">เลือกบทบาท</span> — ติ๊กบทบาทที่ต้องการ ระบบจะดึงกลุ่มสิทธิ์ที่บทบาท imply มาทั้งชุดให้เอง</li>
+    <li><span class="stitle">บันทึกและตรวจผล</span> — บันทึกแล้วให้ผู้ใช้รีเฟรชหน้า ระบบจะแสดงเมนู/ปุ่มตามสิทธิ์ใหม่</li>
+  </ol>
+
+  <h4>สิทธิ์และหลักการแยกหน้าที่</h4>
+  <ul>
+    <li>ระเบียนบทบาทถูกตั้งเป็น <code>noupdate="1"</code> — ผู้ดูแลปรับแก้ใน UI ได้ โดยไม่ถูกเขียนทับตอนอัปเกรดโมดูล</li>
+    <li><strong>SoD ด้านเครดิต:</strong> บทบาทที่อนุมัติเครดิตได้มีเพียง <strong>ผู้ตรวจสอบเครดิต</strong> และ <strong>ผู้จัดการการเงิน</strong> เท่านั้น และต้องไม่มีบทบาทใดให้ทั้งสิทธิ์ฝั่งขายและสิทธิ์อนุมัติเครดิตพร้อมกัน</li>
+    <li>บทบาท ISO หลายตัว imply ทั้ง <code>base.group_user</code> และ <code>base.group_system</code> ตาม ACL จริงของโมดูล ISO</li>
+  </ul>
+
+  <div class="callout danger">
+    อย่ามอบบทบาท <strong>ผู้ตรวจสอบเครดิต</strong> หรือ <strong>ผู้จัดการการเงิน</strong> ให้พนักงานขายคนเดียวกัน —
+    เป็นการละเมิดหลักการแยกหน้าที่ และระบบมีชุดทดสอบคอยตรวจจับการซ้อนทับนี้
+  </div>
+  <div class="callout tip">
+    มอดูลนี้ต้องติดตั้ง <strong>หลังสุด</strong> (หลังโมดูลธุรกิจทั้งหมดและหลัง <code>od19_security_roles</code>)
+    เพราะอ้างอิงกลุ่มสิทธิ์ที่กระจายอยู่ทุกโมดูล
+  </div>
+
+  <hr>
+
+  <!-- ============================================================= -->
+  <!-- 3. od19_approval_center                                       -->
+  <!-- ============================================================= -->
+  <h3 class="mod" id="sec-3"><span class="mtag">od19_approval_center</span> ศูนย์อนุมัติกลาง (Approval Center)</h3>
+  <p>
+    <code>od19_approval_center</code> เป็นแอปที่รวม “งานค้างอนุมัติ” จากหลายโมดูลมาไว้ในที่เดียว เป็นแบบ
+    <strong>ตั้งค่าขับเคลื่อน (config-driven)</strong> และ <strong>อ่านอย่างเดียว (view-only)</strong> กล่าวคือ
+    ตัวศูนย์อนุมัติไม่ได้อนุมัติแทน แต่ช่วยให้ผู้อนุมัติมองเห็นว่ารออนุมัติอะไร ใครเป็นผู้ยื่น นานแค่ไหน และคลิกเข้าไปทำงานในเอกสารจริงได้ทันที
+  </p>
+
+  <h4>วัตถุประสงค์</h4>
+  <ul>
+    <li>รวมศูนย์งานรออนุมัติจากทุกโมดูล (ค่าใช้จ่าย, ใบขอซื้อ, ISO, ใบสั่งขาย, ขนส่ง, ใบสำคัญจ่าย ฯลฯ)</li>
+    <li>จัดกลุ่มเอกสารให้ผู้อนุมัติ/ผู้ยื่นเห็นเป็น 4 กลุ่ม: <span class="badge b-amber">รอฉันอนุมัติ</span> <span class="badge b-blue">กำลังจะมาถึง</span> <span class="badge b-green">เสร็จแล้ว</span> <span class="badge b-red">ถูกปฏิเสธ</span></li>
+    <li>เตือนงานค้างเกินกำหนดเวลามาตรฐาน (SLA) เพื่อไม่ให้เอกสารค้างนาน</li>
+  </ul>
+
+  <h4>เมนู</h4>
+  <p><span class="path">การตั้งค่า › Approval Center › Approval Sources</span></p>
+  <div class="callout note">
+    เมนู “Approval Center” อยู่ในโซน <strong>การตั้งค่า (Settings)</strong> และมองเห็นเฉพาะผู้ที่อยู่ในกลุ่ม
+    <strong>Approval Center Administrator</strong> เพราะเป็นหน้าตั้งค่าแหล่งอนุมัติ
+  </div>
+
+  <h4>โมเดลหลัก</h4>
+  <table>
+    <thead><tr><th>โมเดล</th><th>หน้าที่</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">od19.approval.source</span></td><td>ประกาศ “แหล่งอนุมัติ” 1 แหล่ง ผูกกับโมเดลเป้าหมาย (เช่น hr.expense) พร้อมกลยุทธ์การอ่านสถานะและ SLA</td></tr>
+      <tr><td><span class="pill">od19.approval.step</span></td><td>นิยาม “ชั้น/สถานะ” ของแหล่งนั้น เช่น รอทบทวน รออนุมัติ พร้อมฟิลด์ที่เก็บผู้อนุมัติของขั้นนั้น</td></tr>
+    </tbody>
+  </table>
+
+  <h4>กลยุทธ์การอ่านสถานะ (strategy)</h4>
+  <div class="grid two">
+    <div class="tile"><div class="t">Field (ฟิลด์บนเอกสาร)</div><p>อ่านสถานะจากฟิลด์บนเอกสารโดยตรง เช่น hr.expense หรือ purchase.request ใช้ฟิลด์ state/status เทียบกับค่าที่กำหนดไว้ในแต่ละขั้น</p></div>
+    <div class="tile"><div class="t">Tier Validation (OCA)</div><p>อ่านจาก <code>tier.review</code> ของ OCA — ใช้กับเอกสารที่อนุมัติหลายชั้น เช่น ค่าใช้จ่าย ใบสั่งขาย ขนส่ง</p></div>
+  </div>
+
+  <h4>กลุ่มเอกสาร 4 แบบ</h4>
+  <div class="flow">
+    <span class="stp">รอฉันอนุมัติ</span>
+    <span class="arrow">→</span>
+    <span class="stp">กำลังจะมาถึง</span>
+    <span class="arrow">→</span>
+    <span class="stp">เสร็จแล้ว</span>
+    <span class="arrow">/</span>
+    <span class="stp">ถูกปฏิเสธ</span>
+  </div>
+  <table>
+    <thead><tr><th>กลุ่ม</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge b-amber">รอฉันอนุมัติ (Pending)</span></td><td>เอกสารหยุดรอที่ขั้นของผู้ใช้ท่านนี้ (รวมขั้นแบบ “คลังรวม” ที่ทุกคนเห็น)</td></tr>
+      <tr><td><span class="badge b-blue">กำลังจะมาถึง (Incoming)</span></td><td>ยังไม่ถึงคิวของผู้ใช้ท่านนี้ (รอขั้นก่อนหน้าอนุมัติก่อน)</td></tr>
+      <tr><td><span class="badge b-green">เสร็จแล้ว (Done)</span></td><td>อนุมัติครบ/อยู่ในสถานะที่ถือว่าสำเร็จแล้ว</td></tr>
+      <tr><td><span class="badge b-red">ถูกปฏิเสธ (Rejected)</span></td><td>ถูกปฏิเสธ/ยกเลิกตามสถานะที่นิยามไว้</td></tr>
+    </tbody>
+  </table>
+
+  <h4>ค่าเริ่มต้นที่ติดตั้งให้อัตโนมัติ</h4>
+  <p>
+    เมื่อติดตั้งโมดูล ระบบจะเติม “แหล่งอนุมัติ” ให้ทันทีจาก <code>post_init_hook</code> (เฉพาะโมเดลที่มีอยู่ในระบบจริง) ตัวอย่างแหล่งที่ติดตั้งให้เริ่มต้น:
+  </p>
+  <table>
+    <thead><tr><th>แหล่งอนุมัติ</th><th>โมเดล</th><th>กลยุทธ์</th><th>SLA</th></tr></thead>
+    <tbody>
+      <tr><td>ค่าใช้จ่าย (Expense)</td><td>hr.expense</td><td>Tier Validation</td><td>3 วัน</td></tr>
+      <tr><td>ใบขอซื้อ (Purchase Request)</td><td>purchase.request</td><td>Field</td><td>3 วัน</td></tr>
+      <tr><td>ลงนามเอกสาร (Document Sign)</td><td>od19.document.signer</td><td>Field</td><td>5 วัน</td></tr>
+      <tr><td>เอกสาร ISO (ISO Document)</td><td>od19.iso.document</td><td>Field (3 ขั้น)</td><td>5 วัน</td></tr>
+      <tr><td>แผนตรวจสอบ ISO</td><td>od19.iso.audit.program</td><td>Field</td><td>7 วัน</td></tr>
+      <tr><td>NC/CAPA (Nonconformity)</td><td>od19.iso.nonconformity</td><td>Field</td><td>14 วัน</td></tr>
+      <tr><td>ความเสี่ยง ISO (Risk)</td><td>od19.iso.risk</td><td>Field</td><td>14 วัน</td></tr>
+      <tr><td>สอบเทียบ ISO (Calibration)</td><td>od19.iso.calibration.record</td><td>Field</td><td>7 วัน</td></tr>
+      <tr><td>ใบสั่งขาย (Sales Order)</td><td>sale.order</td><td>Tier Validation</td><td>3 วัน</td></tr>
+      <tr><td>ขนส่ง (Transport Order)</td><td>od19.transport.order</td><td>Tier Validation</td><td>3 วัน</td></tr>
+      <tr><td>ใบสำคัญจ่าย (Payment Voucher)</td><td>account.payment</td><td>Field</td><td>2 วัน</td></tr>
+      <tr><td>ปรับมูลค่าสต็อก / นับสต็อก</td><td>od19.stock.valuation.adjustment · od19.stock.count.session</td><td>Field</td><td>5 วัน</td></tr>
+    </tbody>
+  </table>
+
+  <h4>SLA และการเตือนงานค้าง</h4>
+  <table>
+    <thead><tr><th>สถานะ SLA</th><th>เงื่อนไข</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge b-gray">ปกติ</span></td><td>อายุงานค้างน้อยกว่า SLA</td></tr>
+      <tr><td><span class="badge b-amber">เตือน</span></td><td>อายุครบหรือเกิน SLA ที่กำหนด</td></tr>
+      <tr><td><span class="badge b-red">เกินกำหนด</span></td><td>อายุตั้งแต่ 2 เท่าของ SLA ขึ้นไป</td></tr>
+    </tbody>
+  </table>
+  <div class="callout note">
+    ถ้าตั้ง <span class="pill">sla_days = 0</span> หมายถึงแหล่งนั้นไม่คิดการเตือน SLA
+  </div>
+
+  <h4>ขั้นตอน: เพิ่ม/แก้แหล่งอนุมัติ</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดเมนู</span> — ไปที่ <span class="path">การตั้งค่า › Approval Center › Approval Sources</span></li>
+    <li><span class="stitle">สร้างแหล่งใหม่</span> — ตั้งชื่อ เลือก <span class="pill">Model</span> เป้าหมาย เลือกไอคอน และตั้ง <span class="pill">Strategy</span> (Field หรือ Tier Validation)</li>
+    <li><span class="stitle">กำหนดผู้ยื่นเอกสาร</span> — ตั้ง <span class="pill">Requester Field</span> และ <span class="pill">Requester Kind</span> (User/Employee) พร้อมวันที่ยื่น</li>
+    <li><span class="stitle">กำหนดสถานะสำเร็จ/ปฏิเสธ</span> — กรอก <span class="pill">Success States</span> และ <span class="pill">Rejected States</span> คั่นด้วยเครื่องหมายจุลภาค</li>
+    <li><span class="stitle">เพิ่มขั้นอนุมัติ (Steps)</span> — ในแท็บ Steps ระบุชื่อขั้น, ฟิลด์สถานะ, ค่าที่รออยู่ และฟิลด์ผู้อนุมัติของขั้นนั้น</li>
+    <li><span class="stitle">ตั้ง SLA และลำดับ</span> — กำหนดจำนวนวัน SLA และลำดับการแสดง แล้วบันทึก</li>
+  </ol>
+  <div class="callout tip">
+    ขั้นที่เว้น <span class="pill">Approver Field</span> ว่างไว้จะกลายเป็นขั้นแบบ “คลังรวม” ที่ผู้ใช้ภายในทุกคนเห็นและเข้าถึงได้
+  </div>
+  <div class="callout warn">
+    ค่าในช่อง Success/Rejected States ต้องตรงกับค่าสถานะจริงของโมเดลนั้น (สะกดตามฟิลด์จริง)
+    มิฉะนั้นเอกสารจะไม่ถูกจัดกลุ่มถูกต้อง
+  </div>
+
+  <hr>
+
+  <!-- ============================================================= -->
+  <!-- 4. od19_notification_multi_channel                            -->
+  <!-- ============================================================= -->
+  <h3 class="mod" id="sec-4"><span class="mtag">od19_notification_multi_channel</span> ศูนย์กลางแจ้งเตือนหลายช่องทาง</h3>
+  <p>
+    <code>od19_notification_multi_channel</code> เป็นประตูกลางสำหรับส่งข้อความแจ้งเตือนออกได้พร้อมกันหลายช่องทาง ได้แก่
+    <strong>อีเมล</strong>, <strong>Odoo Inbox</strong> และ <strong>LINE</strong> โดยเลือกช่องทางตาม “ความชอบของผู้ใช้แต่ละคน”
+    และทำงานผ่านคิว (Queue) ที่ส่งโดยงานเบื้องหลัง พร้อมลองส่งซ้ำเมื่อล้มเหลว
+  </p>
+
+  <h4>วัตถุประสงค์</h4>
+  <ul>
+    <li>ให้โมดูลอื่นเรียกบริการเดียวเพื่อแจ้งเตือนได้หลายช่องทางพร้อมกัน</li>
+    <li>ให้ผู้ใช้กำหนดความชอบ (Preference) ว่าอยากรับการแจ้งเตือนเรื่องใด ผ่านช่องทางใด</li>
+    <li>เก็บข้อความลงคิวและส่งแบบเบื้องหลัง เพื่อไม่ให้หน้าจอค้าง และมีกลไกลองส่งซ้ำอัตโนมัติ</li>
+  </ul>
+
+  <h4>เมนู</h4>
+  <p>อยู่ภายใต้ <span class="path">การตั้งค่า › Notifications</span></p>
+  <table>
+    <thead><tr><th>เมนูย่อย</th><th>ใช้ทำอะไร</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge b-gray">Channels</span></td><td>ดูรายการช่องทาง (อีเมล / Odoo Inbox / LINE) — แก้ไขได้เฉพาะผู้ดูแลระบบ</td></tr>
+      <tr><td><span class="badge b-gray">My Preferences</span></td><td>ตั้งความชอบการรับแจ้งเตือนของตนเอง (เห็นเฉพาะรายการของตัวเอง)</td></tr>
+      <tr><td><span class="badge b-gray">Queue</span></td><td>คิวการส่งข้อความ ดูสถานะ pending/sending/sent/failed และสั่งส่งใหม่ได้</td></tr>
+    </tbody>
+  </table>
+
+  <h4>ช่องทาง (Channels)</h4>
+  <table>
+    <thead><tr><th>ช่องทาง</th><th>คำอธิบาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge b-blue">Email</span></td><td>ส่งอีเมลผ่านแม่แบบ “Notification Multi-Channel: Email” (ต้องมีอีเมลของผู้รับ)</td></tr>
+      <tr><td><span class="badge b-green">Odoo Inbox</span></td><td>แจ้งเตือนภายใน Odoo (กระดิ่ง/กล่องข้อความ) ให้ผู้รับภายในระบบ</td></tr>
+      <tr><td><span class="badge b-amber">LINE</span></td><td>ส่งข้อความผ่าน LINE Messaging API (ต้องเปิดใช้และตั้งค่าโทเคนที่ระดับบริษัท)</td></tr>
+    </tbody>
+  </table>
+
+  <h4>ความชอบการแจ้งเตือน (Preferences)</h4>
+  <p>
+    แต่ละรายการผูก “ผู้ใช้ + เหตุการณ์ (Event)” เข้ากับชุดช่องทางที่ต้องการ โดยมีเหตุการณ์ที่รองรับ เช่น
+    Default, แจ้งเตือนครบกำหนดยืม/เกินกำหนดคืนทรัพย์สิน, ครบกำหนดสอบเทียบ, มอบหมาย/อัปเดตงาน,
+    ประกาศ (Announcement) และ Custom
+  </p>
+  <div class="callout note">
+    ถ้าผู้ใช้ไม่ได้ตั้งค่าสำหรับเหตุการณ์นั้น ระบบจะถอยไปใช้ “Default” ของผู้ใช้เอง และถ้ายังไม่มีจึงใช้ Odoo Inbox เป็นค่าตั้งต้น
+  </div>
+
+  <h4>สถานะของคิวการส่ง</h4>
+  <div class="flow">
+    <span class="stp">pending</span>
+    <span class="arrow">→</span>
+    <span class="stp">sending</span>
+    <span class="arrow">→</span>
+    <span class="stp">sent</span>
+    <span class="arrow">/</span>
+    <span class="stp">failed</span>
+  </div>
+  <table>
+    <thead><tr><th>สถานะ</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge b-blue">Pending</span></td><td>รอในคิว ให้ cron ดึงไปส่ง</td></tr>
+      <tr><td><span class="badge b-amber">Sending</span></td><td>กำลังส่ง</td></tr>
+      <tr><td><span class="badge b-green">Sent</span></td><td>ส่งสำเร็จแล้ว</td></tr>
+      <tr><td><span class="badge b-red">Failed</span></td><td>ส่งล้มเหลว พร้อมข้อความข้อผิดพลาด และจะลองซ้ำอัตโนมัติ (ไม่เกิน 3 ครั้ง)</td></tr>
+    </tbody>
+  </table>
+
+  <h4>ขั้นตอน: ตั้งค่าช่องทาง LINE</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดใช้ที่ระดับบริษัท</span> — ไปที่หน้าบริษัท (ต้องเป็นผู้ดูแลระบบ) กลุ่ม “LINE Notifications” แล้วติ๊ก <span class="pill">Enable LINE Notifications</span></li>
+    <li><span class="stitle">กรอกโทเคนและซีเคร็ต</span> — กรอก <span class="pill">LINE Channel Access Token</span> และ <span class="pill">LINE Channel Secret</span> (ช่องแบบรหัสผ่าน)</li>
+    <li><span class="stitle">เลือกช่อง LINE เริ่มต้น</span> — เลือก <span class="pill">Default LINE Channel</span></li>
+    <li><span class="stitle">ผูก LINE User ID ให้ผู้รับ</span> — เปิดหน้าผู้ติดต่อ (res.partner) กรอก <span class="pill">LINE User ID</span> ของผู้รับ</li>
+    <li><span class="stitle">ตั้งความชอบของผู้ใช้</span> — ที่ <span class="path">การตั้งค่า › Notifications › My Preferences</span> เลือกเหตุการณ์และติ๊กช่อง LINE</li>
+  </ol>
+
+  <h4>กลไกการทำงาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">โมดูลอื่นเรียกบริการ</span> — เรียก <code>notification.service.notify(...)</code> พร้อมผู้รับ ข้อความ เหตุการณ์ และหัวข้อ</li>
+    <li><span class="stitle">กระจายลงคิวตามความชอบ</span> — ระบบอ่านช่องทางของผู้รับแต่ละคน แล้วสร้างระเบียนลงคิวทีละช่องทาง</li>
+    <li><span class="stitle">cron ส่งทุก 5 นาที</span> — งาน “Process Notification Queue” ดึงคิวที่ pending ไปส่ง (ครั้งละไม่เกิน 100 รายการ)</li>
+    <li><span class="stitle">ลองซ้ำเมื่อล้มเหลว</span> — รายการที่ failed จะถูกลองส่งใหม่ได้ถึง 3 ครั้ง ส่วนข้อความ LINE จะถูกตัดแท็ก HTML ออกก่อนส่ง</li>
+  </ol>
+
+  <h4>สิทธิ์การเข้าถึง</h4>
+  <table>
+    <thead><tr><th>โมเดล</th><th>พนักงานทั่วไป</th><th>ผู้ดูแลระบบ</th></tr></thead>
+    <tbody>
+      <tr><td>notification.channel</td><td>อ่าน</td><td>อ่าน/สร้าง/แก้ไข/ลบ</td></tr>
+      <tr><td>notification.preference</td><td>อ่าน/สร้าง/แก้ไข/ลบ (เฉพาะของตัวเอง)</td><td>เต็มสิทธิ์</td></tr>
+      <tr><td>od19.notification.queue</td><td>อ่าน</td><td>อ่าน/สร้าง/แก้ไข/ลบ · มีปุ่ม “Send Now”</td></tr>
+    </tbody>
+  </table>
+  <div class="callout note">
+    ความชอบของผู้ใช้ถูกจำกัดด้วย record rule ให้เห็นและแก้ได้เฉพาะรายการของตัวเองเสมอ
+  </div>
+  <div class="callout warn">
+    การส่ง LINE ต้องมีทั้งโทเคนของบริษัท และ LINE User ID ของผู้รับ ถ้าขาดอย่างใดอย่างหนึ่ง ระบบจะข้ามการส่งช่องทางนั้น
+    (ถ้าเครือข่ายขัดข้อง จะแจ้งข้อความเตือนที่อ่านง่ายและรอส่งซ้ำในรอบถัดไป)
+  </div>
+  <div class="callout tip">
+    ตรวจสุขภาพการส่งได้ที่เมนู <span class="path">การตั้งค่า › Notifications › Queue</span> โดยกรองดูรายการ Failed
+    และแก้ไขข้อมูลผู้รับ (อีเมล/LINE User ID) แล้วกดส่งใหม่
+  </div>
+
+</section>

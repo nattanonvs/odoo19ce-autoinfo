@@ -1,0 +1,231 @@
+<!--Part
+id=assets
+title=ทรัพย์สิน (ยืม/จำหน่าย)
+icon=🏷️
+sub=ทะเบียนทรัพย์สิน · การยืม-คืนเครื่องมืออุปกรณ์ · การจำหน่าย/ตัดจำหน่ายและออกใบสำคัญบัญชี
+-->
+
+<section class="part" id="assets">
+
+  <div class="part-head">
+    <h2 class="part-title"><span class="part-icon">🏷️</span> ส่วนที่ 12 · ทรัพย์สิน (ยืม/จำหน่าย)</h2>
+    <p class="part-sub">
+      ส่วนนี้ครอบคลุมการดูแลทรัพย์สินและเครื่องมืออุปกรณ์ขององค์กร ตั้งแต่<strong>การยืม-คืน</strong>เครื่องมือ/อุปกรณ์ระหว่างพนักงาน
+      ไปจนถึง<strong>การจำหน่าย/ตัดจำหน่าย</strong>ทรัพย์สินถาวรพร้อมสร้างรายการบัญชีโดยอัตโนมัติ
+      โมดูลทั้งสองนี้ทำงานต่อยอดบนมาตรฐานเดิม (Maintenance และ OCA Account Asset Management) โดยไม่แก้ไขโค้ดหลักของ Odoo
+    </p>
+  </div>
+
+  <nav class="toc mini">
+    <h3>สารบัญส่วนนี้</h3>
+    <ol>
+      <li><a href="#asset-1">od19_asset_disposal — การจำหน่าย/ตัดจำหน่ายทรัพย์สิน</a></li>
+      <li><a href="#asset-2">od19_asset_loan — การยืม-คืนเครื่องมือ/อุปกรณ์</a></li>
+    </ol>
+  </nav>
+
+  <h3 class="mod" id="asset-1"><span class="mtag">od19_asset_disposal</span> การจำหน่าย/ตัดจำหน่ายทรัพย์สิน (Asset Disposal)</h3>
+
+  <p>
+    โมดูล <code>od19_asset_disposal</code> เพิ่ม <strong>ขั้นตอนการจำหน่ายทรัพย์สิน</strong> ให้กับทรัพย์สินที่ดูแลด้วย
+    OCA <code>account_asset_management</code> เมื่อจำหน่าย ระบบจะ (1) ยกเลิกรายการค่าเสื่อมที่ยังเป็นแบบร่าง
+    (2) สร้าง<strong>รายการบัญชีจำหน่าย</strong> (เดบิตค่าเสื่อมสะสม / เครดิตต้นทุนทรัพย์สิน / เดบิตบัญชีมูลค่าคงเหลือเพื่อปรับยอดให้สมดุล)
+    และ (3) เปลี่ยนสถานะทรัพย์สินเป็น <span class="badge b-red">Disposed</span> พร้อมบันทึกวันที่จำหน่าย
+    ทั้งยังมีปุ่ม <strong>Revert Disposal</strong> ย้อนการจำหน่าย และงานตั้งเวลา (Cron) คำนวณค่าเสื่อมแบบปลอดภัย
+  </p>
+
+  <h4>เมนูและตำแหน่งใช้งาน</h4>
+  <p>
+    โมดูลนี้ไม่ได้สร้างเมนูใหม่ แต่จะ<strong>เพิ่มปุ่มและแท็บในการ์ดทรัพย์สิน</strong> (โมเดล <code>account.asset</code>)
+    ของโมดูลจัดการทรัพย์สินเดิม ผู้ใช้ที่มีสิทธิ์จึงเข้าไปที่หน้าจอทรัพย์สินแล้วใช้ปุ่มที่แถบด้านบนของฟอร์ม
+  </p>
+  <ul>
+    <li><span class="path">บัญชี (Accounting) › ทรัพย์สิน (Assets)</span> — เปิดการ์ดทรัพย์สินที่ต้องการจำหน่าย</li>
+    <li>ปุ่มบนแถบสถานะ (Header): <span class="pill">Dispose</span> และ <span class="pill">Revert Disposal</span></li>
+    <li>แท็บ <span class="pill">Disposal</span> ในฟอร์ม เก็บข้อมูลวันที่จำหน่าย เหตุผล รายการบัญชี และเอกสารเชื่อมโยง</li>
+  </ul>
+
+  <h4>ขั้นตอนการจำหน่ายทรัพย์สิน</h4>
+  <ol class="steps">
+    <li><span class="stitle">เตรียมข้อมูลบัญชีให้ครบ</span> — ตรวจว่าโปรไฟล์ทรัพย์สิน (<span class="pill">profile_id</span>) กำหนด <strong>บัญชีมูลค่าคงเหลือ (Residual Value Account)</strong> ไว้แล้ว มิฉะนั้นระบบจะไม่ยอมให้จำหน่าย</li>
+    <li><span class="stitle">เปิดการ์ดทรัพย์สินที่ต้องการจำหน่าย</span> — ทรัพย์สินต้องอยู่ในสถานะ <span class="badge b-green">Running</span> หรือ <span class="badge b-gray">Close</span> เท่านั้น</li>
+    <li><span class="stitle">กดปุ่ม Dispose</span> — ปรากฏเฉพาะผู้ใช้กลุ่มผู้จัดการบัญชี และจะซ่อนเมื่อสถานะไม่ใช่ Running/Close</li>
+    <li><span class="stitle">ระบบยกเลิกรายการค่าเสื่อมร่าง</span> — รายการค่าเสื่อม (<code>depreciation_line_ids</code> ประเภท depreciate) ที่ยังเป็น Draft จะถูกยกเลิกให้ก่อน</li>
+    <li><span class="stitle">ระบบสร้างรายการบัญชีจำหน่ายและลงบัญชีทันที</span> — เดบิตค่าเสื่อมสะสม (มูลค่าที่ตัดแล้ว) / เครดิตบัญชีต้นทุนทรัพย์สิน / เดบิตบัญชีมูลค่าคงเหลือ (ปรับให้ยอดเดบิต = เครดิต)</li>
+    <li><span class="stitle">บันทึกสถานะและวันที่</span> — สถานะเปลี่ยนเป็น Disposed วันที่จำหน่ายถูกบันทึกอัตโนมัติ และลิงก์ไปยังรายการบัญชีจำหน่าย</li>
+    <li><span class="stitle">ตรวจสอบรายการบัญชี</span> — ระบบเปิดหน้ารายการบัญชีจำหน่ายที่สร้างขึ้นให้ตรวจทันที</li>
+  </ol>
+  <div class="flow">
+    <span class="stp">Running / Close</span>
+    <span class="arrow">→</span>
+    <span class="stp">กด Dispose</span>
+    <span class="arrow">→</span>
+    <span class="stp">ยกเลิกร่างค่าเสื่อม</span>
+    <span class="arrow">→</span>
+    <span class="stp">สร้าง + ลงบัญชีรายการจำหน่าย</span>
+    <span class="arrow">→</span>
+    <span class="stp">Disposed</span>
+  </div>
+
+  <h4>การย้อนการจำหน่าย (Revert Disposal)</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดการ์ดทรัพย์สินที่สถานะ Disposed</span> — ปุ่มนี้จะปรากฏเฉพาะเมื่อสถานะเป็น Disposed</li>
+    <li><span class="stitle">กดปุ่ม Revert Disposal</span> — ระบบกลับรายการบัญชีจำหน่าย (พร้อมยกเลิกรายการเดิม) และล้างวันที่จำหน่าย</li>
+    <li><span class="stitle">ทรัพย์สินกลับสู่สถานะ Running</span> — สถานะเปลี่ยนเป็น <span class="badge b-green">Running</span> และระบบเปิดหน้ารายการกลับรายการให้ตรวจสอบ</li>
+  </ol>
+
+  <h4>สถานะของทรัพย์สิน (State)</h4>
+  <table>
+    <thead><tr><th>สถานะ</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge b-gray">Draft</span> / ฉบับร่าง</td><td>ทรัพย์สินที่ยังไม่เริ่มคิดค่าเสื่อม</td></tr>
+      <tr><td><span class="badge b-green">Running</span> / ใช้งาน</td><td>กำลังคิดค่าเสื่อม — <strong>จำหน่ายได้</strong></td></tr>
+      <tr><td><span class="badge b-blue">Close</span> / ปิด</td><td>คิดค่าเสื่อมครบแล้ว — <strong>จำหน่ายได้</strong></td></tr>
+      <tr><td><span class="badge b-gray">Removed</span> / นำออก</td><td>นำออกจากทะเบียนตามกลไกเดิมของโมดูลมาตรฐาน</td></tr>
+      <tr><td><span class="badge b-red">Disposed</span> / จำหน่ายแล้ว</td><td>มีรายการบัญชีจำหน่ายแล้ว, ย้อนกลับได้ด้วย Revert Disposal</td></tr>
+    </tbody>
+  </table>
+
+  <h4>ฟิลด์และปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>ชื่อ</th><th>โมเดล/เทคนิค</th><th>คำอธิบาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">od19_disposal_date</span></td><td>Date (อ่านเท่านั้น)</td><td>วันที่จำหน่าย ตั้งอัตโนมัติเมื่อจำหน่าย ล้างเมื่อย้อนกลับ</td></tr>
+      <tr><td><span class="pill">od19_disposal_reason</span></td><td>Text</td><td>เหตุผลการจำหน่าย</td></tr>
+      <tr><td><span class="pill">od19_disposal_move_id</span></td><td>Many2one → account.move</td><td>รายการบัญชีจำหน่ายที่สร้างขึ้น (ลิงก์ตรวจสอบ)</td></tr>
+      <tr><td><span class="pill">od19_additional_bill_ids</span></td><td>Many2many → account.move</td><td>เอกสารเพิ่มเติมที่เกี่ยวข้อง</td></tr>
+      <tr><td><span class="pill">od19_supporting_move_ids</span></td><td>Many2many → account.move</td><td>เอกสารสนับสนุน</td></tr>
+      <tr><td><span class="badge b-amber">Dispose</span></td><td>ปุ่ม action_dispose</td><td>จำหน่ายทรัพย์สินและสร้างรายการบัญชี</td></tr>
+      <tr><td><span class="badge b-blue">Revert Disposal</span></td><td>ปุ่ม action_revert_disposal</td><td>ย้อนการจำหน่ายและเปิดทรัพย์สินคืน</td></tr>
+    </tbody>
+  </table>
+  <p class="footnote">มุมมองรายการ (List) แสดงแถวที่ถูกจำหน่ายด้วยการเน้นสีแดง และมุมมองค้นหามีตัวกรอง “Disposed” เพิ่มให้</p>
+
+  <h4>สิทธิ์การใช้งาน</h4>
+  <ul>
+    <li>ปุ่ม Dispose และ Revert Disposal จำกัดเฉพาะกลุ่ม <code>account.group_account_manager</code> (ผู้จัดการบัญชี)</li>
+    <li>การยกเลิกรายการบัญชี/กลับรายการทำผ่านบริบท <code>allow_asset=True</code> ของ OCA เพื่อไม่ให้เกิดข้อผิดพลาดการป้องกันทรัพย์สิน</li>
+  </ul>
+
+  <div class="callout warn">
+    <strong>ข้อควรระวัง:</strong> การจำหน่ายจะ<strong>ลงบัญชีรายการทันที</strong> (post) และยกเลิกรายการค่าเสื่อมร่างทั้งหมด
+    ควรตรวจสอบยอดมูลค่าที่ตัดแล้วและมูลค่าคงเหลือก่อนกด Dispose ทุกครั้ง
+  </div>
+  <div class="callout tip">
+    <strong>เคล็ดลับ:</strong> ระบบมีงานตั้งเวลา <em>Safe Depreciation</em> ที่คำนวณค่าเสื่อมรายตัวใน <code>savepoint</code>
+    ถ้าทรัพย์สินตัวใดผิดพลาดจะถูกบันทึกใน log โดยไม่ทำให้งานทั้งหมดล้มเหลว — ช่วยให้ค่าเสื่อมของทรัพย์สินรายอื่นยังคงคำนวณได้
+  </div>
+
+  <h3 class="mod" id="asset-2"><span class="mtag">od19_asset_loan</span> การยืม-คืนเครื่องมือ/อุปกรณ์ (Asset Loan)</h3>
+
+  <p>
+    โมดูล <code>od19_asset_loan</code> เพิ่มระบบ<strong>ทะเบียนการยืม-คืนเครื่องมือและอุปกรณ์ภายในองค์กร</strong>
+    (เช่น โน้ตบุ๊ก เครื่องมือวัด ของใช้ประจำแผนก) โดยผูกกับทะเบียนอุปกรณ์บำรุงรักษา (<code>maintenance.equipment</code>)
+    และสามารถเชื่อมกับ<strong>ทรัพย์สินทางบัญชี</strong> (<code>account.asset</code>) เพื่อการคิดค่าเสื่อม
+    ระบบออกรหัสใบยืมอัตโนมัติ ติดตามวันครบกำหนด ตรวจการยืมซ้ำ และแจ้งเตือนหลายช่องทางผ่านโมดูลแจ้งเตือนกลาง
+  </p>
+
+  <h4>เมนูและตำแหน่งใช้งาน</h4>
+  <ul>
+    <li><span class="path">การบำรุงรักษา (Maintenance) › การตั้งค่า (Configuration) › Asset Loan › Loans</span> — จัดการใบยืม-คืนทั้งหมด</li>
+    <li>ในหน้าจออุปกรณ์ (Equipment) มีปุ่มสถิติ <span class="pill">Loans</span> เปิดดูใบยืมของอุปกรณ์ชิ้นนั้น และฟิลด์ยืมถูกเพิ่มในฟอร์มอุปกรณ์</li>
+  </ul>
+
+  <h4>ขั้นตอนการยืม-คืน</h4>
+  <ol class="steps">
+    <li><span class="stitle">สร้างใบยืมใหม่ (Draft)</span> — เลือก <strong>ผู้ยืม</strong>, วันที่ยืม, วันครบกำหนดคืน (และเหตุผล/บันทึกได้) ระบบออกรหัส <code>AL/ปี/เลขรัน</code> ให้อัตโนมัติ</li>
+    <li><span class="stitle">เพิ่มรายการอุปกรณ์</span> — ในแท็บ Equipment เพิ่มบรรทัด ระบุอุปกรณ์และจำนวน (ต้องมีอย่างน้อย 1 รายการก่อนยืนยัน)</li>
+    <li><span class="stitle">กดปุ่ม Confirm</span> — สถานะเปลี่ยนเป็น Borrowed และรายการทุกบรรทัดเปลี่ยนตามไปด้วย</li>
+    <li><span class="stitle">เมื่อคืนของ กดปุ่ม Return</span> — สถานะเป็น Returned บันทึกวันคืนจริง และตั้งจำนวนคืนเท่ากับจำนวนที่ยืมในทุกบรรทัด</li>
+    <li><span class="stitle">กรณีของหาย กดปุ่ม Mark Lost</span> — สถานะเป็น Lost พร้อมปรับสถานะรายการทั้งหมด</li>
+    <li><span class="stitle">พิมพ์ใบยืม (ถ้าต้องการ)</span> — พิมพ์รายงาน “Asset Loan Slip” เพื่อให้ผู้ยืมและผู้อนุมัติลงนาม</li>
+  </ol>
+  <div class="flow">
+    <span class="stp">Draft</span>
+    <span class="arrow">→</span>
+    <span class="stp">Confirm</span>
+    <span class="arrow">→</span>
+    <span class="stp">Borrowed</span>
+    <span class="arrow">→</span>
+    <span class="stp">Return</span>
+    <span class="arrow">→</span>
+    <span class="stp">Returned</span>
+  </div>
+  <p class="footnote">
+    สายอื่นจาก Borrowed: <span class="badge b-red">Lost</span> (ของหาย) · จากทุกสถานะที่ยังไม่คืน/หาย: <span class="badge b-gray">Cancelled</span> (ยกเลิก) ·
+    และจาก Cancelled กลับเป็น Draft ได้ด้วยปุ่ม Reset to Draft
+  </p>
+
+  <h4>สถานะของใบยืม (State)</h4>
+  <table>
+    <thead><tr><th>สถานะ</th><th>ความหมาย</th><th>ปุ่มที่ใช้ได้</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge b-blue">Draft</span></td><td>ใบยืมฉบับร่าง ยังไม่ยืนยัน</td><td>Confirm, Cancel</td></tr>
+      <tr><td><span class="badge b-blue">Borrowed</span></td><td>ยืมอยู่ (ของอยู่กับผู้ยืม)</td><td>Return, Mark Lost, Cancel</td></tr>
+      <tr><td><span class="badge b-green">Returned</span></td><td>คืนแล้ว</td><td>—</td></tr>
+      <tr><td><span class="badge b-red">Lost</span></td><td>ของหาย</td><td>—</td></tr>
+      <tr><td><span class="badge b-gray">Cancelled</span></td><td>ยกเลิก</td><td>Reset to Draft</td></tr>
+    </tbody>
+  </table>
+  <p>
+    มีฟิลด์ <span class="pill">is_overdue</span> (คำนวณและเก็บค่า) แสดงว่าใบยืมเลยกำหนดคืนแล้วหรือยัง — เป็นจริงเมื่อเลยวันครบกำหนด
+    และสถานะยังไม่ใช่ Returned/Lost/Cancelled (มุมมองรายการเน้นแถวที่เลยกำหนดด้วยสีแดง)
+  </p>
+
+  <h4>ฟิลด์และปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>ชื่อ</th><th>ประเภท</th><th>คำอธิบาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">name</span></td><td>Char (อ่านเท่านั้น)</td><td>รหัสใบยืม ออกจากลำดับ <code>asset.loan</code> รูปแบบ <code>AL/ปี/เลขรัน</code></td></tr>
+      <tr><td><span class="pill">borrower_id</span></td><td>Many2one → res.partner</td><td>ผู้ยืม (จำเป็น)</td></tr>
+      <tr><td><span class="pill">loan_date</span></td><td>Date</td><td>วันที่ยืม (ค่าเริ่มต้น = วันนี้)</td></tr>
+      <tr><td><span class="pill">expected_return_date</span></td><td>Date</td><td>วันครบกำหนดคืน (ต้องไม่ก่อนวันยืม)</td></tr>
+      <tr><td><span class="pill">actual_return_date</span></td><td>Date (อ่านเท่านั้น)</td><td>วันคืนจริง ตั้งเมื่อกด Return</td></tr>
+      <tr><td><span class="pill">line_ids</span></td><td>One2many</td><td>รายการอุปกรณ์ที่ยืม</td></tr>
+      <tr><td><span class="pill">purpose</span> / <span class="pill">note</span></td><td>Text / HTML</td><td>เหตุผลการยืม และบันทึกเพิ่มเติม</td></tr>
+      <tr><td><span class="badge b-blue">Confirm</span></td><td>ปุ่ม action_confirm</td><td>ยืนยันการยืม (ต้องมีรายการอุปกรณ์)</td></tr>
+      <tr><td><span class="badge b-green">Return</span></td><td>ปุ่ม action_return</td><td>บันทึกการคืน</td></tr>
+      <tr><td><span class="badge b-red">Mark Lost</span></td><td>ปุ่ม action_lost</td><td>ทำเครื่องหมายว่าของหาย</td></tr>
+      <tr><td><span class="badge b-gray">Cancel</span> / <span class="badge b-blue">Reset to Draft</span></td><td>ปุ่ม action_cancel / action_draft</td><td>ยกเลิก และย้อนกลับเป็นฉบับร่าง</td></tr>
+    </tbody>
+  </table>
+
+  <h4>ฟิลด์เพิ่มในทะเบียนอุปกรณ์ (Equipment)</h4>
+  <table>
+    <thead><tr><th>ฟิลด์</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">is_loanable</span></td><td>ระบุว่าอุปกรณ์ชิ้นนี้ให้ยืมได้หรือไม่ (ค่าเริ่มต้น = ใช่)</td></tr>
+      <tr><td><span class="pill">asset_id</span></td><td>เชื่อมกับทรัพย์สินทางบัญชี (account.asset) เพื่อคิดค่าเสื่อม</td></tr>
+      <tr><td><span class="pill">calibration_date</span></td><td>วันสอบเทียบครั้งถัดไป (ใช้แจ้งเตือน)</td></tr>
+      <tr><td><span class="pill">loan_count</span> / <span class="pill">current_loan_line_id</span></td><td>จำนวนใบยืม และรายการที่กำลังยืมอยู่ (แสดงปุ่มสถิติ Loans)</td></tr>
+    </tbody>
+  </table>
+
+  <h4>การแจ้งเตือน (อัตโนมัติ)</h4>
+  <ul>
+    <li><strong>Due Reminders</strong> — แจ้งเตือนใบยืมที่ครบกำหนดภายใน 1 วัน (ทุกวัน)</li>
+    <li><strong>Overdue Alerts</strong> — แจ้งเตือนใบยืมที่เลยกำหนดคืนแล้ว (ทุกวัน)</li>
+    <li><strong>Calibration Reminders</strong> — แจ้งเตือนอุปกรณ์ที่ถึงกำหนดสอบเทียบภายใน 7 วัน (ทุกวัน) ไปยังช่างผู้รับผิดชอบ</li>
+  </ul>
+  <p class="footnote">การแจ้งเตือนส่งผ่านบริการแจ้งเตือนกลาง <code>notification.service</code> (โมดูล od19_notification_multi_channel) ไปยังผู้ยืม/ผู้รับผิดชอบ</p>
+
+  <h4>สิทธิ์และข้อจำกัดสำคัญ</h4>
+  <ul>
+    <li>ผู้ใช้ทั่วไป (<code>base.group_user</code>) อ่าน/สร้าง/แก้ไขได้ แต่ <strong>ลบไม่ได้</strong></li>
+    <li>ผู้ดูแลระบบ (<code>base.group_system</code>) ลบได้ และมีกฎหลายบริษัท (ดูได้เฉพาะใบยืมของบริษัทตัวเอง)</li>
+    <li><strong>ห้ามยืมอุปกรณ์ซ้ำ</strong> — อุปกรณ์ชิ้นเดียวกันจะยืมซ้ำไม่ได้หากยังมีใบยืมที่ยังใช้งาน (Draft/Borrowed) อยู่</li>
+    <li>จำนวนที่คืนต้องไม่เกินจำนวนที่ยืม และวันครบกำหนดต้องไม่ก่อนวันยืม</li>
+  </ul>
+
+  <div class="callout note">
+    <strong>เกี่ยวกับการพิมพ์:</strong> รายงาน “Asset Loan Slip” (แบบฟอร์มใบยืม) มีช่องลงนามผู้ยืมและผู้อนุมัติ —
+    พิมพ์จากปุ่ม Print ในใบยืมได้โดยตรง
+  </div>
+  <div class="callout tip">
+    <strong>เคล็ดลับ:</strong> ถ้าต้องการดูว่าอุปกรณ์ชิ้นไหนถูกยืมอยู่ ให้เปิดหน้าจออุปกรณ์แล้วดูปุ่ม <span class="pill">Loans</span>
+    หรือใช้ตัวกรอง “Overdue” ในหน้าจอใบยืมเพื่อไล่ตามของที่เลยกำหนดคืน
+  </div>
+
+  <hr>
+
+</section>

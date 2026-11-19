@@ -1,0 +1,423 @@
+<!--Part
+id=settings
+title=การตั้งค่าและยูทิลิตี้
+icon=⚙️
+sub=ฟอนต์และปีพุทธศักราช · ฟิลด์ไทยของคู่ค้า · คำแปลไทยของโมดูล OCA · การนำทาง/ร่างอัตโนมัติ · คำใบ้ฟิลด์ · ค่าเริ่มต้น UI · ตัวกรองแอป · ฟีเจอร์เบ็ดเตล็ด
+-->
+
+<section class="part" id="settings">
+  <div class="part-head">
+    <h2 class="part-title"><span class="part-icon">⚙️</span> ส่วนที่ 17 · การตั้งค่าและยูทิลิตี้</h2>
+    <p class="part-sub">
+      ส่วนนี้รวบรวมโมดูลที่ทำให้ระบบ “เป็นไทย” และพร้อมใช้งานจริง ตั้งแต่ฐานข้อมูลไทยและการใช้ปีพุทธศักราช (พ.ศ.),
+      ฟอนต์ไทย (Sarabun) ทั้งหน้าจอและรายงาน PDF, ฟิลด์เฉพาะไทยของคู่ค้า, ระบบเลขที่รหัสคู่ค้า,
+      คำแปลไทยของโมดูลจาก OCA รวมถึงยูทิลิตี้ที่ช่วยการทำงานประจำวัน เช่น ปุ่มย้อนกลับ/ไปข้างหน้า,
+      ร่างอัตโนมัติ, คำใบ้ในช่องกรอก, ค่าเริ่มต้น UI และเครื่องมือสำหรับผู้ดูแลระบบ
+    </p>
+  </div>
+
+  <nav class="toc mini">
+    <h3>สารบัญส่วนนี้</h3>
+    <ol>
+      <li><a href="#set-1">ฐานข้อมูลไทยและปีพุทธศักราช</a></li>
+      <li><a href="#set-2">ฟอนต์ไทย (Sarabun)</a></li>
+      <li><a href="#set-3">คำแปลไทยสำหรับโมดูล OCA</a></li>
+      <li><a href="#set-4">ฟิลด์ไทยของคู่ค้า</a></li>
+      <li><a href="#set-5">เลขที่รหัสคู่ค้า (C/V)</a></li>
+      <li><a href="#set-6">บทบาทคู่ค้า (Partner Roles)</a></li>
+      <li><a href="#set-7">ปุ่มย้อนกลับ / ไปข้างหน้า</a></li>
+      <li><a href="#set-8">ร่างอัตโนมัติ (Offline Draft)</a></li>
+      <li><a href="#set-9">คำใบ้ในช่องกรอก (Field Hints)</a></li>
+      <li><a href="#set-10">ค่าเริ่มต้น UI และความอ่านง่าย</a></li>
+      <li><a href="#set-11">ตัวกรองแอป (OD19 Modules)</a></li>
+      <li><a href="#set-12">ฟีเจอร์เบ็ดเตล็ด (Misc Features)</a></li>
+      <li><a href="#set-13">เครื่องหมายฟิลด์ [od19] (โหมด Dev)</a></li>
+    </ol>
+  </nav>
+
+  <h3 class="mod" id="set-1"><span class="mtag">od19_thai_localization_base</span> ฐานข้อมูลไทยและปีพุทธศักราช</h3>
+  <p>
+    โมดูลนี้เป็น “ฐาน” ของการแปลไทยในระบบ กำหนดค่าบริษัทให้ใช้ <strong>ฟอนต์ Sarabun</strong> และ
+    เปิด <strong>การใช้ปีพุทธศักราช (พ.ศ.)</strong> ในรายงานไทยเป็นค่าเริ่มต้น โดยพึ่งพาโมดูล
+    มาตรฐานของ OCA (<code>l10n_th</code>, <code>l10n_th_base_utils</code>, <code>l10n_th_base_sequence</code>,
+    <code>l10n_th_amount_to_text</code>) ติดตั้งมาพร้อมกัน
+  </p>
+  <h4>จุดตั้งค่า</h4>
+  <p>
+    เปิดฟอร์มตั้งค่า: <span class="path">แอป “การตั้งค่า” › ทั่วไป › Thai Localization</span>
+    จะเห็นหัวข้อ “Use Buddhist Year (พ.ศ.)”
+  </p>
+  <ol class="steps">
+    <li><span class="stitle">เปิดฟอร์มตั้งค่าบริษัท</span> ไปที่ <span class="path">การตั้งค่า › ทั่วไป</span> แล้วเลื่อนลงหาแถบ “Thai Localization”</li>
+    <li><span class="stitle">ติ๊ก/ถอด “Use Buddhist Year (พ.ศ.)”</span> ตามต้องการ (ค่าเริ่มต้นเปิดอยู่) แล้วกดบันทึก</li>
+    <li><span class="stitle">ตรวจผลในรายงาน</span> เปิดรายงานไทยฉบับใดก็ได้ — ปีในวันที่จะแสดงเป็น พ.ศ. (เช่น 2568 แทน 2025)</li>
+  </ol>
+  <h4>ฟิลด์/ค่าเริ่มต้นสำคัญ</h4>
+  <table>
+    <thead><tr><th>ที่ตั้ง</th><th>ค่า</th><th>ผล</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">font</span> (บนบริษัท)</td><td><code>Sarabun</code></td><td>ค่าเริ่มต้นของฟอนต์บริษัท</td></tr>
+      <tr><td><span class="pill">l10n_th_buddhist_year</span></td><td><code>เปิด</code></td><td>วันที่ในรายงานไทยใช้ปี พ.ศ.</td></tr>
+    </tbody>
+  </table>
+  <div class="callout note">
+    เมื่อติดตั้งโมดูลครั้งแรก ระบบจะตั้งค่าให้อัตโนมัติ (ฟอนต์ Sarabun + เปิดปีพุทธศักราช) ให้ทุกบริษัทในฐานข้อมูล
+    จึงไม่ต้องตั้งค่าเองในครั้งแรก
+  </div>
+  <div class="callout warn">
+    ค่า “Use Buddhist Year” เป็นการตั้งค่า<b>ต่อบริษัท</b> — ถ้ามีหลายบริษัท ต้องตรวจสอบการตั้งค่าของแต่ละบริษัทแยกกัน
+  </div>
+
+  <h3 class="mod" id="set-2"><span class="mtag">od19_thai_font_support</span> ฟอนต์ไทย (Sarabun)</h3>
+  <p>
+    จัดการแสดงผลภาษาไทยให้สวยงามและถูกต้อง ด้วยการบังคับใช้ฟอนต์ <strong>Sarabun</strong> ทั้งระบบ
+    โดยไม่ต้องติดตั้งฟอนต์เพิ่มที่เครื่องเซิร์ฟเวอร์ ตัวโมดูลแนบไฟล์ฟอนต์ (Regular, Bold, Italic, Bold Italic)
+    มาด้วย และเรียกใช้ผ่าน <code>@font-face</code> ทั้งหน้าเว็บและรายงาน PDF
+  </p>
+  <h4>ขอบเขตการทำงาน</h4>
+  <div class="grid three">
+    <div class="tile"><div class="t">🖥️ หน้าจอ (Backend/Frontend)</div><p>แทนที่ฟอนต์ค่าเริ่มต้นด้วย Sarabun ทั่วทั้งหน้าจอการทำงานและหน้าเว็บ</p></div>
+    <div class="tile"><div class="t">🧾 รายงาน QWeb (PDF)</div><p>ฉีดฟอนต์ Sarabun เข้า stylesheet ของรายงาน PDF ให้แสดงภาษาไทยถูกต้อง</p></div>
+    <div class="tile"><div class="t">🔤 ฟอนต์สำรอง</div><p>ถ้าไม่มี Sarabun จะไล่ไปที่ Noto Sans Thai, Tahoma ตามลำดับ</p></div>
+  </div>
+  <div class="callout note">
+    โมดูลนี้ไม่มีเมนูให้ตั้งค่า — ทำงานอัตโนมัติทั้งระบบ ผู้ออกแบบตั้งใจไม่ให้ผู้ใช้สลับฟอนต์เอง
+    เพื่อให้หน้าจอสอดคล้องกันและดูแลง่าย
+  </div>
+  <div class="callout tip">
+    ไอคอนของ Odoo (FontAwesome / Odoo UI icons) ได้รับการ “กู้คืน” ให้ใช้ฟอนต์ไอคอนตามเดิมแล้ว
+    จึงไม่ถูกแทนที่ด้วยฟอนต์ไทยจนสัญลักษณ์เพี้ยน
+  </div>
+
+  <h3 class="mod" id="set-3"><span class="mtag">od19_oca_th_translations</span> คำแปลไทยสำหรับโมดูล OCA</h3>
+  <p>
+    โมดูลนี้เป็น “ส่วนเติมคำแปลไทย” ให้โมดูลที่มาจาก OCA (third-party) จำนวนมาก เพื่อให้ป้ายกำกับ
+    ช่องกรอก ข้อความแจ้งเตือน และเมนูต่าง ๆ ของโมดูลเหล่านั้นแสดงเป็นภาษาไทย
+    โดยโมดูลนี้ติดตั้งอัตโนมัติ (<code>auto_install</code>) เมื่อโมดูล OCA ที่รองรับถูกติดตั้ง
+  </p>
+  <h4>กลไกการทำงาน</h4>
+  <div class="flow">
+    <span class="stp">ไฟล์ต้นทาง <code>sources/&lt;module&gt;/th.po</code></span>
+    <span class="arrow">→</span>
+    <span class="stp">คัดลอกเข้า <code>&lt;module&gt;/i18n_extra/th.po</code></span>
+    <span class="arrow">→</span>
+    <span class="stp">Odoo โหลดคำแปล</span>
+  </div>
+  <p>
+    ไฟล์คำแปลที่ “ถือเป็นต้นฉบับ” ถูกเก็บไว้ในโมดูลนี้ (ติดตามด้วย git) แล้วคัดลอกไปยังโฟลเดอร์
+    <code>i18n_extra</code> ของโมดูล OCA เป้าหมาย <b>ทุกครั้งที่เซิร์ฟเวอร์เริ่มทำงาน</b>
+    เพื่อไม่ให้คำแปลหายไปเมื่อ clone ใหม่ (เพราะไฟล์ในโฟลเดอร์ OCA ไม่ได้ถูกเก็บใน submodule)
+  </p>
+  <h4>ขั้นตอน (สำหรับผู้ดูแลระบบ)</h4>
+  <ol class="steps">
+    <li><span class="stitle">ติดตั้งโมดูล OCA ที่ต้องการ</span> โมดูลคำแปลจะตามมาอัตโนมัติ</li>
+    <li><span class="stitle">ตั้งภาษาผู้ใช้เป็นไทย</span> ที่ข้อมูลส่วนตัวของผู้ใช้ (Preferences → Language = ไทย)</li>
+    <li><span class="stitle">รีเฟรชหน้าเว็บ</span> ป้ายกำกับ/ข้อความของโมดูล OCA จะแสดงเป็นไทย</li>
+  </ol>
+  <div class="callout warn">
+    คำแปลชุดนี้ทำงานเมื่อ “เซิร์ฟเวอร์เริ่มทำงาน” (post-load) — หากแก้ไฟล์ <code>.po</code> ต้นทาง
+    ต้องรีสตาร์ทเซิร์ฟเวอร์หรืออัปเดตโมดูลเพื่อให้ระบบคัดลอกเวอร์ชันใหม่ไปใช้
+  </div>
+
+  <h3 class="mod" id="set-4"><span class="mtag">od19_partner_thai_fields</span> ฟิลด์ไทยของคู่ค้า</h3>
+  <p>
+    เพิ่มฟิลด์เฉพาะประเทศไทยให้หน้าคู่ค้า (ลูกค้า/ผู้จำหน่าย) เพื่อรองรับการออกใบกำกับภาษีและเอกสารราชการ
+    เช่น ชื่อตามใบกำกับภาษี รหัสสาขา และชื่อ-ที่อยู่ในภาษาอังกฤษ
+  </p>
+  <h4>ฟิลด์ที่เพิ่ม</h4>
+  <table>
+    <thead><tr><th>ฟิลด์</th><th>ความหมาย</th><th>หมายเหตุ</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">tax_name</span></td><td>ชื่อตามใบกำกับภาษี</td><td>ถ้าว่าง ระบบจะใช้ชื่อคู่ค้าปกติ</td></tr>
+      <tr><td><span class="pill">branch_code</span></td><td>รหัสสาขา (5 หลัก)</td><td>สำนักงานใหญ่ใช้ <code>00000</code> <span class="badge b-red">บังคับ 5 หลัก</span></td></tr>
+      <tr><td><span class="pill">name_en</span></td><td>ชื่อภาษาอังกฤษ</td><td>ใช้ติดต่อ/จัดส่งระหว่างประเทศ</td></tr>
+      <tr><td><span class="pill">address_en</span></td><td>ที่อยู่ภาษาอังกฤษ</td><td>ใช้จัดส่งระหว่างประเทศ</td></tr>
+      <tr><td><span class="pill">fax</span></td><td>โทรสาร</td><td>—</td></tr>
+      <tr><td><span class="pill">od19_subdistrict</span></td><td>ตำบล / แขวง</td><td>ต่อจากช่อง “City”</td></tr>
+      <tr><td><span class="pill">od19_amphoe</span></td><td>อำเภอ / เขต</td><td>ต่อจากช่อง “City”</td></tr>
+    </tbody>
+  </table>
+  <h4>ขั้นตอนการกรอก</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดหน้าคู่ค้า</span> <span class="path">แอป “ผู้ติดต่อ” › เลือกคู่ค้า (หรือสร้างใหม่)</span></li>
+    <li><span class="stitle">กรอกเลขผู้เสียภาษี (VAT)</span> แล้วกรอก “Tax Invoice Name” และ “Branch Code” ต่อจากช่อง VAT</li>
+    <li><span class="stitle">กรอกที่อยู่ไทย</span> กรอกตำบล/แขวง และอำเภอ/เขตที่อยู่ถัดจากช่อง City</li>
+    <li><span class="stitle">กรอกข้อมูลภาษาอังกฤษ</span> เพิ่ม English Name, Fax และ English Address</li>
+  </ol>
+  <div class="callout danger">
+    <strong>รหัสสาขา</strong> ต้องเป็น<b>ตัวเลข 5 หลักเท่านั้น</b> (เช่น <code>00000</code> สำหรับสำนักงานใหญ่)
+    หากกรอกผิด ระบบจะไม่ยอมบันทึกและแจ้งข้อผิดพลาดทันที
+  </div>
+  <div class="callout note">
+    ฟิลด์เหล่านี้ผูกกับบริษัทด้วย (Related) จึงแก้ไขได้ทั้งจากหน้าคู่ค้าและหน้าข้อมูลบริษัท โดยอัปเดตตรงกัน
+  </div>
+
+  <h3 class="mod" id="set-5"><span class="mtag">od19_partner_document_sequence</span> เลขที่รหัสคู่ค้า (C/V)</h3>
+  <p>
+    ออกรหัสอ้างอิงให้คู่ค้าโดยอัตโนมัติ แยกตามประเภท — <strong>ลูกค้า</strong> ขึ้นต้นด้วย <code>C</code>
+    และ <strong>ผู้จำหน่าย</strong> ขึ้นต้นด้วย <code>V</code> ตามด้วยเลขรัน 4 หลัก (เช่น <code>C0001</code>, <code>V0001</code>)
+    เพื่อใช้อ้างอิงในเอกสารและงานภายใน
+  </p>
+  <h4>ฟิลด์บนหน้าคู่ค้า</h4>
+  <div class="grid two">
+    <div class="tile"><div class="t">🧑 Is a Customer</div><p>ติ๊กเมื่อคู่ค้าเป็นลูกค้า — รหัสจะเริ่มด้วย <code>C</code></p></div>
+    <div class="tile"><div class="t">🏭 Is a Vendor</div><p>ติ๊กเมื่อคู่ค้าเป็นผู้จำหน่าย — รหัสจะเริ่มด้วย <code>V</code></p></div>
+    <div class="tile"><div class="t">🔁 Auto Running</div><p>เปิดเพื่อให้ระบบออกรหัสอัตโนมัติ</p></div>
+    <div class="tile"><div class="t">🧩 Customer + Vendor</div><p>ถ้าเป็นทั้งสองอย่าง ระบบจะปิดการออกรหัสอัตโนมัติ</p></div>
+  </div>
+  <h4>ขั้นตอน</h4>
+  <ol class="steps">
+    <li><span class="stitle">สร้าง/เปิดคู่ค้า</span> ไปที่หน้าคู่ค้า แล้วดูส่วน “Reference” (รหัสอ้างอิง)</li>
+    <li><span class="stitle">ระบุประเภท</span> ติ๊ก “Is a Customer” และ/หรือ “Is a Vendor”</li>
+    <li><span class="stitle">เว้นรหัสว่างไว้</span> ให้ช่อง Reference ว่างไว้ (อย่าใส่ “New”, “/”) ระบบจะสร้างรหัสให้เมื่อบันทึก</li>
+  </ol>
+  <div class="callout note">
+    ถ้าคู่ค้าเป็น<b>ทั้งลูกค้าและผู้จำหน่าย</b> ระบบจะไม่สร้างรหัสให้อัตโนมัติ (เพื่อไม่ให้รหัสซ้ำสองแบบ)
+    ผู้ใช้สามารถกรอกรหัสเองได้
+  </div>
+  <div class="callout tip">
+    รหัสที่ออกแล้วระบบจะไม่สร้างใหม่ทับ — ถ้าต้องการรหัสชุดใหม่ ให้ตรวจว่าช่อง Reference ว่างจริงก่อนบันทึก
+  </div>
+
+  <h3 class="mod" id="set-6"><span class="mtag">od19_contacts_partner_roles</span> บทบาทคู่ค้า (Partner Roles)</h3>
+  <p>
+    เพิ่มการจำแนก “บทบาท” ของคู่ค้าเป็น 3 แบบ เพื่อช่วยกรองและจัดกลุ่มคู่ค้าให้ตรงกับงานขาย-โครงการ
+    พร้อมช่องโทรศัพท์มือถือและกฎตรวจสอบความถูกต้องของข้อมูล
+  </p>
+  <h4>บทบาท 3 แบบ</h4>
+  <table>
+    <thead><tr><th>บทบาท</th><th>ฟิลด์</th><th>เงื่อนไข</th></tr></thead>
+    <tbody>
+      <tr><td>Commercial Customer</td><td><span class="pill">od19_is_commercial_customer</span></td><td>ต้องมีช่องทางติดต่ออย่างน้อย 1 (อีเมล/โทร/มือถือ)</td></tr>
+      <tr><td>Project Owner</td><td><span class="pill">od19_is_project_owner</span></td><td>ต้องเป็น “บริษัท” (Company)</td></tr>
+      <tr><td>Contractor</td><td><span class="pill">od19_is_contractor</span></td><td>ต้องเป็น “บริษัท” (Company)</td></tr>
+    </tbody>
+  </table>
+  <h4>ขั้นตอน</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดหน้าคู่ค้า</span> แล้วไปที่แท็บ “Sales &amp; Purchase”</li>
+    <li><span class="stitle">ติ๊กบทบาทที่ต้องการ</span> ในกลุ่ม “Partner Roles” (ช่อง Project Owner/Contractor จะซ่อนถ้าไม่ใช่บริษัท)</li>
+    <li><span class="stitle">กรองรายการคู่ค้า</span> ไปที่หน้าผู้ติดต่อ ใช้ตัวกรอง “Commercial Customers” / “Project Owners” / “Contractors”</li>
+  </ol>
+  <div class="callout warn">
+    หากติ๊ก “Commercial Customer” แต่ไม่มีช่องทางติดต่อเลย หรือติ๊ก “Project Owner/Contractor” บนคู่ค้าที่ไม่ใช่บริษัท
+    ระบบจะแจ้งข้อผิดพลาดและไม่ยอมบันทึก
+  </div>
+  <div class="callout note">
+    เมื่อติดตั้งครั้งแรก ระบบจะ “ป้อนย้อนหลัง” (Backfill) บทบาทให้คู่ค้าที่เกี่ยวข้องอยู่แล้วในระบบโดยอัตโนมัติ
+  </div>
+
+  <h3 class="mod" id="set-7"><span class="mtag">od19_web_navigation</span> ปุ่มย้อนกลับ / ไปข้างหน้า</h3>
+  <p>
+    เพิ่มปุ่ม <strong>ย้อนกลับ</strong> และ <strong>ไปข้างหน้า</strong> บนแถบนำทาง (NavBar) ด้านบน
+    ถัดจากปุ่ม Home Menu เพื่อให้สลับหน้าระหว่างเมนูได้เร็วขึ้น พร้อมคีย์ลัด
+  </p>
+  <h4>วิธีใช้</h4>
+  <table>
+    <thead><tr><th>ปุ่ม/การกระทำ</th><th>ผล</th></tr></thead>
+    <tbody>
+      <tr><td>◀ ปุ่มย้อนกลับ</td><td>กลับไปหน้าที่เปิดก่อนหน้า (ถ้าเลยหน้าแรกสุด จะกลับไปหน้าแรกของแอป)</td></tr>
+      <tr><td>▶ ปุ่มไปข้างหน้า</td><td>กลับไปหน้าที่เพิ่งย้อนกลับมา (ปุ่มจะถูกปิดเมื่อไม่มีประวัติเหลือ)</td></tr>
+      <tr><td><span class="kbd">Alt</span> + <span class="kbd">←</span></td><td>ย้อนกลับ (คีย์ลัด)</td></tr>
+      <tr><td><span class="kbd">Alt</span> + <span class="kbd">→</span></td><td>ไปข้างหน้า (คีย์ลัด)</td></tr>
+    </tbody>
+  </table>
+  <div class="callout note">
+    ระบบเก็บประวัติการนำทางของตัวเอง (สูงสุด 60 หน้า) เพราะ Odoo เขียนทับประวัติเบราว์เซอร์ทุกครั้งที่เปลี่ยนเมนู
+    จึงทำให้ปุ่มย้อนกลับทำงานได้จริงแบบทีละหน้า
+  </div>
+  <div class="callout tip">
+    หน้ารายละเอียดที่เปิดในหน้าต่างใหม่ (Dialog) จะไม่ถูกนับเป็น “หน้า” — ปุ่มย้อนกลับจะยังคงใช้ได้ตามปกติ
+  </div>
+
+  <h3 class="mod" id="set-8"><span class="mtag">od19_offline_draft</span> ร่างอัตโนมัติ (Offline Draft)</h3>
+  <p>
+    บันทึกข้อมูลที่กรอกค้างไว้เป็น “ร่าง” ให้อัตโนมัติ ป้องกันข้อมูลหายเมื่อเน็ตหลุด ปิดหน้าต่าง หรือรีเฟรชหน้า
+    ใช้ได้ทั้งหน้าจอการทำงาน (Backend) และหน้าพอร์ทัล (Portal)
+  </p>
+  <h4>หลักการทำงาน</h4>
+  <div class="flow">
+    <span class="stp">ผู้ใช้พิมพ์ข้อมูล</span>
+    <span class="arrow">→</span>
+    <span class="stp">บันทึกลงเบราว์เซอร์ทันที</span>
+    <span class="arrow">→</span>
+    <span class="stp">ซิงก์ขึ้นเซิร์ฟเวอร์เมื่อออนไลน์</span>
+    <span class="arrow">→</span>
+    <span class="stp">บันทึกจริงสำเร็จ = ล้างร่าง</span>
+  </div>
+  <h4>การกู้คืนร่าง</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดฟอร์มที่เคยกรอกค้างไว้</span> ระบบจะตรวจพบว่ามีร่างเดิมบันทึกไว้</li>
+    <li><span class="stitle">เลือกจากแบนเนอร์ด้านบน</span> จะเห็นข้อความ “พบร่างที่บันทึกไว้ — กู้คืนหรือทิ้ง?”</li>
+    <li><span class="stitle">กด “กู้คืน”</span> เพื่อนำค่ากลับเข้าฟอร์ม หรือ <span class="badge b-gray">ทิ้ง</span> เพื่อลบร่างนั้น</li>
+    <li><span class="stitle">บันทึกฟอร์มตามปกติ</span> เมื่อบันทึกสำเร็จ ระบบจะล้างร่างให้อัตโนมัติ</li>
+  </ol>
+  <h4>ฟิลด์/ค่าที่เกี่ยวข้อง</h4>
+  <table>
+    <thead><tr><th>หัวข้อ</th><th>ค่า</th></tr></thead>
+    <tbody>
+      <tr><td>โมเดลที่เปิดใช้เป็นค่าเริ่มต้น</td><td><code>sale.order</code>, <code>purchase.order</code>, <code>purchase.request</code>, <code>account.analytic.line</code></td></tr>
+      <tr><td>ระยะหน่วงก่อนบันทึกร่าง</td><td>2 วินาที (debounce)</td></tr>
+      <tr><td>อายุร่าง</td><td>7 วัน (จากนั้นระบบจะลบให้อัตโนมัติผ่าน cron รายวัน)</td></tr>
+      <tr><td>สถานะร่าง</td><td><span class="badge b-blue">ใช้งาน</span> · <span class="badge b-green">บันทึกจริงแล้ว</span> · <span class="badge b-gray">ทิ้ง</span> · <span class="badge b-gray">หมดอายุ</span></td></tr>
+    </tbody>
+  </table>
+  <h4>จุดตั้งค่า</h4>
+  <p>
+    ผู้ดูแลระบบดูรายการร่างทั้งหมดได้ที่ <span class="path">การตั้งค่า › Offline Drafts</span>
+    (เฉพาะกลุ่มผู้ดูแลระบบ)
+  </p>
+  <div class="callout danger">
+    ร่างถูกเก็บแยกตาม “ผู้ใช้ + เอกสาร” — ผู้ใช้จะเห็นและกู้คืนได้เฉพาะ<b>ร่างของตัวเอง</b>เท่านั้น
+    ห้ามใช้เป็นช่องทางแชร์ข้อมูลระหว่างผู้ใช้
+  </div>
+  <div class="callout warn">
+    ร่างเก็บเฉพาะค่าฟิลด์เชิงเดี่ยว (ข้อความ/ตัวเลข/วันที่) ไม่รวมฟิลด์ความสัมพันธ์ (Many2one/Many2many)
+    และไฟล์แนบขนาดใหญ่จะถูกจำกัดไม่เกิน 5 MB
+  </div>
+
+  <h3 class="mod" id="set-9"><span class="mtag">od19_field_hints</span> คำใบ้ในช่องกรอก (Field Hints)</h3>
+  <p>
+    แสดงข้อความตัวอย่าง/คำแนะนำ/คำเตือน <b>สีเทา</b> ในช่องกรอกที่ยังว่างอยู่ (placeholder)
+    เพื่อช่วยให้ผู้ใช้รู้ว่าควรกรอกอะไร โดยข้อความนี้ <b>ไม่ถูกบันทึก</b> เป็นข้อมูลจริง
+  </p>
+  <h4>ลักษณะข้อความ</h4>
+  <table>
+    <thead><tr><th>ชนิด</th><th>คำนำหน้า</th><th>ใช้เมื่อ</th></tr></thead>
+    <tbody>
+      <tr><td>ตัวอย่าง (example)</td><td>“ตัวอย่าง:”</td><td>ช่องวันที่/ตัวเลข/อีเมล ฯลฯ</td></tr>
+      <tr><td>แนะนำ (hint)</td><td>“แนะนำ:”</td><td>ช่องข้อความ/ตัวเลือกทั่วไป</td></tr>
+      <tr><td>สำคัญ (warning)</td><td>“สำคัญ:”</td><td>ช่องที่จำเป็นต้องกรอก (Required)</td></tr>
+    </tbody>
+  </table>
+  <h4>จุดตั้งค่า</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดการตั้งค่า</span> ไปที่ <span class="path">การตั้งค่า › ทั่วไป › ข้อความแนะนำในช่องกรอก</span></li>
+    <li><span class="stitle">เปิด/ปิดสวิตช์</span> ติ๊ก “ข้อความแนะนำในช่องกรอก” เพื่อเปิดใช้งาน (ค่าเริ่มต้นเปิด)</li>
+    <li><span class="stitle">เลือกขอบเขต</span> ติ๊ก “ใช้กับโมดูลมาตรฐาน (Core/OCA) ด้วย” หากต้องการให้แสดงกับทุกโมดูล (ค่าเริ่มต้นปิด = แสดงเฉพาะโมดูล <code>od19_*</code>)</li>
+    <li><span class="stitle">รีเฟรชหน้าเว็บ</span> เพื่อให้ค่าที่เปลี่ยนมีผล</li>
+  </ol>
+  <div class="callout note">
+    โดยค่าเริ่มต้น คำใบ้จะแสดง<b>เฉพาะฟิลด์ที่โมดูลของเราเพิ่ม</b> — ต้องติ๊ก “ใช้กับ Core/OCA” จึงจะเห็นในโมดูลมาตรฐาน
+  </div>
+  <div class="callout tip">
+    คำใบ้จะแสดงเฉพาะช่องที่แก้ไขได้และยังว่าง — ถ้าช่องมีข้อมูลอยู่แล้วจะไม่ทับข้อความเดิม
+  </div>
+
+  <h3 class="mod" id="set-10"><span class="mtag">od19_ui_defaults</span> ค่าเริ่มต้น UI และความอ่านง่าย</h3>
+  <p>
+    ปรับค่าเริ่มต้นของส่วนติดต่อผู้ใช้ให้สอดคล้องกันทั้งระบบ เพื่อลดความสับสนและทำให้กรอกข้อมูลง่ายขึ้น
+    โมดูลนี้ทำงานอัตโนมัติทั้งชุด (ไม่มีเมนูตั้งค่าแยก) และจะจัดเรียงใหม่ให้ทุกครั้งที่อัปเดตโมดูล
+  </p>
+  <h4>สิ่งที่ปรับให้อัตโนมัติ</h4>
+  <div class="grid two">
+    <div class="tile"><div class="t">📌 เมนูตั้งค่าอยู่ท้ายเสมอ</div><p>เมนู “Configuration/ตั้งค่า” ของแต่ละแอปจะอยู่ท้ายสุดของแถบเมนูเสมอ</p></div>
+    <div class="tile"><div class="t">🗂️ จัดกลุ่มเมนู NavBar</div><p>รวมเมนูที่เกี่ยวข้องไว้ด้วยกันเป็นเมนูย่อย เพื่อไม่ให้แถบเมนูยาวเกินไป</p></div>
+    <div class="tile"><div class="t">✂️ ย้าย/เปลี่ยนชื่อเมนู</div><p>ย้ายเมนูที่ซ้ำหรือกำกวม และตั้งชื่อใหม่ให้ชัดเจนทั้งไทย–อังกฤษ</p></div>
+    <div class="tile"><div class="t">📐 ลำดับแอปตามขั้นตอนธุรกิจ</div><p>จัดเรียงไอคอนแอปเป็นกลุ่มตามสายงาน (หน้าบ้าน การเงิน จัดซื้อ โครงการ บุคคล ฯลฯ)</p></div>
+    <div class="tile"><div class="t">👓 ฟอร์มอ่านง่ายขึ้น</div><p>เพิ่มความชัดเจนของป้ายชื่อและขอบช่องกรอก โดยไม่เปลี่ยนโครงสร้างฟอร์ม</p></div>
+    <div class="tile"><div class="t">🏷️ เน้นช่องที่ยังว่าง</div><p>ช่องที่ยังไม่ได้กรอกในโหมดแก้ไขจะแสดงพื้นอ่อนกว่าเล็กน้อย</p></div>
+  </div>
+  <h4>ผลที่ผู้ใช้เห็น</h4>
+  <ul>
+    <li>ไอคอนแอปถูกจัดเป็นกลุ่มตามสายงาน ทำให้หาแอปที่ใช้ด้วยกันได้เร็วขึ้น</li>
+    <li>แถบเมนูด้านบนสั้นลง เพราะรวมเมนูที่เกี่ยวข้องเป็นเมนูย่อย (Dropdown)</li>
+    <li>ช่อง “ส่วนลด (Discount)” เปิดใช้งานไว้เป็นค่าเริ่มต้นในใบเสนอราคา/ใบสั่งขาย</li>
+  </ul>
+  <div class="callout note">
+    โมดูลนี้จะจัดเรียงเมนูใหม่ให้อัตโนมัติทุกครั้งที่<span class="path">อัปเดตโมดูล</span> ดังนั้นการเรียงที่ปรับไว้จะไม่ถูกทับกลับเป็นค่าเดิม
+  </div>
+  <div class="callout warn">
+    การเปลี่ยนชื่อ/ย้ายเมนูเป็นการตั้งค่าระดับระบบ (Global) — มีผลกับ<b>ผู้ใช้ทุกคน</b> ไม่ใช่รายบุคคล
+  </div>
+
+  <h3 class="mod" id="set-11"><span class="mtag">od19_apps_filter</span> ตัวกรองแอป (OD19 Modules)</h3>
+  <p>
+    เพิ่มตัวกรองและเมนูลัดในหน้ารวมแอป (Apps) เพื่อแสดงเฉพาะโมดูลที่เราพัฒนาเอง (ขึ้นต้นด้วย <code>od19_</code>)
+    ทำให้ผู้ดูแลระบบค้นหาและติดตั้งโมดูลของเราได้สะดวกและรวดเร็ว
+  </p>
+  <h4>จุดตั้งค่า / เมนู</h4>
+  <p>
+    ใช้ได้ 2 ทาง: ตัวกรองในหน้า Apps ตามปกติ หรือเมนูลัด <span class="path">การตั้งค่า › OD19 Modules</span>
+  </p>
+  <h4>ตัวกรองที่เพิ่ม</h4>
+  <table>
+    <thead><tr><th>ตัวกรอง</th><th>แสดงอะไร</th></tr></thead>
+    <tbody>
+      <tr><td>OD19 Modules</td><td>เฉพาะโมดูลที่ชื่อขึ้นต้นด้วย <code>od19_</code></td></tr>
+      <tr><td>New Apps</td><td>โมดูลที่ยังไม่ได้ติดตั้ง/รอติดตั้ง</td></tr>
+      <tr><td>New OD19 Apps</td><td>โมดูล <code>od19_</code> ที่ยังไม่ได้ติดตั้ง</td></tr>
+    </tbody>
+  </table>
+  <h4>ขั้นตอน</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดหน้ารวมแอป</span> แล้วกด “Apps” หรือไปที่เมนูลัด <span class="path">การตั้งค่า › OD19 Modules</span></li>
+    <li><span class="stitle">เลือกตัวกรอง</span> เลือก “OD19 Modules” หรือ “New OD19 Apps”</li>
+    <li><span class="stitle">ติดตั้ง/อัปเดตตามต้องการ</span> กดปุ่ม “Install/Upgrade” ของโมดูลที่เลือก</li>
+  </ol>
+  <div class="callout tip">
+    ใช้คู่กับตัวกรอง “New OD19 Apps” เพื่อดูว่าโมดูลของเราตัวไหนยังไม่ได้ติดตั้งบ้างในที่เดียว
+  </div>
+  <div class="callout note">
+    เมนูลัด “OD19 Modules” อยู่ภายใต้แอปการตั้งค่า จึงต้องมีสิทธิ์เข้าถึงการตั้งค่าจึงจะมองเห็น
+  </div>
+
+  <h3 class="mod" id="set-12"><span class="mtag">od19_misc_features</span> ฟีเจอร์เบ็ดเตล็ด (Misc Features)</h3>
+  <p>
+    รวมฟีเจอร์ย่อยที่จำเป็นแต่ไม่มีโมดูลใดโมดูลหนึ่งโดยเฉพาะไว้ในที่เดียว เช่น โลโก้ ISO ของบริษัท,
+    การปิดการตรวจวันที่/เลขที่เอกสารเพื่อรองรับงานย้อนหลัง, เครื่องมือตรวจสอบสภาพแวดล้อมของระบบ (Runtime Guard)
+    และรายงานลูกค้าซื้อซ้ำ
+  </p>
+  <h4>คำสั่งตรวจสอบระบบ (Runtime Guard)</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดเมนู</span> ไปที่ <span class="path">การตั้งค่า › Misc Features › Runtime Guard</span></li>
+    <li><span class="stitle">รันการตรวจสอบ</span> เลือก “Run Runtime Check” แล้วกด “Run Check” ในหน้าต่างที่เปิดขึ้น</li>
+    <li><span class="stitle">ดูผล Snapshot</span> ระบบจะบันทึกและเปิดผลลัพธ์ให้ดูทันที (เวอร์ชัน Python, เวอร์ชัน Odoo, จำนวนโมดูลที่ติดตั้ง, ขนาดฐานข้อมูล)</li>
+  </ol>
+  <h4>โลโก้ ISO ของบริษัท</h4>
+  <p>
+    อัปโหลดโลโก้รับรอง ISO ได้ที่ <span class="path">การตั้งค่า › บริษัท</span> (ช่อง “ISO Logo”) หรือที่
+    <span class="path">การตั้งค่า › ทั่วไป</span> เพื่อใช้แสดงบนรายงานและเอกสาร
+  </p>
+  <h4>รายงานลูกค้าซื้อซ้ำ (Repeat Customer Enhanced)</h4>
+  <table>
+    <thead><tr><th>คอลัมน์</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td>Customer</td><td>คู่ค้าผู้สั่งซื้อ</td></tr>
+      <tr><td>Actual Partner</td><td>คู่ค้าที่ใช้จริง (ผู้รับสินค้า ถ้ามี; ไม่งั้นใช้ผู้สั่งซื้อ)</td></tr>
+      <tr><td>Last Order Date</td><td>วันที่สั่งซื้อล่าสุด</td></tr>
+      <tr><td>Order Count</td><td>จำนวนใบสั่งขายที่ยืนยันแล้ว</td></tr>
+      <tr><td>Total Amount</td><td>ยอดรวมสุทธิ</td></tr>
+    </tbody>
+  </table>
+  <p>เรียกดูได้ที่ <span class="path">การขาย › รายงาน › Repeat Customer Enhanced</span> พร้อมตัวกรอง “Last 30 Days” / “Last 90 Days”</p>
+  <h4>การรองรับงานย้อนหลัง</h4>
+  <div class="callout warn">
+    โมดูลนี้ปิดการตรวจสอบ “วันที่ต้องสอดคล้องกับเลขที่เอกสาร” ของ Odoo จึงสามารถลงบันทึกเอกสารย้อนหลังได้
+    (รองรับกรณีใช้ปี พ.ศ. และการลงวันที่ย้อนหลัง) — ผู้ใช้ต้องระมัดระวังเป็นพิเศษเรื่องความถูกต้องของเลขที่
+  </div>
+  <div class="callout note">
+    ฟีเจอร์ “Runtime Guard” เป็นการทำงานแบบ<b>สั่งเองด้วยมือ</b> ไม่ใช่ cron และจำกัดสิทธิ์เฉพาะผู้ดูแลระบบ
+  </div>
+
+  <h3 class="mod" id="set-13"><span class="mtag">od19_dev_field_marker</span> เครื่องหมายฟิลด์ [od19] (โหมด Dev)</h3>
+  <p>
+    ช่วยนักพัฒนา/ผู้ดูแลระบบแยกแยะ “ฟิลด์ที่เราสร้างเอง” ออกจากฟิลด์มาตรฐานของ Odoo ได้อย่างรวดเร็ว
+    โดยจะเติมคำนำหน้า <code>[od19]</code> ให้ป้ายชื่อของฟิลด์ที่ขึ้นต้นด้วย <code>od19_</code>
+    <b>เฉพาะเมื่อเปิดโหมดนักพัฒนา (Developer Mode)</b> เท่านั้น
+  </p>
+  <h4>ขั้นตอน</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดโหมดนักพัฒนา</span> ไปที่ <span class="path">การตั้งค่า › เปิดใช้โหมดนักพัฒนา</span></li>
+    <li><span class="stitle">เปิดหน้าจอที่มีฟิลด์ของเรา</span> เช่น หน้าคู่ค้า — ป้ายชื่อฟิลด์ที่เราสร้างจะขึ้นต้นด้วย <code>[od19]</code></li>
+    <li><span class="stitle">ปิดโหมดนักพัฒนาเมื่อเสร็จ</span> ป้ายชื่อจะกลับสู่ปกติ</li>
+  </ol>
+  <div class="callout note">
+    นอกโหมดนักพัฒนา ป้ายชื่อจะแสดงตามปกติโดยไม่มีเครื่องหมาย — จึงไม่มีผลกับผู้ใช้งานทั่วไป
+  </div>
+  <div class="callout tip">
+    ใช้เครื่องหมายนี้ช่วยตรวจสอบว่าฟิลด์ที่เห็นเป็นของเรา (ปรับแต่งได้) หรือของมาตรฐาน Odoo
+    ก่อนแก้ไขหรือออกแบบฟอร์มเพิ่มเติม
+  </div>
+
+</section>

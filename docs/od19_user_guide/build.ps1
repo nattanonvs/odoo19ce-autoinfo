@@ -77,4 +77,23 @@ $utf8Bom = New-Object System.Text.UTF8Encoding($true)
 [System.IO.File]::WriteAllText($outFile, $out, $utf8Bom)
 
 Write-Host ("Built: {0}" -f $outFile)
+
+# also refresh the copy served inside the Odoo module (od19_user_guide_manual)
+$repoRoot   = Split-Path -Parent (Split-Path -Parent $here)
+$moduleSrc  = Join-Path $repoRoot 'custom_addons\od19_user_guide_manual'
+$moduleCopy = Join-Path $moduleSrc 'static\src\guide\index.html'
+if (Test-Path (Split-Path -Parent $moduleCopy)) {
+    [System.IO.File]::WriteAllText($moduleCopy, $out, $utf8Bom)
+    Write-Host ("Copied: {0}" -f $moduleCopy)
+} else {
+    Write-Warning ("module folder not found, skipped copy: {0}" -f (Split-Path -Parent $moduleCopy))
+}
+
+# deploy the module to the release worktree used by the live instance (AGENTS.md section 12)
+$releaseAddons = 'C:\odoo-dev\od19_release\custom_addons'
+if ((Test-Path $releaseAddons) -and (Test-Path $moduleSrc)) {
+    Copy-Item -Path $moduleSrc -Destination $releaseAddons -Recurse -Force
+    Write-Host ("Deployed: {0}" -f (Join-Path $releaseAddons 'od19_user_guide_manual'))
+}
+
 Write-Host ("Parts: {0}   Modules: {1}" -f $partCount, $modCount)

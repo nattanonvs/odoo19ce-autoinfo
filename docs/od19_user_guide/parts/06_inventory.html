@@ -1,0 +1,687 @@
+<!--Part
+id=inventory
+title=สินค้าคงคลังและคลังสินค้า
+icon=🏭
+sub=รับ-จ่าย-โอน · มูลค่า FIFO · ปรับมูลค่าสินค้า · นับสต๊อกเพื่อตรวจสอบ · ควบคุมงานคลัง · ใบเบิกสินค้า · คืนสินค้า/RMA · ใบปะหน้าส่งของ · พิมพ์รายงาน Jasper
+-->
+
+<section class="part" id="inventory">
+
+  <div class="part-head">
+    <h2 class="part-title"><span class="part-icon">🏭</span> ส่วนที่ 6 · สินค้าคงคลังและคลังสินค้า</h2>
+    <p class="part-sub">
+      อธิบายงานคลังสินค้าครบวงจรของ AutoInfo — ตั้งแต่การรับเข้า-จ่ายออก-โอนย้าย การบันทึกข้อมูลประกอบใบรับ-จ่าย
+      การประเมิน <strong>มูลค่าสินค้าแบบ FIFO</strong> การ <strong>ปรับมูลค่าสินค้าคงคลัง</strong>
+      การ <strong>นับสต๊อกเพื่อตรวจสอบ (Audit Count)</strong> การควบคุมการดำเนินงานคลัง (ลงวันย้อนหลัง, ติดตามตามล็อต),
+      การ <strong>เบิกสินค้า (Goods Issue)</strong>, การ <strong>คืนสินค้า/RMA</strong>, ใบปะหน้าส่งของ
+      และชุดแบบพิมพ์รายงาน Jasper (J-Report OD15) — โดยอ้างอิงจากโมดูล <code>od19_stock_*</code>,
+      <code>od19_inventory_*</code>, <code>od19_goods_issue</code>, <code>od19_product_return</code>
+      และ <code>od19_delivery_label</code> ที่ติดตั้งในระบบจริง
+    </p>
+  </div>
+
+  <nav class="toc mini">
+    <h3>สารบัญส่วนนี้</h3>
+    <ol>
+      <li><a href="#inv-1">ส่วนขยายใบรับ-จ่ายสินค้า</a></li>
+      <li><a href="#inv-2">ประเมินมูลค่าสินค้าแบบ FIFO</a></li>
+      <li><a href="#inv-3">ปรับมูลค่าสินค้าคงคลัง</a></li>
+      <li><a href="#inv-4">นับสต๊อกเพื่อตรวจสอบ (Audit Count)</a></li>
+      <li><a href="#inv-5">ควบคุมการดำเนินงานคลัง</a></li>
+      <li><a href="#inv-6">รายงานคลังสินค้าและแดชบอร์ดโลจิสติกส์</a></li>
+      <li><a href="#inv-7">ใบเบิกสินค้า (Goods Issue)</a></li>
+      <li><a href="#inv-8">คืนสินค้า / RMA</a></li>
+      <li><a href="#inv-9">ใบปะหน้าสินค้ารอส่ง (Delivery Label)</a></li>
+      <li><a href="#inv-10">แบบพิมพ์และรายงาน Jasper (J-Report OD15)</a></li>
+    </ol>
+  </nav>
+
+  <h3 class="mod" id="inv-1"><span class="mtag">od19_stock_picking_features</span> ส่วนขยายใบรับ-จ่ายสินค้า</h3>
+  <p>
+    โมดูลนี้เพิ่มข้อมูลประกอบในใบรับเข้า/จ่ายออกสินค้า (Stock Picking) ได้แก่ <strong>พนักงานขาย (Saleperson)</strong>
+    <strong>หัวหน้าแผนก</strong> และตาราง <strong>บรรทัดเพิ่มเติม (Additional Lines)</strong> สำหรับบันทึกรายการที่ไม่ใช่สินค้าในระบบ
+    (เช่น ค่าบริการ ค่าแรง ค่าขนส่ง) เพื่อให้เอกสารส่งของ/รับของแสดงผู้รับผิดชอบและรายการครบถ้วน
+  </p>
+
+  <h4>เมนูที่เกี่ยวข้อง</h4>
+  <ul>
+    <li><span class="path">คลังสินค้า › ปฏิบัติการ › การรับสินค้า (Receipts)</span></li>
+    <li><span class="path">คลังสินค้า › ปฏิบัติการ › การส่งสินค้า (Deliveries)</span></li>
+    <li><span class="path">คลังสินค้า › ปฏิบัติการ › การโอนภายใน (Internal Transfers)</span></li>
+    <li>โมดูลนี้ <strong>ไม่มีเมนูใหม่</strong> — เพิ่มฟิลด์/แท็บลงในหน้าเอกสาร picking เดิม</li>
+  </ul>
+
+  <h4>ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดใบรับ/จ่ายสินค้า</span> — ดูแถวฟิลด์ <span class="pill">พนักงานขาย</span> และ <span class="pill">หัวหน้าแผนก</span> ที่อยู่ถัดจากใบสั่งขาย (Sales Order)</li>
+    <li><span class="stitle">ให้ระบบเติมข้อมูลอัตโนมัติ</span> — เมื่อผูกกับใบสั่งขาย ระบบจะดึงพนักงานขายจากใบสั่งขาย และหาหัวหน้าแผนกจากแผนกของพนักงานคนนั้นให้อัตโนมัติ</li>
+    <li><span class="stitle">กรณีไม่มีใบสั่งขายตรง</span> — ระบบจะเทียบเอกสารต้นทาง (Origin) กับเลขที่ใบสั่งขายเพื่อค้นหาข้อมูลให้</li>
+    <li><span class="stitle">เพิ่มบรรทัดเพิ่มเติม</span> — เปิดแท็บ “บรรทัดเพิ่มเติม / Additional Lines” กด “เพิ่มบรรทัด” แล้วกรอกรายละเอียด จำนวน และหน่วย</li>
+    <li><span class="stitle">บันทึกเอกสาร</span> — ตรวจสอบความถูกต้องแล้วบันทึก</li>
+  </ol>
+
+  <h4>สถานะเอกสาร</h4>
+  <table>
+    <thead><tr><th>สถานะของใบ picking</th><th>การแก้ไขบรรทัดเพิ่มเติม</th></tr></thead>
+    <tbody>
+      <tr><td>ร่าง / รอ / พร้อม (Draft · Waiting · Ready)</td><td>เพิ่ม/แก้ไข/ลบบรรทัดได้</td></tr>
+      <tr><td><span class="badge b-green">เสร็จสิ้น (Done)</span></td><td>แท็บบรรทัดเพิ่มเติมเป็น <strong>อ่านอย่างเดียว</strong></td></tr>
+      <tr><td><span class="badge b-red">ยกเลิก (Cancelled)</span></td><td>แท็บบรรทัดเพิ่มเติมเป็น <strong>อ่านอย่างเดียว</strong></td></tr>
+    </tbody>
+  </table>
+
+  <h4>ฟิลด์และปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>ฟิลด์ / ปุ่ม</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">พนักงานขาย</span></td><td>พนักงานขายผู้ดูแลเอกสาร เติมอัตโนมัติจากใบสั่งขาย</td></tr>
+      <tr><td><span class="pill">หัวหน้าแผนก</span></td><td>หัวหน้าของพนักงานขาย ดึงจากข้อมูลหน่วยงาน (hr.department)</td></tr>
+      <tr><td><span class="pill">บรรทัดเพิ่มเติม</span></td><td>ตารางรายการเสริมที่ไม่ผูกสต๊อก ประกอบด้วย ชื่อรายการ (Description), จำนวน (Quantity), หน่วย (Unit of Measure), ลำดับ (Sequence)</td></tr>
+      <tr><td><span class="badge b-blue">เพิ่มบรรทัด</span></td><td>เพิ่มรายการในแท็บบรรทัดเพิ่มเติม (พร้อมปุ่มลบบรรทัด)</td></tr>
+    </tbody>
+  </table>
+
+  <h4>สิทธิ์การเข้าถึง</h4>
+  <ul>
+    <li><span class="badge b-gray">stock.group_stock_user</span> — อ่าน/สร้าง/แก้/ลบ บรรทัดเพิ่มเติมได้</li>
+    <li><span class="badge b-blue">stock.group_stock_manager</span> — สิทธิ์เต็ม</li>
+  </ul>
+
+  <div class="callout warn">
+    <strong>หัวหน้าแผนก:</strong> ดึงจาก “หัวหน้า (Manager)” ของหน่วยงานที่พนักงานขายสังกัด — หากหน่วยงานยังไม่ได้ตั้งหัวหน้า ฟิลด์นี้จะว่าง
+  </div>
+  <div class="callout tip">
+    ใช้บรรทัดเพิ่มเติมบันทึกค่าบริการ/ค่าแรงที่ไม่มีรหัสสินค้า เพื่อให้ใบพิมพ์แสดงรายการครบถ้วน โดย <strong>ไม่กระทบยอดสต๊อก</strong>
+  </div>
+
+  <hr>
+
+  <h3 class="mod" id="inv-2"><span class="mtag">od19_stock_fifo</span> ประเมินมูลค่าสินค้าแบบ FIFO</h3>
+  <p>
+    ประเมินมูลค่าสินค้าคงเหลือตามวิธี <strong>FIFO (เข้าก่อน-ออกก่อน)</strong> โดยคำนวณจากการเคลื่อนไหวรับ-จ่ายจริง
+    พร้อมวิซาร์ดประเมินย้อนหลัง ณ วันที่ (As-Of), การปรับมูลค่ายกมา (BF Revaluation) ไปยังบัญชี และการส่งรายงาน
+    มูลค่าสต๊อกทางอีเมลอัตโนมัติทุกเดือนเป็นไฟล์ Excel (XLSX)
+  </p>
+
+  <h4>เมนูที่เกี่ยวข้อง</h4>
+  <ul>
+    <li><span class="path">คลังสินค้า › FIFO Valuation / มูลค่า FIFO › บันทึกมูลค่า FIFO (FIFO Valuation Records)</span></li>
+    <li><span class="path">คลังสินค้า › FIFO Valuation / มูลค่า FIFO › ประเมิน FIFO ณ วันที่ (FIFO As-Of)</span></li>
+    <li><span class="path">คลังสินค้า › FIFO Valuation / มูลค่า FIFO › ปรับมูลค่ายกมา (BF Revaluation)</span></li>
+    <li><span class="path">การตั้งค่า › บริษัท</span> — ตั้งค่าบัญชีปรับมูลค่าสต๊อก (Stock Revaluation Account)</li>
+  </ul>
+
+  <h4>ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">ประเมิน ณ วันที่</span> — เปิดวิซาร์ด FIFO As-Of เลือกสินค้าและวันที่ แล้วกดประเมิน ระบบจะไล่การเคลื่อนไหว FIFO จนถึงวันนั้น</li>
+    <li><span class="stitle">ดูผลลัพธ์</span> — ผลลัพธ์แสดง จำนวนคงเหลือ (Quantity), ต้นทุนต่อหน่วย (Unit Cost) และมูลค่ารวม (Total Value) พร้อมยอดรวมท้ายตาราง</li>
+    <li><span class="stitle">ดูบันทึกมูลค่า</span> — เมนู บันทึกมูลค่า FIFO กรอง “เดือนนี้” หรือจัดกลุ่มตามสินค้า / วันที่</li>
+    <li><span class="stitle">ปรับมูลค่ายกมา</span> — เปิดวิซาร์ด BF Revaluation เพื่อสร้างรายการบัญชี (Journal Entry) และปรับราคามาตรฐานของสินค้า</li>
+    <li><span class="stitle">รับรายงานรายเดือน</span> — ระบบตั้งเวลาอัตโนมัติ (cron) ทุกวันที่ 1 ของเดือน เวลา 08:00 ส่งอีเมลพร้อมไฟล์แนบ XLSX</li>
+  </ol>
+
+  <h4>สถานะ / วัฏจักรการคำนวณ</h4>
+  <div class="flow">
+    <span class="stp">รับสินค้าเข้า (In)</span>
+    <span class="arrow">→</span>
+    <span class="stp">เข้าคิวตามลำดับเวลา</span>
+    <span class="arrow">→</span>
+    <span class="stp">ตัดจ่ายตามลำดับ FIFO (Out)</span>
+    <span class="arrow">→</span>
+    <span class="stp">คงเหลือ + มูลค่าต่อหน่วย</span>
+    <span class="arrow">→</span>
+    <span class="stp">บันทึก / รายงาน</span>
+  </div>
+
+  <h4>ฟิลด์และปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>ฟิลด์ / วิซาร์ด</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">วันที่ (Date)</span></td><td>วันที่ของบันทึกมูลค่า</td></tr>
+      <tr><td><span class="pill">สินค้า (Product)</span></td><td>สินค้าที่ประเมิน</td></tr>
+      <tr><td><span class="pill">จำนวน (Quantity)</span></td><td>จำนวนคงเหลือ — มียอดรวมท้ายตาราง</td></tr>
+      <tr><td><span class="pill">ต้นทุนต่อหน่วย (Unit Cost)</span></td><td>ต้นทุนต่อหน่วยแบบ FIFO</td></tr>
+      <tr><td><span class="pill">มูลค่ารวม (Total Value)</span></td><td>มูลค่าคงเหลือรวม — มียอดรวมท้ายตาราง</td></tr>
+      <tr><td><span class="pill">บริษัท (Company)</span></td><td>แสดงเมื่อเปิดใช้งานหลายบริษัท</td></tr>
+      <tr><td><span class="badge b-blue">FIFO As-Of</span></td><td>วิซาร์ดประเมิน ณ วันที่ — เลือกสินค้า + วันที่</td></tr>
+      <tr><td><span class="badge b-blue">BF Revaluation</span></td><td>วิซาร์ดปรับมูลค่ายกมา — สร้างรายการบัญชี + ปรับราคามาตรฐาน</td></tr>
+    </tbody>
+  </table>
+
+  <h4>สิทธิ์การเข้าถึง</h4>
+  <ul>
+    <li><span class="badge b-gray">stock.group_stock_user</span> — อ่าน/สร้าง/แก้ บันทึกมูลค่า (ลบไม่ได้); ใช้วิซาร์ด As-Of และ BF Revaluation ได้</li>
+    <li><span class="badge b-blue">stock.group_stock_manager</span> — ลบบันทึกมูลค่าได้</li>
+    <li><span class="badge b-amber">account.group_account_manager</span> — ใช้วิซาร์ด BF Revaluation ที่กระทบบัญชีได้</li>
+  </ul>
+
+  <div class="callout warn">
+    <strong>ต้องตั้งบัญชีก่อนใช้ BF Revaluation:</strong> กำหนดบัญชี “Stock Revaluation Account” ที่บริษัทก่อน มิฉะนั้นการปรับมูลค่ายกมาจะไม่สมบูรณ์
+  </div>
+  <div class="callout note">
+    Odoo 19 <strong>ไม่มีโมเดล <code>stock.valuation.layer</code> แล้ว</strong> — การประเมินมูลค่าใช้ข้อมูลการเคลื่อนไหวสต๊อก
+    (<code>stock.move</code>) เป็นฐาน ตัวเลข FIFO จึงคำนวณจากประวัติการรับ-จ่ายจริง
+  </div>
+
+  <hr>
+
+  <h3 class="mod" id="inv-3"><span class="mtag">od19_stock_valuation_adjustment</span> ปรับมูลค่าสินค้าคงคลัง</h3>
+  <p>
+    บันทึกและอนุมัติการ <strong>ปรับมูลค่าสินค้าคงคลัง</strong> (เปลี่ยนราคา / ตั้งราคาสูงขึ้น / ตั้งราคาลดลง)
+    พร้อมการอนุมัติโดยผู้จัดการพัสดุ การบันทึก audit trail ทุกครั้ง และการสร้างรายการบัญชีปรับมูลค่าอัตโนมัติ
+    สำหรับสินค้าที่ใช้วิธีประเมินมูลค่าแบบทันกาล (real-time)
+  </p>
+
+  <h4>เมนูที่เกี่ยวข้อง</h4>
+  <ul>
+    <li><span class="path">คลังสินค้า › การดำเนินงาน (Operations) › Valuation Adjustments</span></li>
+    <li><span class="path">การตั้งค่า › บริษัท</span> — ตั้งค่าบัญชี “Stock Valuation Adjustment Account”</li>
+  </ul>
+
+  <h4>ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">สร้างรายการปรับมูลค่า</span> — เลือกประเภทการปรับ (เปลี่ยนราคา / ตั้งราคาสูงขึ้น / ตั้งราคาลดลง) สินค้า จำนวน และวันที่</li>
+    <li><span class="stitle">กรอกมูลค่า</span> — ระบบแสดงมูลค่าปัจจุบัน (Current Value ดึงจากราคามาตรฐานต่อหน่วย) ให้กรอกมูลค่าใหม่ (New Value) แล้วระบบคำนวณส่วนต่างรวมให้อัตโนมัติ</li>
+    <li><span class="stitle">ระบุเหตุผล</span> — ฟิลด์เหตุผล (Reason) เป็นข้อมูลบังคับ</li>
+    <li><span class="stitle">กด “ยืนยัน” (Confirm)</span> — ต้องกรอกมูลค่าใหม่ มิฉะนั้นระบบไม่ให้ผ่าน</li>
+    <li><span class="stitle">กด “อนุมัติ” (Approve)</span> — ต้องเป็นผู้จัดการพัสดุ ระบบจะปรับราคามาตรฐาน (กรณีเปลี่ยนราคา) บันทึก audit trail และสร้างรายการบัญชี</li>
+    <li><span class="stitle">กด “ยกเลิก” (Cancel)</span> — กรณีอนุมัติแล้ว ระบบจะกลับรายการบัญชีและคืนราคาเดิม</li>
+  </ol>
+
+  <h4>สถานะเอกสาร</h4>
+  <div class="flow">
+    <span class="stp">ร่าง (Draft)</span>
+    <span class="arrow">→</span>
+    <span class="stp">ยืนยัน (Confirmed)</span>
+    <span class="arrow">→</span>
+    <span class="stp">เสร็จสิ้น (Done)</span>
+  </div>
+  <table>
+    <thead><tr><th>สถานะ</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge b-gray">ร่าง (Draft)</span></td><td>กำลังจัดทำ แก้ไขได้</td></tr>
+      <tr><td><span class="badge b-blue">ยืนยัน (Confirmed)</span></td><td>พร้อมขออนุมัติ</td></tr>
+      <tr><td><span class="badge b-green">เสร็จสิ้น (Done)</span></td><td>อนุมัติแล้ว ปรับราคาและลงบัญชีเรียบร้อย</td></tr>
+      <tr><td><span class="badge b-red">ยกเลิก (Cancelled)</span></td><td>กลับรายการบัญชี/คืนราคา — รีเซ็ตกลับเป็นร่างได้</td></tr>
+    </tbody>
+  </table>
+
+  <h4>ฟิลด์และปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>ฟิลด์ / ปุ่ม</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">ประเภทการปรับ (Adjustment Type)</span></td><td>เปลี่ยนราคา (Price Change) / ตั้งราคาสูงขึ้น (Write-Up) / ตั้งราคาลดลง (Write-Down)</td></tr>
+      <tr><td><span class="pill">สินค้า · จำนวน · วันที่ปรับ · เหตุผล</span></td><td>ข้อมูลหลักของรายการปรับมูลค่า</td></tr>
+      <tr><td><span class="pill">มูลค่าปัจจุบัน (Current Value)</span></td><td>คำนวณจากราคามาตรฐานต่อหน่วยของสินค้า</td></tr>
+      <tr><td><span class="pill">มูลค่าใหม่ (New Value)</span></td><td>มูลค่าต่อหน่วยหลังปรับ</td></tr>
+      <tr><td><span class="pill">ส่วนต่างรวม (Total Adjustment)</span></td><td>= (มูลค่าใหม่ − มูลค่าปัจจุบัน) × จำนวน</td></tr>
+      <tr><td><span class="pill">ผู้ขอ (Requested By) · ผู้อนุมัติ (Approved By)</span></td><td>ผู้จัดทำและผู้มีอำนาจอนุมัติ (บันทึกอัตโนมัติ)</td></tr>
+      <tr><td><span class="pill">สมุดรายวัน · บัญชีมูลค่าสต๊อก · บัญชีปรับมูลค่า</span></td><td>การตั้งค่าบัญชีที่ใช้สร้างรายการบัญชีปรับมูลค่า</td></tr>
+      <tr><td><span class="badge b-blue">ยืนยัน</span> / <span class="badge b-green">อนุมัติ</span> / <span class="badge b-red">ยกเลิก</span> / <span class="badge b-gray">รีเซ็ตร่าง</span></td><td>ปุ่มเปลี่ยนสถานะของเอกสาร</td></tr>
+    </tbody>
+  </table>
+
+  <h4>สิทธิ์การเข้าถึง</h4>
+  <ul>
+    <li><span class="badge b-gray">base.group_user</span> — อ่าน/สร้าง/แก้ แต่ลบไม่ได้</li>
+    <li><span class="badge b-amber">account.group_account_manager</span> — สิทธิ์เต็ม (ลบได้)</li>
+    <li>การ <strong>อนุมัติ (Approve)</strong> จำกัดเฉพาะ <span class="badge b-blue">stock.group_stock_manager</span> เท่านั้น (แยกหน้าที่เพื่อความโปร่งใส)</li>
+  </ul>
+
+  <div class="callout warn">
+    การอนุมัติจะ <strong>เปลี่ยนราคามาตรฐานทันที</strong> — ควรตรวจสอบผลกระทบต่องบการเงินก่อนกดอนุมัติ
+  </div>
+  <div class="callout danger">
+    การอนุมัติสร้าง <strong>รายการบัญชีอัตโนมัติ</strong> (กรณีหมวดสินค้าตั้งเป็น real-time) — ต้องแน่ใจว่าบัญชีปรับมูลค่าตั้งค่าถูกต้องก่อนอนุมัติ
+  </div>
+  <div class="callout tip">
+    ทุกครั้งที่อนุมัติ ระบบบันทึก audit trail (ค่าก่อน–หลัง พร้อมผู้กระทำ) เพื่อตรวจสอบย้อนหลังได้
+  </div>
+
+  <hr>
+
+  <h3 class="mod" id="inv-4"><span class="mtag">od19_inventory_audit_count</span> นับสต๊อกเพื่อตรวจสอบ (Audit Count)</h3>
+  <p>
+    จัดการ <strong>รอบนับสินค้าคงคลัง</strong> (Cycle/Physical Count) แบบมีขั้นตอนอนุมัติ ตั้งแต่กำหนดรอบนับ
+    บันทึกจำนวนนับจริง เทียบกับยอดในระบบ หาความต่าง (Variance) และให้ผู้จัดการอนุมัติปรับยอดเข้าสู่ระบบ
+  </p>
+
+  <h4>เมนูที่เกี่ยวข้อง</h4>
+  <ul>
+    <li><span class="path">คลังสินค้า › การดำเนินงาน (Operations) › Audit Counts</span></li>
+  </ul>
+
+  <h4>ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">สร้างรอบนับ (Scheduled)</span> — ระบุชื่อและที่ตั้ง (Location) แล้วเพิ่มบรรทัดนับ (เลือก quant ที่อยู่ในที่ตั้งเดียวกัน)</li>
+    <li><span class="stitle">บันทึกจำนวนนับจริง</span> — กรอกจำนวนนับจริง (Counted) ระบบคำนวณความต่าง (Variance = นับ − ระบบ) และนับจำนวนรายการที่มีความต่าง</li>
+    <li><span class="stitle">ทำเครื่องหมายว่านับแล้ว (Mark as Counted)</span> — ต้องมีอย่างน้อย 1 บรรทัด</li>
+    <li><span class="stitle">ส่งขออนุมัติ (Submit for Approval)</span> — สถานะเป็นรออนุมัติ</li>
+    <li><span class="stitle">อนุมัติ/ปรับยอด (Create Adjustment)</span> — ผู้จัดการเท่านั้น ระบบปรับยอด quant ตามจำนวนนับจริง (ผ่านกลไกปรับสต๊อกมาตรฐานของ Odoo)</li>
+    <li><span class="stitle">ตรวจทาน (Mark as Reviewed)</span> — ปิดรอบนับ</li>
+  </ol>
+
+  <h4>สถานะเอกสาร</h4>
+  <div class="flow">
+    <span class="stp">กำหนดรอบ (Scheduled)</span>
+    <span class="arrow">→</span>
+    <span class="stp">นับแล้ว (Counted)</span>
+    <span class="arrow">→</span>
+    <span class="stp">รออนุมัติ (Pending Approval)</span>
+    <span class="arrow">→</span>
+    <span class="stp">ปรับยอดแล้ว (Adjusted)</span>
+    <span class="arrow">→</span>
+    <span class="stp">ตรวจทานแล้ว (Reviewed)</span>
+  </div>
+  <p>นอกจากนี้ยังมีสถานะ <span class="badge b-red">ยกเลิก (Cancelled)</span> ซึ่งรีเซ็ตกลับเป็น <em>Scheduled</em> ได้</p>
+
+  <h4>ฟิลด์และปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>ฟิลด์ / ปุ่ม</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">ที่ตั้ง (Location)</span></td><td>ที่ตั้งที่ทำการนับ</td></tr>
+      <tr><td><span class="pill">จำนวนรายการต่าง (Variances)</span></td><td>นับเฉพาะบรรทัดที่มีผลต่าง</td></tr>
+      <tr><td><span class="pill">ผู้อนุมัติ (Approved By)</span></td><td>ผู้กดอนุมัติปรับยอด</td></tr>
+      <tr><td><span class="pill">บรรทัดนับ</span></td><td>Quant, สินค้า (อ่านจาก quant), จำนวนตามระบบ (System Qty), จำนวนนับจริง (Counted Qty), ผลต่าง (Variance Qty)</td></tr>
+      <tr><td><span class="badge b-blue">Mark as Counted</span> / <span class="badge b-blue">Submit for Approval</span></td><td>บันทึกว่านับแล้ว / ส่งขออนุมัติ</td></tr>
+      <tr><td><span class="badge b-green">Create Adjustment</span> / <span class="badge b-gray">Mark as Reviewed</span></td><td>อนุมัติปรับยอด / ปิดรอบตรวจทาน</td></tr>
+      <tr><td><span class="badge b-red">Cancel</span> / <span class="badge b-gray">Reset to Scheduled</span></td><td>ยกเลิกรอบนับ / รีเซ็ตกลับเป็นกำหนดรอบ</td></tr>
+    </tbody>
+  </table>
+
+  <h4>สิทธิ์การเข้าถึง</h4>
+  <ul>
+    <li><span class="badge b-gray">stock.group_stock_user</span> — อ่าน/สร้าง/แก้ รอบนับและบรรทัดนับ (ลบไม่ได้)</li>
+    <li><span class="badge b-blue">stock.group_stock_manager</span> — สิทธิ์เต็ม (ลบได้) และเป็นผู้กดอนุมัติปรับยอด</li>
+    <li>ขั้นตอน <strong>Create Adjustment</strong> จำกัดเฉพาะ <span class="badge b-blue">stock.group_stock_manager</span></li>
+  </ul>
+
+  <div class="callout warn">
+    บรรทัดนับต้องอ้าง quant ใน <strong>ที่ตั้งเดียวกับรอบนับ</strong> และ <strong>นับ quant เดียวกันซ้ำในรอบเดียวไม่ได้</strong> (ระบบตรวจสอบ)
+  </div>
+  <div class="callout tip">
+    ดูตัวนับ <span class="pill">Variances</span> ก่อนส่งอนุมัติ เพื่อยืนยันว่ามีเฉพาะรายการต่างที่ต้องการปรับจริง
+  </div>
+
+  <hr>
+
+  <h3 class="mod" id="inv-5"><span class="mtag">od19_inventory_execution_control</span> ควบคุมการดำเนินงานคลัง</h3>
+  <p>
+    เพิ่มการจัดชั้นประเภทงานคลังอัตโนมัติ (รับเข้า/จ่ายออก/โอน/คืน), สถานะการดำเนินงาน,
+    การ <strong>ลงวันที่ย้อนหลัง (Backdate)</strong> สำหรับผู้จัดการ, การบังคับ <strong>ติดตามล็อต/ซีเรียล</strong>
+    สำหรับสินค้าที่ใช้ FIFO และรายงาน <strong>มูลค่าสินค้าตามล็อต</strong>
+  </p>
+
+  <h4>เมนูที่เกี่ยวข้อง</h4>
+  <ul>
+    <li><span class="path">คลังสินค้า › การดำเนินงาน (Operations) › Valuation by Lot</span> (มูลค่าตามล็อต)</li>
+    <li>ฟิลด์เพิ่มในหน้าใบรับ/จ่ายสินค้า และหน้าสินค้า (Product)</li>
+    <li>เอกสารอ้างอิง (Reference Document) และวันที่ย้อนหลัง ในรายการเคลื่อนไหว (Stock Move)</li>
+  </ul>
+
+  <h4>ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">ดูประเภทงานคลัง (Flow Class)</span> — ระบบจัดหมวดใบ picking ให้อัตโนมัติ: รับเข้า (Receipt) / จ่ายออก (Delivery) / โอน (Transfer) / คืน (Return)</li>
+    <li><span class="stitle">ดูสถานะดำเนินงาน</span> — แสดงอัตโนมัติ: รอ (Waiting) / พร้อม (Ready) / เสร็จ (Done) / ข้อยกเว้น (Exception)</li>
+    <li><span class="stitle">ลงวันย้อนหลัง (เฉพาะผู้จัดการ)</span> — กรอกวันที่ย้อนหลังในใบ picking ระบบจะลงวันให้รายการเคลื่อนไหว/มูลค่า/บัญชีตามวันนั้น</li>
+    <li><span class="stitle">ระบุเอกสารอ้างอิง</span> — กรอกเอกสารอ้างอิงในรายการเคลื่อนไหว (Stock Move)</li>
+    <li><span class="stitle">ตั้งค่าสินค้า</span> — สินค้าที่ใช้ FIFO ต้องเปิดติดตามล็อต/ซีเรียล (ระบบบังคับและแสดงสาเหตุ)</li>
+    <li><span class="stitle">ดูรายงานมูลค่าตามล็อต</span> — เปิดเมนู Valuation by Lot</li>
+  </ol>
+
+  <h4>สถานะเอกสาร</h4>
+  <table>
+    <thead><tr><th>สถานะดำเนินงาน (Execution State)</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge b-gray">รอ (Waiting)</span></td><td>ยังไม่พร้อมหยิบ</td></tr>
+      <tr><td><span class="badge b-blue">พร้อม (Ready)</span></td><td>จองสินค้าได้แล้ว</td></tr>
+      <tr><td><span class="badge b-green">เสร็จ (Done)</span></td><td>ดำเนินการเสร็จสิ้น</td></tr>
+      <tr><td><span class="badge b-red">ข้อยกเว้น (Exception)</span></td><td>ใบถูกยกเลิก</td></tr>
+    </tbody>
+  </table>
+  <p>ประเภทงานคลัง (Flow Class) แสดงเป็นป้าย: <span class="badge b-gray">Receipt</span> <span class="badge b-blue">Delivery</span> <span class="badge b-amber">Transfer</span> <span class="badge b-red">Return</span></p>
+
+  <h4>ฟิลด์และปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>ฟิลด์ / รายงาน</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">ประเภทงานคลัง (Flow Class)</span></td><td>คำนวณอัตโนมัติจากชนิดใบ picking</td></tr>
+      <tr><td><span class="pill">สถานะดำเนินงาน (Execution State)</span></td><td>คำนวณอัตโนมัติจากสถานะเอกสาร</td></tr>
+      <tr><td><span class="pill">วันที่ย้อนหลัง (Backdate)</span></td><td>กำหนดได้เฉพาะผู้จัดการ</td></tr>
+      <tr><td><span class="pill">เอกสารอ้างอิง (Reference Document)</span></td><td>อ้างอิงเอกสารในรายการเคลื่อนไหว</td></tr>
+      <tr><td><span class="pill">ต้องติดตาม (Tracking Required) + สาเหตุ</span></td><td>แสดงเมื่อสินค้าใช้ FIFO ต้องติดตามล็อต/ซีเรียล</td></tr>
+      <tr><td><span class="badge b-blue">Valuation by Lot</span></td><td>รายงานมูลค่าสินค้าตามล็อต (อ่านอย่างเดียว)</td></tr>
+    </tbody>
+  </table>
+
+  <h4>สิทธิ์การเข้าถึง</h4>
+  <ul>
+    <li><span class="badge b-gray">stock.group_stock_user</span> — อ่านรายงาน Valuation by Lot (read-only)</li>
+    <li><span class="badge b-blue">stock.group_stock_manager</span> — อ่านรายงาน และกำหนดวันที่ย้อนหลังได้</li>
+    <li>การลงวันที่ย้อนหลังจำกัดเฉพาะ <span class="badge b-blue">stock.group_stock_manager</span></li>
+  </ul>
+
+  <div class="callout danger">
+    การ <strong>ลงวันย้อนหลัง</strong> กระทบวันที่ลงรายการบัญชี/มูลค่าสต๊อก — ต้องระวังช่วงปิดบัญชี ระบบไม่อนุญาตให้ลงวันอนาคต
+  </div>
+  <div class="callout warn">
+    สินค้าที่ใช้ต้นทุนแบบ <strong>FIFO ต้องตั้ง “ติดตามล็อต/ซีเรียล”</strong> มิฉะนั้นระบบจะไม่ยอมบันทึกสินค้า
+  </div>
+  <div class="callout note">
+    รายงาน <strong>Valuation by Lot</strong> เป็นข้อมูลอ่านอย่างเดียว (read-only) ไม่มีปุ่มแก้ไข
+  </div>
+
+  <hr>
+
+  <h3 class="mod" id="inv-6"><span class="mtag">od19_inventory_reporting</span> รายงานคลังสินค้าและแดชบอร์ดโลจิสติกส์</h3>
+  <p>
+    ให้ <strong>รายงานวิเคราะห์คลังสินค้า</strong> ได้แก่ ความแม่นยำของสต๊อก (Inventory Accuracy)
+    และงานค้างเคลื่อนไหว (Movement Backlog) พร้อมแดชบอร์ด <strong>Logistics Board</strong> รวมภาพรวมงานคลัง
+  </p>
+
+  <h4>เมนูที่เกี่ยวข้อง</h4>
+  <ul>
+    <li><span class="path">คลังสินค้า › Reporting › Inventory Accuracy</span></li>
+    <li><span class="path">คลังสินค้า › Reporting › Movement Backlog</span></li>
+    <li><span class="path">คลังสินค้า › Logistics Board</span> (แดชบอร์ด — อยู่บนสุดของเมนู)</li>
+  </ul>
+
+  <h4>ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดรายงาน Inventory Accuracy</span> — ดูความแม่นยำของยอดสต๊อก (ผลต่างระหว่างยอดในระบบกับที่นับได้จริง)</li>
+    <li><span class="stitle">เปิดรายงาน Movement Backlog</span> — ดูงานเคลื่อนไหวที่ค้างสะสม</li>
+    <li><span class="stitle">เปิดแดชบอร์ด Logistics Board</span> — รวมตัวชี้วัดงานคลังไว้ในหน้าเดียว</li>
+  </ol>
+
+  <h4>สถานะ / การแสดงผล</h4>
+  <table>
+    <thead><tr><th>รายการ</th><th>ลักษณะข้อมูล</th></tr></thead>
+    <tbody>
+      <tr><td>Inventory Accuracy</td><td><span class="badge b-gray">อ่านอย่างเดียว</span> — มุมมอง SQL สะท้อนข้อมูลจริง</td></tr>
+      <tr><td>Movement Backlog</td><td><span class="badge b-gray">อ่านอย่างเดียว</span> — มุมมอง SQL สะท้อนข้อมูลจริง</td></tr>
+      <tr><td>Logistics Board</td><td>แดชบอร์ดภาพรวมงานคลัง</td></tr>
+    </tbody>
+  </table>
+
+  <h4>ฟิลด์ / ตัวชี้วัดสำคัญ</h4>
+  <table>
+    <thead><tr><th>ตัวชี้วัด</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">Inventory Accuracy</span></td><td>ค่าความแม่นยำของยอดสต๊อก</td></tr>
+      <tr><td><span class="pill">Movement Backlog</span></td><td>รายการเคลื่อนไหวที่ค้าง</td></tr>
+      <tr><td><span class="pill">Logistics Board</span></td><td>แดชบอร์ดภาพรวมงานคลัง</td></tr>
+    </tbody>
+  </table>
+
+  <h4>สิทธิ์การเข้าถึง</h4>
+  <ul>
+    <li>เมนูรายงาน (Inventory Accuracy / Movement Backlog) จำกัดเฉพาะ <span class="badge b-blue">stock.group_stock_manager</span></li>
+    <li>ตัวโมเดลรายงานอ่านได้โดย <span class="badge b-gray">stock.group_stock_user</span> และ <span class="badge b-blue">stock.group_stock_manager</span></li>
+  </ul>
+
+  <div class="callout warn">
+    เมนูรายงานทั้งสองซ่อนจากผู้ใช้ทั่วไป — จะแสดงเฉพาะผู้จัดการคลังเท่านั้น
+  </div>
+  <div class="callout note">
+    ทั้งสองรายงานเป็น <strong>มุมมอง SQL (อ่านอย่างเดียว)</strong> ข้อมูลสะท้อนผลทันทีตามข้อมูลจริง ณ ขณะเปิดดู — ส่งออกได้
+  </div>
+
+  <hr>
+
+  <h3 class="mod" id="inv-7"><span class="mtag">od19_goods_issue</span> ใบเบิกสินค้า (Goods Issue)</h3>
+  <p>
+    จัดการคำขอเบิกสินค้าจากคลัง ต่อยอดจากโมดูล OCA Stock Request เพิ่ม <strong>ประเภทการเบิก</strong>
+    <strong>แผนก/พนักงานผู้ขอ</strong> <strong>งาน/โครงการ</strong> และ <strong>เหตุผลการเบิก</strong>
+    พร้อมออกเลขที่เอกสารแยกตามแผนก (<code>GI/&lt;รหัสแผนก&gt;/</code>) และใบพิมพ์ “ใบเบิกสินค้า” และ “ใบหยิบสินค้า”
+  </p>
+
+  <h4>เมนูที่เกี่ยวข้อง</h4>
+  <ul>
+    <li><span class="path">ใบขอเบิก (Stock Request) › Operations › ใบเบิกสินค้า / Goods Issue</span></li>
+    <li><span class="path">ใบขอเบิก (Stock Request) › Master Data › ประเภทการเบิก / Issue Types</span></li>
+  </ul>
+
+  <h4>ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">สร้างใบเบิกสินค้า</span> — เลือกแผนกผู้ขอ (ระบบเติมให้อัตโนมัติจากแผนกของพนักงานที่ล็อกอิน) และผู้ขอเบิก (พนักงาน)</li>
+    <li><span class="stitle">กำหนดงาน/โครงการ และประเภทการเบิก</span> — พร้อมระบุเหตุผลการเบิก</li>
+    <li><span class="stitle">เพิ่มรายการสินค้า</span> — ระบุสินค้าและจำนวนที่ต้องการเบิก</li>
+    <li><span class="stitle">ยืนยัน/อนุมัติ/ดำเนินการ</span> — ตามขั้นตอนสถานะของใบขอเบิก (ร่าง → เปิด → เสร็จ → ยกเลิก)</li>
+    <li><span class="stitle">พิมพ์เอกสาร</span> — พิมพ์ “ใบเบิกสินค้า / Goods Issue” จากใบขอเบิก หรือ “ใบหยิบสินค้า / Pick List” จากใบ picking</li>
+  </ol>
+
+  <h4>สถานะเอกสาร</h4>
+  <div class="flow">
+    <span class="stp">ร่าง (Draft)</span>
+    <span class="arrow">→</span>
+    <span class="stp">เปิด (Open)</span>
+    <span class="arrow">→</span>
+    <span class="stp">เสร็จ (Done)</span>
+  </div>
+  <p>และสถานะ <span class="badge b-red">ยกเลิก (Cancel)</span> — สถานะทั้งหมดอิงจากกลไกของโมดูล Stock Request</p>
+
+  <h4>ฟิลด์และปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>ฟิลด์ / ปุ่ม</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">ประเภทการเบิก (Issue Type)</span></td><td>หมวดหมู่ของการเบิกสินค้า</td></tr>
+      <tr><td><span class="pill">แผนกที่ขอเบิก (Requesting Department)</span></td><td>หน่วยงานผู้ขอ เติมอัตโนมัติจากพนักงาน</td></tr>
+      <tr><td><span class="pill">ผู้ขอเบิก (Employee)</span></td><td>พนักงานผู้ยื่นคำขอ</td></tr>
+      <tr><td><span class="pill">งาน/โครงการ (Job)</span></td><td>โครงการที่ผูกกับการเบิก</td></tr>
+      <tr><td><span class="pill">เหตุผลการเบิก (Issue Reason)</span></td><td>เหตุผลประกอบการเบิก</td></tr>
+      <tr><td><span class="pill">เลขที่เอกสาร</span></td><td>รูปแบบ <code>GI/&lt;รหัสแผนก&gt;/00001</code> แยกต่อแผนก — ไม่มีแผนกใช้ <code>GI/GEN/</code></td></tr>
+      <tr><td><span class="pill">บนใบ picking</span></td><td>เหตุผลการเบิก (Goods Issue Reason), แผนกผู้เบิก (Goods Issue Department)</td></tr>
+      <tr><td><span class="badge b-blue">ใบเบิกสินค้า</span> / <span class="badge b-blue">ใบหยิบสินค้า</span></td><td>ปุ่มพิมพ์เอกสารทั้งสองแบบ</td></tr>
+    </tbody>
+  </table>
+
+  <h4>สิทธิ์การเข้าถึง</h4>
+  <ul>
+    <li><span class="badge b-gray">stock_request.group_stock_request_user</span> — ใช้เมนูใบเบิกสินค้า</li>
+    <li><span class="badge b-blue">stock_request.group_stock_request_manager</span> — จัดการประเภทการเบิก</li>
+    <li>ประเภทการเบิก: <span class="badge b-gray">base.group_user</span> อ่านได้ / <span class="badge b-blue">stock.group_stock_manager</span> จัดการได้</li>
+    <li>ใบพิมพ์จำกัดกลุ่มผู้ใช้ใบขอเบิก</li>
+  </ul>
+
+  <div class="callout note">
+    <strong>เลขที่เอกสารแยกตามแผนก</strong> — ระบบออกรหัสจากรหัสย่อแผนก (3 ตัวอักษรแรก) อัตโนมัติ; แผนกที่ไม่มีรหัสใช้คำว่า <code>GEN</code>
+  </div>
+  <div class="callout tip">
+    ระบุ <span class="pill">งาน/โครงการ</span> เพื่อเชื่อมต้นทุนการเบิกเข้ากับโครงการ และดูต้นทุนตามโครงการได้ง่ายขึ้น
+  </div>
+
+  <hr>
+
+  <h3 class="mod" id="inv-8"><span class="mtag">od19_product_return</span> คืนสินค้า / RMA (Product Return)</h3>
+  <p>
+    จัดการคำร้อง <strong>คืนสินค้าจากลูกค้า (Return Merchandise Authorization)</strong> ตั้งแต่บันทึกคำขอ
+    อนุมัติ รับสินค้าคืนเข้าคลัง และออก <strong>ใบลดหนี้ (Refund)</strong> พร้อมเชื่อมกับใบสั่งขาย ใบแจ้งหนี้
+    และใบเคลมประกัน
+  </p>
+
+  <h4>เมนูที่เกี่ยวข้อง</h4>
+  <ul>
+    <li><span class="path">การขาย › Product Returns</span> (คืนสินค้า)</li>
+  </ul>
+
+  <h4>ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">สร้างคำขอคืนสินค้า</span> — เลือกลูกค้า สินค้า และเหตุผลการคืน (ชำรุด / สินค้าผิด / เสียหายระหว่างขนส่ง / ไม่ตรงรายละเอียด / เคลมประกัน / อื่น ๆ)</li>
+    <li><span class="stitle">ระบุรายละเอียด</span> — จำนวน, ซีเรียล/ล็อต, วันที่คืน, ใบสั่งขาย/ใบแจ้งหนี้/ใบเคลมประกันที่เกี่ยวข้อง และคำอธิบาย</li>
+    <li><span class="stitle">กด “ยืนยัน” (Confirm)</span> — จากสถานะร่าง</li>
+    <li><span class="stitle">อนุมัติ (Approve) หรือ ปฏิเสธ (Reject)</span> — การปฏิเสธเปิดวิซาร์ดให้ระบุเหตุผล</li>
+    <li><span class="stitle">รับคืนสินค้า (Return)</span> — ระบบสร้างใบรับสินค้า (Incoming Picking) เพื่อรับของคืนเข้าคลัง</li>
+    <li><span class="stitle">คืนเงิน (Refund)</span> — ระบบสร้างใบลดหนี้ลูกค้า (Credit Note / Out Refund)</li>
+  </ol>
+
+  <h4>สถานะเอกสาร</h4>
+  <div class="flow">
+    <span class="stp">ร่าง (Draft)</span>
+    <span class="arrow">→</span>
+    <span class="stp">ยืนยัน (Confirmed)</span>
+    <span class="arrow">→</span>
+    <span class="stp">อนุมัติ (Approved)</span>
+    <span class="arrow">→</span>
+    <span class="stp">รับคืนแล้ว (Returned)</span>
+    <span class="arrow">→</span>
+    <span class="stp">คืนเงินแล้ว (Refunded)</span>
+  </div>
+  <p>และสถานะ <span class="badge b-red">ปฏิเสธ (Rejected)</span> — พร้อมเหตุผลการปฏิเสธ</p>
+
+  <h4>ฟิลด์และปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>ฟิลด์ / ปุ่ม</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">เลขที่คืน (Return Number)</span></td><td>รูปแบบ <code>PR-ปี-เลขรัน</code></td></tr>
+      <tr><td><span class="pill">ลูกค้า · สินค้า · ซีเรียล/ล็อต · จำนวน · หน่วย</span></td><td>ข้อมูลหลักของคำขอคืน</td></tr>
+      <tr><td><span class="pill">เหตุผลการคืน (Reason)</span></td><td>ชำรุด / สินค้าผิด / เสียหายระหว่างขนส่ง / ไม่ตรงรายละเอียด / เคลมประกัน / อื่น ๆ</td></tr>
+      <tr><td><span class="pill">ใบสั่งขาย · ใบแจ้งหนี้ · ใบเคลมประกัน</span></td><td>เอกสารอ้างอิงที่เกี่ยวข้อง</td></tr>
+      <tr><td><span class="pill">วันที่คืน · ยอดคืนเงิน (Refund Amount)</span></td><td>วันที่และยอดเงินที่คืน</td></tr>
+      <tr><td><span class="pill">ใบรับคืน (Return Picking) · ใบลดหนี้ (Refund Invoice)</span></td><td>เอกสารที่ระบบสร้างให้ (อ่านอย่างเดียว)</td></tr>
+      <tr><td><span class="badge b-blue">ยืนยัน</span> / <span class="badge b-green">อนุมัติ</span> / <span class="badge b-red">ปฏิเสธ</span></td><td>ปุ่มเปลี่ยนสถานะ</td></tr>
+      <tr><td><span class="badge b-blue">รับคืน</span> / <span class="badge b-green">คืนเงิน</span></td><td>สร้างใบรับสินค้าคืน / สร้างใบลดหนี้</td></tr>
+      <tr><td>วิซาร์ด: <span class="pill">ปฏิเสธคำขอ (Reject Return)</span></td><td>เปิดให้ระบุเหตุผลการปฏิเสธ</td></tr>
+    </tbody>
+  </table>
+
+  <h4>สิทธิ์การเข้าถึง</h4>
+  <ul>
+    <li><span class="badge b-gray">sales_team.group_sale_salesman</span> (พนักงานขาย) — อ่าน/สร้าง/แก้ (ลบไม่ได้) และใช้วิซาร์ดปฏิเสธ</li>
+    <li><span class="badge b-blue">sales_team.group_sale_manager</span> (ผู้จัดการขาย) — สิทธิ์เต็ม (ลบได้)</li>
+  </ul>
+
+  <div class="callout warn">
+    ปุ่มรับคืน (Return) ต้องมี <strong>ประเภทงานรับเข้า (Incoming)</strong> และ ที่ตั้งต้นทาง/ปลายทาง ตั้งค่าไว้ครบ มิฉะนั้นระบบจะไม่ให้รับคืน
+  </div>
+  <div class="callout tip">
+    การคืนเงินอ้างราคาต่อหน่วยจาก <span class="pill">ยอดคืนเงิน</span> ที่ระบุ หรือจากบรรทัดใบแจ้งหนี้ที่ผูกไว้ — ตรวจสอบให้ถูกต้องก่อนกดคืนเงิน
+  </div>
+
+  <hr>
+
+  <h3 class="mod" id="inv-9"><span class="mtag">od19_delivery_label</span> ใบปะหน้าสินค้ารอส่ง (Delivery Label)</h3>
+  <p>
+    เพิ่มข้อมูลสำหรับใบปะหน้าสินค้ารอส่ง ได้แก่ <strong>รหัสแผนก (DEPT)</strong> <strong>เหตุผลการส่ง</strong>
+    (เคลม/คืนสินค้า/ชำรุด/ในประกัน/ส่งมอบ/เอกสารสำคัญ) และข้อมูลผู้ติดต่อ พร้อมใบพิมพ์
+    <strong>“ใบปะหน้าสินค้ารอส่ง (FM-PU-12)”</strong> ขนาด 148×105 มม. แนวนอน
+  </p>
+
+  <h4>เมนูที่เกี่ยวข้อง</h4>
+  <ul>
+    <li><span class="path">คลังสินค้า › ปฏิบัติการ › การส่งสินค้า (Deliveries)</span> — เปิดเอกสารแล้วกด Print › ใบปะหน้าสินค้ารอส่ง (FM-PU-12)</li>
+    <li>ฟิลด์เพิ่มในหน้าเอกสาร picking</li>
+    <li><span class="path">พนักงาน › หน่วยงาน (Departments)</span> — ตั้งรหัสแผนก (Code)</li>
+  </ul>
+
+  <h4>ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดใบส่งสินค้า (Delivery)</span> — ดูฟิลด์รหัสแผนก (DEPT) และตัวเลือกเหตุผลการส่ง</li>
+    <li><span class="stitle">เลือกเหตุผลการส่ง</span> — เลือกได้หลายอย่าง ระบบจะรวมเป็นข้อความแสดงผล</li>
+    <li><span class="stitle">กรอกผู้ติดต่อ</span> — ระบุชื่อผู้ติดต่อและเบอร์โทร</li>
+    <li><span class="stitle">พิมพ์ใบปะหน้า</span> — กด Print แล้วเลือก “ใบปะหน้าสินค้ารอส่ง (FM-PU-12)”</li>
+  </ol>
+
+  <h4>สถานะ / การพิมพ์</h4>
+  <table>
+    <thead><tr><th>รายการ</th><th>เงื่อนไข</th></tr></thead>
+    <tbody>
+      <tr><td>พิมพ์ใบปะหน้า (FM-PU-12)</td><td>พิมพ์ได้ทุกครั้งที่เปิดเอกสาร picking</td></tr>
+      <tr><td>เลขควบคุมเอกสาร ISO</td><td>พิมพ์ที่มุมล่างของเอกสารอัตโนมัติ</td></tr>
+    </tbody>
+  </table>
+
+  <h4>ฟิลด์และปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>ฟิลด์ / ปุ่ม</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">รหัสแผนก (DEPT)</span></td><td>รหัสย่อของหน่วยงาน (Department Code)</td></tr>
+      <tr><td><span class="pill">เหตุผลการส่ง</span></td><td>เคลม / คืนสินค้า / ชำรุด / ในประกัน / ส่งมอบ / เอกสารสำคัญ (เลือกได้หลายข้อ)</td></tr>
+      <tr><td><span class="pill">ข้อความเหตุผลรวม (Delivery Reason Display)</span></td><td>ข้อความที่ระบบรวมจากเหตุผลที่เลือกไว้</td></tr>
+      <tr><td><span class="pill">ชื่อผู้ติดต่อ · เบอร์โทร</span></td><td>ข้อมูลผู้ติดต่อปลายทาง</td></tr>
+      <tr><td><span class="pill">รูปแบบเลขอ้างอิง</span></td><td><code>WH/&lt;DEPT&gt;/OUT/00001</code></td></tr>
+      <tr><td><span class="badge b-blue">FM-PU-12</span></td><td>ใบพิมพ์ขนาด 148×105 มม. แนวนอน</td></tr>
+    </tbody>
+  </table>
+
+  <h4>สิทธิ์การเข้าถึง</h4>
+  <ul>
+    <li><span class="badge b-gray">stock.group_stock_user</span> — อ่าน/สร้าง/แก้ ใบ picking (ลบไม่ได้)</li>
+    <li>การตั้งรหัสแผนก: ผู้ดูแลข้อมูลหน่วยงาน (HR)</li>
+  </ul>
+
+  <div class="callout note">
+    ใบปะหน้าใช้กระดาษขนาด <strong>148×105 มม. แนวนอน</strong> และมีเลขควบคุมเอกสาร ISO (จากระบบควบคุมเอกสาร)
+    ที่มุมล่างทั้งสองข้างโดยอัตโนมัติ
+  </div>
+  <div class="callout tip">
+    เลือกเหตุผลการส่งได้หลายข้อ ระบบจะรวมข้อความให้อ่านง่ายบนใบพิมพ์
+  </div>
+
+  <hr>
+
+  <h3 class="mod" id="inv-10"><span class="mtag">od19_stock_jasper</span> แบบพิมพ์และรายงาน Jasper (J-Report OD15)</h3>
+  <p>
+    รวมแบบพิมพ์และรายงานคลังสินค้าด้วย JasperReports (พอร์ตจากระบบเดิม) ประกอบด้วยแบบฟอร์มเอกสาร
+    (ใบส่งของ ใบรับของ ใบโอน ใบเบิก ใบปะหน้า ใบหยิบ) ป้ายบาร์โค้ด/QR ของสินค้า-ที่ตั้ง-ล็อต และชุดรายงานวิเคราะห์
+    (บัตรสินค้า การเคลื่อนไหว มูลค่า Aging Dead Stock ตรวจ QC) ภายใต้ป้าย <strong>“(J-Report OD15)”</strong>
+  </p>
+
+  <h4>เมนูที่เกี่ยวข้อง</h4>
+  <ul>
+    <li><span class="path">คลังสินค้า › Reporting › Stock Reports (J-Report OD15)</span> — รวมรายงานทั้งหมด</li>
+    <li>แบบฟอร์มเอกสาร — เปิดจากตัวเอกสาร (Print) หรือกดปุ่มพิมพ์</li>
+    <li>ทุกใบตั้งภาษา (ไทย/อังกฤษ), ชนิดวันที่ (AD/BE) และรูปแบบวันที่ได้</li>
+  </ul>
+
+  <h4>ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดเมนู Stock Reports (J-Report OD15)</span> — เลือกรายงานที่ต้องการ</li>
+    <li><span class="stitle">กำหนดพารามิเตอร์</span> — ภาษา (ไทย/อังกฤษ), ชนิดปี (AD/BE), รูปแบบวันที่, ช่วงวันที่ หรือ ณ วันที่ (แล้วแต่รายงาน)</li>
+    <li><span class="stitle">เลือกตัวกรอง</span> — ที่ตั้ง, สินค้า, หมวดสินค้า, บริษัท</li>
+    <li><span class="stitle">เปิดแสดง/พิมพ์</span> — ระบบสร้างรายงานด้วย JasperReports; แบบฟอร์มเอกสารเปิดจากตัวเอกสาร</li>
+  </ol>
+
+  <h4>สถานะ / การแสดงผล</h4>
+  <table>
+    <thead><tr><th>ประเภท</th><th>เงื่อนไขการใช้งาน</th></tr></thead>
+    <tbody>
+      <tr><td>แบบฟอร์มเอกสาร</td><td>พิมพ์ได้เฉพาะเอกสารที่อยู่ในสถานะที่กำหนด</td></tr>
+      <tr><td>รายงานวิเคราะห์</td><td>เปิดจากเมนูและกรองตามช่วงเวลาได้</td></tr>
+      <tr><td>ป้ายบาร์โค้ด/QR</td><td>พิมพ์เป็นภาษาอังกฤษเสมอ (บาร์โค้ดและราคาไม่ผูกภาษา)</td></tr>
+    </tbody>
+  </table>
+
+  <h4>ฟิลด์ / รายงานสำคัญ</h4>
+  <div class="grid two">
+    <div class="tile"><div class="t">📄 แบบฟอร์มเอกสาร</div><p>ใบส่งของ · ใบรับของ · ใบโอน · ใบเบิก · ใบปะหน้า / Picking List · ใบคืนสินค้า · QC Inspection</p></div>
+    <div class="tile"><div class="t">🏷️ ป้าย (Labels)</div><p>บาร์โค้ด/QR สินค้า · LOT หรือ S/N บาร์โค้ด/QR · บาร์โค้ด/QR ที่ตั้ง</p></div>
+    <div class="tile"><div class="t">📊 รายงานวิเคราะห์</div><p>Stock Card (บัตรสินค้า) + แยกตาม PO / SO / Return / Moving · Inventory Move · Move (Aging / Special) · Valuation · Valuation (Aging / Special) · Dead Stock</p></div>
+    <div class="tile"><div class="t">⚙️ พารามิเตอร์ร่วม</div><p>ภาษา · ชนิดวันที่ (AD/BE) · รูปแบบวันที่ · ช่วงวันที่ / ณ วันที่ · แสดงชื่อพนักงาน · แสดงลายเซ็น</p></div>
+  </div>
+  <table>
+    <thead><tr><th>พารามิเตอร์</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">Document Language</span></td><td>ภาษาของเอกสาร: ไทย / อังกฤษ</td></tr>
+      <tr><td><span class="pill">Date Type</span></td><td>ชนิดปี: <em>AD</em> (ค.ศ.) หรือ <em>BE</em> (พ.ศ.)</td></tr>
+      <tr><td><span class="pill">Date Format</span></td><td>รูปแบบวันแสดง (เช่น dd-MM-yyyy)</td></tr>
+      <tr><td><span class="pill">Range / As of Date</span></td><td>ช่วงวันที่ หรือ ณ วันที่ (แล้วแต่รายงาน)</td></tr>
+      <tr><td><span class="pill">Show Employee Name</span></td><td>พิมพ์ชื่อผู้จัดทำ/ผู้ตรวจ/ผู้อนุมัติในช่องลงนาม</td></tr>
+      <tr><td><span class="pill">Show Signature</span></td><td>พิมพ์รูปลายเซ็นในช่องลงนาม</td></tr>
+    </tbody>
+  </table>
+
+  <h4>สิทธิ์การเข้าถึง</h4>
+  <ul>
+    <li><span class="badge b-gray">stock.group_stock_user</span> และ <span class="badge b-blue">stock.group_stock_manager</span> — ใช้เมนู Stock Reports (J-Report OD15) และตัวแบบพิมพ์ทั้งหมดได้</li>
+    <li>รายงานบางใบมีตัวกรองเฉพาะบริษัท/ที่ตั้ง</li>
+  </ul>
+
+  <div class="callout note">
+    ใบพิมพ์บัตรสินค้า (Stock Card) อ่านข้อมูลจากตารางการเคลื่อนไหวสต๊อก (<code>stock_move</code>)
+    เพราะ Odoo 19 ไม่มี <code>stock.valuation.layer</code> แล้ว
+  </div>
+  <div class="callout tip">
+    เลือกปีพุทธศักราช (BE) และภาษาไทยสำหรับเอกสารภายใน; ป้ายบาร์โค้ด/QR จะพิมพ์เป็นภาษาอังกฤษเสมอ
+  </div>
+
+</section>

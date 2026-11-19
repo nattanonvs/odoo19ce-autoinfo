@@ -1,0 +1,838 @@
+<!--Part
+id=sales
+title=การขายและลูกค้า
+icon=🛒
+sub=ใบเสนอราคา · ใบสั่งขาย · สัญญาการขาย · วงเงินเชื่อและความเสี่ยงลูกค้า · วางบิลและเงินประกันผลงาน · เงื่อนไขการขาย · แบบพิมพ์ใบสั่งขาย (QWeb/Jasper) · เลขที่และแก้ไขใบเสนอราคา
+-->
+
+<section class="part" id="sales">
+
+  <div class="part-head">
+    <h2 class="part-title"><span class="part-icon">🛒</span> ส่วนที่ 4 · การขายและลูกค้า</h2>
+    <p class="part-sub">
+      อธิบายกระบวนการขายครบวงจรของ AutoInfo — ใบเสนอราคา (Quotation), ใบสั่งขาย (Sales Order),
+      การควบคุมความเสี่ยงลูกค้าและวงเงินเชื่อ, สัญญาการขายและงวดวางบิล, หลักฐานประกอบการวางบิล,
+      เงินประกันผลงาน (Retention), เงื่อนไขการขาย, รายงาน และแบบพิมพ์ทั้งแบบ QWeb และ Jasper
+      โดยอ้างอิงจากโมดูล <code>od19_sale*</code> · <code>od19_sales_*</code> ที่ติดตั้งในระบบจริง
+    </p>
+  </div>
+
+  <nav class="toc mini">
+    <h3>สารบัญส่วนนี้</h3>
+    <ol>
+      <li><a href="#sale-1">การควบคุมความเสี่ยงลูกค้าและวงเงินเชื่อ (Credit Gate)</a></li>
+      <li><a href="#sale-2">หลักฐานประกอบการวางบิล (Billing Evidence)</a></li>
+      <li><a href="#sale-3">ตราประทับ CONFIRMED บนใบเสนอราคา</a></li>
+      <li><a href="#sale-4">แกนสัญญาการขาย (Sales Contract)</a></li>
+      <li><a href="#sale-5">ยอดเงินสองสกุลในรายการขาย</a></li>
+      <li><a href="#sale-6">สะพานงานขาย OCA และการอนุมัติตามวงเงิน</a></li>
+      <li><a href="#sale-7">บริบทโครงการและกำไรงานขาย</a></li>
+      <li><a href="#sale-8">รายงานยอดขายตามโครงการและลูกค้าประจำ</a></li>
+      <li><a href="#sale-9">เงินประกันผลงาน (Retention)</a></li>
+      <li><a href="#sale-10">แบบพิมพ์ Jasper งานบริการ</a></li>
+      <li><a href="#sale-11">ใบสั่งขาย QWeb (รูปแบบดั้งเดิม / ปรับปรุง)</a></li>
+      <li><a href="#sale-12">เทมเพลตเงื่อนไขการขาย (Sale Terms)</a></li>
+      <li><a href="#sale-13">วิซาร์ดเปลี่ยนวันส่งและข้อมูลเงินมัดจำ</a></li>
+      <li><a href="#sale-14">แบบพิมพ์ Jasper งานขาย</a></li>
+      <li><a href="#sale-15">เลขที่ใบเสนอราคาตามแผนก และการแก้ไข (Revision)</a></li>
+    </ol>
+  </nav>
+
+  <h3 class="mod" id="sale-1"><span class="mtag">od19_sales_customer_risk_gate</span> การควบคุมความเสี่ยงลูกค้าและวงเงินเชื่อ (Credit Gate)</h3>
+  <p>
+    โมดูลนี้ทำหน้าที่เป็น <strong>ด่านป้องกันความเสี่ยง</strong> ของฝ่ายขาย — บล็อกไม่ให้ “ยืนยัน” ใบสั่งขาย
+    (และใบสั่งซื้อ) ที่ผูกกับคู่ค้าที่ติด <strong>บัญชีดำ (Blacklist)</strong> และบังคับให้ลูกค้าที่จะซื้อแบบเครดิต
+    ต้องผ่านการอนุมัติวงเงินจากฝ่ายบัญชี (Credit Reviewer) พร้อมตรวจสอบยอดค้างชำระ (Aging) เพื่อกัก (Hold)
+    ลูกค้าที่ค้างชำระเกินเกณฑ์ที่บริษัทกำหนด
+  </p>
+
+  <h4>เมนูที่เกี่ยวข้อง</h4>
+  <ul>
+    <li><span class="path">การขาย › Reporting › Credit Gate › Blocked Documents</span> — รายการเอกสารที่ถูกด่านบล็อก</li>
+    <li><span class="path">การขาย › Reporting › Credit Gate › Credit Pending</span> — ลูกค้าที่รออนุมัติวงเงินเชื่อ</li>
+    <li>ฟอร์มคู่ค้า (Contacts) แท็บ <span class="pill">Credit &amp; Risk</span> — กลุ่ม Credit / Aging Hold / Blacklist</li>
+    <li>ฟอร์มใบสั่งขาย กลุ่ม <span class="pill">Credit &amp; Risk Gate</span> และแถบเตือนสีแดงเมื่อถูกบล็อก</li>
+    <li><span class="path">การตั้งค่า › บริษัท</span> — เปิดใช้ Aging Hold และกำหนดเกณฑ์วัน/ยอดค้างชำระ</li>
+  </ul>
+
+  <h4>ขั้นตอนขอและอนุมัติวงเงินเชื่อ</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดฟอร์มลูกค้า แท็บ Credit &amp; Risk</span> — ตรวจสถานะคำขอและวงเงินปัจจุบันก่อนเริ่ม</li>
+    <li><span class="stitle">กดปุ่ม “Request Credit”</span> — คำขอเข้าสู่สถานะ <span class="badge b-amber">Pending</span> และบันทึกผู้ขอ/วันที่ขอ</li>
+    <li><span class="stitle">Credit Reviewer พิจารณา</span> — กด “Approve Credit” (กำหนดวงเงิน วันหมดอายุ) หรือ “Reject Credit”</li>
+    <li><span class="stitle">ระบบคำนวณวงเงินที่เหลือและ Aging อัตโนมัติ</span> — กด “Re-check Aging” หรือให้ Cron รายวันอัปเดตให้</li>
+  </ol>
+
+  <h4>สถานะและตัวตรวจของด่าน</h4>
+  <div class="flow">
+    <span class="stp">คำขอวงเงิน: Not Requested</span>
+    <span class="arrow">→</span>
+    <span class="stp">Pending</span>
+    <span class="arrow">→</span>
+    <span class="stp">Approved / Rejected</span>
+  </div>
+  <p>
+    ด่านจะถูกตรวจที่ 3 จุด คือ ตอน <strong>สร้าง</strong>ใบเสนอราคา, ตอน <strong>แก้ไข</strong> และตอน
+    <strong>ยืนยัน</strong>ใบสั่งขาย (Order Confirm) หากไม่ผ่าน ระบบจะขึ้น <strong>แถบเตือนสีแดง</strong>เหนือฟอร์ม
+    พร้อมเหตุผลที่ถูกบล็อก
+  </p>
+
+  <h4>ฟิลด์ / ปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>ฟิลด์ / ปุ่ม</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">Credit Request State</span></td><td>สถานะคำขอวงเงิน: Not Requested / Pending / Approved / Rejected</td></tr>
+      <tr><td><span class="pill">Credit Limit Amount</span></td><td>วงเงินเชื่อที่อนุมัติให้ลูกค้า</td></tr>
+      <tr><td><span class="pill">Credit Used / Available</span></td><td>วงเงินที่ใช้ไปแล้ว และวงเงินที่เหลือ (คำนวณอัตโนมัติ)</td></tr>
+      <tr><td><span class="pill">Credit Expiry Date</span></td><td>วันหมดอายุของวงเงินเชื่อ</td></tr>
+      <tr><td><span class="pill">Credit On Hold / Hold Reason</span></td><td>ลูกค้าถูกกักจาก Aging Hold หรือไม่ และเหตุผล</td></tr>
+      <tr><td><span class="pill">Overdue Amount / Oldest Overdue Days</span></td><td>ยอดค้างชำระรวม และจำนวนวันที่ค้างนานที่สุด</td></tr>
+      <tr><td><span class="pill">Blacklist Status / Reason</span></td><td>สถานะบัญชีดำ (Normal / Blacklisted) และเหตุผล</td></tr>
+      <tr><td><span class="badge b-gray">Request Credit</span></td><td>ยื่นคำขอวงเงิน (พนักงานทั่วไปกดได้)</td></tr>
+      <tr><td><span class="badge b-green">Approve / Reject Credit</span></td><td>อนุมัติ/ปฏิเสธวงเงิน (Credit Reviewer)</td></tr>
+      <tr><td><span class="badge b-red">Blacklist / Clear Blacklist</span></td><td>ตั้ง/ปลดบัญชีดำ (Credit Reviewer)</td></tr>
+      <tr><td><span class="badge b-gray">Re-check Aging</span></td><td>สั่งคำนวณยอดค้างชำระใหม่ทันที</td></tr>
+      <tr><td><span class="pill">Risk Gate Event</span></td><td>บันทึกเหตุการณ์ที่ถูกบล็อก (คู่ค้า, เหตุผล, ขั้นตอน, เอกสาร, ผู้ใช้)</td></tr>
+    </tbody>
+  </table>
+
+  <h4>สิทธิ์</h4>
+  <ul>
+    <li><span class="badge b-blue">Credit Reviewer</span> — กลุ่ม <code>group_od19_credit_reviewer</code> อนุมัติวงเงิน, ตั้ง/ปลดบัญชีดำ, แก้ฟิลด์ที่ถูกป้องกัน (Protected Fields)</li>
+    <li><span class="badge b-gray">ผู้ใช้ทั่วไป</span> — ขอวงเงินเชื่อและใช้ปุ่ม Re-check Aging (คู่กับ Partner Manager) ได้</li>
+    <li>ฟิลด์ด้านเครดิต/บัญชีดำจะแก้ไขได้เฉพาะ Credit Reviewer เท่านั้น</li>
+  </ul>
+
+  <div class="callout warn">
+    <strong>ด่านบล็อกทั้งงานขายและงานซื้อ:</strong> ฝั่ง <strong>ลูกค้า</strong> ตรวจทั้งบัญชีดำ + วงเงินเชื่อ + Aging Hold
+    แต่ฝั่ง <strong>ผู้ขาย (Purchase)</strong> ตรวจเฉพาะบัญชีดำ — ใบสั่งซื้อที่คู่ค้าติดแบล็กลิสต์จะยืนยันไม่ได้
+  </div>
+  <div class="callout tip">
+    ใช้ตัวกรอง <span class="pill">Blacklisted</span> ในหน้ารายการคู่ค้า และตัวกรอง <span class="pill">Credit sale</span>
+    ในใบสั่งขาย เพื่อค้นหาเฉพาะเอกสารที่เกี่ยวข้องกับความเสี่ยงได้เร็วขึ้น
+  </div>
+
+  <hr>
+
+  <h3 class="mod" id="sale-2"><span class="mtag">od19_sales_billing_evidence</span> หลักฐานประกอบการวางบิล (Billing Evidence)</h3>
+  <p>
+    โมดูลนี้บังคับให้มี <strong>หลักฐานประกอบการวางบิล</strong> (เช่น ใบส่งของ, ใบตรวจรับ, เอกสารยืนยันการให้บริการ)
+    ก่อนที่ใบสั่งขายจะ <strong>ออกใบแจ้งหนี้ได้</strong> โดยระบบคำนวณ “ความพร้อมในการวางบิล” (Billing Readiness)
+    ให้เห็นบนใบสั่งขาย และบล็อกการออกใบแจ้งหนี้หากยังไม่พร้อม
+  </p>
+
+  <h4>จุดเข้าถึง</h4>
+  <ul>
+    <li>ฟอร์มใบสั่งขาย — ฟิลด์ <span class="pill">Billing Readiness State</span> แสดงต่อจากสัญญาการขาย</li>
+    <li>ทะเบียนหลักฐาน <strong>Billing Evidence</strong> — เก็บรายการหลักฐานและไฟล์แนบต่อใบสั่งขาย</li>
+    <li>ทะเบียน <strong>Evidence Type</strong> — ตั้งชนิดหลักฐาน (delivery / service / other) และตัวบังคับ</li>
+  </ul>
+
+  <h4>ขั้นตอนการวางบิลที่มีหลักฐานครบ</h4>
+  <ol class="steps">
+    <li><span class="stitle">สร้างรายการหลักฐานบนใบสั่งขาย</span> — เลือกชนิดหลักฐาน (Evidence Type) และแนบไฟล์</li>
+    <li><span class="stitle">ติ๊ก “Verified”</span> — ระบบบังคับว่าต้อง <strong>มีไฟล์แนบ</strong>ก่อนจึงจะยืนยันหลักฐานได้</li>
+    <li><span class="stitle">ระบบปรับสถานะความพร้อม</span> — เมื่อหลักฐานที่จำเป็นครบ สถานะเปลี่ยนเป็น <span class="badge b-green">Ready</span></li>
+    <li><span class="stitle">ออกใบแจ้งหนี้</span> — ทำได้เฉพาะเมื่อสถานะพร้อมเป็น Ready หรือ Billed แล้วเท่านั้น</li>
+  </ol>
+
+  <h4>สถานะความพร้อมในการวางบิล</h4>
+  <div class="flow">
+    <span class="stp">Draft (ร่าง)</span>
+    <span class="arrow">→</span>
+    <span class="stp">Waiting (ขาดหลักฐาน)</span>
+    <span class="arrow">→</span>
+    <span class="stp">Ready (พร้อมวางบิล)</span>
+    <span class="arrow">→</span>
+    <span class="stp">Billed (วางบิลแล้ว)</span>
+  </div>
+
+  <h4>ฟิลด์ / ฟิลด์บังคับ</h4>
+  <table>
+    <thead><tr><th>ฟิลด์</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">Billing Readiness State</span></td><td>ความพร้อมในการวางบิล (Draft / Waiting / Ready / Billed) — คำนวณอัตโนมัติ</td></tr>
+      <tr><td><span class="pill">Evidence Type</span></td><td>ชนิดหลักฐาน พร้อมตัวชี้วัด <span class="pill">Trigger Kind</span> (Delivery / Service / Other)</td></tr>
+      <tr><td><span class="pill">Required for Billing</span></td><td>ระบุว่าหลักฐานชนิดนี้ “บังคับ” สำหรับการวางบิลหรือไม่</td></tr>
+      <tr><td><span class="pill">Is Verified</span></td><td>ยืนยันหลักฐานแล้วหรือยัง — ต้องมีไฟล์แนบจึงจะติ๊กได้</td></tr>
+      <tr><td><span class="pill">Attachment Count</span></td><td>จำนวนไฟล์แนบของหลักฐานแต่ละรายการ</td></tr>
+    </tbody>
+  </table>
+
+  <h4>สิทธิ์</h4>
+  <ul>
+    <li>ผู้ใช้ฝ่ายขายทั่วไปสร้าง/แก้ไขหลักฐานของใบสั่งขายได้</li>
+    <li>การยืนยันหลักฐานต้องมีไฟล์แนบจริง มิฉะนั้นระบบจะไม่ยอมให้บันทึก</li>
+  </ul>
+
+  <div class="callout danger">
+    <strong>ออกใบแจ้งหนี้ไม่ได้ถ้าหลักฐานไม่ครบ:</strong> หากสถานะความพร้อมไม่ใช่ Ready หรือ Billed
+    ปุ่ม/กระบวนการออกใบแจ้งหนี้จะถูกบล็อก เพื่อป้องกันการวางบิลก่อนส่งมอบหรือก่อนมีการยืนยันการบริการ
+  </div>
+
+  <hr>
+
+  <h3 class="mod" id="sale-3"><span class="mtag">od19_sales_confirm_stamp</span> ตราประทับ CONFIRMED บนใบเสนอราคา</h3>
+  <p>
+    โมดูลนี้เพิ่ม <strong>ตราประทับ CONFIRMED สีแดง</strong> บนเอกสารใบเสนอราคา/ใบสั่งขายที่พิมพ์ออกมา
+    ตราประทับจะแสดงเฉพาะเมื่อใบสั่งขาย <strong>ยืนยันแล้ว</strong> และกรอก <span class="pill">Stamp Date</span> แล้ว
+    โดยเนื้อหาในตราประกอบด้วย ลายเซ็นผู้ยืนยัน, วันที่ Stamp, กำหนดส่งมอบ, เลขงาน (JOB) และรหัส Stamp
+  </p>
+
+  <h4>เมนู / จุดเข้าถึง</h4>
+  <ul>
+    <li>ฟอร์มใบสั่งขาย แท็บ <span class="pill">Stamp</span> — กรอก Stamp Date / Stamp Code และดูแหล่งข้อมูล Stamp</li>
+    <li>เมนู <strong>พิมพ์ (Print)</strong> บนใบสั่งขาย — เลือกรายงาน <span class="badge b-gray">Quotation / Order (with Stamp)</span></li>
+    <li>ฟอร์มพนักงาน (HR Employee) — ฟิลด์ลายเซ็น <span class="pill">Signature</span> ใช้เป็นรูปใน Stamp</li>
+  </ul>
+
+  <h4>ขั้นตอนการ Stamp เอกสาร</h4>
+  <ol class="steps">
+    <li><span class="stitle">ยืนยันใบเสนอราคา</span> — กดปุ่ม Confirm ระบบจะบันทึกผู้ยืนยันและ Stamp ให้อัตโนมัติ</li>
+    <li><span class="stitle">กรอก Stamp Date และ Stamp Code</span> — ในแท็บ Stamp (Stamp Code ตัวอย่างเช่น <code>PMB26014 (MA)</code>)</li>
+    <li><span class="stitle">อัปโหลดลายเซ็นพนักงาน</span> — ที่ฟอร์มพนักงาน เพื่อให้ Stamp แสดงลายเซ็นจริง</li>
+    <li><span class="stitle">พิมพ์ “(with Stamp)”</span> — เลือกรายงาน Stamp จากเมนูพิมพ์ Stamp จะปรากฏบนเอกสาร</li>
+  </ol>
+
+  <h4>สถานะการแสดง Stamp</h4>
+  <div class="flow">
+    <span class="stp">Quotation (ร่าง)</span>
+    <span class="arrow">→</span>
+    <span class="stp">Confirmed (ยืนยัน)</span>
+    <span class="arrow">→</span>
+    <span class="stp">กรอก Stamp Date</span>
+    <span class="arrow">→</span>
+    <span class="stp">Stamp แสดงเมื่อพิมพ์</span>
+  </div>
+
+  <h4>ฟิลด์ / องค์ประกอบ Stamp</h4>
+  <table>
+    <thead><tr><th>ฟิลด์ / องค์ประกอบ</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">Stamp Date</span></td><td>วันที่ Stamp (DATE) — ใช้เป็นเงื่อนไขการแสดง Stamp</td></tr>
+      <tr><td><span class="pill">Stamp Code</span></td><td>รหัส Stamp (CODE) ข้อความอิสระ</td></tr>
+      <tr><td><span class="pill">Confirmed By</span></td><td>ผู้ยืนยัน Stamp — ระบบบันทึกอัตโนมัติเมื่อ Confirm</td></tr>
+      <tr><td><span class="pill">Commitment Date</span></td><td>กำหนดส่งมอบ (DELIVERY ON) ที่แสดงใน Stamp</td></tr>
+      <tr><td><span class="pill">Project / Job No</span></td><td>เลขงาน (JOB) ดึงจากโครงการที่ผูกกับใบสั่งขาย</td></tr>
+      <tr><td><span class="pill">Employee Signature</span></td><td>รูปลายเซ็น (SIGN) — ถ้าไม่มีจะแสดงชื่อผู้ยืนยันแทน</td></tr>
+    </tbody>
+  </table>
+
+  <h4>สิทธิ์</h4>
+  <ul>
+    <li>ผู้ใช้ฝ่ายขายกรอก Stamp Date / Stamp Code และ Stamp ได้ตามปกติ</li>
+    <li>ผู้ดูแลระบบ/HR เป็นผู้อัปโหลดรูปลายเซ็นของพนักงาน</li>
+  </ul>
+
+  <div class="callout tip">
+    ตราประทับ Stamp จะแสดง <strong>เฉพาะ</strong>เมื่อทั้งสองเงื่อนไขพร้อมกัน: ใบสั่งขายยืนยันแล้ว (Confirmed)
+    และกรอก Stamp Date เรียบร้อย — ถ้ายังไม่ Stamp ต้องตรวจสองเงื่อนไขนี้ก่อน
+  </div>
+
+  <hr>
+
+  <h3 class="mod" id="sale-4"><span class="mtag">od19_sales_contract_core</span> แกนสัญญาการขาย (Sales Contract)</h3>
+  <p>
+    โมดูลนี้เป็น <strong>แกนกลางของสัญญาการขาย</strong> รองรับวงเงินสัญญา, การใช้งบประมาณตามสัญญา
+    งวดวางบิล (Billing Schedule) และการรับรู้รายได้ตามมาตรฐาน <strong>TFRS 15</strong> (Revenue Schedule)
+    พร้อมกลไกตรวจวงเงินเมื่อเกินสัญญา (over_limit_policy)
+  </p>
+
+  <h4>เมนูที่เกี่ยวข้อง</h4>
+  <ul>
+    <li><span class="path">การขาย › Sales Contracts</span> — ทะเบียนสัญญาการขายทั้งหมด</li>
+    <li>ฟอร์มใบสั่งขาย — ฟิลด์สัญญาที่ผูก, งวดวางบิล และกิจกรรมสัญญา</li>
+  </ul>
+
+  <h4>ขั้นตอนใช้งานสัญญา</h4>
+  <ol class="steps">
+    <li><span class="stitle">สร้างสัญญาและกำหนดวงเงิน</span> — กรอกคู่ค้า โครงการ ช่วงวันที่ และวงเงิน (Limit Amount)</li>
+    <li><span class="stitle">กด “Approve” แล้ว “Activate”</span> — สถานะไหลจากร่าง → อนุมัติ → ใช้งาน</li>
+    <li><span class="stitle">จัดตารางงวดวางบิล (Billing Schedule)</span> — เพิ่มงวดแบบ milestone / periodic / percent พร้อมวันครบกำหนด</li>
+    <li><span class="stitle">ออกใบแจ้งหนี้งวด</span> — กด “Create Next Installment Invoice” หรือปุ่ม “Create Invoice” รายงวด</li>
+    <li><span class="stitle">รับรู้รายได้</span> — กด “Recognize Revenue” ตามวิธีรับรู้ที่กำหนด (milestone / percent / progress)</li>
+    <li><span class="stitle">ปิดสัญญา</span> — กด “Close” เมื่องานเสร็จสิ้น และ “Reset to Draft” เมื่อต้องการแก้ไข</li>
+  </ol>
+
+  <h4>สถานะสัญญา</h4>
+  <div class="flow">
+    <span class="stp">Draft (ร่าง)</span>
+    <span class="arrow">→</span>
+    <span class="stp">Approved (อนุมัติ)</span>
+    <span class="arrow">→</span>
+    <span class="stp">Active (ใช้งาน)</span>
+    <span class="arrow">→</span>
+    <span class="stp">Closed (ปิด)</span>
+  </div>
+  <p>
+    งวดวางบิลมีสถานะ <span class="badge b-gray">Draft</span> → <span class="badge b-green">Invoiced</span>
+    และงวดรับรู้รายได้มีสถานะ <span class="badge b-gray">Pending</span> → <span class="badge b-amber">Partial</span>
+    → <span class="badge b-green">Recognized</span>
+  </p>
+
+  <h4>ฟิลด์ / ปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>ฟิลด์ / ปุ่ม</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">Limit Amount</span></td><td>วงเงินสัญญาสูงสุด</td></tr>
+      <tr><td><span class="pill">Consumed Amount</span></td><td>วงเงินที่ใช้ไปแล้ว (นับจากใบสั่งขายที่ผูกสัญญา)</td></tr>
+      <tr><td><span class="pill">Over Limit Policy</span></td><td>นโยบายเมื่อเกินวงเงิน: แค่เตือน / ต้องอนุมัติ / บล็อก</td></tr>
+      <tr><td><span class="pill">Billing Scheduled / Invoiced / Remaining</span></td><td>ยอดตามตารางวางบิล: ตั้งไว้ / ออกใบแจ้งหนี้แล้ว / คงเหลือ</td></tr>
+      <tr><td><span class="pill">Revenue Account / Deferred Account</span></td><td>บัญชีรายได้ และบัญชีรายได้รับล่วงหน้า (สำหรับ TFRS 15)</td></tr>
+      <tr><td><span class="badge b-green">Approve / Activate / Close</span></td><td>ปุ่มเปลี่ยนสถานะสัญญาตามลำดับ</td></tr>
+      <tr><td><span class="badge b-blue">Create Next Installment Invoice</span></td><td>ออกใบแจ้งหนี้งวดถัดไปอัตโนมัติ</td></tr>
+      <tr><td><span class="badge b-blue">Recognize Revenue</span></td><td>รับรู้รายได้ตามตารางรับรู้รายได้</td></tr>
+      <tr><td><span class="pill">Line Type</span></td><td>ชนิดงวดวางบิล: Milestone / Periodic / Percent</td></tr>
+      <tr><td><span class="pill">Recognition Method</span></td><td>วิธีรับรู้รายได้: Milestone / Percent / Progress</td></tr>
+    </tbody>
+  </table>
+
+  <h4>สิทธิ์</h4>
+  <ul>
+    <li>ผู้ใช้ฝ่ายขายสร้างและแก้ไขสัญญา/งวดวางบิลได้</li>
+    <li>การรับรู้รายได้และการใช้บัญชีรายได้เป็นของฝ่ายบัญชี (ผู้ใช้ที่ผูกสิทธิ์บัญชี)</li>
+  </ul>
+
+  <div class="callout warn">
+    <strong>ออกใบแจ้งหนี้ต้องเรียงงวด:</strong> ระบบกำหนดให้ต้องออกใบแจ้งหนี้ของ <em>งวดก่อนหน้า</em> ให้ครบก่อน
+    จึงจะออกงวดถัดไปได้ เพื่อรักษาลำดับการวางบิลตามสัญญา
+  </div>
+  <div class="callout note">
+    <strong>TFRS 15:</strong> โมดูลแยก “บัญชีรายได้” และ “บัญชีรายได้รับล่วงหน้า (Deferred)”
+    เมื่อรับรู้รายได้ ระบบจะโอนจากบัญชีรับล่วงหน้าไปยังบัญชีรายได้ตามวิธีรับรู้ที่เลือก
+  </div>
+
+  <hr>
+
+  <h3 class="mod" id="sale-5"><span class="mtag">od19_sales_currency_amount</span> ยอดเงินสองสกุลในรายการขาย</h3>
+  <p>
+    โมดูลนี้เพิ่มคอลัมน์ <strong>ยอดเงินเป็นสกุลของบริษัท</strong> ในหน้ารายการใบเสนอราคา/ใบสั่งขาย
+    ควบคู่กับยอดเงินตามสกุลเอกสาร (สำหรับงานขายต่างประเทศที่ใช้สกุลเงินอื่น)
+  </p>
+
+  <h4>จุดเข้าถึง</h4>
+  <ul>
+    <li><span class="path">การขาย › Orders › Quotations</span> และ <span class="path">Orders › Orders</span> — เพิ่มคอลัมน์ยอดเงินสกุลบริษัท</li>
+    <li>เปิด/ปิดคอลัมน์ได้จากตัวเลือกคอลัมน์ (Optional Columns)</li>
+  </ul>
+
+  <h4>การใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดหน้ารายการใบเสนอราคา/ใบสั่งขาย</span> — จะเห็นคอลัมน์ยอดเงินสองสกุล</li>
+    <li><span class="stitle">เปรียบเทียบยอด</span> — ยอดตามสกุลเอกสาร และยอดแปลงเป็นสกุลบริษัท (อัตราแลกเปลี่ยนอัตโนมัติ)</li>
+  </ol>
+
+  <h4>คอลัมน์ที่เพิ่ม</h4>
+  <table>
+    <thead><tr><th>คอลัมน์</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">Untaxed (Company Currency)</span></td><td>ยอดก่อนภาษีแปลงเป็นสกุลของบริษัท (คำนวณจากอัตราแลกเปลี่ยน)</td></tr>
+      <tr><td><span class="pill">Total (Company Currency)</span></td><td>ยอดรวมสุทธิแปลงเป็นสกุลของบริษัท</td></tr>
+    </tbody>
+  </table>
+
+  <h4>สิทธิ์</h4>
+  <ul>
+    <li>ผู้ใช้ที่เห็นหน้ารายการขายเห็นคอลัมน์นี้ได้ตามปกติ</li>
+  </ul>
+
+  <div class="callout note">
+    ยอดสกุลบริษัทคำนวณจากอัตราแลกเปลี่ยนของเอกสาร (Currency Rate) — หากอัตราแลกเปลี่ยนเปลี่ยนภายหลัง
+    ยอดที่แปลงแล้วจะเปลี่ยนตาม ควรตรวจอัตราก่อนสรุปยอด
+  </div>
+
+  <hr>
+
+  <h3 class="mod" id="sale-6"><span class="mtag">od19_sales_oca_bridge_workflow</span> สะพานงานขาย OCA และการอนุมัติตามวงเงิน</h3>
+  <p>
+    โมดูลนี้เชื่อมต่อใบสั่งขายกับโมดูลมาตรฐาน OCA (Revision, Exception, Blanket Order, Delivery State)
+    และเพิ่ม <strong>การอนุมัติตามวงเงิน (Tier Validation)</strong> ให้ใบสั่งขาย — เอกสารจะยืนยันได้ต่อเมื่อ
+    ผ่านการอนุมัติครบตามวงเงิน
+  </p>
+
+  <h4>เมนู / จุดเข้าถึง</h4>
+  <ul>
+    <li>ฟอร์มใบสั่งขาย — ส่วน <span class="pill">OCA Bridge (Required Now)</span> แสดงสถานะส่งของ, revision, exception และ blanket order</li>
+    <li><span class="path">การตั้งค่า › บริษัท</span> — กำหนดวงเงินอนุมัติ Manager / Director</li>
+  </ul>
+
+  <h4>ขั้นตอนยืนยันใบสั่งขายที่ต้องอนุมัติ</h4>
+  <ol class="steps">
+    <li><span class="stitle">สร้างใบสั่งขาย</span> — ระบบตรวจว่ายอดถึงเกณฑ์ต้องอนุมัติหรือไม่</li>
+    <li><span class="stitle">กด Confirm</span> — หากต้องอนุมัติ สถานะจะเปลี่ยนเป็น <span class="badge b-amber">Waiting Approval</span> แทนการยืนยันทันที</li>
+    <li><span class="stitle">ผู้อนุมัติกดอนุมัติตามชั้น</span> — Manager (วงเงินต่ำ) และ/หรือ Director (วงเงินสูง) อนุมัติให้ครบ</li>
+    <li><span class="stitle">ยืนยันใบสั่งขาย</span> — เมื่ออนุมัติครบแล้วจึงกด Confirm ได้สำเร็จ</li>
+  </ol>
+
+  <h4>สถานะใบสั่งขายและชั้นอนุมัติ</h4>
+  <div class="flow">
+    <span class="stp">Draft</span>
+    <span class="arrow">→</span>
+    <span class="stp">Waiting Approval (รออนุมัติ)</span>
+    <span class="arrow">→</span>
+    <span class="stp">Sale (ยืนยันแล้ว)</span>
+  </div>
+  <p>
+    ระดับผู้อนุมัติกำหนดจากยอดรวมเทียบกับเกณฑ์: ต่ำกว่าเกณฑ์ Manager → <span class="badge b-blue">Manager</span> อนุมัติ,
+    ถึงหรือเกินเกณฑ์ Director → <span class="badge b-red">Director</span> อนุมัติ
+  </p>
+
+  <h4>ฟิลด์ / ปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>ฟิลด์</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">Manager Approval Threshold</span></td><td>เกณฑ์วงเงินที่ต้องการอนุมัติของ Manager (ค่าเริ่มต้น 1,000,000)</td></tr>
+      <tr><td><span class="pill">Director Approval Threshold</span></td><td>เกณฑ์วงเงินที่ต้องการอนุมัติของ Director (ค่าเริ่มต้น 10,000,000)</td></tr>
+      <tr><td><span class="pill">Delivery Status</span></td><td>สถานะการส่งของ (จาก OCA sale_delivery_state)</td></tr>
+      <tr><td><span class="pill">Current Revision</span></td><td>revision ปัจจุบันของเอกสาร</td></tr>
+      <tr><td><span class="pill">Main Exception / Exceptions Summary</span></td><td>ข้อยกเว้นหลักและสรุปข้อยกเว้นที่บล็อกการยืนยัน</td></tr>
+      <tr><td><span class="pill">Blanket Order</span></td><td>ข้อตกลงซื้อขายแบบเบล็งเก็ตที่อ้างอิง</td></tr>
+      <tr><td><span class="badge b-green">Approve</span></td><td>ปุ่มอนุมัติในชั้นที่ผู้ใช้มีสิทธิ์</td></tr>
+    </tbody>
+  </table>
+
+  <h4>สิทธิ์</h4>
+  <ul>
+    <li><span class="badge b-blue">Sales Manager</span> — อนุมัติใบสั่งขายที่ยอดต่ำกว่าเกณฑ์ Director</li>
+    <li><span class="badge b-red">Sales Director</span> — กลุ่มใหม่ที่สืบทอดสิทธิ์ Manager อนุมัติยอดที่ถึงหรือเกินเกณฑ์ Director</li>
+  </ul>
+
+  <div class="callout warn">
+    เกณฑ์วงเงินถูก <strong>ซิงค์อัตโนมัติ</strong>กับนิยาม Tier Validation เมื่อแก้ค่าที่บริษัท —
+    ให้ตรวจนิยาม Tier ให้ตรงกับเกณฑ์จริงก่อนใช้งาน
+  </div>
+
+  <hr>
+
+  <h3 class="mod" id="sale-7"><span class="mtag">od19_sales_project_context</span> บริบทโครงการและกำไรงานขาย</h3>
+  <p>
+    โมดูลนี้ผูกงานขายเข้ากับ <strong>โครงการ (Project)</strong> และ <strong>ผู้ดูแลโครงการ</strong>
+    พร้อมปุ่มวิเคราะห์ <strong>ต้นทุนและกำไร</strong>ของใบสั่งขาย ช่วยให้เห็นกำไรขั้นต้นของงานก่อนตัดสินใจ
+  </p>
+
+  <h4>เมนูที่เกี่ยวข้อง</h4>
+  <ul>
+    <li><span class="path">การขาย › Sale Projects</span> — ทะเบียนโครงการที่ผูกกับงานขาย</li>
+    <li>ฟอร์มใบสั่งขาย — ฟิลด์โหมดการขาย โครงการ ผู้ดูแล และปุ่มวิเคราะห์กำไรในกล่องปุ่ม</li>
+  </ul>
+
+  <h4>ขั้นตอนกำหนดบริบทโครงการ</h4>
+  <ol class="steps">
+    <li><span class="stitle">เลือกโหมดการขาย</span> — งานครั้งเดียว (One Time) หรือ งานตามสัญญา (Contract)</li>
+    <li><span class="stitle">เลือกโครงการ</span> — เลือกจากโครงการที่เปิดใช้งาน</li>
+    <li><span class="stitle">เลือกผู้ดูแลโครงการ</span> — เลือกได้เฉพาะผู้ใช้ที่เป็น “ผู้ดูแลโครงการ”</li>
+    <li><span class="stitle">กดปุ่ม “Cost &amp; Profit Analysis”</span> — ดูรายได้ ต้นทุน กำไรขั้นต้น และอัตรากำไร</li>
+  </ol>
+
+  <h4>ฟิลด์ / ปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>ฟิลด์ / ปุ่ม</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">Sale Mode</span></td><td>โหมดการขาย: งานครั้งเดียว (One Time) หรือ งานตามสัญญา (Contract)</td></tr>
+      <tr><td><span class="pill">Project</span></td><td>โครงการที่ผูกกับงานขาย</td></tr>
+      <tr><td><span class="pill">Project Owner</span></td><td>ผู้ดูแลโครงการ (ต้องเป็นผู้ใช้ที่มีบทบาทผู้ดูแลโครงการ)</td></tr>
+      <tr><td><span class="pill">Revenue / Cost / Gross Margin</span></td><td>ในวิเคราะห์กำไร: รายได้ ต้นทุน กำไรขั้นต้น และอัตรากำไร</td></tr>
+      <tr><td><span class="badge b-blue">Cost &amp; Profit Analysis</span></td><td>ปุ่มเปิดวิเคราะห์ต้นทุน-กำไร (แสดงเมื่อมีโครงการ)</td></tr>
+    </tbody>
+  </table>
+
+  <h4>สิทธิ์</h4>
+  <ul>
+    <li>ผู้ใช้ฝ่ายขายเลือกโครงการและผู้ดูแลได้ตามขอบเขตที่กำหนด</li>
+    <li>คู่ค้าที่เลือกในใบสั่งขายจำกัดเฉพาะลูกค้าเชิงพาณิชย์ (Commercial Customer)</li>
+  </ul>
+
+  <div class="callout note">
+    ฟิลด์ <span class="pill">Customer</span> ของใบสั่งขายถูกจำกัดให้เลือกได้เฉพาะคู่ค้าที่ทำเครื่องหมายเป็น
+    “ลูกค้าเชิงพาณิชย์” — เพื่อให้ข้อมูลงานขายผูกกับลูกค้าที่ถูกต้อง
+  </div>
+
+  <hr>
+
+  <h3 class="mod" id="sale-8"><span class="mtag">od19_sales_reporting</span> รายงานยอดขายตามโครงการและลูกค้าประจำ</h3>
+  <p>
+    โมดูลนี้เพิ่มรายงานวิเคราะห์งานขาย 2 ตัว ได้แก่ <strong>ยอดขายตามโครงการ</strong> (Project Revenue)
+    และ <strong>ลูกค้าประจำ/งานซ้ำ</strong> (Repeat Business) โดยคำนวณจากข้อมูลจริงแบบเรียลไทม์
+  </p>
+
+  <h4>เมนูที่เกี่ยวข้อง</h4>
+  <ul>
+    <li><span class="path">การขาย › Reporting › Project Revenue</span> — ยอดขายรายโครงการ</li>
+    <li><span class="path">การขาย › Reporting › Repeat Business</span> — จำนวนโครงการ/ใบสั่งขายต่อลูกค้าประจำ</li>
+  </ul>
+
+  <h4>การใช้งานรายงาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดรายงานที่ต้องการ</span> — จากเมนู Reporting ใต้แอปการขาย</li>
+    <li><span class="stitle">จัดกลุ่ม/กรองตามความต้องการ</span> — ตามลูกค้าโครงการหรือผู้ดูแล</li>
+    <li><span class="stitle">อ่านค่าสรุป</span> — ยอดก่อนภาษี จำนวนเอกสาร จำนวนโครงการ ฯลฯ</li>
+  </ol>
+
+  <h4>คอลัมน์สำคัญ</h4>
+  <table>
+    <thead><tr><th>รายงาน / คอลัมน์</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">Project Revenue › Project</span></td><td>โครงการที่ผูกกับงานขาย</td></tr>
+      <tr><td><span class="pill">Project Revenue › Order Count</span></td><td>จำนวนใบสั่งขายในโครงการ</td></tr>
+      <tr><td><span class="pill">Project Revenue › Amount Untaxed</span></td><td>ยอดขายก่อนภาษีรวมของโครงการ</td></tr>
+      <tr><td><span class="pill">Repeat Business › Project Count</span></td><td>จำนวนโครงการของลูกค้ารายนั้น</td></tr>
+      <tr><td><span class="pill">Repeat Business › Sale Order Count</span></td><td>จำนวนใบสั่งขายของลูกค้ารายนั้น</td></tr>
+    </tbody>
+  </table>
+
+  <h4>สิทธิ์</h4>
+  <ul>
+    <li><span class="badge b-blue">Sales Manager</span> และ <span class="badge b-blue">Account Manager</span> — เห็นรายงานทั้งสอง</li>
+  </ul>
+
+  <div class="callout tip">
+    ใช้รายงาน <strong>Repeat Business</strong> เพื่อระบุลูกค้าที่กลับมาซื้อซ้ำหลายโครงการ และใช้
+    <strong>Project Revenue</strong> เพื่อดูโครงการที่สร้างยอดขายสูงสุด
+  </div>
+
+  <hr>
+
+  <h3 class="mod" id="sale-9"><span class="mtag">od19_sales_retention</span> เงินประกันผลงาน (Retention)</h3>
+  <p>
+    โมดูลนี้รองรับ <strong>เงินประกันผลงาน (Retention)</strong> สำหรับงานโครงการ/ก่อสร้าง — ออกใบกำกับภาษี
+    <strong>เต็มจำนวน</strong>เมื่อส่งมอบงวดงาน แล้วแยกยอด retention ไปพักที่ <strong>บัญชีลูกหนี้เงินประกัน</strong>
+    เพื่อให้ภาษีขาย (ภ.พ.30) ถูกต้อง พร้อมติดตามกำหนดคืนด้วยระบบแจ้งเตือน
+  </p>
+
+  <h4>เมนูที่เกี่ยวข้อง</h4>
+  <ul>
+    <li><span class="path">การขาย › Retentions (เงินประกันผลงาน)</span> — ทะเบียนรายการ retention</li>
+    <li><span class="path">การขาย › Retentions › Retention Outstanding (ค้างคืน)</span> — เฉพาะรายการที่ยังไม่คืน</li>
+    <li>ฟอร์มสัญญาการขาย — กลุ่ม <span class="pill">Retention</span> และแท็บ Retentions</li>
+  </ul>
+
+  <h4>ขั้นตอนการจัดการ retention</h4>
+  <ol class="steps">
+    <li><span class="stitle">กำหนดอัตรา/ยอด retention ที่สัญญา</span> — ตั้งอัตราเริ่มต้น จำนวนวัน และบัญชี/สมุดรายวันของ retention</li>
+    <li><span class="stitle">ระบบสร้างรายการอัตโนมัติ</span> — เมื่อลงบัญชีใบกำกับภาษีของงวดที่มีการหัก retention</li>
+    <li><span class="stitle">กด “Hold”</span> — พักยอดไว้ที่บัญชีลูกหนี้เงินประกัน สถานะเป็น <span class="badge b-amber">Held</span></li>
+    <li><span class="stitle">ครบกำหนดกด “Release”</span> — คืนเงินประกัน สถานะเป็น <span class="badge b-green">Released</span></li>
+    <li><span class="stitle">กด “Close”</span> — ปิดรายการหลังคืนครบ</li>
+    <li><span class="stitle">พิมพ์ใบสำคัญรับ</span> — กดปุ่ม “Retention Receipt” บนฟอร์ม</li>
+  </ol>
+
+  <h4>สถานะ retention</h4>
+  <div class="flow">
+    <span class="stp">Draft</span>
+    <span class="arrow">→</span>
+    <span class="stp">Held (พักไว้)</span>
+    <span class="arrow">→</span>
+    <span class="stp">Released (คืนแล้ว)</span>
+    <span class="arrow">→</span>
+    <span class="stp">Closed (ปิด)</span>
+  </div>
+  <p>รายการที่เลยกำหนดคืนจะแสดงเป็น <span class="badge b-red">Overdue</span> และยกเลิกได้จากสถานะร่างเป็น <span class="badge b-gray">Cancelled</span></p>
+
+  <h4>ฟิลด์ / ปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>ฟิลด์ / ปุ่ม</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">Base Amount</span></td><td>ยอดฐานที่ใช้คำนวณ retention (ยอดใบกำกับ)</td></tr>
+      <tr><td><span class="pill">Retention Rate / Amount</span></td><td>อัตรา (%) และยอดเงินประกันผลงานที่หัก</td></tr>
+      <tr><td><span class="pill">Release Date / Released Date</span></td><td>กำหนดคืน และวันที่คืนจริง</td></tr>
+      <tr><td><span class="pill">Retention Account / Journal</span></td><td>บัญชีลูกหนี้เงินประกัน และสมุดรายวันที่ใช้</td></tr>
+      <tr><td><span class="badge b-blue">Hold / Release / Close</span></td><td>ปุ่มเปลี่ยนสถานะตามลำดับ</td></tr>
+      <tr><td><span class="badge b-red">Cancel / Reset to Draft</span></td><td>ยกเลิกจากร่าง และรีเซ็ตกลับเป็นร่าง</td></tr>
+    </tbody>
+  </table>
+
+  <h4>สิทธิ์</h4>
+  <ul>
+    <li>ผู้ใช้ฝ่ายขาย/บัญชีที่ผูกสิทธิ์เข้าถึงทะเบียน retention ได้</li>
+    <li>การออกใบสำคัญรับและกระทบยอดคืนเป็นของฝ่ายบัญชี</li>
+  </ul>
+
+  <div class="callout danger">
+    <strong>ออกใบกำกับเต็มจำนวน:</strong> ต้องออกใบกำกับภาษีเต็มจำนวนตามหลักเกณฑ์ (หนังสือตอบข้อหารือ กค 0706/พ.789)
+    แล้วแยกยอด retention ไปพักที่บัญชีลูกหนี้เงินประกัน เพื่อให้ VAT ขาย (ภ.พ.30) ถูกต้อง
+  </div>
+  <div class="callout note">
+    ระบบมี Cron แจ้งเตือน <strong>วันครบกำหนดคืน</strong> และ <strong>แจ้งเตือนรายการเลยกำหนด</strong>โดยอัตโนมัติ
+  </div>
+
+  <hr>
+
+  <h3 class="mod" id="sale-10"><span class="mtag">od19_sales_services_jasper</span> แบบพิมพ์ Jasper งานบริการ</h3>
+  <p>
+    โมดูลนี้ให้ <strong>แบบพิมพ์ Jasper (J-Report OD15)</strong> สำหรับงานบริการหลังการขาย
+    (บัตรบริการ, ใบเคลม, ใบรับคืนสินค้า, ใบส่งของ) โดยพอร์ตจาก Odoo 15
+  </p>
+
+  <h4>เมนู / จุดเข้าถึง</h4>
+  <ul>
+    <li>เมนู <strong>พิมพ์ (Print)</strong> บนเอกสารแต่ละชนิด (เลือก “(J-Report OD15) …”)</li>
+    <li>แบบฟอร์มงานบริการ: บัตรบริการ (Service Card), ใบเคลม (Warranty Claim), ใบรับคืนสินค้า (Product Return), ใบส่งของ (Transport Order)</li>
+  </ul>
+
+  <h4>ขั้นตอนการพิมพ์แบบ Jasper</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดเอกสารต้นทาง</span> — เช่น บัตรบริการ หรือใบเคลม</li>
+    <li><span class="stitle">ไปที่เมนูพิมพ์ แล้วเลือกรายงาน</span> — เลือก “(J-Report OD15) …” ที่ต้องการ</li>
+    <li><span class="stitle">กรอกพารามิเตอร์</span> — เลือกภาษา (Language) ชนิด/รูปแบบวันที่ และช่วงวันที่/ลูกค้า (ถ้ามี)</li>
+    <li><span class="stitle">กดพิมพ์</span> — ระบบสร้างไฟล์ตามแบบฟอร์ม Jasper ที่พอร์ตมา</li>
+  </ol>
+
+  <h4>แบบพิมพ์ที่ให้บริการ</h4>
+  <table>
+    <thead><tr><th>รหัส</th><th>ชื่อแบบพิมพ์</th><th>ใช้กับ</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge b-gray">F-SS-001</span></td><td>Sales Services Form (ใบรับงานบริการ)</td><td>บัตรบริการ</td></tr>
+      <tr><td><span class="badge b-gray">F-SS-002</span></td><td>Claim Form (ใบเคลม)</td><td>ใบเคลมประกัน</td></tr>
+      <tr><td><span class="badge b-gray">F-SS-003</span></td><td>Product Return Form (ใบรับคืนสินค้า)</td><td>ใบรับคืนสินค้า</td></tr>
+      <tr><td><span class="badge b-gray">F-IV-013</span></td><td>Distribute Order Form (ใบส่งของ)</td><td>ใบขนส่ง</td></tr>
+      <tr><td><span class="badge b-gray">R-SS-001 … 003</span></td><td>Sales Services / Claim / Product Return Report</td><td>รายงานสรุปงานบริการ</td></tr>
+    </tbody>
+  </table>
+
+  <h4>สิทธิ์</h4>
+  <ul>
+    <li>ผู้ใช้ที่เข้าถึงเอกสารต้นทางพิมพ์รายงานที่ผูกกับเอกสารนั้นได้</li>
+  </ul>
+
+  <div class="callout note">
+    แบบพิมพ์เหล่านี้เป็นชุดเดียวกับ Odoo 15 (J-Report OD15) — พารามิเตอร์ที่ต้องกรอกคือ ภาษา
+    ชนิดวันที่ รูปแบบวันที่ และช่วงวันที่/ลูกค้าในรายงานสรุป
+  </div>
+
+  <hr>
+
+  <h3 class="mod" id="sale-11"><span class="mtag">od19_sale_report_native</span> ใบสั่งขาย QWeb (รูปแบบดั้งเดิม / ปรับปรุง)</h3>
+  <p>
+    โมดูลนี้ให้แบบพิมพ์ <strong>ใบสั่งขายแบบ QWeb PDF</strong> ตามแบบ Odoo 19 จำนวน 2 รูปแบบ
+    คือ <strong>รูปแบบดั้งเดิม (Classic)</strong> ที่คงโครงสร้างเดิม และ <strong>รูปแบบปรับปรุง (Modern)</strong>
+    ที่จัดวางใหม่ให้อ่านง่ายขึ้น (ข้อมูลชุดเดียวกัน)
+  </p>
+
+  <h4>เมนู / จุดเข้าถึง</h4>
+  <ul>
+    <li>เมนู <strong>พิมพ์ (Print)</strong> บนใบสั่งขาย — เลือก “ใบสั่งขาย (รูปแบบดั้งเดิม)” หรือ “(รูปแบบปรับปรุง)”</li>
+  </ul>
+
+  <h4>ขั้นตอนการพิมพ์</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดใบสั่งขาย</span> — เลือกเอกสารที่ต้องการพิมพ์</li>
+    <li><span class="stitle">กดเมนูพิมพ์</span> — เลือกรูปแบบดั้งเดิมหรือรูปแบบปรับปรุง</li>
+    <li><span class="stitle">ระบบสร้างไฟล์ PDF</span> — ใช้ฟอนต์ไทย (Sarabun) จากโมดูลสนับสนุนฟอนต์ไทย</li>
+  </ol>
+
+  <h4>ข้อมูลที่แสดง / ฟิลด์ที่ใช้</h4>
+  <table>
+    <thead><tr><th>ส่วน</th><th>รายละเอียด</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">จำนวนเงิน (Gross)</span></td><td>ยอดรวมก่อนหักส่วนลดการค้า</td></tr>
+      <tr><td><span class="pill">ส่วนลดการค้า (Trade Discount)</span></td><td>ยอดส่วนลดการค้ารวม</td></tr>
+      <tr><td><span class="pill">ภาษี (VAT) + ป้ายภาษี</span></td><td>ยอดภาษี พร้อมป้ายอัตราภาษีที่ใช้</td></tr>
+      <tr><td><span class="pill">จำนวนเงิน (ตัวอักษร)</span></td><td>แปลงยอดสุทธิเป็นตัวอักษรทั้งภาษาไทยและอังกฤษ</td></tr>
+      <tr><td><span class="pill">จำนวนรายการ (Lines)</span></td><td>จำนวนบรรทัดสินค้า (แสดงในรูปแบบปรับปรุง)</td></tr>
+    </tbody>
+  </table>
+
+  <h4>สิทธิ์</h4>
+  <ul>
+    <li>การพิมพ์สองรูปแบบนี้จำกัดให้ <span class="badge b-gray">System</span> (ผู้ดูแลระบบ) เป็นค่าเริ่มต้น — ปรับได้ตามนโยบาย</li>
+  </ul>
+
+  <div class="callout tip">
+    แบบพิมพ์ Jasper เดิม (F-S-002) ยังใช้ได้ผ่านโมดูล <code>od19_sale_jasper</code> โดยติดป้าย
+    “(J-Report OD15)” — โมดูลนี้เพิ่ม “แบบ QWeb” ให้เทียบเคียงกัน
+  </div>
+
+  <hr>
+
+  <h3 class="mod" id="sale-12"><span class="mtag">od19_sale_terms</span> เทมเพลตเงื่อนไขการขาย (Sale Terms)</h3>
+  <p>
+    โมดูลนี้รวม “เงื่อนไขมาตรฐาน” ของใบเสนอราคา (ราคา, การส่งมอบ, การชำระเงินสินค้า/งานวิศวกรรม, อายุราคา,
+    การรับประกัน, เครดิต) ให้เป็น <strong>เทมเพลตที่ใช้ซ้ำได้</strong> แล้วเลือกใช้บนใบสั่งขายได้หลายเงื่อนไขพร้อมกัน
+  </p>
+
+  <h4>เมนูที่เกี่ยวข้อง</h4>
+  <ul>
+    <li><span class="path">การขาย › การตั้งค่า › Sale Term Templates</span> — จัดการเทมเพลตเงื่อนไข</li>
+    <li>ฟอร์มใบสั่งขาย แท็บ <span class="pill">Terms</span> — เลือกเงื่อนไขและดูข้อความรวม</li>
+  </ul>
+
+  <h4>ขั้นตอนใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">สร้างเทมเพลตเงื่อนไข</span> — กำหนดชื่อ ชนิดเงื่อนไข (Term Type) และเนื้อหา</li>
+    <li><span class="stitle">เปิดใบสั่งขาย แท็บ Terms</span> — เลือกเทมเพลตในแต่ละช่องตามชนิด</li>
+    <li><span class="stitle">ดูข้อความรวมอัตโนมัติ</span> — ระบบรวมข้อความทุกเงื่อนไขตามลำดับคงที่ให้ทันที</li>
+  </ol>
+
+  <h4>ฟิลด์ / ชนิดเงื่อนไข</h4>
+  <table>
+    <thead><tr><th>ฟิลด์ / ชนิด</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">Term Type</span></td><td>ชนิดเงื่อนไข: ราคา / ส่งมอบ / ชำระเงิน (สินค้า) / ชำระเงิน (วิศวกรรม) / อายุราคา / ประกัน / เครดิต</td></tr>
+      <tr><td><span class="pill">Content</span></td><td>เนื้อหาข้อความเงื่อนไขที่จะแสดงบนใบเสนอราคา</td></tr>
+      <tr><td><span class="pill">Internal Note</span></td><td>หมายเหตุภายใน (ไม่แสดงบนเอกสาร)</td></tr>
+      <tr><td><span class="pill">Combined Terms Text</span></td><td>ข้อความเงื่อนไขทั้งหมดรวมกันบนใบสั่งขาย (อ่านอย่างเดียว)</td></tr>
+    </tbody>
+  </table>
+
+  <h4>สิทธิ์</h4>
+  <ul>
+    <li>ผู้ที่มีสิทธิ์ตั้งค่าการขายจัดการเทมเพลตได้</li>
+    <li>ผู้ใช้ฝ่ายขายเลือกใช้เทมเพลตบนใบสั่งขายได้</li>
+  </ul>
+
+  <div class="callout note">
+    เทมเพลตต้องมีชื่อและชนิดเงื่อนไขไม่ซ้ำกัน (ระบบบังคับ unique) — รวมโมเดลเงื่อนไข 7 ตัวจาก Odoo 15
+    ให้เป็นโมเดลเดียวเพื่อการดูแลที่ง่ายขึ้น
+  </div>
+
+  <hr>
+
+  <h3 class="mod" id="sale-13"><span class="mtag">od19_sale_wizards</span> วิซาร์ดเปลี่ยนวันส่งและข้อมูลเงินมัดจำ</h3>
+  <p>
+    โมดูลนี้เพิ่ม <strong>วิซาร์ดเปลี่ยนวันที่จัดส่ง</strong>ให้ใบเสนอราคา และบันทึก <strong>ข้อมูลเงินมัดจำ</strong>
+    (ที่มา/ต้นทาง) ไว้บนใบแจ้งหนี้ พร้อมเชื่อมการดึงรายการจากใบสั่งขายผ่านกลไกดึงเอกสารกลาง
+  </p>
+
+  <h4>เมนู / จุดเข้าถึง</h4>
+  <ul>
+    <li>ฟอร์มใบสั่งขาย (สถานะร่าง/ส่งแล้ว) — ปุ่ม <span class="badge b-gray">Change Delivery Date</span> ในแถบหัว</li>
+    <li>ฟอร์มใบแจ้งหนี้ — กลุ่ม <span class="pill">Downpayment Info</span> ในแท็บข้อมูลอื่น</li>
+  </ul>
+
+  <h4>ขั้นตอนเปลี่ยนวันจัดส่ง</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดใบเสนอราคา</span> — ต้องอยู่สถานะร่างหรือส่งแล้ว</li>
+    <li><span class="stitle">กด “Change Delivery Date”</span> — เปิดวิซาร์ดเปลี่ยนวันส่ง</li>
+    <li><span class="stitle">เลือกวันส่งใหม่ แล้วกด “Apply”</span> — ระบบปรับวันส่งมอบและคำนวณวันตามกำหนดของทุกรายการใหม่</li>
+  </ol>
+
+  <h4>ฟิลด์ / ปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>ฟิลด์ / ปุ่ม</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">New Delivery Date</span></td><td>วันส่งมอบใหม่ที่ต้องการตั้ง</td></tr>
+      <tr><td><span class="badge b-gray">Change Delivery Date</span></td><td>ปุ่มเปิดวิซาร์ด (เฉพาะสถานะร่าง/ส่งแล้ว)</td></tr>
+      <tr><td><span class="pill">Downpayment Origin</span></td><td>ที่มาของเงินมัดจำ (บนใบแจ้งหนี้)</td></tr>
+      <tr><td><span class="pill">Downpayment Source</span></td><td>แหล่งที่มาของเงินมัดจำ</td></tr>
+      <tr><td><span class="pill">Source PO Name</span></td><td>ชื่อใบสั่งซื้อต้นทาง (กรณีมัดจำผูกงานซื้อ)</td></tr>
+    </tbody>
+  </table>
+
+  <h4>สิทธิ์</h4>
+  <ul>
+    <li>ผู้ใช้ฝ่ายขายเปลี่ยนวันส่งได้ตามปกติเมื่อเอกสารยังไม่ยืนยัน</li>
+  </ul>
+
+  <div class="callout warn">
+    การเปลี่ยนวันส่งมีผลกับ <strong>วันตามกำหนดของทุกรายการ</strong>ในใบสั่งขาย — ควรแจ้งทีมที่เกี่ยวข้องก่อนปรับ
+    โดยเฉพาะเมื่อมีการวางแผน stocking หรือผลิต
+  </div>
+
+  <hr>
+
+  <h3 class="mod" id="sale-14"><span class="mtag">od19_sale_jasper</span> แบบพิมพ์ Jasper งานขาย</h3>
+  <p>
+    โมดูลนี้ให้ <strong>แบบพิมพ์ Jasper (J-Report OD15)</strong> สำหรับงานขาย ได้แก่ ใบสั่งขาย, ใบเสนอราคา,
+    ใบแจ้งหนี้ชั่วคราว, ใบรับประกัน พร้อมรายงานสรุปยอดขาย โดยพอร์ตจาก Odoo 15
+  </p>
+
+  <h4>เมนู / จุดเข้าถึง</h4>
+  <ul>
+    <li>เมนู <strong>พิมพ์ (Print)</strong> บนใบสั่งขาย — เลือก “(J-Report OD15) …”</li>
+    <li>แบบฟอร์มใบสั่งขายต้องอยู่สถานะยืนยันหรือเสร็จสิ้นจึงจะพิมพ์แบบF-S-002ได้</li>
+  </ul>
+
+  <h4>ขั้นตอนการพิมพ์แบบ Jasper</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดใบสั่งขาย</span> — ตรวจสอบว่าเอกสารยืนยันหรือเสร็จสิ้นแล้ว (สำหรับ F-S-002)</li>
+    <li><span class="stitle">ไปที่เมนูพิมพ์</span> — เลือกแบบฟอร์ม/รายงานที่ต้องการ</li>
+    <li><span class="stitle">กรอกพารามิเตอร์</span> — ภาษา ชนิด/รูปแบบวันที่ ชื่อ-ลายเซ็นผู้จัดทำ และช่วงวันที่/ปี-เดือน (ตามรายงาน)</li>
+    <li><span class="stitle">กดพิมพ์</span> — ระบบสร้างไฟล์ตามแบบฟอร์มที่พอร์ตมา</li>
+  </ol>
+
+  <h4>แบบพิมพ์ที่ให้บริการ</h4>
+  <table>
+    <thead><tr><th>รหัส</th><th>ชื่อแบบพิมพ์</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge b-gray">F-S-002</span></td><td>Sale Order Form (ใบสั่งขาย)</td></tr>
+      <tr><td><span class="badge b-gray">F-S-003</span></td><td>Quotation Form (ใบเสนอราคา)</td></tr>
+      <tr><td><span class="badge b-gray">F-S-004</span></td><td>Proforma Invoice Form (ใบแจ้งหนี้ชั่วคราว)</td></tr>
+      <tr><td><span class="badge b-gray">—</span></td><td>Warranty Card Form (ใบรับประกัน)</td></tr>
+      <tr><td><span class="badge b-gray">R-S-001</span></td><td>Sale Order Outstanding Report</td></tr>
+      <tr><td><span class="badge b-gray">R-S-002</span></td><td>Sale Order Values Report</td></tr>
+      <tr><td><span class="badge b-gray">R-S-003</span></td><td>Sale Invoice Values Report</td></tr>
+      <tr><td><span class="badge b-gray">R-S-004</span></td><td>First Sales Incoming Report</td></tr>
+    </tbody>
+  </table>
+
+  <h4>สิทธิ์</h4>
+  <ul>
+    <li>ผู้ใช้ที่เข้าถึงใบสั่งขายพิมพ์แบบฟอร์มที่ผูกกับใบสั่งขายได้</li>
+  </ul>
+
+  <div class="callout note">
+    แบบฟอร์ม <strong>F-S-002 (ใบสั่งขาย)</strong> จะยอมให้พิมพ์เฉพาะเอกสารที่สถานะยืนยันหรือเสร็จสิ้น —
+    เพื่อไม่ให้ส่งเอกสารที่ยังไม่ยืนยันให้ลูกค้า
+  </div>
+
+  <hr>
+
+  <h3 class="mod" id="sale-15"><span class="mtag">od19_quotation_document_sequence</span> เลขที่ใบเสนอราคาตามแผนก และการแก้ไข (Revision)</h3>
+  <p>
+    โมดูลนี้กำหนด <strong>เลขที่ใบเสนอราคาตามแผนก</strong> (เช่น QB/QT/QI/QD) และรองรับ
+    <strong>การแก้ไขใบเสนอราคา (Revision)</strong> ด้วยการต่อท้ายชื่อเอกสารด้วย <code>/R01</code>, <code>/R02</code>
+    โดยเชื่อมกับโมดูล revision มาตรฐาน OCA
+  </p>
+
+  <h4>เมนู / จุดเข้าถึง</h4>
+  <ul>
+    <li>ฟอร์มใบเสนอราคา — ฟิลด์ <span class="pill">Department</span> และปุ่ม <span class="badge b-gray">Create Revision</span> / <span class="badge b-gray">Revisions</span></li>
+    <li><span class="path">พนักงาน › แผนก (Departments)</span> — ฟิลด์ <span class="pill">Quotation Sequence</span> ต่อแผนก</li>
+  </ul>
+
+  <h4>ขั้นตอนใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">กำหนดเลขที่ให้แผนก</span> — ที่ฟอร์มแผนก เลือกลำดับเลขที่ (Quotation Sequence) ของแผนกนั้น</li>
+    <li><span class="stitle">สร้างใบเสนอราคา</span> — ระบบเติมแผนกให้อัตโนมัติจากพนักงาน และออกเลขที่ตามแผนก (เช่น QB, QT, QI, QD)</li>
+    <li><span class="stitle">กด “Create Revision”</span> — สร้างฉบับแก้ไข ระบบต่อท้ายชื่อด้วย /R01, /R02 …</li>
+    <li><span class="stitle">เลือกยกเลิกฉบับเดิมได้</span> — ในวิซาร์ดสามารถเลือกยกเลิกใบเสนอราคาเดิมพร้อมสร้างฉบับใหม่ได้</li>
+    <li><span class="stitle">ดูประวัติการแก้ไข</span> — กดปุ่ม “Revisions” เพื่อดูฉบับก่อนหน้า</li>
+  </ol>
+
+  <h4>รูปแบบเลขที่ / สถานะแก้ไข</h4>
+  <div class="flow">
+    <span class="stp">QB (BA)</span>
+    <span class="arrow">/</span>
+    <span class="stp">QT (TA)</span>
+    <span class="arrow">/</span>
+    <span class="stp">QI (IA)</span>
+    <span class="arrow">/</span>
+    <span class="stp">QD (F/DES)</span>
+  </div>
+  <p>เลขที่ใช้รูปแบบ <code>PREFIX + ปี(2) + เดือน + เลขรัน 4 หลัก</code> (เช่น <code>QT25110001</code>) และฉบับแก้ไขต่อท้ายด้วย <code>/R01</code></p>
+
+  <h4>ฟิลด์ / ปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>ฟิลด์ / ปุ่ม</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">Department</span></td><td>แผนกของใบเสนอราคา — เติมอัตโนมัติจากพนักงาน</td></tr>
+      <tr><td><span class="pill">Quotation Sequence</span></td><td>ลำดับเลขที่ใบเสนอราคาของแผนก (ตั้งที่ฟอร์มแผนก)</td></tr>
+      <tr><td><span class="pill">Revision Count / Child Count</span></td><td>จำนวนฉบับแก้ไขก่อนหน้า และจำนวนฉบับที่แตกออกมา</td></tr>
+      <tr><td><span class="badge b-gray">Create Revision</span></td><td>สร้างฉบับแก้ไขใหม่ (เฉพาะสถานะร่าง/ส่งแล้ว)</td></tr>
+      <tr><td><span class="badge b-gray">Revisions</span></td><td>เปิดดูประวัติฉบับก่อนหน้า (แสดงเมื่อมีฉบับแก้ไข)</td></tr>
+      <tr><td><span class="pill">Cancel Original</span></td><td>ตัวเลือกในวิซาร์ด: ยกเลิกฉบับเดิมหลังสร้างฉบับใหม่</td></tr>
+    </tbody>
+  </table>
+
+  <h4>สิทธิ์</h4>
+  <ul>
+    <li>ผู้ใช้ฝ่ายขายสร้างใบเสนอราคาและฉบับแก้ไขได้ตามปกติ</li>
+    <li>การกำหนดเลขที่ให้แผนกเป็นหน้าที่ของผู้ดูแล/ผู้ตั้งค่า HR</li>
+  </ul>
+
+  <div class="callout tip">
+    เมื่อติดตั้งโมดูล revision มาตรฐาน OCA ระบบจะใช้กลไก revision ของ OCA เป็นหลัก (มี <code>current_revision_id</code>
+    เป็นแหล่งข้อมูลเดียว) ส่วนปุ่ม “Create Revision” จะส่งต่อไปยัง OCA ให้โดยอัตโนมัติ
+  </div>
+
+</section>
