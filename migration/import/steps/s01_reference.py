@@ -219,14 +219,18 @@ def _sync_chart(env, stats):
         tag_id = tag_by_name.get(tag_name) if tag_name else None
         if tag_name and tag_id is None:
             missing_tags.add(tag_name)
-        elif tag_id:
-            vals['tag_ids'] = [(6, 0, [tag_id])]
 
         rec, action = common.upsert('account.account', od15_code, vals)
         stats.bump(action)
-        # upsert ไม่เขียน x2many ให้ record ที่มีอยู่แล้ว -> ผูก tag ให้ชัดเจนที่นี่
-        if rec is not None and tag_id and set(rec.tag_ids.ids) != {tag_id}:
-            rec.write({'tag_ids': [(6, 0, [tag_id])]})
+        # Odoo 19: tag_ids เป็นฟิลด์ compute (@api.depends('code')) ที่ "สืบทอด tag
+        # จากบัญชีรหัสก่อนหน้า" (closest preceding code) — บัญชีที่ไม่ได้ตั้งใจผูก tag
+        # จึงได้ tag ของบัญชีข้างหน้าโดยไม่ตั้งใจ และลามต่อเป็นทอด ๆ
+        # จึงต้องเขียน tag_ids ให้ตรงตาม mapping เสมอ (ทั้งกรณีผูกและไม่ผูก/เคลียร์)
+        # (upsert ไม่เขียน x2many ให้ record เดิม -> จัดการที่นี่)
+        if rec is not None:
+            desired = [tag_id] if tag_id else []
+            if set(rec.tag_ids.ids) != set(desired):
+                rec.write({'tag_ids': [(6, 0, desired)]})
 
     common.log("ผังบัญชี: ตรวจ %d บัญชี (created=%d updated=%d skipped=%d error=%d)"
                % (len(rows), stats.created, stats.updated, stats.skipped, stats.error))
