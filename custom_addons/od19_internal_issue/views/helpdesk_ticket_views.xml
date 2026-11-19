@@ -28,8 +28,7 @@
                         <group string="เกณฑ์ความสำคัญ">
                             <field name="impact"/>
                             <field name="urgency"/>
-                            <field name="priority" readonly="1"/>
-                            <field name="emergency"/>
+                            <field name="priority"/>
                         </group>
                         <group string="คิว">
                             <field name="queue_sequence"/>
@@ -40,11 +39,6 @@
                         </group>
                     </group>
                     <group>
-                        <group string="ความเป็นส่วนตัว">
-                            <field name="visibility"/>
-                            <field name="visibility_department_id"/>
-                            <field name="reported_by_id"/>
-                        </group>
                         <group string="การยินยอม">
                             <field name="consent_state"/>
                             <field name="jump_window_deadline"/>

@@ -1,16 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo noupdate="1">
+<odoo>
 
     <!--
-        Visibility rule for helpdesk.ticket:
-        - public: everyone sees it
-        - department: only users from the given (visibility) department
-        - private: only the reporter or the assignee
+        M4: remove the former (noupdate) local rule so that existing databases
+        pick up the corrected global rule below on upgrade. It becomes a no-op
+        afterwards (the XML id no longer exists).
     -->
-    <record id="internal_issue_visibility_rule" model="ir.rule">
+    <delete model="ir.rule" id="internal_issue_visibility_rule"/>
+
+    <!--
+        helpdesk_mgmt also ships a group rule for base.group_user that restricts
+        plain internal users to the tickets they are a *partner* of:
+            ['|', ('partner_id', '=', user.partner_id.id),
+                  ('message_partner_ids', '=', user.partner_id.id)]
+        The global rule below is AND-combined, so that leftover rule would hide
+        every issue from an internal user who is not a partner on it — including
+        the reporter's own ticket, which spec §5 explicitly grants. Group rules
+        are OR-combined, so this rule can no longer be neutralised by widening
+        our own rule; remove it and let the rules below govern visibility.
+    -->
+    <delete model="ir.rule" id="helpdesk_mgmt.helpdesk_ticket_rule_internal_user"/>
+
+    <!--
+        Visibility rule for helpdesk.ticket — GLOBAL on purpose (no groups).
+
+        helpdesk_mgmt ships a permissive "All Tickets" group rule
+        (domain [(1, '=', 1)]) for group_helpdesk_user. Group rules are
+        OR-combined, so a group rule here would be cancelled by it and every
+        helpdesk member would see other people's private issues. A global rule
+        is AND-combined and is therefore always enforced.
+
+        - public: everyone
+        - department: only the assigned (visibility) department
+        - private: reporter, assignee or a helpdesk manager
+        - helpdesk managers (group_helpdesk_manager) see everything
+    -->
+    <record id="internal_issue_visibility_rule_global" model="ir.rule">
         <field name="name">Internal Issue: visibility control</field>
         <field name="model_id" ref="helpdesk_mgmt.model_helpdesk_ticket"/>
-        <field name="domain_force">[
+        <field name="domain_force">[(1, '=', 1)] if user.has_group('helpdesk_mgmt.group_helpdesk_manager') else [
             '|', '|',
             ('visibility', '=', 'public'),
             '&amp;',
@@ -22,7 +50,6 @@
                     ('reported_by_id', '=', user.id),
                     ('user_id', '=', user.id)
         ]</field>
-        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
     </record>
 
 </odoo>

@@ -21,6 +21,20 @@ class TestInternalIssuePrivacy(TransactionCase):
         cls.user_y = cls._user_with_department(
             "User Y", "priv_y_issue_test", cls.dept_y
         )
+        cls.agent = cls._user_in_group(
+            "Agent (test)", "priv_agent_issue_test",
+            "helpdesk_mgmt.group_helpdesk_user",
+        )
+        cls.manager = cls._user_in_group(
+            "Manager (test)", "priv_manager_issue_test",
+            "helpdesk_mgmt.group_helpdesk_manager",
+        )
+
+    @classmethod
+    def _user_in_group(cls, name, login, group_xmlid):
+        user = cls.env["res.users"].create({"name": name, "login": login})
+        cls.env.ref(group_xmlid).sudo().write({"user_ids": [(4, user.id)]})
+        return user
 
     @classmethod
     def _user_with_department(cls, name, login, department):
@@ -66,6 +80,31 @@ class TestInternalIssuePrivacy(TransactionCase):
         ticket = self._ticket("department", visibility_department_id=self.dept_x.id)
         visible = self.Ticket.with_user(self.user_y).search([("id", "=", ticket.id)])
         self.assertFalse(visible)
+
+    def test_public_visible_to_helpdesk_user(self):
+        # M4: the global rule must not over-restrict legitimately public issues.
+        ticket = self._ticket("public")
+        visible = self.Ticket.with_user(self.agent).search([("id", "=", ticket.id)])
+        self.assertEqual(visible, ticket)
+
+    def test_private_hidden_from_helpdesk_user(self):
+        # M4: helpdesk members must not see other people's private issues,
+        # even though helpdesk_mgmt ships a permissive "All Tickets" rule.
+        ticket = self._ticket("private")
+        visible = self.Ticket.with_user(self.agent).search([("id", "=", ticket.id)])
+        self.assertFalse(visible)
+
+    def test_department_hidden_from_other_helpdesk_user(self):
+        # M4: department visibility is enforced for helpdesk members too.
+        ticket = self._ticket("department", visibility_department_id=self.dept_x.id)
+        visible = self.Ticket.with_user(self.agent).search([("id", "=", ticket.id)])
+        self.assertFalse(visible)
+
+    def test_private_visible_to_helpdesk_manager(self):
+        # spec §5: managers see everything, including private issues.
+        ticket = self._ticket("private")
+        visible = self.Ticket.with_user(self.manager).search([("id", "=", ticket.id)])
+        self.assertEqual(visible, ticket)
 
     def test_triage_email_alias_configured(self):
         alias = self.env.ref(
