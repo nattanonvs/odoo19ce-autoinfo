@@ -717,4 +717,73 @@
         <field name="url">/odoo</field>
         <field name="custom">True</field>
     </record>
+
+    <!--
+        Accounting > Reporting coverage: MIS Builder, the OCA financial reports,
+        the native Management analysis views and the Jasper financial
+        statements. All live inside the Invoicing/Accounting app, so they are
+        reachable from the User Guide menu or /odoo?tour=<name>.
+    -->
+    <record id="tour_od19_mis_reports" model="web_tour.tour">
+        <field name="name">od19_mis_reports_tour</field>
+        <field name="sequence">260</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_accounting_oca_reports" model="web_tour.tour">
+        <field name="name">od19_accounting_oca_reports_tour</field>
+        <field name="sequence">261</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_accounting_native_reports" model="web_tour.tour">
+        <field name="name">od19_accounting_native_reports_tour</field>
+        <field name="sequence">262</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_accounting_jasper_finance" model="web_tour.tour">
+        <field name="name">od19_accounting_jasper_finance_tour</field>
+        <field name="sequence">263</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_accounting_jasper_docs" model="web_tour.tour">
+        <field name="name">od19_accounting_jasper_docs_tour</field>
+        <field name="sequence">264</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_accounting_jasper_asset" model="web_tour.tour">
+        <field name="name">od19_accounting_jasper_asset_tour</field>
+        <field name="sequence">265</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+
+    <!--
+        Remaining OD19 applications / sub-menus that had no guide yet:
+        the Document Hub application (ศูนย์เอกสาร) and two sub-menus living
+        inside other applications (ISO DAR under ISO Management, Recognition
+        under Employees). Sub-menu guides stay reachable from the User Guide
+        menu or /odoo?tour=<name>.
+    -->
+    <record id="tour_od19_document_hub" model="web_tour.tour">
+        <field name="name">od19_document_hub_tour</field>
+        <field name="sequence">266</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_iso_dar" model="web_tour.tour">
+        <field name="name">od19_iso_dar_tour</field>
+        <field name="sequence">267</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
+    <record id="tour_od19_recognition" model="web_tour.tour">
+        <field name="name">od19_recognition_tour</field>
+        <field name="sequence">268</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
 </odoo>

@@ -28,7 +28,14 @@ class AiClientError(Exception):
     """Raised when the AI endpoint cannot be reached or returns an error."""
 
 
-def chat_completion(base_url, model, messages, api_key=None, timeout=DEFAULT_TIMEOUT):
+def chat_completion(
+    base_url,
+    model,
+    messages,
+    api_key=None,
+    timeout=DEFAULT_TIMEOUT,
+    temperature=None,
+):
     """Return the assistant message content for the given ``messages`` list.
 
     :param str base_url: root URL of the OpenAI-compatible endpoint
@@ -37,6 +44,8 @@ def chat_completion(base_url, model, messages, api_key=None, timeout=DEFAULT_TIM
     :param list messages: list of ``{"role": ..., "content": ...}`` dicts
     :param str api_key: optional bearer token
     :param int timeout: request timeout in seconds
+    :param float temperature: optional sampling temperature; lower values make
+        answers more focused and factual (omitted from the payload when ``None``)
     """
     if not base_url:
         raise AiClientError("AI base URL is not configured.")
@@ -48,6 +57,8 @@ def chat_completion(base_url, model, messages, api_key=None, timeout=DEFAULT_TIM
     if api_key:
         headers["Authorization"] = "Bearer %s" % api_key
     payload = {"model": model, "messages": messages, "stream": False}
+    if temperature is not None:
+        payload["temperature"] = temperature
 
     _logger.debug("AI request -> %s (%s)", url, model)
     try:
@@ -73,7 +84,7 @@ def chat_completion(base_url, model, messages, api_key=None, timeout=DEFAULT_TIM
 
 
 def chat_completion_stream(
-    base_url, model, messages, api_key=None, timeout=DEFAULT_TIMEOUT
+    base_url, model, messages, api_key=None, timeout=DEFAULT_TIMEOUT, temperature=None
 ):
     """Yield assistant content fragments as they are produced (SSE).
 
@@ -81,6 +92,9 @@ def chat_completion_stream(
     supports ``stream=true`` (Ollama does). Each yielded value is a ``str``
     fragment of the answer, so the caller can forward it to the browser
     immediately instead of waiting for the full completion.
+
+    ``temperature`` is forwarded only when set, keeping the payload identical
+    to before for callers that do not pass it.
     """
     if not base_url:
         raise AiClientError("AI base URL is not configured.")
@@ -92,6 +106,8 @@ def chat_completion_stream(
     if api_key:
         headers["Authorization"] = "Bearer %s" % api_key
     payload = {"model": model, "messages": messages, "stream": True}
+    if temperature is not None:
+        payload["temperature"] = temperature
 
     _logger.debug("AI stream -> %s (%s)", url, model)
     try:

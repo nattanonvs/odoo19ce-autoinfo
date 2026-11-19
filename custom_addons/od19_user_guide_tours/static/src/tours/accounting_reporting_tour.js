@@ -21,7 +21,15 @@ registry.category("web_tour.tours").add("od19_accounting_reporting_tour", {
 
         // --- Finance Control Board ---
         {
-            trigger: navSection("Finance Control Board"),
+            // Finance Control Board sits under the "Dashboards" dropdown
+            // (od19_ui_defaults), not at the top level of the navbar.
+            trigger: navSection("Dashboards"),
+            content: markup(_t("Open the <b>Dashboards</b> menu.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: navItem("Finance Control Board"),
             content: markup(_t("Open the <b>Finance Control Board</b>.")),
             tooltipPosition: "bottom",
             run: "click",

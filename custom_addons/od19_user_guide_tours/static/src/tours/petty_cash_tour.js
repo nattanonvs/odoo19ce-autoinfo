@@ -21,8 +21,10 @@ registry.category("web_tour.tours").add("od19_petty_cash_tour", {
             markup(_t("Let's record <b>Petty Cash</b> (เงินทดรองจ่าย) expenses and replenishments."))
         ),
         {
-            trigger: navSection("Petty Cash"),
-            content: markup(_t("Open the <b>Petty Cash</b> menu.")),
+            // Petty Cash sits under the "Treasury" dropdown (od19_ui_defaults),
+            // not at the top level of the navbar.
+            trigger: navSection("Treasury"),
+            content: markup(_t("Open the <b>Treasury</b> menu (Cheques, Advance Payments, Petty Cash).")),
             tooltipPosition: "bottom",
             run: "click",
         },
@@ -78,8 +80,8 @@ registry.category("web_tour.tours").add("od19_petty_cash_tour", {
 
         // --- Petty cash funds ---
         {
-            trigger: navSection("Petty Cash"),
-            content: markup(_t("Reopen the <b>Petty Cash</b> menu.")),
+            trigger: navSection("Treasury"),
+            content: markup(_t("Reopen the <b>Treasury</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },

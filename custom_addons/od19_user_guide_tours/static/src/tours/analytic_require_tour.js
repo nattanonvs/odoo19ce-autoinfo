@@ -8,7 +8,7 @@ import { markup } from "@odoo/owl";
  *
  * Walks the user through the analytic account requirement of
  * od19_accounting_analytic_require:
- *  1. Accounting ▸ Accounting ▸ Journal Entries — Post is blocked when a
+ *  1. Accounting ▸ Accounting Entries ▸ Journal Entries — Post is blocked when a
  *     configured account is missing its analytic account
  *  2. The info banner shown on the entry form
  *  3. Where to configure the required accounts / journals on the company
@@ -23,8 +23,8 @@ registry.category("web_tour.tours").add("od19_analytic_require_tour", {
 
         // --- Journal Entries ---
         {
-            trigger: navSection("Accounting"),
-            content: markup(_t("เปิดเมนู <b>Accounting / บัญชี</b>")),
+            trigger: navSection("Accounting Entries"),
+            content: markup(_t("เปิดเมนู <b>Accounting Entries / รายการบัญชี</b>")),
             tooltipPosition: "bottom",
             run: "click",
         },

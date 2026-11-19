@@ -3,7 +3,7 @@
 
 from odoo import api, fields, models
 
-from .od19_ai_chat import PROVIDER_PRESETS
+from .od19_ai_assistant import PROVIDER_PRESETS
 
 
 class ResConfigSettings(models.TransientModel):
@@ -47,11 +47,22 @@ class ResConfigSettings(models.TransientModel):
         config_parameter="od19_ai.timeout",
         default=60,
     )
+    od19_ai_temperature = fields.Float(
+        string="อุณหภูมิการตอบ (Temperature)",
+        config_parameter="od19_ai.temperature",
+        default=0.2,
+        digits=(3, 2),
+        help="ค่าความสร้างสรรค์ของคำตอบ ยิ่งต่ำยิ่งยึดตามข้อมูลจริงและให้ผล"
+        "สม่ำเสมอ แนะนำ 0.1–0.3 สำหรับงานข้อมูลบัญชี/ERP (0 = แน่นอนที่สุด)",
+    )
     od19_ai_system_prompt = fields.Char(
         string="คำสั่งระบบ (System Prompt)",
         config_parameter="od19_ai.system_prompt",
-        default="You are a helpful assistant for a Thai accounting ERP "
-        "(Odoo 19). Answer in Thai unless asked otherwise.",
+        default="คุณคือผู้ช่วยอัจฉริยะของระบบ ERP บัญชีไทย (Odoo 19) "
+        "ช่วยผู้ใช้เรื่องการใช้งานระบบ การบัญชี และการวิเคราะห์ข้อมูลธุรกิจ "
+        "ด้วยความเป็นมืออาชีพ ถูกต้อง และเป็นมิตร",
+        help="กำหนดบทบาท/บุคลิกหลักของผู้ช่วย AI "
+        "(แนวทางการตอบด้านการวิเคราะห์และความถูกต้องจะถูกเพิ่มให้อัตโนมัติเสมอ)",
     )
     od19_ai_capability_mode = fields.Selection(
         selection=[

@@ -21,15 +21,17 @@ registry.category("web_tour.tours").add("od19_accounting_tour", {
         ),
 
         // --- Petty Cash Fund ---
+        // Petty Cash sits under the "Treasury" dropdown (od19_ui_defaults), not
+        // at the top level of the navbar, so the tour must open Treasury first.
         {
-            trigger: navSection("Petty Cash"),
-            content: markup(_t("Open the <b>Petty Cash</b> menu.")),
+            trigger: navSection("Treasury"),
+            content: markup(_t("Open the <b>Treasury</b> menu (Petty Cash, Cheques, Advance Payments).")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
             trigger: navItem("Funds"),
-            content: markup(_t("Open <b>Funds</b> to manage small cash funds.")),
+            content: markup(_t("Open <b>Funds</b> (Treasury ▸ Petty Cash) to manage small cash funds.")),
             tooltipPosition: "bottom",
             run: "click",
         },
@@ -78,9 +80,12 @@ registry.category("web_tour.tours").add("od19_accounting_tour", {
             run: "click",
         },
         {
-            trigger: navItem("Payments"),
+            // od19_accounting_payment_voucher_reports renames the core
+            // Vendors ▸ Payments menu to "รายการจ่ายทั้งหมด / All Payments",
+            // so the strict-label navItem() must target that new label.
+            trigger: navItem("รายการจ่ายทั้งหมด / All Payments"),
             content: markup(_t(
-                "Open <b>Payments</b> to record vendor/customer payments with <b>Withholding Tax (WHT)</b>."
+                "Open <b>All Payments</b> to record vendor/customer payments with <b>Withholding Tax (WHT)</b>."
             )),
             tooltipPosition: "bottom",
             run: "click",

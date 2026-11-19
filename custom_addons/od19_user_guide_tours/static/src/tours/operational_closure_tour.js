@@ -8,7 +8,7 @@ import { markup } from "@odoo/owl";
  *
  * Walks the user through the operational closure gating added by
  * od19_accounting_operational_closure:
- *  1. Accounting ▸ Accounting ▸ Journal Entries — the closure fields carried
+ *  1. Accounting ▸ Accounting Entries ▸ Journal Entries — the closure fields carried
  *     on every account.move
  *  2. The same closure state exposed on Sales Orders and Purchase Orders
  *     (incl. the "Accept Service" button on PO service lines)
@@ -23,8 +23,8 @@ registry.category("web_tour.tours").add("od19_operational_closure_tour", {
 
         // --- Journal Entries ---
         {
-            trigger: navSection("Accounting"),
-            content: markup(_t("เปิดเมนู <b>Accounting / บัญชี</b>")),
+            trigger: navSection("Accounting Entries"),
+            content: markup(_t("เปิดเมนู <b>Accounting Entries / รายการบัญชี</b>")),
             tooltipPosition: "bottom",
             run: "click",
         },
