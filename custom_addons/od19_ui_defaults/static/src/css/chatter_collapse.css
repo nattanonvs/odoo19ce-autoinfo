@@ -28,7 +28,26 @@
 
 .o-mail-Chatter:has(.o-od19-chatter-collapse.active) .o-mail-Chatter-topbar {
     justify-content: center;
+    align-items: center;
     overflow: hidden;
+}
+
+/* While collapsed, stretch the topbar to fill the whole chatter height so the
+ * NavBar-coloured strip runs edge to edge (no white gaps above/below the
+ * chevron). */
+.o-mail-Chatter:has(.o-od19-chatter-collapse.active) .o-mail-Chatter-top {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.o-mail-Chatter:has(.o-od19-chatter-collapse.active) .o-mail-Chatter-topbar {
+    flex: 1 1 auto;
+}
+
+.o-mail-Chatter:has(.o-od19-chatter-collapse.active) .o-od19-chatter-collapse {
+    margin-top: 0;
+    margin-bottom: 0;
 }
 
 /* 2. NavBar look while collapsed: system-tray background + white chevron. */
@@ -56,13 +75,14 @@
     text-decoration: none;
 }
 
-/* 3. Collapsed aside chatter: shrink the whole column to a thin strip just wide
- * enough to hold the chevron icon (fa-fw = 1.25em), with no extra padding. */
+/* 3. Collapsed aside chatter: shrink the whole column to the NavBar height and
+ * strip the container's bottom padding so the purple strip runs edge to edge. */
 .o-mail-ChatterContainer.o-aside:has(.o-od19-chatter-collapse.active) {
     flex-grow: 0;
     flex-shrink: 0;
-    width: 1.25rem;
+    width: var(--o-navbar-height, 46px);
     min-width: 0;
+    padding-bottom: 0;
     background-color: #71639e;
 }
 
