@@ -33,9 +33,12 @@ class TestDocumentPullViews(TransactionCase):
         )
         self.assertIn("action_pull", arch)
         self.assertIn("source_type_filter", arch)
-        # ต้องอยู่ใน arch (แม้ซ่อน) ไม่งั้น onchange จะได้ source_model = False
+        # ต้องอยู่ใน arch และมี force_save: ฟิลด์ readonly จะถูก client ตัดทิ้งตอน save
+        # ถ้าไม่มี force_save -> source_model/source_id = False -> KeyError: False
         self.assertIn("source_model", arch)
         self.assertIn("source_id", arch)
+        self.assertRegex(arch, r'name="source_model"[^>]*force_save="1"')
+        self.assertRegex(arch, r'name="source_id"[^>]*force_save="1"')
 
     def test_purchase_order_form_has_pull_buttons(self):
         arch = self._view_arch(
@@ -53,3 +56,5 @@ class TestDocumentPullViews(TransactionCase):
         self.assertIn("action_remove", arch)
         self.assertIn("action_back", arch)
         self.assertIn("source_type_filter", arch)
+        # readonly ต้องมี force_save ไม่งั้น client ตัด source_ref ทิ้งตอน save
+        self.assertRegex(arch, r'name="source_ref"[^>]*force_save="1"')
