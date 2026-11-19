@@ -33,6 +33,9 @@ class TestDocumentPullViews(TransactionCase):
         )
         self.assertIn("action_pull", arch)
         self.assertIn("source_type_filter", arch)
+        # ต้องอยู่ใน arch (แม้ซ่อน) ไม่งั้น onchange จะได้ source_model = False
+        self.assertIn("source_model", arch)
+        self.assertIn("source_id", arch)
 
     def test_purchase_order_form_has_pull_buttons(self):
         arch = self._view_arch(

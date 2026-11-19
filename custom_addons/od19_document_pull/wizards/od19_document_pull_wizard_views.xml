@@ -26,6 +26,9 @@
                         <field name="name"/>
                         <field name="partner_id" optional="show"/>
                         <field name="remaining"/>
+                        <!-- ซ่อนแต่ต้องอยู่ใน view เพื่อให้ client ส่งค่ากลับใน onchange -->
+                        <field name="source_model" column_invisible="1"/>
+                        <field name="source_id" column_invisible="1"/>
                         <field name="sequence" column_invisible="1"/>
                     </list>
                 </field>
