@@ -2,8 +2,8 @@
 
 - **ผลบังคับใช้**: AI agent ทุกตัวที่ทำงานใน repository นี้ (Codex, Claude Code, Trae, Gemini ฯลฯ)
 - **สถานะ**: LOCKED — ห้าม agent แก้ไขไฟล์นี้เอง ต้องได้รับอนุมัติจากผู้ใช้เป็นรายครั้ง
-- **Revision**: r3 (2026-11-12) — เพิ่มข้อ 11: ให้ agent ติดตั้ง/อัปเดตโมดูลได้เองหลังงานเสร็จ โดยถามซ้ำทุก 10 ครั้ง (หรือ 10 แอป) ว่าจะติดตั้งลง db server ใด · ปรับข้อ 6 ให้สอดคล้อง (อนุญาต `-i`/`-u` บน DB แชร์ตามข้อ 11)
-- **Revision history**: r2 (2026-11-10) — เปลี่ยนจาก *Single-writer* เป็น *Resource-Scoped Lease* เพื่อให้ทำงานขนานได้อย่างปลอดภัย
+- **Revision**: r4 (2026-11-19) — เพิ่มข้อ 12: วินัย worktree (anchor detached HEAD, เคลียร์ไฟล์ขยะ, แยกขอบเขต deploy, dump ก่อน `-u`, หลีกเลี่ยง STEP-3, ตรวจ submodule) เพื่อกันข้อมูลหายและงานปะปน
+- **Revision history**: r3 (2026-11-12) — เพิ่มข้อ 11 (ติดตั้ง/อัปเดตโมดูลได้เอง + ถามทุก 10 ครั้ง/10 แอป) · r2 (2026-11-10) — เปลี่ยนจาก *Single-writer* เป็น *Resource-Scoped Lease*
 - Repository: `nattanonvs/odoo19ce-autoinfo` · branch หลัก: `19.0` · ฐานข้อมูลที่ใช้: `odoo19_pdev`
 
 ---
@@ -196,3 +196,22 @@
   ```
 
 - แผนงานที่กำหนดรอบการติดตั้งไว้ชัดเจนอยู่แล้ว (เช่น โครงการที่ระบุ Phase) ให้ยึดแผนนั้นก่อน — กฎนี้ใช้กับงานพัฒนาปกติ
+
+## 12. วินัย worktree — ป้องกันข้อมูลหายและงานปะปน (r4)
+
+หลักการ: ทุก worktree ต้อง "มีบ้าน" (branch) เสมอ · ไฟล์ของ agent อื่นห้ามแตะ · การ deploy ต้องตรวจสอบย้อนกลับได้
+
+- **ห้ามปล่อย worktree ไว้ที่ detached HEAD** — commit บน detached HEAD ไม่มี ref หนุน เสี่ยงถูก `git gc` เก็บทิ้ง
+  - ก่อนเริ่มงานใน worktree ใด ๆ ให้ตรวจ `git -C <wt> status --porcelain --branch` ว่าไม่ใช่ `HEAD (no branch)`
+  - ถ้า detached → สร้าง branch คลุมทันที: `git -C <wt> switch -c feature/<โมดูลแรก>-<scope>` (Tier 1)
+  - ตรวจเป็นรอบด้วย `git worktree list` — ต้องไม่มีแถวที่ขาด `[branch]`
+- **ไฟล์ทดลอง/โพรบต้องไม่ค้างใน worktree** — ไฟล์ `_*.py`, `_*.txt`, `*.bak`, `data_test_*` ถ้าใช้ชั่วคราว ให้เก็บในโฟลเดอร์ที่ `.gitignore` ครอบ หรือย้ายออกนอก repo
+  - ถ้าพบ untracked ที่ **ไม่ใช่ของตัวเอง** → **ห้ามลบ** ให้รายงานเจ้าของงาน
+- **แยกขอบเขต deploy (release worktree)** — instance หลักโหลด addons จาก `C:\odoo-dev\od19_release\custom_addons`
+  - ห้าม `git add -A` / `git add .` ใน release worktree (มักมีไฟล์ agent อื่นค้าง) — ใช้ `git add -- <path>` เจาะจงเสมอ
+  - ก่อน commit ให้ `git diff --cached --name-only` ยืนยันว่าไม่มีไฟล์ของ agent อื่น/ไฟล์ต้องห้ามติดไป
+- **ยืนยันโค้ดที่ deploy ก่อน restart/สลับเวอร์ชัน** — ตรวจว่าไฟล์ที่ deploy ตรงกับ tip ของ branch งาน:
+  `git diff --stat <dev-sha>:<path> <deploy-sha>:<path>` ต้องว่าง (เหมือนกันทุกไบต์)
+- **dump สำรองก่อน `-u`/migration ที่กระทบข้อมูล** — ยกเว้นได้รับอนุมัติเป็นรายครั้ง
+- **หลีกเลี่ยง `STEP-3-Start-Odoo19.ps1`** — blast radius กว้าง (kill Odoo/nginx ทั้งหมด + ตัด PG session ของ DB อื่น + หมุน log) ให้ใช้เฉพาะเมื่อจำเป็นจริง; restart ปกติให้เจาะจง PID (`Stop-Process -Id <pid>`) แล้วเริ่ม command line เดิม
+- **ตรวจ submodule ก่อนแตะ `third_party/oca/*`** — `git submodule status` ต้องขึ้นต้นด้วยช่องว่าง (space = sync) ทั้งหมด; ถ้าเจอ `+` หรือ `-` ให้แก้ให้ตรงก่อน
