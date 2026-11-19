@@ -1,6 +1,6 @@
 {
     "name": "Asset Disposal Workflow",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "category": "Accounting & Finance",
     "summary": "Asset disposal workflow on top of account_asset_management",
     "description": """
@@ -26,6 +26,7 @@ Provides a disposal workflow for assets managed with OCA account_asset_managemen
     "data": [
         "data/ir_cron.xml",
         "views/account_asset_views.xml",
+        "views/account_move_views.xml",
     ],
     "installable": True,
     "application": False,
