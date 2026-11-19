@@ -171,6 +171,50 @@ class TestOd19EtaxDocument(AccountTestInvoicingCommon):
         })
         self.assertEqual(document.type_code, "81")
 
+    # ------------------------------------------------------------------
+    # Source document linking
+    # ------------------------------------------------------------------
+    def test_credit_note_etax_links_the_source_document(self):
+        """A credit note's e-Tax document references the invoice it corrects."""
+        invoice = self._create_invoice(move_type="out_invoice", post=True)
+        original = self.env["od19.etax.document"].browse(
+            invoice.action_od19_create_etax_document()["res_id"]
+        )
+        cn = self.env["account.move"].browse(
+            invoice.action_create_credit_note()["res_id"]
+        )
+        document = self.env["od19.etax.document"].browse(
+            cn.action_od19_create_etax_document()["res_id"]
+        )
+        self.assertEqual(document.source_document_id, original)
+        self.assertEqual(document.document_type, "debit_credit_note")
+        self.assertEqual(document.type_code, "81")
+
+    def test_credit_note_etax_is_unlinked_without_source_document(self):
+        """No e-Tax document on the source invoice leaves the link empty."""
+        invoice = self._create_invoice(move_type="out_invoice", post=True)
+        cn = self.env["account.move"].browse(
+            invoice.action_create_credit_note()["res_id"]
+        )
+        document = self.env["od19.etax.document"].browse(
+            cn.action_od19_create_etax_document()["res_id"]
+        )
+        self.assertFalse(document.source_document_id)
+
+    def test_etax_source_document_falls_back_to_reversed_entry(self):
+        """The link also resolves from ``reversed_entry_id`` alone."""
+        invoice = self._create_invoice(move_type="out_invoice", post=True)
+        original = self.env["od19.etax.document"].browse(
+            invoice.action_od19_create_etax_document()["res_id"]
+        )
+        reversal = invoice._reverse_moves(cancel=False)
+        self.assertFalse(reversal.parent_id)
+        self.assertEqual(reversal.reversed_entry_id, invoice)
+        document = self.env["od19.etax.document"].browse(
+            reversal.action_od19_create_etax_document()["res_id"]
+        )
+        self.assertEqual(document.source_document_id, original)
+
     def test_default_type_follows_the_buyer_tax_status(self):
         """A VAT buyer gets the full form; a consumer gets the abbreviated one."""
         invoice = self._create_invoice(move_type="out_invoice", post=False)
