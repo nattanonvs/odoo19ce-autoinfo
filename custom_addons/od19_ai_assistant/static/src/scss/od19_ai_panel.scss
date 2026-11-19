@@ -76,9 +76,10 @@
 }
 
 /* ---------------------------------------------------------------------------
- * Systray button — blend the AI "magic" icon with the other navbar (systray)
- * entries instead of rendering with the browser's default button background.
- * Tokens mirror web/static/src/webclient/navbar/navbar.variables.scss.
+ * Systray button — matches the employee shortcut button: the background stays
+ * transparent in every state (hover/focus/active never paint a fill); hovering
+ * only brightens the "magic" icon. Tokens mirror
+ * web/static/src/webclient/navbar/navbar.variables.scss.
  * ------------------------------------------------------------------------ */
 .o_main_navbar .o_od19_ai_systray {
     display: flex;
@@ -94,21 +95,18 @@
     font-size: 1em;
     line-height: 1;
     cursor: pointer;
-    transition: background-color .15s ease, color .15s ease;
+    transition: color .15s ease;
 
     &:hover,
     &:focus,
-    &:focus-visible {
-        color: #fff;
-        background: rgba(0, 0, 0, .08);
-        outline: none;
-        box-shadow: none;
-    }
-
+    &:focus-visible,
+    &:active,
     &.active,
     &[aria-expanded="true"] {
         color: #fff;
-        background: rgba(0, 0, 0, .18);
+        background: transparent;
+        outline: none;
+        box-shadow: none;
     }
 
     .fa {
