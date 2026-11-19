@@ -13,10 +13,10 @@ from odoo.tests.common import (
 )
 
 CHAT_COMPLETION = (
-    "odoo.addons.od19_ai_assistant.models.od19_ai_chat.chat_completion"
+    "odoo.addons.od19_ai_assistant.models.od19_ai_assistant.chat_completion"
 )
 STREAM_COMPLETION = (
-    "odoo.addons.od19_ai_assistant.controllers.main.chat_completion_stream"
+    "odoo.addons.od19_ai_assistant.models.od19_ai_assistant.chat_completion_stream"
 )
 AI_CLIENT_ERROR = "odoo.addons.od19_ai_assistant.lib.client.AiClientError"
 
@@ -39,6 +39,7 @@ class TestOd19AiAssistant(TransactionCase):
         self.assertEqual(config["base_url"], "http://localhost:11434/v1")
         self.assertEqual(config["model"], "qwen2.5:7b")
         self.assertEqual(config["timeout"], 60)
+        self.assertEqual(config["temperature"], 0.2)
 
     def test_config_uses_groq_provider_preset(self):
         params = self.env["ir.config_parameter"].sudo()
@@ -86,7 +87,7 @@ class TestOd19AiAssistant(TransactionCase):
         chat = self.env["od19.ai.chat"].create({})
         captured = []
 
-        def fake_chat_completion(base_url, model, messages, api_key=None, timeout=None):
+        def fake_chat_completion(base_url, model, messages, api_key=None, timeout=None, **kwargs):
             captured.append([(m["role"], m["content"]) for m in messages])
             return "ตอบครั้งที่ %d" % len(captured)
 
@@ -185,7 +186,7 @@ class TestOd19AiAssistant(TransactionCase):
         chat = self.env["od19.ai.chat"].create({"prompt": "หาคู่ค้าชื่อทดสอบ"})
         calls = {"n": 0}
 
-        def fake_chat_completion(base_url, model, messages, api_key=None, timeout=None):
+        def fake_chat_completion(base_url, model, messages, api_key=None, timeout=None, **kwargs):
             calls["n"] += 1
             if calls["n"] == 1:
                 return '{"tool": "search_partners", "arguments": {"keyword": "ทดสอบ"}}'
@@ -375,7 +376,7 @@ class TestOd19AiChatHttp(HttpCase):
     def test_stream_endpoint_emits_sse(self):
         chat = self._make_chat(self.chat_user)
 
-        def fake_stream(base_url, model, messages, api_key=None, timeout=None):
+        def fake_stream(base_url, model, messages, api_key=None, timeout=None, **kwargs):
             yield "สวัสดี"
             yield "ครับ"
 
@@ -653,6 +654,13 @@ class TestCapabilityIndex(TransactionCase):
         prompt = self.env["od19.ai.chat"]._build_system_prompt("BASE")
         self.assertIn("tool_help", prompt)
         self.assertIn("search_partners", prompt)
+
+    def test_system_prompt_always_includes_quality_guide(self):
+        # The quality guide must survive any custom base prompt so answer
+        # quality (analysis, no fabrication) never regresses.
+        prompt = self.env["od19.ai.chat"]._build_system_prompt("BASE")
+        self.assertIn("แนวทางการตอบ", prompt)
+        self.assertIn("ห้ามเดา", prompt)
 
 
 @tagged("post_install", "-at_install")
@@ -985,3 +993,60 @@ class TestPerformanceGuards(TransactionCase):
         # must stay within the cap *and* actually drop tools.
         self.assertLessEqual(len(index), tool_model.MAX_INDEX_CHARS)
         self.assertLess(len(index.splitlines()), len(fake_tools))
+
+
+@tagged("post_install", "-at_install")
+class TestOd19AiAskHttp(HttpCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.ask_user = cls.env["res.users"].create(
+            {
+                "name": "OD19 Ask User",
+                "login": "od19_ask_user",
+                "password": "od19_ask_user",
+                "group_ids": [(6, 0, [cls.env.ref("base.group_user").id])],
+            }
+        )
+
+    def _login(self):
+        self.authenticate("od19_ask_user", "od19_ask_user")
+
+    def test_ask_endpoint_returns_answer(self):
+        partner = self.env["res.partner"].create({"name": "บริษัท ถาม จำกัด"})
+        self._login()
+        with patch(CHAT_COMPLETION, return_value="นี่คือบริษัท ถาม จำกัด"):
+            result = self.url_open(
+                "/od19_ai/ask",
+                json={
+                    "jsonrpc": "2.0",
+                    "method": "call",
+                    "id": 1,
+                    "params": {
+                        "question": "เอกสารนี้คืออะไร",
+                        "model": "res.partner",
+                        "res_id": partner.id,
+                        "view_type": "form",
+                    },
+                },
+            ).json()["result"]
+        self.assertEqual(result["answer"], "นี่คือบริษัท ถาม จำกัด")
+        self.assertIsNone(result["error"])
+
+    def test_suggest_endpoint_returns_chips(self):
+        partner = self.env["res.partner"].create({"name": "บริษัท ชิป จำกัด"})
+        self._login()
+        result = self.url_open(
+            "/od19_ai/suggest",
+            json={
+                "jsonrpc": "2.0",
+                "method": "call",
+                "id": 1,
+                "params": {
+                    "model": "res.partner",
+                    "res_id": partner.id,
+                    "view_type": "form",
+                },
+            },
+        ).json()["result"]
+        self.assertTrue(result["chips"])

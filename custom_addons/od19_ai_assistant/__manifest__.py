@@ -3,7 +3,7 @@
 
 {
     "name": "OD19 AI Assistant",
-    "version": "19.0.2.0.0",
+    "version": "19.0.3.0.0",
     "author": "OD19",
     "category": "Productivity",
     "summary": "Free / self-hosted AI assistant for Odoo 19 CE "
@@ -19,8 +19,14 @@
     "assets": {
         "web.assets_backend": [
             "od19_ai_assistant/static/src/scss/od19_ai_chat.scss",
+            "od19_ai_assistant/static/src/scss/od19_ai_panel.scss",
             "od19_ai_assistant/static/src/xml/od19_ai_chat.xml",
+            "od19_ai_assistant/static/src/xml/ai_panel.xml",
+            "od19_ai_assistant/static/src/xml/systray_item.xml",
             "od19_ai_assistant/static/src/js/od19_ai_chat.js",
+            "od19_ai_assistant/static/src/js/ai_context.js",
+            "od19_ai_assistant/static/src/js/ai_panel.js",
+            "od19_ai_assistant/static/src/js/systray_item.js",
         ],
     },
     "installable": True,

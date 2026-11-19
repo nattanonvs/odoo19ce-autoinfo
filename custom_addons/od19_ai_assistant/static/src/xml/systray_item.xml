@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="od19_ai_assistant.SystrayItem">
+        <button type="button" class="o_od19_ai_systray"
+                title="ผู้ช่วย AI (Alt+Shift+P)"
+                t-att-class="{ active: isOpen }"
+                t-on-click="toggle">
+            <i class="fa fa-magic"/>
+        </button>
+    </t>
+
+</templates>
