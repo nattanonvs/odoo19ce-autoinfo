@@ -86,21 +86,29 @@ class TestDocumentPullWizard(AccountTestInvoicingCommon):
         vals.update(overrides)
         return self.env["od19.document.pull.wizard"].create(vals)
 
-    def test_source_ref_selection_lists_bill_sources(self):
-        bill = self._new_bill()
-        wizard = self._open_wizard(
-            bill, source_ref="purchase.order,%s" % self.po.id
-        )
-        self.assertEqual(wizard.partner_id, self.vendor)
-        selection = self.env["od19.document.pull.wizard"]._selection_source_ref()
-        self.assertIn("purchase.order", [model for model, _label in selection])
+    def _select_source(self, wizard, source):
+        """Tick the wizard row that points at ``source`` and rebuild lines."""
+        wizard.source_ids.filtered(
+            lambda row: row.source_model == source._name
+            and row.source_id == source.id
+        ).selected = True
+        wizard._onchange_source_ids()
 
-    def test_onchange_source_ref_builds_lines_with_all_order_mode(self):
+    def test_source_rows_list_bill_sources(self):
         bill = self._new_bill()
-        wizard = self._open_wizard(
-            bill, source_ref="purchase.order,%s" % self.po.id
+        wizard = self._open_wizard(bill)
+        self.assertEqual(wizard.partner_id, self.vendor)
+        row = wizard.source_ids.filtered(
+            lambda r: r.source_model == "purchase.order"
+            and r.source_id == self.po.id
         )
-        wizard._onchange_source_ref()
+        self.assertTrue(row)
+        self.assertEqual(row.remaining, 1)
+
+    def test_onchange_source_builds_lines_with_all_order_mode(self):
+        bill = self._new_bill()
+        wizard = self._open_wizard(bill)
+        self._select_source(wizard, self.po)
         self.assertEqual(len(wizard.line_ids), 1)
         line = wizard.line_ids
         self.assertEqual(line.res_model, "purchase.order.line")
@@ -109,10 +117,8 @@ class TestDocumentPullWizard(AccountTestInvoicingCommon):
 
     def test_action_pull_all_order_creates_lines(self):
         bill = self._new_bill()
-        wizard = self._open_wizard(
-            bill, source_ref="purchase.order,%s" % self.po.id
-        )
-        wizard._onchange_source_ref()
+        wizard = self._open_wizard(bill)
+        self._select_source(wizard, self.po)
         wizard.action_pull()
         self.assertEqual(len(bill.invoice_line_ids), 1)
         self.assertEqual(bill.invoice_line_ids.purchase_line_id, self.po.order_line)
@@ -122,10 +128,8 @@ class TestDocumentPullWizard(AccountTestInvoicingCommon):
     def test_action_pull_select_mode_only_selected(self):
         po = self._create_confirmed_po([5.0, 2.0])
         bill = self._new_bill()
-        wizard = self._open_wizard(
-            bill, mode="select", source_ref="purchase.order,%s" % po.id
-        )
-        wizard._onchange_source_ref()
+        wizard = self._open_wizard(bill, mode="select")
+        self._select_source(wizard, po)
         self.assertEqual(len(wizard.line_ids), 2)
         first = wizard.line_ids[0]
         wizard.line_ids.write({"selected": False})
@@ -145,22 +149,19 @@ class TestDocumentPullWizard(AccountTestInvoicingCommon):
 
     def test_action_pull_raises_when_nothing_selected(self):
         bill = self._new_bill()
-        wizard = self._open_wizard(
-            bill, mode="select", source_ref="purchase.order,%s" % self.po.id
-        )
-        wizard._onchange_source_ref()
+        wizard = self._open_wizard(bill, mode="select")
+        self._select_source(wizard, self.po)
         wizard.line_ids.write({"selected": False})
         with self.assertRaises(UserError):
             wizard.action_pull()
 
     def test_pull_twice_does_not_duplicate(self):
         bill = self._new_bill()
-        source_ref = "purchase.order,%s" % self.po.id
-        wizard = self._open_wizard(bill, source_ref=source_ref)
-        wizard._onchange_source_ref()
+        wizard = self._open_wizard(bill)
+        self._select_source(wizard, self.po)
         wizard.action_pull()
-        wizard2 = self._open_wizard(bill, source_ref=source_ref)
-        wizard2._onchange_source_ref()
+        wizard2 = self._open_wizard(bill)
+        self._select_source(wizard2, self.po)
         self.assertEqual(len(wizard2.line_ids), 0)
 
     def test_action_pull_from_previous_bill(self):
@@ -172,10 +173,8 @@ class TestDocumentPullWizard(AccountTestInvoicingCommon):
             lambda l: l.display_type == "product"
         )
         bill = self._new_bill()
-        wizard = self._open_wizard(
-            bill, source_ref="account.move,%s" % posted.id
-        )
-        wizard._onchange_source_ref()
+        wizard = self._open_wizard(bill)
+        self._select_source(wizard, posted)
         self.assertEqual(len(wizard.line_ids), 1)
 
         wizard.action_pull()
@@ -222,10 +221,8 @@ class TestDocumentPullWizard(AccountTestInvoicingCommon):
                 "invoice_date": "2026-02-01",
             }
         )
-        wizard = self._open_wizard(
-            invoice, source_ref="sale.order,%s" % so.id
-        )
-        wizard._onchange_source_ref()
+        wizard = self._open_wizard(invoice)
+        self._select_source(wizard, so)
         self.assertEqual(len(wizard.line_ids), 1)
 
         wizard.action_pull()

@@ -394,8 +394,7 @@ msgstr "บรรทัดใบวางบิลต้นทาง / Source Bi
 #. module: od19_document_pull
 #: model:ir.model.fields,field_description:od19_document_pull.field_account_move_line__od19_source_pull_label
 #: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_source__name
-#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_remove_wizard__source_id
-#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_wizard__source_ref
+#: model:ir.model.fields,field_description:od19_document_pull.field_od19_document_pull_source__name
 #: model:ir.model.fields,field_description:od19_document_pull.field_purchase_order_line__od19_pull_source_label
 #: model_terms:ir.ui.view,arch_db:od19_document_pull.view_move_form_od19_document_pull
 #: model_terms:ir.ui.view,arch_db:od19_document_pull.view_order_form_od19_document_pull

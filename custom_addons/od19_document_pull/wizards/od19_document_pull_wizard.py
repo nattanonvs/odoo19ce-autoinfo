@@ -21,9 +21,10 @@ class Od19DocumentPullWizard(models.TransientModel):
         string="Partner / คู่ค้า",
         compute="_compute_partner_id",
     )
-    source_ref = fields.Reference(
-        selection="_selection_source_ref",
-        string="Source Document / เอกสารต้นทาง",
+    source_ids = fields.One2many(
+        comodel_name="od19.document.pull.source",
+        inverse_name="wizard_id",
+        string="Source Documents / เอกสารต้นทาง",
     )
     mode = fields.Selection(
         selection=[
@@ -61,34 +62,86 @@ class Od19DocumentPullWizard(models.TransientModel):
             )
 
     @api.model
-    def _selection_source_ref(self):
-        """Models selectable as a source document on a pull wizard.
+    def _od19_source_commands(self, res_model, res_id):
+        """Build the selectable source rows for a destination document.
 
-        The ORM evaluates a Reference selection on an empty recordset, both to
-        render the widget and to validate values, so this list is static and
-        context-independent. Which sources a given destination actually accepts
-        is enforced by ``_od19_pull_check_source``.
+        A source document is offered only when it matches the destination's
+        source specification (partner, state, ...) and still has lines left to
+        pull, so the wizard never shows an irrelevant or exhausted source.
         """
-        return [
-            ("purchase.order", _("Purchase Order / ใบสั่งซื้อ")),
-            ("sale.order", _("Sale Order / ใบสั่งขาย")),
-            ("account.move", _("Invoice/Bill / ใบแจ้งหนี้/ใบวางบิล")),
-            ("purchase.request", _("Purchase Request / ใบขอซื้อ")),
-            ("stock.picking", _("Transfer / ใบรับ-ส่งสินค้า")),
-        ]
+        target = self.env[res_model].browse(res_id).exists()
+        if not target:
+            return []
+        commands = [Command.clear()]
+        sequence = 10
+        for spec in target._od19_pull_source_specs():
+            for source in self.env[spec["model"]].search(spec["domain"]):
+                remaining = len(target._od19_pull_candidate_lines(source))
+                if not remaining:
+                    continue
+                commands.append(
+                    Command.create(
+                        {
+                            "sequence": sequence,
+                            "source_model": source._name,
+                            "source_id": source.id,
+                            "source_type": spec["label"],
+                            "name": source.display_name,
+                            "partner_id": (
+                                source.partner_id.id
+                                if "partner_id" in source._fields
+                                else False
+                            ),
+                            "remaining": remaining,
+                        }
+                    )
+                )
+                sequence += 10
+        return commands
 
-    @api.onchange("source_ref")
-    def _onchange_source_ref(self):
-        """Rebuild the candidate rows whenever the source document changes."""
+    @api.model
+    def default_get(self, fields_list):
+        res = super().default_get(fields_list)
+        res_model = res.get("res_model") or self.env.context.get("active_model")
+        res_id = res.get("res_id") or self.env.context.get("active_id")
+        if res_model and res_id:
+            res["res_model"] = res_model
+            res["res_id"] = res_id
+            res["source_ids"] = self._od19_source_commands(res_model, res_id)
+        return res
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        wizards = super().create(vals_list)
+        for wizard in wizards:
+            if not wizard.source_ids:
+                wizard.source_ids = wizard._od19_source_commands(
+                    wizard.res_model, wizard.res_id
+                )
+        return wizards
+
+    def _od19_selected_source(self):
+        """Return the single source document ticked on the wizard."""
+        self.ensure_one()
+        selected = self.source_ids.filtered("selected")
+        if len(selected) > 1:
+            raise UserError(_("Please select only one source document."))
+        return selected._od19_get_source() if selected else False
+
+    @api.onchange("source_ids")
+    def _onchange_source_ids(self):
+        """Rebuild the candidate lines from the selected source document."""
         self.line_ids = [Command.clear()]
         self._od19_build_lines()
 
     def _od19_build_lines(self):
         self.ensure_one()
-        if not self.source_ref or not self.res_model or not self.res_id:
+        if not self.res_model or not self.res_id:
+            return
+        source = self._od19_selected_source()
+        if not source:
             return
         target = self._od19_get_target()
-        source = self.source_ref
         commands = [
             Command.create(target._od19_pull_line_info(source, line))
             for line in target._od19_pull_candidate_lines(source)
@@ -123,7 +176,7 @@ class Od19DocumentPullWizard(models.TransientModel):
         if not target or not target.exists():
             raise UserError(_("The destination document no longer exists."))
         target._od19_pull_check_editable()
-        source = self.source_ref
+        source = self._od19_selected_source()
         target._od19_pull_check_source(source)
 
         if self.mode == "all_order":

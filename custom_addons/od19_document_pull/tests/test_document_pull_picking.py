@@ -126,10 +126,13 @@ class TestDocumentPullPicking(AccountTestInvoicingCommon):
             {
                 "res_model": "account.move",
                 "res_id": document.id,
-                "source_ref": "stock.picking,%s" % picking.id,
             }
         )
-        wizard._onchange_source_ref()
+        wizard.source_ids.filtered(
+            lambda r: r.source_model == "stock.picking"
+            and r.source_id == picking.id
+        ).selected = True
+        wizard._onchange_source_ids()
         return wizard
 
     # ------------------------------------------------------------------

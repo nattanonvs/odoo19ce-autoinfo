@@ -40,10 +40,13 @@ class TestDocumentPullPurchaseRequest(TransactionCase):
             {
                 "res_model": "purchase.order",
                 "res_id": po.id,
-                "source_ref": "purchase.request,%s" % request.id,
             }
         )
-        wizard._onchange_source_ref()
+        wizard.source_ids.filtered(
+            lambda r: r.source_model == "purchase.request"
+            and r.source_id == request.id
+        ).selected = True
+        wizard._onchange_source_ids()
         return wizard
 
     def test_source_specs_include_purchase_request(self):
