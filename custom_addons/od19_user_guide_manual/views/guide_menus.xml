@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Full handbook entry point, placed under the existing *User Guide*
+        root menu so users find the manual and the interactive tours together.
+    -->
+    <record id="action_od19_user_guide_manual" model="ir.actions.act_url">
+        <field name="name">คู่มือการใช้งานระบบ Odoo 19</field>
+        <field name="url">/od19/guide</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_od19_user_guide_manual"
+              name="คู่มือการใช้งาน (ฉบับเต็ม)"
+              parent="od19_user_guide_tours.menu_od19_user_guide_root"
+              action="action_od19_user_guide_manual"
+              sequence="20"/>
+</odoo>
