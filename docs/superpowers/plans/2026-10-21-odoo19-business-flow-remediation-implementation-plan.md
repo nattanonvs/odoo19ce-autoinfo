@@ -176,7 +176,7 @@ venv19\Scripts\python.exe odoo-bin -c odoo.conf -d odoo19_pdev -u <module_list> 
 - [x] **Step 2:** override `_prepare_move_line_default_vals()` เพื่อปรับ liquidity + เพิ่ม fee line
 - [x] **Step 3:** view + test (4 cases)
 
-### Task A6: DN/CN Bugs [สถานะ: DONE — ต้อง verify]
+### Task A6: DN/CN Bugs [สถานะ: DONE — verify + แก้ครบ 2026-11-19]
 
 **Files:**
 - Modify: `custom_addons/od19_accounting_dncn/models/account_move.py`
@@ -186,6 +186,7 @@ venv19\Scripts\python.exe odoo-bin -c odoo.conf -d odoo19_pdev -u <module_list> 
 - [x] **Step 2:** override `action_post()` บังคับ reason สำหรับ DN/CN/Remaster
 - [x] **Step 3:** แก้ `action_create_credit_note()` ให้รองรับ customer + vendor (out_refund/in_refund) และ set `reversed_entry_id`
 - [x] **Step 4:** เพิ่ม test (4 cases)
+- [x] **Step 5 (verify + แก้ครบ 2026-11-19):** เปลี่ยนปุ่ม Credit Note ให้ใช้ `_reverse_moves()` (คัดลอกรายการ + reverse GL + ตั้ง `parent_id`), ซ่อนปุ่ม native ที่ซ้ำ, แก้ Source Document ไม่ให้ fallback เลขตัวเอง, ผูก e-Tax `source_document_id` อัตโนมัติ, ขยาย QWeb อ้างอิงใบกำกับเดิมฝั่งผู้ขาย — อ้างสเปค `docs/superpowers/specs/2026-11-19-od19-accounting-dncn-credit-note-design.md` (CN-1…CN-9)
 
 ### Task A7: Down Payment / Deposit [สถานะ: REUSE — ต้องยืนยัน]
 

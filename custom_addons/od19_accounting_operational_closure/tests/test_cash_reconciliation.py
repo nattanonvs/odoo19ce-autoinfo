@@ -154,7 +154,7 @@ class TestAccountingCashReconciliation(AccountTestInvoicingCommon):
         move = self._fresh_move(self._create_misc_entry(ref="MISC-FLOW-001"))
         self.assertEqual(move.od19_operational_flow, "other")
 
-    def test_source_document_falls_back_from_origin_to_ref_to_name(self):
+    def test_source_document_falls_back_from_origin_to_ref(self):
         invoice = self._fresh_move(
             self._create_invoice(
                 move_type="out_invoice",
@@ -175,7 +175,9 @@ class TestAccountingCashReconciliation(AccountTestInvoicingCommon):
 
         self.assertEqual(invoice.od19_source_document, "SO-ORIGIN-001")
         self.assertEqual(entry_with_ref.od19_source_document, "MISC-REF-001")
-        self.assertEqual(entry_with_name.od19_source_document, entry_with_name.name)
+        # No origin nor ref: the field must stay empty rather than showing
+        # the document's own number.
+        self.assertFalse(entry_with_name.od19_source_document)
 
     def test_account_move_form_places_operational_fields_once(self):
         arch = self._get_move_form_arch()

@@ -38,6 +38,11 @@
         <field name="model">account.move</field>
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
+            <!-- Hide the native "Credit Note" button: the custom button below
+                 already covers customer and vendor with copied lines. -->
+            <xpath expr="//button[@name='action_reverse']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
             <xpath expr="//header" position="inside">
                 <button name="action_create_debit_note"
                         type="object"

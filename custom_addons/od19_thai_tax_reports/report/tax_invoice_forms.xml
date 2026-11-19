@@ -17,7 +17,7 @@
                 <t t-set="od19_doc_labels" t-value="{'full': 'ใบกำกับภาษี', 'abbreviated': 'ใบกำกับภาษีอย่างย่อ', 'debit_note': 'ใบเพิ่มหนี้', 'credit_note': 'ใบลดหนี้'}"/>
                 <t t-set="od19_src" t-value="o.parent_id or o.reversed_entry_id"/>
                 <div class="row mb-4"
-                     t-if="o.move_type in ('out_invoice', 'out_refund') and (o.dncn or od19_src)">
+                     t-if="o.move_type in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund') and (o.dncn or od19_src)">
                     <div class="col" t-if="o.dncn">
                         <strong>ประเภทเอกสาร</strong>
                         <div t-esc="od19_doc_labels.get(o.od19_tax_invoice_doc_type, '')"/>
