@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'User Guide Tours',
-    'version': '19.0.1.8.0',
+    'version': '19.0.1.11.0',
     'category': 'Tools/User Guide',
     'summary': 'Interactive guided tours for all OD19 business modules',
     'description': """
@@ -131,6 +131,9 @@ Tours can be started from:
         'od19_thai_localization_base',
         'od19_offline_draft',
         'od19_sales_oca_bridge_workflow',
+        'od19_document_hub',
+        'od19_iso_dar',
+        'od19_recognition',
     ],
     'data': [
         'data/tour_data.xml',
@@ -244,6 +247,15 @@ Tours can be started from:
             'od19_user_guide_tours/static/src/tours/offline_draft_tour.js',
             'od19_user_guide_tours/static/src/tours/timesheet_billing_tour.js',
             'od19_user_guide_tours/static/src/tours/sales_oca_bridge_tour.js',
+            'od19_user_guide_tours/static/src/tours/mis_reports_tour.js',
+            'od19_user_guide_tours/static/src/tours/accounting_oca_reports_tour.js',
+            'od19_user_guide_tours/static/src/tours/accounting_native_reports_tour.js',
+            'od19_user_guide_tours/static/src/tours/accounting_jasper_finance_tour.js',
+            'od19_user_guide_tours/static/src/tours/accounting_jasper_docs_tour.js',
+            'od19_user_guide_tours/static/src/tours/accounting_jasper_asset_tour.js',
+            'od19_user_guide_tours/static/src/tours/document_hub_tour.js',
+            'od19_user_guide_tours/static/src/tours/iso_dar_tour.js',
+            'od19_user_guide_tours/static/src/tours/recognition_tour.js',
         ],
     },
     'icon': '/od19_user_guide_tours/static/description/icon.svg',
