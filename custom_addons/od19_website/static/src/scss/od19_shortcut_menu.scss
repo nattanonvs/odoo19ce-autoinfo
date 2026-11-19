@@ -1,0 +1,35 @@
+/* ============================================================
+ * OD19 Website — Employee shortcut (systray) button
+ * Follows the AI assistant button sizing/typography, but keeps the
+ * background transparent in every state: hovering only brightens
+ * the icon, it never paints a background fill.
+ * ============================================================ */
+
+.o_main_navbar .o_menu_systray .o_od19_shortcut_menu.dropdown-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--o-navbar-height, 46px);
+    margin: 0;
+    padding: 0 var(--NavBar-entry-padding-right, .315em) 0 var(--NavBar-entry-padding-left, .315em);
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: rgba(255, 255, 255, .9);
+    font-size: 1em;
+    line-height: 1;
+    cursor: pointer;
+    transition: color .15s ease;
+
+    &:hover,
+    &:focus,
+    &:focus-visible,
+    &:active,
+    &.active,
+    &[aria-expanded="true"] {
+        color: #fff;
+        background: transparent;
+        outline: none;
+        box-shadow: none;
+    }
+}

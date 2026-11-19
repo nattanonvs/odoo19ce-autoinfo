@@ -9,7 +9,7 @@ import { useService } from "@web/core/utils/hooks";
 export class ShortcutMenu extends Component {
     static template = xml`
         <Dropdown position="'bottom-end'" bottomSheet="false">
-            <button title="เมนูลัดพนักงาน">
+            <button class="o_od19_shortcut_menu" title="เมนูลัดพนักงาน">
                 <i class="fa fa-lg fa-bolt"/>
             </button>
             <t t-set-slot="content">
