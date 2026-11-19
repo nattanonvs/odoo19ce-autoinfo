@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+    <t t-name="od19_ui_defaults.ChatterCollapse" t-inherit="mail.Chatter" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('o-mail-Chatter-topbar')]" position="inside">
+            <button type="button" class="o-od19-chatter-collapse btn btn-link text-action px-1 d-flex align-items-center"
+                    t-att-class="{ 'my-2': !props.compactHeight, 'active': state.isChatterCollapsed }"
+                    t-att-title="chatterCollapseButtonLabel" t-att-aria-label="chatterCollapseButtonLabel"
+                    t-on-click="toggleChatterCollapse">
+                <i class="fa fa-fw" role="img"
+                   t-att-class="state.isChatterCollapsed ? 'fa-angle-double-left' : 'fa-angle-double-right'"/>
+            </button>
+        </xpath>
+    </t>
+
+</templates>
