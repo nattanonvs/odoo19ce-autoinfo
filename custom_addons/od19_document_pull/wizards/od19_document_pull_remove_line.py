@@ -5,7 +5,7 @@ from odoo import fields, models
 
 
 class Od19DocumentPullRemoveSource(models.TransientModel):
-    """Informational row: one source document currently bound to the target."""
+    """Selectable row: one source document currently bound to the target."""
 
     _name = "od19.document.pull.remove.source"
     _description = "OD19 Document Pull Remove Source"
@@ -16,10 +16,17 @@ class Od19DocumentPullRemoveSource(models.TransientModel):
         required=True,
         ondelete="cascade",
     )
+    selected = fields.Boolean(string="Select / เลือก")
     source_ref = fields.Char(
         string="Source Reference / อ้างอิงเอกสารต้นทาง", readonly=True
     )
     name = fields.Char(string="Source Document / เอกสารต้นทาง", readonly=True)
+
+    def _od19_get_source(self):
+        """Return the referenced source document record."""
+        self.ensure_one()
+        model_name, res_id = self.source_ref.split(",")
+        return self.env[model_name].browse(int(res_id))
 
 
 class Od19DocumentPullRemoveLine(models.TransientModel):
