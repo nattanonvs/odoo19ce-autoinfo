@@ -1,14 +1,15 @@
 ﻿<#
 .SYNOPSIS
-    STEP-1 : Update โมดูล Odoo 19 (ฐานข้อมูล odoo19_pdev)
+    STEP-1 : Update โมดูล Odoo 19 (ค่าเริ่มต้นฐานข้อมูล odoo19_pdev)
 
 .DESCRIPTION
     หารายชื่อโมดูลที่จะ update แบบ dynamic จากข้อมูลจริง ไม่ต้องแก้รายชื่อในไฟล์:
-      1. query ฐานข้อมูล odoo19_pdev เอาโมดูลที่ state = 'installed'
+      1. query ฐานข้อมูลเป้าหมาย เอาโมดูลที่ state = 'installed'
       2. ตัดเอาเฉพาะโมดูลที่มีโฟลเดอร์อยู่ใน custom_addons (โมดูลที่โปรเจกต์พัฒนเอง)
       3. สั่ง update แบบ batch เดียว: odoo-bin -u <list> --stop-after-init
 
-    ข้อกำหนดของโปรเจกต์: ใช้ฐานข้อมูลเดียวคือ odoo19_pdev เท่านั้น
+    ฐานข้อมูลที่รองรับ: odoo19_pdev (ค่าเริ่มต้น) และ odoo19_puat
+    ถ้าไม่ระบุ -Database จะแสดงเมนูให้เลือก (ข้ามเมนูและใช้ค่าเริ่มต้นเมื่อสั่ง -NoPause)
 
 .EXAMPLE
     powershell -ExecutionPolicy Bypass -File .\STEP-1-Update-Odoo19.ps1
@@ -16,9 +17,14 @@
 .EXAMPLE
     # ข้าม git pull (update จากโค้ดบนเครื่องปัจจุบัน)
     powershell -ExecutionPolicy Bypass -File .\STEP-1-Update-Odoo19.ps1 -NoGit
+
+.EXAMPLE
+    # เลือกฐานข้อมูลปลายทางชัดเจน (ไม่ต้องผ่านเมนู)
+    powershell -ExecutionPolicy Bypass -File .\STEP-1-Update-Odoo19.ps1 -Database odoo19_puat
 #>
 param(
     [string]$Branch = "19.0",
+    [string]$Database = "",
     [switch]$NoGit,
     [switch]$NoPause
 )
@@ -27,7 +33,7 @@ $ErrorActionPreference = "Stop"
 
 # ===================== ค่าคงที่ของโปรเจกต์ =====================
 $Root         = $PSScriptRoot
-$Database     = "odoo19_pdev"                        # ฐานข้อมูลเดียวที่อนุญาตให้ใช้
+$AllowedDatabases = @("odoo19_pdev", "odoo19_puat")  # ฐานข้อมูลที่อนุญาตให้ใช้
 $Python       = Join-Path $Root "venv19\Scripts\python.exe"
 $OdooBin      = Join-Path $Root "odoo-bin"
 $Config       = Join-Path $Root "odoo.conf"
@@ -83,6 +89,34 @@ function Assert-OdooStopped([int]$HttpPort) {
     }
 }
 
+function Resolve-TargetDatabase([string]$Value, [bool]$NonInteractive) {
+    # -Database ที่ระบุมาตรง ๆ : ต้องเป็นหนึ่งใน $AllowedDatabases เท่านั้น
+    if ($Value) {
+        $match = $AllowedDatabases | Where-Object { $_ -ieq $Value.Trim() } | Select-Object -First 1
+        if (-not $match) {
+            throw "ฐานข้อมูล '$Value' ไม่ได้รับอนุญาต - ต้องเป็นหนึ่งใน: $($AllowedDatabases -join ', ')"
+        }
+        return $match
+    }
+    # ไม่ระบุ + โหมดไม่ถาม (เช่น Task Scheduler/STEP-ALL) : ใช้ค่าเริ่มต้น
+    if ($NonInteractive) { return $AllowedDatabases[0] }
+    # ไม่ระบุ + โหมดโต้ตอบ : แสดงเมนูให้เลือก
+    Write-Host "`nเลือกฐานข้อมูลเป้าหมาย:" -ForegroundColor Cyan
+    for ($i = 0; $i -lt $AllowedDatabases.Count; $i++) {
+        $suffix = if ($i -eq 0) { "  (ค่าเริ่มต้น)" } else { "" }
+        Write-Host ("  [{0}] {1}{2}" -f ($i + 1), $AllowedDatabases[$i], $suffix) -ForegroundColor Gray
+    }
+    while ($true) {
+        $ans = Read-Host "`nกรุณาเลือก (1-$($AllowedDatabases.Count)) [Enter = 1]"
+        if (-not $ans) { return $AllowedDatabases[0] }
+        $n = 0
+        if ([int]::TryParse($ans.Trim(), [ref]$n) -and $n -ge 1 -and $n -le $AllowedDatabases.Count) {
+            return $AllowedDatabases[$n - 1]
+        }
+        Write-Host "  ป้อนไม่ถูกต้อง - เลือกได้เฉพาะ 1-$($AllowedDatabases.Count)" -ForegroundColor Yellow
+    }
+}
+
 function Invoke-Git([string[]]$GitArgs) {
     $prev = $ErrorActionPreference
     $ErrorActionPreference = "Continue"
@@ -93,6 +127,8 @@ function Invoke-Git([string[]]$GitArgs) {
 }
 
 try {
+    $Database = Resolve-TargetDatabase -Value $Database -NonInteractive $NoPause
+
     Write-Host "========================================" -ForegroundColor Cyan
     Write-Host "  STEP-1 : Update โมดูล Odoo 19" -ForegroundColor Cyan
     Write-Host "  Database : $Database" -ForegroundColor Cyan
