@@ -48,14 +48,29 @@
     </record>
 
     <!-- ================================================================ -->
-    <!-- Payment (voucher)  ->  Prepare Payments                           -->
+    <!-- Payment (voucher)  ->  Prepare Payments (both directions)         -->
     <!-- ================================================================ -->
     <record id="view_account_payment_form_od19_prepayment" model="ir.ui.view">
         <field name="name">account.payment.form.od19.prepayment</field>
         <field name="model">account.payment</field>
         <field name="inherit_id" ref="account.view_account_payment_form"/>
         <field name="arch" type="xml">
+            <!-- helper: drives the "Prepare Payment" domain (vendor vs customer) -->
+            <xpath expr="//field[@name='partner_type']" position="after">
+                <field name="od19_prepayment_bill_type" invisible="1"/>
+            </xpath>
+
             <xpath expr="//div[@name='button_box']" position="inside">
+                <!-- (A) open the Register Payment wizard for the pulled invoices -->
+                <button name="action_od19_register_payment"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-money"
+                        groups="account.group_account_invoice"
+                        invisible="not od19_prepayment_id or state != 'draft'">
+                    <span class="o_stat_text">Register Payment</span>
+                </button>
+                <!-- existing smart button back to the Prepare Payment documents -->
                 <button name="action_od19_open_prepayments"
                         type="object"
                         class="oe_stat_button"
@@ -65,6 +80,13 @@
                     <field name="od19_prepayment_count" widget="statinfo"
                            string="Prepare Payments"/>
                 </button>
+            </xpath>
+
+            <!-- (B) select a Prepare Payment number and pull its content -->
+            <xpath expr="//field[@name='memo']" position="after">
+                <field name="od19_prepayment_id"
+                       readonly="state != 'draft'"
+                       options="{'no_quick_create': True, 'no_create_edit': True}"/>
             </xpath>
         </field>
     </record>
