@@ -99,6 +99,14 @@ class AccountCheque(models.Model):
         string="Payment",
         readonly=True,
         copy=False,
+        help="Receipt payment created for this customer cheque.",
+    )
+    deposit_payment_id = fields.Many2one(
+        "account.payment",
+        string="Deposit Payment",
+        readonly=True,
+        copy=False,
+        help="Deposit payment created when the cheque was deposited into the bank.",
     )
     received_move_id = fields.Many2one(
         "account.move",
@@ -295,12 +303,110 @@ class AccountCheque(models.Model):
             elif cheque.state == "confirmed":
                 cheque.state = "to_pay"
 
+    def action_register_payment(self):
+        """Receive a customer cheque through an ``account.payment`` receipt.
+
+        This is the entry point from the cheque form. The same result can be
+        achieved from an invoice with the "Register Payment" wizard by picking
+        the "Cheque (Received)" payment method.
+        """
+        self.ensure_one()
+        if self.cheque_type != "customer":
+            raise UserError(_("Only customer cheques can be registered as a receipt payment."))
+        journal = self.journal_id
+        if not journal:
+            raise UserError(_("Please select a bank journal on the cheque first."))
+        method_line = self._get_cheque_payment_method_line(journal)
+        payment = self.env["account.payment"].create({
+            "payment_type": "inbound",
+            "partner_type": "customer",
+            "partner_id": self.partner_id.id,
+            "journal_id": journal.id,
+            "amount": self.amount,
+            "currency_id": self.currency_id.id,
+            "date": self.cheque_date,
+            "memo": _("Cheque #%s") % self.name,
+            "cheque_id": self.id,
+            "payment_method_line_id": method_line.id,
+        })
+        # action_post keeps the cheque in sync (payment_id / received_move_id /
+        # state) through the account.payment override.
+        payment.action_post()
+        return True
+
+    def _get_cheque_payment_method_line(self, journal):
+        """Return the "Cheque (Received)" method line of ``journal``.
+
+        The method line is created on the fly for journals created after the
+        module was installed (only pre-existing journals get it automatically).
+        """
+        self.ensure_one()
+        method = self.env.ref(
+            "od19_accounting_cheque.payment_method_od19_cheque",
+            raise_if_not_found=False,
+        )
+        if not method:
+            raise UserError(_("The 'Cheque (Received)' payment method is missing."))
+        method_line = journal.inbound_payment_method_line_ids.filtered(
+            lambda line: line.payment_method_id == method
+        )[:1]
+        if not method_line:
+            method_line = self.env["account.payment.method.line"].create({
+                "name": method.name,
+                "payment_method_id": method.id,
+                "journal_id": journal.id,
+            })
+        return method_line
+
+    def _deposit_through_payment(self):
+        """Deposit a received customer cheque through an ``account.payment``.
+
+        Creates an inbound payment that debits the bank account and credits the
+        "Cheque Received" account (Dr Bank / Cr Cheque Received) and reconciles
+        the two "Cheque Received" lines so the temporary account is cleared.
+        """
+        self.ensure_one()
+        company = self.company_id
+        cheque_received_account = company.cheque_received_account_id
+        if not cheque_received_account:
+            raise UserError(_("Please set the Cheque Received Account in company settings."))
+        journal = self.journal_id or self.payment_id.journal_id
+        if not journal or not journal.default_account_id:
+            raise UserError(_("Please set a bank journal with a default account on the cheque."))
+        deposit_date = self.due_date or self.cheque_date or fields.Date.context_today(self)
+        payment = self.env["account.payment"].create({
+            "payment_type": "inbound",
+            "partner_type": "customer",
+            "partner_id": self.partner_id.id,
+            "journal_id": journal.id,
+            "amount": self.amount,
+            "currency_id": self.currency_id.id,
+            "date": deposit_date,
+            "memo": _("Cheque Deposit #%s") % self.name,
+            "od19_is_cheque_deposit": True,
+        })
+        payment.action_post()
+        payment.move_id._od19_reconcile_account_lines(
+            cheque_received_account.id, self.partner_id.id
+        )
+        self.write({
+            "state": "deposited",
+            "deposited_move_id": payment.move_id.id,
+            "deposit_payment_id": payment.id,
+            "clear_date": deposit_date,
+        })
+
     def action_deposit(self):
         for cheque in self:
-            if cheque.state in ("confirmed", "to_pay") and cheque.cheque_type == "customer":
-                # Customer cheque deposited:
-                # Debit  Bank
-                # Credit Cheque Received
+            if cheque.cheque_type != "customer" or cheque.state not in ("confirmed", "to_pay"):
+                continue
+            if cheque.payment_id:
+                # Cheque received through a payment: deposit it through a
+                # second payment so the whole lifecycle stays in account.payment.
+                cheque._deposit_through_payment()
+            else:
+                # Legacy flow: manual journal entry, kept for cheques that were
+                # not received through a payment.
                 move = cheque._create_cheque_move(
                     cheque._get_bank_account_id(),
                     cheque._get_cheque_received_account_id(),
@@ -308,11 +414,6 @@ class AccountCheque(models.Model):
                     date=cheque.due_date or cheque.cheque_date,
                 )
                 cheque.write({"state": "deposited", "deposited_move_id": move.id})
-            elif (
-                cheque.state in ("confirmed", "to_pay")
-                and cheque.cheque_type == "customer"
-            ):
-                cheque.state = "deposited"
 
     def action_clear(self):
         for cheque in self:
