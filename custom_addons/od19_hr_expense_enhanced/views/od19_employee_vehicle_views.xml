@@ -10,6 +10,7 @@
                 <field name="od19_plate_number"/>
                 <field name="od19_vehicle_type"/>
                 <field name="od19_last_used_date"/>
+                <field name="od19_last_odometer"/>
                 <field name="employee_id" optional="hide"/>
                 <field name="active" column_invisible="True"/>
             </list>
@@ -28,6 +29,7 @@
                         <field name="od19_vehicle_type"/>
                         <field name="od19_plate_number"/>
                         <field name="od19_last_used_date"/>
+                        <field name="od19_last_odometer"/>
                         <field name="active"/>
                     </group>
                 </sheet>

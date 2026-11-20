@@ -2,9 +2,10 @@
 """Tests for the employee vehicle book (สมุดรถพนักงาน) - T11.
 
 Covered: the most recently used vehicle is auto-filled on a new mileage
-expense, the vehicle type/plate snapshot is copied, creating an expense
-refreshes the vehicle's last-used date, and the record rule hides other
-employees' vehicles.
+expense, the vehicle type/plate snapshot is copied, the last odometer
+reading is offered as the trip's starting reading, creating or writing an
+expense refreshes the vehicle's last-used date and last odometer, and the
+record rule hides other employees' vehicles.
 """
 
 from datetime import timedelta
@@ -75,6 +76,70 @@ class TestVehicleBook(TransactionCase):
         })
         self.new_vehicle.invalidate_recordset()
         self.assertEqual(self.new_vehicle.od19_last_used_date, target)
+
+    # ------------------------------------------------------------------
+    # Latest odometer reading is offered as the next trip's start
+    # ------------------------------------------------------------------
+    def test_start_odometer_filled_from_vehicle_book(self):
+        vehicle = self.env["od19.employee.vehicle"].create({
+            "employee_id": self.employee.id,
+            "od19_plate_number": "ODO-3333",
+            "od19_last_used_date": fields.Date.today() + timedelta(days=1),
+            "od19_last_odometer": 12345,
+        })
+        with self._mileage_form() as form:
+            expense = form.save()
+        self.assertEqual(expense.od19_mileage_vehicle_id, vehicle)
+        self.assertEqual(expense.od19_mileage_odometer_start, 12345)
+
+    def test_start_odometer_kept_when_already_set(self):
+        self.env["od19.employee.vehicle"].create({
+            "employee_id": self.employee.id,
+            "od19_plate_number": "ODO-4444",
+            "od19_last_used_date": fields.Date.today() + timedelta(days=2),
+            "od19_last_odometer": 9999,
+        })
+        with self._mileage_form() as form:
+            form.od19_mileage_odometer_start = 100
+            expense = form.save()
+        # The employee's own figure is never overwritten by the suggestion.
+        self.assertEqual(expense.od19_mileage_odometer_start, 100)
+
+    def test_create_records_end_odometer_on_vehicle(self):
+        self.env["hr.expense"].create({
+            "name": "Mileage trip",
+            "employee_id": self.employee.id,
+            "product_id": self.product.id,
+            "payment_mode": "own_account",
+            "od19_is_mileage": True,
+            "od19_mileage_distance_km": 10.0,
+            "od19_mileage_vehicle_id": self.new_vehicle.id,
+            "od19_mileage_odometer_start": 1000,
+            "od19_mileage_odometer_end": 1500,
+            "quantity": 10.0,
+            "total_amount": 50.0,
+        })
+        self.new_vehicle.invalidate_recordset()
+        self.assertEqual(self.new_vehicle.od19_last_odometer, 1500)
+
+    def test_write_records_end_odometer_on_vehicle(self):
+        expense = self.env["hr.expense"].create({
+            "name": "Mileage trip",
+            "employee_id": self.employee.id,
+            "product_id": self.product.id,
+            "payment_mode": "own_account",
+            "od19_is_mileage": True,
+            "od19_mileage_distance_km": 10.0,
+            "od19_mileage_vehicle_id": self.new_vehicle.id,
+            "od19_mileage_odometer_start": 1000,
+            "quantity": 10.0,
+            "total_amount": 50.0,
+        })
+        self.new_vehicle.invalidate_recordset()
+        self.assertEqual(self.new_vehicle.od19_last_odometer, 0)
+        expense.write({"od19_mileage_odometer_end": 2200})
+        self.new_vehicle.invalidate_recordset()
+        self.assertEqual(self.new_vehicle.od19_last_odometer, 2200)
 
     def test_other_employee_cannot_see_my_vehicles(self):
         other_user = self.env["res.users"].create({

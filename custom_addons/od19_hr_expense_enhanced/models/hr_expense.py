@@ -84,10 +84,14 @@ class HrExpense(models.Model):
         expenses = super().create(vals_list)
         for expense in expenses:
             if expense.od19_is_mileage and expense.od19_mileage_vehicle_id:
-                expense.od19_mileage_vehicle_id.od19_last_used_date = (
+                vehicle = expense.od19_mileage_vehicle_id
+                vehicle.od19_last_used_date = (
                     expense.od19_mileage_date
                     or fields.Date.context_today(expense)
                 )
+                if expense.od19_mileage_odometer_end:
+                    vehicle.od19_last_odometer = (
+                        expense.od19_mileage_odometer_end)
         return expenses
 
     def write(self, vals):
@@ -101,7 +105,16 @@ class HrExpense(models.Model):
             vehicle = self.env['od19.employee.vehicle'].browse(
                 vals['od19_mileage_vehicle_id'])
             vals.update(self._od19_mileage_snapshot_vals(vehicle))
-        return super().write(vals)
+        result = super().write(vals)
+        if ('od19_mileage_odometer_end' in vals
+                or 'od19_mileage_vehicle_id' in vals):
+            for expense in self:
+                if (expense.od19_is_mileage
+                        and expense.od19_mileage_vehicle_id
+                        and expense.od19_mileage_odometer_end):
+                    expense.od19_mileage_vehicle_id.od19_last_odometer = (
+                        expense.od19_mileage_odometer_end)
+        return result
 
     @api.onchange('employee_id')
     def _onchange_employee_id_set_approver(self):
@@ -426,6 +439,24 @@ class HrExpense(models.Model):
         string='Distance (km) / ระยะทาง (กม.)',
         tracking=True,
     )
+    od19_mileage_odometer_start = fields.Integer(
+        string='Start Odometer (km) / เลขไมล์เริ่มต้น',
+        tracking=True,
+        help='Odometer reading when the trip starts. Pre-filled from the '
+             'vehicle book (the last recorded reading) so the employee does '
+             'not have to remember it before leaving. The value stays '
+             'editable.',
+    )
+    od19_mileage_odometer_end = fields.Integer(
+        string='End Odometer (km) / เลขไมล์สิ้นสุด',
+        tracking=True,
+        help='Odometer reading when the trip ends. The distance is computed '
+             'as end minus start.',
+    )
+    od19_mileage_odometer_image = fields.Binary(
+        string='Odometer Photo / รูปหน้าปัดไมล์',
+        attachment=True,
+    )
     od19_mileage_vehicle_id = fields.Many2one(
         'od19.employee.vehicle',
         string='Vehicle / รถของฉัน',
@@ -471,6 +502,26 @@ class HrExpense(models.Model):
             # instead; core derives price_unit = total_amount / quantity.
             self.total_amount = distance * rate
 
+    @api.onchange('od19_mileage_odometer_start', 'od19_mileage_odometer_end')
+    def _onchange_od19_mileage_odometer(self):
+        for expense in self:
+            start = expense.od19_mileage_odometer_start
+            end = expense.od19_mileage_odometer_end
+            if start and end and end >= start:
+                expense.od19_mileage_distance_km = end - start
+        self._onchange_od19_mileage_amount()
+
+    def _od19_fill_start_odometer(self, vehicle):
+        """Offer the vehicle's last odometer as the trip's starting reading.
+
+        This is a convenience suggestion only: the field remains editable and
+        nothing is enforced, it just saves the employee from having to
+        remember the number before leaving.
+        """
+        if (not self.od19_mileage_odometer_start
+                and vehicle and vehicle.od19_last_odometer):
+            self.od19_mileage_odometer_start = vehicle.od19_last_odometer
+
     @api.onchange('od19_is_mileage', 'employee_id')
     def _onchange_od19_mileage_vehicle(self):
         for expense in self:
@@ -480,6 +531,7 @@ class HrExpense(models.Model):
                 last = self.env['od19.employee.vehicle'].search(
                     [('employee_id', '=', expense.employee_id.id)], limit=1)
                 expense.od19_mileage_vehicle_id = last
+                expense._od19_fill_start_odometer(last)
 
     def _od19_mileage_snapshot_vals(self, vehicle):
         """Snapshot (vehicle type label, plate) copied from ``vehicle``.
@@ -503,9 +555,11 @@ class HrExpense(models.Model):
     @api.onchange('od19_mileage_vehicle_id')
     def _onchange_od19_mileage_vehicle_snapshot(self):
         for expense in self:
+            vehicle = expense.od19_mileage_vehicle_id
             for fname, value in expense._od19_mileage_snapshot_vals(
-                    expense.od19_mileage_vehicle_id).items():
+                    vehicle).items():
                 expense[fname] = value
+            expense._od19_fill_start_odometer(vehicle)
 
     @api.constrains('od19_is_mileage', 'tax_ids')
     def _check_od19_mileage_has_no_tax(self):

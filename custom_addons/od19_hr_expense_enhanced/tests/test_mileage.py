@@ -59,6 +59,28 @@ class TestMileage(TransactionCase):
         self.assertEqual(expense.price_unit, 5.0)
 
     # ------------------------------------------------------------------
+    # Odometer readings drive the distance
+    # ------------------------------------------------------------------
+    def test_distance_from_odometer_readings(self):
+        with self._open_form() as form:
+            form.od19_is_mileage = True
+            form.od19_mileage_odometer_start = 1000
+            form.od19_mileage_odometer_end = 1050
+            expense = form.save()
+        self.assertEqual(expense.od19_mileage_distance_km, 50.0)
+        self.assertEqual(expense.quantity, 50.0)
+        self.assertEqual(expense.total_amount, 250.0)
+
+    def test_odometer_end_below_start_is_ignored(self):
+        with self._open_form() as form:
+            form.od19_is_mileage = True
+            form.od19_mileage_odometer_start = 5000
+            form.od19_mileage_odometer_end = 4000
+            expense = form.save()
+        # A decreasing reading is not a trip: the distance is left untouched.
+        self.assertEqual(expense.od19_mileage_distance_km, 0.0)
+
+    # ------------------------------------------------------------------
     # No VAT on mileage
     # ------------------------------------------------------------------
     def test_tax_ids_empty_for_mileage(self):
