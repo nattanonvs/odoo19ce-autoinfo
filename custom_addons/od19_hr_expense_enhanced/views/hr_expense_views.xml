@@ -99,6 +99,10 @@
                            invisible="not od19_is_mileage"/>
                     <field name="od19_mileage_vehicle_id"
                            invisible="not od19_is_mileage"/>
+                    <field name="od19_mileage_odometer_start"
+                           invisible="not od19_is_mileage"/>
+                    <field name="od19_mileage_odometer_end"
+                           invisible="not od19_is_mileage"/>
                     <field name="od19_mileage_origin"
                            invisible="not od19_is_mileage"/>
                     <field name="od19_mileage_destination"
@@ -108,6 +112,8 @@
                     <field name="od19_mileage_vehicle_type" readonly="1"
                            invisible="not od19_is_mileage"/>
                     <field name="od19_mileage_plate" readonly="1"
+                           invisible="not od19_is_mileage"/>
+                    <field name="od19_mileage_odometer_image" widget="image"
                            invisible="not od19_is_mileage"/>
                 </group>
             </xpath>
