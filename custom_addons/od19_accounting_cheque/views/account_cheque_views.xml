@@ -32,6 +32,9 @@
                     <button name="action_confirm" type="object" string="Confirm"
                             class="btn-primary"
                             invisible="state not in ('available', 'draft')"/>
+                    <button name="action_register_payment" type="object"
+                            string="Register Payment"
+                            invisible="cheque_type != 'customer' or state not in ('available', 'draft')"/>
                     <button name="action_to_pay" type="object" string="To Pay"
                             invisible="state != 'confirmed'"/>
                     <button name="action_deposit" type="object" string="Deposit"
@@ -87,6 +90,7 @@
                         </group>
                         <group>
                             <field name="payment_id" readonly="1"/>
+                            <field name="deposit_payment_id" readonly="1"/>
                             <field name="received_move_id" readonly="1"/>
                             <field name="deposited_move_id" readonly="1"/>
                             <field name="issue_move_id" readonly="1"/>
