@@ -34,6 +34,12 @@ class Od19EmployeeVehicle(models.Model):
     od19_last_used_date = fields.Date(
         string='Last Used / ใช้ล่าสุดเมื่อ',
     )
+    od19_last_odometer = fields.Integer(
+        string='Last Odometer (km) / เลขไมล์ล่าสุด',
+        help='Last recorded odometer reading of this vehicle. It is offered '
+             'as the starting odometer of the next mileage expense so the '
+             'employee does not have to remember the number before leaving.',
+    )
     active = fields.Boolean(default=True)
 
     _od19_vehicle_plate_uniq = models.Constraint(
