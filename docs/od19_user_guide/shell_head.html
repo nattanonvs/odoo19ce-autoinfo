@@ -342,6 +342,67 @@
     cursor:pointer;box-shadow:0 6px 18px rgba(158,36,36,.35);display:none;
   }
   .toplink.show{display:block}
+  /* ---------- Cross-process connectors (handoff) ---------- */
+  .handoff{
+    border:1px solid #cfe0f3;border-left:5px solid var(--info);
+    background:linear-gradient(180deg,#f7fbff,#eef6ff);
+    border-radius:12px;padding:14px 16px;margin:18px 0;
+  }
+  .handoff .hd-head{
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    font-weight:700;color:var(--info);font-size:14px;margin:0 0 8px;
+  }
+  .handoff .hd-head .hd-tag{
+    background:#dbeafe;border:1px solid #bfdbfe;color:#1e429f;
+    border-radius:999px;padding:1px 9px;font-size:11.5px;font-weight:700;
+  }
+  .handoff .hd-flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:8px 0 2px}
+  .handoff .hd-flow .hd-arrow{color:var(--info);font-weight:700}
+  .handoff .hd-flow a{
+    background:#fff;border:1px solid #cfe0f3;border-radius:8px;
+    padding:5px 11px;font-size:13px;font-weight:600;color:#173f6e;
+    text-decoration:none;
+  }
+  .handoff .hd-flow a:hover{background:var(--infobg);text-decoration:none}
+  .handoff .hd-note{font-size:13px;color:#33526f;margin:8px 0 0}
+  .handoff.in{border-left-color:var(--ok);background:linear-gradient(180deg,#f6fdf9,#eaf7f0);border-color:#cdeddc}
+  .handoff.in .hd-head{color:#155e3b}
+  .handoff.in .hd-head .hd-tag{background:#d9f2e4;border-color:#bfe7d1;color:#155e3b}
+  .handoff.in .hd-flow .hd-arrow{color:#155e3b}
+  .handoff.in .hd-flow a{border-color:#cdeddc;color:#155e3b}
+  .handoff.out{border-left-color:var(--warn);background:linear-gradient(180deg,#fffdf6,#fdf6e3);border-color:#efe0b3}
+  .handoff.out .hd-head{color:#6b5214}
+  .handoff.out .hd-head .hd-tag{background:#f6ecc9;border-color:#efe0b3;color:#6b5214}
+  .handoff.out .hd-flow .hd-arrow{color:#6b5214}
+  .handoff.out .hd-flow a{border-color:#efe0b3;color:#6b5214}
+  /* ---------- Business chain map (end-to-end) ---------- */
+  .chain{margin:18px 0;padding-left:28px;position:relative}
+  .chain::before{
+    content:"";position:absolute;left:9px;top:8px;bottom:8px;width:2px;
+    background:linear-gradient(180deg,var(--maroon),var(--maroon-line));
+  }
+  .chain .node{position:relative;margin:0 0 16px}
+  .chain .node:last-child{margin-bottom:0}
+  .chain .node::before{
+    content:"";position:absolute;left:-24px;top:4px;
+    width:16px;height:16px;border-radius:50%;
+    background:#fff;border:3px solid var(--maroon);
+  }
+  .chain .node.done::before{background:var(--maroon)}
+  .chain .node .n-step{
+    display:inline-block;background:var(--maroon);color:#fff;border-radius:6px;
+    font-size:11.5px;font-weight:700;padding:1px 8px;margin-right:6px;
+  }
+  .chain .node .n-title{font-weight:700;color:var(--maroon-dark);font-size:15px}
+  .chain .node .n-role{font-size:12.5px;color:var(--muted);margin-left:2px}
+  .chain .node .n-body{font-size:13.8px;margin:4px 0 0}
+  .chain .node .n-body a{font-weight:600}
+  /* ---------- KPI mini cards ---------- */
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:16px 0}
+  .kpi{border:1px solid var(--maroon-line);border-radius:12px;padding:12px 14px;background:var(--maroon-soft)}
+  .kpi .k-label{font-size:12px;color:var(--muted)}
+  .kpi .k-value{font-size:18px;font-weight:700;color:var(--maroon-dark)}
+  .kpi .k-hint{font-size:12px;color:var(--muted)}
   /* ---------- Print ---------- */
   @media print{
     body{background:#fff;font-size:11.5pt}
@@ -354,7 +415,8 @@
     h2.sec{page-break-after:avoid}
     h3,h4{page-break-after:avoid}
     h3.mod{page-break-after:avoid}
-    .card,.callout,.tile,table,ol.steps>li{page-break-inside:avoid}
+    .card,.callout,.tile,table,ol.steps>li,.handoff,.chain .node,.kpi{page-break-inside:avoid}
+    .handoff,.kpi,.chain .node .n-step{-webkit-print-color-adjust:exact;print-color-adjust:exact}
     thead th{-webkit-print-color-adjust:exact;print-color-adjust:exact}
     tbody tr:nth-child(even){-webkit-print-color-adjust:exact;print-color-adjust:exact}
     .toc,.cover,.badge,.tile,.callout,.part-title{-webkit-print-color-adjust:exact;print-color-adjust:exact}

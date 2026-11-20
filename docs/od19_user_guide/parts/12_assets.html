@@ -8,7 +8,7 @@ sub=ทะเบียนทรัพย์สิน · การยืม-ค�
 <section class="part" id="assets">
 
   <div class="part-head">
-    <h2 class="part-title"><span class="part-icon">🏷️</span> ส่วนที่ 12 · ทรัพย์สิน (ยืม/จำหน่าย)</h2>
+    <h2 class="part-title"><span class="part-icon">🏷️</span> ส่วนที่ 13 · ทรัพย์สิน (ยืม/จำหน่าย)</h2>
     <p class="part-sub">
       ส่วนนี้ครอบคลุมการดูแลทรัพย์สินและเครื่องมืออุปกรณ์ขององค์กร ตั้งแต่<strong>การยืม-คืน</strong>เครื่องมือ/อุปกรณ์ระหว่างพนักงาน
       ไปจนถึง<strong>การจำหน่าย/ตัดจำหน่าย</strong>ทรัพย์สินถาวรพร้อมสร้างรายการบัญชีโดยอัตโนมัติ
@@ -23,6 +23,26 @@ sub=ทะเบียนทรัพย์สิน · การยืม-ค�
       <li><a href="#asset-2">od19_asset_loan — การยืม-คืนเครื่องมือ/อุปกรณ์</a></li>
     </ol>
   </nav>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ ส่วนนี้รับต่อมาจาก <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#purchase">ส่วนที่ 6 · การจัดซื้อ</a><span class="hd-arrow">→</span>
+      <a href="#hr">ส่วนที่ 8 · บุคคลฯ</a><span class="hd-arrow">→</span>
+      <strong>ส่วนนี้ (ส่วนที่ 13)</strong>
+    </div>
+    <p class="hd-note">รับทรัพย์สิน/เครื่องมือที่ซื้อมา หรือมอบให้พนักงานยืมใช้งาน — ขึ้นทะเบียนอุปกรณ์และผูกกับทรัพย์สินทางบัญชีก่อนปล่อยยืม</p>
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่วนนี้ส่งต่อไปยัง <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <strong>ส่วนนี้ (ส่วนที่ 13)</strong><span class="hd-arrow">→</span>
+      <a href="#acc-core">ส่วนที่ 3 · บัญชี (ค่าเสื่อม/ตัดจำหน่าย)</a><span class="hd-arrow">→</span>
+      <a href="#inv-2">ส่วนที่ 7 · มูลค่าสินค้า/ทรัพย์สิน</a>
+    </div>
+    <p class="hd-note">การจำหน่าย/ตัดจำหน่ายต้องบันทึกบัญชีให้ถูกต้อง — ตรวจยอดค่าเสื่อมสะสมและมูลค่าคงเหลือก่อนกด Dispose</p>
+  </div>
 
   <h3 class="mod" id="asset-1"><span class="mtag">od19_asset_disposal</span> การจำหน่าย/ตัดจำหน่ายทรัพย์สิน (Asset Disposal)</h3>
 

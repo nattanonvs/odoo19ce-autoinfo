@@ -8,7 +8,7 @@ sub=ประกัน/เคลม · บัตรบริการและ�
 <section class="part" id="service">
 
   <div class="part-head">
-    <h2 class="part-title"><span class="part-icon">🛠️</span> ส่วนที่ 10 · บริการและหลังการขาย</h2>
+    <h2 class="part-title"><span class="part-icon">🛠️</span> ส่วนที่ 11 · บริการและหลังการขาย</h2>
     <p class="part-sub">
       ส่วนนี้รวบรวมงานบริการหลังการขายทั้งวงจร — ตั้งแต่ <strong>ใบรับประกันสินค้าและ Lot/Serial</strong>,
       <strong>การเคลม/RMA</strong>, <strong>บัตรบริการ (บำรุงรักษาเชิงป้องกัน)</strong>, <strong>สัญญาบริการเรียกเก็บรายงวด (PM/AMC)</strong>,
@@ -29,6 +29,27 @@ sub=ประกัน/เคลม · บัตรบริการและ�
       <li><a href="#svc-7">od19_internal_issue — แจ้งปัญหาภายใน ความเป็นส่วนตัว และการอนุมัติ</a></li>
     </ol>
   </nav>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ ส่วนนี้รับต่อมาจาก <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#flow-6">เส้นทาง D · ส่งมอบ</a><span class="hd-arrow">→</span>
+      <a href="#inventory">ส่วนที่ 7 · คลังสินค้า</a><span class="hd-arrow">→</span>
+      <strong>ส่วนนี้ (ส่วนที่ 11)</strong>
+    </div>
+    <p class="hd-note">รับงานที่ส่งมอบแล้วเข้าสู่การดูแลหลังการขาย (ประกัน, บัตรบริการ, สัญญารายงวด) — ตรวจ Lot/Serial และวันส่งมอบก่อนเปิดสถานะประกัน</p>
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่วนนี้ส่งต่อไปยัง <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <strong>ส่วนนี้ (ส่วนที่ 11)</strong><span class="hd-arrow">→</span>
+      <a href="#inv-8">ส่วนที่ 7 · คืนสินค้า/RMA</a><span class="hd-arrow">→</span>
+      <a href="#iso-8">ส่วนที่ 9 · ความพึงพอใจลูกค้า</a><span class="hd-arrow">→</span>
+      <a href="#iso-3">CAPA</a>
+    </div>
+    <p class="hd-note">ข้อร้องเรียน/เคลมที่เกิดซ้ำส่งต่อเป็น NC ในระบบ ISO เพื่อวิเคราะห์สาเหตุและปรับปรุงคุณภาพ</p>
+  </div>
 
   <!-- ============================================================= -->
   <h3 class="mod" id="svc-1"><span class="mtag">od19_service_warranty</span> ประกันสินค้า และใบเคลม/RMA</h3>
@@ -343,6 +364,16 @@ sub=ประกัน/เคลม · บัตรบริการและ�
   <div class="callout note">
     <strong>หมายเหตุ:</strong> เพื่อไม่ให้เมนูซ้ำซ้อน งาน IT ภายในถูกจัดเป็น <em>ส่วนย่อย</em> ภายใต้แอป Helpdesk เดียวกัน
     ส่วนงานบริการลูกค้าอยู่ใต้แอป <strong>การขาย</strong> และตัวกรอง <span class="badge b-gray">Internal IT</span> / <span class="badge b-gray">Sales Services</span> ช่วยแบ่งมุมมองในหน้าเดียว
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่งต่อ: ข้อร้องเรียน → ปรับปรุงคุณภาพ <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <a href="#svc-5">Helpdesk (ที่นี่)</a><span class="hd-arrow">→</span>
+      <a href="#iso-8">ความพึงพอใจลูกค้า</a><span class="hd-arrow">→</span>
+      <a href="#iso-3">NC/CAPA</a>
+    </div>
+    <p class="hd-note">ตั๋วที่กลายเป็นข้อร้องเรียนหรือเรื่องซ้ำ ให้เก็บคะแนนความพึงพอใจและออก NC/CAPA เพื่อปิดวงจรการปรับปรุงคุณภาพ</p>
   </div>
 
   <!-- ============================================================= -->

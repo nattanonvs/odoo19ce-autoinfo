@@ -8,7 +8,7 @@ sub=เว็บไซต์องค์กรสาธารณะ · เมน
 <section class="part" id="website">
 
   <div class="part-head">
-    <h2 class="part-title"><span class="part-icon">🌐</span> ส่วนที่ 14 · เว็บไซต์และบุคลากร</h2>
+    <h2 class="part-title"><span class="part-icon">🌐</span> ส่วนที่ 15 · เว็บไซต์และบุคลากร</h2>
     <p class="part-sub">
       โมดูล <code>od19_website</code> ประกอบด้วยสองด้านที่ทำงานร่วมกัน — <strong>เว็บไซต์องค์กรสาธารณะ</strong>
       (แนะนำบริการ สินค้า ผลงาน ข่าว และช่องทางติดต่อ) และ <strong>พอร์ทัลพนักงาน</strong>
@@ -29,6 +29,24 @@ sub=เว็บไซต์องค์กรสาธารณะ · เมน
       <li><a href="#web-7">การตั้งค่าเว็บไซต์และข้อมูลแบรนด์</a></li>
     </ol>
   </nav>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ จุดเริ่มต้น: ลูกค้า/ผู้สมัครเข้าถึงบริษัทผ่านเว็บไซต์ <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#web-1">เว็บไซต์สาธารณะ (ที่นี่)</a>
+    </div>
+    <p class="hd-note">นี่คือจุดเริ่มต้นของเส้นทาง — ลูกค้าและผู้สมัครงานเข้าถึงบริษัทผ่านเว็บไซต์สาธารณะเป็นด่านแรก (สาธารณะ เข้าได้โดยไม่ต้องล็อกอิน)</p>
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่วนนี้ส่งต่อไปยัง <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <strong>ส่วนนี้ (ส่วนที่ 15)</strong><span class="hd-arrow">→</span>
+      <a href="#web-3">Careers (รับสมัครงาน)</a><span class="hd-arrow">→</span>
+      <a href="#hr">ส่วนที่ 8 · บุคคลฯ → รับพนักงาน (เส้นทาง A)</a>
+    </div>
+    <p class="hd-note">ผู้สมัครจากหน้า Careers เข้าสู่กระบวนการรับพนักงาน</p>
+  </div>
 
   <h3 class="mod" id="web-1"><span class="mtag">od19_website</span> ภาพรวมโมดูลและหน้าเว็บสาธารณะ</h3>
   <p>
@@ -154,6 +172,16 @@ sub=เว็บไซต์องค์กรสาธารณะ · เมน
     SCADA / HMI Software Engineer, Building Automation Engineer (GMP/CSV), Terminal Automation Service Engineer และตำแหน่งอื่น ๆ
     เพื่อให้หน้า Careers มีเนื้อหาเริ่มต้น
   </p>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่งต่อ: ผู้สมัคร → พนักงานใหม่ <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <a href="#web-3">Careers (ที่นี่)</a><span class="hd-arrow">→</span>
+      <a href="#flow-3">เส้นทาง A · รับพนักงาน</a><span class="hd-arrow">→</span>
+      <a href="#hr">ส่วนที่ 8 · บุคคลฯ</a>
+    </div>
+    <p class="hd-note">ผู้สมัครที่ถูกจ้าง (Mark as Hired) จากหน้า Careers จะเข้าสู่กระบวนการรับพนักงาน (Onboarding) ในโมดูล HR ต่อทันที</p>
+  </div>
 
   <h3 class="mod" id="web-4"><span class="mtag">od19_website</span> พอร์ทัลพนักงาน (/employee-portal)</h3>
   <p>
