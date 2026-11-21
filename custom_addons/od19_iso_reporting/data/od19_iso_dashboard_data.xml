@@ -1,0 +1,461 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        ISO Control Board (WP4).
+
+        Executes section 6.2 of the ISO 100% design: a single board that shows
+        the four zones required by the spec — KPI, Alerts, Trend and Detail —
+        on top of the ISO control chain (DAR, documents, revisions, distribution
+        and printed copies).
+
+        Every widget reads its data through the od19.dashboard.source whitelist,
+        so the board stays read-only and cannot reach a model the dashboard app
+        has not explicitly declared.
+    -->
+
+    <!-- ===================== Data sources ===================== -->
+
+    <record id="source_od19_iso_dar" model="od19.dashboard.source">
+        <field name="name">ISO Document Action Requests</field>
+        <field name="model_name">od19.iso.dar</field>
+        <field name="description">ใบขอทำรายการเอกสาร (DAR) พร้อมสถานะ ประเภทคำขอ และแผนกที่ร้องขอ</field>
+        <field name="sequence">400</field>
+    </record>
+    <record id="source_od19_iso_dar_status" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_iso_dar"/>
+        <field name="label">Status</field>
+        <field name="field_name">status</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_od19_iso_dar_type" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_iso_dar"/>
+        <field name="label">Request Type</field>
+        <field name="field_name">request_type</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_od19_iso_dar_department" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_iso_dar"/>
+        <field name="label">Department</field>
+        <field name="field_name">department_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="source_od19_iso_dar_category" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_iso_dar"/>
+        <field name="label">Document Category</field>
+        <field name="field_name">category_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="source_od19_iso_dar_create_date" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_iso_dar"/>
+        <field name="label">Created On</field>
+        <field name="field_name">create_date</field>
+        <field name="kind">date</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_od19_iso_dar_sla_due_date" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_iso_dar"/>
+        <field name="label">SLA Due Date</field>
+        <field name="field_name">sla_due_date</field>
+        <field name="kind">date</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_od19_iso_dar_month" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_iso_dar"/>
+        <field name="label">Created Month</field>
+        <field name="field_name">create_date</field>
+        <field name="kind">groupby</field>
+        <field name="granularity">month</field>
+        <field name="sequence">90</field>
+    </record>
+
+    <record id="source_od19_iso_document" model="od19.dashboard.source">
+        <field name="name">ISO Controlled Documents</field>
+        <field name="model_name">od19.iso.document</field>
+        <field name="description">เอกสารควบคุม ISO พร้อมสถานะ แผนก และรอบการตรวจทาน</field>
+        <field name="sequence">410</field>
+    </record>
+    <record id="source_od19_iso_document_status" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_iso_document"/>
+        <field name="label">Status</field>
+        <field name="field_name">status</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_od19_iso_document_category" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_iso_document"/>
+        <field name="label">Category</field>
+        <field name="field_name">category_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_od19_iso_document_department" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_iso_document"/>
+        <field name="label">Department</field>
+        <field name="field_name">department_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="source_od19_iso_document_effective_date" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_iso_document"/>
+        <field name="label">Effective Date</field>
+        <field name="field_name">effective_date</field>
+        <field name="kind">date</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_od19_iso_document_review_date" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_iso_document"/>
+        <field name="label">Next Review Date</field>
+        <field name="field_name">review_date</field>
+        <field name="kind">date</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_od19_iso_document_month" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_iso_document"/>
+        <field name="label">Effective Month</field>
+        <field name="field_name">effective_date</field>
+        <field name="kind">groupby</field>
+        <field name="granularity">month</field>
+        <field name="sequence">90</field>
+    </record>
+
+    <record id="source_od19_iso_revision" model="od19.dashboard.source">
+        <field name="name">ISO Document Revisions</field>
+        <field name="model_name">od19.iso.document.revision</field>
+        <field name="description">ประวัติการแก้ไข (revision) ของเอกสารควบคุม ISO</field>
+        <field name="sequence">420</field>
+    </record>
+    <record id="source_od19_iso_revision_document" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_iso_revision"/>
+        <field name="label">Document</field>
+        <field name="field_name">document_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_od19_iso_revision_revision" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_iso_revision"/>
+        <field name="label">Revision</field>
+        <field name="field_name">revision</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_od19_iso_revision_approved_by" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_iso_revision"/>
+        <field name="label">Approved By</field>
+        <field name="field_name">approved_by</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="source_od19_iso_revision_effective_date" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_iso_revision"/>
+        <field name="label">Effective Date</field>
+        <field name="field_name">effective_date</field>
+        <field name="kind">date</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_od19_iso_revision_month" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_iso_revision"/>
+        <field name="label">Effective Month</field>
+        <field name="field_name">effective_date</field>
+        <field name="kind">groupby</field>
+        <field name="granularity">month</field>
+        <field name="sequence">90</field>
+    </record>
+
+    <record id="source_od19_iso_distribution_line" model="od19.dashboard.source">
+        <field name="name">ISO Distribution Lines</field>
+        <field name="model_name">od19.iso.distribution.line</field>
+        <field name="description">รายการแจกจ่ายเอกสารควบคุม แต่ละบรรทัดคือผู้รับหนึ่งราย</field>
+        <field name="sequence">430</field>
+    </record>
+    <record id="source_od19_iso_distribution_document" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_iso_distribution_line"/>
+        <field name="label">Document</field>
+        <field name="field_name">document_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_od19_iso_distribution_department" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_iso_distribution_line"/>
+        <field name="label">Recipient Department</field>
+        <field name="field_name">department_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_od19_iso_distribution_copy_type" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_iso_distribution_line"/>
+        <field name="label">Copy Type</field>
+        <field name="field_name">copy_type</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <record id="source_od19_iso_print_copy" model="od19.dashboard.source">
+        <field name="name">ISO Printed Copies</field>
+        <field name="model_name">od19.iso.print.copy</field>
+        <field name="description">สำเนาควบคุมที่พิมพ์ออกมา พร้อมสถานะการจ่าย/คืน และกำหนดคืน</field>
+        <field name="sequence">440</field>
+    </record>
+    <record id="source_od19_iso_print_copy_state" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_iso_print_copy"/>
+        <field name="label">Status</field>
+        <field name="field_name">state</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_od19_iso_print_copy_type" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_iso_print_copy"/>
+        <field name="label">Copy Type</field>
+        <field name="field_name">copy_type</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_od19_iso_print_copy_department" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_iso_print_copy"/>
+        <field name="label">Department</field>
+        <field name="field_name">department_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="source_od19_iso_print_copy_document" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_iso_print_copy"/>
+        <field name="label">Document</field>
+        <field name="field_name">document_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="source_od19_iso_print_copy_issue_date" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_iso_print_copy"/>
+        <field name="label">Issue Date</field>
+        <field name="field_name">issue_date</field>
+        <field name="kind">date</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_od19_iso_print_copy_return_due" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_iso_print_copy"/>
+        <field name="label">Return Due Date</field>
+        <field name="field_name">return_due_date</field>
+        <field name="kind">date</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_od19_iso_print_copy_return_date" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_od19_iso_print_copy"/>
+        <field name="label">Return Date</field>
+        <field name="field_name">return_date</field>
+        <field name="kind">date</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <!-- ===================== Dashboard ===================== -->
+
+    <record id="dashboard_iso_control" model="od19.dashboard">
+        <field name="name">ISO Control Board</field>
+        <field name="audience">operational</field>
+        <field name="description">แดชบอร์ดควบคุมเอกสาร ISO — งานรออนุมัติ ความเสี่ยงค้าง และแนวโน้มใบ DAR</field>
+        <field name="sequence">50</field>
+        <field name="is_default" eval="False"/>
+        <field name="default_date_range">this_month</field>
+        <field name="color">#9E2424</field>
+    </record>
+
+    <!-- KPI zone -->
+    <record id="dashboard_iso_docs_pending" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_iso_control"/>
+        <field name="name">เอกสารรออนุมัติ</field>
+        <field name="subtitle">เอกสารที่ยังไม่ผ่านการอนุมัติครบทุกขั้น</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_od19_iso_document"/>
+        <field name="measure_key">__count</field>
+        <field name="date_range">all_time</field>
+        <field name="domain">[('status', 'in', ['draft', 'review', 'approval', 'final_approval'])]</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="3"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="10"/>
+        <field name="rule_ids" eval="[(0, 0, {'sequence': 10, 'name': 'Above the critical value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 10.0, 'status': 'red'}), (0, 0, {'sequence': 20, 'name': 'Above the warning value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 3.0, 'status': 'yellow'})]"/>
+    </record>
+    <record id="dashboard_iso_dar_open" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_iso_control"/>
+        <field name="name">ใบ DAR ค้าง</field>
+        <field name="subtitle">ใบ DAR ที่ยังไม่จบกระบวนการ</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_od19_iso_dar"/>
+        <field name="measure_key">__count</field>
+        <field name="date_range">all_time</field>
+        <field name="domain">[('status', 'not in', ['approved', 'cancelled', 'closed'])]</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="3"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="20"/>
+        <field name="rule_ids" eval="[(0, 0, {'sequence': 10, 'name': 'Above the critical value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 10.0, 'status': 'red'}), (0, 0, {'sequence': 20, 'name': 'Above the warning value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 3.0, 'status': 'yellow'})]"/>
+    </record>
+    <record id="dashboard_iso_copies_out" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_iso_control"/>
+        <field name="name">สำเนาค้างคืน</field>
+        <field name="subtitle">สำเนาควบคุมที่จ่ายออกแล้วและยังไม่คืน</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_od19_iso_print_copy"/>
+        <field name="measure_key">__count</field>
+        <field name="date_range">all_time</field>
+        <field name="domain">[('state', '=', 'issued')]</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="3"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="30"/>
+        <field name="rule_ids" eval="[(0, 0, {'sequence': 10, 'name': 'Above the critical value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 10.0, 'status': 'red'}), (0, 0, {'sequence': 20, 'name': 'Above the warning value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 3.0, 'status': 'yellow'})]"/>
+    </record>
+    <record id="dashboard_iso_docs_due_review" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_iso_control"/>
+        <field name="name">เอกสารจะครบรอบ review</field>
+        <field name="subtitle">เอกสารที่ถึงกำหนดตรวจทานภายใน 30 วันข้างหน้า</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_od19_iso_document"/>
+        <field name="measure_key">__count</field>
+        <field name="date_key">review_date</field>
+        <field name="date_range">next_30_days</field>
+        <field name="domain">[('status', '=', 'approved')]</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="3"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="40"/>
+        <field name="rule_ids" eval="[(0, 0, {'sequence': 10, 'name': 'Above the critical value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 10.0, 'status': 'red'}), (0, 0, {'sequence': 20, 'name': 'Above the warning value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 5.0, 'status': 'yellow'})]"/>
+    </record>
+
+    <!-- Alert zone -->
+    <record id="dashboard_iso_dar_over_sla" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_iso_control"/>
+        <field name="name">DAR เกิน SLA</field>
+        <field name="subtitle">ใบ DAR ที่ค้าง approvals เกินกำหนด SLA แล้ว</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_od19_iso_dar"/>
+        <field name="measure_key">__count</field>
+        <field name="date_key">sla_due_date</field>
+        <field name="date_range">overdue</field>
+        <field name="domain">[('status', 'in', ['review', 'approval', 'final_approval'])]</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="4"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="50"/>
+        <field name="rule_ids" eval="[(0, 0, {'sequence': 10, 'name': 'Above the critical value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 5.0, 'status': 'red'}), (0, 0, {'sequence': 20, 'name': 'Above the warning value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 1.0, 'status': 'yellow'})]"/>
+    </record>
+    <record id="dashboard_iso_copies_overdue" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_iso_control"/>
+        <field name="name">สำเนาเกินกำหนดคืน</field>
+        <field name="subtitle">สำเนาที่จ่ายแล้วและเลยกำหนดคืนแล้ว</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_od19_iso_print_copy"/>
+        <field name="measure_key">__count</field>
+        <field name="date_key">return_due_date</field>
+        <field name="date_range">overdue</field>
+        <field name="domain">[('state', '=', 'issued')]</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="4"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="60"/>
+        <field name="rule_ids" eval="[(0, 0, {'sequence': 10, 'name': 'Above the critical value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 3.0, 'status': 'red'}), (0, 0, {'sequence': 20, 'name': 'Above the warning value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 1.0, 'status': 'yellow'})]"/>
+    </record>
+    <record id="dashboard_iso_docs_past_review" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_iso_control"/>
+        <field name="name">เอกสารเกินกำหนด review</field>
+        <field name="subtitle">เอกสารที่อนุมัติแล้วแต่เลยวันตรวจทานที่กำหนด</field>
+        <field name="widget_type">kpi</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_od19_iso_document"/>
+        <field name="measure_key">__count</field>
+        <field name="date_key">review_date</field>
+        <field name="date_range">overdue</field>
+        <field name="domain">[('status', '=', 'approved')]</field>
+        <field name="show_delta" eval="False"/>
+        <field name="grid_w" eval="4"/>
+        <field name="grid_h" eval="2"/>
+        <field name="sequence" eval="70"/>
+        <field name="rule_ids" eval="[(0, 0, {'sequence': 10, 'name': 'Above the critical value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 5.0, 'status': 'red'}), (0, 0, {'sequence': 20, 'name': 'Above the warning value', 'operator': '&gt;=', 'compare_type': 'constant', 'compare_value': 1.0, 'status': 'yellow'})]"/>
+    </record>
+
+    <!-- Trend zone -->
+    <record id="dashboard_iso_dar_trend" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_iso_control"/>
+        <field name="name">จำนวน DAR ต่อเดือน</field>
+        <field name="subtitle">แนวโน้มใบ DAR ที่สร้างขึ้นในแต่ละเดือน</field>
+        <field name="widget_type">line</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_od19_iso_dar"/>
+        <field name="measure_key">__count</field>
+        <field name="groupby_key">create_date</field>
+        <field name="date_range">all_time</field>
+        <field name="limit" eval="24"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="80"/>
+    </record>
+    <record id="dashboard_iso_dar_by_type" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_iso_control"/>
+        <field name="name">สัดส่วน DAR แยกตามประเภทคำขอ</field>
+        <field name="widget_type">pie</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_od19_iso_dar"/>
+        <field name="measure_key">__count</field>
+        <field name="groupby_key">request_type</field>
+        <field name="date_range">all_time</field>
+        <field name="limit" eval="12"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="90"/>
+    </record>
+
+    <!-- Detail zone -->
+    <record id="dashboard_iso_docs_latest" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_iso_control"/>
+        <field name="name">เอกสารอนุมัติล่าสุด</field>
+        <field name="widget_type">list</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_od19_iso_document"/>
+        <field name="measure_key">__count</field>
+        <field name="date_range">all_time</field>
+        <field name="domain">[('status', '=', 'approved')]</field>
+        <field name="limit" eval="10"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="100"/>
+    </record>
+    <record id="dashboard_iso_copies_pending" model="od19.dashboard.widget">
+        <field name="dashboard_id" ref="dashboard_iso_control"/>
+        <field name="name">สำเนาที่ต้องเปลี่ยน (replacement pending)</field>
+        <field name="widget_type">list</field>
+        <field name="value_format">number</field>
+        <field name="source_id" ref="source_od19_iso_print_copy"/>
+        <field name="measure_key">__count</field>
+        <field name="date_range">all_time</field>
+        <field name="domain">[('state', '=', 'issued'), ('copy_type', '=', 'controlled')]</field>
+        <field name="limit" eval="10"/>
+        <field name="grid_w" eval="6"/>
+        <field name="grid_h" eval="3"/>
+        <field name="sequence" eval="110"/>
+    </record>
+
+    <!-- ===================== Direct access ===================== -->
+
+    <record id="action_od19_iso_control_dashboard" model="ir.actions.client">
+        <field name="name">แดชบอร์ด ISO</field>
+        <field name="tag">od19_dashboard.builder</field>
+        <field name="target">current</field>
+        <field name="params" eval="{'dashboard_id': ref('dashboard_iso_control')}"/>
+    </record>
+
+    <menuitem id="menu_od19_iso_dashboard"
+              name="แดชบอร์ด ISO"
+              parent="od19_iso_document_control.menu_iso_root"
+              action="action_od19_iso_control_dashboard"
+              sequence="-1"/>
+
+</odoo>
