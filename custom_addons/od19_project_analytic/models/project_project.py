@@ -38,6 +38,14 @@ class ProjectProject(models.Model):
         string="Contractors",
         domain="[('od19_is_contractor', '=', True)]",
     )
+    od19_analytic_link_id = fields.Many2one(
+        "account.analytic.account",
+        string="Analytic Account",
+        related="account_id",
+        readonly=True,
+        help="Read-only copy of the project analytic account, rendered as a "
+             "clickable link under the project name on the form.",
+    )
 
     _job_no_unique = models.Constraint(
         "unique(job_no)",
@@ -97,23 +105,38 @@ class ProjectProject(models.Model):
         # caller passes explicit vals (see create() below).
         if vals is None:
             return super()._create_analytic_account()
-        analytic_name = vals.get("job_no") or vals.get("name") or "Project"
+        # The analytic name mirrors the project name (core keeps the two in
+        # sync on rename), while the job number becomes the analytic code so
+        # it shows up as the "[code]" prefix in the analytic display name.
         analytic = self.env["account.analytic.account"].create(
             {
-                "name": analytic_name,
+                "name": vals.get("name") or vals.get("job_no") or "Project",
+                "code": vals.get("job_no") or False,
                 "plan_id": self._get_default_analytic_plan_id(),
             }
         )
         return analytic
 
+    def action_od19_create_analytic(self):
+        """Create and link an analytic account for projects missing one.
+
+        Used by the "+ สร้าง Analytic" chip shown under the project name so a
+        user can fix a project that has no analytic without leaving the form.
+        """
+        for project in self:
+            if project.account_id:
+                continue
+            project.account_id = project._create_analytic_account(
+                {"name": project.name, "job_no": project.job_no}
+            )
+        return True
+
     @api.model
     def _get_default_analytic_plan_id(self):
-        plan = self.env["account.analytic.plan"].search(
-            [("name", "=", "Projects")], limit=1
-        )
-        if not plan:
-            plan = self.env["account.analytic.plan"].search([], limit=1)
-        return plan.id if plan else False
+        # Use the same contract as core (_get_values_analytic_account_batch)
+        # so a project analytic lands in the configured "Projects" plan.
+        plan, _other_plans = self.env["account.analytic.plan"]._get_all_plans()
+        return plan.id
 
     def _od19_get_pnl_values(self, date_from=None, date_to=None, company_ids=None):
         """Return project P&L values read from posted analytic lines.
