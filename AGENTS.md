@@ -4,8 +4,8 @@
 
 - **ผลบังคับใช้ (Scope)**: AI agent ทุกตัวที่ทำงานใน repository นี้ (Codex, Claude Code, Trae, Gemini ฯลฯ)
 - **สถานะ (Status)**: **LOCKED** — agent **ห้ามแก้** ไฟล์นี้และไฟล์ใน `docs/agents/` เอง ต้องได้อนุมัติจากผู้ใช้เป็นรายครั้ง
-- **Revision**: r6 (2026-11-20) — ยกเครื่องโครงสร้าง: แยกไฟล์โมดูลาร์ + **Capability-based** model (แทน Tier 0–3) + **Delivery Pipeline แบบ time-box** (24 ชม./24 ชม./7 วัน)
-- **Revision history**: r5 (2026-11-19) pdev-first delivery · r4 (2026-11-19) worktree hygiene · r3 (2026-11-12) self install/update + counter · r2 (2026-11-10) Resource-Scoped Lease (แทน Single-writer)
+- **Revision**: r7 (2026-11-21) — ระบุชัดว่า **S1 เดินอัตโนมัติทันทีหลังเทสต์ผ่าน ไม่ต้องขออนุมัติ** (การถือ lease = ขั้นตอนปฏิบัติ ไม่ใช่การขออนุมัติ; restart `8070` ยังเป็น Destructive)
+- **Revision history**: r6 (2026-11-20) ยกเครื่องโครงสร้าง + Capability-based + Delivery Pipeline time-box · r5 (2026-11-19) pdev-first delivery · r4 (2026-11-19) worktree hygiene · r3 (2026-11-12) self install/update + counter · r2 (2026-11-10) Resource-Scoped Lease (แทน Single-writer)
 - **Repository**: `nattanonvs/odoo19ce-autoinfo` · branch หลัก `19.0` · ฐานข้อมูลหลัก `odoo19_pdev`
 
 ---
@@ -48,7 +48,7 @@
 
 ## Delivery Pipeline อย่างย่อ (time-box)
 
-1. **S1**: แก้/สร้างโมดูล + **Test ผ่าน** → ติดตั้ง/อัปเดต `odoo19_pdev` + commit (แยกโดเมน) ทันที
+1. **S1**: แก้/สร้างโมดูล + **Test ผ่าน** → ติดตั้ง/อัปเดต `odoo19_pdev` + commit (แยกโดเมน) **ทันทีโดยไม่ต้องขออนุมัติ** (ถือ lease `db:odoo19_pdev` เป็นขั้นตอนปฏิบัติ ไม่ใช่การขออนุมัติ)
 2. **S2**: **+24 ชม.** ไม่มีคำสั่ง/ผลตรวจ → ถือว่าผ่าน → ติดตั้ง `odoo19_puat` + **push**
 3. **S3**: **+24 ชม.** ไม่มีคำสั่ง → ถือว่าผ่าน → **เปิด PR** (feature/* → `19.0`) แล้ว **รออนุมัติ merge**
 4. **S4**: merge เข้า `19.0` แล้ว **+7 วัน** → ตรวจไฟล์ตรงกันทุกไบต์ → **auto-cleanup** ลบ source branch/worktree + ไฟล์ TEST + DB TEST
