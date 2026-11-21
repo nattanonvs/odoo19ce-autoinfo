@@ -89,6 +89,10 @@
                             class="btn-danger"
                             invisible="status != 'approved'"/>
 
+                    <button name="action_print_controlled_document"
+                            type="object"
+                            string="พิมพ์เอกสารควบคุม"/>
+
                     <field name="status" widget="statusbar"
                            statusbar_visible="draft,review,approval,final_approval,approved"
                            statusbar_colors='{"rejected":"danger","obsolete":"danger"}'/>
@@ -146,6 +150,7 @@
                         <field name="filename_pattern" readonly="1"/>
                         <field name="document_attachment_ids"
                                widget="many2many_binary"/>
+                        <field name="print_cover_page" widget="boolean_toggle"/>
                     </group>
 
                     <notebook>
