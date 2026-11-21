@@ -230,6 +230,20 @@ class TestExpenseClaim(AccountTestInvoicingCommon):
         with self.assertRaises(UserError):
             claim.action_post()
 
+    def test_post_all_lines_headless_in_one_click(self):
+        """Posting UX: 1 คลิกที่หัวใบ โพสต์ทุกบรรทัดแบบ headless (ไม่มี wizard ค้าง)."""
+        claim = self._make_claim([
+            {"name": "A", "total_amount": 100.0},
+            {"name": "B", "total_amount": 200.0},
+        ])
+        self._approve_claim(claim)
+        claim.action_post()
+        self.assertEqual(claim.state, "posted")
+        self.assertEqual(len(claim.line_ids), 2)
+        # ทุกบรรทัดถูกโพสต์จริง (มี account.move) ไม่ใช่ค้างรอ wizard
+        self.assertTrue(all(l.account_move_id for l in claim.line_ids))
+        self.assertTrue(all(l.state in ("posted", "paid") for l in claim.line_ids))
+
     # ---------------------------------------------------------------
     # K6: ใบเดียวห้ามผสม payment_mode
     # ---------------------------------------------------------------
