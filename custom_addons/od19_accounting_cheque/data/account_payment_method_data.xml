@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="payment_method_od19_cheque" model="account.payment.method">
+        <field name="name">Cheque (Received)</field>
+        <field name="code">od19_cheque</field>
+        <field name="payment_type">inbound</field>
+    </record>
+
+</odoo>

@@ -13,6 +13,7 @@
     ],
     "data": [
         "data/sequence.xml",
+        "data/account_payment_method_data.xml",
         "security/ir.model.access.csv",
         "views/account_cheque_views.xml",
         "views/account_cheque_book_views.xml",
