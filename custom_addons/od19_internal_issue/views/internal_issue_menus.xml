@@ -13,21 +13,21 @@
         <field name="name">IT Support</field>
         <field name="res_model">helpdesk.ticket</field>
         <field name="view_mode">list,kanban,form,pivot</field>
-        <field name="domain">[('team_id', '=', ref('team_issue_it_support'))]</field>
+        <field name="domain" eval="[('team_id', '=', ref('team_issue_it_support'))]"/>
         <field name="path">internal-issue-it-support</field>
     </record>
     <record id="action_internal_issue_improvement_iso" model="ir.actions.act_window">
         <field name="name">ปรับปรุง-ISO</field>
         <field name="res_model">helpdesk.ticket</field>
         <field name="view_mode">list,kanban,form,pivot</field>
-        <field name="domain">[('team_id', 'in', [ref('team_issue_improvement'), ref('team_issue_iso_capa')])]</field>
+        <field name="domain" eval="[('team_id', 'in', [ref('team_issue_improvement'), ref('team_issue_iso_capa')])]"/>
         <field name="path">internal-issue-improvement-iso</field>
     </record>
     <record id="action_internal_issue_triage" model="ir.actions.act_window">
         <field name="name">Triage</field>
         <field name="res_model">helpdesk.ticket</field>
         <field name="view_mode">list,kanban,form,pivot</field>
-        <field name="domain">[('team_id', '=', ref('team_issue_triage'))]</field>
+        <field name="domain" eval="[('team_id', '=', ref('team_issue_triage'))]"/>
         <field name="path">internal-issue-triage</field>
     </record>
 
