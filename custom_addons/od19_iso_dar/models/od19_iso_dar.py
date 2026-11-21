@@ -26,11 +26,16 @@ DAR_STATUS = [
 ]
 
 REQUEST_TYPE = [
-    ("new", "ออกเอกสารใหม่"),
-    ("revise", "แก้ไข / เพิ่ม Revision"),
-    ("obsolete", "ยกเลิก / เลิกใช้"),
+    ("new", "ออกเอกสารใหม่ (NDR)"),
+    ("revise", "แก้ไข / เพิ่ม Revision (EDR)"),
+    ("obsolete", "ยกเลิก / เลิกใช้ (CDR)"),
     ("copy_controlled", "ขอสำเนาควบคุม"),
     ("copy_uncontrolled", "ขอสำเนาไม่ควบคุม"),
+    ("change_distribution", "เปลี่ยนทะเบียนแจกจ่าย (CDL)"),
+    ("print", "ขอพิมพ์เอกสาร (PDR)"),
+    ("broad_distribution", "แจกจ่ายวงกว้าง (BDR)"),
+    ("new_with_print", "ออกเอกสารใหม่ + พิมพ์ (NDRP)"),
+    ("revise_with_print", "แก้ไข + พิมพ์ (EDRP)"),
     ("other", "อื่น ๆ"),
 ]
 
@@ -40,7 +45,19 @@ DOCUMENT_REQUIRED_TYPES = (
     "obsolete",
     "copy_controlled",
     "copy_uncontrolled",
+    "change_distribution",
+    "print",
+    "broad_distribution",
+    "revise_with_print",
 )
+
+# ประเภทที่ต้องระบุจำนวนสำเนาที่พิมพ์
+PRINT_REQUIRED_TYPES = ("print", "new_with_print", "revise_with_print")
+
+PRINT_SCOPE = [
+    ("controlled", "สำเนาควบคุม (Controlled)"),
+    ("uncontrolled", "สำเนาไม่ควบคุม (Uncontrolled)"),
+]
 
 
 class Od19IsoDar(models.Model):
@@ -127,6 +144,38 @@ class Od19IsoDar(models.Model):
     )
 
     # ------------------------------------------------------------------
+    # Print / distribution (WP1)
+    # ------------------------------------------------------------------
+    print_request_id = fields.Many2one(
+        "od19.iso.print.request",
+        string="ใบขอพิมพ์ที่สร้าง",
+        readonly=True,
+        copy=False,
+        help="ใบขอพิมพ์ที่สร้างอัตโนมัติจากคำขอนี้ (print/new_with_print/revise_with_print/broad_distribution)",
+    )
+    distribution_list_id = fields.Many2one(
+        "od19.iso.distribution.list",
+        string="ทะเบียนแจกจ่ายอ้างอิง",
+        help="ทะเบียนแจกจ่ายที่เลือก/อ้างอิงสำหรับคำขอเปลี่ยนหรือแจกจ่าย",
+    )
+    target_holder_ids = fields.Many2many(
+        "res.users",
+        string="ผู้รับเป้าหมาย",
+        help="ผู้รับปลายทางสำหรับการแจกจ่ายวงกว้าง (BDR)",
+    )
+    copies_count = fields.Integer(
+        string="จำนวนสำเนาที่ขอพิมพ์",
+        default=1,
+        help="จำนวนสำเนาที่ต้องพิมพ์ (บังคับเมื่อ type ∈ print/new_with_print/revise_with_print)",
+    )
+    print_scope = fields.Selection(
+        PRINT_SCOPE,
+        string="ขอบเขตการพิมพ์",
+        default="controlled",
+        help="ขอบเขตสำเนาที่พิมพ์ (controlled/uncontrolled)",
+    )
+
+    # ------------------------------------------------------------------
     # Create / numbering
     # ------------------------------------------------------------------
     @api.model_create_multi
@@ -151,12 +200,17 @@ class Od19IsoDar(models.Model):
     # ------------------------------------------------------------------
     # Constraints
     # ------------------------------------------------------------------
-    @api.constrains("request_type", "document_id")
+    @api.constrains("request_type", "document_id", "copies_count")
     def _check_document_required(self):
         for dar in self:
             if dar.request_type in DOCUMENT_REQUIRED_TYPES and not dar.document_id:
                 raise UserError(
                     _("ประเภทคำขอ '%s' ต้องเลือกเอกสารอ้างอิงก่อนบันทึก")
+                    % dict(REQUEST_TYPE)[dar.request_type]
+                )
+            if dar.request_type in PRINT_REQUIRED_TYPES and (dar.copies_count or 0) <= 0:
+                raise UserError(
+                    _("ประเภทคำขอ '%s' ต้องระบุจำนวนสำเนาที่ขอพิมพ์มากกว่า 0")
                     % dict(REQUEST_TYPE)[dar.request_type]
                 )
 
@@ -281,19 +335,26 @@ class Od19IsoDar(models.Model):
         """ทำผลอัตโนมัติหลังอนุมัติ ตาม request_type (idempotent).
 
         ทำงานครั้งเดียวต่อใบ — ป้องกันผลซ้ำด้วย ``effect_applied``
+        ทำงานด้วยสิทธิ์ระบบ (sudo) เพราะเป็นผลอัตโนมัติหลังอนุมัติ
+        ผู้อนุมัติไม่จำเป็นต้องมีสิทธิ์จัดการทะเบียนพิมพ์/แจกจ่ายเอง
         """
-        for dar in self:
+        for dar in self.sudo():
             if dar.effect_applied:
                 continue
-            if dar.request_type == "revise" and dar.document_id:
+            rtype = dar.request_type
+            if rtype == "revise" and dar.document_id:
                 dar.document_id.action_new_revision_keep_approved()
-            elif dar.request_type == "obsolete" and dar.document_id:
+            elif rtype == "revise_with_print" and dar.document_id:
+                dar.document_id.action_new_revision_keep_approved()
+                dar._create_print_request()
+            elif rtype == "obsolete" and dar.document_id:
                 if dar.document_id.status == "approved":
                     dar.document_id.action_mark_obsolete()
-            elif dar.request_type in ("copy_controlled", "copy_uncontrolled"):
+                dar._recall_pending_copies()
+            elif rtype in ("copy_controlled", "copy_uncontrolled"):
                 copy_type = (
                     "controlled"
-                    if dar.request_type == "copy_controlled"
+                    if rtype == "copy_controlled"
                     else "uncontrolled"
                 )
                 self.env["od19.iso.dar.copy.record"].create({
@@ -301,8 +362,125 @@ class Od19IsoDar(models.Model):
                     "copy_type": copy_type,
                     "issued_date": fields.Date.today(),
                 })
-            # 'new' -> ใช้ wizard (Task T11) ; 'other' -> ไม่มีผลอัตโนมัติ
+            elif rtype == "change_distribution" and dar.document_id:
+                dar._create_distribution_revision()
+            elif rtype == "print" and dar.document_id:
+                dar._create_print_request()
+            elif rtype == "broad_distribution" and dar.document_id:
+                dar._create_broad_distribution()
+            # 'new' / 'new_with_print' -> ใช้ wizard สร้างเอกสาร (new_with_print จะสร้างใบพิมพ์ต่อ)
+            # 'other' -> ไม่มีผลอัตโนมัติ
             dar.effect_applied = True
+
+    # ------------------------------------------------------------------
+    # Print / distribution helpers (WP1 §3.4)
+    # ------------------------------------------------------------------
+    def _create_print_request(self, copy_type=None):
+        """สร้างใบขอพิมพ์ (od19.iso.print.request) จาก DAR และส่งขออนุมัติทันที."""
+        self.ensure_one()
+        if self.print_request_id:
+            return self.print_request_id
+        request = self.env["od19.iso.print.request"].create({
+            "document_id": self.document_id.id,
+            "revision": self.document_id.revision,
+            "request_type": "new_print",
+            "copies_count": self.copies_count or 1,
+            "copy_type": copy_type or self.print_scope or "controlled",
+            "distribution_list_id": self.distribution_list_id.id or False,
+            "requester_id": self.requester_id.id or self.env.user.id,
+            "note": _("สร้างอัตโนมัติจากใบ DAR %s") % self.name,
+        })
+        request.action_submit()
+        self.print_request_id = request.id
+        self.message_post(
+            body=_("สร้างใบขอพิมพ์ %s (%s สำเนา) จากคำขอนี้")
+            % (request.name, request.copies_count)
+        )
+        return request
+
+    def _recall_pending_copies(self):
+        """ยกเลิก/เรียกคืนสำเนาที่ค้างทั้งหมดของเอกสาร (เมื่อเอกสารถูกเลิกใช้)."""
+        for dar in self:
+            if not dar.document_id:
+                continue
+            copies = self.env["od19.iso.print.copy"].search([
+                ("document_id", "=", dar.document_id.id),
+                ("state", "in", ("reserved", "issued")),
+            ])
+            (copies.filtered(lambda c: c.state == "issued")).write(
+                {"state": "returned", "return_date": fields.Date.today()}
+            )
+            (copies.filtered(lambda c: c.state == "reserved")).write(
+                {"state": "destroyed"}
+            )
+
+    def _create_distribution_revision(self):
+        """สร้างทะเบียนแจกจ่ายเวอร์ชันใหม่ (snapshot revision) และ supersede ของเดิม."""
+        for dar in self:
+            document = dar.document_id
+            source = dar.distribution_list_id or self.env[
+                "od19.iso.distribution.list"
+            ].search([
+                ("document_id", "=", document.id),
+                ("state", "=", "active"),
+            ], limit=1)
+            line_vals = [
+                (0, 0, {
+                    "recipient_id": line.recipient_id.id,
+                    "holder_name": line.holder_name,
+                    "department_id": line.department_id.id,
+                    "copies_required": line.copies_required,
+                    "copy_type": line.copy_type,
+                    "note": line.note,
+                })
+                for line in source.line_ids
+            ]
+            new_list = self.env["od19.iso.distribution.list"].create({
+                "document_id": document.id,
+                "revision": document.revision,
+                "line_ids": line_vals,
+                "note": _("สร้างจากใบ DAR %s (เปลี่ยนทะเบียนแจกจ่าย)") % dar.name,
+            })
+            if new_list.line_ids:
+                new_list.action_activate()
+            dar.message_post(
+                body=_("สร้างทะเบียนแจกจ่าย %s (Rev.%s) จากคำขอเปลี่ยนทะเบียน")
+                % (new_list.name, new_list.revision or "-")
+            )
+
+    def _create_broad_distribution(self):
+        """แจกจ่ายวงกว้าง: สร้าง distribution.line ให้ target_holder_ids + ใบพิมพ์ uncontrolled."""
+        for dar in self:
+            document = dar.document_id
+            line_vals = [
+                (0, 0, {
+                    "recipient_id": user.id,
+                    "copies_required": 1,
+                    "copy_type": "uncontrolled",
+                })
+                for user in dar.target_holder_ids
+            ]
+            new_list = self.env["od19.iso.distribution.list"].create({
+                "document_id": document.id,
+                "revision": document.revision,
+                "line_ids": line_vals,
+                "note": _("แจกจ่ายวงกว้างจากใบ DAR %s") % dar.name,
+            })
+            if new_list.line_ids:
+                new_list.action_activate()
+            if (dar.copies_count or 0) > 0:
+                dar._create_print_request(copy_type="uncontrolled")
+
+    def action_view_print_request(self):
+        """เปิดใบขอพิมพ์ที่สร้างจากคำขอนี้."""
+        self.ensure_one()
+        action = self.env["ir.actions.act_window"]._for_xml_id(
+            "od19_iso_print_control.action_od19_iso_print_request"
+        )
+        action["res_id"] = self.print_request_id.id
+        action["view_mode"] = "form"
+        action["views"] = [(False, "form")]
+        return action
 
     # ------------------------------------------------------------------
     # SLA reminder (Task T12)

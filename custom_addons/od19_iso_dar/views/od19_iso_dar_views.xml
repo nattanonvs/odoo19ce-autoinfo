@@ -89,7 +89,10 @@
                             string="สร้างเอกสารใหม่"
                             class="btn-primary"
                             context="{'active_id': id, 'active_model': 'od19.iso.dar'}"
-                            invisible="status != 'approved' or request_type != 'new'"/>
+                            invisible="status != 'approved' or request_type not in ('new','new_with_print')"/>
+                    <button name="action_view_print_request" type="object"
+                            string="ดูใบขอพิมพ์" class="btn-primary"
+                            invisible="not print_request_id"/>
                     <button name="action_cancel" type="object"
                             string="ยกเลิก" class="btn-secondary"
                             invisible="status in ('approved','cancelled','closed')"/>
@@ -141,6 +144,19 @@
                                     <field name="issued_date"/>
                                 </list>
                             </field>
+                        </page>
+                        <page string="การพิมพ์ / แจกจ่าย">
+                            <group>
+                                <field name="print_scope"
+                                       invisible="request_type not in ('print','new_with_print','revise_with_print','broad_distribution')"/>
+                                <field name="copies_count"
+                                       invisible="request_type not in ('print','new_with_print','revise_with_print','broad_distribution')"/>
+                                <field name="distribution_list_id"
+                                       invisible="request_type not in ('change_distribution','broad_distribution')"/>
+                                <field name="target_holder_ids" widget="many2many_tags"
+                                       invisible="request_type != 'broad_distribution'"/>
+                                <field name="print_request_id" readonly="1"/>
+                            </group>
                         </page>
                         <page string="การอนุมัติ">
                             <group>

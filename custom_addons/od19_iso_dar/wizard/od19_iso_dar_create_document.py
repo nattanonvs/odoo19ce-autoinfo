@@ -34,6 +34,9 @@ class Od19IsoDarCreateDocument(models.TransientModel):
         })
         self.dar_id.document_id = doc.id
         self.dar_id.message_post(body=_("สร้างเอกสารใหม่ %s จากใบ DAR") % doc.code)
+        # NDRP (new_with_print): สร้างใบขอพิมพ์ต่อในใบเดียว
+        if self.dar_id.request_type == "new_with_print":
+            self.dar_id._create_print_request()
         return {
             "type": "ir.actions.act_window",
             "res_model": "od19.iso.document",
