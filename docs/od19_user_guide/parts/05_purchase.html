@@ -8,7 +8,7 @@ sub=ใบขอซื้อ (PR) · ใบขอราคา · ใบสั่
 <section class="part" id="purchase">
 
   <div class="part-head">
-    <h2 class="part-title"><span class="part-icon">📦</span> ส่วนที่ 5 · การจัดซื้อและผู้จำหน่าย</h2>
+    <h2 class="part-title"><span class="part-icon">📦</span> ส่วนที่ 6 · การจัดซื้อและผู้จำหน่าย</h2>
     <p class="part-sub">
       อธิบายกระบวนการจัดซื้อครบวงจรของ AutoInfo — ตั้งแต่การยื่น <strong>ใบขอซื้อ (Purchase Request, PR)</strong>
       การขอราคาผู้ขาย (RFQ) การออก <strong>ใบสั่งซื้อ (Purchase Order, PO)</strong> การอนุมัติตามวงเงิน
@@ -29,6 +29,27 @@ sub=ใบขอซื้อ (PR) · ใบขอราคา · ใบสั่
       <li><a href="#pur-7">การพิมพ์ด้วย Jasper (J-Report OD15)</a></li>
     </ol>
   </nav>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ ส่วนนี้รับต่อมาจาก <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#proj-1">ส่วนที่ 10 · โครงการ (ความต้องการวัสดุ)</a><span class="hd-arrow">→</span>
+      <a href="#inv-5">ส่วนที่ 7 · ควบคุมการดำเนินงานคลัง</a><span class="hd-arrow">→</span>
+      <strong>ส่วนนี้ (ส่วนที่ 6)</strong>
+    </div>
+    <p class="hd-note">รับความต้องการวัสดุ/บริการจากโครงการและคลัง (เส้นทาง F) มาเปิดใบขอซื้อและออกใบสั่งซื้อ</p>
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่วนนี้ส่งต่อไปยัง <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <strong>ส่วนนี้ (ส่วนที่ 6)</strong><span class="hd-arrow">→</span>
+      <a href="#inv-1">ส่วนที่ 7 · ใบรับ-จ่ายสินค้า</a><span class="hd-arrow">→</span>
+      <a href="#acc1-4">ส่วนที่ 3 · เตรียมจ่าย</a><span class="hd-arrow">→</span>
+      <a href="#iso-7">ส่วนที่ 9 · คุณภาพผู้จำหน่าย</a>
+    </div>
+    <p class="hd-note">รับของเข้าคลัง → วางบิลผู้ขาย → ประเมินคุณภาพผู้ขาย</p>
+  </div>
 
   <h3 class="mod" id="pur-1"><span class="mtag">od19_purchase_procurement_core</span> แกนการจัดซื้อและการอนุมัติ</h3>
   <p>
@@ -105,6 +126,15 @@ sub=ใบขอซื้อ (PR) · ใบขอราคา · ใบสั่
     <li><span class="badge b-red">Purchase Director</span> — กลุ่มใหม่ที่ระบบสร้างให้ (สืบทอดสิทธิ์ Manager) อนุมัติใบสั่งซื้อที่ยอดถึงหรือเกินขีดวงเงินได้</li>
     <li>ผู้ดูแลระบบ (<code>base.group_system</code>) ได้สิทธิ์ Purchase Director โดยอัตโนมัติ</li>
   </ul>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ รับต่อจาก: ความต้องการวัสดุของโครงการ <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#flow-5">เส้นทาง C · โครงการ</a><span class="hd-arrow">→</span>
+      <a href="#pur-2">ใบขอซื้อ (ไทย)</a>
+    </div>
+    <p class="hd-note">เมื่อโครงการมีความต้องการวัสดุ จะส่งต่อมาเปิดใบขอซื้อ (PR) เพื่อเข้าสู่กระบวนการอนุมัติและออกใบสั่งซื้อ</p>
+  </div>
 
   <hr>
 

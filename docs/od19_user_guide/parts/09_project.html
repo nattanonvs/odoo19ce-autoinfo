@@ -8,7 +8,7 @@ sub=ตั้งรหัสงานไทย · ประเภทโครง
 <section class="part" id="project">
 
   <div class="part-head">
-    <h2 class="part-title"><span class="part-icon">📊</span> ส่วนที่ 9 · โครงการและต้นทุน</h2>
+    <h2 class="part-title"><span class="part-icon">📊</span> ส่วนที่ 10 · โครงการและต้นทุน</h2>
     <p class="part-sub">
       ส่วนนี้อธิบายการบริหารโครงการ (Project) ที่ผูกกับงานบริการ-บำรุงรักษา-ขายของ AutoInfo —
       ตั้งแต่การตั้ง “รหัสงาน” (Job Number) แบบไทย, การจัดประเภทโครงการเป็นลำดับชั้น,
@@ -26,6 +26,28 @@ sub=ตั้งรหัสงานไทย · ประเภทโครง
       <li><a href="#proj-4">od19_project_document_sequence — เลขรหัสงาน/รหัสงานย่อยตามแผนก</a></li>
     </ol>
   </nav>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ ส่วนนี้รับต่อมาจาก <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#sale-3">ส่วนที่ 5 · ใบสั่งขายยืนยัน (CONFIRMED)</a><span class="hd-arrow">→</span>
+      <a href="#flow-5">เส้นทาง C</a><span class="hd-arrow">→</span>
+      <strong>ส่วนนี้ (ส่วนที่ 10)</strong>
+    </div>
+    <p class="hd-note">รับคำสั่งขายที่ยืนยันแล้วมาเปิดเป็นโครงการ (รหัสงาน, บัญชีวิเคราะห์, งบ, ผู้รับผิดชอบ)</p>
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่วนนี้ส่งต่อไปยัง <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <strong>ส่วนนี้ (ส่วนที่ 10)</strong><span class="hd-arrow">→</span>
+      <a href="#inv-7">ส่วนที่ 7 · เบิกวัสดุ</a><span class="hd-arrow">→</span>
+      <a href="#hr-5">ส่วนที่ 8 · ลงเวลา</a><span class="hd-arrow">→</span>
+      <a href="#fleet-3">ส่วนที่ 12 · ขนส่ง</a><span class="hd-arrow">→</span>
+      <a href="#acc2-10">ส่วนที่ 4 · วางบิล</a>
+    </div>
+    <p class="hd-note">ทำงานจริง → เบิกของ/ลงเวลา → ส่งมอบ → วางบิล (เส้นทาง C → D)</p>
+  </div>
 
   <!-- ============================================================= -->
   <h3 class="mod" id="proj-1"><span class="mtag">od19_project_enhanced</span> โครงการอัจฉริยะ — ประเภทโครงการ, รายงาน P&amp;L และความเสี่ยง</h3>
@@ -219,6 +241,15 @@ sub=ตั้งรหัสงานไทย · ประเภทโครง
   <div class="callout warn">
     <strong>ข้อควรระวัง:</strong> การเรียกเก็บจะรวมเฉพาะ Timesheet ที่สินค้าเป็นแบบ “เรียกเก็บตามเวลาที่ใช้” เท่านั้น —
     ถ้าไม่พบรายการที่เรียกเก็บได้ ระบบจะแจ้งให้ตรวจชนิดสินค้าของรายการขายก่อน
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่งต่อ: ชั่วโมงงาน → ใบแจ้งหนี้ <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <a href="#proj-3">Timesheet → Invoice (ที่นี่)</a><span class="hd-arrow">→</span>
+      <a href="#acc2-10">คำขอเปิดบิลกลาง</a>
+    </div>
+    <p class="hd-note">ตรวจว่าชั่วโมงที่เรียกเก็บครบก่อนส่งวางบิล (เชื่อมเส้นทาง D)</p>
   </div>
 
   <!-- ============================================================= -->

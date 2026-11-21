@@ -8,7 +8,7 @@ sub=แชทผู้ช่วย AI · แดชบอร์ดผู้บร
 <section class="part" id="ai">
 
   <div class="part-head">
-    <h2 class="part-title"><span class="part-icon">🤖</span> ส่วนที่ 15 · ผู้ช่วย AI และแดชบอร์ด</h2>
+    <h2 class="part-title"><span class="part-icon">🤖</span> ส่วนที่ 16 · ผู้ช่วย AI และแดชบอร์ด</h2>
     <p class="part-sub">
       ส่วนนี้รวมเครื่องมือช่วยตัดสินใจและช่วยทำงานที่อยู่ปลายทางของข้อมูลทั้งระบบ ได้แก่
       <strong>ผู้ช่วย AI</strong> ที่ถามข้อมูลจริงจาก Odoo ผ่านแชท, <strong>แดชบอร์ดผู้บริหาร</strong>
@@ -26,6 +26,26 @@ sub=แชทผู้ช่วย AI · แดชบอร์ดผู้บร
       <li><a href="#ai-4">ทัวร์แนะนำการใช้งาน (User Guide)</a></li>
     </ol>
   </nav>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ ส่วนนี้รับต่อมาจาก <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#flow-9">ส่วนที่ 2 · เส้นทาง G · KPI</a><span class="hd-arrow">→</span>
+      <a href="#ai-2">แดชบอร์ดผู้บริหาร</a><span class="hd-arrow">→</span>
+      <strong>ส่วนนี้ (ส่วนที่ 16)</strong>
+    </div>
+    <p class="hd-note">รับข้อมูลจากทุกเส้นทาง A–F (ยอดขาย, กำไรโครงการ, กระแสเงินสด, สถานะงาน) มารวมเป็นแดชบอร์ด/KPI</p>
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่วนนี้ส่งต่อไปยัง <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <strong>ส่วนนี้ (ส่วนที่ 16)</strong><span class="hd-arrow">→</span>
+      <a href="#iso-9">ส่วนที่ 9 · ทบทวนระบบจัดการ</a><span class="hd-arrow">→</span>
+      <a href="#iso-3">CAPA</a>
+    </div>
+    <p class="hd-note">ผล KPI ใช้ทบทวนผู้บริหารและกำหนดการปรับปรุง (เส้นทาง G)</p>
+  </div>
 
   <h3 class="mod" id="ai-1"><span class="mtag">od19_ai_assistant</span> ผู้ช่วย AI (แชทและเครื่องมืออ่านข้อมูล)</h3>
   <p>
@@ -263,6 +283,16 @@ sub=แชทผู้ช่วย AI · แดชบอร์ดผู้บร
   <div class="callout warn">
     วิดเจ็ตอ่านได้เฉพาะโมเดล/ฟิลด์ที่ประกาศไว้ใน <strong>Data Sources</strong> เท่านั้น จึงไม่สามารถสุ่มดึงตารางใดก็ได้จากหน้าจอ
     หากต้องการแหล่งข้อมูลใหม่ ให้เพิ่มที่ <span class="path">Configuration › Data Sources</span> โดยผู้จัดการก่อน
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่งต่อ: ผลการวัด KPI → ทบทวนผู้บริหาร <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <a href="#ai-2">แดชบอร์ด/KPI (ที่นี่)</a><span class="hd-arrow">→</span>
+      <a href="#iso-9">ทบทวนระบบจัดการ</a><span class="hd-arrow">→</span>
+      <a href="#iso-3">CAPA</a>
+    </div>
+    <p class="hd-note">ผลการวัด KPI จากแดชบอร์ดจะถูกนำไปทบทวนในระบบจัดการ ISO และใช้กำหนดมาตรการปรับปรุง (CAPA)</p>
   </div>
 
   <h3 class="mod" id="ai-3"><span class="mtag">od19_reporting_jasper</span> ระบบรายงาน JasperReports</h3>

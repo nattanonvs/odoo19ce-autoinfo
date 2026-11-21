@@ -7,7 +7,7 @@ sub=ฟอนต์และปีพุทธศักราช · ฟิลด
 
 <section class="part" id="settings">
   <div class="part-head">
-    <h2 class="part-title"><span class="part-icon">⚙️</span> ส่วนที่ 17 · การตั้งค่าและยูทิลิตี้</h2>
+    <h2 class="part-title"><span class="part-icon">⚙️</span> ส่วนที่ 18 · การตั้งค่าและยูทิลิตี้</h2>
     <p class="part-sub">
       ส่วนนี้รวบรวมโมดูลที่ทำให้ระบบ “เป็นไทย” และพร้อมใช้งานจริง ตั้งแต่ฐานข้อมูลไทยและการใช้ปีพุทธศักราช (พ.ศ.),
       ฟอนต์ไทย (Sarabun) ทั้งหน้าจอและรายงาน PDF, ฟิลด์เฉพาะไทยของคู่ค้า, ระบบเลขที่รหัสคู่ค้า,
@@ -34,6 +34,25 @@ sub=ฟอนต์และปีพุทธศักราช · ฟิลด
       <li><a href="#set-13">เครื่องหมายฟิลด์ [od19] (โหมด Dev)</a></li>
     </ol>
   </nav>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ โครงสร้างพื้นฐาน: ต้องตั้งค่าก่อนเริ่มใช้งานทุกส่วน <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#set-1">ฐานข้อมูลไทย/พ.ศ. (ที่นี่)</a><span class="hd-arrow">→</span>
+      <a href="#set-10">ค่าเริ่มต้น UI</a>
+    </div>
+    <p class="hd-note">ส่วนนี้เป็นโครงสร้างพื้นฐานที่ต้องตั้งค่าก่อนเริ่มใช้งานส่วนอื่น ๆ ทั้งหมด (ฐานข้อมูลไทย/พ.ศ., ฟอนต์, คำแปล, ฟิลด์ไทย ฯลฯ)</p>
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่วนนี้ส่งต่อไปยัง <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <strong>ส่วนนี้ (ส่วนที่ 18)</strong><span class="hd-arrow">→</span>
+      <a href="#flow-3">ส่วนที่ 2 · เส้นทาง A · เริ่มใช้งาน</a><span class="hd-arrow">→</span>
+      <a href="#ov-4">บทบาทและสิทธิ์</a>
+    </div>
+    <p class="hd-note">เมื่อตั้งค่าเสร็จ ผู้ใช้สามารถเริ่มเส้นทางธุรกิจ A ได้ทันที</p>
+  </div>
 
   <h3 class="mod" id="set-1"><span class="mtag">od19_thai_localization_base</span> ฐานข้อมูลไทยและปีพุทธศักราช</h3>
   <p>
@@ -329,6 +348,15 @@ sub=ฟอนต์และปีพุทธศักราช · ฟิลด
   </div>
   <div class="callout warn">
     การเปลี่ยนชื่อ/ย้ายเมนูเป็นการตั้งค่าระดับระบบ (Global) — มีผลกับ<b>ผู้ใช้ทุกคน</b> ไม่ใช่รายบุคคล
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่งต่อ: พร้อมใช้ทุกเส้นทาง <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <a href="#set-10">ค่าเริ่มต้น UI (ที่นี่)</a><span class="hd-arrow">→</span>
+      <a href="#flow-2">แผนที่ 12 ขั้น (ส่วนที่ 2)</a>
+    </div>
+    <p class="hd-note">เมื่อค่าเริ่มต้น UI ถูกตั้งครบแล้ว ระบบพร้อมใช้งานทุกเส้นทางธุรกิจ เริ่มได้จากแผนที่ 12 ขั้น</p>
   </div>
 
   <h3 class="mod" id="set-11"><span class="mtag">od19_apps_filter</span> ตัวกรองแอป (OD19 Modules)</h3>

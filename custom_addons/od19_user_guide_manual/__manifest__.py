@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'User Guide Manual (Full Handbook)',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Tools/User Guide',
     'summary': 'Full Odoo 19 handbook served inside the system (single HTML + search)',
     'description': """
