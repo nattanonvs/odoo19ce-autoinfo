@@ -13,7 +13,7 @@
 
 | การใช้งาน | ค่า | หมายเหตุ |
 |---|---|---|
-| Odoo dev/prod (แชร์) | `8070` | **ห้าม agent รัน/ปิด** ต้องขออนุมัติ |
+| Odoo dev/prod (แชร์) | `8070` | **ห้าม agent รัน/ปิด** ต้องขออนุมัติ — **ยกเว้น** deploy+restart ใน S1 (ดู [04-delivery.md §2](04-delivery.md)) |
 | Test ต่อ agent | `8081`–`8099` | ผูกกับ AGENT_ID ห้ามซ้ำกัน |
 | DB หลัก (แชร์) | `odoo19_pdev`, `odoo19_puat` | ต้องถือ lease ถ้าเขียน |
 | DB ทดสอบส่วนตัว | `odoo19_t_<AGENT_ID>` | สร้างจาก template ของตัวเอง |

@@ -27,12 +27,20 @@
 
 ทุกครั้งที่ **แก้ไขโค้ดในโมดูล หรือสร้างโมดูลใหม่** และ **ผ่านการทดสอบแล้ว** ให้ agent:
 1. **ติดตั้ง (`-i`) / อัปเดต (`-u`) ลง `odoo19_pdev` ทันที** — เฉพาะโมดูลที่แตะ รันแบบ `--stop-after-init`
-2. **restart instance หลัก (`8070`) หากจำเป็น** — ตาม [02-isolation.md §4](02-isolation.md) (เจาะจง PID / command line เดิม, หลีกเลี่ยง `STEP-3-Start-Odoo19.ps1`)
-   > ข้อยกเว้นเดียวของ S1: การปิด/รีสตาร์ท instance แชร์ (`8070`) ยังเป็น **Destructive (HARD LOCK)** ต้องอนุมัติเป็นรายครั้ง (ดู [01-capabilities.md §4](01-capabilities.md)) — ส่วนที่เหลือของ S1 เดินเองได้
-3. **commit ทันที โดยแยกโดเมน** — 1 commit = 1 โดเมน (ดู §7) ระบุไฟล์เจาะจง **ห้ามปะปนโค้ดที่ไม่เกี่ยวข้อง** และ **ระวังทำโค้ดหาย**
-4. บันทึก `pdev_at` + commit SHA ลง ledger (§5)
+2. **deploy โค้ดขึ้น release worktree** — คัดลอกโมดูลที่แตะจาก dev worktree (`C:\odoo-dev\odoo19\custom_addons`) ไป `C:\odoo-dev\od19_release\custom_addons` ให้ครบทุกไฟล์ แล้วลบ `__pycache__`
+   - **ก่อน restart ต้องยืนยันไบต์ตรงกันทุกไฟล์** (เทียบ SHA256 ต่อไฟล์ หรือ `git diff --stat <dev-sha>:<path> <deploy-sha>:<path>` ต้องว่าง)
+   - ถ้าไม่ตรง → **ห้าม restart** ให้แก้ให้ตรงก่อน — เพราะ instance หลักโหลด addons จาก release เท่านั้น (ดู [02-isolation.md §4](02-isolation.md))
+3. **restart instance หลัก (`8070`) ทันที** — ตาม [02-isolation.md §4](02-isolation.md) (เจาะจง PID / command line เดิม, หลีกเลี่ยง `STEP-3-Start-Odoo19.ps1`)
+   > การ deploy+restart ใน S1 **เดินอัตโนมัติ ไม่ต้องขออนุมัติ** — เป็นข้อยกเว้นของ HARD LOCK เฉพาะกรณี deploy งานตัวเอง (ดู [01-capabilities.md §4](01-capabilities.md)) เพราะถ้า DB อัปเดตด้วยโค้ดใหม่แต่ instance ยังโหลดโค้ดเก่า จะเกิด DB/โค้ด desync (OwlError)
+4. **verify ว่า instance กลับมา online** — port `8070` ต้อง `LISTENING`, `GET /web/login` = 200, log ไม่มี ERROR/Traceback (บันทึก PID ใหม่)
+5. **กู้คืนถ้า start ไม่ขึ้น (recovery) — ต้องทำให้ server กลับมาให้ได้เสมอ**:
+   - อ่าน log ท้ายสุดหาสาเหตุ (syntax/import/view arch) → แก้ให้ถูก → start ซ้ำ จนกว่าจะขึ้น
+   - ถ้ายังไม่ขึ้น → **rollback โค้ดใน release กลับเวอร์ชันก่อนหน้า + start ซ้ำ** จน instance กลับมา `LISTENING`
+   - ถ้ากู้ไม่ได้จริง ๆ ให้รายงานผู้ใช้ทันทีพร้อมหลักฐาน log — **ห้ามทิ้ง instance ไว้ล่ม**
+6. **commit ทันที โดยแยกโดเมน** — 1 commit = 1 โดเมน (ดู §7) ระบุไฟล์เจาะจง **ห้ามปะปนโค้ดที่ไม่เกี่ยวข้อง** และ **ระวังทำโค้ดหาย**
+7. บันทึก `pdev_at` + commit SHA ลง ledger (§5)
 
-ก่อนเขียนต้องถือ lease `db:odoo19_pdev` เสมอ และปล่อยทันทีเมื่อจบ (`try/finally`)
+ก่อนเขียนต้องถือ lease `db:odoo19_pdev` และ `instance:8070` เสมอ และปล่อยทั้งคู่ทันทีเมื่อจบ (`try/finally`)
 
 ## 3. S2 — `odoo19_puat` + push (time-box 24 ชม.)
 
