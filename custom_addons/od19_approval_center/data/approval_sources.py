@@ -6,21 +6,9 @@ Field names below were verified against the live code on 2026-11-01.
 """
 
 APPROVAL_SOURCES = [
-    {
-        "name": "ค่าใช้จ่าย (Expense)",
-        "model": "hr.expense",
-        "icon": "fa-money",
-        "action_xmlid": "hr_expense.hr_expense_actions_my_all",
-        "sequence": 10,
-        "requester_field": "create_uid",
-        "requester_kind": "user",
-        "submitted_date_field": "create_date",
-        "rejected_states": "refused",
-        "success_states": "approved,posted,in_payment,paid",
-        "strategy": "tier_validation",
-        "sla_days": 3,
-        "steps": [],
-    },
+    # K8: source ของ "ใบเบิกค่าใช้จ่าย" ย้ายไปที่หัวใบ (od19.expense.claim) แล้ว
+    # โมดูลนี้โหลดก่อนโมเดลนั้น + hook ไม่รันตอน -u จึง seed ที่นี่ไม่ได้
+    # source ถูก seed แทนที่ od19_hr_expense_claim/data/approval_source_data.xml
     {
         "name": "ใบขอซื้อ (Purchase Request)",
         "model": "purchase.request",

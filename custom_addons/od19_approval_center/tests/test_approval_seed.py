@@ -18,14 +18,23 @@ class TestApprovalSeed(TransactionCase):
         self.assertEqual(Source.search_count([]), before)
 
     def test_expense_source_is_tier_without_steps(self):
-        post_init_hook(self.env)
+        if "od19.expense.claim" not in self.env:
+            raise unittest.SkipTest("od19.expense.claim not installed")
+        # K8: source ถูก seed โดย od19_hr_expense_claim/data/approval_source_data.xml
+        # (โมดูลเจ้าของ) ไม่ใช่ post_init_hook ของโมดูลนี้
         source = self.env["od19.approval.source"].search(
-            [("model_name", "=", "hr.expense")], limit=1
+            [("model_name", "=", "od19.expense.claim")], limit=1
         )
-        self.assertTrue(source, "hr.expense source should be seeded")
+        self.assertTrue(source, "od19.expense.claim source should be seeded")
         self.assertEqual(source.strategy, "tier_validation")
         self.assertEqual(len(source.step_ids), 0)
         self.assertEqual(source.sla_days, 3)
+        # K8: การอนุมัติย้ายไปหัวใบแล้ว จึงต้องไม่มี source ของ hr.expense อีก
+        self.assertFalse(
+            self.env["od19.approval.source"].search(
+                [("model_name", "=", "hr.expense")], limit=1
+            )
+        )
 
     def test_missing_models_are_skipped(self):
         post_init_hook(self.env)
