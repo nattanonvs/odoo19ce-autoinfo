@@ -8,7 +8,7 @@ sub=ศูนย์รวมเอกสารและหมวดหมู่ 
 <section class="part" id="documents">
 
   <div class="part-head">
-    <h2 class="part-title"><span class="part-icon">📄</span> ส่วนที่ 13 · เอกสาร ความรู้ และการลงนาม</h2>
+    <h2 class="part-title"><span class="part-icon">📄</span> ส่วนที่ 14 · เอกสาร ความรู้ และการลงนาม</h2>
     <p class="part-sub">
       ส่วนนี้ว่าด้วยการบริหาร “เอกสาร” ขององค์กรตั้งแต่ต้นน้ำถึงปลายน้ำ — ศูนย์รวมเอกสารแนบและหมวดหมู่,
       การดึงรายการจากเอกสารต้นทางเข้าสู่เอกสารปลายทาง, เลขที่เอกสารแบบไทย,
@@ -28,6 +28,27 @@ sub=ศูนย์รวมเอกสารและหมวดหมู่ 
       <li><a href="#doc-6">คลังความรู้ (Knowledge Enhanced)</a></li>
     </ol>
   </nav>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ ส่วนนี้รับต่อมาจาก <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#flow-1">ส่วนที่ 2 · แผนที่กระบวนการ</a><span class="hd-arrow">→</span>
+      <a href="#doc-2">ดึงรายการจากเอกสารต้นทาง</a><span class="hd-arrow">→</span>
+      <strong>ส่วนนี้ (ส่วนที่ 14)</strong>
+    </div>
+    <p class="hd-note">รับเอกสารจากทุกฝ่าย (ใบเสนอราคา/ใบสั่งซื้อ/ใบกำกับ/ใบตรวจรับ) เข้าศูนย์เอกสารกลาง และดึงข้อมูลจากเอกสารต้นทางได้</p>
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่วนนี้ส่งต่อไปยัง <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <strong>ส่วนนี้ (ส่วนที่ 14)</strong><span class="hd-arrow">→</span>
+      <a href="#iso-1">ส่วนที่ 9 · ควบคุมเอกสาร ISO</a><span class="hd-arrow">→</span>
+      <a href="#doc-4">การลงนาม</a><span class="hd-arrow">→</span>
+      <a href="#iso-10">DAR</a>
+    </div>
+    <p class="hd-note">เอกสารที่ควบคุม/ลงนามแล้วเชื่อมกับระบบ ISO และ DAR</p>
+  </div>
 
   <!-- ============================================================= -->
   <h3 class="mod" id="doc-1"><span class="mtag">od19_document_hub</span> ศูนย์เอกสาร (คลังเอกสารกลาง)</h3>
@@ -161,6 +182,15 @@ sub=ศูนย์รวมเอกสารและหมวดหมู่ 
   </div>
   <div class="callout warn">
     <strong>ข้อควรระวัง:</strong> จัดการ/ลบรายการต้นทางได้เฉพาะเมื่อเอกสารปลายทางยังเป็นฉบับร่าง (ใบสั่งซื้อใช้สถานะ ร่าง/ส่งแล้ว) หากเอกสารยืนยันแล้ว ระบบจะไม่อนุญาต
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่งต่อ: เอกสารควบคุมเพื่อ ISO <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <a href="#doc-2">Document Pull (ที่นี่)</a><span class="hd-arrow">→</span>
+      <a href="#iso-1">ควบคุมเอกสาร ISO</a>
+    </div>
+    <p class="hd-note">รายการ (lines) และไฟล์แนบที่ดึง/อ้างอิงจากเอกสารต้นทางในขั้นตอนนี้ จะกลายเป็นเอกสารควบคุมที่ต้องจัดเก็บและติดตามตามระบบ ISO ต่อไป</p>
   </div>
 
   <hr>

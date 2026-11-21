@@ -153,6 +153,12 @@
         <field name="url">/odoo</field>
         <field name="custom">True</field>
     </record>
+    <record id="tour_od19_mis_reports" model="web_tour.tour">
+        <field name="name">od19_mis_reports_tour</field>
+        <field name="sequence">260</field>
+        <field name="url">/odoo</field>
+        <field name="custom">True</field>
+    </record>
 
     <!-- HR Expense -->
     <record id="tour_od19_hr_expense" model="web_tour.tour">

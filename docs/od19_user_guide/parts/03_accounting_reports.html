@@ -6,7 +6,7 @@ sub=งานบัญชีเชิงลึก: e-Tax Invoice, รายง�
 -->
 <section class="part" id="acc-reports">
   <div class="part-head">
-    <h2 class="part-title"><span class="part-icon">🧾</span> ส่วนที่ 3 · บัญชีและการเงิน — รายงานและภาษี</h2>
+    <h2 class="part-title"><span class="part-icon">🧾</span> ส่วนที่ 4 · บัญชีและการเงิน — รายงานและภาษี</h2>
     <p class="part-sub">
       ส่วนนี้รวบรวมโมดูลงานบัญชีเชิงลึกของ AutoInfo ตั้งแต่การออก <b>e-Tax Invoice</b> ตามมาตรฐาน ETDA,
       รายงานภาษีไทย (ภ.พ.30/36, ภ.ง.ด.3/53/54/50/51, ภ.ธ.40, อากรแสตมป์), งบการเงิน MIS Balance Sheet,
@@ -31,6 +31,26 @@ sub=งานบัญชีเชิงลึก: e-Tax Invoice, รายง�
       <li><a href="#acc2-11">รหัสเอกสารบัญชี (Document Sequences)</a></li>
     </ol>
   </nav>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ ส่วนนี้รับต่อมาจาก <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#acc-core">ส่วนที่ 3 · บัญชีแกนหลัก</a><span class="hd-arrow">→</span>
+      <a href="#acc2-10">คำขอเปิดบิลกลาง</a><span class="hd-arrow">→</span>
+      <strong>ส่วนนี้ (ส่วนที่ 4)</strong>
+    </div>
+    <p class="hd-note">รับยอดที่กระทบยอด/ปิดงวดแล้ว และคำขอเปิดบิลจากทุกฝ่าย มาออกรายงาน ใบกำกับภาษี และงบการเงิน</p>
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่วนนี้ส่งต่อไปยัง <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <strong>ส่วนนี้ (ส่วนที่ 4)</strong><span class="hd-arrow">→</span>
+      <a href="#ai-2">แดชบอร์ด/KPI</a><span class="hd-arrow">→</span>
+      <a href="#iso-9">ทบทวนระบบจัดการ</a>
+    </div>
+    <p class="hd-note">งบการเงินและรายงานภาษีป้อนแดชบอร์ดผู้บริหาร และใช้เป็นข้อมูลทบทวนระบบจัดการ ISO (ส่วนที่ 9)</p>
+  </div>
 
   <!-- ============================================================= -->
   <h3 class="mod" id="acc2-1"><span class="mtag">od19_etax_invoice</span> e-Tax Invoice &amp; e-Receipt (ใบกำกับภาษีอิเล็กทรอนิกส์)</h3>
@@ -173,34 +193,127 @@ sub=งานบัญชีเชิงลึก: e-Tax Invoice, รายง�
   <p>
     ให้ <b>งบแสดงฐานะทางการเงิน (งบดุล)</b> รูปแบบพร้อมใช้ โดยอิงกับ <b>MIS Builder</b> (OCA <span class="pill">mis_builder</span>)
     มีการเปรียบเทียบหลายงวด และตรวจสอบความสมดุล (Assets = Liabilities + Equity) อัตโนมัติ
+    ออกแบบให้ดูงบได้ ณ วันที่ใด ๆ โดยไม่ต้องปิดงวดก่อน และปรับนิยาม/ตัวชี้วัดได้เองโดยไม่แตะข้อมูลบัญชี
   </p>
 
-  <h4>เมนู</h4>
-  <p><span class="path">การบัญชี › รายงาน › MIS Reports</span> (จาก mis_builder) เลือกงบ <b>งบแสดงฐานะทางการเงิน (Balance Sheet)</b> หรือเรียกใช้ instance ของงบ</p>
-
-  <h4>ขั้นตอนการใช้งาน</h4>
-  <ol class="steps">
-    <li><span class="stitle">เลือกงบ</span> เปิดรายงาน <b>งบแสดงฐานะทางการเงิน (Balance Sheet)</b></li>
-    <li><span class="stitle">กำหนดงวด</span> ระบบมีคอลัมน์เปรียบเทียบ 3 งวด: <b>เดือนปัจจุบัน</b>, <b>เดือนก่อน</b> (หัก 1 เดือน) และ <b>เดือนเดียวกับปีก่อน</b> (หัก 12 เดือน)</li>
-    <li><span class="stitle">เลือกสมุด/สถานะ</span> ค่าเริ่มต้นนับเฉพาะรายการที่ <b>posted</b> (<span class="pill">target_move = posted</span>)</li>
-    <li><span class="stitle">พิมพ์ / ส่งออก</span> รองรับ PDF แนวนอน (<span class="pill">landscape_pdf</span>) และเปรียบเทียบงวด (<span class="pill">comparison_mode</span>)</li>
-  </ol>
-
-  <h4>โครงสร้างตัวชี้วัด (KPIs)</h4>
+  <h4>แนวคิด MIS Builder (โครงสร้าง 3 ชั้น)</h4>
+  <p>MIS Builder แยก <b>“นิยามรายงาน”</b> ออกจาก <b>“รอบการออกรายงาน”</b> จึงแก้สูตร KPI ได้โดยไม่กระทบข้อมูลจริง:</p>
   <table>
-    <thead><tr><th>ลำดับ</th><th>กลุ่ม</th><th>ตัวอย่าง KPI</th></tr></thead>
+    <thead><tr><th>ชั้น</th><th>Model</th><th>หน้าที่</th></tr></thead>
     <tbody>
-      <tr><td>10–70</td><td>สินทรัพย์</td><td>เงินสด, ลูกหนี้, สินทรัพย์หมุนเวียน, ค่าใช้จ่ายล่วงหน้า, สินทรัพย์ไม่หมุนเวียน, สินทรัพย์ถาวร และ<b>รวมสินทรัพย์</b></td></tr>
-      <tr><td>110–150</td><td>หนี้สิน</td><td>เจ้าหนี้, บัตรเครดิต, หนี้สินหมุนเวียน, หนี้สินไม่หมุนเวียน และ<b>รวมหนี้สิน</b></td></tr>
-      <tr><td>210–240</td><td>ส่วนของเจ้าของ</td><td>ทุนเรือนหุ้น, กำไรสะสม, ผลการดำเนินงาน และ<b>รวมส่วนของเจ้าของ</b></td></tr>
-      <tr><td>310</td><td>รวมทั้งสิ้น</td><td>หนี้สิน + ส่วนของเจ้าของ</td></tr>
-      <tr><td>320</td><td>ตรวจสอบ</td><td><b>bs_check</b> — แสดง “BS - Good” เมื่อยอดต่าง &lt; 0.005 มิฉะนั้นเป็น “BS - Bad”</td></tr>
+      <tr><td>แม่แบบรายงาน</td><td><code>mis.report</code></td><td>ชุดตัวชี้วัด (KPI) และสูตรคำนวณ — ในที่นี้คือ <b>งบแสดงฐานะทางการเงิน (Balance Sheet)</b></td></tr>
+      <tr><td>ตัวชี้วัด</td><td><code>mis.report.kpi</code></td><td>แต่ละบรรทัดของงบ เช่น <code>bs_assets_cash</code> พร้อมสูตร <code>bale[][]</code></td></tr>
+      <tr><td>อินสแตนซ์รายงาน</td><td><code>mis.report.instance</code></td><td>“รอบที่ออกรายงาน” — ผูกแม่แบบ + งวดเปรียบเทียบ + ตัวกรอง (target move ฯลฯ)</td></tr>
+      <tr><td>งวดเปรียบเทียบ</td><td><code>mis.report.instance.period</code></td><td>คอลัมน์ของรายงาน (relative/fixed, รายเดือน/ไตรมาส/ปี, offset, duration)</td></tr>
     </tbody>
   </table>
 
+  <h4>เมนู</h4>
+  <p>
+    <span class="path">การบัญชี › รายงาน › MIS Reporting › MIS Reports</span>
+    (เมนูจาก mis_builder, ต้องมีสิทธิ์ <span class="pill">group_account_readonly</span>) ประกอบด้วย
+  </p>
+  <ul>
+    <li><b>MIS Reports</b> — รายการอินสแตนซ์ของงบทั้งหมด (มี <b>งบแสดงฐานะทางการเงิน (Balance Sheet)</b> อยู่ในนี้)</li>
+    <li><b>Last Reports Generated</b> — รายงานชั่วคราวที่เพิ่งสั่งออกรายการล่าสุด (temporary instances)</li>
+  </ul>
+
+  <h4>ขั้นตอนการใช้งานอย่างละเอียด</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดรายการงบ</span> เข้า <b>การบัญชี › รายงาน › MIS Reporting › MIS Reports</b> — แต่ละแถวมีปุ่มด่วน <b>Preview</b> (แว่นขยาย), <b>Print</b> (เครื่องพิมพ์), <b>Export</b> (ดาวน์โหลด XLSX) และคอลัมน์ <b>Template</b>, <b>Target Moves</b>, <b>Base date</b></li>
+    <li><span class="stitle">เปิดอินสแตนซ์</span> คลิกแถว <b>งบแสดงฐานะทางการเงิน (Balance Sheet)</b> เพื่อดูพารามิเตอร์ หรือกดปุ่ม <b>Preview</b> เพื่อดูผลทันที</li>
+    <li><span class="stitle">กด Preview</span> ระบบคำนวณและแสดงตาราง KPI — แต่ละบรรทัดคือ KPI หนึ่งตัว แต่ละคอลัมน์คือหนึ่งงวดเปรียบเทียบ</li>
+    <li><span class="stitle">เจาะดูรายละเอียด (Drill-down)</span> คลิกตัวเลขที่ขีดเส้นใต้ ระบบเปิด <b>รายการบัญชี (journal items)</b> ที่ประกอบเป็นยอดนั้น</li>
+    <li><span class="stitle">พิมพ์ / ส่งออก</span> ใช้ปุ่ม <b>Print</b> (PDF แนวนอน) หรือ <b>Export</b> (XLSX) บนแถบเครื่องมือ</li>
+    <li><span class="stitle">บันทึก / ปักหมุด</span> กด <b>Save</b> เพื่อเก็บเป็นอินสแตนซ์ถาวร หรือ <b>Add to dashboard</b> เพื่อปักหมุดรายงานไว้บนแดชบอร์ด</li>
+  </ol>
+
+  <h4>พารามิเตอร์ของอินสแตนซ์รายงาน</h4>
+  <table>
+    <thead><tr><th>ฟิลด์</th><th>ความหมาย</th><th>ค่าในงบนี้</th></tr></thead>
+    <tbody>
+      <tr><td><code>Template</code> (report_id)</td><td>แม่แบบ KPI ที่ใช้ออกงบ</td><td>งบแสดงฐานะทางการเงิน (Balance Sheet)</td></tr>
+      <tr><td><code>Comparison mode</code></td><td>แสดงหลายช่วงเวลียงข้างกัน</td><td>เปิด (เปรียบเทียบ 3 งวด)</td></tr>
+      <tr><td><code>Target Moves</code></td><td>นับเฉพาะรายการที่ <b>post</b> หรือรวมร่าง (all)</td><td><b>Posted</b> เท่านั้น</td></tr>
+      <tr><td><code>Base date</code> (pivot_date)</td><td>วันที่อ้างอิงสำหรับงวดแบบ relative</td><td>วันนี้ (แก้วันที่ได้ที่แถบเครื่องมือ)</td></tr>
+      <tr><td><code>Landscape PDF</code></td><td>พิมพ์ PDF แนวนอน</td><td>เปิด</td></tr>
+      <tr><td><code>Multi-company / Currency</code></td><td>รวมหลายบริษัท / สกุลเงินที่แสดง</td><td>ตามบริษัทที่ล็อกอิน</td></tr>
+    </tbody>
+  </table>
+
+  <h4>งวดเปรียบเทียบ (Periods)</h4>
+  <p>งบนี้ตั้งงวดเปรียบเทียบไว้ 3 คอลัมน์ (แก้/เพิ่มได้ที่แท็บ <b>Periods</b> ของอินสแตนซ์):</p>
+  <table>
+    <thead><tr><th>งวด</th><th>โหมด</th><th>ค่า</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td>เดือนปัจจุบัน</td><td>relative</td><td>month, offset 0</td><td>งวดปัจจุบัน</td></tr>
+      <tr><td>เดือนก่อน</td><td>relative</td><td>month, offset −1</td><td>งวดก่อนหน้า 1 เดือน</td></tr>
+      <tr><td>เดือนเดียวกันปีก่อน</td><td>relative</td><td>month, offset −12</td><td>เทียบปีต่อปี (YoY)</td></tr>
+    </tbody>
+  </table>
+  <div class="callout note">
+    <b>โหมดงวด:</b> <b>relative</b> = คำนวณจาก Base date (offset บวก/ลบ + duration + หน่วย m/q/y) ·
+    <b>fixed</b> = ระบุช่วงวันที่ตายตัว (date_from–date_to) — เหมาะกับงวดที่ปิดแล้ว
+  </div>
+
+  <h4>โครงสร้างตัวชี้วัด (KPIs) ของงบดุล</h4>
+  <table>
+    <thead><tr><th>ลำดับ</th><th>KPI (name)</th><th>รายการ</th><th>ดึงจาก account_type</th></tr></thead>
+    <tbody>
+      <tr><td>10</td><td><code>bs_assets_cash</code></td><td>เงินสดและรายการเทียบเท่าเงินสด</td><td><code>asset_cash</code></td></tr>
+      <tr><td>20</td><td><code>bs_assets_receivable</code></td><td>ลูกหนี้การค้าและลูกหนี้อื่น</td><td><code>asset_receivable</code></td></tr>
+      <tr><td>30</td><td><code>bs_assets_current</code></td><td>สินทรัพย์หมุนเวียนอื่น</td><td><code>asset_current</code></td></tr>
+      <tr><td>40</td><td><code>bs_assets_prepayments</code></td><td>ค่าใช้จ่ายจ่ายล่วงหน้า</td><td><code>asset_prepayments</code></td></tr>
+      <tr><td>50</td><td><code>bs_assets_non_current</code></td><td>สินทรัพย์ไม่หมุนเวียนอื่น</td><td><code>asset_non_current</code></td></tr>
+      <tr><td>60</td><td><code>bs_assets_fixed</code></td><td>ที่ดิน อาคารและอุปกรณ์</td><td><code>asset_fixed</code></td></tr>
+      <tr><td>70</td><td><code>bs_assets_total</code></td><td><b>รวมสินทรัพย์</b></td><td>ผลรวม 10–60</td></tr>
+      <tr><td>110</td><td><code>bs_liab_payable</code></td><td>เจ้าหนี้การค้าและเจ้าหนี้อื่น</td><td><code>liability_payable</code></td></tr>
+      <tr><td>120</td><td><code>bs_liab_credit_card</code></td><td>เจ้าหนี้บัตรเครดิต</td><td><code>liability_credit_card</code></td></tr>
+      <tr><td>130</td><td><code>bs_liab_current</code></td><td>หนี้สินหมุนเวียนอื่น</td><td><code>liability_current</code></td></tr>
+      <tr><td>140</td><td><code>bs_liab_non_current</code></td><td>หนี้สินไม่หมุนเวียน</td><td><code>liability_non_current</code></td></tr>
+      <tr><td>150</td><td><code>bs_liab_total</code></td><td><b>รวมหนี้สิน</b></td><td>ผลรวม 110–140 (กลับเครื่องหมาย)</td></tr>
+      <tr><td>210</td><td><code>bs_equity_share</code></td><td>ทุนและส่วนเกินมูลค่าหุ้น</td><td><code>equity</code></td></tr>
+      <tr><td>220</td><td><code>bs_equity_retained</code></td><td>กำไร(ขาดทุน)สะสมยกมา</td><td><code>equity_unaffected</code></td></tr>
+      <tr><td>230</td><td><code>bs_net_result</code></td><td>กำไร(ขาดทุน)สุทธิสำหรับงวด</td><td><code>income / expense</code></td></tr>
+      <tr><td>240</td><td><code>bs_equity_total</code></td><td><b>รวมส่วนของผู้ถือหุ้น</b></td><td>ผลรวม 210–230</td></tr>
+      <tr><td>310</td><td><code>bs_liab_equity_total</code></td><td><b>รวมหนี้สินและส่วนของผู้ถือหุ้น</b></td><td>= 150 + 240</td></tr>
+      <tr><td>320</td><td><code>bs_check</code></td><td><b>ผลต่าง (สินทรัพย์ − หนี้สินและส่วนของผู้ถือหุ้น)</b></td><td>= 70 − 310</td></tr>
+    </tbody>
+  </table>
+
+  <h4>บรรทัดตรวจสอบความสมดุล (bs_check)</h4>
+  <p>
+    KPI <code>bs_check</code> = <b>รวมสินทรัพย์ − รวมหนี้สินและส่วนของผู้ถือหุ้น</b> ต้องเป็น <b>0</b>
+    และจัดสีบรรทัดอัตโนมัติด้วย <code>style_expression</code>:
+    แสดง <b>“BS - Good”</b> เมื่อผลต่าง &lt; 0.005 มิฉะนั้นเป็น <b>“BS - Bad”</b> (บรรทัดจะเปลี่ยนสีเตือน)
+  </p>
+  <div class="callout warn">
+    <b>ข้อควรระวัง:</b> ถ้าพบ “BS - Bad” ให้ตรวจว่า (1) <b>Target Moves</b> ตั้งเป็น <b>Posted</b> หรือไม่
+    (2) มีรายการที่ยังไม่ลงบัญชี/ลงไม่ครบ (3) งวดของแต่ละคอลัมน์สอดคล้องกัน — งบดุลที่ถูกต้องต้องสมดุลเสมอ
+  </div>
+
+  <h4>แถบเครื่องมือของรายงาน (Report Toolbar)</h4>
+  <ul>
+    <li><b>Base date</b> — เปลี่ยนวันที่อ้างอิงของงวดแบบ relative (ทุกคอลัมน์เลื่อนตาม)</li>
+    <li><b>Refresh</b> — คำนวณใหม่หลังเปลี่ยนวันที่/ตัวกรอง</li>
+    <li><b>Print</b> — ออก PDF (แนวนอน)</li>
+    <li><b>Export</b> — ดาวน์โหลด XLSX</li>
+    <li><b>Settings</b> — เปิดหน้าตั้งค่าอินสแตนซ์ (แม่แบบ/งวด/ตัวกรอง)</li>
+    <li><b>ไอคอนขยาย (resize)</b> — สลับโหมดแสดงเต็มความกว้าง</li>
+  </ul>
+
+  <h4>การเพิ่ม/แก้ตัวชี้วัด (KPI)</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดตัวแก้ไข</span> เข้า <b>การตั้งค่า › เทคนิค › MIS Reports</b> (หรือ <b>Settings › Technical › Reporting › MIS Reports</b>) เลือกแม่แบบ <b>งบแสดงฐานะทางการเงิน (Balance Sheet)</b></li>
+    <li><span class="stitle">แก้ KPI</span> เพิ่ม/แก้/ลบตัวชี้วัดในแท็บ <b>KPIs</b> — ตั้ง <b>Sequence</b> เพื่อจัดลำดับบรรทัด, <b>Description</b> เป็นชื่อบรรทัด, <b>Style</b> สำหรับตัวหนา/เส้นคั่น ของยอดรวม</li>
+    <li><span class="stitle">เขียนสูตร</span> ใช้ภาษาสูตรของ MIS Builder เช่น <code>bale[][]</code> (ยอดคงเหลือปลายงวด), <code>balp[][]</code> (ยอดเคลื่อนไหวในงวด) และอ้าง KPI อื่นได้ด้วยชื่อ เช่น <code>bs_assets_cash + bs_assets_receivable</code></li>
+    <li><span class="stitle">บันทึก</span> กด Save แล้วกลับไปกด <b>Preview</b> ที่อินสแตนซ์เพื่อดูผลที่เปลี่ยน</li>
+  </ol>
+
   <div class="callout tip">
-    <b>เคล็ดลับ:</b> สูตร KPI ใช้ฟังก์ชันของ MIS Builder (เช่น <code>bale [ ('account_type','=','asset_cash') ]</code>)
-    หากต้องเพิ่ม/ปรับตัวชี้วัด ให้แก้ที่นิยาม <b>mis.report</b> ของงบ — และปิดงวดบัญชีก่อนออกรายงานเพื่อความแม่นยำ
+    <b>เคล็ดลับ:</b> การเพิ่ม <b>auto_expand_accounts</b> ให้ KPI จะทำให้กางบัญชีลูกที่ประกอบเป็นยอดนั้นออกมาใต้บรรทัดโดยอัตโนมัติ ·
+    หากต้องปรับให้เหมาะกับหลายบริษัท ให้เปิด <b>Multi-company</b> ที่อินสแตนซ์ (ต้องมีสิทธิ์หลายบริษัท) ·
+    และควรปิดงวดบัญชีก่อนออกรายงานทางการเพื่อความแม่นยำ
   </div>
 
   <!-- ============================================================= -->
@@ -529,6 +642,16 @@ sub=งานบัญชีเชิงลึก: e-Tax Invoice, รายง�
     ตั้งค่าบังคับหลักฐาน/ต้นฉบับได้ที่ระดับบริษัท (AR require evidence และ AP require original)
   </div>
 
+  <div class="handoff in">
+    <p class="hd-head">⬅️ รับต่อจาก: งานส่งมอบที่พร้อมวางบิล <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#sale-2">หลักฐานประกอบการวางบิล</a><span class="hd-arrow">→</span>
+      <a href="#proj-3">Timesheet → Invoice</a><span class="hd-arrow">→</span>
+      <a href="#acc2-10">คำขอเปิดบิลกลาง (ที่นี่)</a>
+    </div>
+    <p class="hd-note">รวมคำขอเปิดบิลจากทุกต้นทาง (ใบส่งของ/ใบสั่งขาย/ใบสั่งซื้อ/งานโครงการ) ไว้ที่เดียว บัญชีจึงตรวจหลักฐานและออกบิลได้จากศูนย์กลาง โดยกันดึงซ้ำและกันออกบิลซ้ำ</p>
+  </div>
+
   <!-- ============================================================= -->
   <h3 class="mod" id="acc2-11"><span class="mtag">od19_accounting_document_sequence</span> รหัสเอกสารบัญชี (Accounting Document Sequences)</h3>
 
@@ -565,7 +688,7 @@ sub=งานบัญชีเชิงลึก: e-Tax Invoice, รายง�
 
   <hr>
   <p class="footnote">
-    ส่วนที่ 3 (บัญชีและการเงิน — รายงานและภาษี) · ครอบคลุม 11 โมดูล ·
+    ส่วนที่ 4 (บัญชีและการเงิน — รายงานและภาษี) · ครอบคลุม 11 โมดูล ·
     เนื้อหาอ้างอิงจากโค้ดโมดูลจริงใน <code>custom_addons/</code> (manifest, models, views, data, report)
   </p>
 </section>

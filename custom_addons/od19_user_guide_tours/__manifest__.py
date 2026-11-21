@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'User Guide Tours',
-    'version': '19.0.1.8.0',
+    'version': '19.0.1.9.0',
     'category': 'Tools/User Guide',
     'summary': 'Interactive guided tours for all OD19 business modules',
     'description': """
@@ -131,6 +131,7 @@ Tours can be started from:
         'od19_thai_localization_base',
         'od19_offline_draft',
         'od19_sales_oca_bridge_workflow',
+        'od19_mis_balance_sheet',
     ],
     'data': [
         'data/tour_data.xml',
@@ -244,6 +245,7 @@ Tours can be started from:
             'od19_user_guide_tours/static/src/tours/offline_draft_tour.js',
             'od19_user_guide_tours/static/src/tours/timesheet_billing_tour.js',
             'od19_user_guide_tours/static/src/tours/sales_oca_bridge_tour.js',
+            'od19_user_guide_tours/static/src/tours/mis_reports_tour.js',
         ],
     },
     'icon': '/od19_user_guide_tours/static/description/icon.svg',

@@ -8,7 +8,7 @@ sub=ใบเสนอราคา · ใบสั่งขาย · สัญ�
 <section class="part" id="sales">
 
   <div class="part-head">
-    <h2 class="part-title"><span class="part-icon">🛒</span> ส่วนที่ 4 · การขายและลูกค้า</h2>
+    <h2 class="part-title"><span class="part-icon">🛒</span> ส่วนที่ 5 · การขายและลูกค้า</h2>
     <p class="part-sub">
       อธิบายกระบวนการขายครบวงจรของ AutoInfo — ใบเสนอราคา (Quotation), ใบสั่งขาย (Sales Order),
       การควบคุมความเสี่ยงลูกค้าและวงเงินเชื่อ, สัญญาการขายและงวดวางบิล, หลักฐานประกอบการวางบิล,
@@ -37,6 +37,27 @@ sub=ใบเสนอราคา · ใบสั่งขาย · สัญ�
       <li><a href="#sale-15">เลขที่ใบเสนอราคาตามแผนก และการแก้ไข (Revision)</a></li>
     </ol>
   </nav>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ ส่วนนี้รับต่อมาจาก <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#hr">ส่วนที่ 8 · บุคคลและค่าใช้จ่าย</a><span class="hd-arrow">→</span>
+      <a href="#sec-2">แคตตาล็อกบทบาทธุรกิจ</a><span class="hd-arrow">→</span>
+      <strong>ส่วนนี้ (ส่วนที่ 5)</strong>
+    </div>
+    <p class="hd-note">รับพนักงานที่ตั้งสิทธิ์เป็น “พนักงานขาย” แล้ว พร้อมข้อมูลลูกค้า/คู่ค้า เพื่อเริ่มออกใบเสนอราคา (เส้นทาง B)</p>
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่วนนี้ส่งต่อไปยัง <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <strong>ส่วนนี้ (ส่วนที่ 5)</strong><span class="hd-arrow">→</span>
+      <a href="#project">ส่วนที่ 10 · โครงการและต้นทุน</a><span class="hd-arrow">→</span>
+      <a href="#inventory">ส่วนที่ 7 · สินค้าคงคลัง</a><span class="hd-arrow">→</span>
+      <a href="#acc2-10">คำขอเปิดบิลกลาง</a>
+    </div>
+    <p class="hd-note">ใบสั่งขายที่ยืนยันแล้ว → เปิดโครงการ (งานบริการ) หรือส่งของจากคลัง (งานขายสินค้า) → วางบิล</p>
+  </div>
 
   <h3 class="mod" id="sale-1"><span class="mtag">od19_sales_customer_risk_gate</span> การควบคุมความเสี่ยงลูกค้าและวงเงินเชื่อ (Credit Gate)</h3>
   <p>
@@ -170,6 +191,15 @@ sub=ใบเสนอราคา · ใบสั่งขาย · สัญ�
     ปุ่ม/กระบวนการออกใบแจ้งหนี้จะถูกบล็อก เพื่อป้องกันการวางบิลก่อนส่งมอบหรือก่อนมีการยืนยันการบริการ
   </div>
 
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่งต่อ: หลักฐานพร้อมวางบิล <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <a href="#sale-2">หลักฐานวางบิล</a><span class="hd-arrow">→</span>
+      <a href="#acc2-10">คำขอเปิดบิลกลาง</a>
+    </div>
+    <p class="hd-note">เมื่อหลักฐานประกอบครบจนสถานะความพร้อมเป็น Ready จึงส่งต่อข้อมูลไปออกใบแจ้งหนี้ที่คำขอเปิดบิลกลาง</p>
+  </div>
+
   <hr>
 
   <h3 class="mod" id="sale-3"><span class="mtag">od19_sales_confirm_stamp</span> ตราประทับ CONFIRMED บนใบเสนอราคา</h3>
@@ -227,6 +257,15 @@ sub=ใบเสนอราคา · ใบสั่งขาย · สัญ�
   <div class="callout tip">
     ตราประทับ Stamp จะแสดง <strong>เฉพาะ</strong>เมื่อทั้งสองเงื่อนไขพร้อมกัน: ใบสั่งขายยืนยันแล้ว (Confirmed)
     และกรอก Stamp Date เรียบร้อย — ถ้ายังไม่ Stamp ต้องตรวจสองเงื่อนไขนี้ก่อน
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่งต่อ: ใบสั่งขายยืนยันแล้ว <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <a href="#sale-3">ใบสั่งขายยืนยัน</a><span class="hd-arrow">→</span>
+      <a href="#flow-5">เส้นทาง C · เปิดโครงการ</a> / <a href="#inv-9">ส่งของจากคลัง</a>
+    </div>
+    <p class="hd-note">ใบสั่งขายที่ยืนยันแล้วแยกเป็น 2 ทาง งานบริการไปเปิดโครงการ (เส้นทาง C) ส่วนงานขายสินค้าไปส่งของออกจากคลัง ตามด้วยวางบิล</p>
   </div>
 
   <hr>

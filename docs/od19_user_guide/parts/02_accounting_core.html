@@ -8,7 +8,7 @@ sub=คุณสมบัติบัญชีไทย · เช็ค · DN/CN
 <section class="part" id="acc-core">
 
   <div class="part-head">
-    <h2 class="part-title"><span class="part-icon">💰</span> ส่วนที่ 2 · บัญชีและการเงิน — แกนหลัก</h2>
+    <h2 class="part-title"><span class="part-icon">💰</span> ส่วนที่ 3 · บัญชีและการเงิน — แกนหลัก</h2>
     <p class="part-sub">
       ส่วนนี้อธิบาย “เครื่องมือบัญชีหลัก” ที่ทีมบัญชี-การเงินใช้ทุกวัน ตั้งแต่การปรับ/ยกเลิกรายการ,
       การตั้งหนี้-จ่ายชำระ, เช็ค, ใบเพิ่มหนี้/ใบลดหนี้, การเตรียมจ่าย (Prepare Payments),
@@ -31,6 +31,26 @@ sub=คุณสมบัติบัญชีไทย · เช็ค · DN/CN
       <li><a href="#acc1-9">Accounting Analytic Require</a></li>
     </ol>
   </nav>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ ส่วนนี้รับต่อมาจาก <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#sales">ส่วนที่ 5 · การขายและลูกค้า</a><span class="hd-arrow">→</span>
+      <a href="#proj-3">Timesheet → Invoice</a><span class="hd-arrow">→</span>
+      <strong>ส่วนนี้ (ส่วนที่ 3)</strong>
+    </div>
+    <p class="hd-note">รับเอกสารต้นทาง (ใบแจ้งหนี้/ใบวางบิล/ค่าใช้จ่ายจากโครงการ) เข้ามาบันทึกบัญชี กระทบยอด และปิดงวด — ถ้ายอดไม่ตรง ให้ย้อนตรวจเอกสารต้นทางในส่วนที่ 5 และส่วนที่ 10</p>
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่วนนี้ส่งต่อไปยัง <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <strong>ส่วนนี้ (ส่วนที่ 3)</strong><span class="hd-arrow">→</span>
+      <a href="#acc-reports">ส่วนที่ 4 · บัญชี–รายงานและภาษี</a><span class="hd-arrow">→</span>
+      <a href="#ai-2">แดชบอร์ด/KPI</a>
+    </div>
+    <p class="hd-note">เมื่อกระทบยอดและปิดงวดแล้ว ตัวเลขจะไหลไปยังรายงานการเงิน (ส่วนที่ 4) และแดชบอร์ดผู้บริหาร (ส่วนที่ 16)</p>
+  </div>
 
   <!-- ================= acc1-1 ================= -->
   <h3 class="mod" id="acc1-1"><span class="mtag">od19_accounting_features</span> คุณสมบัติบัญชีแกนหลัก และการกระทบยอดปิดงวด</h3>
@@ -247,7 +267,7 @@ sub=คุณสมบัติบัญชีไทย · เช็ค · DN/CN
   <ol class="steps">
     <li><span class="stitle">เปิดใบแจ้งหนี้ต้นทาง</span> เปิดใบแจ้งหนี้/ใบกำกับที่ลงบัญชีแล้ว (ทั้งฝั่งขายและซื้อ)</li>
     <li><span class="stitle">เลือกสร้างเอกสาร</span> กด <span class="pill">Debit Note</span> (ใบเพิ่มหนี้), <span class="pill">Credit Note</span> (ใบลดหนี้) หรือ <span class="pill">Remaster</span> (ออกใบแจ้งหนี้ใหม่)</li>
-    <li><span class="stitle">กรอกรายละเอียด</span> ระบบคัดลอกรายการจากต้นทาง: Debit Note คัดลอกบรรทัดที่ราคาเป็นศูนย์ (ไว้เพิ่มค่าบริการ/ภาษี), Remaster คัดลอกทั้งจำนวน ส่วน Credit Note เปิดฟอร์มใบลดหนี้พร้อมลิงก์ต้นทาง</li>
+    <li><span class="stitle">กรอกรายละเอียด</span> ระบบคัดลอกรายการจากต้นทาง: Debit Note คัดลอกบรรทัดที่ราคาเป็นศูนย์ (ไว้เพิ่มค่าบริการ/ภาษี), Remaster คัดลอกทั้งจำนวน ส่วน <strong>Credit Note คัดลอกรายการเดิมและ “กลับรายการบัญชี” ให้อัตโนมัติ</strong> (<code>_reverse_moves()</code>) พร้อมผูกกลับไปยังใบต้นทาง</li>
     <li><span class="stitle">ระบุเหตุผล</span> เลือก <span class="pill">Reason</span> และกรอก <span class="pill">Remark</span> (จำเป็นก่อนลงบัญชี)</li>
     <li><span class="stitle">ลงบัญชี</span> กด <span class="pill">Confirm/Post</span> เอกสารถึงจะเปลี่ยนเป็นสถานะลงบัญชี</li>
   </ol>
@@ -275,8 +295,18 @@ sub=คุณสมบัติบัญชีไทย · เช็ค · DN/CN
     </tbody>
   </table>
   <div class="callout note">
+    <strong>เหลือปุ่ม Credit Note เพียงปุ่มเดียว</strong> — ปุ่ม Credit Note แบบ native ของ Odoo ถูกซ่อนไว้
+    ปุ่ม <span class="pill">Credit Note</span> ของโมดูลนี้จึงคัดลอกรายการเดิม <strong>กลับรายการบัญชีให้อัตโนมัติ</strong>
+    (<code>_reverse_moves()</code>) และผูก <code>parent_id</code>/<code>reversed_entry_id</code> กลับไปยังใบต้นทางให้ในครั้งเดียว
+    รองรับทั้งฝั่งลูกค้า (<code>out_refund</code>) และผู้ขาย (<code>in_refund</code>) จากปุ่มเดียว
+  </div>
+  <div class="callout note">
     ใบลดหนี้ (Credit Note) เมื่อลงบัญชีแล้ว ระบบจะ <strong>กระทบยอดกับใบแจ้งหนี้ต้นทางให้อัตโนมัติ</strong>
-    เพื่อไม่ให้ยอดลูกหนี้/เจ้าหนี้ค้างเกินจริง
+    เพื่อไม่ให้ยอดลูกหนี้/เจ้าหนี้ค้างเกินจริง — ลดได้ทั้ง <strong>เต็มจำนวน</strong> และ <strong>บางส่วน</strong>
+  </div>
+  <div class="callout note">
+    ฟิลด์ <strong>Source Document</strong> แสดง <strong>เลขที่เอกสารต้นทางจริง</strong> ไม่ใช่เลขของเอกสารเอง
+    เพื่อให้รายงาน (QWeb/Jasper) และใบกำกับภาษีอิเล็กทรอนิกส์ (e-Tax) อ้างอิงใบเดิมได้ถูกต้อง
   </div>
   <div class="callout warn">
     เอกสาร DN/CN/Remaster <strong>ต้องระบุเหตุผลก่อนลงบัญชี</strong> หากไม่มีระบบจะไม่ยอมให้ post
@@ -321,6 +351,16 @@ sub=คุณสมบัติบัญชีไทย · เช็ค · DN/CN
   <div class="callout note">
     เดิมเมนูฝั่งผู้ขายถูกเรียกว่า “Billing” และเมนูใบสำคัญจ่ายก็ใช้คำว่า “Payment” ซ้ำกัน — โมดูลนี้เปลี่ยนชื่อผู้ขายเป็น
     “Prepare Payments” และเมนูใบสำคัญจ่ายเป็น “Payment Vouchers” เพื่อไม่ให้สับสน
+  </div>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ รับต่อจาก: ใบวางบิลผู้ขาย (เส้นทาง F) <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#flow-8">เส้นทาง F</a><span class="hd-arrow">→</span>
+      <a href="#purchase">ส่วนที่ 6 · การจัดซื้อ</a><span class="hd-arrow">→</span>
+      <a href="#acc1-4">เตรียมจ่าย (ที่นี่)</a>
+    </div>
+    <p class="hd-note">ก่อนออกใบสำคัญจ่าย ต้องรวบรวมบิลซื้อที่ตรวจรับแล้วจากเส้นทาง F (จัดซื้อ–รับของ) มาไว้ในชุดเตรียมจ่าย แล้วตรวจยอด/คู่ค้า/เงื่อนไขการจ่ายให้ตรงกับใบวางบิลผู้ขายก่อนจ่ายจริง</p>
   </div>
 
   <!-- ================= acc1-5 ================= -->

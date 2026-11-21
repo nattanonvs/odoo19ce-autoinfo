@@ -10,7 +10,8 @@ import { markup } from "@odoo/owl";
  *  1. Cash advance lifecycle (Not Received → Received → Used → Returned)
  *  2. Returning unspent cash through a wizard
  *  3. Delegating the approval to another approver
- *  4. Exporting expenses to XLSX from the list view
+ *  4. Claiming a mileage reimbursement with the odometer auto-fill
+ *  5. Exporting expenses to XLSX from the list view
  */
 registry.category("web_tour.tours").add("od19_hr_expense_enhanced_tour", {
     url: "/odoo",
@@ -171,6 +172,74 @@ registry.category("web_tour.tours").add("od19_hr_expense_enhanced_tour", {
             trigger: "footer button[special='cancel']",
             content: _t("Cancel here to keep the demo data unchanged."),
             run: "click",
+        },
+        ...stepUtils.discardForm(),
+
+        // --- Mileage reimbursement with odometer auto-fill ---
+        {
+            trigger: ".o_list_button_add",
+            content: markup(_t(
+                "Now let's claim a <b>mileage reimbursement</b> for a trip made with your own car."
+            )),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='name'] input",
+            content: _t("Name the trip."),
+            run: "edit Mileage - Client Visit",
+        },
+        {
+            trigger: ".o_field_widget[name='od19_is_mileage'] input",
+            content: markup(_t(
+                "Tick <b>Mileage / ค่าเดินทางตามระยะทาง</b>. The mileage fields appear and your " +
+                "vehicle is looked up automatically."
+            )),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='od19_mileage_vehicle_id'] input",
+            content: markup(_t(
+                "Your <b>vehicle</b> is pre-selected from your vehicle book; you can change it."
+            )),
+            tooltipPosition: "bottom",
+        },
+        {
+            trigger: ".o_field_widget[name='od19_mileage_odometer_start'] input",
+            content: markup(_t(
+                "The <b>start odometer</b> is pre-filled with the vehicle's last recorded reading, " +
+                "so you do not have to note the number before leaving."
+            )),
+            tooltipPosition: "bottom",
+        },
+        {
+            trigger: ".o_field_widget[name='od19_mileage_odometer_end'] input",
+            content: markup(_t(
+                "Enter the <b>end odometer</b> reading when the trip is over."
+            )),
+            run: "edit 12500",
+        },
+        {
+            trigger: ".o_field_widget[name='od19_mileage_distance_km'] input",
+            content: markup(_t(
+                "The <b>distance (km)</b> is computed automatically as end − start."
+            )),
+            tooltipPosition: "bottom",
+        },
+        {
+            trigger: ".o_field_widget[name='od19_mileage_rate']",
+            content: markup(_t(
+                "The reimbursement amount is the distance × the company <b>rate per km</b>."
+            )),
+            tooltipPosition: "bottom",
+        },
+        {
+            trigger: ".o_field_widget[name='od19_mileage_odometer_image']",
+            content: markup(_t(
+                "Attach a <b>photo of the odometer</b> here as evidence of the reading."
+            )),
+            tooltipPosition: "left",
         },
         ...stepUtils.discardForm(),
 

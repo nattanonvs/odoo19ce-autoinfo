@@ -8,7 +8,7 @@ sub=ทะเบียนรถและต้นทุนค่าใช้จ�
 <section class="part" id="fleet">
 
   <div class="part-head">
-    <h2 class="part-title"><span class="part-icon">🚚</span> ส่วนที่ 11 · ยานพาหนะและขนส่ง</h2>
+    <h2 class="part-title"><span class="part-icon">🚚</span> ส่วนที่ 12 · ยานพาหนะและขนส่ง</h2>
     <p class="part-sub">
       ดูแล<b>ยานพาหนะ</b>ขององค์กรตั้งแต่ทะเบียนรถ การผูกค่าใช้จ่ายเข้ากับแผนกและบัญชีวิเคราะห์ พร้อม<b>แจ้งเตือนล่วงหน้า</b>
       เมื่อประกันหรือภาษี (พ.ร.บ./Act) ใกล้หมดอายุ และเมื่อการซ่อมบำรุงเสร็จสิ้น · อีกทั้งครอบคลุมงาน<b>ขนส่ง</b>
@@ -24,6 +24,26 @@ sub=ทะเบียนรถและต้นทุนค่าใช้จ�
       <li><a href="#fleet-3">ใบขนส่ง เส้นทาง และการส่งของ</a></li>
     </ol>
   </nav>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ ส่วนนี้รับต่อมาจาก <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#inv-9">ส่วนที่ 7 · ใบปะหน้าส่งของ</a><span class="hd-arrow">→</span>
+      <a href="#flow-6">เส้นทาง D</a><span class="hd-arrow">→</span>
+      <strong>ส่วนนี้ (ส่วนที่ 12)</strong>
+    </div>
+    <p class="hd-note">รับงานที่ต้องขนส่งเพื่อจัดส่งถึงลูกค้า (เส้นทาง D) — เตรียมรถ พนักงานขับ เส้นทาง และผูกใบโอนย้ายสินค้าก่อนออกเดินทาง</p>
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่วนนี้ส่งต่อไปยัง <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <strong>ส่วนนี้ (ส่วนที่ 12)</strong><span class="hd-arrow">→</span>
+      <a href="#acc-core">ส่วนที่ 3 · บัญชี (ต้นทุน/ค่าใช้จ่ายรถ)</a><span class="hd-arrow">→</span>
+      <a href="#proj-1">ส่วนที่ 10 · ต้นทุนโครงการ</a>
+    </div>
+    <p class="hd-note">ต้นทุนขนส่ง/ค่าน้ำมัน/ซ่อมบำรุง เข้าบัญชีและต้นทุนโครงการ — ผูกแผนกและบัญชีวิเคราะห์ให้ครบทุกรายการ</p>
+  </div>
 
   <h3 class="mod" id="fleet-1"><span class="mtag">od19_fleet_accounting</span> บัญชีและต้นทุนยานพาหนะ</h3>
   <p>
@@ -308,6 +328,16 @@ sub=ทะเบียนรถและต้นทุนค่าใช้จ�
   <div class="callout tip">
     ใช้ตัวกรองในหน้ารายการใบขนส่ง (แยกตามสถานะ รถ พนักงานขับ หรือจัดกลุ่มตามสถานะ) เพื่อติดตามงานขนส่งที่ค้างอยู่
     และใช้มุมมองเส้นทางเพื่อสร้างใบขนส่งใหม่ได้เร็วขึ้นโดยเลือกเส้นทางที่บันทึกไว้
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่งต่อ: ส่งถึงลูกค้า → เก็บหลักฐานวางบิล <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <a href="#fleet-3">ใบขนส่ง (ที่นี่)</a><span class="hd-arrow">→</span>
+      <a href="#sale-2">หลักฐานประกอบการวางบิล</a><span class="hd-arrow">→</span>
+      <a href="#acc2-10">คำขอเปิดบิลกลาง</a>
+    </div>
+    <p class="hd-note">เมื่อส่งถึงลูกค้าแล้ว ให้เก็บใบเซ็นรับ/หลักฐานการส่งของไว้เป็นเอกสารประกอบ แล้วส่งเข้าศูนย์เปิดบิลกลางเพื่อวางบิล</p>
   </div>
 
 </section>

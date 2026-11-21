@@ -342,6 +342,67 @@
     cursor:pointer;box-shadow:0 6px 18px rgba(158,36,36,.35);display:none;
   }
   .toplink.show{display:block}
+  /* ---------- Cross-process connectors (handoff) ---------- */
+  .handoff{
+    border:1px solid #cfe0f3;border-left:5px solid var(--info);
+    background:linear-gradient(180deg,#f7fbff,#eef6ff);
+    border-radius:12px;padding:14px 16px;margin:18px 0;
+  }
+  .handoff .hd-head{
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    font-weight:700;color:var(--info);font-size:14px;margin:0 0 8px;
+  }
+  .handoff .hd-head .hd-tag{
+    background:#dbeafe;border:1px solid #bfdbfe;color:#1e429f;
+    border-radius:999px;padding:1px 9px;font-size:11.5px;font-weight:700;
+  }
+  .handoff .hd-flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:8px 0 2px}
+  .handoff .hd-flow .hd-arrow{color:var(--info);font-weight:700}
+  .handoff .hd-flow a{
+    background:#fff;border:1px solid #cfe0f3;border-radius:8px;
+    padding:5px 11px;font-size:13px;font-weight:600;color:#173f6e;
+    text-decoration:none;
+  }
+  .handoff .hd-flow a:hover{background:var(--infobg);text-decoration:none}
+  .handoff .hd-note{font-size:13px;color:#33526f;margin:8px 0 0}
+  .handoff.in{border-left-color:var(--ok);background:linear-gradient(180deg,#f6fdf9,#eaf7f0);border-color:#cdeddc}
+  .handoff.in .hd-head{color:#155e3b}
+  .handoff.in .hd-head .hd-tag{background:#d9f2e4;border-color:#bfe7d1;color:#155e3b}
+  .handoff.in .hd-flow .hd-arrow{color:#155e3b}
+  .handoff.in .hd-flow a{border-color:#cdeddc;color:#155e3b}
+  .handoff.out{border-left-color:var(--warn);background:linear-gradient(180deg,#fffdf6,#fdf6e3);border-color:#efe0b3}
+  .handoff.out .hd-head{color:#6b5214}
+  .handoff.out .hd-head .hd-tag{background:#f6ecc9;border-color:#efe0b3;color:#6b5214}
+  .handoff.out .hd-flow .hd-arrow{color:#6b5214}
+  .handoff.out .hd-flow a{border-color:#efe0b3;color:#6b5214}
+  /* ---------- Business chain map (end-to-end) ---------- */
+  .chain{margin:18px 0;padding-left:28px;position:relative}
+  .chain::before{
+    content:"";position:absolute;left:9px;top:8px;bottom:8px;width:2px;
+    background:linear-gradient(180deg,var(--maroon),var(--maroon-line));
+  }
+  .chain .node{position:relative;margin:0 0 16px}
+  .chain .node:last-child{margin-bottom:0}
+  .chain .node::before{
+    content:"";position:absolute;left:-24px;top:4px;
+    width:16px;height:16px;border-radius:50%;
+    background:#fff;border:3px solid var(--maroon);
+  }
+  .chain .node.done::before{background:var(--maroon)}
+  .chain .node .n-step{
+    display:inline-block;background:var(--maroon);color:#fff;border-radius:6px;
+    font-size:11.5px;font-weight:700;padding:1px 8px;margin-right:6px;
+  }
+  .chain .node .n-title{font-weight:700;color:var(--maroon-dark);font-size:15px}
+  .chain .node .n-role{font-size:12.5px;color:var(--muted);margin-left:2px}
+  .chain .node .n-body{font-size:13.8px;margin:4px 0 0}
+  .chain .node .n-body a{font-weight:600}
+  /* ---------- KPI mini cards ---------- */
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:16px 0}
+  .kpi{border:1px solid var(--maroon-line);border-radius:12px;padding:12px 14px;background:var(--maroon-soft)}
+  .kpi .k-label{font-size:12px;color:var(--muted)}
+  .kpi .k-value{font-size:18px;font-weight:700;color:var(--maroon-dark)}
+  .kpi .k-hint{font-size:12px;color:var(--muted)}
   /* ---------- Print ---------- */
   @media print{
     body{background:#fff;font-size:11.5pt}
@@ -354,7 +415,8 @@
     h2.sec{page-break-after:avoid}
     h3,h4{page-break-after:avoid}
     h3.mod{page-break-after:avoid}
-    .card,.callout,.tile,table,ol.steps>li{page-break-inside:avoid}
+    .card,.callout,.tile,table,ol.steps>li,.handoff,.chain .node,.kpi{page-break-inside:avoid}
+    .handoff,.kpi,.chain .node .n-step{-webkit-print-color-adjust:exact;print-color-adjust:exact}
     thead th{-webkit-print-color-adjust:exact;print-color-adjust:exact}
     tbody tr:nth-child(even){-webkit-print-color-adjust:exact;print-color-adjust:exact}
     .toc,.cover,.badge,.tile,.callout,.part-title{-webkit-print-color-adjust:exact;print-color-adjust:exact}
@@ -402,7 +464,7 @@
     <div class="meta">
       <div><span>เวอร์ชันคู่มือ</span><strong>v1.0 · 19 พ.ย. 2569</strong></div>
       <div><span>ขอบเขต</span><strong>ทุกโมดูล custom_addons (od19_*)</strong></div>
-      <div><span>จำนวนส่วน</span><strong>17 ส่วน · 127 โมดูล</strong></div>
+      <div><span>จำนวนส่วน</span><strong>18 ส่วน · 137 โมดูล</strong></div>
       <div><span>ระบบพื้นฐาน</span><strong>Odoo 19 CE · AutoInfo</strong></div>
     </div>
   </header>
@@ -412,7 +474,7 @@
     <!-- ============ MASTER TOC ============ -->
     <nav class="mtoc" id="masterToc">
       <h3>สารบัญคู่มือฉบับเต็ม</h3>
-      <ol class="lvl1"><li class="tocpart"><a href="#overview"><span class="tocico">🧭</span>ภาพรวมระบบและวิธีใช้คู่มือ</a><div class="tocsub">แนวคิดกลางของระบบ · การนำทาง · การอนุมัติหลายชั้น · บทบาทผู้ใช้ · เลขที่เอกสาร · สัญลักษณ์ในคู่มือ</div><ul class="tocmods"><li><a href="#ov-1">overview ระบบนี้คืออะไร</a></li><li><a href="#ov-2">overview โครงสร้างเมนูหลักของระบบ</a></li><li><a href="#ov-3">base_tier_validation แนวคิดการอนุมัติหลายชั้น (Tier Validation)</a></li><li><a href="#ov-4">od19_security_roles · od19_role_catalog บทบาทและสิทธิ์ผู้ใช้ (Security Roles)</a></li><li><a href="#ov-5">od19_document_sequence · od19_thai_localization_base เอกสารและเลขที่เอกสาร</a></li><li><a href="#ov-6">od19_web_navigation · od19_offline_draft การนำทางและทางลัด</a></li><li><a href="#ov-7">สัญลักษณ์ที่ใช้ในคู่มือนี้</a></li><li><a href="#ov-8">แผนผังโดเมนและจำนวนโมดูล</a></li></ul></li><li class="tocpart"><a href="#acc-core"><span class="tocico">💰</span>บัญชีและการเงิน — แกนหลัก</a><div class="tocsub">คุณสมบัติบัญชีไทย · เช็ค · DN/CN · Prepare Payments · เงินสดย่อย · ค่าธรรมเนียมธนาคาร · กระทบยอด · เงินล่วงหน้า · บังคับบัญชีวิเคราะห์</div><ul class="tocmods"><li><a href="#acc1-1">od19_accounting_features คุณสมบัติบัญชีแกนหลัก และการกระทบยอดปิดงวด</a></li><li><a href="#acc1-2">od19_accounting_cheque การบริหารเช็ค (รับ–จ่าย) และสมุดเช็ค</a></li><li><a href="#acc1-3">od19_accounting_dncn ใบเพิ่มหนี้ / ใบลดหนี้ / ออกใบแจ้งหนี้ใหม่</a></li><li><a href="#acc1-4">od19_accounting_prepayment การเตรียมจ่าย (Prepare Payments / Billing)</a></li><li><a href="#acc1-5">od19_accounting_petty_cash เงินสดย่อย (Petty Cash)</a></li><li><a href="#acc1-6">od19_accounting_payment_fee ค่าธรรมเนียมการจ่าย (Payment Fee / Bank Charges)</a></li><li><a href="#acc1-7">od19_accounting_reconcile_ui หน้าจอกระทบยอด (OCA Bridge)</a></li><li><a href="#acc1-8">od19_accounting_advance เงินล่วงหน้า (Advance Payment)</a></li><li><a href="#acc1-9">od19_accounting_analytic_require บังคับบัญชีวิเคราะห์ (Analytic Require)</a></li></ul></li><li class="tocpart"><a href="#acc-reports"><span class="tocico">🧾</span>บัญชีและการเงิน — รายงานและภาษี</a><div class="tocsub">งานบัญชีเชิงลึก: e-Tax Invoice, รายงานภาษีไทย, งบการเงิน MIS, รายงานปิดงานบัญชี, เงินเข้า, หนี้สงสัยจะสูญ, ใบสำคัญจ่าย-รับ, อัตราแลกเปลี่ยน BOT, คำขอเปิดบิลกลาง และรหัสเอกสารบัญชี</div><ul class="tocmods"><li><a href="#acc2-1">od19_etax_invoice e-Tax Invoice &amp; e-Receipt (ใบกำกับภาษีอิเล็กทรอนิกส์)</a></li><li><a href="#acc2-2">od19_thai_tax_reports รายงานภาษีไทย (Thai Tax Reports)</a></li><li><a href="#acc2-3">od19_mis_balance_sheet งบแสดงฐานะทางการเงิน (MIS Balance Sheet)</a></li><li><a href="#acc2-4">od19_accounting_reporting รายงานบัญชีและการเงิน (Accounting Reporting)</a></li><li><a href="#acc2-5">od19_accounting_money_in_report รายงานเงินเข้า (Money In Report)</a></li><li><a href="#acc2-6">od19_accounting_operational_closure ปิดงานบัญชีปฏิบัติการ (Operational Closure)</a></li><li><a href="#acc2-7">od19_accounting_doubtful_debt หนี้สงสัยจะสูญ (Doubtful Debt)</a></li><li><a href="#acc2-8">od19_accounting_payment_voucher_reports ใบสำคัญจ่าย-รับเงิน (Payment Voucher &amp; Receipt)</a></li><li><a href="#acc2-9">od19_currency_rate_bot อัตราแลกเปลี่ยน BOT (Currency Rate Bot)</a></li><li><a href="#acc2-10">od19_billing_request คำขอเปิดบิลกลาง (Billing Request)</a></li><li><a href="#acc2-11">od19_accounting_document_sequence รหัสเอกสารบัญชี (Accounting Document Sequences)</a></li></ul></li><li class="tocpart"><a href="#sales"><span class="tocico">🛒</span>การขายและลูกค้า</a><div class="tocsub">ใบเสนอราคา · ใบสั่งขาย · สัญญาการขาย · วงเงินเชื่อและความเสี่ยงลูกค้า · วางบิลและเงินประกันผลงาน · เงื่อนไขการขาย · แบบพิมพ์ใบสั่งขาย (QWeb/Jasper) · เลขที่และแก้ไขใบเสนอราคา</div><ul class="tocmods"><li><a href="#sale-1">od19_sales_customer_risk_gate การควบคุมความเสี่ยงลูกค้าและวงเงินเชื่อ (Credit Gate)</a></li><li><a href="#sale-2">od19_sales_billing_evidence หลักฐานประกอบการวางบิล (Billing Evidence)</a></li><li><a href="#sale-3">od19_sales_confirm_stamp ตราประทับ CONFIRMED บนใบเสนอราคา</a></li><li><a href="#sale-4">od19_sales_contract_core แกนสัญญาการขาย (Sales Contract)</a></li><li><a href="#sale-5">od19_sales_currency_amount ยอดเงินสองสกุลในรายการขาย</a></li><li><a href="#sale-6">od19_sales_oca_bridge_workflow สะพานงานขาย OCA และการอนุมัติตามวงเงิน</a></li><li><a href="#sale-7">od19_sales_project_context บริบทโครงการและกำไรงานขาย</a></li><li><a href="#sale-8">od19_sales_reporting รายงานยอดขายตามโครงการและลูกค้าประจำ</a></li><li><a href="#sale-9">od19_sales_retention เงินประกันผลงาน (Retention)</a></li><li><a href="#sale-10">od19_sales_services_jasper แบบพิมพ์ Jasper งานบริการ</a></li><li><a href="#sale-11">od19_sale_report_native ใบสั่งขาย QWeb (รูปแบบดั้งเดิม / ปรับปรุง)</a></li><li><a href="#sale-12">od19_sale_terms เทมเพลตเงื่อนไขการขาย (Sale Terms)</a></li><li><a href="#sale-13">od19_sale_wizards วิซาร์ดเปลี่ยนวันส่งและข้อมูลเงินมัดจำ</a></li><li><a href="#sale-14">od19_sale_jasper แบบพิมพ์ Jasper งานขาย</a></li><li><a href="#sale-15">od19_quotation_document_sequence เลขที่ใบเสนอราคาตามแผนก และการแก้ไข (Revision)</a></li></ul></li><li class="tocpart"><a href="#purchase"><span class="tocico">📦</span>การจัดซื้อและผู้จำหน่าย</a><div class="tocsub">ใบขอซื้อ (PR) · ใบขอราคา · ใบสั่งซื้อ (PO) · การอนุมัติตามวงเงิน · เลขที่เอกสารรายแผนก · เงื่อนไขการซื้อ · การรับของและวางบิลผู้ขาย</div><ul class="tocmods"><li><a href="#pur-1">od19_purchase_procurement_core แกนการจัดซื้อและการอนุมัติ</a></li><li><a href="#pur-2">od19_purchase_request_extend ส่วนขยายใบขอซื้อ (ไทย)</a></li><li><a href="#pur-3">od19_purchase_revision การแก้ไขใบสั่งซื้อ (Revision)</a></li><li><a href="#pur-4">od19_purchase_document_sequence เลขที่เอกสารตามแผนก</a></li><li><a href="#pur-5">od19_purchase_terms เงื่อนไขการซื้อ (Terms)</a></li><li><a href="#pur-6">od19_purchase_wizards วิซาร์ดช่วยงานจัดซื้อ</a></li><li><a href="#pur-7">od19_purchase_jasper การพิมพ์ด้วย Jasper (J-Report OD15)</a></li></ul></li><li class="tocpart"><a href="#inventory"><span class="tocico">🏭</span>สินค้าคงคลังและคลังสินค้า</a><div class="tocsub">รับ-จ่าย-โอน · มูลค่า FIFO · ปรับมูลค่าสินค้า · นับสต๊อกเพื่อตรวจสอบ · ควบคุมงานคลัง · ใบเบิกสินค้า · คืนสินค้า/RMA · ใบปะหน้าส่งของ · พิมพ์รายงาน Jasper</div><ul class="tocmods"><li><a href="#inv-1">od19_stock_picking_features ส่วนขยายใบรับ-จ่ายสินค้า</a></li><li><a href="#inv-2">od19_stock_fifo ประเมินมูลค่าสินค้าแบบ FIFO</a></li><li><a href="#inv-3">od19_stock_valuation_adjustment ปรับมูลค่าสินค้าคงคลัง</a></li><li><a href="#inv-4">od19_inventory_audit_count นับสต๊อกเพื่อตรวจสอบ (Audit Count)</a></li><li><a href="#inv-5">od19_inventory_execution_control ควบคุมการดำเนินงานคลัง</a></li><li><a href="#inv-6">od19_inventory_reporting รายงานคลังสินค้าและแดชบอร์ดโลจิสติกส์</a></li><li><a href="#inv-7">od19_goods_issue ใบเบิกสินค้า (Goods Issue)</a></li><li><a href="#inv-8">od19_product_return คืนสินค้า / RMA (Product Return)</a></li><li><a href="#inv-9">od19_delivery_label ใบปะหน้าสินค้ารอส่ง (Delivery Label)</a></li><li><a href="#inv-10">od19_stock_jasper แบบพิมพ์และรายงาน Jasper (J-Report OD15)</a></li></ul></li><li class="tocpart"><a href="#hr"><span class="tocico">👥</span>บุคคลและค่าใช้จ่ายพนักงาน</a><div class="tocsub">ใบเบิกค่าใช้จ่าย · เงินทดรองพนักงาน · ลงเวลาด้วย ZKTeco · จองห้องประชุม · ยกย่องเพื่อนร่วมงาน</div><ul class="tocmods"><li><a href="#hr-1">od19_hr_expense_thai ค่าใช้จ่ายพนักงาน (ไทย) — อนุมัติ 3 ชั้น + จ่ายคืนพนักงาน</a></li><li><a href="#hr-2">od19_hr_expense_enhanced ค่าใช้จ่ายส่วนขยาย — เบี้ยเลี้ยง/ค่าเดินทาง/ภาษีหัก/มอบหมายอนุมัติ</a></li><li><a href="#hr-3">od19_hr_expense_portal พอร์ทัลพนักงาน — ยื่นใบเบิกและติดตามสถานะ</a></li><li><a href="#hr-4">od19_hr_advance เงินทดรองจ่ายพนักงาน (Employee Advance)</a></li><li><a href="#hr-5">od19_hr_attendance_zkteco ลงเวลาด้วยเครื่อง ZKTeco</a></li><li><a href="#hr-6">od19_meeting_room_booking จองห้องประชุม (Meeting Room Booking)</a></li><li><a href="#hr-7">od19_recognition ยกย่องเพื่อนร่วมงาน (Recognition / Kudos)</a></li></ul></li><li class="tocpart"><a href="#iso"><span class="tocico">✅</span>ระบบคุณภาพ ISO</a><div class="tocsub">ISO 9001 ระบบคุณภาพ — เอกสารควบคุม, ความเสี่ยง, NC/CAPA, ตรวจสอบภายใน, สอบเทียบเครื่องมือ, ฝึกอบรม, คุณภาพผู้จำหน่าย, ความพึงพอใจลูกค้า, ทบทวนผู้บริหาร และใบคำขอ DAR</div><ul class="tocmods"><li><a href="#iso-1">od19_iso_document_control ควบคุมเอกสาร ISO (Document Control)</a></li><li><a href="#iso-2">od19_iso_risk ความเสี่ยงและโอกาส (Risk &amp; Opportunity)</a></li><li><a href="#iso-3">od19_iso_nonconformity ความไม่สอดคล้องและ CAPA (Nonconformity)</a></li><li><a href="#iso-4">od19_iso_internal_audit การตรวจสอบภายใน (Internal Audit)</a></li><li><a href="#iso-5">od19_iso_calibration การสอบเทียบเครื่องมือวัด (Calibration)</a></li><li><a href="#iso-6">od19_iso_training การฝึกอบรมและความสามารถ (Training &amp; Competence)</a></li><li><a href="#iso-7">od19_iso_supplier_quality คุณภาพผู้จำหน่าย (Supplier Quality)</a></li><li><a href="#iso-8">od19_iso_customer_satisfaction ความพึงพอใจลูกค้า (Customer Satisfaction)</a></li><li><a href="#iso-9">od19_iso_management_review การทบทวนระบบจัดการ (Management Review)</a></li><li><a href="#iso-10">od19_iso_dar ใบคำขอ DAR (Document Action Request)</a></li></ul></li><li class="tocpart"><a href="#project"><span class="tocico">📊</span>โครงการและต้นทุน</a><div class="tocsub">ตั้งรหัสงานไทย · ประเภทโครงการ · บัญชีวิเคราะห์ · กำไร-ขาดทุนและความเสี่ยงโครงการ · เรียกเก็บจาก Timesheet · เลขที่เอกสาร</div><ul class="tocmods"><li><a href="#proj-1">od19_project_enhanced โครงการอัจฉริยะ — ประเภทโครงการ, รายงาน P&amp;L และความเสี่ยง</a></li><li><a href="#proj-2">od19_project_analytic รหัสงาน, แผนก, เจ้าของ/ผู้รับเหมา และบัญชีวิเคราะห์</a></li><li><a href="#proj-3">od19_project_timesheet_billing เรียกเก็บค่าบริการจาก Timesheet (Timesheet → Invoice)</a></li><li><a href="#proj-4">od19_project_document_sequence เลขรหัสงาน/รหัสงานย่อยตามแผนกและพนักงานขาย</a></li></ul></li><li class="tocpart"><a href="#service"><span class="tocico">🛠️</span>บริการและหลังการขาย</a><div class="tocsub">ประกัน/เคลม · บัตรบริการและสัญญาบริการรายงวด · QC ควบคุมคุณภาพ · Helpdesk ลูกค้า-ภายใน · รายงาน KPI หลังการขาย · ข้อร้องเรียนภายใน</div><ul class="tocmods"><li><a href="#svc-1">od19_service_warranty ประกันสินค้า และใบเคลม/RMA</a></li><li><a href="#svc-2">od19_service_card บัตรบริการ/บำรุงรักษาเชิงป้องกัน และ SLA</a></li><li><a href="#svc-3">od19_service_contract สัญญาบริการเรียกเก็บรายงวด (PM/AMC)</a></li><li><a href="#svc-4">od19_quality_control ตรวจสอบคุณภาพ (QC) ขาเข้า/ขาออก และ Nonconformity</a></li><li><a href="#svc-5">od19_helpdesk_extension Helpdesk ภายใน vs บริการลูกค้า</a></li><li><a href="#svc-6">od19_after_sales_reporting รายงาน KPI และแดชบอร์ดหลังการขาย</a></li><li><a href="#svc-7">od19_internal_issue แจ้งปัญหาภายใน ความเป็นส่วนตัว และการอนุมัติ</a></li></ul></li><li class="tocpart"><a href="#fleet"><span class="tocico">🚚</span>ยานพาหนะและขนส่ง</a><div class="tocsub">ทะเบียนรถและต้นทุนค่าใช้จ่ายรถ · แจ้งเตือนวันหมดอายุประกัน/ภาษี (Act) · ใบขนส่ง เส้นทาง และการส่งของ</div><ul class="tocmods"><li><a href="#fleet-1">od19_fleet_accounting บัญชีและต้นทุนยานพาหนะ</a></li><li><a href="#fleet-2">od19_fleet_notification แจ้งเตือนประกัน/ภาษี (Act) และงานซ่อม</a></li><li><a href="#fleet-3">od19_transportation ใบขนส่ง เส้นทาง และการส่งของ</a></li></ul></li><li class="tocpart"><a href="#assets"><span class="tocico">🏷️</span>ทรัพย์สิน (ยืม/จำหน่าย)</a><div class="tocsub">ทะเบียนทรัพย์สิน · การยืม-คืนเครื่องมืออุปกรณ์ · การจำหน่าย/ตัดจำหน่ายและออกใบสำคัญบัญชี</div><ul class="tocmods"><li><a href="#asset-1">od19_asset_disposal การจำหน่าย/ตัดจำหน่ายทรัพย์สิน (Asset Disposal)</a></li><li><a href="#asset-2">od19_asset_loan การยืม-คืนเครื่องมือ/อุปกรณ์ (Asset Loan)</a></li></ul></li><li class="tocpart"><a href="#documents"><span class="tocico">📄</span>เอกสาร ความรู้ และการลงนาม</a><div class="tocsub">ศูนย์รวมเอกสารและหมวดหมู่ · ดึงรายการจากเอกสารต้นทาง · เลขที่เอกสารไทย · การลงนามอิเล็กทรอนิกส์ · ประกาศองค์กร · คลังความรู้</div><ul class="tocmods"><li><a href="#doc-1">od19_document_hub ศูนย์เอกสาร (คลังเอกสารกลาง)</a></li><li><a href="#doc-2">od19_document_pull ดึงรายการจากเอกสารต้นทาง (Document Pull)</a></li><li><a href="#doc-3">od19_document_sequence เลขที่เอกสารไทย (Thai Document Sequence)</a></li><li><a href="#doc-4">od19_document_sign การลงนามเอกสารอิเล็กทรอนิกส์ (Document Signing)</a></li><li><a href="#doc-5">od19_announcement ประกาศองค์กร (Announcement)</a></li><li><a href="#doc-6">od19_knowledge_enhanced คลังความรู้ (Knowledge Enhanced)</a></li></ul></li><li class="tocpart"><a href="#website"><span class="tocico">🌐</span>เว็บไซต์และบุคลากร</a><div class="tocsub">เว็บไซต์องค์กรสาธารณะ · เมนูนำทางและแบรนด์ · ระบบรับสมัครงาน · พอร์ทัลพนักงาน · ศูนย์อนุมัติ · SEO และ PDPA</div><ul class="tocmods"><li><a href="#web-1">od19_website ภาพรวมโมดูลและหน้าเว็บสาธารณะ</a></li><li><a href="#web-2">od19_website เมนูนำทาง แบรนด์ ส่วนหัว–ท้าย และการค้นหา</a></li><li><a href="#web-3">od19_website ระบบรับสมัครงาน (Careers &amp; Recruitment)</a></li><li><a href="#web-4">od19_website พอร์ทัลพนักงาน (/employee-portal)</a></li><li><a href="#web-5">od19_website ศูนย์อนุมัติพนักงาน (/my/approvals)</a></li><li><a href="#web-6">od19_website SEO, Analytics และ PDPA</a></li><li><a href="#web-7">od19_website การตั้งค่าเว็บไซต์และข้อมูลแบรนด์</a></li></ul></li><li class="tocpart"><a href="#ai"><span class="tocico">🤖</span>ผู้ช่วย AI และแดชบอร์ด</a><div class="tocsub">แชทผู้ช่วย AI · แดชบอร์ดผู้บริหารพร้อมตัวสร้างในเบราว์เซอร์ · รายงาน JasperReports · ทัวร์แนะนำการใช้งาน</div><ul class="tocmods"><li><a href="#ai-1">od19_ai_assistant ผู้ช่วย AI (แชทและเครื่องมืออ่านข้อมูล)</a></li><li><a href="#ai-2">od19_dashboard แดชบอร์ดผู้บริหารและตัวสร้างแดชบอร์ด</a></li><li><a href="#ai-3">od19_reporting_jasper ระบบรายงาน JasperReports</a></li><li><a href="#ai-4">od19_user_guide_tours ทัวร์แนะนำการใช้งาน (User Guide)</a></li></ul></li><li class="tocpart"><a href="#security"><span class="tocico">🔐</span>สิทธิ์และการอนุมัติ</a><div class="tocsub">บทบาทธุรกิจ · แคตตาล็อกบทบาท · ศูนย์อนุมัติกลาง · การแจ้งเตือนหลายช่องทาง (อีเมล · Odoo · LINE)</div><ul class="tocmods"><li><a href="#sec-1">od19_security_roles ชั้นควบคุมสิทธิ์กลาง (Access Control Layer)</a></li><li><a href="#sec-2">od19_role_catalog แคตตาล็อกบทบาทธุรกิจ (Business Roles)</a></li><li><a href="#sec-3">od19_approval_center ศูนย์อนุมัติกลาง (Approval Center)</a></li><li><a href="#sec-4">od19_notification_multi_channel ศูนย์กลางแจ้งเตือนหลายช่องทาง</a></li></ul></li><li class="tocpart"><a href="#settings"><span class="tocico">⚙️</span>การตั้งค่าและยูทิลิตี้</a><div class="tocsub">ฟอนต์และปีพุทธศักราช · ฟิลด์ไทยของคู่ค้า · คำแปลไทยของโมดูล OCA · การนำทาง/ร่างอัตโนมัติ · คำใบ้ฟิลด์ · ค่าเริ่มต้น UI · ตัวกรองแอป · ฟีเจอร์เบ็ดเตล็ด</div><ul class="tocmods"><li><a href="#set-1">od19_thai_localization_base ฐานข้อมูลไทยและปีพุทธศักราช</a></li><li><a href="#set-2">od19_thai_font_support ฟอนต์ไทย (Sarabun)</a></li><li><a href="#set-3">od19_oca_th_translations คำแปลไทยสำหรับโมดูล OCA</a></li><li><a href="#set-4">od19_partner_thai_fields ฟิลด์ไทยของคู่ค้า</a></li><li><a href="#set-5">od19_partner_document_sequence เลขที่รหัสคู่ค้า (C/V)</a></li><li><a href="#set-6">od19_contacts_partner_roles บทบาทคู่ค้า (Partner Roles)</a></li><li><a href="#set-7">od19_web_navigation ปุ่มย้อนกลับ / ไปข้างหน้า</a></li><li><a href="#set-8">od19_offline_draft ร่างอัตโนมัติ (Offline Draft)</a></li><li><a href="#set-9">od19_field_hints คำใบ้ในช่องกรอก (Field Hints)</a></li><li><a href="#set-10">od19_ui_defaults ค่าเริ่มต้น UI และความอ่านง่าย</a></li><li><a href="#set-11">od19_apps_filter ตัวกรองแอป (OD19 Modules)</a></li><li><a href="#set-12">od19_misc_features ฟีเจอร์เบ็ดเตล็ด (Misc Features)</a></li><li><a href="#set-13">od19_dev_field_marker เครื่องหมายฟิลด์ [od19] (โหมด Dev)</a></li></ul></li></ol>
+      <ol class="lvl1"><li class="tocpart"><a href="#overview"><span class="tocico">🧭</span>ภาพรวมระบบและวิธีใช้คู่มือ</a><div class="tocsub">แนวคิดกลางของระบบ · การนำทาง · การอนุมัติหลายชั้น · บทบาทผู้ใช้ · เลขที่เอกสาร · สัญลักษณ์ในคู่มือ</div><ul class="tocmods"><li><a href="#ov-1">overview ระบบนี้คืออะไร</a></li><li><a href="#ov-2">overview โครงสร้างเมนูหลักของระบบ</a></li><li><a href="#ov-3">base_tier_validation แนวคิดการอนุมัติหลายชั้น (Tier Validation)</a></li><li><a href="#ov-4">od19_security_roles · od19_role_catalog บทบาทและสิทธิ์ผู้ใช้ (Security Roles)</a></li><li><a href="#ov-5">od19_document_sequence · od19_thai_localization_base เอกสารและเลขที่เอกสาร</a></li><li><a href="#ov-6">od19_web_navigation · od19_offline_draft การนำทางและทางลัด</a></li><li><a href="#ov-7">สัญลักษณ์ที่ใช้ในคู่มือนี้</a></li><li><a href="#ov-8">แผนผังโดเมนและจำนวนโมดูล</a></li></ul></li><li class="tocpart"><a href="#flow"><span class="tocico">🔗</span>เส้นทางกระบวนการธุรกิจครบวงจร</a><div class="tocsub">แผนที่เส้นทางตั้งแต่รับพนักงานจนถึง ISO · จุดส่งต่อระหว่างฝ่าย (handoff) · เดินเรื่องจริง 8 เส้นทาง · KPI ผู้บริหาร</div><ul class="tocmods"><li><a href="#flow-1">how-to-read วิธีอ่านแผนที่ และความหมายของ “จุดส่งต่อ”</a></li><li><a href="#flow-2">flow-map แผนที่ภาพรวม 12 ขั้น (หนึ่งเส้นเรื่องเดียว)</a></li><li><a href="#flow-3">path-A เส้นทาง A · รับพนักงานใหม่ → พร้อมเป็นพนักงานขาย</a></li><li><a href="#flow-4">path-B เส้นทาง B · ลูกค้าสนใจ → ใบเสนอราคา → ยืนยันคำสั่งขาย</a></li><li><a href="#flow-5">path-C เส้นทาง C · เปิดโครงการ → มอบงานวิศวกร → ลงเวลาและเบิกของ</a></li><li><a href="#flow-6">path-D เส้นทาง D · ส่งมอบ → ตรวจรับ → วางบิล → รับเงิน</a></li><li><a href="#flow-7">path-E เส้นทาง E · หลังการขาย ประกัน และบริการรายงวด</a></li><li><a href="#flow-8">path-F เส้นทาง F · จัดซื้อ–รับของ–จ่ายผู้ขาย (เส้นทางสนับสนุน)</a></li><li><a href="#flow-9">path-G เส้นทาง G · KPI ผู้บริหาร → สร้างมาตรฐาน ISO</a></li><li><a href="#flow-10">handoff-matrix ตารางสรุปจุดส่งต่อทั้งหมด (Handoff Matrix)</a></li></ul></li><li class="tocpart"><a href="#acc-core"><span class="tocico">💰</span>บัญชีและการเงิน — แกนหลัก</a><div class="tocsub">คุณสมบัติบัญชีไทย · เช็ค · DN/CN · Prepare Payments · เงินสดย่อย · ค่าธรรมเนียมธนาคาร · กระทบยอด · เงินล่วงหน้า · บังคับบัญชีวิเคราะห์</div><ul class="tocmods"><li><a href="#acc1-1">od19_accounting_features คุณสมบัติบัญชีแกนหลัก และการกระทบยอดปิดงวด</a></li><li><a href="#acc1-2">od19_accounting_cheque การบริหารเช็ค (รับ–จ่าย) และสมุดเช็ค</a></li><li><a href="#acc1-3">od19_accounting_dncn ใบเพิ่มหนี้ / ใบลดหนี้ / ออกใบแจ้งหนี้ใหม่</a></li><li><a href="#acc1-4">od19_accounting_prepayment การเตรียมจ่าย (Prepare Payments / Billing)</a></li><li><a href="#acc1-5">od19_accounting_petty_cash เงินสดย่อย (Petty Cash)</a></li><li><a href="#acc1-6">od19_accounting_payment_fee ค่าธรรมเนียมการจ่าย (Payment Fee / Bank Charges)</a></li><li><a href="#acc1-7">od19_accounting_reconcile_ui หน้าจอกระทบยอด (OCA Bridge)</a></li><li><a href="#acc1-8">od19_accounting_advance เงินล่วงหน้า (Advance Payment)</a></li><li><a href="#acc1-9">od19_accounting_analytic_require บังคับบัญชีวิเคราะห์ (Analytic Require)</a></li></ul></li><li class="tocpart"><a href="#acc-reports"><span class="tocico">🧾</span>บัญชีและการเงิน — รายงานและภาษี</a><div class="tocsub">งานบัญชีเชิงลึก: e-Tax Invoice, รายงานภาษีไทย, งบการเงิน MIS, รายงานปิดงานบัญชี, เงินเข้า, หนี้สงสัยจะสูญ, ใบสำคัญจ่าย-รับ, อัตราแลกเปลี่ยน BOT, คำขอเปิดบิลกลาง และรหัสเอกสารบัญชี</div><ul class="tocmods"><li><a href="#acc2-1">od19_etax_invoice e-Tax Invoice &amp; e-Receipt (ใบกำกับภาษีอิเล็กทรอนิกส์)</a></li><li><a href="#acc2-2">od19_thai_tax_reports รายงานภาษีไทย (Thai Tax Reports)</a></li><li><a href="#acc2-3">od19_mis_balance_sheet งบแสดงฐานะทางการเงิน (MIS Balance Sheet)</a></li><li><a href="#acc2-4">od19_accounting_reporting รายงานบัญชีและการเงิน (Accounting Reporting)</a></li><li><a href="#acc2-5">od19_accounting_money_in_report รายงานเงินเข้า (Money In Report)</a></li><li><a href="#acc2-6">od19_accounting_operational_closure ปิดงานบัญชีปฏิบัติการ (Operational Closure)</a></li><li><a href="#acc2-7">od19_accounting_doubtful_debt หนี้สงสัยจะสูญ (Doubtful Debt)</a></li><li><a href="#acc2-8">od19_accounting_payment_voucher_reports ใบสำคัญจ่าย-รับเงิน (Payment Voucher &amp; Receipt)</a></li><li><a href="#acc2-9">od19_currency_rate_bot อัตราแลกเปลี่ยน BOT (Currency Rate Bot)</a></li><li><a href="#acc2-10">od19_billing_request คำขอเปิดบิลกลาง (Billing Request)</a></li><li><a href="#acc2-11">od19_accounting_document_sequence รหัสเอกสารบัญชี (Accounting Document Sequences)</a></li></ul></li><li class="tocpart"><a href="#sales"><span class="tocico">🛒</span>การขายและลูกค้า</a><div class="tocsub">ใบเสนอราคา · ใบสั่งขาย · สัญญาการขาย · วงเงินเชื่อและความเสี่ยงลูกค้า · วางบิลและเงินประกันผลงาน · เงื่อนไขการขาย · แบบพิมพ์ใบสั่งขาย (QWeb/Jasper) · เลขที่และแก้ไขใบเสนอราคา</div><ul class="tocmods"><li><a href="#sale-1">od19_sales_customer_risk_gate การควบคุมความเสี่ยงลูกค้าและวงเงินเชื่อ (Credit Gate)</a></li><li><a href="#sale-2">od19_sales_billing_evidence หลักฐานประกอบการวางบิล (Billing Evidence)</a></li><li><a href="#sale-3">od19_sales_confirm_stamp ตราประทับ CONFIRMED บนใบเสนอราคา</a></li><li><a href="#sale-4">od19_sales_contract_core แกนสัญญาการขาย (Sales Contract)</a></li><li><a href="#sale-5">od19_sales_currency_amount ยอดเงินสองสกุลในรายการขาย</a></li><li><a href="#sale-6">od19_sales_oca_bridge_workflow สะพานงานขาย OCA และการอนุมัติตามวงเงิน</a></li><li><a href="#sale-7">od19_sales_project_context บริบทโครงการและกำไรงานขาย</a></li><li><a href="#sale-8">od19_sales_reporting รายงานยอดขายตามโครงการและลูกค้าประจำ</a></li><li><a href="#sale-9">od19_sales_retention เงินประกันผลงาน (Retention)</a></li><li><a href="#sale-10">od19_sales_services_jasper แบบพิมพ์ Jasper งานบริการ</a></li><li><a href="#sale-11">od19_sale_report_native ใบสั่งขาย QWeb (รูปแบบดั้งเดิม / ปรับปรุง)</a></li><li><a href="#sale-12">od19_sale_terms เทมเพลตเงื่อนไขการขาย (Sale Terms)</a></li><li><a href="#sale-13">od19_sale_wizards วิซาร์ดเปลี่ยนวันส่งและข้อมูลเงินมัดจำ</a></li><li><a href="#sale-14">od19_sale_jasper แบบพิมพ์ Jasper งานขาย</a></li><li><a href="#sale-15">od19_quotation_document_sequence เลขที่ใบเสนอราคาตามแผนก และการแก้ไข (Revision)</a></li></ul></li><li class="tocpart"><a href="#purchase"><span class="tocico">📦</span>การจัดซื้อและผู้จำหน่าย</a><div class="tocsub">ใบขอซื้อ (PR) · ใบขอราคา · ใบสั่งซื้อ (PO) · การอนุมัติตามวงเงิน · เลขที่เอกสารรายแผนก · เงื่อนไขการซื้อ · การรับของและวางบิลผู้ขาย</div><ul class="tocmods"><li><a href="#pur-1">od19_purchase_procurement_core แกนการจัดซื้อและการอนุมัติ</a></li><li><a href="#pur-2">od19_purchase_request_extend ส่วนขยายใบขอซื้อ (ไทย)</a></li><li><a href="#pur-3">od19_purchase_revision การแก้ไขใบสั่งซื้อ (Revision)</a></li><li><a href="#pur-4">od19_purchase_document_sequence เลขที่เอกสารตามแผนก</a></li><li><a href="#pur-5">od19_purchase_terms เงื่อนไขการซื้อ (Terms)</a></li><li><a href="#pur-6">od19_purchase_wizards วิซาร์ดช่วยงานจัดซื้อ</a></li><li><a href="#pur-7">od19_purchase_jasper การพิมพ์ด้วย Jasper (J-Report OD15)</a></li></ul></li><li class="tocpart"><a href="#inventory"><span class="tocico">🏭</span>สินค้าคงคลังและคลังสินค้า</a><div class="tocsub">รับ-จ่าย-โอน · มูลค่า FIFO · ปรับมูลค่าสินค้า · นับสต๊อกเพื่อตรวจสอบ · ควบคุมงานคลัง · ใบเบิกสินค้า · คืนสินค้า/RMA · ใบปะหน้าส่งของ · พิมพ์รายงาน Jasper</div><ul class="tocmods"><li><a href="#inv-1">od19_stock_picking_features ส่วนขยายใบรับ-จ่ายสินค้า</a></li><li><a href="#inv-2">od19_stock_fifo ประเมินมูลค่าสินค้าแบบ FIFO</a></li><li><a href="#inv-3">od19_stock_valuation_adjustment ปรับมูลค่าสินค้าคงคลัง</a></li><li><a href="#inv-4">od19_inventory_audit_count นับสต๊อกเพื่อตรวจสอบ (Audit Count)</a></li><li><a href="#inv-5">od19_inventory_execution_control ควบคุมการดำเนินงานคลัง</a></li><li><a href="#inv-6">od19_inventory_reporting รายงานคลังสินค้าและแดชบอร์ดโลจิสติกส์</a></li><li><a href="#inv-7">od19_goods_issue ใบเบิกสินค้า (Goods Issue)</a></li><li><a href="#inv-8">od19_product_return คืนสินค้า / RMA (Product Return)</a></li><li><a href="#inv-9">od19_delivery_label ใบปะหน้าสินค้ารอส่ง (Delivery Label)</a></li><li><a href="#inv-10">od19_stock_jasper แบบพิมพ์และรายงาน Jasper (J-Report OD15)</a></li></ul></li><li class="tocpart"><a href="#hr"><span class="tocico">👥</span>บุคคลและค่าใช้จ่ายพนักงาน</a><div class="tocsub">ใบเบิกค่าใช้จ่าย · เงินทดรองพนักงาน · ลงเวลาด้วย ZKTeco · จองห้องประชุม · ยกย่องเพื่อนร่วมงาน</div><ul class="tocmods"><li><a href="#hr-1">od19_hr_expense_thai ค่าใช้จ่ายพนักงาน (ไทย) — อนุมัติ 3 ชั้น + จ่ายคืนพนักงาน</a></li><li><a href="#hr-2">od19_hr_expense_enhanced ค่าใช้จ่ายส่วนขยาย — เบี้ยเลี้ยง/ค่าเดินทาง/ภาษีหัก/มอบหมายอนุมัติ</a></li><li><a href="#hr-3">od19_hr_expense_portal พอร์ทัลพนักงาน — ยื่นใบเบิกและติดตามสถานะ</a></li><li><a href="#hr-4">od19_hr_advance เงินทดรองจ่ายพนักงาน (Employee Advance)</a></li><li><a href="#hr-5">od19_hr_attendance_zkteco ลงเวลาด้วยเครื่อง ZKTeco</a></li><li><a href="#hr-6">od19_meeting_room_booking จองห้องประชุม (Meeting Room Booking)</a></li><li><a href="#hr-7">od19_recognition ยกย่องเพื่อนร่วมงาน (Recognition / Kudos)</a></li></ul></li><li class="tocpart"><a href="#iso"><span class="tocico">✅</span>ระบบคุณภาพ ISO</a><div class="tocsub">ISO 9001 ระบบคุณภาพ — เอกสารควบคุม, ความเสี่ยง, NC/CAPA, ตรวจสอบภายใน, สอบเทียบเครื่องมือ, ฝึกอบรม, คุณภาพผู้จำหน่าย, ความพึงพอใจลูกค้า, ทบทวนผู้บริหาร และใบคำขอ DAR</div><ul class="tocmods"><li><a href="#iso-1">od19_iso_document_control ควบคุมเอกสาร ISO (Document Control)</a></li><li><a href="#iso-2">od19_iso_risk ความเสี่ยงและโอกาส (Risk &amp; Opportunity)</a></li><li><a href="#iso-3">od19_iso_nonconformity ความไม่สอดคล้องและ CAPA (Nonconformity)</a></li><li><a href="#iso-4">od19_iso_internal_audit การตรวจสอบภายใน (Internal Audit)</a></li><li><a href="#iso-5">od19_iso_calibration การสอบเทียบเครื่องมือวัด (Calibration)</a></li><li><a href="#iso-6">od19_iso_training การฝึกอบรมและความสามารถ (Training &amp; Competence)</a></li><li><a href="#iso-7">od19_iso_supplier_quality คุณภาพผู้จำหน่าย (Supplier Quality)</a></li><li><a href="#iso-8">od19_iso_customer_satisfaction ความพึงพอใจลูกค้า (Customer Satisfaction)</a></li><li><a href="#iso-9">od19_iso_management_review การทบทวนระบบจัดการ (Management Review)</a></li><li><a href="#iso-10">od19_iso_dar ใบคำขอ DAR (Document Action Request)</a></li></ul></li><li class="tocpart"><a href="#project"><span class="tocico">📊</span>โครงการและต้นทุน</a><div class="tocsub">ตั้งรหัสงานไทย · ประเภทโครงการ · บัญชีวิเคราะห์ · กำไร-ขาดทุนและความเสี่ยงโครงการ · เรียกเก็บจาก Timesheet · เลขที่เอกสาร</div><ul class="tocmods"><li><a href="#proj-1">od19_project_enhanced โครงการอัจฉริยะ — ประเภทโครงการ, รายงาน P&amp;L และความเสี่ยง</a></li><li><a href="#proj-2">od19_project_analytic รหัสงาน, แผนก, เจ้าของ/ผู้รับเหมา และบัญชีวิเคราะห์</a></li><li><a href="#proj-3">od19_project_timesheet_billing เรียกเก็บค่าบริการจาก Timesheet (Timesheet → Invoice)</a></li><li><a href="#proj-4">od19_project_document_sequence เลขรหัสงาน/รหัสงานย่อยตามแผนกและพนักงานขาย</a></li></ul></li><li class="tocpart"><a href="#service"><span class="tocico">🛠️</span>บริการและหลังการขาย</a><div class="tocsub">ประกัน/เคลม · บัตรบริการและสัญญาบริการรายงวด · QC ควบคุมคุณภาพ · Helpdesk ลูกค้า-ภายใน · รายงาน KPI หลังการขาย · ข้อร้องเรียนภายใน</div><ul class="tocmods"><li><a href="#svc-1">od19_service_warranty ประกันสินค้า และใบเคลม/RMA</a></li><li><a href="#svc-2">od19_service_card บัตรบริการ/บำรุงรักษาเชิงป้องกัน และ SLA</a></li><li><a href="#svc-3">od19_service_contract สัญญาบริการเรียกเก็บรายงวด (PM/AMC)</a></li><li><a href="#svc-4">od19_quality_control ตรวจสอบคุณภาพ (QC) ขาเข้า/ขาออก และ Nonconformity</a></li><li><a href="#svc-5">od19_helpdesk_extension Helpdesk ภายใน vs บริการลูกค้า</a></li><li><a href="#svc-6">od19_after_sales_reporting รายงาน KPI และแดชบอร์ดหลังการขาย</a></li><li><a href="#svc-7">od19_internal_issue แจ้งปัญหาภายใน ความเป็นส่วนตัว และการอนุมัติ</a></li></ul></li><li class="tocpart"><a href="#fleet"><span class="tocico">🚚</span>ยานพาหนะและขนส่ง</a><div class="tocsub">ทะเบียนรถและต้นทุนค่าใช้จ่ายรถ · แจ้งเตือนวันหมดอายุประกัน/ภาษี (Act) · ใบขนส่ง เส้นทาง และการส่งของ</div><ul class="tocmods"><li><a href="#fleet-1">od19_fleet_accounting บัญชีและต้นทุนยานพาหนะ</a></li><li><a href="#fleet-2">od19_fleet_notification แจ้งเตือนประกัน/ภาษี (Act) และงานซ่อม</a></li><li><a href="#fleet-3">od19_transportation ใบขนส่ง เส้นทาง และการส่งของ</a></li></ul></li><li class="tocpart"><a href="#assets"><span class="tocico">🏷️</span>ทรัพย์สิน (ยืม/จำหน่าย)</a><div class="tocsub">ทะเบียนทรัพย์สิน · การยืม-คืนเครื่องมืออุปกรณ์ · การจำหน่าย/ตัดจำหน่ายและออกใบสำคัญบัญชี</div><ul class="tocmods"><li><a href="#asset-1">od19_asset_disposal การจำหน่าย/ตัดจำหน่ายทรัพย์สิน (Asset Disposal)</a></li><li><a href="#asset-2">od19_asset_loan การยืม-คืนเครื่องมือ/อุปกรณ์ (Asset Loan)</a></li></ul></li><li class="tocpart"><a href="#documents"><span class="tocico">📄</span>เอกสาร ความรู้ และการลงนาม</a><div class="tocsub">ศูนย์รวมเอกสารและหมวดหมู่ · ดึงรายการจากเอกสารต้นทาง · เลขที่เอกสารไทย · การลงนามอิเล็กทรอนิกส์ · ประกาศองค์กร · คลังความรู้</div><ul class="tocmods"><li><a href="#doc-1">od19_document_hub ศูนย์เอกสาร (คลังเอกสารกลาง)</a></li><li><a href="#doc-2">od19_document_pull ดึงรายการจากเอกสารต้นทาง (Document Pull)</a></li><li><a href="#doc-3">od19_document_sequence เลขที่เอกสารไทย (Thai Document Sequence)</a></li><li><a href="#doc-4">od19_document_sign การลงนามเอกสารอิเล็กทรอนิกส์ (Document Signing)</a></li><li><a href="#doc-5">od19_announcement ประกาศองค์กร (Announcement)</a></li><li><a href="#doc-6">od19_knowledge_enhanced คลังความรู้ (Knowledge Enhanced)</a></li></ul></li><li class="tocpart"><a href="#website"><span class="tocico">🌐</span>เว็บไซต์และบุคลากร</a><div class="tocsub">เว็บไซต์องค์กรสาธารณะ · เมนูนำทางและแบรนด์ · ระบบรับสมัครงาน · พอร์ทัลพนักงาน · ศูนย์อนุมัติ · SEO และ PDPA</div><ul class="tocmods"><li><a href="#web-1">od19_website ภาพรวมโมดูลและหน้าเว็บสาธารณะ</a></li><li><a href="#web-2">od19_website เมนูนำทาง แบรนด์ ส่วนหัว–ท้าย และการค้นหา</a></li><li><a href="#web-3">od19_website ระบบรับสมัครงาน (Careers &amp; Recruitment)</a></li><li><a href="#web-4">od19_website พอร์ทัลพนักงาน (/employee-portal)</a></li><li><a href="#web-5">od19_website ศูนย์อนุมัติพนักงาน (/my/approvals)</a></li><li><a href="#web-6">od19_website SEO, Analytics และ PDPA</a></li><li><a href="#web-7">od19_website การตั้งค่าเว็บไซต์และข้อมูลแบรนด์</a></li></ul></li><li class="tocpart"><a href="#ai"><span class="tocico">🤖</span>ผู้ช่วย AI และแดชบอร์ด</a><div class="tocsub">แชทผู้ช่วย AI · แดชบอร์ดผู้บริหารพร้อมตัวสร้างในเบราว์เซอร์ · รายงาน JasperReports · ทัวร์แนะนำการใช้งาน</div><ul class="tocmods"><li><a href="#ai-1">od19_ai_assistant ผู้ช่วย AI (แชทและเครื่องมืออ่านข้อมูล)</a></li><li><a href="#ai-2">od19_dashboard แดชบอร์ดผู้บริหารและตัวสร้างแดชบอร์ด</a></li><li><a href="#ai-3">od19_reporting_jasper ระบบรายงาน JasperReports</a></li><li><a href="#ai-4">od19_user_guide_tours ทัวร์แนะนำการใช้งาน (User Guide)</a></li></ul></li><li class="tocpart"><a href="#security"><span class="tocico">🔐</span>สิทธิ์และการอนุมัติ</a><div class="tocsub">บทบาทธุรกิจ · แคตตาล็อกบทบาท · ศูนย์อนุมัติกลาง · การแจ้งเตือนหลายช่องทาง (อีเมล · Odoo · LINE)</div><ul class="tocmods"><li><a href="#sec-1">od19_security_roles ชั้นควบคุมสิทธิ์กลาง (Access Control Layer)</a></li><li><a href="#sec-2">od19_role_catalog แคตตาล็อกบทบาทธุรกิจ (Business Roles)</a></li><li><a href="#sec-3">od19_approval_center ศูนย์อนุมัติกลาง (Approval Center)</a></li><li><a href="#sec-4">od19_notification_multi_channel ศูนย์กลางแจ้งเตือนหลายช่องทาง</a></li></ul></li><li class="tocpart"><a href="#settings"><span class="tocico">⚙️</span>การตั้งค่าและยูทิลิตี้</a><div class="tocsub">ฟอนต์และปีพุทธศักราช · ฟิลด์ไทยของคู่ค้า · คำแปลไทยของโมดูล OCA · การนำทาง/ร่างอัตโนมัติ · คำใบ้ฟิลด์ · ค่าเริ่มต้น UI · ตัวกรองแอป · ฟีเจอร์เบ็ดเตล็ด</div><ul class="tocmods"><li><a href="#set-1">od19_thai_localization_base ฐานข้อมูลไทยและปีพุทธศักราช</a></li><li><a href="#set-2">od19_thai_font_support ฟอนต์ไทย (Sarabun)</a></li><li><a href="#set-3">od19_oca_th_translations คำแปลไทยสำหรับโมดูล OCA</a></li><li><a href="#set-4">od19_partner_thai_fields ฟิลด์ไทยของคู่ค้า</a></li><li><a href="#set-5">od19_partner_document_sequence เลขที่รหัสคู่ค้า (C/V)</a></li><li><a href="#set-6">od19_contacts_partner_roles บทบาทคู่ค้า (Partner Roles)</a></li><li><a href="#set-7">od19_web_navigation ปุ่มย้อนกลับ / ไปข้างหน้า</a></li><li><a href="#set-8">od19_offline_draft ร่างอัตโนมัติ (Offline Draft)</a></li><li><a href="#set-9">od19_field_hints คำใบ้ในช่องกรอก (Field Hints)</a></li><li><a href="#set-10">od19_ui_defaults ค่าเริ่มต้น UI และความอ่านง่าย</a></li><li><a href="#set-11">od19_apps_filter ตัวกรองแอป (OD19 Modules)</a></li><li><a href="#set-12">od19_misc_features ฟีเจอร์เบ็ดเตล็ด (Misc Features)</a></li><li><a href="#set-13">od19_dev_field_marker เครื่องหมายฟิลด์ [od19] (โหมด Dev)</a></li></ul></li></ol>
     </nav>
 
     <div class="callout note">
@@ -482,21 +544,22 @@ sub=แนวคิดกลางของระบบ · การนำทา
   <table>
     <thead><tr><th>โดเมน (แอป)</th><th>ใช้ทำอะไร</th><th>ส่วนในคู่มือ</th></tr></thead>
     <tbody>
-      <tr><td>บัญชี (Accounting)</td><td>ใบกำกับภาษี, จ่ายเงิน, กระทบยอด, งบการเงิน, เงินทดรอง</td><td>ส่วนที่ 2–3</td></tr>
-      <tr><td>การขาย (Sales)</td><td>ใบเสนอราคา, ใบสั่งขาย, สัญญา, วางบิล, เก็บเงิน</td><td>ส่วนที่ 4</td></tr>
-      <tr><td>จัดซื้อ (Purchase)</td><td>ใบขอซื้อ, ใบสั่งซื้อ, รับของ, วางบิลผู้ขาย</td><td>ส่วนที่ 5</td></tr>
-      <tr><td>คลังสินค้า (Inventory)</td><td>รับเข้า-จ่ายออก, โอนย้าย, นับสต๊อก, มูลค่าสินค้า</td><td>ส่วนที่ 6</td></tr>
-      <tr><td>บุคคลและค่าใช้จ่าย (HR)</td><td>ค่าใช้จ่าย, เงินทดรอง, ลงเวลา, จองห้องประชุม</td><td>ส่วนที่ 7</td></tr>
-      <tr><td>ระบบคุณภาพ (ISO)</td><td>เอกสารควบคุม, ความเสี่ยง, CAPA, ตรวจสอบภายใน, สอบเทียบ</td><td>ส่วนที่ 8</td></tr>
-      <tr><td>โครงการ (Project)</td><td>โครงการ, ต้นทุน/วิเคราะห์, เวลาทำงาน, เรียกเก็บ</td><td>ส่วนที่ 9</td></tr>
-      <tr><td>บริการและหลังการขาย</td><td>ใบรับประกัน, บัตรบริการ, QC, Helpdesk, RMA</td><td>ส่วนที่ 10</td></tr>
-      <tr><td>ยานพาหนะและขนส่ง</td><td>รถ, ประกัน/แจ้งเตือน, ใบขนส่ง, เส้นทาง</td><td>ส่วนที่ 11</td></tr>
-      <tr><td>ทรัพย์สิน (Assets)</td><td>ยืม-คืนทรัพย์สิน, จำหน่าย/ตัดจำหน่าย</td><td>ส่วนที่ 12</td></tr>
-      <tr><td>เอกสารและความรู้</td><td>ศูนย์รวมเอกสาร, ดึงเอกสาร, ลงนาม, ประกาศ, คลังความรู้</td><td>ส่วนที่ 13</td></tr>
-      <tr><td>เว็บไซต์และบุคลากร</td><td>เว็บไซต์องค์กร, พอร์ทัลพนักงาน, ตำแหน่งงาน</td><td>ส่วนที่ 14</td></tr>
-      <tr><td>ผู้ช่วย AI และแดชบอร์ด</td><td>แชท AI, แดชบอร์ด, รายงาน Jasper</td><td>ส่วนที่ 15</td></tr>
-      <tr><td>สิทธิ์และการอนุมัติ</td><td>บทบาทธุรกิจ, สิทธิ์เข้าถึง, ศูนย์อนุมัติกลาง, แจ้งเตือน</td><td>ส่วนที่ 16</td></tr>
-      <tr><td>การตั้งค่าและยูทิลิตี้</td><td>ฟิลด์/ฟอนต์ไทย, เลขที่เอกสาร, การนำทาง, ร่างอัตโนมัติ</td><td>ส่วนที่ 17</td></tr>
+      <tr><td>🔗 เส้นทางกระบวนการธุรกิจ (End-to-End)</td><td>แผนที่นำทางข้ามฝ่าย ตั้งแต่รับพนักงานจนถึง ISO และ Dashboard</td><td>ส่วนที่ 2</td></tr>
+      <tr><td>บัญชี (Accounting)</td><td>ใบกำกับภาษี, จ่ายเงิน, กระทบยอด, งบการเงิน, เงินทดรอง</td><td>ส่วนที่ 3–4</td></tr>
+      <tr><td>การขาย (Sales)</td><td>ใบเสนอราคา, ใบสั่งขาย, สัญญา, วางบิล, เก็บเงิน</td><td>ส่วนที่ 5</td></tr>
+      <tr><td>จัดซื้อ (Purchase)</td><td>ใบขอซื้อ, ใบสั่งซื้อ, รับของ, วางบิลผู้ขาย</td><td>ส่วนที่ 6</td></tr>
+      <tr><td>คลังสินค้า (Inventory)</td><td>รับเข้า-จ่ายออก, โอนย้าย, นับสต๊อก, มูลค่าสินค้า</td><td>ส่วนที่ 7</td></tr>
+      <tr><td>บุคคลและค่าใช้จ่าย (HR)</td><td>ค่าใช้จ่าย, เงินทดรอง, ลงเวลา, จองห้องประชุม</td><td>ส่วนที่ 8</td></tr>
+      <tr><td>ระบบคุณภาพ (ISO)</td><td>เอกสารควบคุม, ความเสี่ยง, CAPA, ตรวจสอบภายใน, สอบเทียบ</td><td>ส่วนที่ 9</td></tr>
+      <tr><td>โครงการ (Project)</td><td>โครงการ, ต้นทุน/วิเคราะห์, เวลาทำงาน, เรียกเก็บ</td><td>ส่วนที่ 10</td></tr>
+      <tr><td>บริการและหลังการขาย</td><td>ใบรับประกัน, บัตรบริการ, QC, Helpdesk, RMA</td><td>ส่วนที่ 11</td></tr>
+      <tr><td>ยานพาหนะและขนส่ง</td><td>รถ, ประกัน/แจ้งเตือน, ใบขนส่ง, เส้นทาง</td><td>ส่วนที่ 12</td></tr>
+      <tr><td>ทรัพย์สิน (Assets)</td><td>ยืม-คืนทรัพย์สิน, จำหน่าย/ตัดจำหน่าย</td><td>ส่วนที่ 13</td></tr>
+      <tr><td>เอกสารและความรู้</td><td>ศูนย์รวมเอกสาร, ดึงเอกสาร, ลงนาม, ประกาศ, คลังความรู้</td><td>ส่วนที่ 14</td></tr>
+      <tr><td>เว็บไซต์และบุคลากร</td><td>เว็บไซต์องค์กร, พอร์ทัลพนักงาน, ตำแหน่งงาน</td><td>ส่วนที่ 15</td></tr>
+      <tr><td>ผู้ช่วย AI และแดชบอร์ด</td><td>แชท AI, แดชบอร์ด, รายงาน Jasper</td><td>ส่วนที่ 16</td></tr>
+      <tr><td>สิทธิ์และการอนุมัติ</td><td>บทบาทธุรกิจ, สิทธิ์เข้าถึง, ศูนย์อนุมัติกลาง, แจ้งเตือน</td><td>ส่วนที่ 17</td></tr>
+      <tr><td>การตั้งค่าและยูทิลิตี้</td><td>ฟิลด์/ฟอนต์ไทย, เลขที่เอกสาร, การนำทาง, ร่างอัตโนมัติ</td><td>ส่วนที่ 18</td></tr>
     </tbody>
   </table>
 
@@ -532,7 +595,7 @@ sub=แนวคิดกลางของระบบ · การนำทา
     </tbody>
   </table>
   <p class="footnote">
-    เอกสารที่มีป้าย “รอฉันอนุมัติ” จะปรากฏในเมนู <strong>Approval Center</strong> (ศูนย์อนุมัติกลาง) — ดูรายละเอียดที่ส่วนที่ 15
+    เอกสารที่มีป้าย “รอฉันอนุมัติ” จะปรากฏในเมนู <strong>Approval Center</strong> (ศูนย์อนุมัติกลาง) — ดูรายละเอียดที่ส่วนที่ 17
   </p>
 
   <h3 class="mod" id="ov-4"><span class="mtag">od19_security_roles · od19_role_catalog</span> บทบาทและสิทธิ์ผู้ใช้ (Security Roles)</h3>
@@ -548,7 +611,7 @@ sub=แนวคิดกลางของระบบ · การนำทา
   </div>
   <div class="callout warn">
     ถ้าไม่เห็นเมนูหรือปุ่มที่คู่มืออ้างถึง ให้ตรวจสอบว่า “บทบาท/กลุ่มสิทธิ์” ของบัญชีผู้ใช้ได้รับสิทธิ์นั้นแล้วหรือยัง —
-    ดูส่วนที่ 15 · แพลตฟอร์มและสิทธิ์
+    ดูส่วนที่ 17 · สิทธิ์และการอนุมัติ
   </div>
 
   <h3 class="mod" id="ov-5"><span class="mtag">od19_document_sequence · od19_thai_localization_base</span> เอกสารและเลขที่เอกสาร</h3>
@@ -588,29 +651,503 @@ sub=แนวคิดกลางของระบบ · การนำทา
   </table>
 
   <h3 class="mod" id="ov-8">แผนผังโดเมนและจำนวนโมดูล</h3>
-  <p>คู่มือเล่มนี้แบ่งเป็น 17 ส่วน ครอบคลุมโมดูล <code>od19_*</code> ทั้งหมดในระบบ:</p>
+  <p>คู่มือเล่มนี้แบ่งเป็น 18 ส่วน ครอบคลุมโมดูล <code>od19_*</code> ทั้งหมดในระบบ:</p>
   <table>
     <thead><tr><th>ส่วน</th><th>ชื่อส่วน</th><th>โมดูลอ้างอิง</th></tr></thead>
     <tbody>
       <tr><td>1</td><td>ภาพรวมระบบและวิธีใช้คู่มือ</td><td>overview (แนวคิดกลาง)</td></tr>
-      <tr><td>2</td><td>บัญชีและการเงิน — แกนหลัก</td><td>od19_accounting_features · cheque · dncn · prepayment · petty_cash · payment_fee · reconcile_ui · advance · analytic_require</td></tr>
-      <tr><td>3</td><td>บัญชีและการเงิน — รายงานและภาษี</td><td>od19_etax_invoice · thai_tax_reports · mis_balance_sheet · accounting_reporting · money_in_report · operational_closure · doubtful_debt · payment_voucher_reports · currency_rate_bot · billing_request</td></tr>
-      <tr><td>4</td><td>การขายและลูกค้า</td><td>od19_sale* · od19_sales_*</td></tr>
-      <tr><td>5</td><td>การจัดซื้อและผู้จำหน่าย</td><td>od19_purchase_*</td></tr>
-      <tr><td>6</td><td>สินค้าคงคลังและคลังสินค้า</td><td>od19_stock_* · od19_inventory_* · goods_issue · product_return · delivery_label</td></tr>
-      <tr><td>7</td><td>บุคคลและค่าใช้จ่ายพนักงาน</td><td>od19_hr_* · meeting_room_booking · recognition</td></tr>
-      <tr><td>8</td><td>ระบบคุณภาพ ISO</td><td>od19_iso_*</td></tr>
-      <tr><td>9</td><td>โครงการและต้นทุน</td><td>od19_project_*</td></tr>
-      <tr><td>10</td><td>บริการและหลังการขาย</td><td>od19_service_* · quality_control · helpdesk_extension · after_sales_reporting · internal_issue</td></tr>
-      <tr><td>11</td><td>ยานพาหนะและขนส่ง</td><td>od19_fleet_* · od19_transportation</td></tr>
-      <tr><td>12</td><td>ทรัพย์สิน (ยืม/จำหน่าย)</td><td>od19_asset_*</td></tr>
-      <tr><td>13</td><td>เอกสาร ความรู้ และการลงนาม</td><td>od19_document_* · announcement · knowledge_enhanced</td></tr>
-      <tr><td>14</td><td>เว็บไซต์และบุคลากร</td><td>od19_website</td></tr>
-      <tr><td>15</td><td>ผู้ช่วย AI และแดชบอร์ด</td><td>od19_ai_assistant · dashboard · *_jasper · reporting_jasper</td></tr>
-      <tr><td>16</td><td>สิทธิ์และการอนุมัติ</td><td>od19_security_roles · role_catalog · approval_center · notification_multi_channel</td></tr>
-      <tr><td>17</td><td>การตั้งค่าและยูทิลิตี้</td><td>od19_thai_* · partner_thai_fields · web_navigation · offline_draft · field_hints · ui_defaults · apps_filter · misc_features</td></tr>
+      <tr><td>2</td><td>เส้นทางกระบวนการธุรกิจครบวงจร (End-to-End)</td><td>overview (แผนที่เชื่อมทุกโดเมน · จุดส่งต่อระหว่างฝ่าย)</td></tr>
+      <tr><td>3</td><td>บัญชีและการเงิน — แกนหลัก</td><td>od19_accounting_features · cheque · dncn · prepayment · petty_cash · payment_fee · reconcile_ui · advance · analytic_require</td></tr>
+      <tr><td>4</td><td>บัญชีและการเงิน — รายงานและภาษี</td><td>od19_etax_invoice · thai_tax_reports · mis_balance_sheet · accounting_reporting · money_in_report · operational_closure · doubtful_debt · payment_voucher_reports · currency_rate_bot · billing_request</td></tr>
+      <tr><td>5</td><td>การขายและลูกค้า</td><td>od19_sale* · od19_sales_*</td></tr>
+      <tr><td>6</td><td>การจัดซื้อและผู้จำหน่าย</td><td>od19_purchase_*</td></tr>
+      <tr><td>7</td><td>สินค้าคงคลังและคลังสินค้า</td><td>od19_stock_* · od19_inventory_* · goods_issue · product_return · delivery_label</td></tr>
+      <tr><td>8</td><td>บุคคลและค่าใช้จ่ายพนักงาน</td><td>od19_hr_* · meeting_room_booking · recognition</td></tr>
+      <tr><td>9</td><td>ระบบคุณภาพ ISO</td><td>od19_iso_*</td></tr>
+      <tr><td>10</td><td>โครงการและต้นทุน</td><td>od19_project_*</td></tr>
+      <tr><td>11</td><td>บริการและหลังการขาย</td><td>od19_service_* · quality_control · helpdesk_extension · after_sales_reporting · internal_issue</td></tr>
+      <tr><td>12</td><td>ยานพาหนะและขนส่ง</td><td>od19_fleet_* · od19_transportation</td></tr>
+      <tr><td>13</td><td>ทรัพย์สิน (ยืม/จำหน่าย)</td><td>od19_asset_*</td></tr>
+      <tr><td>14</td><td>เอกสาร ความรู้ และการลงนาม</td><td>od19_document_* · announcement · knowledge_enhanced</td></tr>
+      <tr><td>15</td><td>เว็บไซต์และบุคลากร</td><td>od19_website</td></tr>
+      <tr><td>16</td><td>ผู้ช่วย AI และแดชบอร์ด</td><td>od19_ai_assistant · dashboard · *_jasper · reporting_jasper</td></tr>
+      <tr><td>17</td><td>สิทธิ์และการอนุมัติ</td><td>od19_security_roles · role_catalog · approval_center · notification_multi_channel</td></tr>
+      <tr><td>18</td><td>การตั้งค่าและยูทิลิตี้</td><td>od19_thai_* · partner_thai_fields · web_navigation · offline_draft · field_hints · ui_defaults · apps_filter · misc_features</td></tr>
     </tbody>
   </table>
+
+</section>
+
+
+<!--Part
+id=flow
+title=เส้นทางกระบวนการธุรกิจครบวงจร
+icon=🔗
+sub=แผนที่เส้นทางตั้งแต่รับพนักงานจนถึง ISO · จุดส่งต่อระหว่างฝ่าย (handoff) · เดินเรื่องจริง 8 เส้นทาง · KPI ผู้บริหาร
+-->
+
+<section class="part" id="flow">
+
+  <div class="part-head">
+    <h2 class="part-title"><span class="part-icon">🔗</span> ส่วนที่ 2 · เส้นทางกระบวนการธุรกิจครบวงจร (End-to-End)</h2>
+    <p class="part-sub">
+      บทนี้คือ “แผนที่นำทาง” ของทั้งระบบ — แสดงว่ากระบวนการหนึ่งส่งต่องานไปยังกระบวนการถัดไปอย่างไร
+      ตั้งแต่ <strong>รับพนักงานใหม่ → ขึ้นทะเบียนเป็นพนักงานขาย → เสนอราคา → เปิดโครงการ → มอบงานวิศวกร →
+      ส่งมอบ → วางบิลและรับเงิน → ผู้บริหารติดตาม KPI → สร้างมาตรฐาน ISO</strong>
+      ในทุกจุดส่งต่อ (handoff) จะมีกล่องเชื่อมโยงให้กดต่อไปยังบทที่เกี่ยวข้องได้ทันที
+    </p>
+  </div>
+
+  <nav class="toc mini">
+    <h3>สารบัญส่วนนี้</h3>
+    <ol>
+      <li><a href="#flow-1">วิธีอ่านแผนที่ และความหมายของ “จุดส่งต่อ”</a></li>
+      <li><a href="#flow-2">แผนที่ภาพรวม 12 ขั้น (หนึ่งเส้นเรื่องเดียว)</a></li>
+      <li><a href="#flow-3">เส้นทาง A · รับพนักงานใหม่ → พร้อมเป็นพนักงานขาย</a></li>
+      <li><a href="#flow-4">เส้นทาง B · ลูกค้าสนใจ → ใบเสนอราคา → ยืนยันคำสั่งขาย</a></li>
+      <li><a href="#flow-5">เส้นทาง C · เปิดโครงการ → มอบงานวิศวกร → ลงเวลาและเบิกของ</a></li>
+      <li><a href="#flow-6">เส้นทาง D · ส่งมอบ → ตรวจรับ → วางบิล → รับเงิน</a></li>
+      <li><a href="#flow-7">เส้นทาง E · หลังการขาย ประกัน และบริการรายงวด</a></li>
+      <li><a href="#flow-8">เส้นทาง F · จัดซื้อ–รับของ–จ่ายผู้ขาย (เส้นทางสนับสนุน)</a></li>
+      <li><a href="#flow-9">เส้นทาง G · KPI ผู้บริหาร → สร้างมาตรฐาน ISO</a></li>
+      <li><a href="#flow-10">ตารางสรุปจุดส่งต่อทั้งหมด (Handoff Matrix)</a></li>
+    </ol>
+  </nav>
+
+  <div class="callout note">
+    <strong>ทำไมต้องมีบทนี้:</strong> แต่ละบทในเล่มอธิบาย “งานในฝ่ายของตัวเอง” อย่างละเอียดอยู่แล้ว
+    บทนี้จะเชื่อมบทเหล่านั้นเข้าด้วยกันเป็นเรื่องเดียว เพื่อให้เห็นว่า <em>งานของเราส่งผลต่อไปถึงใคร</em>
+    และ <em>งานของเรารับมาจากใคร</em> — เมื่อทำตามบทนี้จบทั้งเส้น จะเข้าใจระบบทั้งระบบได้ในมุมมองเดียว
+  </div>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="flow-1"><span class="mtag">how-to-read</span> วิธีอ่านแผนที่ และความหมายของ “จุดส่งต่อ”</h3>
+  <p>
+    ในบทนี้จะเจอกล่อง 3 ชนิดที่ช่วยเดินเรื่อง — อ่านจากบนลงล่างตามลำดับ ก็จะได้ “เรื่องราวทั้งหมดของบริษัท”
+    ตั้งแต่พนักงานคนใหม่เดินเข้ามาจนถึงผู้บริหารนำผลไปปรับปรุงมาตรฐาน
+  </p>
+  <div class="grid three">
+    <div class="tile">
+      <div class="t">🔗 โซ่กระบวนการ (chain)</div>
+      <p>ลำดับขั้นตอนแบบมีเลขกำกับว่า “ขั้นที่เท่าไร · ใครทำ · ใช้เอกสารอะไร” ต่อเนื่องกันลงมา</p>
+    </div>
+    <div class="tile">
+      <div class="t">➡️ กล่องส่งต่อ (handoff)</div>
+      <p>จุดที่งานย้ายจากฝ่ายหนึ่งไปอีกฝ่าย — มีปุ่มให้กดกระโดดไปบทปลายทางได้ทันที</p>
+    </div>
+    <div class="tile">
+      <div class="t">📊 การ์ด KPI</div>
+      <p>ตัวชี้วัดที่ผู้บริหารใช้ดูผลลัพธ์ของเส้นทางนั้น ๆ (มาจากแดชบอร์ดในระบบ)</p>
+    </div>
+  </div>
+
+  <h4>บุคลากรและบทบาทที่ปรากฏในเส้นทาง (อ้างอิงจากระบบจริง)</h4>
+  <table>
+    <thead><tr><th>บทบาท</th><th>ทำอะไรในเส้นทาง</th><th>ดูรายละเอียดที่</th></tr></thead>
+    <tbody>
+      <tr><td>ฝ่ายบุคคล (HR)</td><td>รับพนักงาน, ขึ้นทะเบียน, ตั้งสิทธิ์, มอบหมายบทบาท</td><td><a href="#hr">ส่วนที่ 8 · บุคคลฯ</a> · <a href="#ov-4">บทบาทผู้ใช้</a></td></tr>
+      <tr><td>พนักงานขาย (Sales)</td><td>ดูแลลูกค้า, ออกใบเสนอราคา, ปิดการขาย</td><td><a href="#sales">ส่วนที่ 5 · การขาย</a></td></tr>
+      <tr><td>ฝ่ายวิศวกรรม/โครงการ</td><td>รับงานเป็นโครงการ, แบ่งงาน, ลงเวลา, ส่งมอบ</td><td><a href="#project">ส่วนที่ 10 · โครงการ</a></td></tr>
+      <tr><td>ฝ่ายคลังสินค้า</td><td>เบิกของ, ส่งของ, ตรวจรับคืน/RMA</td><td><a href="#inventory">ส่วนที่ 7 · คลังสินค้า</a></td></tr>
+      <tr><td>ฝ่ายบัญชี–การเงิน</td><td>ออกใบกำกับภาษี, วางบิล, รับเงิน, กระทบยอด, ปิดงวด</td><td><a href="#acc-core">ส่วนที่ 3</a> · <a href="#acc-reports">ส่วนที่ 4</a></td></tr>
+      <tr><td>ฝ่ายจัดซื้อ</td><td>จัดหาของ/บริการที่ต้องใช้ในโครงการ</td><td><a href="#purchase">ส่วนที่ 6 · จัดซื้อ</a></td></tr>
+      <tr><td>ฝ่ายบริการหลังการขาย</td><td>ประกัน, บัตรบริการ, Helpdesk, เคลม</td><td><a href="#service">ส่วนที่ 11 · บริการ</a></td></tr>
+      <tr><td>ฝ่ายคุณภาพ (QA/ISO)</td><td>ควบคุมเอกสาร, CAPA, ตรวจสอบภายใน, สอบเทียบ</td><td><a href="#iso">ส่วนที่ 9 · ISO</a></td></tr>
+      <tr><td>ผู้บริหาร</td><td>เปิดแดชบอร์ดติดตาม KPI, อนุมัติวงเงิน, ทบทวนมาตรฐาน</td><td><a href="#ai">ส่วนที่ 16 · แดชบอร์ด</a></td></tr>
+      <tr><td>ผู้ดูแลระบบ (Admin)</td><td>ตั้งค่าบทบาท/สิทธิ์, ลำดับเลขเอกสาร, อนุมัติตามวงเงิน</td><td><a href="#security">ส่วนที่ 17 · สิทธิ์ฯ</a> · <a href="#settings">ส่วนที่ 18 · ตั้งค่า</a></td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout tip">
+    <strong>เคล็ดลับสำหรับผู้อ่านใหม่:</strong> ถ้าเพิ่งเริ่มใช้ระบบ แนะนำเปิด <a href="#flow-2">แผนที่ภาพรวม</a>
+    แล้วไล่ตามบท A → G ในบทนี้ ควบคู่ไปกับบทปลายทางในแต่ละกล่องส่งต่อ — จะเข้าใจทั้งระบบเร็วที่สุด
+  </div>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="flow-2"><span class="mtag">flow-map</span> แผนที่ภาพรวม 12 ขั้น (หนึ่งเส้นเรื่องเดียว)</h3>
+  <p>
+    ลำดับด้านล่างคือ “เรื่องราวเดียว” ตั้งแต่ต้นน้ำถึงปลายน้ำของบริษัท ลำดับที่ลูกศรชี้คือจุดที่งานถูกส่งต่อ
+    ระหว่างฝ่าย — กดชื่อขั้นเพื่อไปยังบทที่อธิบายวิธีทำอย่างละเอียดได้เลย
+  </p>
+
+  <div class="chain">
+
+    <div class="node done">
+      <span class="n-step">ขั้น 1</span><span class="n-title">ประกาศรับสมัครงาน</span>
+      <span class="n-role">· ฝ่ายบุคคล</span>
+      <p class="n-body">เปิดตำแหน่งบนเว็บไซต์บริษัท ผู้สมัครยื่นใบสมัครผ่านหน้าเว็บ →
+        ดู <a href="#web-3">ระบบรับสมัครงาน (Careers)</a></p>
+    </div>
+
+    <div class="node done">
+      <span class="n-step">ขั้น 2</span><span class="n-title">รับเข้าทำงาน &amp; ขึ้นทะเบียนพนักงาน</span>
+      <span class="n-role">· ฝ่ายบุคคล</span>
+      <p class="n-body">สร้างข้อมูลพนักงาน, สัญญาจ้าง, แผนก, ตำแหน่ง →
+        ดู <a href="#hr">ส่วนที่ 8 · บุคคลและค่าใช้จ่าย</a></p>
+    </div>
+
+    <div class="node done">
+      <span class="n-step">ขั้น 3</span><span class="n-title">ตั้งสิทธิ์ &amp; มอบบทบาท “พนักงานขาย”</span>
+      <span class="n-role">· ผู้ดูแลระบบ + ฝ่ายบุคคล</span>
+      <p class="n-body">กำหนดบทบาทธุรกิจ + สิทธิ์เข้าถึงเมนู/ข้อมูล → ให้พนักงานทำหน้าที่ขายได้ →
+        ดู <a href="#sec-2">แคตตาล็อกบทบาท</a> · <a href="#sec-1">ชั้นควบคุมสิทธิ์</a></p>
+    </div>
+
+    <div class="node">
+      <span class="n-step">ขั้น 4</span><span class="n-title">สร้างใบเสนอราคาให้ลูกค้า</span>
+      <span class="n-role">· พนักงานขาย</span>
+      <p class="n-body">ออกใบเสนอราคา, เลือกเงื่อนไขการขาย, ผ่านการตรวจวงเงินเชื่อ →
+        ดู <a href="#sales">ส่วนที่ 5 · การขาย</a> · <a href="#sale-1">วงเงินเชื่อ/ความเสี่ยง</a></p>
+    </div>
+
+    <div class="node">
+      <span class="n-step">ขั้น 5</span><span class="n-title">ลูกค้ายืนยัน → ใบสั่งขาย + สัญญา</span>
+      <span class="n-role">· พนักงานขาย</span>
+      <p class="n-body">ยืนยันใบเสนอราคาเป็นใบสั่งขาย, ผูกสัญญา/เงินประกันผลงาน →
+        ดู <a href="#sale-3">ตรา CONFIRMED</a> · <a href="#sale-4">สัญญาการขาย</a> · <a href="#sale-9">เงินประกันผลงาน</a></p>
+    </div>
+
+    <div class="node">
+      <span class="n-step">ขั้น 6</span><span class="n-title">เปิดงานเป็นโครงการ</span>
+      <span class="n-role">· พนักงานขาย → หัวหน้าโครงการ</span>
+      <p class="n-body">สร้างโครงการ/รหัสงานตามรหัสไทย, ผูกบัญชีวิเคราะห์, เจ้าของงาน →
+        ดู <a href="#proj-2">รหัสงาน &amp; บัญชีวิเคราะห์</a> · <a href="#proj-4">เลขรหัสงาน</a></p>
+    </div>
+
+    <div class="node">
+      <span class="n-step">7</span><span class="n-title">จ่ายงานให้ฝ่ายวิศวกร</span>
+      <span class="n-role">· หัวหน้าโครงการ</span>
+      <p class="n-body">แบ่งงาน/มอบหมายผู้รับผิดชอบ, ตั้งงบและระยะเวลา, ติดตามความเสี่ยง →
+        ดู <a href="#proj-1">โครงการอัจฉริยะ (P&amp;L/ความเสี่ยง)</a></p>
+    </div>
+
+    <div class="node">
+      <span class="n-step">8</span><span class="n-title">ทำงานจริง → เบิกของ/ลงเวลา</span>
+      <span class="n-role">· วิศวกร + คลังสินค้า</span>
+      <p class="n-body">เบิกสินค้าด้วยใบเบิกของ, ลงเวลาทำงานรายวัน (Timesheet) →
+        ดู <a href="#inv-7">ใบเบิกสินค้า</a> · <a href="#proj-3">Timesheet</a> · <a href="#hr-5">ลงเวลา</a></p>
+    </div>
+
+    <div class="node">
+      <span class="n-step">9</span><span class="n-title">ส่งมอบ + ตรวจรับ</span>
+      <span class="n-role">· โครงการ + ลูกค้า</span>
+      <p class="n-body">ส่งของ/ส่งงาน, ลูกค้าตรวจรับ, เก็บหลักฐานการส่งมอบ →
+        ดู <a href="#fleet-3">ใบขนส่ง</a> · <a href="#sale-2">หลักฐานวางบิล</a></p>
+    </div>
+
+    <div class="node">
+      <span class="n-step">10</span><span class="n-title">วางบิล &amp; ออกใบกำกับภาษี</span>
+      <span class="n-role">· บัญชี</span>
+      <p class="n-body">เปิดบิล/วางบิล, ลงบัญชี, ออกใบกำกับภาษีอิเล็กทรอนิกส์ →
+        ดู <a href="#acc2-10">คำขอเปิดบิลกลาง</a> · <a href="#acc2-1">e-Tax Invoice</a></p>
+    </div>
+
+    <div class="node">
+      <span class="n-step">11</span><span class="n-title">รับเงิน &amp; กระทบยอด</span>
+      <span class="n-role">· บัญชี</span>
+      <p class="n-body">รับชำระ, กระทบยอดใบเสร็จ–ใบแจ้งหนี้, ปิดงวด →
+        ดู <a href="#acc1-1">กระทบยอดปิดงวด</a> · <a href="#acc2-5">รายงานเงินเข้า</a></p>
+    </div>
+
+    <div class="node">
+      <span class="n-step">12</span><span class="n-title">ติดตามผล KPI → สร้างมาตรฐาน ISO</span>
+      <span class="n-role">· ผู้บริหาร + ฝ่ายคุณภาพ</span>
+      <p class="n-body">เปิดแดชบอร์ดติดตามโครงการ/กำไร/KPI, นำผลไปทบทวนและปรับปรุงมาตรฐาน →
+        ดู <a href="#ai-2">แดชบอร์ดผู้บริหาร</a> · <a href="#iso-9">ทบทวนระบบจัดการ</a></p>
+    </div>
+
+  </div>
+
+  <div class="handoff">
+    <p class="hd-head">➡️ ภาพใหญ่: ทุกเส้นทางบรรจบที่ “แดชบอร์ดผู้บริหาร” <span class="hd-tag">handoff</span></p>
+    <div class="hd-flow">
+      <a href="#sales">การขาย</a><span class="hd-arrow">→</span>
+      <a href="#project">โครงการ</a><span class="hd-arrow">→</span>
+      <a href="#acc-reports">บัญชี–รายงาน</a><span class="hd-arrow">→</span>
+      <a href="#ai-2">แดชบอร์ด/KPI</a><span class="hd-arrow">→</span>
+      <a href="#iso">ISO มาตรฐาน</a>
+    </div>
+    <p class="hd-note">ตัวเลขทุกตัวที่ผู้บริหารเห็นในแดชบอร์ด ย้อนกลับมาที่เอกสารจริงในแต่ละฝ่ายเสมอ — ถ้าตัวเลขผิด ให้ย้อนตรวจที่เอกสารต้นทางในเส้นทางที่เกี่ยวข้อง</p>
+  </div>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="flow-3"><span class="mtag">path-A</span> เส้นทาง A · รับพนักงานใหม่ → พร้อมเป็นพนักงานขาย</h3>
+  <p>เส้นทางนี้ตอบคำถามว่า “พนักงานใหม่คนหนึ่ง กลายเป็นพนักงานขายที่ออกใบเสนอราคาได้ ต้องทำอะไรบ้าง”</p>
+  <ol class="steps">
+    <li><span class="stitle">ประกาศตำแหน่งว่าง</span> — ฝ่ายบุคคลเปิดตำแหน่งบนหน้าเว็บ Careers ผู้สมัครกรอกใบสมัครออนไลน์
+      <br><span class="path">เว็บไซต์ › ร่วมงานกับเรา › ตำแหน่งงาน</span> · รายละเอียดที่ <a href="#web-3">ระบบรับสมัครงาน</a></li>
+    <li><span class="stitle">คัดเลือกและตอบรับ</span> — สัมภาษณ์, ตัดสินใจจ้าง, เตรียมเอกสารสัญญาจ้าง</li>
+    <li><span class="stitle">สร้างข้อมูลพนักงาน (Employee)</span> — กรอกชื่อ-นามสกุล, แผนก, ตำแหน่ง, วันเริ่มงาน, หัวหน้างาน
+      <br><span class="path">พนักงาน › พนักงาน › สร้าง</span> · รายละเอียดที่ <a href="#hr">ส่วนที่ 8</a></li>
+    <li><span class="stitle">ผูกผู้ใช้ระบบ (User) กับพนักงาน</span> — สร้างบัญชีผู้ใช้ให้ล็อกอินได้ แล้วเชื่อมกับข้อมูลพนักงาน</li>
+    <li><span class="stitle">มอบบทบาท “พนักงานขาย”</span> — เลือกบทบาทธุรกิจที่ให้สิทธิ์เมนูการขายและข้อมูลลูกค้า
+      <br>รายละเอียดที่ <a href="#sec-2">แคตตาล็อกบทบาทธุรกิจ</a> · <a href="#ov-4">แนวคิดบทบาท</a></li>
+    <li><span class="stitle">ตั้งค่าเริ่มต้นของพนักงานขาย</span> — ตั้ง “พนักงานขายประจำตัว” บนข้อมูลผู้ใช้ เพื่อให้ใบเสนอราคาที่ออกมามีชื่อผู้ขายอัตโนมัติ
+      <br>รายละเอียดที่ <a href="#settings">ส่วนที่ 18 · ค่าเริ่มต้น UI</a></li>
+    <li><span class="stitle">ฝึกอบรมและทดสอบการใช้งาน</span> — ใช้ “ทัวร์แนะนำการใช้งาน” เพื่อให้พนักงานรู้จักเมนู
+      <br>รายละเอียดที่ <a href="#ai-4">ทัวร์แนะนำการใช้งาน</a></li>
+  </ol>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่งต่อ: พนักงานขายพร้อมทำงาน <span class="hd-tag">A → B</span></p>
+    <div class="hd-flow">
+      <a href="#flow-3">พนักงานขายพร้อม</a><span class="hd-arrow">→</span>
+      <a href="#flow-4">ออกใบเสนอราคา</a>
+    </div>
+    <p class="hd-note">เงื่อนไขส่งต่อ: พนักงานเห็นเมนู “การขาย” และสร้างใบเสนอราคาได้ · ถ้าไม่เห็นเมนู ให้กลับไปตรวจบทบาท/สิทธิ์ (บทที่ 17)</p>
+  </div>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ รับต่อจาก: โครงสร้างพื้นฐานของระบบ <span class="hd-tag">prerequisite</span></p>
+    <div class="hd-flow">
+      <a href="#settings">การตั้งค่าฯ</a><span class="hd-arrow">·</span>
+      <a href="#security">สิทธิ์และการอนุมัติ</a>
+    </div>
+    <p class="hd-note">ต้องมีบทบาท/สิทธิ์และค่าเริ่มต้นระบบตั้งไว้ก่อน จึงจะมอบหมายงานให้พนักงานใหม่ได้อย่างถูกต้อง</p>
+  </div>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="flow-4"><span class="mtag">path-B</span> เส้นทาง B · ลูกค้าสนใจ → ใบเสนอราคา → ยืนยันคำสั่งขาย</h3>
+  <p>เส้นทาง “Lead-to-Order” — ตั้งแต่มีลูกค้าสนใจ จนกลายเป็นใบสั่งขายที่ยืนยันแล้ว</p>
+  <ol class="steps">
+    <li><span class="stitle">สร้าง/เลือกลูกค้า (คู่ค้า)</span> — เปิดข้อมูลลูกค้า ตรวจสถานะวงเงินเชื่อและความเสี่ยงก่อนเสนอราคา
+      <br>รายละเอียดที่ <a href="#sale-1">การควบคุมความเสี่ยงลูกค้าและวงเงินเชื่อ</a></li>
+    <li><span class="stitle">ออกใบเสนอราคา</span> — เลือกลูกค้า, ใส่รายการสินค้า/บริการ, ราคา, ส่วนลด, เงื่อนไขการขาย
+      <br><span class="path">การขาย › ใบเสนอราคา › สร้าง</span> · รายละเอียดที่ <a href="#sales">ส่วนที่ 5</a></li>
+    <li><span class="stitle">ระบบออกรหัสใบเสนอราคาตามแผนก</span> — เลขที่ออกอัตโนมัติตามแผนก/พนักงานขาย
+      <br>รายละเอียดที่ <a href="#sale-15">เลขที่ใบเสนอราคาตามแผนก</a></li>
+    <li><span class="stitle">ตรวจวงเงินเชื่อและขออนุมัติ (ถ้าเกินวงเงิน)</span> — เอกสารเข้าสู่ศูนย์อนุมัติกลางตามวงเงิน
+      <br>รายละเอียดที่ <a href="#sale-6">สะพานงานขาย OCA + อนุมัติตามวงเงิน</a> · <a href="#sec-3">ศูนย์อนุมัติกลาง</a></li>
+    <li><span class="stitle">ส่งใบเสนอราคาให้ลูกค้าและติดตามผล</span> — พิมพ์/ส่งอีเมล, ติดตามจนลูกค้าตอบรับ
+      <br>แบบพิมพ์ที่ <a href="#sale-11">ใบสั่งขาย QWeb</a> · <a href="#sale-14">Jasper งานขาย</a></li>
+    <li><span class="stitle">ลูกค้ายืนยัน → ยืนยันใบเสนอราคา</span> — สถานะเปลี่ยนเป็นใบสั่งขาย พร้อมตราประทับ CONFIRMED
+      <br>รายละเอียดที่ <a href="#sale-3">ตราประทับ CONFIRMED</a></li>
+    <li><span class="stitle">ผูกสัญญาและเงินประกันผลงาน (ถ้ามี)</span> — เชื่อมสัญญาการขาย, ตั้งเงื่อนไขเงินประกันผลงาน
+      <br>รายละเอียดที่ <a href="#sale-4">สัญญาการขาย</a> · <a href="#sale-9">เงินประกันผลงาน</a></li>
+  </ol>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่งต่อ: มีคำสั่งขายแล้ว → ต้องเปิดโครงการ/ส่งของ <span class="hd-tag">B → C</span></p>
+    <div class="hd-flow">
+      <a href="#flow-4">ใบสั่งขายยืนยัน</a><span class="hd-arrow">→</span>
+      <a href="#flow-5">เปิดโครงการ</a><span class="hd-arrow">/</span>
+      <a href="#inventory">ส่งของจากคลัง</a>
+    </div>
+    <p class="hd-note">ถ้าเป็นงานบริการ/งานโครงการ ให้ส่งต่อเส้นทาง C · ถ้าเป็นงานขายสินค้าปกติ ให้ส่งต่อฝ่ายคลังเพื่อจัดส่ง (ส่วนที่ 7)</p>
+  </div>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ รับต่อจาก: พนักงานขายที่พร้อมทำงาน <span class="hd-tag">A → B</span></p>
+    <div class="hd-flow"><a href="#flow-3">เส้นทาง A</a></div>
+    <p class="hd-note">ใบเสนอราคาจะมีชื่อพนักงานขายและรหัสตามแผนกที่ตั้งไว้ในเส้นทาง A</p>
+  </div>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="flow-5"><span class="mtag">path-C</span> เส้นทาง C · เปิดโครงการ → มอบงานวิศวกร → ลงเวลาและเบิกของ</h3>
+  <p>เส้นทาง “Order-to-Project” — เปลี่ยนคำสั่งขายให้เป็นงานที่ทีมวิศวกรรมลงมือทำจริง</p>
+  <ol class="steps">
+    <li><span class="stitle">สร้างโครงการจากบริบทงานขาย</span> — เปิดโครงการที่ผูกกับใบสั่งขาย/ลูกค้า
+      <br>รายละเอียดที่ <a href="#sale-7">บริบทโครงการและกำไรงานขาย</a> · <a href="#project">ส่วนที่ 10</a></li>
+    <li><span class="stitle">ออกรหัสงาน/รหัสงานย่อยตามแผนก</span> — รหัสไทยอัตโนมัติตามแผนกและพนักงานขาย
+      <br>รายละเอียดที่ <a href="#proj-4">เลขรหัสงานตามแผนก</a> · <a href="#proj-2">รหัสงาน &amp; บัญชีวิเคราะห์</a></li>
+    <li><span class="stitle">ผูกบัญชีวิเคราะห์ (Analytic) ให้โครงการ</span> — เพื่อเก็บต้นทุน/รายได้แยกตามโครงการ
+      <br>รายละเอียดที่ <a href="#acc1-9">บังคับบัญชีวิเคราะห์</a></li>
+    <li><span class="stitle">ตั้งงบ ประเภทโครงการ และผู้รับผิดชอบ</span> — กำหนดงบประมาณ, ความเสี่ยง, เจ้าของงาน
+      <br>รายละเอียดที่ <a href="#proj-1">โครงการอัจฉริยะ (P&amp;L/ความเสี่ยง)</a></li>
+    <li><span class="stitle">จ่ายงานให้ฝ่ายวิศวกร</span> — มอบหมายงานย่อย/ผู้รับผิดชอบ พร้อมกำหนดเส้นตาย</li>
+    <li><span class="stitle">วิศวกรลงเวลาทำงานรายวัน</span> — บันทึกชั่วโมงทำงานลงโครงการ
+      <br>รายละเอียดที่ <a href="#proj-3">Timesheet</a></li>
+    <li><span class="stitle">เบิกวัสดุ/อะไหล่จากคลัง</span> — ออกใบเบิกสินค้าเพื่อใช้ในโครงการ
+      <br>รายละเอียดที่ <a href="#inv-7">ใบเบิกสินค้า (Goods Issue)</a></li>
+    <li><span class="stitle">จัดซื้อของ/บริการที่ยังไม่มี (ถ้าจำเป็น)</span> — ส่งต่อฝ่ายจัดซื้อ
+      <br>รายละเอียดที่ <a href="#purchase">ส่วนที่ 6</a> · <a href="#flow-8">เส้นทาง F</a></li>
+  </ol>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่งต่อ: งานเสร็จ → ส่งมอบ → วางบิล <span class="hd-tag">C → D</span></p>
+    <div class="hd-flow">
+      <a href="#project">โครงการ</a><span class="hd-arrow">→</span>
+      <a href="#fleet-3">ขนส่ง/ส่งมอบ</a><span class="hd-arrow">→</span>
+      <a href="#flow-6">วางบิล &amp; รับเงิน</a>
+    </div>
+    <p class="hd-note">ตรวจว่าชั่วโมงงาน (Timesheet) และวัสดุที่เบิก ถูกเรียกเก็บในใบแจ้งหนี้ของลูกค้าครบหรือไม่ (ส่วนที่ 10)</p>
+  </div>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ รับต่อจาก: ใบสั่งขายที่ยืนยันแล้ว <span class="hd-tag">B → C</span></p>
+    <div class="hd-flow"><a href="#flow-4">เส้นทาง B</a></div>
+  </div>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="flow-6"><span class="mtag">path-D</span> เส้นทาง D · ส่งมอบ → ตรวจรับ → วางบิล → รับเงิน</h3>
+  <p>เส้นทาง “Deliver-to-Cash” — หัวใจของกระแสเงินสดของบริษัท</p>
+  <ol class="steps">
+    <li><span class="stitle">เตรียมส่งของ/ส่งงาน</span> — จัดของตามใบสั่งขาย, ออกใบปะหน้าสินค้ารอส่ง
+      <br>รายละเอียดที่ <a href="#inv-9">ใบปะหน้าส่งของ</a></li>
+    <li><span class="stitle">ขนส่งและส่งมอบ</span> — ออกใบขนส่ง กำหนดเส้นทาง/รถ
+      <br>รายละเอียดที่ <a href="#fleet-3">ใบขนส่ง เส้นทาง และการส่งของ</a> · <a href="#fleet">ส่วนที่ 12</a></li>
+    <li><span class="stitle">ลูกค้าตรวจรับ + เก็บหลักฐาน</span> — เก็บเอกสารตรวจรับเป็นหลักฐานประกอบการวางบิล
+      <br>รายละเอียดที่ <a href="#sale-2">หลักฐานประกอบการวางบิล</a></li>
+    <li><span class="stitle">เปิดบิล/วางบิล</span> — ส่งคำขอเปิดบิลเข้ากลาง แล้วออกใบแจ้งหนี้/วางบิล
+      <br>รายละเอียดที่ <a href="#acc2-10">คำขอเปิดบิลกลาง</a></li>
+    <li><span class="stitle">ออกใบกำกับภาษีอิเล็กทรอนิกส์</span> — ออก e-Tax Invoice / e-Receipt ให้ลูกค้า
+      <br>รายละเอียดที่ <a href="#acc2-1">e-Tax Invoice &amp; e-Receipt</a></li>
+    <li><span class="stitle">รับชำระเงิน</span> — บันทึกรับเงิน, ตัดหนี้, ตรวจหลักฐานการรับเงิน
+      <br>รายละเอียดที่ <a href="#acc2-8">ใบสำคัญจ่าย–รับเงิน</a> · <a href="#acc2-5">รายงานเงินเข้า</a></li>
+    <li><span class="stitle">กระทบยอดและปิดงวด</span> — กระทบยอดบัญชี, ปิดงวดบัญชี
+      <br>รายละเอียดที่ <a href="#acc1-1">กระทบยอดปิดงวด</a> · <a href="#acc2-6">ปิดงานบัญชีปฏิบัติการ</a></li>
+    <li><span class="stitle">ติดตามหนี้ / เงินประกันผลงาน</span> — ติดตามหนี้ค้าง, จัดการเงินประกันผลงาน
+      <br>รายละเอียดที่ <a href="#acc2-7">หนี้สงสัยจะสูญ</a> · <a href="#sale-9">เงินประกันผลงาน</a></li>
+  </ol>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่งต่อ: ได้เงินแล้ว → ผู้บริหารดูผล + สร้างมาตรฐาน <span class="hd-tag">D → G</span></p>
+    <div class="hd-flow">
+      <a href="#acc-reports">รายงานบัญชี</a><span class="hd-arrow">→</span>
+      <a href="#ai-2">แดชบอร์ด/KPI</a><span class="hd-arrow">→</span>
+      <a href="#iso">มาตรฐาน ISO</a>
+    </div>
+    <p class="hd-note">ผลลัพธ์ทางการเงินจะไหลเข้าสู่แดชบอร์ดและรายงานงบการเงิน เพื่อให้ผู้บริหารตัดสินใจ</p>
+  </div>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ รับต่อจาก: งานส่งมอบจากโครงการ/คลังสินค้า <span class="hd-tag">C → D</span></p>
+    <div class="hd-flow"><a href="#flow-5">เส้นทาง C</a><span class="hd-arrow">·</span><a href="#inventory">คลังสินค้า</a></div>
+  </div>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="flow-7"><span class="mtag">path-E</span> เส้นทาง E · หลังการขาย ประกัน และบริการรายงวด</h3>
+  <p>เส้นทางที่ดูแลลูกค้าต่อเนื่องหลังส่งมอบ — สร้างรายได้ประจำและรักษาความพึงพอใจ</p>
+  <ol class="steps">
+    <li><span class="stitle">ลงทะเบียนประกันสินค้า/งาน</span> — เปิดประวัติการรับประกันให้ลูกค้า
+      <br>รายละเอียดที่ <a href="#svc-1">ประกันสินค้า และใบเคลม/RMA</a></li>
+    <li><span class="stitle">ตั้งบัตรบริการ/บำรุงรักษาเชิงป้องกัน (PM) และ SLA</span>
+      <br>รายละเอียดที่ <a href="#svc-2">บัตรบริการและ SLA</a></li>
+    <li><span class="stitle">สัญญาบริการเรียกเก็บรายงวด (PM/AMC)</span> — ตั้งสัญญาให้ออกใบแจ้งหนี้อัตโนมัติตามงวด
+      <br>รายละเอียดที่ <a href="#svc-3">สัญญาบริการรายงวด</a></li>
+    <li><span class="stitle">รับแจ้งปัญหา/ข้อร้องเรียน</span> — ผ่าน Helpdesk ลูกค้าหรือภายใน
+      <br>รายละเอียดที่ <a href="#svc-5">Helpdesk</a> · <a href="#svc-7">แจ้งปัญหาภายใน</a></li>
+    <li><span class="stitle">ตรวจคุณภาพ (QC) ขาเข้า/ขาออก</span> — ตรวจของก่อนส่งและหลังรับคืน
+      <br>รายละเอียดที่ <a href="#svc-4">ตรวจสอบคุณภาพ (QC)</a></li>
+    <li><span class="stitle">เคลม/คืนสินค้า (RMA)</span> — หากต้องคืนสินค้า ให้ประสานฝ่ายคลัง
+      <br>รายละเอียดที่ <a href="#inv-8">คืนสินค้า / RMA</a></li>
+  </ol>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่งต่อ: ข้อมูลบริการ → KPI หลังการขาย + ปรับปรุงคุณภาพ <span class="hd-tag">E → G</span></p>
+    <div class="hd-flow">
+      <a href="#svc-6">KPI หลังการขาย</a><span class="hd-arrow">→</span>
+      <a href="#iso-8">ความพึงพอใจลูกค้า</a><span class="hd-arrow">→</span>
+      <a href="#iso-3">CAPA ปรับปรุง</a>
+    </div>
+    <p class="hd-note">ข้อร้องเรียนที่เกิดซ้ำจะกลายเป็น “ความไม่สอดคล้อง (NC)” ในระบบ ISO เพื่อแก้ที่รากเหตุ</p>
+  </div>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ รับต่อจาก: การส่งมอบในเส้นทาง D <span class="hd-tag">D → E</span></p>
+    <div class="hd-flow"><a href="#flow-6">เส้นทาง D</a></div>
+  </div>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="flow-8"><span class="mtag">path-F</span> เส้นทาง F · จัดซื้อ–รับของ–จ่ายผู้ขาย (เส้นทางสนับสนุน)</h3>
+  <p>เส้นทาง “Procure-to-Pay” — รองรับเส้นทาง C/D เมื่อต้องหาของหรือบริการจากภายนอก</p>
+  <ol class="steps">
+    <li><span class="stitle">สร้างใบขอซื้อ (PR)</span> — ผู้ขอระบุของ/บริการที่ต้องการ ระบบอนุมัติตามวงเงิน
+      <br>รายละเอียดที่ <a href="#pur-1">แกนการจัดซื้อและการอนุมัติ</a> · <a href="#pur-2">ใบขอซื้อ (ไทย)</a></li>
+    <li><span class="stitle">ขอราคาและเปรียบเทียบผู้ขาย</span> — ออกใบขอราคา เลือกผู้ขายที่เหมาะสม</li>
+    <li><span class="stitle">ออกใบสั่งซื้อ (PO)</span> — พร้อมเงื่อนไขการซื้อและเลขที่ตามแผนก
+      <br>รายละเอียดที่ <a href="#pur-4">เลขที่เอกสารตามแผนก</a> · <a href="#pur-5">เงื่อนไขการซื้อ</a></li>
+    <li><span class="stitle">รับของเข้าคลัง</span> — บันทึกการรับสินค้าเข้าคลังตามใบสั่งซื้อ
+      <br>รายละเอียดที่ <a href="#inv-1">ส่วนขยายใบรับ-จ่ายสินค้า</a></li>
+    <li><span class="stitle">วางบิลผู้ขายและจ่ายเงิน</span> — ตรวจใบวางบิล, เตรียมจ่าย, บันทึกจ่ายเงิน
+      <br>รายละเอียดที่ <a href="#acc1-4">การเตรียมจ่าย (Prepare Payments)</a></li>
+    <li><span class="stitle">ประเมินคุณภาพผู้ขาย</span> — ให้คะแนนผู้ขายป้อนกลับสู่ระบบคุณภาพ
+      <br>รายละเอียดที่ <a href="#iso-7">คุณภาพผู้จำหน่าย</a></li>
+  </ol>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่งต่อ: ของเข้าคลัง → ใช้ในโครงการ/ส่งลูกค้า <span class="hd-tag">F → C/D</span></p>
+    <div class="hd-flow">
+      <a href="#inventory">คลังสินค้า</a><span class="hd-arrow">→</span>
+      <a href="#flow-5">โครงการ</a><span class="hd-arrow">/</span>
+      <a href="#flow-6">ส่งมอบลูกค้า</a>
+    </div>
+    <p class="hd-note">ต้นทุนวัสดุที่ซื้อมาจะถูกนำไปคิดเป็นต้นทุนโครงการหรือต้นทุนขายในเส้นทางถัดไป</p>
+  </div>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ รับต่อจาก: ความต้องการวัสดุในโครงการ <span class="hd-tag">C → F</span></p>
+    <div class="hd-flow"><a href="#flow-5">เส้นทาง C</a></div>
+  </div>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="flow-9"><span class="mtag">path-G</span> เส้นทาง G · KPI ผู้บริหาร → สร้างมาตรฐาน ISO</h3>
+  <p>เส้นทาง “Monitor → Improve” — ปิดวงจรด้วยการวัดผล ตัดสินใจ และยกระดับมาตรฐาน</p>
+  <ol class="steps">
+    <li><span class="stitle">ผู้บริหารเปิดแดชบอร์ด</span> — ดูยอดขาย, กำไรโครงการ, กระแสเงินสด, สถานะงาน
+      <br>รายละเอียดที่ <a href="#ai-2">แดชบอร์ดผู้บริหารและตัวสร้างแดชบอร์ด</a></li>
+    <li><span class="stitle">วัด KPI ตามเส้นทาง</span> — เทียบเป้ากับผลจริงของแต่ละเส้นทาง (A–F)
+      <br>ดูการ์ด KPI ด้านล่าง</li>
+    <li><span class="stitle">ดูรายงานเชิงลึก</span> — งบการเงิน, รายงานขายตามโครงการ, รายงานคลัง, รายงานบริการ
+      <br>รายละเอียดที่ <a href="#acc-reports">ส่วนที่ 4</a> · <a href="#sale-8">รายงานยอดขายตามโครงการ</a> · <a href="#inv-6">รายงานคลัง</a></li>
+    <li><span class="stitle">ทบทวนระบบจัดการ (Management Review)</span> — ผู้บริหารทบทวนผลและกำหนดแนวทางปรับปรุง
+      <br>รายละเอียดที่ <a href="#iso-9">การทบทวนระบบจัดการ</a></li>
+    <li><span class="stitle">เปิดประเด็นปรับปรุง (CAPA / NC)</span> — แก้ที่รากเหตุ แล้ววัดผลซ้ำ
+      <br>รายละเอียดที่ <a href="#iso-3">ความไม่สอดคล้องและ CAPA</a> · <a href="#iso-2">ความเสี่ยงและโอกาส</a></li>
+    <li><span class="stitle">จัดทำ/ปรับปรุงเอกสารมาตรฐาน</span> — ออกเอกสารควบคุม, ฝึกอบรม, ทบทวนเป็นระยะ
+      <br>รายละเอียดที่ <a href="#iso-1">ควบคุมเอกสาร ISO</a> · <a href="#iso-6">การฝึกอบรม</a> · <a href="#doc-1">ศูนย์เอกสาร</a></li>
+  </ol>
+
+  <div class="kpis">
+    <div class="kpi"><div class="k-label">เส้นทาง A · คน</div><div class="k-value">Time-to-Productive</div><div class="k-hint">เวลาจนพนักงานขายออกใบเสนอราคาใบแรกได้</div></div>
+    <div class="kpi"><div class="k-label">เส้นทาง B · ขาย</div><div class="k-value">Win Rate / มูลค่างาน</div><div class="k-hint">อัตราปิดการขาย และยอดต่อดีล</div></div>
+    <div class="kpi"><div class="k-label">เส้นทาง C · โครงการ</div><div class="k-value">กำไรโครงการ %</div><div class="k-hint">รายได้–ต้นทุนต่อโครงการ เทียบเป้า</div></div>
+    <div class="kpi"><div class="k-label">เส้นทาง D · เงิน</div><div class="k-value">DSO / กระแสเงินสด</div><div class="k-hint">ระยะเวลาเก็บหนี้ และเงินเข้าจริง</div></div>
+    <div class="kpi"><div class="k-label">เส้นทาง E · บริการ</div><div class="k-value">SLA / CSAT</div><div class="k-hint">ตรงตาม SLA และความพึงพอใจลูกค้า</div></div>
+    <div class="kpi"><div class="k-label">เส้นทาง F · จัดซื้อ</div><div class="k-value">คุณภาพผู้ขาย</div><div class="k-hint">คะแนนผู้ขายและอัตราของมีปัญหา</div></div>
+  </div>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ รับต่อจาก: ทุกเส้นทาง A–F ป้อนข้อมูลเข้าที่นี่ <span class="hd-tag">A–F → G</span></p>
+    <div class="hd-flow">
+      <a href="#flow-3">A</a><span class="hd-arrow">·</span>
+      <a href="#flow-4">B</a><span class="hd-arrow">·</span>
+      <a href="#flow-5">C</a><span class="hd-arrow">·</span>
+      <a href="#flow-6">D</a><span class="hd-arrow">·</span>
+      <a href="#flow-7">E</a><span class="hd-arrow">·</span>
+      <a href="#flow-8">F</a><span class="hd-arrow">→</span>
+      <a href="#ai-2">แดชบอร์ด → ISO</a>
+    </div>
+    <p class="hd-note">เมื่อ ISO กำหนดมาตรฐานใหม่ มาตรฐานนั้นจะย้อนกลับไปกำหนดวิธีทำงานในเส้นทาง A–F อีกครั้ง — เป็นวงจรปรับปรุงต่อเนื่อง (PDCA)</p>
+  </div>
+
+  <!-- ============================================================= -->
+  <h3 class="mod" id="flow-10"><span class="mtag">handoff-matrix</span> ตารางสรุปจุดส่งต่อทั้งหมด (Handoff Matrix)</h3>
+  <p>ใช้ตารางนี้เป็น “แผนที่” เมื่อต้องการรู้ว่า เมื่อทำเอกสารหนึ่งเสร็จแล้ว งานจะไปที่ใดต่อ</p>
+  <table>
+    <thead><tr><th>เมื่อทำสิ่งนี้เสร็จ</th><th>ส่งต่อไปที่</th><th>เอกสาร/สัญญาณส่งต่อ</th><th>บทปลายทาง</th></tr></thead>
+    <tbody>
+      <tr><td>รับพนักงาน + มอบบทบาทขาย</td><td>พนักงานขายออกใบเสนอราคา</td><td>บัญชีผู้ใช้ + บทบาท</td><td><a href="#flow-3">A</a> → <a href="#flow-4">B</a></td></tr>
+      <tr><td>ยืนยันใบเสนอราคา</td><td>เปิดโครงการ / ส่งของ</td><td>ใบสั่งขาย (CONFIRMED)</td><td><a href="#flow-4">B</a> → <a href="#flow-5">C</a></td></tr>
+      <tr><td>เปิดโครงการ + มอบงาน</td><td>ลงเวลา + เบิกของ + จัดซื้อ</td><td>งานย่อย + รหัสงาน</td><td><a href="#flow-5">C</a> → <a href="#flow-8">F</a></td></tr>
+      <tr><td>ทำงานเสร็จ + ส่งมอบ</td><td>วางบิล + ออกใบกำกับภาษี</td><td>หลักฐานตรวจรับ</td><td><a href="#flow-5">C</a> → <a href="#flow-6">D</a></td></tr>
+      <tr><td>วางบิล + รับเงิน</td><td>รายงานการเงิน + แดชบอร์ด</td><td>ใบเสร็จ/ใบสำคัญรับเงิน</td><td><a href="#flow-6">D</a> → <a href="#flow-9">G</a></td></tr>
+      <tr><td>ส่งมอบงาน/สินค้า</td><td>ประกัน + บัตรบริการ + สัญญารายงวด</td><td>ทะเบียนประกัน</td><td><a href="#flow-6">D</a> → <a href="#flow-7">E</a></td></tr>
+      <tr><td>รับของจากผู้ขาย</td><td>คลังสินค้า → โครงการ/ลูกค้า</td><td>ใบรับสินค้า</td><td><a href="#flow-8">F</a> → <a href="#flow-5">C/D</a></td></tr>
+      <tr><td>รวบรวม KPI ทั้งหมด</td><td>ทบทวนผู้บริหาร + CAPA + เอกสารมาตรฐาน</td><td>รายงานทบทวน</td><td><a href="#flow-9">G</a> → <a href="#iso">ISO</a></td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <strong>ข้อควรระวัง:</strong> จุดส่งต่อที่ “ค้าง” บ่อยที่สุดคือ <em>หลังส่งมอบแล้วยังไม่วางบิล</em> และ
+    <em>ลงเวลาไม่ครบทำให้เรียกเก็บไม่ครบ</em> — ให้ตรวจสองจุดนี้เป็นประจำก่อนปิดโครงการ
+    (ดู <a href="#sale-2">หลักฐานวางบิล</a> และ <a href="#proj-3">Timesheet → Invoice</a>)
+  </div>
+
+  <div class="callout note">
+    <strong>การอัปเดตบทนี้:</strong> หากเพิ่มโมดูลใหม่หรือเปลี่ยนลำดับอนุมัติ ควรอัปเดตแผนที่ในบทนี้
+    ให้ตรงกับบทปลายทางในเล่ม แล้ว build คู่มือใหม่ (ดู <code>docs/od19_user_guide/build.ps1</code>)
+  </div>
 
 </section>
 
@@ -625,7 +1162,7 @@ sub=คุณสมบัติบัญชีไทย · เช็ค · DN/CN
 <section class="part" id="acc-core">
 
   <div class="part-head">
-    <h2 class="part-title"><span class="part-icon">💰</span> ส่วนที่ 2 · บัญชีและการเงิน — แกนหลัก</h2>
+    <h2 class="part-title"><span class="part-icon">💰</span> ส่วนที่ 3 · บัญชีและการเงิน — แกนหลัก</h2>
     <p class="part-sub">
       ส่วนนี้อธิบาย “เครื่องมือบัญชีหลัก” ที่ทีมบัญชี-การเงินใช้ทุกวัน ตั้งแต่การปรับ/ยกเลิกรายการ,
       การตั้งหนี้-จ่ายชำระ, เช็ค, ใบเพิ่มหนี้/ใบลดหนี้, การเตรียมจ่าย (Prepare Payments),
@@ -648,6 +1185,26 @@ sub=คุณสมบัติบัญชีไทย · เช็ค · DN/CN
       <li><a href="#acc1-9">Accounting Analytic Require</a></li>
     </ol>
   </nav>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ ส่วนนี้รับต่อมาจาก <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#sales">ส่วนที่ 5 · การขายและลูกค้า</a><span class="hd-arrow">→</span>
+      <a href="#proj-3">Timesheet → Invoice</a><span class="hd-arrow">→</span>
+      <strong>ส่วนนี้ (ส่วนที่ 3)</strong>
+    </div>
+    <p class="hd-note">รับเอกสารต้นทาง (ใบแจ้งหนี้/ใบวางบิล/ค่าใช้จ่ายจากโครงการ) เข้ามาบันทึกบัญชี กระทบยอด และปิดงวด — ถ้ายอดไม่ตรง ให้ย้อนตรวจเอกสารต้นทางในส่วนที่ 5 และส่วนที่ 10</p>
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่วนนี้ส่งต่อไปยัง <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <strong>ส่วนนี้ (ส่วนที่ 3)</strong><span class="hd-arrow">→</span>
+      <a href="#acc-reports">ส่วนที่ 4 · บัญชี–รายงานและภาษี</a><span class="hd-arrow">→</span>
+      <a href="#ai-2">แดชบอร์ด/KPI</a>
+    </div>
+    <p class="hd-note">เมื่อกระทบยอดและปิดงวดแล้ว ตัวเลขจะไหลไปยังรายงานการเงิน (ส่วนที่ 4) และแดชบอร์ดผู้บริหาร (ส่วนที่ 16)</p>
+  </div>
 
   <!-- ================= acc1-1 ================= -->
   <h3 class="mod" id="acc1-1"><span class="mtag">od19_accounting_features</span> คุณสมบัติบัญชีแกนหลัก และการกระทบยอดปิดงวด</h3>
@@ -864,7 +1421,7 @@ sub=คุณสมบัติบัญชีไทย · เช็ค · DN/CN
   <ol class="steps">
     <li><span class="stitle">เปิดใบแจ้งหนี้ต้นทาง</span> เปิดใบแจ้งหนี้/ใบกำกับที่ลงบัญชีแล้ว (ทั้งฝั่งขายและซื้อ)</li>
     <li><span class="stitle">เลือกสร้างเอกสาร</span> กด <span class="pill">Debit Note</span> (ใบเพิ่มหนี้), <span class="pill">Credit Note</span> (ใบลดหนี้) หรือ <span class="pill">Remaster</span> (ออกใบแจ้งหนี้ใหม่)</li>
-    <li><span class="stitle">กรอกรายละเอียด</span> ระบบคัดลอกรายการจากต้นทาง: Debit Note คัดลอกบรรทัดที่ราคาเป็นศูนย์ (ไว้เพิ่มค่าบริการ/ภาษี), Remaster คัดลอกทั้งจำนวน ส่วน Credit Note เปิดฟอร์มใบลดหนี้พร้อมลิงก์ต้นทาง</li>
+    <li><span class="stitle">กรอกรายละเอียด</span> ระบบคัดลอกรายการจากต้นทาง: Debit Note คัดลอกบรรทัดที่ราคาเป็นศูนย์ (ไว้เพิ่มค่าบริการ/ภาษี), Remaster คัดลอกทั้งจำนวน ส่วน <strong>Credit Note คัดลอกรายการเดิมและ “กลับรายการบัญชี” ให้อัตโนมัติ</strong> (<code>_reverse_moves()</code>) พร้อมผูกกลับไปยังใบต้นทาง</li>
     <li><span class="stitle">ระบุเหตุผล</span> เลือก <span class="pill">Reason</span> และกรอก <span class="pill">Remark</span> (จำเป็นก่อนลงบัญชี)</li>
     <li><span class="stitle">ลงบัญชี</span> กด <span class="pill">Confirm/Post</span> เอกสารถึงจะเปลี่ยนเป็นสถานะลงบัญชี</li>
   </ol>
@@ -892,8 +1449,18 @@ sub=คุณสมบัติบัญชีไทย · เช็ค · DN/CN
     </tbody>
   </table>
   <div class="callout note">
+    <strong>เหลือปุ่ม Credit Note เพียงปุ่มเดียว</strong> — ปุ่ม Credit Note แบบ native ของ Odoo ถูกซ่อนไว้
+    ปุ่ม <span class="pill">Credit Note</span> ของโมดูลนี้จึงคัดลอกรายการเดิม <strong>กลับรายการบัญชีให้อัตโนมัติ</strong>
+    (<code>_reverse_moves()</code>) และผูก <code>parent_id</code>/<code>reversed_entry_id</code> กลับไปยังใบต้นทางให้ในครั้งเดียว
+    รองรับทั้งฝั่งลูกค้า (<code>out_refund</code>) และผู้ขาย (<code>in_refund</code>) จากปุ่มเดียว
+  </div>
+  <div class="callout note">
     ใบลดหนี้ (Credit Note) เมื่อลงบัญชีแล้ว ระบบจะ <strong>กระทบยอดกับใบแจ้งหนี้ต้นทางให้อัตโนมัติ</strong>
-    เพื่อไม่ให้ยอดลูกหนี้/เจ้าหนี้ค้างเกินจริง
+    เพื่อไม่ให้ยอดลูกหนี้/เจ้าหนี้ค้างเกินจริง — ลดได้ทั้ง <strong>เต็มจำนวน</strong> และ <strong>บางส่วน</strong>
+  </div>
+  <div class="callout note">
+    ฟิลด์ <strong>Source Document</strong> แสดง <strong>เลขที่เอกสารต้นทางจริง</strong> ไม่ใช่เลขของเอกสารเอง
+    เพื่อให้รายงาน (QWeb/Jasper) และใบกำกับภาษีอิเล็กทรอนิกส์ (e-Tax) อ้างอิงใบเดิมได้ถูกต้อง
   </div>
   <div class="callout warn">
     เอกสาร DN/CN/Remaster <strong>ต้องระบุเหตุผลก่อนลงบัญชี</strong> หากไม่มีระบบจะไม่ยอมให้ post
@@ -938,6 +1505,16 @@ sub=คุณสมบัติบัญชีไทย · เช็ค · DN/CN
   <div class="callout note">
     เดิมเมนูฝั่งผู้ขายถูกเรียกว่า “Billing” และเมนูใบสำคัญจ่ายก็ใช้คำว่า “Payment” ซ้ำกัน — โมดูลนี้เปลี่ยนชื่อผู้ขายเป็น
     “Prepare Payments” และเมนูใบสำคัญจ่ายเป็น “Payment Vouchers” เพื่อไม่ให้สับสน
+  </div>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ รับต่อจาก: ใบวางบิลผู้ขาย (เส้นทาง F) <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#flow-8">เส้นทาง F</a><span class="hd-arrow">→</span>
+      <a href="#purchase">ส่วนที่ 6 · การจัดซื้อ</a><span class="hd-arrow">→</span>
+      <a href="#acc1-4">เตรียมจ่าย (ที่นี่)</a>
+    </div>
+    <p class="hd-note">ก่อนออกใบสำคัญจ่าย ต้องรวบรวมบิลซื้อที่ตรวจรับแล้วจากเส้นทาง F (จัดซื้อ–รับของ) มาไว้ในชุดเตรียมจ่าย แล้วตรวจยอด/คู่ค้า/เงื่อนไขการจ่ายให้ตรงกับใบวางบิลผู้ขายก่อนจ่ายจริง</p>
   </div>
 
   <!-- ================= acc1-5 ================= -->
@@ -1158,7 +1735,7 @@ sub=งานบัญชีเชิงลึก: e-Tax Invoice, รายง�
 -->
 <section class="part" id="acc-reports">
   <div class="part-head">
-    <h2 class="part-title"><span class="part-icon">🧾</span> ส่วนที่ 3 · บัญชีและการเงิน — รายงานและภาษี</h2>
+    <h2 class="part-title"><span class="part-icon">🧾</span> ส่วนที่ 4 · บัญชีและการเงิน — รายงานและภาษี</h2>
     <p class="part-sub">
       ส่วนนี้รวบรวมโมดูลงานบัญชีเชิงลึกของ AutoInfo ตั้งแต่การออก <b>e-Tax Invoice</b> ตามมาตรฐาน ETDA,
       รายงานภาษีไทย (ภ.พ.30/36, ภ.ง.ด.3/53/54/50/51, ภ.ธ.40, อากรแสตมป์), งบการเงิน MIS Balance Sheet,
@@ -1183,6 +1760,26 @@ sub=งานบัญชีเชิงลึก: e-Tax Invoice, รายง�
       <li><a href="#acc2-11">รหัสเอกสารบัญชี (Document Sequences)</a></li>
     </ol>
   </nav>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ ส่วนนี้รับต่อมาจาก <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#acc-core">ส่วนที่ 3 · บัญชีแกนหลัก</a><span class="hd-arrow">→</span>
+      <a href="#acc2-10">คำขอเปิดบิลกลาง</a><span class="hd-arrow">→</span>
+      <strong>ส่วนนี้ (ส่วนที่ 4)</strong>
+    </div>
+    <p class="hd-note">รับยอดที่กระทบยอด/ปิดงวดแล้ว และคำขอเปิดบิลจากทุกฝ่าย มาออกรายงาน ใบกำกับภาษี และงบการเงิน</p>
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่วนนี้ส่งต่อไปยัง <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <strong>ส่วนนี้ (ส่วนที่ 4)</strong><span class="hd-arrow">→</span>
+      <a href="#ai-2">แดชบอร์ด/KPI</a><span class="hd-arrow">→</span>
+      <a href="#iso-9">ทบทวนระบบจัดการ</a>
+    </div>
+    <p class="hd-note">งบการเงินและรายงานภาษีป้อนแดชบอร์ดผู้บริหาร และใช้เป็นข้อมูลทบทวนระบบจัดการ ISO (ส่วนที่ 9)</p>
+  </div>
 
   <!-- ============================================================= -->
   <h3 class="mod" id="acc2-1"><span class="mtag">od19_etax_invoice</span> e-Tax Invoice &amp; e-Receipt (ใบกำกับภาษีอิเล็กทรอนิกส์)</h3>
@@ -1325,34 +1922,127 @@ sub=งานบัญชีเชิงลึก: e-Tax Invoice, รายง�
   <p>
     ให้ <b>งบแสดงฐานะทางการเงิน (งบดุล)</b> รูปแบบพร้อมใช้ โดยอิงกับ <b>MIS Builder</b> (OCA <span class="pill">mis_builder</span>)
     มีการเปรียบเทียบหลายงวด และตรวจสอบความสมดุล (Assets = Liabilities + Equity) อัตโนมัติ
+    ออกแบบให้ดูงบได้ ณ วันที่ใด ๆ โดยไม่ต้องปิดงวดก่อน และปรับนิยาม/ตัวชี้วัดได้เองโดยไม่แตะข้อมูลบัญชี
   </p>
 
-  <h4>เมนู</h4>
-  <p><span class="path">การบัญชี › รายงาน › MIS Reports</span> (จาก mis_builder) เลือกงบ <b>งบแสดงฐานะทางการเงิน (Balance Sheet)</b> หรือเรียกใช้ instance ของงบ</p>
-
-  <h4>ขั้นตอนการใช้งาน</h4>
-  <ol class="steps">
-    <li><span class="stitle">เลือกงบ</span> เปิดรายงาน <b>งบแสดงฐานะทางการเงิน (Balance Sheet)</b></li>
-    <li><span class="stitle">กำหนดงวด</span> ระบบมีคอลัมน์เปรียบเทียบ 3 งวด: <b>เดือนปัจจุบัน</b>, <b>เดือนก่อน</b> (หัก 1 เดือน) และ <b>เดือนเดียวกับปีก่อน</b> (หัก 12 เดือน)</li>
-    <li><span class="stitle">เลือกสมุด/สถานะ</span> ค่าเริ่มต้นนับเฉพาะรายการที่ <b>posted</b> (<span class="pill">target_move = posted</span>)</li>
-    <li><span class="stitle">พิมพ์ / ส่งออก</span> รองรับ PDF แนวนอน (<span class="pill">landscape_pdf</span>) และเปรียบเทียบงวด (<span class="pill">comparison_mode</span>)</li>
-  </ol>
-
-  <h4>โครงสร้างตัวชี้วัด (KPIs)</h4>
+  <h4>แนวคิด MIS Builder (โครงสร้าง 3 ชั้น)</h4>
+  <p>MIS Builder แยก <b>“นิยามรายงาน”</b> ออกจาก <b>“รอบการออกรายงาน”</b> จึงแก้สูตร KPI ได้โดยไม่กระทบข้อมูลจริง:</p>
   <table>
-    <thead><tr><th>ลำดับ</th><th>กลุ่ม</th><th>ตัวอย่าง KPI</th></tr></thead>
+    <thead><tr><th>ชั้น</th><th>Model</th><th>หน้าที่</th></tr></thead>
     <tbody>
-      <tr><td>10–70</td><td>สินทรัพย์</td><td>เงินสด, ลูกหนี้, สินทรัพย์หมุนเวียน, ค่าใช้จ่ายล่วงหน้า, สินทรัพย์ไม่หมุนเวียน, สินทรัพย์ถาวร และ<b>รวมสินทรัพย์</b></td></tr>
-      <tr><td>110–150</td><td>หนี้สิน</td><td>เจ้าหนี้, บัตรเครดิต, หนี้สินหมุนเวียน, หนี้สินไม่หมุนเวียน และ<b>รวมหนี้สิน</b></td></tr>
-      <tr><td>210–240</td><td>ส่วนของเจ้าของ</td><td>ทุนเรือนหุ้น, กำไรสะสม, ผลการดำเนินงาน และ<b>รวมส่วนของเจ้าของ</b></td></tr>
-      <tr><td>310</td><td>รวมทั้งสิ้น</td><td>หนี้สิน + ส่วนของเจ้าของ</td></tr>
-      <tr><td>320</td><td>ตรวจสอบ</td><td><b>bs_check</b> — แสดง “BS - Good” เมื่อยอดต่าง &lt; 0.005 มิฉะนั้นเป็น “BS - Bad”</td></tr>
+      <tr><td>แม่แบบรายงาน</td><td><code>mis.report</code></td><td>ชุดตัวชี้วัด (KPI) และสูตรคำนวณ — ในที่นี้คือ <b>งบแสดงฐานะทางการเงิน (Balance Sheet)</b></td></tr>
+      <tr><td>ตัวชี้วัด</td><td><code>mis.report.kpi</code></td><td>แต่ละบรรทัดของงบ เช่น <code>bs_assets_cash</code> พร้อมสูตร <code>bale[][]</code></td></tr>
+      <tr><td>อินสแตนซ์รายงาน</td><td><code>mis.report.instance</code></td><td>“รอบที่ออกรายงาน” — ผูกแม่แบบ + งวดเปรียบเทียบ + ตัวกรอง (target move ฯลฯ)</td></tr>
+      <tr><td>งวดเปรียบเทียบ</td><td><code>mis.report.instance.period</code></td><td>คอลัมน์ของรายงาน (relative/fixed, รายเดือน/ไตรมาส/ปี, offset, duration)</td></tr>
     </tbody>
   </table>
 
+  <h4>เมนู</h4>
+  <p>
+    <span class="path">การบัญชี › รายงาน › MIS Reporting › MIS Reports</span>
+    (เมนูจาก mis_builder, ต้องมีสิทธิ์ <span class="pill">group_account_readonly</span>) ประกอบด้วย
+  </p>
+  <ul>
+    <li><b>MIS Reports</b> — รายการอินสแตนซ์ของงบทั้งหมด (มี <b>งบแสดงฐานะทางการเงิน (Balance Sheet)</b> อยู่ในนี้)</li>
+    <li><b>Last Reports Generated</b> — รายงานชั่วคราวที่เพิ่งสั่งออกรายการล่าสุด (temporary instances)</li>
+  </ul>
+
+  <h4>ขั้นตอนการใช้งานอย่างละเอียด</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดรายการงบ</span> เข้า <b>การบัญชี › รายงาน › MIS Reporting › MIS Reports</b> — แต่ละแถวมีปุ่มด่วน <b>Preview</b> (แว่นขยาย), <b>Print</b> (เครื่องพิมพ์), <b>Export</b> (ดาวน์โหลด XLSX) และคอลัมน์ <b>Template</b>, <b>Target Moves</b>, <b>Base date</b></li>
+    <li><span class="stitle">เปิดอินสแตนซ์</span> คลิกแถว <b>งบแสดงฐานะทางการเงิน (Balance Sheet)</b> เพื่อดูพารามิเตอร์ หรือกดปุ่ม <b>Preview</b> เพื่อดูผลทันที</li>
+    <li><span class="stitle">กด Preview</span> ระบบคำนวณและแสดงตาราง KPI — แต่ละบรรทัดคือ KPI หนึ่งตัว แต่ละคอลัมน์คือหนึ่งงวดเปรียบเทียบ</li>
+    <li><span class="stitle">เจาะดูรายละเอียด (Drill-down)</span> คลิกตัวเลขที่ขีดเส้นใต้ ระบบเปิด <b>รายการบัญชี (journal items)</b> ที่ประกอบเป็นยอดนั้น</li>
+    <li><span class="stitle">พิมพ์ / ส่งออก</span> ใช้ปุ่ม <b>Print</b> (PDF แนวนอน) หรือ <b>Export</b> (XLSX) บนแถบเครื่องมือ</li>
+    <li><span class="stitle">บันทึก / ปักหมุด</span> กด <b>Save</b> เพื่อเก็บเป็นอินสแตนซ์ถาวร หรือ <b>Add to dashboard</b> เพื่อปักหมุดรายงานไว้บนแดชบอร์ด</li>
+  </ol>
+
+  <h4>พารามิเตอร์ของอินสแตนซ์รายงาน</h4>
+  <table>
+    <thead><tr><th>ฟิลด์</th><th>ความหมาย</th><th>ค่าในงบนี้</th></tr></thead>
+    <tbody>
+      <tr><td><code>Template</code> (report_id)</td><td>แม่แบบ KPI ที่ใช้ออกงบ</td><td>งบแสดงฐานะทางการเงิน (Balance Sheet)</td></tr>
+      <tr><td><code>Comparison mode</code></td><td>แสดงหลายช่วงเวลียงข้างกัน</td><td>เปิด (เปรียบเทียบ 3 งวด)</td></tr>
+      <tr><td><code>Target Moves</code></td><td>นับเฉพาะรายการที่ <b>post</b> หรือรวมร่าง (all)</td><td><b>Posted</b> เท่านั้น</td></tr>
+      <tr><td><code>Base date</code> (pivot_date)</td><td>วันที่อ้างอิงสำหรับงวดแบบ relative</td><td>วันนี้ (แก้วันที่ได้ที่แถบเครื่องมือ)</td></tr>
+      <tr><td><code>Landscape PDF</code></td><td>พิมพ์ PDF แนวนอน</td><td>เปิด</td></tr>
+      <tr><td><code>Multi-company / Currency</code></td><td>รวมหลายบริษัท / สกุลเงินที่แสดง</td><td>ตามบริษัทที่ล็อกอิน</td></tr>
+    </tbody>
+  </table>
+
+  <h4>งวดเปรียบเทียบ (Periods)</h4>
+  <p>งบนี้ตั้งงวดเปรียบเทียบไว้ 3 คอลัมน์ (แก้/เพิ่มได้ที่แท็บ <b>Periods</b> ของอินสแตนซ์):</p>
+  <table>
+    <thead><tr><th>งวด</th><th>โหมด</th><th>ค่า</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td>เดือนปัจจุบัน</td><td>relative</td><td>month, offset 0</td><td>งวดปัจจุบัน</td></tr>
+      <tr><td>เดือนก่อน</td><td>relative</td><td>month, offset −1</td><td>งวดก่อนหน้า 1 เดือน</td></tr>
+      <tr><td>เดือนเดียวกันปีก่อน</td><td>relative</td><td>month, offset −12</td><td>เทียบปีต่อปี (YoY)</td></tr>
+    </tbody>
+  </table>
+  <div class="callout note">
+    <b>โหมดงวด:</b> <b>relative</b> = คำนวณจาก Base date (offset บวก/ลบ + duration + หน่วย m/q/y) ·
+    <b>fixed</b> = ระบุช่วงวันที่ตายตัว (date_from–date_to) — เหมาะกับงวดที่ปิดแล้ว
+  </div>
+
+  <h4>โครงสร้างตัวชี้วัด (KPIs) ของงบดุล</h4>
+  <table>
+    <thead><tr><th>ลำดับ</th><th>KPI (name)</th><th>รายการ</th><th>ดึงจาก account_type</th></tr></thead>
+    <tbody>
+      <tr><td>10</td><td><code>bs_assets_cash</code></td><td>เงินสดและรายการเทียบเท่าเงินสด</td><td><code>asset_cash</code></td></tr>
+      <tr><td>20</td><td><code>bs_assets_receivable</code></td><td>ลูกหนี้การค้าและลูกหนี้อื่น</td><td><code>asset_receivable</code></td></tr>
+      <tr><td>30</td><td><code>bs_assets_current</code></td><td>สินทรัพย์หมุนเวียนอื่น</td><td><code>asset_current</code></td></tr>
+      <tr><td>40</td><td><code>bs_assets_prepayments</code></td><td>ค่าใช้จ่ายจ่ายล่วงหน้า</td><td><code>asset_prepayments</code></td></tr>
+      <tr><td>50</td><td><code>bs_assets_non_current</code></td><td>สินทรัพย์ไม่หมุนเวียนอื่น</td><td><code>asset_non_current</code></td></tr>
+      <tr><td>60</td><td><code>bs_assets_fixed</code></td><td>ที่ดิน อาคารและอุปกรณ์</td><td><code>asset_fixed</code></td></tr>
+      <tr><td>70</td><td><code>bs_assets_total</code></td><td><b>รวมสินทรัพย์</b></td><td>ผลรวม 10–60</td></tr>
+      <tr><td>110</td><td><code>bs_liab_payable</code></td><td>เจ้าหนี้การค้าและเจ้าหนี้อื่น</td><td><code>liability_payable</code></td></tr>
+      <tr><td>120</td><td><code>bs_liab_credit_card</code></td><td>เจ้าหนี้บัตรเครดิต</td><td><code>liability_credit_card</code></td></tr>
+      <tr><td>130</td><td><code>bs_liab_current</code></td><td>หนี้สินหมุนเวียนอื่น</td><td><code>liability_current</code></td></tr>
+      <tr><td>140</td><td><code>bs_liab_non_current</code></td><td>หนี้สินไม่หมุนเวียน</td><td><code>liability_non_current</code></td></tr>
+      <tr><td>150</td><td><code>bs_liab_total</code></td><td><b>รวมหนี้สิน</b></td><td>ผลรวม 110–140 (กลับเครื่องหมาย)</td></tr>
+      <tr><td>210</td><td><code>bs_equity_share</code></td><td>ทุนและส่วนเกินมูลค่าหุ้น</td><td><code>equity</code></td></tr>
+      <tr><td>220</td><td><code>bs_equity_retained</code></td><td>กำไร(ขาดทุน)สะสมยกมา</td><td><code>equity_unaffected</code></td></tr>
+      <tr><td>230</td><td><code>bs_net_result</code></td><td>กำไร(ขาดทุน)สุทธิสำหรับงวด</td><td><code>income / expense</code></td></tr>
+      <tr><td>240</td><td><code>bs_equity_total</code></td><td><b>รวมส่วนของผู้ถือหุ้น</b></td><td>ผลรวม 210–230</td></tr>
+      <tr><td>310</td><td><code>bs_liab_equity_total</code></td><td><b>รวมหนี้สินและส่วนของผู้ถือหุ้น</b></td><td>= 150 + 240</td></tr>
+      <tr><td>320</td><td><code>bs_check</code></td><td><b>ผลต่าง (สินทรัพย์ − หนี้สินและส่วนของผู้ถือหุ้น)</b></td><td>= 70 − 310</td></tr>
+    </tbody>
+  </table>
+
+  <h4>บรรทัดตรวจสอบความสมดุล (bs_check)</h4>
+  <p>
+    KPI <code>bs_check</code> = <b>รวมสินทรัพย์ − รวมหนี้สินและส่วนของผู้ถือหุ้น</b> ต้องเป็น <b>0</b>
+    และจัดสีบรรทัดอัตโนมัติด้วย <code>style_expression</code>:
+    แสดง <b>“BS - Good”</b> เมื่อผลต่าง &lt; 0.005 มิฉะนั้นเป็น <b>“BS - Bad”</b> (บรรทัดจะเปลี่ยนสีเตือน)
+  </p>
+  <div class="callout warn">
+    <b>ข้อควรระวัง:</b> ถ้าพบ “BS - Bad” ให้ตรวจว่า (1) <b>Target Moves</b> ตั้งเป็น <b>Posted</b> หรือไม่
+    (2) มีรายการที่ยังไม่ลงบัญชี/ลงไม่ครบ (3) งวดของแต่ละคอลัมน์สอดคล้องกัน — งบดุลที่ถูกต้องต้องสมดุลเสมอ
+  </div>
+
+  <h4>แถบเครื่องมือของรายงาน (Report Toolbar)</h4>
+  <ul>
+    <li><b>Base date</b> — เปลี่ยนวันที่อ้างอิงของงวดแบบ relative (ทุกคอลัมน์เลื่อนตาม)</li>
+    <li><b>Refresh</b> — คำนวณใหม่หลังเปลี่ยนวันที่/ตัวกรอง</li>
+    <li><b>Print</b> — ออก PDF (แนวนอน)</li>
+    <li><b>Export</b> — ดาวน์โหลด XLSX</li>
+    <li><b>Settings</b> — เปิดหน้าตั้งค่าอินสแตนซ์ (แม่แบบ/งวด/ตัวกรอง)</li>
+    <li><b>ไอคอนขยาย (resize)</b> — สลับโหมดแสดงเต็มความกว้าง</li>
+  </ul>
+
+  <h4>การเพิ่ม/แก้ตัวชี้วัด (KPI)</h4>
+  <ol class="steps">
+    <li><span class="stitle">เปิดตัวแก้ไข</span> เข้า <b>การตั้งค่า › เทคนิค › MIS Reports</b> (หรือ <b>Settings › Technical › Reporting › MIS Reports</b>) เลือกแม่แบบ <b>งบแสดงฐานะทางการเงิน (Balance Sheet)</b></li>
+    <li><span class="stitle">แก้ KPI</span> เพิ่ม/แก้/ลบตัวชี้วัดในแท็บ <b>KPIs</b> — ตั้ง <b>Sequence</b> เพื่อจัดลำดับบรรทัด, <b>Description</b> เป็นชื่อบรรทัด, <b>Style</b> สำหรับตัวหนา/เส้นคั่น ของยอดรวม</li>
+    <li><span class="stitle">เขียนสูตร</span> ใช้ภาษาสูตรของ MIS Builder เช่น <code>bale[][]</code> (ยอดคงเหลือปลายงวด), <code>balp[][]</code> (ยอดเคลื่อนไหวในงวด) และอ้าง KPI อื่นได้ด้วยชื่อ เช่น <code>bs_assets_cash + bs_assets_receivable</code></li>
+    <li><span class="stitle">บันทึก</span> กด Save แล้วกลับไปกด <b>Preview</b> ที่อินสแตนซ์เพื่อดูผลที่เปลี่ยน</li>
+  </ol>
+
   <div class="callout tip">
-    <b>เคล็ดลับ:</b> สูตร KPI ใช้ฟังก์ชันของ MIS Builder (เช่น <code>bale [ ('account_type','=','asset_cash') ]</code>)
-    หากต้องเพิ่ม/ปรับตัวชี้วัด ให้แก้ที่นิยาม <b>mis.report</b> ของงบ — และปิดงวดบัญชีก่อนออกรายงานเพื่อความแม่นยำ
+    <b>เคล็ดลับ:</b> การเพิ่ม <b>auto_expand_accounts</b> ให้ KPI จะทำให้กางบัญชีลูกที่ประกอบเป็นยอดนั้นออกมาใต้บรรทัดโดยอัตโนมัติ ·
+    หากต้องปรับให้เหมาะกับหลายบริษัท ให้เปิด <b>Multi-company</b> ที่อินสแตนซ์ (ต้องมีสิทธิ์หลายบริษัท) ·
+    และควรปิดงวดบัญชีก่อนออกรายงานทางการเพื่อความแม่นยำ
   </div>
 
   <!-- ============================================================= -->
@@ -1681,6 +2371,16 @@ sub=งานบัญชีเชิงลึก: e-Tax Invoice, รายง�
     ตั้งค่าบังคับหลักฐาน/ต้นฉบับได้ที่ระดับบริษัท (AR require evidence และ AP require original)
   </div>
 
+  <div class="handoff in">
+    <p class="hd-head">⬅️ รับต่อจาก: งานส่งมอบที่พร้อมวางบิล <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#sale-2">หลักฐานประกอบการวางบิล</a><span class="hd-arrow">→</span>
+      <a href="#proj-3">Timesheet → Invoice</a><span class="hd-arrow">→</span>
+      <a href="#acc2-10">คำขอเปิดบิลกลาง (ที่นี่)</a>
+    </div>
+    <p class="hd-note">รวมคำขอเปิดบิลจากทุกต้นทาง (ใบส่งของ/ใบสั่งขาย/ใบสั่งซื้อ/งานโครงการ) ไว้ที่เดียว บัญชีจึงตรวจหลักฐานและออกบิลได้จากศูนย์กลาง โดยกันดึงซ้ำและกันออกบิลซ้ำ</p>
+  </div>
+
   <!-- ============================================================= -->
   <h3 class="mod" id="acc2-11"><span class="mtag">od19_accounting_document_sequence</span> รหัสเอกสารบัญชี (Accounting Document Sequences)</h3>
 
@@ -1717,7 +2417,7 @@ sub=งานบัญชีเชิงลึก: e-Tax Invoice, รายง�
 
   <hr>
   <p class="footnote">
-    ส่วนที่ 3 (บัญชีและการเงิน — รายงานและภาษี) · ครอบคลุม 11 โมดูล ·
+    ส่วนที่ 4 (บัญชีและการเงิน — รายงานและภาษี) · ครอบคลุม 11 โมดูล ·
     เนื้อหาอ้างอิงจากโค้ดโมดูลจริงใน <code>custom_addons/</code> (manifest, models, views, data, report)
   </p>
 </section>
@@ -1733,7 +2433,7 @@ sub=ใบเสนอราคา · ใบสั่งขาย · สัญ�
 <section class="part" id="sales">
 
   <div class="part-head">
-    <h2 class="part-title"><span class="part-icon">🛒</span> ส่วนที่ 4 · การขายและลูกค้า</h2>
+    <h2 class="part-title"><span class="part-icon">🛒</span> ส่วนที่ 5 · การขายและลูกค้า</h2>
     <p class="part-sub">
       อธิบายกระบวนการขายครบวงจรของ AutoInfo — ใบเสนอราคา (Quotation), ใบสั่งขาย (Sales Order),
       การควบคุมความเสี่ยงลูกค้าและวงเงินเชื่อ, สัญญาการขายและงวดวางบิล, หลักฐานประกอบการวางบิล,
@@ -1762,6 +2462,27 @@ sub=ใบเสนอราคา · ใบสั่งขาย · สัญ�
       <li><a href="#sale-15">เลขที่ใบเสนอราคาตามแผนก และการแก้ไข (Revision)</a></li>
     </ol>
   </nav>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ ส่วนนี้รับต่อมาจาก <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#hr">ส่วนที่ 8 · บุคคลและค่าใช้จ่าย</a><span class="hd-arrow">→</span>
+      <a href="#sec-2">แคตตาล็อกบทบาทธุรกิจ</a><span class="hd-arrow">→</span>
+      <strong>ส่วนนี้ (ส่วนที่ 5)</strong>
+    </div>
+    <p class="hd-note">รับพนักงานที่ตั้งสิทธิ์เป็น “พนักงานขาย” แล้ว พร้อมข้อมูลลูกค้า/คู่ค้า เพื่อเริ่มออกใบเสนอราคา (เส้นทาง B)</p>
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่วนนี้ส่งต่อไปยัง <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <strong>ส่วนนี้ (ส่วนที่ 5)</strong><span class="hd-arrow">→</span>
+      <a href="#project">ส่วนที่ 10 · โครงการและต้นทุน</a><span class="hd-arrow">→</span>
+      <a href="#inventory">ส่วนที่ 7 · สินค้าคงคลัง</a><span class="hd-arrow">→</span>
+      <a href="#acc2-10">คำขอเปิดบิลกลาง</a>
+    </div>
+    <p class="hd-note">ใบสั่งขายที่ยืนยันแล้ว → เปิดโครงการ (งานบริการ) หรือส่งของจากคลัง (งานขายสินค้า) → วางบิล</p>
+  </div>
 
   <h3 class="mod" id="sale-1"><span class="mtag">od19_sales_customer_risk_gate</span> การควบคุมความเสี่ยงลูกค้าและวงเงินเชื่อ (Credit Gate)</h3>
   <p>
@@ -1895,6 +2616,15 @@ sub=ใบเสนอราคา · ใบสั่งขาย · สัญ�
     ปุ่ม/กระบวนการออกใบแจ้งหนี้จะถูกบล็อก เพื่อป้องกันการวางบิลก่อนส่งมอบหรือก่อนมีการยืนยันการบริการ
   </div>
 
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่งต่อ: หลักฐานพร้อมวางบิล <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <a href="#sale-2">หลักฐานวางบิล</a><span class="hd-arrow">→</span>
+      <a href="#acc2-10">คำขอเปิดบิลกลาง</a>
+    </div>
+    <p class="hd-note">เมื่อหลักฐานประกอบครบจนสถานะความพร้อมเป็น Ready จึงส่งต่อข้อมูลไปออกใบแจ้งหนี้ที่คำขอเปิดบิลกลาง</p>
+  </div>
+
   <hr>
 
   <h3 class="mod" id="sale-3"><span class="mtag">od19_sales_confirm_stamp</span> ตราประทับ CONFIRMED บนใบเสนอราคา</h3>
@@ -1952,6 +2682,15 @@ sub=ใบเสนอราคา · ใบสั่งขาย · สัญ�
   <div class="callout tip">
     ตราประทับ Stamp จะแสดง <strong>เฉพาะ</strong>เมื่อทั้งสองเงื่อนไขพร้อมกัน: ใบสั่งขายยืนยันแล้ว (Confirmed)
     และกรอก Stamp Date เรียบร้อย — ถ้ายังไม่ Stamp ต้องตรวจสองเงื่อนไขนี้ก่อน
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่งต่อ: ใบสั่งขายยืนยันแล้ว <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <a href="#sale-3">ใบสั่งขายยืนยัน</a><span class="hd-arrow">→</span>
+      <a href="#flow-5">เส้นทาง C · เปิดโครงการ</a> / <a href="#inv-9">ส่งของจากคลัง</a>
+    </div>
+    <p class="hd-note">ใบสั่งขายที่ยืนยันแล้วแยกเป็น 2 ทาง งานบริการไปเปิดโครงการ (เส้นทาง C) ส่วนงานขายสินค้าไปส่งของออกจากคลัง ตามด้วยวางบิล</p>
   </div>
 
   <hr>
@@ -2573,7 +3312,7 @@ sub=ใบขอซื้อ (PR) · ใบขอราคา · ใบสั่
 <section class="part" id="purchase">
 
   <div class="part-head">
-    <h2 class="part-title"><span class="part-icon">📦</span> ส่วนที่ 5 · การจัดซื้อและผู้จำหน่าย</h2>
+    <h2 class="part-title"><span class="part-icon">📦</span> ส่วนที่ 6 · การจัดซื้อและผู้จำหน่าย</h2>
     <p class="part-sub">
       อธิบายกระบวนการจัดซื้อครบวงจรของ AutoInfo — ตั้งแต่การยื่น <strong>ใบขอซื้อ (Purchase Request, PR)</strong>
       การขอราคาผู้ขาย (RFQ) การออก <strong>ใบสั่งซื้อ (Purchase Order, PO)</strong> การอนุมัติตามวงเงิน
@@ -2594,6 +3333,27 @@ sub=ใบขอซื้อ (PR) · ใบขอราคา · ใบสั่
       <li><a href="#pur-7">การพิมพ์ด้วย Jasper (J-Report OD15)</a></li>
     </ol>
   </nav>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ ส่วนนี้รับต่อมาจาก <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#proj-1">ส่วนที่ 10 · โครงการ (ความต้องการวัสดุ)</a><span class="hd-arrow">→</span>
+      <a href="#inv-5">ส่วนที่ 7 · ควบคุมการดำเนินงานคลัง</a><span class="hd-arrow">→</span>
+      <strong>ส่วนนี้ (ส่วนที่ 6)</strong>
+    </div>
+    <p class="hd-note">รับความต้องการวัสดุ/บริการจากโครงการและคลัง (เส้นทาง F) มาเปิดใบขอซื้อและออกใบสั่งซื้อ</p>
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่วนนี้ส่งต่อไปยัง <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <strong>ส่วนนี้ (ส่วนที่ 6)</strong><span class="hd-arrow">→</span>
+      <a href="#inv-1">ส่วนที่ 7 · ใบรับ-จ่ายสินค้า</a><span class="hd-arrow">→</span>
+      <a href="#acc1-4">ส่วนที่ 3 · เตรียมจ่าย</a><span class="hd-arrow">→</span>
+      <a href="#iso-7">ส่วนที่ 9 · คุณภาพผู้จำหน่าย</a>
+    </div>
+    <p class="hd-note">รับของเข้าคลัง → วางบิลผู้ขาย → ประเมินคุณภาพผู้ขาย</p>
+  </div>
 
   <h3 class="mod" id="pur-1"><span class="mtag">od19_purchase_procurement_core</span> แกนการจัดซื้อและการอนุมัติ</h3>
   <p>
@@ -2670,6 +3430,15 @@ sub=ใบขอซื้อ (PR) · ใบขอราคา · ใบสั่
     <li><span class="badge b-red">Purchase Director</span> — กลุ่มใหม่ที่ระบบสร้างให้ (สืบทอดสิทธิ์ Manager) อนุมัติใบสั่งซื้อที่ยอดถึงหรือเกินขีดวงเงินได้</li>
     <li>ผู้ดูแลระบบ (<code>base.group_system</code>) ได้สิทธิ์ Purchase Director โดยอัตโนมัติ</li>
   </ul>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ รับต่อจาก: ความต้องการวัสดุของโครงการ <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#flow-5">เส้นทาง C · โครงการ</a><span class="hd-arrow">→</span>
+      <a href="#pur-2">ใบขอซื้อ (ไทย)</a>
+    </div>
+    <p class="hd-note">เมื่อโครงการมีความต้องการวัสดุ จะส่งต่อมาเปิดใบขอซื้อ (PR) เพื่อเข้าสู่กระบวนการอนุมัติและออกใบสั่งซื้อ</p>
+  </div>
 
   <hr>
 
@@ -2973,7 +3742,7 @@ sub=รับ-จ่าย-โอน · มูลค่า FIFO · ปรับ�
 <section class="part" id="inventory">
 
   <div class="part-head">
-    <h2 class="part-title"><span class="part-icon">🏭</span> ส่วนที่ 6 · สินค้าคงคลังและคลังสินค้า</h2>
+    <h2 class="part-title"><span class="part-icon">🏭</span> ส่วนที่ 7 · สินค้าคงคลังและคลังสินค้า</h2>
     <p class="part-sub">
       อธิบายงานคลังสินค้าครบวงจรของ AutoInfo — ตั้งแต่การรับเข้า-จ่ายออก-โอนย้าย การบันทึกข้อมูลประกอบใบรับ-จ่าย
       การประเมิน <strong>มูลค่าสินค้าแบบ FIFO</strong> การ <strong>ปรับมูลค่าสินค้าคงคลัง</strong>
@@ -3000,6 +3769,27 @@ sub=รับ-จ่าย-โอน · มูลค่า FIFO · ปรับ�
       <li><a href="#inv-10">แบบพิมพ์และรายงาน Jasper (J-Report OD15)</a></li>
     </ol>
   </nav>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ ส่วนนี้รับต่อมาจาก <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#pur-1">ส่วนที่ 6 · การจัดซื้อ (ของเข้า)</a><span class="hd-arrow">→</span>
+      <a href="#sale-3">ส่วนที่ 5 · ใบสั่งขาย (ของออก)</a><span class="hd-arrow">→</span>
+      <strong>ส่วนนี้ (ส่วนที่ 7)</strong>
+    </div>
+    <p class="hd-note">รับของเข้าจากการจัดซื้อ (เส้นทาง F) และรับคำสั่งขายเพื่อส่งของให้ลูกค้า (เส้นทาง B/D)</p>
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่วนนี้ส่งต่อไปยัง <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <strong>ส่วนนี้ (ส่วนที่ 7)</strong><span class="hd-arrow">→</span>
+      <a href="#inv-7">ใบเบิกสินค้า → โครงการ</a><span class="hd-arrow">→</span>
+      <a href="#fleet-3">ส่วนที่ 12 · ใบขนส่ง</a><span class="hd-arrow">→</span>
+      <a href="#acc-core">ส่วนที่ 3 · บัญชี (ต้นทุน/มูลค่าสินค้า)</a>
+    </div>
+    <p class="hd-note">เบิกของให้โครงการ, ส่งของผ่านขนส่ง, และส่งมูลค่าสต๊อกเข้าบัญชี</p>
+  </div>
 
   <h3 class="mod" id="inv-1"><span class="mtag">od19_stock_picking_features</span> ส่วนขยายใบรับ-จ่ายสินค้า</h3>
   <p>
@@ -3455,6 +4245,15 @@ sub=รับ-จ่าย-โอน · มูลค่า FIFO · ปรับ�
     ระบุ <span class="pill">งาน/โครงการ</span> เพื่อเชื่อมต้นทุนการเบิกเข้ากับโครงการ และดูต้นทุนตามโครงการได้ง่ายขึ้น
   </div>
 
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่งต่อ: เบิกวัสดุให้โครงการ</p>
+    <div class="hd-flow">
+      <a href="#inv-7">ใบเบิกสินค้า (ที่นี่)</a><span class="hd-arrow">→</span>
+      <a href="#proj-1">ส่วนที่ 10 · โครงการ (ต้นทุนวัสดุ)</a>
+    </div>
+    <p class="hd-note">วัสดุที่เบิกออกจากคลังบันทึกเป็นต้นทุนวัสดุของโครงการ — เลือกงาน/โครงการให้ครบเพื่อให้ต้นทุนลงถูกโครงการ</p>
+  </div>
+
   <hr>
 
   <h3 class="mod" id="inv-8"><span class="mtag">od19_product_return</span> คืนสินค้า / RMA (Product Return)</h3>
@@ -3582,6 +4381,16 @@ sub=รับ-จ่าย-โอน · มูลค่า FIFO · ปรับ�
     เลือกเหตุผลการส่งได้หลายข้อ ระบบจะรวมข้อความให้อ่านง่ายบนใบพิมพ์
   </div>
 
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่งต่อ: พร้อมขนส่ง</p>
+    <div class="hd-flow">
+      <a href="#inv-9">ใบปะหน้าส่งของ (ที่นี่)</a><span class="hd-arrow">→</span>
+      <a href="#fleet-3">ส่วนที่ 12 · ใบขนส่ง</a><span class="hd-arrow">→</span>
+      <a href="#sale-2">หลักฐานวางบิล</a>
+    </div>
+    <p class="hd-note">พิมพ์ใบปะหน้าแนบของก่อนส่ง มอบให้ฝ่ายขนส่งออกใบขนส่ง และใช้เป็นหลักฐานประกอบการวางบิลให้ลูกค้า</p>
+  </div>
+
   <hr>
 
   <h3 class="mod" id="inv-10"><span class="mtag">od19_stock_jasper</span> แบบพิมพ์และรายงาน Jasper (J-Report OD15)</h3>
@@ -3662,7 +4471,7 @@ sub=ใบเบิกค่าใช้จ่าย · เงินทดรอ
 <section class="part" id="hr">
 
   <div class="part-head">
-    <h2 class="part-title"><span class="part-icon">👥</span> ส่วนที่ 7 · บุคคลและค่าใช้จ่ายพนักงาน</h2>
+    <h2 class="part-title"><span class="part-icon">👥</span> ส่วนที่ 8 · บุคคลและค่าใช้จ่ายพนักงาน</h2>
     <p class="part-sub">
       รวมงานที่พนักงานและฝ่ายบุคคล (HR) ใช้ทุกวัน — เบิกค่าใช้จ่ายที่ตัวเองออกเงินไปก่อน,
       ขอเงินทดรองจ่ายก่อนเดินทาง, ลงเวลาผ่านเครื่องสแกน ZKTeco, จองห้องประชุม และมอบคำชื่นชมให้เพื่อนร่วมงาน
@@ -3682,6 +4491,27 @@ sub=ใบเบิกค่าใช้จ่าย · เงินทดรอ
       <li><a href="#hr-7">ยกย่องเพื่อนร่วมงาน (Recognition / Kudos)</a></li>
     </ol>
   </nav>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ ส่วนนี้รับต่อมาจาก <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#web-3">ส่วนที่ 15 · ระบบรับสมัครงาน (Careers)</a><span class="hd-arrow">→</span>
+      <a href="#hr-1">ค่าใช้จ่ายพนักงาน</a><span class="hd-arrow">→</span>
+      <strong>ส่วนนี้ (ส่วนที่ 8)</strong>
+    </div>
+    <p class="hd-note">รับผู้สมัครจากหน้าเว็บ Careers เข้ามาเป็นพนักงาน และดูแลค่าใช้จ่าย/ลงเวลาของพนักงาน</p>
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่วนนี้ส่งต่อไปยัง <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <strong>ส่วนนี้ (ส่วนที่ 8)</strong><span class="hd-arrow">→</span>
+      <a href="#sec-2">ส่วนที่ 17 · บทบาทธุรกิจ</a><span class="hd-arrow">→</span>
+      <a href="#sales">ส่วนที่ 5 · พนักงานขาย</a><span class="hd-arrow">→</span>
+      <a href="#proj-3">ส่วนที่ 10 · Timesheet</a>
+    </div>
+    <p class="hd-note">ตั้งบทบาท/สิทธิ์ให้พนักงานใหม่ แล้วส่งเข้าทำงานขายหรือลงเวลาในโครงการ (เส้นทาง A/C)</p>
+  </div>
 
   <!-- ============================================================ -->
   <h3 class="mod" id="hr-1"><span class="mtag">od19_hr_expense_thai</span> ค่าใช้จ่ายพนักงาน (ไทย) — อนุมัติ 3 ชั้น + จ่ายคืนพนักงาน</h3>
@@ -3788,12 +4618,54 @@ sub=ใบเบิกค่าใช้จ่าย · เงินทดรอ
   <p><span class="path">ค่าใช้จ่าย › รถของฉัน</span> (สมุดรถของพนักงาน สำหรับใช้ผูกกับค่าเดินทาง) และฟิลด์/ปุ่มต่าง ๆ ถูกเพิ่มในฟอร์มใบเบิกเดิม</p>
 
   <h4>ค่าเดินทางตามระยะทาง (ไมล์)</h4>
+  <p>
+    เบิกค่าเดินทางตาม <strong>ระยะทางจริงเป็นกิโลเมตร</strong> โดยไม่ต้องคำนวณเอง —
+    เลือกรถในทะเบียนรถ แล้วระบบดึง <em>เลขไมล์ล่าสุด</em> ของรถคันนั้นมาเริ่มต้นให้
+    คำนวณระยะทางอัตโนมัติจากเลขไมล์เริ่มต้น–สิ้นสุด และคูณด้วยอัตราต่อ กม. ของบริษัท
+  </p>
+
+  <h4>ทะเบียนรถของพนักงาน (รถของฉัน)</h4>
+  <p>
+    เก็บรถแต่ละคันที่พนักงานใช้เบิกค่าเดินทาง ที่เมนู <span class="path">ค่าใช้จ่าย › รถของฉัน</span>
+    โดยแต่ละคันบันทึก <span class="pill">ประเภทยานพาหนะ</span> · <span class="pill">ป้ายทะเบียน</span> และ
+    <strong>เลขไมล์ล่าสุด</strong> (<code>od19_last_odometer</code>) พร้อมวันที่ใช้งานล่าสุด
+  </p>
+  <div class="callout note">
+    เลขไมล์ล่าสุดจะถูก <strong>อัปเดตอัตโนมัติ</strong> ทุกครั้งที่บันทึกใบเบิกค่าเดินทาง
+    จึงเป็นจุดตั้งต้นของเที่ยวถัดไปโดยไม่ต้องกรอกซ้ำ
+  </div>
+
+  <h4>ขั้นตอนเบิกค่าเดินทางตามระยะทาง</h4>
   <ol class="steps">
-    <li>ติ๊ก <span class="pill">ค่าเดินทางตามระยะทาง</span> ในฟอร์มใบเบิก</li>
-    <li>ระบุ <span class="pill">ระยะทาง (กม.)</span> และเลือกรถจาก <span class="pill">รถของฉัน</span> (หรือสร้างรถใหม่ที่เมนู <span class="path">ค่าใช้จ่าย › รถของฉัน</span>)</li>
-    <li>ระบบคูณด้วย <strong>อัตราต่อ กม.</strong> ที่ตั้งในบริษัท แล้วคำนวณยอดเงินให้อัตโนมัติ (ค่าเดินทางไม่มีภาษีมูลค่าเพิ่ม)</li>
-    <li>ระบุต้นทาง–ปลายทาง และวันที่เดินทางเพื่อประกอบการพิจารณา</li>
+    <li><span class="stitle">เปิดโหมดไมล์</span> ติ๊ก <span class="pill">ค่าเดินทางตามระยะทาง</span> ในฟอร์มใบเบิก — กลุ่มฟิลด์ <em>ค่าเดินทาง / Mileage</em> จะปรากฏขึ้น</li>
+    <li><span class="stitle">เลือกรถ</span> เลือก <span class="pill">รถของฉัน</span> (หรือสร้างรถใหม่ที่เมนู <span class="path">ค่าใช้จ่าย › รถของฉัน</span>) — ระบบดึง <span class="pill">ประเภทยานพาหนะ</span> และ <span class="pill">ป้ายทะเบียน</span> มาแสดงแบบอ่านอย่างเดียว และ <strong>เติมเลขไมล์เริ่มต้น</strong> ให้จากเลขไมล์ล่าสุดของรถ (แก้ไขได้)</li>
+    <li><span class="stitle">ระบุเลขไมล์</span> กรอก <span class="pill">เลขไมล์ต้นทาง</span> และ <span class="pill">เลขไมล์ปลายทาง</span> — ระบบคำนวณ <span class="pill">ระยะทาง (กม.)</span> = ปลายทาง − ต้นทาง ให้อัตโนมัติ</li>
+    <li><span class="stitle">แนบหลักฐาน</span> อัปโหลด <span class="pill">รูปหน้าปัดไมล์</span> ประกอบการพิจารณา (รูปถ่ายหน้าปัดที่แสดงเลขไมล์ปลายทาง)</li>
+    <li><span class="stitle">ระบุเส้นทาง</span> กรอก <span class="pill">ต้นทาง</span>–<span class="pill">ปลายทาง</span> และ <span class="pill">วันที่เดินทาง</span></li>
+    <li><span class="stitle">ยอดเงินอัตโนมัติ</span> ระบบคูณ ระยะทาง × <strong>อัตราต่อ กม.</strong> ที่ตั้งในบริษัท แล้วเติมยอดเบิกให้ — ค่าเดินทาง <strong>ไม่มีภาษีมูลค่าเพิ่ม</strong></li>
+    <li><span class="stitle">บันทึก</span> กดบันทึก — ระบบอัปเดต <strong>เลขไมล์ล่าสุด</strong> และวันที่ใช้งานล่าสุดของรถคันนั้นกลับเข้าทะเบียนรถโดยอัตโนมัติ</li>
   </ol>
+
+  <table>
+    <thead><tr><th>ฟิลด์</th><th>ความหมาย</th><th>ระบบทำให้อัตโนมัติ</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">รถของฉัน</span></td><td>รถที่ใช้เดินทาง</td><td>ดึงประเภท/ป้ายทะเบียนมาแสดง (อ่านอย่างเดียว)</td></tr>
+      <tr><td><span class="pill">เลขไมล์เริ่มต้น</span></td><td>เลขไมล์ก่อนออกเดินทาง</td><td>เติมจากเลขไมล์ล่าสุดของรถ (แก้ไขได้)</td></tr>
+      <tr><td><span class="pill">เลขไมล์สิ้นสุด</span></td><td>เลขไมล์เมื่อถึงปลายทาง</td><td>ใช้คำนวณระยะทางและอัปเดตกลับทะเบียนรถ</td></tr>
+      <tr><td><span class="pill">ระยะทาง (กม.)</span></td><td>ระยะทางที่ใช้เบิก</td><td>คำนวณ = เลขไมล์สิ้นสุด − เริ่มต้น</td></tr>
+      <tr><td><span class="pill">รูปหน้าปัดไมล์</span></td><td>หลักฐานเลขไมล์ปลายทาง</td><td>แนบเป็นไฟล์ภาพในใบเบิก</td></tr>
+      <tr><td><span class="pill">อัตราต่อ กม.</span></td><td>เรตเบิกต่อกิโลเมตร</td><td>ยอดเบิก = ระยะทาง × อัตราต่อ กม.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="flow">
+    <span class="stp">เลือกรถ</span><span class="arrow">→</span>
+    <span class="stp">เติมเลขไมล์เริ่มต้นให้</span><span class="arrow">→</span>
+    <span class="stp">กรอกเลขไมล์สิ้นสุด</span><span class="arrow">→</span>
+    <span class="stp">คำนวณระยะทาง × อัตรา</span><span class="arrow">→</span>
+    <span class="stp">บันทึก + อัปเดตทะเบียนรถ</span>
+  </div>
+
   <div class="callout note">
     มีสินค้าหมวด <span class="pill">ค่าเดินทางตามระยะทาง / Mileage</span> (รหัส <code>MIL-KM</code>) หน่วยนับเป็นกิโลเมตร
     และราคาทุนเป็น 0 เพื่อให้ระบบคำนวณราคาต่อหน่วยจากยอดรวมได้
@@ -4018,6 +4890,15 @@ sub=ใบเบิกค่าใช้จ่าย · เงินทดรอ
     เครื่องจะถูกปฏิเสธถ้าไม่ส่ง Communication Key ที่ตรงกัน หรือถ้าเป็นเครื่องที่ไม่ลงทะเบียนและไม่ได้เปิดโหมดลงทะเบียนอัตโนมัติ — ตรวจสอบให้ตั้งรหัสเหมือนกันทั้งสองฝ่าย
   </div>
 
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่งต่อ: ชั่วโมงทำงาน → ต้นทุนโครงการ</p>
+    <div class="hd-flow">
+      <a href="#hr-5">ลงเวลา (ที่นี่)</a><span class="hd-arrow">→</span>
+      <a href="#proj-3">Timesheet → Invoice</a>
+    </div>
+    <p class="hd-note">ใช้ข้อมูลลงเวลาจากเครื่องสแกนเป็นฐานคำนวณชั่วโมงทำงานเพื่อคิดต้นทุน/เรียกเก็บเงินในโครงการ</p>
+  </div>
+
   <hr>
 
   <!-- ============================================================ -->
@@ -4141,7 +5022,7 @@ sub=ISO 9001 ระบบคุณภาพ — เอกสารควบค�
 <section class="part" id="iso">
 
   <div class="part-head">
-    <h2 class="part-title"><span class="part-icon">✅</span> ส่วนที่ 8 · ระบบคุณภาพ ISO</h2>
+    <h2 class="part-title"><span class="part-icon">✅</span> ส่วนที่ 9 · ระบบคุณภาพ ISO</h2>
     <p class="part-sub">
       รวมโมดูลชุด <code>od19_iso_*</code> ทั้งหมดที่รองรับระบบจัดการคุณภาพตามมาตรฐาน ISO 9001:2015 / ISO 14001:2015 / ISO 45001:2018
       ตั้งแต่การควบคุมเอกสาร (Document Control), ความเสี่ยงและโอกาส, ความไม่สอดคล้องและ CAPA, การตรวจสอบภายใน, การสอบเทียบเครื่องมือวัด
@@ -4171,6 +5052,26 @@ sub=ISO 9001 ระบบคุณภาพ — เอกสารควบค�
     <span class="path">ISO Management › ควบคุมเอกสาร</span>, <span class="path">ISO Management › การตรวจสอบภายใน</span>,
     <span class="path">ISO Management › การจัดการ ISO</span> และ <span class="path">ISO Management › ตั้งค่า</span>
     (เมนู “การจัดการ ISO” เป็นบ้านร่วมของความเสี่ยง, CAPA, ฝึกอบรม, สอบเทียบ, ผู้จำหน่าย และความพึงพอใจลูกค้า)
+  </div>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ ส่วนนี้รับต่อมาจาก <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#ai-2">ส่วนที่ 16 · แดชบอร์ด/KPI ผู้บริหาร</a><span class="hd-arrow">→</span>
+      <a href="#svc-5">ส่วนที่ 11 · Helpdesk/ข้อร้องเรียน</a><span class="hd-arrow">→</span>
+      <strong>ส่วนนี้ (ส่วนที่ 9)</strong>
+    </div>
+    <p class="hd-note">รับผล KPI และข้อร้องเรียน/ความไม่สอดคล้องจากทุกฝ่าย (เส้นทาง G) เข้าสู่ระบบคุณภาพ</p>
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่วนนี้ส่งต่อไปยัง <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <strong>ส่วนนี้ (ส่วนที่ 9)</strong><span class="hd-arrow">→</span>
+      <a href="#flow-9">เส้นทาง G</a><span class="hd-arrow">→</span>
+      <a href="#flow-10">Handoff Matrix</a>
+    </div>
+    <p class="hd-note">มาตรฐานใหม่ที่กำหนดจะย้อนกลับไปกำหนดวิธีทำงานในทุกเส้นทาง A–F (วงจร PDCA)</p>
   </div>
 
   <!-- ============================================================ -->
@@ -4563,6 +5464,15 @@ sub=ISO 9001 ระบบคุณภาพ — เอกสารควบค�
   </div>
   <p>การตัดสินใจแต่ละรายการมีสถานะของตัวเอง: เปิด → กำลังดำเนินการ → เสร็จสิ้น → ปิด</p>
 
+  <div class="handoff in">
+    <p class="hd-head">⬅️ รับต่อจาก: KPI และผลการดำเนินงานทั้งระบบ <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#ai-2">แดชบอร์ด/KPI</a><span class="hd-arrow">→</span>
+      <a href="#iso-9">ทบทวนระบบจัดการ (ที่นี่)</a>
+    </div>
+    <p class="hd-note">ผู้บริหารใช้ผลรวมจากทุกเส้นทางเพื่อกำหนดแนวทางปรับปรุง.</p>
+  </div>
+
   <!-- ============================================================ -->
   <h3 class="mod" id="iso-10"><span class="mtag">od19_iso_dar</span> ใบคำขอ DAR (Document Action Request)</h3>
 
@@ -4652,7 +5562,7 @@ sub=ตั้งรหัสงานไทย · ประเภทโครง
 <section class="part" id="project">
 
   <div class="part-head">
-    <h2 class="part-title"><span class="part-icon">📊</span> ส่วนที่ 9 · โครงการและต้นทุน</h2>
+    <h2 class="part-title"><span class="part-icon">📊</span> ส่วนที่ 10 · โครงการและต้นทุน</h2>
     <p class="part-sub">
       ส่วนนี้อธิบายการบริหารโครงการ (Project) ที่ผูกกับงานบริการ-บำรุงรักษา-ขายของ AutoInfo —
       ตั้งแต่การตั้ง “รหัสงาน” (Job Number) แบบไทย, การจัดประเภทโครงการเป็นลำดับชั้น,
@@ -4670,6 +5580,28 @@ sub=ตั้งรหัสงานไทย · ประเภทโครง
       <li><a href="#proj-4">od19_project_document_sequence — เลขรหัสงาน/รหัสงานย่อยตามแผนก</a></li>
     </ol>
   </nav>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ ส่วนนี้รับต่อมาจาก <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#sale-3">ส่วนที่ 5 · ใบสั่งขายยืนยัน (CONFIRMED)</a><span class="hd-arrow">→</span>
+      <a href="#flow-5">เส้นทาง C</a><span class="hd-arrow">→</span>
+      <strong>ส่วนนี้ (ส่วนที่ 10)</strong>
+    </div>
+    <p class="hd-note">รับคำสั่งขายที่ยืนยันแล้วมาเปิดเป็นโครงการ (รหัสงาน, บัญชีวิเคราะห์, งบ, ผู้รับผิดชอบ)</p>
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่วนนี้ส่งต่อไปยัง <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <strong>ส่วนนี้ (ส่วนที่ 10)</strong><span class="hd-arrow">→</span>
+      <a href="#inv-7">ส่วนที่ 7 · เบิกวัสดุ</a><span class="hd-arrow">→</span>
+      <a href="#hr-5">ส่วนที่ 8 · ลงเวลา</a><span class="hd-arrow">→</span>
+      <a href="#fleet-3">ส่วนที่ 12 · ขนส่ง</a><span class="hd-arrow">→</span>
+      <a href="#acc2-10">ส่วนที่ 4 · วางบิล</a>
+    </div>
+    <p class="hd-note">ทำงานจริง → เบิกของ/ลงเวลา → ส่งมอบ → วางบิล (เส้นทาง C → D)</p>
+  </div>
 
   <!-- ============================================================= -->
   <h3 class="mod" id="proj-1"><span class="mtag">od19_project_enhanced</span> โครงการอัจฉริยะ — ประเภทโครงการ, รายงาน P&amp;L และความเสี่ยง</h3>
@@ -4865,6 +5797,15 @@ sub=ตั้งรหัสงานไทย · ประเภทโครง
     ถ้าไม่พบรายการที่เรียกเก็บได้ ระบบจะแจ้งให้ตรวจชนิดสินค้าของรายการขายก่อน
   </div>
 
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่งต่อ: ชั่วโมงงาน → ใบแจ้งหนี้ <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <a href="#proj-3">Timesheet → Invoice (ที่นี่)</a><span class="hd-arrow">→</span>
+      <a href="#acc2-10">คำขอเปิดบิลกลาง</a>
+    </div>
+    <p class="hd-note">ตรวจว่าชั่วโมงที่เรียกเก็บครบก่อนส่งวางบิล (เชื่อมเส้นทาง D)</p>
+  </div>
+
   <!-- ============================================================= -->
   <h3 class="mod" id="proj-4"><span class="mtag">od19_project_document_sequence</span> เลขรหัสงาน/รหัสงานย่อยตามแผนกและพนักงานขาย</h3>
 
@@ -4950,7 +5891,7 @@ sub=ประกัน/เคลม · บัตรบริการและ�
 <section class="part" id="service">
 
   <div class="part-head">
-    <h2 class="part-title"><span class="part-icon">🛠️</span> ส่วนที่ 10 · บริการและหลังการขาย</h2>
+    <h2 class="part-title"><span class="part-icon">🛠️</span> ส่วนที่ 11 · บริการและหลังการขาย</h2>
     <p class="part-sub">
       ส่วนนี้รวบรวมงานบริการหลังการขายทั้งวงจร — ตั้งแต่ <strong>ใบรับประกันสินค้าและ Lot/Serial</strong>,
       <strong>การเคลม/RMA</strong>, <strong>บัตรบริการ (บำรุงรักษาเชิงป้องกัน)</strong>, <strong>สัญญาบริการเรียกเก็บรายงวด (PM/AMC)</strong>,
@@ -4971,6 +5912,27 @@ sub=ประกัน/เคลม · บัตรบริการและ�
       <li><a href="#svc-7">od19_internal_issue — แจ้งปัญหาภายใน ความเป็นส่วนตัว และการอนุมัติ</a></li>
     </ol>
   </nav>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ ส่วนนี้รับต่อมาจาก <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#flow-6">เส้นทาง D · ส่งมอบ</a><span class="hd-arrow">→</span>
+      <a href="#inventory">ส่วนที่ 7 · คลังสินค้า</a><span class="hd-arrow">→</span>
+      <strong>ส่วนนี้ (ส่วนที่ 11)</strong>
+    </div>
+    <p class="hd-note">รับงานที่ส่งมอบแล้วเข้าสู่การดูแลหลังการขาย (ประกัน, บัตรบริการ, สัญญารายงวด) — ตรวจ Lot/Serial และวันส่งมอบก่อนเปิดสถานะประกัน</p>
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่วนนี้ส่งต่อไปยัง <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <strong>ส่วนนี้ (ส่วนที่ 11)</strong><span class="hd-arrow">→</span>
+      <a href="#inv-8">ส่วนที่ 7 · คืนสินค้า/RMA</a><span class="hd-arrow">→</span>
+      <a href="#iso-8">ส่วนที่ 9 · ความพึงพอใจลูกค้า</a><span class="hd-arrow">→</span>
+      <a href="#iso-3">CAPA</a>
+    </div>
+    <p class="hd-note">ข้อร้องเรียน/เคลมที่เกิดซ้ำส่งต่อเป็น NC ในระบบ ISO เพื่อวิเคราะห์สาเหตุและปรับปรุงคุณภาพ</p>
+  </div>
 
   <!-- ============================================================= -->
   <h3 class="mod" id="svc-1"><span class="mtag">od19_service_warranty</span> ประกันสินค้า และใบเคลม/RMA</h3>
@@ -5287,6 +6249,16 @@ sub=ประกัน/เคลม · บัตรบริการและ�
     ส่วนงานบริการลูกค้าอยู่ใต้แอป <strong>การขาย</strong> และตัวกรอง <span class="badge b-gray">Internal IT</span> / <span class="badge b-gray">Sales Services</span> ช่วยแบ่งมุมมองในหน้าเดียว
   </div>
 
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่งต่อ: ข้อร้องเรียน → ปรับปรุงคุณภาพ <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <a href="#svc-5">Helpdesk (ที่นี่)</a><span class="hd-arrow">→</span>
+      <a href="#iso-8">ความพึงพอใจลูกค้า</a><span class="hd-arrow">→</span>
+      <a href="#iso-3">NC/CAPA</a>
+    </div>
+    <p class="hd-note">ตั๋วที่กลายเป็นข้อร้องเรียนหรือเรื่องซ้ำ ให้เก็บคะแนนความพึงพอใจและออก NC/CAPA เพื่อปิดวงจรการปรับปรุงคุณภาพ</p>
+  </div>
+
   <!-- ============================================================= -->
   <h3 class="mod" id="svc-6"><span class="mtag">od19_after_sales_reporting</span> รายงาน KPI และแดชบอร์ดหลังการขาย</h3>
 
@@ -5426,7 +6398,7 @@ sub=ทะเบียนรถและต้นทุนค่าใช้จ�
 <section class="part" id="fleet">
 
   <div class="part-head">
-    <h2 class="part-title"><span class="part-icon">🚚</span> ส่วนที่ 11 · ยานพาหนะและขนส่ง</h2>
+    <h2 class="part-title"><span class="part-icon">🚚</span> ส่วนที่ 12 · ยานพาหนะและขนส่ง</h2>
     <p class="part-sub">
       ดูแล<b>ยานพาหนะ</b>ขององค์กรตั้งแต่ทะเบียนรถ การผูกค่าใช้จ่ายเข้ากับแผนกและบัญชีวิเคราะห์ พร้อม<b>แจ้งเตือนล่วงหน้า</b>
       เมื่อประกันหรือภาษี (พ.ร.บ./Act) ใกล้หมดอายุ และเมื่อการซ่อมบำรุงเสร็จสิ้น · อีกทั้งครอบคลุมงาน<b>ขนส่ง</b>
@@ -5442,6 +6414,26 @@ sub=ทะเบียนรถและต้นทุนค่าใช้จ�
       <li><a href="#fleet-3">ใบขนส่ง เส้นทาง และการส่งของ</a></li>
     </ol>
   </nav>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ ส่วนนี้รับต่อมาจาก <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#inv-9">ส่วนที่ 7 · ใบปะหน้าส่งของ</a><span class="hd-arrow">→</span>
+      <a href="#flow-6">เส้นทาง D</a><span class="hd-arrow">→</span>
+      <strong>ส่วนนี้ (ส่วนที่ 12)</strong>
+    </div>
+    <p class="hd-note">รับงานที่ต้องขนส่งเพื่อจัดส่งถึงลูกค้า (เส้นทาง D) — เตรียมรถ พนักงานขับ เส้นทาง และผูกใบโอนย้ายสินค้าก่อนออกเดินทาง</p>
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่วนนี้ส่งต่อไปยัง <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <strong>ส่วนนี้ (ส่วนที่ 12)</strong><span class="hd-arrow">→</span>
+      <a href="#acc-core">ส่วนที่ 3 · บัญชี (ต้นทุน/ค่าใช้จ่ายรถ)</a><span class="hd-arrow">→</span>
+      <a href="#proj-1">ส่วนที่ 10 · ต้นทุนโครงการ</a>
+    </div>
+    <p class="hd-note">ต้นทุนขนส่ง/ค่าน้ำมัน/ซ่อมบำรุง เข้าบัญชีและต้นทุนโครงการ — ผูกแผนกและบัญชีวิเคราะห์ให้ครบทุกรายการ</p>
+  </div>
 
   <h3 class="mod" id="fleet-1"><span class="mtag">od19_fleet_accounting</span> บัญชีและต้นทุนยานพาหนะ</h3>
   <p>
@@ -5728,6 +6720,16 @@ sub=ทะเบียนรถและต้นทุนค่าใช้จ�
     และใช้มุมมองเส้นทางเพื่อสร้างใบขนส่งใหม่ได้เร็วขึ้นโดยเลือกเส้นทางที่บันทึกไว้
   </div>
 
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่งต่อ: ส่งถึงลูกค้า → เก็บหลักฐานวางบิล <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <a href="#fleet-3">ใบขนส่ง (ที่นี่)</a><span class="hd-arrow">→</span>
+      <a href="#sale-2">หลักฐานประกอบการวางบิล</a><span class="hd-arrow">→</span>
+      <a href="#acc2-10">คำขอเปิดบิลกลาง</a>
+    </div>
+    <p class="hd-note">เมื่อส่งถึงลูกค้าแล้ว ให้เก็บใบเซ็นรับ/หลักฐานการส่งของไว้เป็นเอกสารประกอบ แล้วส่งเข้าศูนย์เปิดบิลกลางเพื่อวางบิล</p>
+  </div>
+
 </section>
 
 
@@ -5741,7 +6743,7 @@ sub=ทะเบียนทรัพย์สิน · การยืม-ค�
 <section class="part" id="assets">
 
   <div class="part-head">
-    <h2 class="part-title"><span class="part-icon">🏷️</span> ส่วนที่ 12 · ทรัพย์สิน (ยืม/จำหน่าย)</h2>
+    <h2 class="part-title"><span class="part-icon">🏷️</span> ส่วนที่ 13 · ทรัพย์สิน (ยืม/จำหน่าย)</h2>
     <p class="part-sub">
       ส่วนนี้ครอบคลุมการดูแลทรัพย์สินและเครื่องมืออุปกรณ์ขององค์กร ตั้งแต่<strong>การยืม-คืน</strong>เครื่องมือ/อุปกรณ์ระหว่างพนักงาน
       ไปจนถึง<strong>การจำหน่าย/ตัดจำหน่าย</strong>ทรัพย์สินถาวรพร้อมสร้างรายการบัญชีโดยอัตโนมัติ
@@ -5756,6 +6758,26 @@ sub=ทะเบียนทรัพย์สิน · การยืม-ค�
       <li><a href="#asset-2">od19_asset_loan — การยืม-คืนเครื่องมือ/อุปกรณ์</a></li>
     </ol>
   </nav>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ ส่วนนี้รับต่อมาจาก <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#purchase">ส่วนที่ 6 · การจัดซื้อ</a><span class="hd-arrow">→</span>
+      <a href="#hr">ส่วนที่ 8 · บุคคลฯ</a><span class="hd-arrow">→</span>
+      <strong>ส่วนนี้ (ส่วนที่ 13)</strong>
+    </div>
+    <p class="hd-note">รับทรัพย์สิน/เครื่องมือที่ซื้อมา หรือมอบให้พนักงานยืมใช้งาน — ขึ้นทะเบียนอุปกรณ์และผูกกับทรัพย์สินทางบัญชีก่อนปล่อยยืม</p>
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่วนนี้ส่งต่อไปยัง <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <strong>ส่วนนี้ (ส่วนที่ 13)</strong><span class="hd-arrow">→</span>
+      <a href="#acc-core">ส่วนที่ 3 · บัญชี (ค่าเสื่อม/ตัดจำหน่าย)</a><span class="hd-arrow">→</span>
+      <a href="#inv-2">ส่วนที่ 7 · มูลค่าสินค้า/ทรัพย์สิน</a>
+    </div>
+    <p class="hd-note">การจำหน่าย/ตัดจำหน่ายต้องบันทึกบัญชีให้ถูกต้อง — ตรวจยอดค่าเสื่อมสะสมและมูลค่าคงเหลือก่อนกด Dispose</p>
+  </div>
 
   <h3 class="mod" id="asset-1"><span class="mtag">od19_asset_disposal</span> การจำหน่าย/ตัดจำหน่ายทรัพย์สิน (Asset Disposal)</h3>
 
@@ -5974,7 +6996,7 @@ sub=ศูนย์รวมเอกสารและหมวดหมู่ 
 <section class="part" id="documents">
 
   <div class="part-head">
-    <h2 class="part-title"><span class="part-icon">📄</span> ส่วนที่ 13 · เอกสาร ความรู้ และการลงนาม</h2>
+    <h2 class="part-title"><span class="part-icon">📄</span> ส่วนที่ 14 · เอกสาร ความรู้ และการลงนาม</h2>
     <p class="part-sub">
       ส่วนนี้ว่าด้วยการบริหาร “เอกสาร” ขององค์กรตั้งแต่ต้นน้ำถึงปลายน้ำ — ศูนย์รวมเอกสารแนบและหมวดหมู่,
       การดึงรายการจากเอกสารต้นทางเข้าสู่เอกสารปลายทาง, เลขที่เอกสารแบบไทย,
@@ -5994,6 +7016,27 @@ sub=ศูนย์รวมเอกสารและหมวดหมู่ 
       <li><a href="#doc-6">คลังความรู้ (Knowledge Enhanced)</a></li>
     </ol>
   </nav>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ ส่วนนี้รับต่อมาจาก <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#flow-1">ส่วนที่ 2 · แผนที่กระบวนการ</a><span class="hd-arrow">→</span>
+      <a href="#doc-2">ดึงรายการจากเอกสารต้นทาง</a><span class="hd-arrow">→</span>
+      <strong>ส่วนนี้ (ส่วนที่ 14)</strong>
+    </div>
+    <p class="hd-note">รับเอกสารจากทุกฝ่าย (ใบเสนอราคา/ใบสั่งซื้อ/ใบกำกับ/ใบตรวจรับ) เข้าศูนย์เอกสารกลาง และดึงข้อมูลจากเอกสารต้นทางได้</p>
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่วนนี้ส่งต่อไปยัง <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <strong>ส่วนนี้ (ส่วนที่ 14)</strong><span class="hd-arrow">→</span>
+      <a href="#iso-1">ส่วนที่ 9 · ควบคุมเอกสาร ISO</a><span class="hd-arrow">→</span>
+      <a href="#doc-4">การลงนาม</a><span class="hd-arrow">→</span>
+      <a href="#iso-10">DAR</a>
+    </div>
+    <p class="hd-note">เอกสารที่ควบคุม/ลงนามแล้วเชื่อมกับระบบ ISO และ DAR</p>
+  </div>
 
   <!-- ============================================================= -->
   <h3 class="mod" id="doc-1"><span class="mtag">od19_document_hub</span> ศูนย์เอกสาร (คลังเอกสารกลาง)</h3>
@@ -6127,6 +7170,15 @@ sub=ศูนย์รวมเอกสารและหมวดหมู่ 
   </div>
   <div class="callout warn">
     <strong>ข้อควรระวัง:</strong> จัดการ/ลบรายการต้นทางได้เฉพาะเมื่อเอกสารปลายทางยังเป็นฉบับร่าง (ใบสั่งซื้อใช้สถานะ ร่าง/ส่งแล้ว) หากเอกสารยืนยันแล้ว ระบบจะไม่อนุญาต
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่งต่อ: เอกสารควบคุมเพื่อ ISO <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <a href="#doc-2">Document Pull (ที่นี่)</a><span class="hd-arrow">→</span>
+      <a href="#iso-1">ควบคุมเอกสาร ISO</a>
+    </div>
+    <p class="hd-note">รายการ (lines) และไฟล์แนบที่ดึง/อ้างอิงจากเอกสารต้นทางในขั้นตอนนี้ จะกลายเป็นเอกสารควบคุมที่ต้องจัดเก็บและติดตามตามระบบ ISO ต่อไป</p>
   </div>
 
   <hr>
@@ -6391,7 +7443,7 @@ sub=เว็บไซต์องค์กรสาธารณะ · เมน
 <section class="part" id="website">
 
   <div class="part-head">
-    <h2 class="part-title"><span class="part-icon">🌐</span> ส่วนที่ 14 · เว็บไซต์และบุคลากร</h2>
+    <h2 class="part-title"><span class="part-icon">🌐</span> ส่วนที่ 15 · เว็บไซต์และบุคลากร</h2>
     <p class="part-sub">
       โมดูล <code>od19_website</code> ประกอบด้วยสองด้านที่ทำงานร่วมกัน — <strong>เว็บไซต์องค์กรสาธารณะ</strong>
       (แนะนำบริการ สินค้า ผลงาน ข่าว และช่องทางติดต่อ) และ <strong>พอร์ทัลพนักงาน</strong>
@@ -6412,6 +7464,24 @@ sub=เว็บไซต์องค์กรสาธารณะ · เมน
       <li><a href="#web-7">การตั้งค่าเว็บไซต์และข้อมูลแบรนด์</a></li>
     </ol>
   </nav>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ จุดเริ่มต้น: ลูกค้า/ผู้สมัครเข้าถึงบริษัทผ่านเว็บไซต์ <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#web-1">เว็บไซต์สาธารณะ (ที่นี่)</a>
+    </div>
+    <p class="hd-note">นี่คือจุดเริ่มต้นของเส้นทาง — ลูกค้าและผู้สมัครงานเข้าถึงบริษัทผ่านเว็บไซต์สาธารณะเป็นด่านแรก (สาธารณะ เข้าได้โดยไม่ต้องล็อกอิน)</p>
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่วนนี้ส่งต่อไปยัง <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <strong>ส่วนนี้ (ส่วนที่ 15)</strong><span class="hd-arrow">→</span>
+      <a href="#web-3">Careers (รับสมัครงาน)</a><span class="hd-arrow">→</span>
+      <a href="#hr">ส่วนที่ 8 · บุคคลฯ → รับพนักงาน (เส้นทาง A)</a>
+    </div>
+    <p class="hd-note">ผู้สมัครจากหน้า Careers เข้าสู่กระบวนการรับพนักงาน</p>
+  </div>
 
   <h3 class="mod" id="web-1"><span class="mtag">od19_website</span> ภาพรวมโมดูลและหน้าเว็บสาธารณะ</h3>
   <p>
@@ -6537,6 +7607,16 @@ sub=เว็บไซต์องค์กรสาธารณะ · เมน
     SCADA / HMI Software Engineer, Building Automation Engineer (GMP/CSV), Terminal Automation Service Engineer และตำแหน่งอื่น ๆ
     เพื่อให้หน้า Careers มีเนื้อหาเริ่มต้น
   </p>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่งต่อ: ผู้สมัคร → พนักงานใหม่ <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <a href="#web-3">Careers (ที่นี่)</a><span class="hd-arrow">→</span>
+      <a href="#flow-3">เส้นทาง A · รับพนักงาน</a><span class="hd-arrow">→</span>
+      <a href="#hr">ส่วนที่ 8 · บุคคลฯ</a>
+    </div>
+    <p class="hd-note">ผู้สมัครที่ถูกจ้าง (Mark as Hired) จากหน้า Careers จะเข้าสู่กระบวนการรับพนักงาน (Onboarding) ในโมดูล HR ต่อทันที</p>
+  </div>
 
   <h3 class="mod" id="web-4"><span class="mtag">od19_website</span> พอร์ทัลพนักงาน (/employee-portal)</h3>
   <p>
@@ -6678,7 +7758,7 @@ sub=แชทผู้ช่วย AI · แดชบอร์ดผู้บร
 <section class="part" id="ai">
 
   <div class="part-head">
-    <h2 class="part-title"><span class="part-icon">🤖</span> ส่วนที่ 15 · ผู้ช่วย AI และแดชบอร์ด</h2>
+    <h2 class="part-title"><span class="part-icon">🤖</span> ส่วนที่ 16 · ผู้ช่วย AI และแดชบอร์ด</h2>
     <p class="part-sub">
       ส่วนนี้รวมเครื่องมือช่วยตัดสินใจและช่วยทำงานที่อยู่ปลายทางของข้อมูลทั้งระบบ ได้แก่
       <strong>ผู้ช่วย AI</strong> ที่ถามข้อมูลจริงจาก Odoo ผ่านแชท, <strong>แดชบอร์ดผู้บริหาร</strong>
@@ -6696,6 +7776,26 @@ sub=แชทผู้ช่วย AI · แดชบอร์ดผู้บร
       <li><a href="#ai-4">ทัวร์แนะนำการใช้งาน (User Guide)</a></li>
     </ol>
   </nav>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ ส่วนนี้รับต่อมาจาก <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#flow-9">ส่วนที่ 2 · เส้นทาง G · KPI</a><span class="hd-arrow">→</span>
+      <a href="#ai-2">แดชบอร์ดผู้บริหาร</a><span class="hd-arrow">→</span>
+      <strong>ส่วนนี้ (ส่วนที่ 16)</strong>
+    </div>
+    <p class="hd-note">รับข้อมูลจากทุกเส้นทาง A–F (ยอดขาย, กำไรโครงการ, กระแสเงินสด, สถานะงาน) มารวมเป็นแดชบอร์ด/KPI</p>
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่วนนี้ส่งต่อไปยัง <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <strong>ส่วนนี้ (ส่วนที่ 16)</strong><span class="hd-arrow">→</span>
+      <a href="#iso-9">ส่วนที่ 9 · ทบทวนระบบจัดการ</a><span class="hd-arrow">→</span>
+      <a href="#iso-3">CAPA</a>
+    </div>
+    <p class="hd-note">ผล KPI ใช้ทบทวนผู้บริหารและกำหนดการปรับปรุง (เส้นทาง G)</p>
+  </div>
 
   <h3 class="mod" id="ai-1"><span class="mtag">od19_ai_assistant</span> ผู้ช่วย AI (แชทและเครื่องมืออ่านข้อมูล)</h3>
   <p>
@@ -6935,6 +8035,16 @@ sub=แชทผู้ช่วย AI · แดชบอร์ดผู้บร
     หากต้องการแหล่งข้อมูลใหม่ ให้เพิ่มที่ <span class="path">Configuration › Data Sources</span> โดยผู้จัดการก่อน
   </div>
 
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่งต่อ: ผลการวัด KPI → ทบทวนผู้บริหาร <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <a href="#ai-2">แดชบอร์ด/KPI (ที่นี่)</a><span class="hd-arrow">→</span>
+      <a href="#iso-9">ทบทวนระบบจัดการ</a><span class="hd-arrow">→</span>
+      <a href="#iso-3">CAPA</a>
+    </div>
+    <p class="hd-note">ผลการวัด KPI จากแดชบอร์ดจะถูกนำไปทบทวนในระบบจัดการ ISO และใช้กำหนดมาตรการปรับปรุง (CAPA)</p>
+  </div>
+
   <h3 class="mod" id="ai-3"><span class="mtag">od19_reporting_jasper</span> ระบบรายงาน JasperReports</h3>
   <p>
     โมดูล <code>od19_reporting_jasper</code> เป็น <strong>พื้นฐานการพิมพ์รายงาน/ฟอร์ม</strong> ด้วยเทมเพลต
@@ -7084,7 +8194,7 @@ sub=บทบาทธุรกิจ · แคตตาล็อกบทบา
 
 <section class="part" id="security">
   <div class="part-head">
-    <h2 class="part-title"><span class="part-icon">🔐</span> ส่วนที่ 16 · สิทธิ์และการอนุมัติ</h2>
+    <h2 class="part-title"><span class="part-icon">🔐</span> ส่วนที่ 17 · สิทธิ์และการอนุมัติ</h2>
     <p class="part-sub">
       ส่วนนี้ว่าด้วยการควบคุม “ใครเห็นอะไร และใครอนุมัติอะไร” ของทั้งระบบ ตั้งแต่ชั้นสิทธิ์กลาง (บทบาท + ขอบเขตแผนก),
       แคตตาล็อกบทบาทธุรกิจที่กำหนดไว้ล่วงหน้าประมาณ 44 บทบาท, ศูนย์อนุมัติกลางที่รวมงานค้างอนุมัติจากทุกโมดูลไว้ที่เดียว
@@ -7101,6 +8211,26 @@ sub=บทบาทธุรกิจ · แคตตาล็อกบทบา
       <li><a href="#sec-4">od19_notification_multi_channel — แจ้งเตือนหลายช่องทาง</a></li>
     </ol>
   </nav>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ ส่วนนี้รับต่อมาจาก <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#hr">ส่วนที่ 8 · บุคคลฯ (พนักงานใหม่)</a><span class="hd-arrow">→</span>
+      <a href="#sec-2">แคตตาล็อกบทบาทธุรกิจ</a><span class="hd-arrow">→</span>
+      <strong>ส่วนนี้ (ส่วนที่ 17)</strong>
+    </div>
+    <p class="hd-note">รับพนักงานใหม่/ผู้ใช้ แล้วกำหนดบทบาทและชั้นควบคุมสิทธิ์ก่อนใช้งานทุกโมดูล</p>
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่วนนี้ส่งต่อไปยัง <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <strong>ส่วนนี้ (ส่วนที่ 17)</strong><span class="hd-arrow">→</span>
+      <a href="#sec-3">ศูนย์อนุมัติกลาง</a><span class="hd-arrow">→</span>
+      <a href="#flow-10">Handoff Matrix</a>
+    </div>
+    <p class="hd-note">บทบาทที่ตั้งไว้ควบคุมว่าผู้ใช้เห็น/ทำอะไรได้ในทุกส่วน และเอกสารที่ต้องอนุมัติจะเข้าศูนย์อนุมัติกลาง</p>
+  </div>
 
   <!-- ============================================================= -->
   <!-- 1. od19_security_roles                                        -->
@@ -7363,6 +8493,16 @@ sub=บทบาทธุรกิจ · แคตตาล็อกบทบา
     มิฉะนั้นเอกสารจะไม่ถูกจัดกลุ่มถูกต้อง
   </div>
 
+  <div class="handoff in">
+    <p class="hd-head">⬅️ รับต่อจาก: เอกสารที่ต้องอนุมัติจากทุกฝ่าย (วงเงิน–ชั้นอนุมัติ) <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#sale-6">ส่วนที่ 5 · อนุมัติวงเงินขาย</a><span class="hd-arrow">→</span>
+      <a href="#pur-1">ส่วนที่ 6 · อนุมัติจัดซื้อ</a><span class="hd-arrow">→</span>
+      <a href="#sec-3">ศูนย์อนุมัติกลาง (ที่นี่)</a>
+    </div>
+    <p class="hd-note">เอกสารที่ต้องอนุมัติจากทุกฝ่าย (อนุมัติวงเงินขายและอนุมัติจัดซื้อตามวงเงิน–ชั้นอนุมัติ) จะถูกรวมไว้ที่ศูนย์อนุมัติกลางแห่งนี้</p>
+  </div>
+
   <hr>
 
   <!-- ============================================================= -->
@@ -7483,7 +8623,7 @@ sub=ฟอนต์และปีพุทธศักราช · ฟิลด
 
 <section class="part" id="settings">
   <div class="part-head">
-    <h2 class="part-title"><span class="part-icon">⚙️</span> ส่วนที่ 17 · การตั้งค่าและยูทิลิตี้</h2>
+    <h2 class="part-title"><span class="part-icon">⚙️</span> ส่วนที่ 18 · การตั้งค่าและยูทิลิตี้</h2>
     <p class="part-sub">
       ส่วนนี้รวบรวมโมดูลที่ทำให้ระบบ “เป็นไทย” และพร้อมใช้งานจริง ตั้งแต่ฐานข้อมูลไทยและการใช้ปีพุทธศักราช (พ.ศ.),
       ฟอนต์ไทย (Sarabun) ทั้งหน้าจอและรายงาน PDF, ฟิลด์เฉพาะไทยของคู่ค้า, ระบบเลขที่รหัสคู่ค้า,
@@ -7510,6 +8650,25 @@ sub=ฟอนต์และปีพุทธศักราช · ฟิลด
       <li><a href="#set-13">เครื่องหมายฟิลด์ [od19] (โหมด Dev)</a></li>
     </ol>
   </nav>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ โครงสร้างพื้นฐาน: ต้องตั้งค่าก่อนเริ่มใช้งานทุกส่วน <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#set-1">ฐานข้อมูลไทย/พ.ศ. (ที่นี่)</a><span class="hd-arrow">→</span>
+      <a href="#set-10">ค่าเริ่มต้น UI</a>
+    </div>
+    <p class="hd-note">ส่วนนี้เป็นโครงสร้างพื้นฐานที่ต้องตั้งค่าก่อนเริ่มใช้งานส่วนอื่น ๆ ทั้งหมด (ฐานข้อมูลไทย/พ.ศ., ฟอนต์, คำแปล, ฟิลด์ไทย ฯลฯ)</p>
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่วนนี้ส่งต่อไปยัง <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <strong>ส่วนนี้ (ส่วนที่ 18)</strong><span class="hd-arrow">→</span>
+      <a href="#flow-3">ส่วนที่ 2 · เส้นทาง A · เริ่มใช้งาน</a><span class="hd-arrow">→</span>
+      <a href="#ov-4">บทบาทและสิทธิ์</a>
+    </div>
+    <p class="hd-note">เมื่อตั้งค่าเสร็จ ผู้ใช้สามารถเริ่มเส้นทางธุรกิจ A ได้ทันที</p>
+  </div>
 
   <h3 class="mod" id="set-1"><span class="mtag">od19_thai_localization_base</span> ฐานข้อมูลไทยและปีพุทธศักราช</h3>
   <p>
@@ -7807,6 +8966,15 @@ sub=ฟอนต์และปีพุทธศักราช · ฟิลด
     การเปลี่ยนชื่อ/ย้ายเมนูเป็นการตั้งค่าระดับระบบ (Global) — มีผลกับ<b>ผู้ใช้ทุกคน</b> ไม่ใช่รายบุคคล
   </div>
 
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่งต่อ: พร้อมใช้ทุกเส้นทาง <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <a href="#set-10">ค่าเริ่มต้น UI (ที่นี่)</a><span class="hd-arrow">→</span>
+      <a href="#flow-2">แผนที่ 12 ขั้น (ส่วนที่ 2)</a>
+    </div>
+    <p class="hd-note">เมื่อค่าเริ่มต้น UI ถูกตั้งครบแล้ว ระบบพร้อมใช้งานทุกเส้นทางธุรกิจ เริ่มได้จากแผนที่ 12 ขั้น</p>
+  </div>
+
   <h3 class="mod" id="set-11"><span class="mtag">od19_apps_filter</span> ตัวกรองแอป (OD19 Modules)</h3>
   <p>
     เพิ่มตัวกรองและเมนูลัดในหน้ารวมแอป (Apps) เพื่อแสดงเฉพาะโมดูลที่เราพัฒนาเอง (ขึ้นต้นด้วย <code>od19_</code>)
@@ -7903,7 +9071,7 @@ sub=ฟอนต์และปีพุทธศักราช · ฟิลด
 
   <footer class="doc-footer">
     <p><strong>คู่มือการใช้งานระบบ Odoo 19 — AutoInfo ERP ฉบับเต็ม</strong> · v1.0</p>
-    <p>จัดทำสำหรับการใช้งานภายใน · อ้างอิงจากโมดูลจริงใน <code>custom_addons/</code> (od19_*) · สร้างเมื่อ 2026-11-19</p>
+    <p>จัดทำสำหรับการใช้งานภายใน · อ้างอิงจากโมดูลจริงใน <code>custom_addons/</code> (od19_*) · สร้างเมื่อ 2026-11-20</p>
     <p class="footnote">เอกสารนี้สร้างจากระบบจริง ณ วันที่ระบุ — หากโมดูลมีการแก้ไข ควรอัปเดตส่วนที่เกี่ยวข้องใน <code>docs/od19_user_guide/parts/</code> แล้ว build ใหม่</p>
   </footer>
 </article>

@@ -7,7 +7,7 @@ sub=บทบาทธุรกิจ · แคตตาล็อกบทบา
 
 <section class="part" id="security">
   <div class="part-head">
-    <h2 class="part-title"><span class="part-icon">🔐</span> ส่วนที่ 16 · สิทธิ์และการอนุมัติ</h2>
+    <h2 class="part-title"><span class="part-icon">🔐</span> ส่วนที่ 17 · สิทธิ์และการอนุมัติ</h2>
     <p class="part-sub">
       ส่วนนี้ว่าด้วยการควบคุม “ใครเห็นอะไร และใครอนุมัติอะไร” ของทั้งระบบ ตั้งแต่ชั้นสิทธิ์กลาง (บทบาท + ขอบเขตแผนก),
       แคตตาล็อกบทบาทธุรกิจที่กำหนดไว้ล่วงหน้าประมาณ 44 บทบาท, ศูนย์อนุมัติกลางที่รวมงานค้างอนุมัติจากทุกโมดูลไว้ที่เดียว
@@ -24,6 +24,26 @@ sub=บทบาทธุรกิจ · แคตตาล็อกบทบา
       <li><a href="#sec-4">od19_notification_multi_channel — แจ้งเตือนหลายช่องทาง</a></li>
     </ol>
   </nav>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ ส่วนนี้รับต่อมาจาก <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#hr">ส่วนที่ 8 · บุคคลฯ (พนักงานใหม่)</a><span class="hd-arrow">→</span>
+      <a href="#sec-2">แคตตาล็อกบทบาทธุรกิจ</a><span class="hd-arrow">→</span>
+      <strong>ส่วนนี้ (ส่วนที่ 17)</strong>
+    </div>
+    <p class="hd-note">รับพนักงานใหม่/ผู้ใช้ แล้วกำหนดบทบาทและชั้นควบคุมสิทธิ์ก่อนใช้งานทุกโมดูล</p>
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่วนนี้ส่งต่อไปยัง <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <strong>ส่วนนี้ (ส่วนที่ 17)</strong><span class="hd-arrow">→</span>
+      <a href="#sec-3">ศูนย์อนุมัติกลาง</a><span class="hd-arrow">→</span>
+      <a href="#flow-10">Handoff Matrix</a>
+    </div>
+    <p class="hd-note">บทบาทที่ตั้งไว้ควบคุมว่าผู้ใช้เห็น/ทำอะไรได้ในทุกส่วน และเอกสารที่ต้องอนุมัติจะเข้าศูนย์อนุมัติกลาง</p>
+  </div>
 
   <!-- ============================================================= -->
   <!-- 1. od19_security_roles                                        -->
@@ -284,6 +304,16 @@ sub=บทบาทธุรกิจ · แคตตาล็อกบทบา
   <div class="callout warn">
     ค่าในช่อง Success/Rejected States ต้องตรงกับค่าสถานะจริงของโมเดลนั้น (สะกดตามฟิลด์จริง)
     มิฉะนั้นเอกสารจะไม่ถูกจัดกลุ่มถูกต้อง
+  </div>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ รับต่อจาก: เอกสารที่ต้องอนุมัติจากทุกฝ่าย (วงเงิน–ชั้นอนุมัติ) <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#sale-6">ส่วนที่ 5 · อนุมัติวงเงินขาย</a><span class="hd-arrow">→</span>
+      <a href="#pur-1">ส่วนที่ 6 · อนุมัติจัดซื้อ</a><span class="hd-arrow">→</span>
+      <a href="#sec-3">ศูนย์อนุมัติกลาง (ที่นี่)</a>
+    </div>
+    <p class="hd-note">เอกสารที่ต้องอนุมัติจากทุกฝ่าย (อนุมัติวงเงินขายและอนุมัติจัดซื้อตามวงเงิน–ชั้นอนุมัติ) จะถูกรวมไว้ที่ศูนย์อนุมัติกลางแห่งนี้</p>
   </div>
 
   <hr>

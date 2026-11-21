@@ -8,7 +8,7 @@ sub=รับ-จ่าย-โอน · มูลค่า FIFO · ปรับ�
 <section class="part" id="inventory">
 
   <div class="part-head">
-    <h2 class="part-title"><span class="part-icon">🏭</span> ส่วนที่ 6 · สินค้าคงคลังและคลังสินค้า</h2>
+    <h2 class="part-title"><span class="part-icon">🏭</span> ส่วนที่ 7 · สินค้าคงคลังและคลังสินค้า</h2>
     <p class="part-sub">
       อธิบายงานคลังสินค้าครบวงจรของ AutoInfo — ตั้งแต่การรับเข้า-จ่ายออก-โอนย้าย การบันทึกข้อมูลประกอบใบรับ-จ่าย
       การประเมิน <strong>มูลค่าสินค้าแบบ FIFO</strong> การ <strong>ปรับมูลค่าสินค้าคงคลัง</strong>
@@ -35,6 +35,27 @@ sub=รับ-จ่าย-โอน · มูลค่า FIFO · ปรับ�
       <li><a href="#inv-10">แบบพิมพ์และรายงาน Jasper (J-Report OD15)</a></li>
     </ol>
   </nav>
+
+  <div class="handoff in">
+    <p class="hd-head">⬅️ ส่วนนี้รับต่อมาจาก <span class="hd-tag">handoff · in</span></p>
+    <div class="hd-flow">
+      <a href="#pur-1">ส่วนที่ 6 · การจัดซื้อ (ของเข้า)</a><span class="hd-arrow">→</span>
+      <a href="#sale-3">ส่วนที่ 5 · ใบสั่งขาย (ของออก)</a><span class="hd-arrow">→</span>
+      <strong>ส่วนนี้ (ส่วนที่ 7)</strong>
+    </div>
+    <p class="hd-note">รับของเข้าจากการจัดซื้อ (เส้นทาง F) และรับคำสั่งขายเพื่อส่งของให้ลูกค้า (เส้นทาง B/D)</p>
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่วนนี้ส่งต่อไปยัง <span class="hd-tag">handoff · out</span></p>
+    <div class="hd-flow">
+      <strong>ส่วนนี้ (ส่วนที่ 7)</strong><span class="hd-arrow">→</span>
+      <a href="#inv-7">ใบเบิกสินค้า → โครงการ</a><span class="hd-arrow">→</span>
+      <a href="#fleet-3">ส่วนที่ 12 · ใบขนส่ง</a><span class="hd-arrow">→</span>
+      <a href="#acc-core">ส่วนที่ 3 · บัญชี (ต้นทุน/มูลค่าสินค้า)</a>
+    </div>
+    <p class="hd-note">เบิกของให้โครงการ, ส่งของผ่านขนส่ง, และส่งมูลค่าสต๊อกเข้าบัญชี</p>
+  </div>
 
   <h3 class="mod" id="inv-1"><span class="mtag">od19_stock_picking_features</span> ส่วนขยายใบรับ-จ่ายสินค้า</h3>
   <p>
@@ -490,6 +511,15 @@ sub=รับ-จ่าย-โอน · มูลค่า FIFO · ปรับ�
     ระบุ <span class="pill">งาน/โครงการ</span> เพื่อเชื่อมต้นทุนการเบิกเข้ากับโครงการ และดูต้นทุนตามโครงการได้ง่ายขึ้น
   </div>
 
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่งต่อ: เบิกวัสดุให้โครงการ</p>
+    <div class="hd-flow">
+      <a href="#inv-7">ใบเบิกสินค้า (ที่นี่)</a><span class="hd-arrow">→</span>
+      <a href="#proj-1">ส่วนที่ 10 · โครงการ (ต้นทุนวัสดุ)</a>
+    </div>
+    <p class="hd-note">วัสดุที่เบิกออกจากคลังบันทึกเป็นต้นทุนวัสดุของโครงการ — เลือกงาน/โครงการให้ครบเพื่อให้ต้นทุนลงถูกโครงการ</p>
+  </div>
+
   <hr>
 
   <h3 class="mod" id="inv-8"><span class="mtag">od19_product_return</span> คืนสินค้า / RMA (Product Return)</h3>
@@ -615,6 +645,16 @@ sub=รับ-จ่าย-โอน · มูลค่า FIFO · ปรับ�
   </div>
   <div class="callout tip">
     เลือกเหตุผลการส่งได้หลายข้อ ระบบจะรวมข้อความให้อ่านง่ายบนใบพิมพ์
+  </div>
+
+  <div class="handoff out">
+    <p class="hd-head">➡️ ส่งต่อ: พร้อมขนส่ง</p>
+    <div class="hd-flow">
+      <a href="#inv-9">ใบปะหน้าส่งของ (ที่นี่)</a><span class="hd-arrow">→</span>
+      <a href="#fleet-3">ส่วนที่ 12 · ใบขนส่ง</a><span class="hd-arrow">→</span>
+      <a href="#sale-2">หลักฐานวางบิล</a>
+    </div>
+    <p class="hd-note">พิมพ์ใบปะหน้าแนบของก่อนส่ง มอบให้ฝ่ายขนส่งออกใบขนส่ง และใช้เป็นหลักฐานประกอบการวางบิลให้ลูกค้า</p>
   </div>
 
   <hr>
