@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_od19_claim_form_tree" model="ir.ui.view">
+        <field name="name">od19.claim.form.tree</field>
+        <field name="model">od19.claim.form</field>
+        <field name="arch" type="xml">
+            <list string="ทะเบียนแบบฟอร์ม">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="revision"/>
+                <field name="claim_type"/>
+                <field name="effective_date"/>
+                <field name="owner_department_id"/>
+                <field name="category_id"/>
+                <field name="print_count"/>
+                <field name="active" invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_od19_claim_form_form" model="ir.ui.view">
+        <field name="name">od19.claim.form.form</field>
+        <field name="model">od19.claim.form</field>
+        <field name="arch" type="xml">
+            <form string="แบบฟอร์มเรื่องเรียกร้อง">
+                <header>
+                    <button name="action_print_form" type="object"
+                            string="พิมพ์แบบฟอร์ม" class="oe_highlight"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="name"/>
+                            <field name="revision"/>
+                            <field name="claim_type"/>
+                        </group>
+                        <group>
+                            <field name="effective_date"/>
+                            <field name="owner_department_id"/>
+                            <field name="category_id"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <group string="ไฟล์แบบฟอร์ม">
+                        <field name="template_attachment_id"/>
+                    </group>
+                    <notebook>
+                        <page string="ประวัติการพิมพ์">
+                            <field name="print_ids">
+                                <list>
+                                    <field name="printed_by_id"/>
+                                    <field name="printed_at"/>
+                                    <field name="copy_count"/>
+                                    <field name="note"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="หมายเหตุ">
+                            <field name="note"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_od19_claim_form_search" model="ir.ui.view">
+        <field name="name">od19.claim.form.search</field>
+        <field name="model">od19.claim.form</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="claim_type"/>
+                <group>
+                    <filter name="group_claim_type" string="ชนิดเรื่องเรียกร้อง"
+                            context="{'group_by': 'claim_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_od19_claim_form" model="ir.actions.act_window">
+        <field name="name">ทะเบียนแบบฟอร์ม</field>
+        <field name="res_model">od19.claim.form</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_od19_claim_form_user,od19.claim.form.user,model_od19_claim_form,od19_document_hub.group_document_user,1,0,0,0
+access_od19_claim_form_manager,od19.claim.form.manager,model_od19_claim_form,od19_document_hub.group_document_manager,1,1,1,1
+access_od19_claim_form_print_user,od19.claim.form.print.user,model_od19_claim_form_print,od19_document_hub.group_document_user,1,1,1,0
+access_od19_claim_form_print_manager,od19.claim.form.print.manager,model_od19_claim_form_print,od19_document_hub.group_document_manager,1,1,1,1
+access_od19_claim_request_user,od19.claim.request.user,model_od19_claim_request,od19_document_hub.group_document_user,1,1,1,0
+access_od19_claim_request_manager,od19.claim.request.manager,model_od19_claim_request,od19_document_hub.group_document_manager,1,1,1,1

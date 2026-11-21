@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="cat_claim" model="od19.document.category">
+        <field name="name">เรื่องเรียกร้อง</field>
+        <field name="code">CLM</field>
+    </record>
+    <record id="cat_claim_warranty" model="od19.document.category">
+        <field name="name">เคลมประกัน/หลังการขาย</field>
+        <field name="code">CLM_WRT</field>
+        <field name="parent_id" ref="cat_claim"/>
+    </record>
+    <record id="cat_claim_return" model="od19.document.category">
+        <field name="name">คืนสินค้า/เสียหายขนส่ง</field>
+        <field name="code">CLM_RMA</field>
+        <field name="parent_id" ref="cat_claim"/>
+    </record>
+    <record id="cat_claim_supplier" model="od19.document.category">
+        <field name="name">เรียกร้องผู้ขาย</field>
+        <field name="code">CLM_SUP</field>
+        <field name="parent_id" ref="cat_claim"/>
+    </record>
+    <record id="cat_claim_insurance" model="od19.document.category">
+        <field name="name">เรียกร้องประกันภัย</field>
+        <field name="code">CLM_INS</field>
+        <field name="parent_id" ref="cat_claim"/>
+    </record>
+
+    <record id="cat_request" model="od19.document.category">
+        <field name="name">เรื่องร้องขอ/คำขอ</field>
+        <field name="code">REQ</field>
+    </record>
+    <record id="cat_request_billing" model="od19.document.category">
+        <field name="name">ขอเปิดบิล</field>
+        <field name="code">REQ_BIL</field>
+        <field name="parent_id" ref="cat_request"/>
+    </record>
+    <record id="cat_request_purchase" model="od19.document.category">
+        <field name="name">ขออนุมัติจัดซื้อ</field>
+        <field name="code">REQ_PR</field>
+        <field name="parent_id" ref="cat_request"/>
+    </record>
+    <record id="cat_request_internal" model="od19.document.category">
+        <field name="name">บริการไอที/ภายใน</field>
+        <field name="code">REQ_IT</field>
+        <field name="parent_id" ref="cat_request"/>
+    </record>
+
+    <record id="cat_form" model="od19.document.category">
+        <field name="name">แบบฟอร์มต้นแบบ</field>
+        <field name="code">FRM</field>
+    </record>
+    <record id="cat_form_dar" model="od19.document.category">
+        <field name="name">ใบ DAR</field>
+        <field name="code">FRM_DAR</field>
+        <field name="parent_id" ref="cat_form"/>
+    </record>
+</odoo>

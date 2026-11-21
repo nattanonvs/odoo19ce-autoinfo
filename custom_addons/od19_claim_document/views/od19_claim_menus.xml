@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_od19_claim_request"
+              name="แฟ้มเรื่องเรียกร้อง"
+              parent="od19_document_hub.menu_od19_document_root"
+              action="action_od19_claim_request"
+              sequence="11"/>
+
+    <menuitem id="menu_od19_claim_form"
+              name="ทะเบียนแบบฟอร์ม"
+              parent="od19_document_hub.menu_od19_document_root"
+              action="action_od19_claim_form"
+              sequence="40"/>
+</odoo>

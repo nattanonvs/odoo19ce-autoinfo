@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="seq_od19_claim_request" model="ir.sequence">
+        <field name="name">เรื่องเรียกร้อง/คำขอ</field>
+        <field name="code">od19.claim.request</field>
+        <field name="prefix">CLM/%(range_year)s/</field>
+        <field name="padding">4</field>
+        <field name="company_id" eval="False"/>
+    </record>
+</odoo>
