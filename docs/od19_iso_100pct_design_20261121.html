@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>OD19-ISO-100PCT-R00 · Design Spec · AutoInfo Odoo 19</title>
+<style>
+  :root{
+    --maroon:#9E2424; --maroon-d:#7a1c1c; --ink:#1f2430; --muted:#5b6676;
+    --line:#e3e7ee; --bg:#f6f7f9; --card:#ffffff; --ok:#1a7f4b; --warn:#a86a00;
+    --bad:#b3261e; --accent:#71639e; --soft:#f2eef8;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Sarabun","Noto Sans Thai","Segoe UI",system-ui,sans-serif;
+    font-size:15px;line-height:1.65}
+  .wrap{display:grid;grid-template-columns:264px 1fr;gap:0;max-width:1320px;margin:0 auto}
+  aside{position:sticky;top:0;height:100vh;overflow:auto;padding:22px 16px;
+    background:#fff;border-right:1px solid var(--line)}
+  aside .brand{font-weight:700;color:var(--maroon);letter-spacing:.2px}
+  aside .ref{font-size:12px;color:var(--muted);margin-bottom:14px}
+  aside a{display:block;color:var(--ink);text-decoration:none;font-size:13.5px;
+    padding:5px 8px;border-radius:7px;margin:1px 0}
+  aside a:hover{background:var(--soft);color:var(--maroon)}
+  aside a.sub{padding-left:20px;color:var(--muted);font-size:13px}
+  main{padding:30px 40px 90px;min-width:0}
+  header.doc{background:linear-gradient(135deg,var(--maroon),var(--maroon-d));
+    color:#fff;border-radius:16px;padding:26px 30px;margin-bottom:26px}
+  header.doc h1{margin:0 0 6px;font-size:26px}
+  header.doc .meta{font-size:13.5px;opacity:.92}
+  header.doc .pill{display:inline-block;background:rgba(255,255,255,.16);
+    border:1px solid rgba(255,255,255,.3);padding:3px 10px;border-radius:999px;
+    font-size:12px;margin-right:6px;margin-top:8px}
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:22px 26px;margin:0 0 20px}
+  h2{font-size:20px;margin:0 0 4px;color:var(--maroon);
+    border-bottom:2px solid var(--soft);padding-bottom:8px}
+  h3{font-size:16.5px;margin:22px 0 8px;color:var(--ink)}
+  h4{font-size:14.5px;margin:16px 0 6px;color:var(--muted);text-transform:none}
+  p{margin:8px 0}
+  table{width:100%;border-collapse:collapse;margin:10px 0 6px;font-size:13.5px}
+  th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+  th{background:var(--soft);color:var(--maroon-d);font-weight:600}
+  code,kbd{background:#f1f3f7;border:1px solid var(--line);border-radius:6px;
+    padding:1px 6px;font-family:"JetBrains Mono",Consolas,monospace;font-size:12.5px}
+  pre{background:#20242e;color:#e7e9ef;border-radius:10px;padding:14px 16px;
+    overflow:auto;font-size:12.5px;line-height:1.55}
+  .badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;
+    font-weight:600;border:1px solid transparent}
+  .b-ok{background:#e6f4ec;color:var(--ok);border-color:#bfe3cd}
+  .b-warn{background:#fdf3e2;color:var(--warn);border-color:#f0dcb5}
+  .b-bad{background:#fdeaea;color:var(--bad);border-color:#f3c9c6}
+  .b-new{background:#eef3ff;color:#2c5cc5;border-color:#c9d8f8}
+  .b-ext{background:var(--soft);color:var(--accent);border-color:#d9d0ec}
+  ul{margin:6px 0 6px 2px;padding-left:20px}
+  li{margin:3px 0}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .note{background:var(--soft);border-left:4px solid var(--accent);
+    border-radius:8px;padding:10px 14px;font-size:13.5px;margin:10px 0}
+  .ac{background:#f3f8f4;border:1px dashed #bfe3cd;border-radius:10px;padding:12px 16px;margin:10px 0}
+  .ac b{color:var(--ok)}
+  .toc-num{display:inline-block;width:22px;color:var(--maroon);font-weight:700}
+  /* ---- mockup chrome ---- */
+  .mock{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;
+    box-shadow:0 6px 22px rgba(20,25,40,.06);margin:12px 0}
+  .mock .bar{background:var(--accent);color:#fff;padding:7px 12px;font-size:12.5px;
+    display:flex;align-items:center;gap:8px}
+  .mock .bar .dots{display:flex;gap:5px}
+  .mock .bar .dots i{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.55)}
+  .mock .c{padding:14px}
+  .mock .ctrl{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .mock .btn{font-size:12px;padding:4px 11px;border-radius:7px;border:1px solid var(--line);
+    background:#fff;color:var(--ink)}
+  .mock .btn.primary{background:var(--maroon);color:#fff;border-color:var(--maroon)}
+  .mock .btn.ok{background:var(--ok);color:#fff;border-color:var(--ok)}
+  .mock .btn.ghost{background:#fff;color:var(--muted)}
+  .mock table{font-size:12.5px;margin:0}
+  .mock th{font-size:12px}
+  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .kpi .k{background:linear-gradient(180deg,#fff,#fafbfd);border:1px solid var(--line);
+    border-radius:10px;padding:10px 12px}
+  .kpi .k .v{font-size:22px;font-weight:700;color:var(--maroon)}
+  .kpi .k .l{font-size:12px;color:var(--muted)}
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .cards .cd{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff}
+  .cards .cd .t{font-weight:600;font-size:13px}
+  .cards .cd .s{font-size:11.5px;color:var(--muted);margin:4px 0 8px}
+  .stack{display:inline-flex;align-items:center;gap:6px;font-size:11.5px}
+  .chip{padding:2px 8px;border-radius:999px;font-size:11px;border:1px solid var(--line)}
+  .chip.g{background:#e6f4ec;color:var(--ok)}
+  .chip.y{background:#fdf3e2;color:var(--warn)}
+  .chip.r{background:#fdeaea;color:var(--bad)}
+  .chip.b{background:#eef3ff;color:#2c5cc5}
+  .stampbox{display:flex;justify-content:space-between;align-items:flex-end;
+    border-top:2px solid var(--ink);padding-top:8px;font-size:11px}
+  .stamp{background:#fff;border:2px dashed var(--maroon);border-radius:8px;
+    padding:8px 12px;color:var(--maroon);font-size:11px;text-align:center;line-height:1.35}
+  .stamp .qr{width:44px;height:44px;margin:0 auto 4px;
+    background:
+      repeating-linear-gradient(90deg,#111 0 4px,#fff 4px 8px),
+      repeating-linear-gradient(0deg,#111 0 4px,#fff 4px 8px);
+    background-blend-mode:multiply;border-radius:4px}
+  .tag{font-size:11.5px;color:var(--muted)}
+  .hr{height:1px;background:var(--line);margin:16px 0}
+  .variant{border:1px solid var(--line);border-radius:12px;padding:10px}
+  .variant h4{margin:0 0 8px;color:var(--maroon)}
+  .choose{font-size:12.5px;color:var(--muted);margin-top:8px}
+  footer{color:var(--muted);font-size:12.5px;text-align:center;padding:10px 0 40px}
+  @media (max-width:980px){.wrap{grid-template-columns:1fr}aside{position:static;height:auto}
+    .grid2{grid-template-columns:1fr}.kpi{grid-template-columns:repeat(2,1fr)}
+    .cards{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<aside>
+  <div class="brand">OD19 · ISO 100% Parity</div>
+  <div class="ref">Spec Ref: OD19-ISO-100PCT-R00<br/>2026-11-21 · AutoInfo</div>
+  <a href="#s0"><span class="toc-num">0</span>เป้าหมาย &amp; ขอบเขต</a>
+  <a href="#s1"><span class="toc-num">1</span>สถาปัตยกรรมโมดูล</a>
+  <a href="#s2"><span class="toc-num">2</span>Parity Matrix (100%)</a>
+  <a href="#s3"><span class="toc-num">3</span>WP1 · ขยาย Workflow DAR</a>
+  <a href="#s4"><span class="toc-num">4</span>WP2 · od19_iso_print_control</a>
+  <a href="#s5"><span class="toc-num">5</span>WP3 · Auto Document Generation</a>
+  <a href="#s6"><span class="toc-num">6</span>WP4 · รายงาน &amp; Dashboard</a>
+  <a href="#s7"><span class="toc-num">7</span>Mockup UI (เลือก Variant)</a>
+  <a href="#s8"><span class="toc-num">8</span>Roadmap &amp; Worktree Plan</a>
+  <a href="#s9"><span class="toc-num">9</span>ความเสี่ยง &amp; ข้อตัดสินใจ</a>
+</aside>
+
+<main>
+<header class="doc">
+  <h1>Design Spec — ISO Document Control 100% Usage Parity</h1>
+  <div class="meta">ปิดช่องว่างทั้ง 5 ข้อเทียบ <b>Skytizens ISO DAR</b> เพื่อให้ระบบ AutoInfo (Odoo 19 CE) ครอบคลุมการใช้งาน 100%</div>
+  <div>
+    <span class="pill">Spec Ref: OD19-ISO-100PCT-R00</span>
+    <span class="pill">วันที่: 2026-11-21</span>
+    <span class="pill">สถานะ: รออนุมัติดีไซน์</span>
+    <span class="pill">ระดับ: Implement-ready</span>
+  </div>
+</header>
+
+<!-- ============ 0 ============ -->
+<section id="s0">
+  <h2>0 · เป้าหมาย &amp; ขอบเขต</h2>
+  <p><b>เป้าหมาย:</b> ทำให้โมดูล ISO ของเราเทียบเท่าครบ 100% กับ 8 หัวข้อของ Skytizens ISO DAR พร้อมคงข้อได้เปรียบเดิม (ISO QMS ครบวง: Risk · Internal Audit · CAPA · Management Review · Calibration · Supplier Quality · Training · Customer Satisfaction)</p>
+  <p><b>ช่องว่างที่ต้องปิด (จากบทวิเคราะห์ก่อนหน้า):</b></p>
+  <table>
+    <tr><th style="width:56px">Gap</th><th>รายละเอียด</th><th style="width:130px">Work Package</th></tr>
+    <tr><td>G1</td><td>Print Register + ติดตามคืน/เปลี่ยนเอกสารฉบับพิมพ์</td><td>WP2 <span class="badge b-new">โมดูลใหม่</span></td></tr>
+    <tr><td>G2</td><td>Distribution List แบบ revision-driven</td><td>WP2 <span class="badge b-new">โมดูลใหม่</span></td></tr>
+    <tr><td>G3</td><td>Workflow CDL / PDR / BDR / NDRP / EDRP</td><td>WP1 <span class="badge b-ext">ขยายเดิม</span></td></tr>
+    <tr><td>G4</td><td>Cover Page / History of Changes / Distribution List / Document Stamp อัตโนมัติ</td><td>WP3 <span class="badge b-ext">ขยายเดิม</span></td></tr>
+    <tr><td>G5</td><td>Dashboard รวม + รายงาน Document Register / Revision / Distribution / Print</td><td>WP4 <span class="badge b-ext">ขยายเดิม</span></td></tr>
+  </table>
+  <div class="note"><b>ขอบเขตเอกสารนี้:</b> ออกแบบเท่านั้น (design-only) ไม่แตะโค้ด/DB จนกว่าจะอนุมัติ — ทุกหัวข้อระบุ model · field · state · security · menu · acceptance criteria พร้อมเริ่มพัฒนาได้ทันที</div>
+  <p><b>หลักการที่ยึด:</b> ใช้ของเดิมให้มากที่สุด · ชื่อโมดูล <code>od19_*</code> · ฟิลด์กำหนดเองขึ้นต้น <code>od19_</code> ที่จำเป็น · RBAC ผ่าน <code>od19_security_roles</code> · ไม่ซ้ำกับของ core · Worktree/branch ต่อ WP ตาม AGENTS.md</p>
+</section>
+
+<!-- ============ 1 ============ -->
+<section id="s1">
+  <h2>1 · สถาปัตยกรรมโมดูล &amp; Dependency Graph</h2>
+  <table>
+    <tr><th>โมดูล</th><th style="width:120px">สถานะ</th><th>หน้าที่</th><th>depends</th></tr>
+    <tr>
+      <td><code>od19_iso_document_control</code><br/><span class="tag">(มีอยู่)</span></td>
+      <td><span class="badge b-ext">ขยาย</span></td>
+      <td>ทะเบียนเอกสารควบคุม + Cover/History/Distribution/Stamp page (WP3)</td>
+      <td><code>base, mail, hr, web, od19_security_roles</code></td>
+    </tr>
+    <tr>
+      <td><code>od19_iso_print_control</code><br/><span class="tag">(ใหม่)</span></td>
+      <td><span class="badge b-new">ใหม่</span></td>
+      <td>Print Register · Distribution List · คุมสำเนาควบคุม · คืน/เปลี่ยน (WP2)</td>
+      <td><code>od19_iso_document_control, mail, hr, od19_security_roles, od19_thai_font_support</code></td>
+    </tr>
+    <tr>
+      <td><code>od19_iso_dar</code><br/><span class="tag">(มีอยู่)</span></td>
+      <td><span class="badge b-ext">ขยาย</span></td>
+      <td>ขยาย workflow 8 ประเภท + ผูก PDR/DistributionList (WP1)</td>
+      <td><code>od19_iso_document_control, od19_iso_print_control, od19_approval_center, od19_security_roles</code></td>
+    </tr>
+    <tr>
+      <td><code>od19_dashboard</code><br/><span class="tag">(มีอยู่)</span></td>
+      <td><span class="badge b-ext">ใช้/ต่อยอด</span></td>
+      <td>ISO dashboard (pending · active · register · alerts) (WP4)</td>
+      <td>ใช้ <code>od19.dashboard.source</code> ที่มีอยู่</td>
+    </tr>
+  </table>
+
+  <h4>Dependency Graph (ห้ามเกิด cycle)</h4>
+  <pre>
+base ─ hr ─ mail ─ web ─ od19_security_roles
+              │
+              ▼
+   od19_iso_document_control   (registry เอกสาร + PCR/Revision)
+              │
+              ▼
+   od19_iso_print_control      (Print Register / Distribution / Copy)
+              │
+              ▼
+   od19_iso_dar                (workflow 8 ประเภท + ผูก print.request)
+
+od19_dashboard ──อ่าน──> ทุกโมดูล (read-only ผ่าน dashboard.source whitelist)
+  </pre>
+  <div class="note">ลำดับการพึ่งพา: <b>document_control → print_control → dar</b> เพื่อให้ DAR อ้าง <code>od19.iso.print.request</code> ได้โดยไม่เกิด circular dependency (print_control ไม่พึ่ง DAR)</div>
+</section>
+
+<!-- ============ 2 ============ -->
+<section id="s2">
+  <h2>2 · Parity Matrix — ผลหลังปิดทุก Gap</h2>
+  <table>
+    <tr><th style="width:34%">หัวข้อ Skytizens ISO DAR</th><th style="width:22%">ก่อน</th><th>หลังทำ Spec นี้</th><th style="width:110px">สถานะ</th></tr>
+    <tr><td>1. Lifecycle End-to-End</td><td>🟡</td><td>ครบ: New/Edit/Cancel/Distribute/Print/Return/Replace/Withdraw/Audit — WP1+WP2</td><td><span class="badge b-ok">100%</span></td></tr>
+    <tr><td>2. Workflow NDR/EDR/CDR/CDL/PDR/BDR/NDRP/EDRP</td><td>🟡 6/8</td><td>ครบ 8 ประเภท — WP1</td><td><span class="badge b-ok">100%</span></td></tr>
+    <tr><td>3. Digital Workflow &amp; Online Approval</td><td>✅</td><td>คงเดิม + เพิ่ม approver ต่อประเภท</td><td><span class="badge b-ok">100%</span></td></tr>
+    <tr><td>4. Version &amp; Revision Control</td><td>✅</td><td>คงเดิม + trigger เปลี่ยนเอกสารพิมพ์อัตโนมัติ</td><td><span class="badge b-ok">100%</span></td></tr>
+    <tr><td>5. Centralized Repository</td><td>✅</td><td>คงเดิม (+ od19_document_hub)</td><td><span class="badge b-ok">100%</span></td></tr>
+    <tr><td>6. Distribution &amp; Printed Copy Control</td><td>🟡</td><td>Distribution List + Print Register + คืน/เปลี่ยน — WP2</td><td><span class="badge b-ok">100%</span></td></tr>
+    <tr><td>7. Automatic Document Generation</td><td>🟡</td><td>Cover/Header/Footer/History/Distribution/Stamp — WP3</td><td><span class="badge b-ok">100%</span></td></tr>
+    <tr><td>8. Dashboard &amp; Reports + Audit Trail</td><td>🟡</td><td>ISO Dashboard + 4 Register Reports — WP4</td><td><span class="badge b-ok">100%</span></td></tr>
+  </table>
+</section>
+
+<!-- ============ 3 ============ -->
+<section id="s3">
+  <h2>3 · WP1 — ขยาย Workflow ของ <code>od19_iso_dar</code></h2>
+  <p>ไม่สร้างโมดูลใหม่ แก้ที่ <code>od19.iso.dar</code> โดยตรง (ต่อยอด state machine เดิม 4 ขั้น: draft → review → approval → final_approval → approved)</p>
+
+  <h3>3.1 Mapping ประเภทคำขอ (Skytizens → เรา)</h3>
+  <table>
+    <tr><th style="width:110px">รหัส</th><th>ความหมาย</th><th>request_type (ใหม่)</th><th>ต้องอ้างเอกสารเดิม</th><th>ต้องระบุจำนวนพิมพ์</th></tr>
+    <tr><td>NDR</td><td>New Document Request</td><td><code>new</code> <span class="badge b-ok">มีแล้ว</span></td><td>ไม่</td><td>ไม่</td></tr>
+    <tr><td>EDR</td><td>Edit Document Request</td><td><code>revise</code> <span class="badge b-ok">มีแล้ว</span></td><td>ใช่</td><td>ไม่</td></tr>
+    <tr><td>CDR</td><td>Cancel Document Request</td><td><code>obsolete</code> <span class="badge b-ok">มีแล้ว</span></td><td>ใช่</td><td>ไม่</td></tr>
+    <tr><td>—</td><td>ขอสำเนาควบคุม/ไม่ควบคุม</td><td><code>copy_controlled</code> / <code>copy_uncontrolled</code> <span class="badge b-ok">มีแล้ว</span></td><td>ใช่</td><td>ไม่</td></tr>
+    <tr><td>CDL</td><td>Change Distribution List</td><td><code>change_distribution</code> <span class="badge b-new">ใหม่</span></td><td>ใช่ (+ เลือก Distribution List)</td><td>ไม่</td></tr>
+    <tr><td>PDR</td><td>Print Document Request</td><td><code>print</code> <span class="badge b-new">ใหม่</span></td><td>ใช่</td><td>ใช่</td></tr>
+    <tr><td>BDR</td><td>Broad Distribution Request</td><td><code>broad_distribution</code> <span class="badge b-new">ใหม่</span></td><td>ใช่</td><td>ไม่ (แจกไฟล์/สำเนาหลายผู้รับ)</td></tr>
+    <tr><td>NDRP</td><td>New + Printing</td><td><code>new_with_print</code> <span class="badge b-new">ใหม่</span></td><td>ไม่</td><td>ใช่</td></tr>
+    <tr><td>EDRP</td><td>Edit + Printing</td><td><code>revise_with_print</code> <span class="badge b-new">ใหม่</span></td><td>ใช่</td><td>ใช่</td></tr>
+  </table>
+  <p><code>other</code> คงไว้เป็นกรณีทั่วไป</p>
+
+  <h3>3.2 ฟิลด์ที่เพิ่มใน <code>od19.iso.dar</code></h3>
+  <table>
+    <tr><th style="width:210px">Field</th><th style="width:150px">Type</th><th>คำอธิบาย / เงื่อนไข</th></tr>
+    <tr><td><code>print_request_id</code></td><td>Many2one <code>od19.iso.print.request</code></td><td>ผูกใบพิมพ์ที่สร้างจาก DAR (แสดงเมื่อ type ∈ print, new_with_print, revise_with_print)</td></tr>
+    <tr><td><code>distribution_list_id</code></td><td>Many2one <code>od19.iso.distribution.list</code></td><td>แสดงเมื่อ type ∈ change_distribution, broad_distribution</td></tr>
+    <tr><td><code>target_holder_ids</code></td><td>Many2many <code>res.users</code></td><td>ผู้รับเป้าหมาย (BDR) — ใช้สร้าง distribution.line + ส่งสำเนา</td></tr>
+    <tr><td><code>copies_count</code></td><td>Integer</td><td>จำนวนสำเนาที่ขอพิมพ์ (required เมื่อ type ∈ print, new_with_print, revise_with_print)</td></tr>
+    <tr><td><code>print_scope</code></td><td>Selection <code>controlled/uncontrolled</code></td><td>ขอบเขตการพิมพ์ (default controlled, required เมื่อพิมพ์)</td></tr>
+  </table>
+
+  <h3>3.3 Logic เงื่อนไขบังคับ (อัปเดต <code>_check_document_required</code>)</h3>
+  <pre>DOCUMENT_REQUIRED_TYPES = (
+    "revise", "obsolete", "copy_controlled", "copy_uncontrolled",
+    "change_distribution", "print", "broad_distribution", "revise_with_print",   # ใหม่
+)
+PRINT_REQUIRED_TYPES = ("print", "new_with_print", "revise_with_print")          # ใหม่</pre>
+
+  <h3>3.4 ผลหลังอนุมัติ — อัปเดต <code>_apply_approval_effect()</code> (idempotent ผ่าน <code>effect_applied</code>)</h3>
+  <table>
+    <tr><th style="width:190px">request_type</th><th>ผลอัตโนมัติเมื่อ status = approved</th></tr>
+    <tr><td><code>new</code></td><td>เปิด wizard <code>od19.iso.dar.create.document</code> (คงเดิม) → ได้เอกสาร Rev.00</td></tr>
+    <tr><td><code>revise</code></td><td><code>document.action_new_revision_keep_approved()</code> (คงเดิม) + trigger WP2.4 แจ้งเปลี่ยนฉบับพิมพ์</td></tr>
+    <tr><td><code>obsolete</code></td><td>mark obsolete เอกสาร (คงเดิม) + ยกเลิก/เรียกคืนสำเนาที่ค้างทั้งหมด</td></tr>
+    <tr><td><code>copy_controlled/uncontrolled</code></td><td>สร้าง <code>copy.record</code> (คงเดิม) — เก็บเพื่อ Backward-compat</td></tr>
+    <tr><td><code>change_distribution</code></td><td>สร้าง <code>od19.iso.distribution.list</code> เวอร์ชันใหม่ (revision snapshot) + set ตัวเก่าเป็น superseded</td></tr>
+    <tr><td><code>print</code></td><td>สร้าง <code>od19.iso.print.request</code> (state=draft→auto-submit) + <code>copies_count</code> สำเนา</td></tr>
+    <tr><td><code>broad_distribution</code></td><td>สร้าง distribution.line ให้ <code>target_holder_ids</code> + สร้าง print.request แบบ uncontrolled (ถ้าต้องพิมพ์)</td></tr>
+    <tr><td><code>new_with_print</code></td><td>สร้างเอกสารใหม่ (เหมือน new) แล้วต่อด้วย print.request ในใบเดียว</td></tr>
+    <tr><td><code>revise_with_print</code></td><td>เพิ่ม revision (เหมือน revise) แล้วต่อด้วย print.request ในใบเดียว</td></tr>
+  </table>
+
+  <h3>3.5 Approval Source (ต่อกับ <code>od19_approval_center</code>)</h3>
+  <p>เพิ่ม record ใน <code>data/approval_source_data.xml</code> สำหรับโมเดล <code>od19.iso.dar</code> ให้แต่ละ <code>request_type</code> กำหนดชุด approver ได้ (reviewer → approver → final_approver) — สำหรับ DAR ที่ต้องผ่านศูนย์อนุมัติรวม</p>
+
+  <h3>3.6 Security (เพิ่ม ACL)</h3>
+  <pre># ir.model.access.csv (เพิ่ม)
+model_od19_iso_dar, base.group_user → read
+model_od19_iso_dar, group_iso_dar_controller → r/w/c
+model_od19_iso_dar, group_iso_dar_manager → r/w/c/u</pre>
+  <p>ใช้ record rule <code>od19_department_rule.xml</code> แยกตามแผนก (คงเดิม)</p>
+
+  <h3>3.7 Tests (WP1)</h3>
+  <ul>
+    <li>สร้าง DAR ทุก type → ตรวจ required field (document/print) ถูกต้อง</li>
+    <li>อนุมัติ <code>print</code> → มี <code>print.request</code> เกิดขึ้น 1 ใบ, <code>effect_applied=True</code>, อนุมัติซ้ำไม่มีผลซ้ำ</li>
+    <li>อนุมัติ <code>change_distribution</code> → distribution list ใหม่เกิด, ของเก่า superseded</li>
+    <li>อนุมัติ <code>revise</code> → revision +1 และ issued copies ของ revision เก่าถูกตั้ง <code>replacement_pending</code></li>
+  </ul>
+  <div class="ac"><b>Acceptance Criteria (WP1)</b>
+    <ul>
+      <li>มี <code>request_type</code> ครบ 9 ค่า และ UI แสดงปุ่ม/ฟิลด์ตามประเภทถูกต้อง</li>
+      <li>ทุก type เดิน 4 ขั้นอนุมัติได้ และมี effect ตรงตามตาราง 3.4</li>
+      <li>Unit tests ผ่าน ≥ 12 เคส (ครอบคลุม effect ของทุก type + idempotency)</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ 4 ============ -->
+<section id="s4">
+  <h2>4 · WP2 — โมดูลใหม่ <code>od19_iso_print_control</code></h2>
+  <p>หัวใจของ G1 + G2: ทะเบียนพิมพ์, ทะเบียนแจกจ่าย, คุมสำเนาควบคุม/ไม่ควบคุม, ติดตามคืนและเปลี่ยนเมื่อมี revision ใหม่</p>
+
+  <h3>4.1 โครงสร้างโมดูล</h3>
+  <pre>od19_iso_print_control/
+├─ __manifest__.py            depends: od19_iso_document_control, mail, hr
+├─ models/
+│   ├─ od19_iso_distribution_list.py     (list + line)
+│   ├─ od19_iso_print_request.py
+│   ├─ od19_iso_print_copy.py
+│   └─ od19_iso_document.py              (inherit: เพิ่ม copy/print counts)
+├─ data/  ir_sequence_data.xml, mail_template_data.xml, ir_cron_data.xml
+├─ security/ groups.xml, ir.model.access.csv, od19_department_rule.xml
+├─ views/  distribution_views.xml, print_request_views.xml, print_copy_views.xml, menu.xml
+├─ report/ print_register_report.xml, distribution_report.xml, copy_label.xml
+├─ wizard/ od19_iso_print_issue_wizard.py (จ่ายสำเนา/คืน/เปลี่ยน)
+└─ tests/  test_print_control.py</pre>
+
+  <h3>4.2 Model: <code>od19.iso.distribution.list</code> (ทะเบียนแจกจ่าย, revision-driven)</h3>
+  <table>
+    <tr><th style="width:180px">Field</th><th style="width:130px">Type</th><th>คำอธิบาย</th></tr>
+    <tr><td><code>name</code></td><td>Char</td><td>เลขที่ DL{yy}-{NNN} (auto)</td></tr>
+    <tr><td><code>document_id</code></td><td>M2o <code>od19.iso.document</code></td><td>เอกสารต้นทาง (required)</td></tr>
+    <tr><td><code>revision</code></td><td>Char</td><td>snapshot revision ตอนประกาศใช้</td></tr>
+    <tr><td><code>effective_date</code></td><td>Date</td><td>วันที่มีผล</td></tr>
+    <tr><td><code>state</code></td><td>Selection</td><td><code>draft / active / superseded</code></td></tr>
+    <tr><td><code>line_ids</code></td><td>O2m <code>od19.iso.distribution.line</code></td><td>รายชื่อผู้รับเป้าหมาย</td></tr>
+    <tr><td><code>note</code></td><td>Text</td><td>หมายเหตุ</td></tr>
+  </table>
+
+  <h3>4.3 Model: <code>od19.iso.distribution.line</code></h3>
+  <table>
+    <tr><th style="width:180px">Field</th><th style="width:130px">Type</th><th>คำอธิบาย</th></tr>
+    <tr><td><code>distribution_list_id</code></td><td>M2o</td><td>parent</td></tr>
+    <tr><td><code>recipient_id</code></td><td>M2o <code>res.users</code></td><td>ผู้รับภายใน</td></tr>
+    <tr><td><code>holder_name</code></td><td>Char</td><td>ชื่อผู้รับภายนอก (ใช้เมื่อไม่มี user)</td></tr>
+    <tr><td><code>department_id</code></td><td>M2o <code>hr.department</code></td><td>แผนกผู้รับ</td></tr>
+    <tr><td><code>copies_required</code></td><td>Integer</td><td>จำนวนสำเนาที่ต้องได้ (default 1)</td></tr>
+    <tr><td><code>copy_type</code></td><td>Selection</td><td><code>controlled / uncontrolled</code></td></tr>
+    <tr><td><code>acknowledged</code></td><td>Boolean</td><td>รับทราบ/ลงนามรับแล้ว</td></tr>
+  </table>
+
+  <h3>4.4 Model: <code>od19.iso.print.request</code> (PDR — ใบขอพิมพ์)</h3>
+  <table>
+    <tr><th style="width:180px">Field</th><th style="width:130px">Type</th><th>คำอธิบาย</th></tr>
+    <tr><td><code>name</code></td><td>Char</td><td>เลขที่ PRN{yy}-{NNN} (auto)</td></tr>
+    <tr><td><code>document_id</code></td><td>M2o</td><td>เอกสาร (required)</td></tr>
+    <tr><td><code>revision</code></td><td>Char</td><td>snapshot revision ที่ขอพิมพ์</td></tr>
+    <tr><td><code>request_type</code></td><td>Selection</td><td><code>new_print / reprint / replace_revision</code></td></tr>
+    <tr><td><code>copies_count</code></td><td>Integer</td><td>จำนวนสำเนา (required)</td></tr>
+    <tr><td><code>copy_type</code></td><td>Selection</td><td>controlled / uncontrolled</td></tr>
+    <tr><td><code>distribution_list_id</code></td><td>M2o</td><td>อ้างทะเบียนแจกจ่าย (optional)</td></tr>
+    <tr><td><code>requester_id</code></td><td>M2o res.users</td><td>ผู้ขอ</td></tr>
+    <tr><td><code>state</code></td><td>Selection</td><td><code>draft / review / approved / printed / cancelled</code></td></tr>
+    <tr><td><code>printed_by_id</code> / <code>print_date</code></td><td>M2o / Datetime</td><td>ผู้พิมพ์ / เวลาพิมพ์จริง (DCC)</td></tr>
+    <tr><td><code>copy_ids</code></td><td>O2m print.copy</td><td>สำเนาที่พิมพ์ออกมา (สร้างตอน approved)</td></tr>
+    <tr><td><code>dar_id</code></td><td>M2o <code>od19.iso.dar</code></td><td>ใบ DAR ต้นทาง (ถ้ามี) — ใช้ back-reference</td></tr>
+  </table>
+
+  <h3>4.5 Model: <code>od19.iso.print.copy</code> (ตัวสำเนา = ทะเบียนพิมพ์)</h3>
+  <table>
+    <tr><th style="width:190px">Field</th><th style="width:130px">Type</th><th>คำอธิบาย</th></tr>
+    <tr><td><code>name</code></td><td>Char</td><td>เลขสำเนา เช่น <code>FM-PU-012/P001</code> (auto)</td></tr>
+    <tr><td><code>print_request_id</code></td><td>M2o</td><td>ใบขอพิมพ์</td></tr>
+    <tr><td><code>document_id</code> / <code>revision</code></td><td>related</td><td>เอกสาร + revision (snapshot)</td></tr>
+    <tr><td><code>copy_number</code></td><td>Integer</td><td>ลำดับสำเนา (1..N)</td></tr>
+    <tr><td><code>copy_type</code></td><td>Selection</td><td>controlled / uncontrolled</td></tr>
+    <tr><td><code>holder_id</code> / <code>holder_name</code> / <code>holder_dept_id</code></td><td>M2o / Char / M2o</td><td>ผู้ถือครอง</td></tr>
+    <tr><td><code>issue_date</code></td><td>Date</td><td>วันจ่ายสำเนา</td></tr>
+    <tr><td><code>return_due_date</code></td><td>Date</td><td>กำหนดคืน (ถ้ามี)</td></tr>
+    <tr><td><code>return_date</code></td><td>Date</td><td>วันที่คืนจริง</td></tr>
+    <tr><td><code>state</code></td><td>Selection</td><td><code>reserved / issued / returned / replaced / destroyed / lost</code></td></tr>
+    <tr><td><code>replaced_by_id</code></td><td>M2o (self)</td><td>สำเนาใหม่ที่มาแทน (เมื่อเปลี่ยน revision)</td></tr>
+    <tr><td><code>stamp_text</code></td><td>Char (compute)</td><td>ข้อความตราประทับควบคุม</td></tr>
+    <tr><td><code>qr_payload</code></td><td>Char (compute)</td><td>ข้อมูล QR (doc code, rev, copy no, holder)</td></tr>
+  </table>
+
+  <h3>4.6 State Machines</h3>
+  <pre>print.request :  draft ─▶ review ─▶ approved ─▶ printed ─▶ (done)
+                    └──────────────────────▶ cancelled
+
+print.copy    :  reserved ─▶ issued ─┬─▶ returned
+                                      ├─▶ replaced   (มี revision ใหม่ → replaced_by_id)
+                                      ├─▶ destroyed  (ทำลายตามระเบียบ)
+                                      └─▶ lost
+
+distribution.list :  draft ─▶ active ─▶ superseded (มี revision ใหม่)</pre>
+
+  <h3>4.7 Logic สำคัญ (G1 + G2)</h3>
+  <ul>
+    <li><b>สร้างสำเนา:</b> เมื่อ print.request → <code>approved</code> ให้ generate <code>copies_count</code> แถว print.copy (state=reserved) พร้อมเลขสำเนารัน</li>
+    <li><b>จ่ายสำเนา (issue):</b> wizard เลือกผู้ถือครอง → set holder, issue_date, state=issued, พิมพ์ใบนำส่ง/ตราประทับ</li>
+    <li><b>คืนสำเนา (return):</b> set return_date, state=returned + log</li>
+    <li><b>เปลี่ยนเมื่อมี Revision ใหม่ (หัวใจ G1):</b> hook <code>_on_document_revision_change(document, new_revision)</code> → หา print.copy ที่ state=issued ของ revision เก่า → สร้าง print.request(request_type=replace_revision) อัตโนมัติ + แจ้ง DCC/ผู้ถือครอง</li>
+    <li><b>ทำลาย/สูญหาย:</b> บันทึก state=destroyed/lost + เหตุผล (audit)</li>
+    <li><b>Cron แจ้งเตือนคืนเกินกำหนด:</b> <code>_cron_copy_return_overdue()</code> — แจ้งผู้ถือครอง + DCC</li>
+  </ul>
+
+  <h3>4.8 Sequences</h3>
+  <table>
+    <tr><th>ir.sequence code</th><th>รูปแบบ</th></tr>
+    <tr><td><code>od19.iso.print.request</code></td><td>PRN{yy}-{NNN}</td></tr>
+    <tr><td><code>od19.iso.distribution.list</code></td><td>DL{yy}-{NNN}</td></tr>
+    <tr><td>เลขสำเนา (ต่อเอกสาร)</td><td>{code}/P{NNN} (นับจาก copy_number)</td></tr>
+  </table>
+
+  <h3>4.9 Security (RBAC)</h3>
+  <table>
+    <tr><th>Group</th><th>อ่าน</th><th>เขียน</th><th>หมายเหตุ</th></tr>
+    <tr><td><code>group_iso_print_user</code> (implies base.group_user)</td><td>✅ ทุกโมเดล</td><td>สร้าง/แก้ใบขอ (draft)</td><td>พนักงานขอพิมพ์</td></tr>
+    <tr><td><code>group_iso_print_controller</code> (DCC)</td><td>✅</td><td>อนุมัติพิมพ์ · จ่าย/คืน/เปลี่ยนสำเนา</td><td>Document Controller</td></tr>
+    <tr><td><code>group_iso_print_manager</code></td><td>✅</td><td>Unlink + ตั้งค่า</td><td>หัวหน้า DCC</td></tr>
+  </table>
+
+  <h3>4.10 Menus</h3>
+  <pre>ISO Management
+└─ การควบคุมเอกสาร (menu_iso_document_control)
+   ├─ ทะเบียนแจกจ่าย (Distribution Lists)
+   ├─ ใบขอพิมพ์ (Print Requests)
+   ├─ ทะเบียนสำเนาควบคุม (Print Register / Copies)
+   ├─ รายงาน › ทะเบียนพิมพ์ / ทะเบียนแจกจ่าย / สำเนาค้างคืน
+   └─ ตั้งค่า › Sequences</pre>
+
+  <h3>4.11 Reports (QWeb PDF)</h3>
+  <ul>
+    <li><b>Print Register</b> — ทะเบียนพิมพ์ทั้งหมด (doc · rev · เลขสำเนา · ผู้ถือ · วันจ่าย · สถานะ)</li>
+    <li><b>Distribution Report</b> — รายชื่อผู้รับตาม revision + สถานะรับทราบ</li>
+    <li><b>Copy Label</b> — ตราประทับควบคุม + QR สำหรับติดบนกระดาษ (งานพิมพ์จริง)</li>
+    <li><b>Copy Return Report</b> — สำเนาที่ค้างคืน/สูญหาย</li>
+  </ul>
+
+  <h3>4.12 Tests (WP2)</h3>
+  <ul>
+    <li>approved print.request → เกิด copies ตามจำนวน, เลขสำเนาไม่ซ้ำ</li>
+    <li>issue → return → state ถูกต้อง, log ครบ</li>
+    <li>เพิ่ม revision เอกสาร → issued copies ถูกตั้ง replaced + เกิด replace print.request</li>
+    <li>cron overdue → มี activity/แจ้งเตือนถูก user</li>
+  </ul>
+  <div class="ac"><b>Acceptance Criteria (WP2)</b>
+    <ul>
+      <li>มีโมดูล <code>od19_iso_print_control</code> ติดตั้งได้บน <code>od19_iso_document_control</code> โดยไม่ error</li>
+      <li>ทะเบียนพิมพ์/แจกจ่ายทำงานครบ issue→return→replace/destroy/lost</li>
+      <li>เปลี่ยน revision แล้วเกิด replacement อัตโนมัติ 100%</li>
+      <li>Unit tests ผ่าน ≥ 10 เคส · รายงาน PDF ออกได้ทุกใบ</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section id="s5">
+  <h2>5 · WP3 — Auto Document Generation (Cover / History / Distribution / Stamp)</h2>
+  <p>ขยาย <code>od19_iso_document_control</code> ให้สร้าง PDF เอกสารควบคุมที่ได้มาตรฐานอัตโนมัติ</p>
+
+  <h3>5.1 โครงเอกสารที่สร้างอัตโนมัติ (1 PDF)</h3>
+  <table>
+    <tr><th style="width:200px">ส่วน</th><th>ที่มา</th></tr>
+    <tr><td>Cover Page</td><td>ชื่อเอกสาร · รหัส · Revision · วันที่มีผล · แผนก · มาตรฐาน ISO · ข้อ ISO</td></tr>
+    <tr><td>Header</td><td>โลโก้บริษัท + รหัสเอกสาร + Revision (ทุกหน้า)</td></tr>
+    <tr><td>Footer</td><td>ISO footer + เลขหน้า + Revision (ใช้ <code>iso_footer</code> เดิม)</td></tr>
+    <tr><td>History of Changes</td><td>จาก <code>od19.iso.document.revision</code> (Rev · วันที่มีผล · ผู้อนุมัติ · หมายเหตุ)</td></tr>
+    <tr><td>Distribution List</td><td>จาก <code>od19.iso.distribution.list</code> ตัว active ของ revision ปัจจุบัน</td></tr>
+    <tr><td>Document Stamp</td><td>ตรา "CONTROLLED COPY" + เลขสำเนา + ผู้ถือครอง + QR (จาก print.copy)</td></tr>
+  </table>
+
+  <h3>5.2 เพิ่มในโมดูล</h3>
+  <ul>
+    <li>report action ใหม่: <code>od19.iso.document.report_controlled_document</code> (qweb-pdf)</li>
+    <li>field <code>print_cover_page</code> (Boolean, default True) บน <code>od19.iso.document</code></li>
+    <li>helper <code>_get_distribution_lines()</code> สำหรับดึงรายชื่อแจกจ่าย</li>
+    <li>helper <code>_get_revision_history()</code></li>
+  </ul>
+
+  <h3>5.3 ลำดับการประกอบหน้า</h3>
+  <pre>Page 1  Cover + History of Changes
+Page 2  Distribution List
+Page 3+ เนื้อหาเอกสาร (ไฟล์แนบที่ merge) + Header/Footer ทุกหน้า
+ทุกหน้า  Document Stamp ที่มุม (ถ้าเป็น controlled copy)</pre>
+
+  <div class="ac"><b>Acceptance Criteria (WP3)</b>
+    <ul>
+      <li>กดพิมพ์จากฟอร์มเอกสารได้ PDF ที่มีครบ 4 ส่วน (Cover/History/Distribution/Stamp)</li>
+      <li>Distribution List ดึงข้อมูลตรงกับ <code>distribution.list</code> ที่ active</li>
+      <li>History of Changes ตรงกับ revision history ในระบบ</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ 6 ============ -->
+<section id="s6">
+  <h2>6 · WP4 — รายงาน &amp; Dashboard</h2>
+
+  <h3>6.1 รายงานที่ต้องมี (ครบตาม Skytizens ข้อ 8)</h3>
+  <table>
+    <tr><th>รายงาน</th><th>โมเดล</th><th>ที่มา/ฟิลเตอร์</th></tr>
+    <tr><td>Pending Tasks</td><td>od19.iso.dar</td><td>status ∈ review/approval/final_approval</td></tr>
+    <tr><td>Active Requests</td><td>od19.iso.dar</td><td>status ∉ approved/cancelled/closed</td></tr>
+    <tr><td>Registered Documents</td><td>od19.iso.document</td><td>status = approved</td></tr>
+    <tr><td>All ISO Documents</td><td>od19.iso.document</td><td>ทั้งหมด</td></tr>
+    <tr><td>Document Register</td><td>od19.iso.document</td><td>รหัส · ชื่อ · rev · แผนก · วันที่มีผล</td></tr>
+    <tr><td>Revision Report</td><td>od19.iso.document.revision</td><td>group by document</td></tr>
+    <tr><td>Distribution Report</td><td>od19.iso.distribution.line</td><td>WP2</td></tr>
+    <tr><td>Print Register / All Prints</td><td>od19.iso.print.copy</td><td>WP2</td></tr>
+  </table>
+
+  <h3>6.2 ISO Dashboard</h3>
+  <p>เพิ่มชุด widget ใน <code>od19_dashboard</code> ผ่าน <code>od19.dashboard.source</code> (whitelist) — read-only</p>
+  <ul>
+    <li><b>KPI:</b> เอกสารรออนุมัติ · ใบ DAR ค้าง · สำเนาค้างคืน · เอกสารจะครบรอบ review (≤30 วัน)</li>
+    <li><b>Alerts:</b> DAR เกิน SLA 5 วัน · สำเนาเกินกำหนดคืน · เอกสารเกิน review_date</li>
+    <li><b>Trend:</b> จำนวน DAR ต่อเดือน (แยก type)</li>
+    <li><b>Detail:</b> list เอกสารอนุมัติล่าสุด / สำเนาที่ต้องเปลี่ยน (replacement pending)</li>
+  </ul>
+
+  <div class="ac"><b>Acceptance Criteria (WP4)</b>
+    <ul>
+      <li>มีเมนูรายงานครบ 8 รายการ และเปิดได้ตามฟิลเตอร์ที่กำหนด</li>
+      <li>ISO Dashboard แสดง 4 โซน + สีสถานะถูกต้องตาม data จริง</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ 7 ============ -->
+<section id="s7">
+  <h2>7 · Mockup UI (ให้เลือก Variant ก่อน Implement)</h2>
+  <p>ภาพจำลองหน้าจอหลัก 5 จุด หัวข้อที่ต้อง <b>เลือก variant</b> จะระบุไว้ล่างภาพ</p>
+
+  <h3>M1 · ฟอร์มใบ DAR (แสดงชนิดใหม่)</h3>
+  <div class="mock">
+    <div class="bar"><span class="dots"><i></i><i></i><i></i></span> ใบคำขอ DAR — DC26-014</div>
+    <div class="c">
+      <div class="ctrl">
+        <span class="btn primary">ส่งตรวจทาน</span>
+        <span class="btn ok">สร้างเอกสารใหม่</span>
+        <span class="btn">สร้างใบขอพิมพ์</span>
+        <span class="btn ghost">ยกเลิก</span>
+        <span class="chip b" style="margin-left:auto">สถานะ: รออนุมัติ</span>
+      </div>
+      <div class="grid2">
+        <div>
+          <div class="tag">เลขที่ DAR</div><div style="font-size:19px;font-weight:700;color:var(--maroon)">DC26-014</div>
+          <div class="tag" style="margin-top:8px">ประเภทคำขอ</div>
+          <div><span class="chip b">แก้ไข + พิมพ์ (EDRP)</span></div>
+          <div class="tag" style="margin-top:8px">เอกสารอ้างอิง</div>
+          <div>FM-PU-012 — ใบปะหน้าสินค้ารอส่ง</div>
+          <div class="tag" style="margin-top:8px">จำนวนพิมพ์ / ขอบเขต</div>
+          <div>5 สำเนา · <span class="chip g">ควบคุม</span></div>
+        </div>
+        <div>
+          <div class="tag">แผนก</div><div>จัดซื้อ (PU)</div>
+          <div class="tag" style="margin-top:8px">มาตรฐาน ISO</div>
+          <div><span class="chip">ISO 9001:2015</span> <span class="chip">ISO 14001</span></div>
+          <div class="tag" style="margin-top:8px">วันที่มีผล</div><div>01/12/2026</div>
+          <div class="tag" style="margin-top:8px">ผู้อนุมัติ</div><div>ตรวจทาน → อนุมัติ → ผู้อนุมัติสุดท้าย</div>
+        </div>
+      </div>
+      <div class="hr"></div>
+      <div class="tag">รายการเปลี่ยนแปลง</div>
+      <table>
+        <tr><th>ประเด็น</th><th>เดิม</th><th>ใหม่</th><th>ผลกระทบ</th></tr>
+        <tr><td>ผู้รับเอกสาร</td><td>3 ราย</td><td>5 ราย</td><td>เพิ่มสำเนาควบคุม 2 ชุด</td></tr>
+      </table>
+      <div class="btn ghost" style="margin-top:10px">+ เพิ่มรายการ</div>
+    </div>
+  </div>
+
+  <h3>M2 · ทะเบียนสำเนาควบคุม (Print Register)</h3>
+  <div class="grid2">
+    <div class="variant">
+      <h4>Variant A — ตาราง (แนะนำสำหรับ DCC)</h4>
+      <div class="mock" style="margin:0">
+        <div class="bar">ทะเบียนสำเนาควบคุม</div>
+        <div class="c">
+          <table>
+            <tr><th>เลขสำเนา</th><th>เอกสาร/Rev</th><th>ผู้ถือครอง</th><th>วันจ่าย</th><th>สถานะ</th></tr>
+            <tr><td>FM-PU-012/P001</td><td>FM-PU-012 · 02</td><td>คุณสมชาย (PU)</td><td>01/12/26</td><td><span class="chip g">แจกแล้ว</span></td></tr>
+            <tr><td>FM-PU-012/P002</td><td>FM-PU-012 · 02</td><td>คุณมาลี (QA)</td><td>01/12/26</td><td><span class="chip y">ค้างคืน</span></td></tr>
+            <tr><td>FM-PU-012/P003</td><td>FM-PU-012 · 01</td><td>คุณอารีย์ (PU)</td><td>12/08/26</td><td><span class="chip r">ต้องเปลี่ยน</span></td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="choose">เด่นเรื่องสแกนเร็ว · จัดเรียง/รวมกลุ่ม/export Excel ได้ · เหมาะกับงานตรวจ Audit</div>
+    </div>
+    <div class="variant">
+      <h4>Variant B — การ์ด (Kanban by สถานะ)</h4>
+      <div class="mock" style="margin:0">
+        <div class="bar">ทะเบียนสำเนา · จัดกลุ่มตามสถานะ</div>
+        <div class="c">
+          <div class="cards">
+            <div class="cd"><div class="t">แจกแล้ว</div><div class="s">12 สำเนา</div>
+              <div class="stack"><span class="chip g">P001</span><span class="chip g">P004</span><span class="chip g">P007</span></div></div>
+            <div class="cd"><div class="t">ค้างคืน</div><div class="s">3 สำเนา</div>
+              <div class="stack"><span class="chip y">P002</span><span class="chip y">P009</span></div></div>
+            <div class="cd"><div class="t">ต้องเปลี่ยน</div><div class="s">2 สำเนา</div>
+              <div class="stack"><span class="chip r">P003</span><span class="chip r">P011</span></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="choose">เด่นเรื่องภาพรวมสถานะ · ลากเปลี่ยนสถานะเร็ว · เหมาะกับ DCC ประจำวัน</div>
+    </div>
+  </div>
+  <div class="note"><b>ต้องเลือก:</b> M2 จะใช้ Variant A / B / ทั้งคู่ (แนะนำ “ทั้งคู่” — ตารางเป็นค่าเริ่มต้น + Kanban เป็นมุมมองเสริม)</div>
+
+  <h3>M3 · ทะเบียนแจกจ่าย (Distribution List)</h3>
+  <div class="mock">
+    <div class="bar">ทะเบียนแจกจ่าย — DL26-004 (FM-PU-012 · Rev.02 · <span class="chip g">ใช้งาน</span>)</div>
+    <div class="c">
+      <table>
+        <tr><th>ผู้รับ</th><th>แผนก</th><th>จำนวน</th><th>ประเภท</th><th>รับทราบ</th></tr>
+        <tr><td>คุณสมชาย</td><td>จัดซื้อ</td><td>1</td><td><span class="chip g">ควบคุม</span></td><td>✅ 01/12/26</td></tr>
+        <tr><td>คุณมาลี</td><td>QA</td><td>1</td><td><span class="chip g">ควบคุม</span></td><td>✅ 01/12/26</td></tr>
+        <tr><td>คลังสินค้า (บอร์ด)</td><td>คลัง</td><td>1</td><td><span class="chip">ไม่ควบคุม</span></td><td>—</td></tr>
+      </table>
+      <div class="btn primary" style="margin-top:10px">สร้างสำเนาตามทะเบียนนี้</div>
+    </div>
+  </div>
+
+  <h3>M4 · ตราประทับสำเนาควบคุม (Document Stamp)</h3>
+  <div class="mock">
+    <div class="bar">ตัวอย่างมุมล่างของเอกสารที่พิมพ์</div>
+    <div class="c">
+      <div class="stampbox">
+        <div>
+          <div class="tag">FM-PU-012_ใบปะหน้าสินค้ารอส่ง_Rev.02</div>
+          <div class="tag">วันที่มีผล: 01/12/2026 · หน้า 1/3</div>
+        </div>
+        <div class="stamp">
+          <div class="qr"></div>
+          CONTROLLED COPY<br/>
+          เลขสำเนา: P002<br/>
+          ผู้ถือครอง: คุณมาลี (QA)
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="choose">ตราประทับพิมพ์เฉพาะสำเนาควบคุม — สำเนาไม่ควบคุมจะปรากฏคำว่า “UNCONTROLLED WHEN PRINTED” แทน</div>
+
+  <h3>M5 · ISO Dashboard</h3>
+  <div class="grid2">
+    <div class="variant">
+      <h4>Variant A — หน้าเดียวจบ (Single Pane)</h4>
+      <div class="mock" style="margin:0">
+        <div class="bar">ISO Dashboard</div>
+        <div class="c">
+          <div class="kpi">
+            <div class="k"><div class="v">7</div><div class="l">รออนุมัติ</div></div>
+            <div class="k"><div class="v">3</div><div class="l">DAR ค้าง SLA</div></div>
+            <div class="k"><div class="v">2</div><div class="l">สำเนาต้องเปลี่ยน</div></div>
+            <div class="k"><div class="v">11</div><div class="l">ครบรอบ review</div></div>
+          </div>
+          <div class="hr"></div>
+          <div class="tag">แนวโน้ม DAR ต่อเดือน</div>
+          <div style="height:64px;background:linear-gradient(90deg,#f6f7f9,#eef1f6);border:1px solid var(--line);border-radius:8px"></div>
+        </div>
+      </div>
+      <div class="choose">เห็นทุกอย่างในหน้าเดียว · เหมาะผู้บริหารดูเร็ว</div>
+    </div>
+    <div class="variant">
+      <h4>Variant B — แบ่งโซน (Summary / Alert / Detail)</h4>
+      <div class="mock" style="margin:0">
+        <div class="bar">ISO Dashboard</div>
+        <div class="c">
+          <div class="kpi" style="grid-template-columns:repeat(2,1fr)">
+            <div class="k"><div class="v">7</div><div class="l">รออนุมัติ</div></div>
+            <div class="k"><div class="v">2</div><div class="l">ต้องเปลี่ยน</div></div>
+          </div>
+          <div class="hr"></div>
+          <div class="tag">การแจ้งเตือน</div>
+          <div class="stack" style="display:block"><span class="chip r">DC26-009 เกิน SLA 5 วัน</span></div>
+          <div class="stack" style="display:block;margin-top:5px"><span class="chip y">FM-PU-012/P002 ค้างคืน 3 วัน</span></div>
+        </div>
+      </div>
+      <div class="choose">เน้นแจ้งเตือนที่ต้องลงมือ · เหมาะ DCC/QA</div>
+    </div>
+  </div>
+  <div class="note"><b>ต้องเลือก:</b> M5 จะใช้ Variant A / B / ทั้งคู่ (ทำ 2 หน้าแยกตาม role)</div>
+</section>
+
+<!-- ============ 8 ============ -->
+<section id="s8">
+  <h2>8 · Roadmap &amp; Worktree Plan (ตาม AGENTS.md)</h2>
+  <p>ดำเนินการทีละ WP · 1 WP = 1 worktree/branch · ทดสอบผ่านก่อนไป WP ถัดไป</p>
+  <table>
+    <tr><th style="width:60px">ลำดับ</th><th>WP</th><th>โมดูล</th><th>branch</th><th>worktree</th><th>DB ทดสอบ</th><th>พอร์ต</th></tr>
+    <tr><td>1</td><td>WP2 · Print Control <span class="tag">(ฐานราก)</span></td><td><code>od19_iso_print_control</code></td><td><code>feature/od19-iso-print-control</code></td><td>..\wt-iso-print</td><td>odoo19_t_iso_print</td><td>8085</td></tr>
+    <tr><td>2</td><td>WP1 · Workflow</td><td><code>od19_iso_dar</code></td><td><code>feature/od19-iso-dar-workflow</code></td><td>..\wt-iso-dar</td><td>odoo19_t_iso_dar</td><td>8086</td></tr>
+    <tr><td>3</td><td>WP3 · Auto Gen</td><td><code>od19_iso_document_control</code></td><td><code>feature/od19-iso-autogen</code></td><td>..\wt-iso-autogen</td><td>odoo19_t_iso_doc</td><td>8087</td></tr>
+    <tr><td>4</td><td>WP4 · Reports/Dashboard</td><td><code>od19_iso_document_control</code> + <code>od19_dashboard</code></td><td><code>feature/od19-iso-reports</code></td><td>..\wt-iso-reports</td><td>odoo19_t_iso_rep</td><td>8088</td></tr>
+  </table>
+  <div class="note"><b>หมายเหตุลำดับ:</b> ทำ WP2 ก่อน เพราะ WP1 (NDRP/EDRP/PDR) ต้องอ้าง <code>od19.iso.print.request</code> ที่อยู่ใน WP2 · ส่วน WP3/WP4 อ้าง distribution/copy จาก WP2 เช่นกัน</div>
+
+  <h4>Definition of Done ต่อ WP</h4>
+  <ul>
+    <li>Pre-flight ผ่าน · รัน Unit tests ผ่านทั้งหมด</li>
+    <li>S1: ติดตั้ง/อัปเดต <code>odoo19_pdev</code> + commit (แยกโดเมน) ทันทีหลังเทสต์ผ่าน (AGENTS.md r7)</li>
+    <li>อัปเดต <code>CHANGELOG.md</code> + version <code>19.0.x.y.z</code></li>
+    <li>ไม่มีไฟล์ขยะ/scratch ใน commit · ใช้ <code>git add -- &lt;path&gt;</code></li>
+  </ul>
+</section>
+
+<!-- ============ 9 ============ -->
+<section id="s9">
+  <h2>9 · ความเสี่ยง &amp; ข้อตัดสินใจ</h2>
+  <table>
+    <tr><th style="width:200px">ประเด็น</th><th>ผลกระทบ</th><th>ข้อเสนอ</th></tr>
+    <tr><td>Dependency direction</td><td>ถ้า print_control พึ่ง dar จะเกิด cycle</td><td>fix ทิศทาง: document_control → print_control → dar</td></tr>
+    <tr><td>ของเดิม <code>copy.record</code> ใน DAR</td><td>ซ้ำกับ print.copy</td><td>คงไว้ backward-compat + map ไป print.copy เมื่ออนุมัติ (ไม่ลบของเดิม)</td></tr>
+    <tr><td>BDR (แจกกว้าง)</td><td>ผู้รับเยอะ อาจบันทึกทีละคนไม่ไหว</td><td>ใช้ distribution.line + target_holder_ids เป็นชุด ไม่สร้าง copy ต่อคนจนกว่าจะพิมพ์จริง</td></tr>
+    <tr><td>Merge PDF เนื้อหาเอกสาร</td><td>ต้องใช้ไลบรารีรวมไฟล์</td><td>เฟสแรกทำ Cover/History/Distribution เป็นหน้าแยก แล้วแนบไฟล์เนื้อหาเดิม (merge ทีหลัง)</td></tr>
+    <tr><td>การเลือก Variant UI</td><td>กระทบหน้าจอที่จะ implement</td><td>รอผู้ใช้อนุมัติ M2 และ M5 (A/B/ทั้งคู่)</td></tr>
+  </table>
+
+  <div class="ac"><b>สิ่งที่ต้องได้รับการยืนยันก่อนเริ่มพัฒนา</b>
+    <ul>
+      <li>อนุมัติ Spec นี้ (OD19-ISO-100PCT-R00)</li>
+      <li>เลือก Variant: <b>M2</b> Print Register (A / B / ทั้งคู่) และ <b>M5</b> Dashboard (A / B / ทั้งคู่)</li>
+      <li>ยืนยันลำดับ WP (WP2 → WP1 → WP3 → WP4)</li>
+    </ul>
+  </div>
+</section>
+
+<footer>OD19-ISO-100PCT-R00 · Design Spec · จัดทำโดย AI (TRAE) · 2026-11-21 · AutoInfo Co., Ltd.</footer>
+</main>
+</div>
+</body>
+</html>
