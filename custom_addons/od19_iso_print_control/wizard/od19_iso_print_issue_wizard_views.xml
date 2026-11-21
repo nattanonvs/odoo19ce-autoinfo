@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_od19_iso_print_issue_wizard_form" model="ir.ui.view">
+        <field name="name">od19.iso.print.issue.wizard.form</field>
+        <field name="model">od19.iso.print.issue.wizard</field>
+        <field name="arch" type="xml">
+            <form string="จ่าย/คืน/เปลี่ยนสำเนา">
+                <group>
+                    <field name="action_type" widget="radio"/>
+                    <field name="copy_ids" widget="many2many_tags"
+                           options="{'no_create': True}"/>
+                </group>
+                <group string="ข้อมูลผู้ถือครอง (จ่ายสำเนา)"
+                       invisible="action_type != 'issue'">
+                    <field name="holder_id"/>
+                    <field name="holder_name"/>
+                    <field name="holder_dept_id"/>
+                    <field name="issue_date"/>
+                    <field name="return_due_date"/>
+                </group>
+                <group invisible="action_type != 'change'">
+                    <field name="reason" placeholder="เหตุผลการเปลี่ยนฉบับ"/>
+                </group>
+                <footer>
+                    <button name="action_apply" type="object"
+                            string="ยืนยัน" class="btn-primary"/>
+                    <button string="ยกเลิก" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_od19_iso_print_issue_wizard" model="ir.actions.act_window">
+        <field name="name">จ่าย/คืน/เปลี่ยนสำเนา</field>
+        <field name="res_model">od19.iso.print.issue.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

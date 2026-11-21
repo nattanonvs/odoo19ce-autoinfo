@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <record id="mail_template_copy_overdue" model="mail.template">
+        <field name="name">ISO Print Copy: Overdue Return Reminder</field>
+        <field name="model_id" ref="model_od19_iso_print_copy"/>
+        <field name="subject">[ISO] สำเนา ${object.name} ค้างคืนเกินกำหนด</field>
+        <field name="body_html" type="html">
+            <p>เรียนผู้ถือครอง</p>
+            <p>สำเนาควบคุม <strong t-out="object.name"/> ของเอกสาร
+                <strong t-out="object.document_id.code"/> (Rev.<span t-out="object.revision"/>)
+                ค้างคืนเกินกำหนด (ครบกำหนด <span t-out="object.return_due_date"/>).</p>
+            <p>กรุณาส่งคืนเอกสารให้ Document Control Center (DCC) โดยเร็ว</p>
+        </field>
+    </record>
+
+</odoo>

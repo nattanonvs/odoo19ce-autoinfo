@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================
+         Reporting actions
+    ============================================================ -->
+    <record id="action_iso_print_register_report" model="ir.actions.act_window">
+        <field name="name">ทะเบียนพิมพ์</field>
+        <field name="res_model">od19.iso.print.copy</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('copy_type', '=', 'controlled')]</field>
+        <field name="context">{'search_default_group_document': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">ยังไม่มีสำเนาควบคุม</p>
+        </field>
+    </record>
+
+    <record id="action_iso_distribution_report" model="ir.actions.act_window">
+        <field name="name">ทะเบียนแจกจ่าย</field>
+        <field name="res_model">od19.iso.distribution.list</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_filter_active': 1}</field>
+    </record>
+
+    <record id="action_iso_copy_overdue_report" model="ir.actions.act_window">
+        <field name="name">สำเนาค้างคืน</field>
+        <field name="res_model">od19.iso.print.copy</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', '=', 'issued'), ('return_due_date', '!=', False)]</field>
+    </record>
+
+    <record id="action_iso_print_sequence" model="ir.actions.act_window">
+        <field name="name">Sequences (ISO Print)</field>
+        <field name="res_model">ir.sequence</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('code', 'in', ['od19.iso.print.request', 'od19.iso.distribution.list'])]</field>
+    </record>
+
+    <!-- ============================================================
+         Menus
+    ============================================================ -->
+    <menuitem id="menu_iso_print_reporting"
+              name="รายงานการพิมพ์"
+              parent="od19_iso_document_control.menu_iso_document_control"
+              sequence="70"/>
+
+    <menuitem id="menu_iso_print_register_report"
+              name="ทะเบียนพิมพ์"
+              parent="menu_iso_print_reporting"
+              action="action_iso_print_register_report"
+              sequence="10"/>
+
+    <menuitem id="menu_iso_distribution_report"
+              name="ทะเบียนแจกจ่าย"
+              parent="menu_iso_print_reporting"
+              action="action_iso_distribution_report"
+              sequence="20"/>
+
+    <menuitem id="menu_iso_copy_overdue_report"
+              name="สำเนาค้างคืน"
+              parent="menu_iso_print_reporting"
+              action="action_iso_copy_overdue_report"
+              sequence="30"/>
+
+    <menuitem id="menu_iso_print_configuration"
+              name="ตั้งค่า ISO Print"
+              parent="od19_iso_document_control.menu_iso_configuration"
+              sequence="90"/>
+
+    <menuitem id="menu_iso_print_sequence"
+              name="Sequences (ISO Print)"
+              parent="menu_iso_print_configuration"
+              action="action_iso_print_sequence"
+              sequence="10"/>
+
+</odoo>

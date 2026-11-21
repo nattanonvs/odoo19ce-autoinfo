@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ==================== List (ทะเบียนสำเนาควบคุม) ==================== -->
+    <record id="view_od19_iso_print_copy_list" model="ir.ui.view">
+        <field name="name">od19.iso.print.copy.list</field>
+        <field name="model">od19.iso.print.copy</field>
+        <field name="arch" type="xml">
+            <list string="ทะเบียนสำเนาควบคุม">
+                <field name="name"/>
+                <field name="document_id"/>
+                <field name="revision"/>
+                <field name="copy_type"/>
+                <field name="holder_id"/>
+                <field name="holder_name"/>
+                <field name="issue_date"/>
+                <field name="return_due_date"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'reserved'"
+                       decoration-success="state == 'issued'"
+                       decoration-muted="state in ('returned','replaced')"
+                       decoration-danger="state in ('destroyed','lost')"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ==================== Kanban (M2) ==================== -->
+    <record id="view_od19_iso_print_copy_kanban" model="ir.ui.view">
+        <field name="name">od19.iso.print.copy.kanban</field>
+        <field name="model">od19.iso.print.copy</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state">
+                <field name="name"/>
+                <field name="document_id"/>
+                <field name="revision"/>
+                <field name="copy_type"/>
+                <field name="holder_id"/>
+                <field name="state"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_content">
+                            <div><strong><field name="name"/></strong></div>
+                            <div><field name="document_id"/> · Rev.<field name="revision"/></div>
+                            <div><field name="holder_id"/><field name="holder_name"/></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- ==================== Form ==================== -->
+    <record id="view_od19_iso_print_copy_form" model="ir.ui.view">
+        <field name="name">od19.iso.print.copy.form</field>
+        <field name="model">od19.iso.print.copy</field>
+        <field name="arch" type="xml">
+            <form string="สำเนาควบคุม">
+                <header>
+                    <button name="%(action_od19_iso_print_issue_wizard)d"
+                            type="action"
+                            string="จ่ายสำเนา" class="btn-primary"
+                            context="{'default_copy_ids': [(6, 0, [id])]}"
+                            invisible="state != 'reserved'"/>
+                    <button name="action_return" type="object"
+                            string="รับคืน" class="btn-success"
+                            invisible="state != 'issued'"/>
+                    <button name="action_destroy" type="object"
+                            string="ทำลาย" class="btn-secondary"
+                            invisible="state not in ('reserved','issued')"/>
+                    <button name="action_mark_lost" type="object"
+                            string="บันทึกสูญหาย" class="btn-danger"
+                            invisible="state not in ('reserved','issued')"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="reserved,issued,returned,replaced"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="print_request_id"/>
+                            <field name="document_id"/>
+                            <field name="revision"/>
+                            <field name="copy_number"/>
+                            <field name="copy_type"/>
+                        </group>
+                        <group>
+                            <field name="holder_id"/>
+                            <field name="holder_name"/>
+                            <field name="holder_dept_id"/>
+                            <field name="issue_date"/>
+                            <field name="return_due_date"/>
+                            <field name="return_date"/>
+                            <field name="replaced_by_id"/>
+                            <field name="replaced_from_id"/>
+                        </group>
+                    </group>
+                    <group string="ตราประทับ / QR">
+                        <field name="stamp_text" readonly="1"/>
+                        <field name="qr_payload" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="reason" placeholder="เหตุผล (ทำลาย/สูญหาย)"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ==================== Search ==================== -->
+    <record id="view_od19_iso_print_copy_search" model="ir.ui.view">
+        <field name="name">od19.iso.print.copy.search</field>
+        <field name="model">od19.iso.print.copy</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="document_id"/>
+                <field name="print_request_id"/>
+                <field name="holder_id"/>
+                <filter name="filter_issued" string="จ่ายแล้ว"
+                        domain="[('state','=','issued')]"/>
+                <filter name="filter_reserved" string="สำรองไว้"
+                        domain="[('state','=','reserved')]"/>
+                <filter name="filter_replaced" string="ถูกแทนที่"
+                        domain="[('state','=','replaced')]"/>
+                <filter name="filter_controlled" string="สำเนาควบคุม"
+                        domain="[('copy_type','=','controlled')]"/>
+                <group>
+                    <filter name="group_state" string="สถานะ"
+                            context="{'group_by':'state'}"/>
+                    <filter name="group_document" string="เอกสาร"
+                            context="{'group_by':'document_id'}"/>
+                    <filter name="group_holder" string="ผู้ถือครอง"
+                            context="{'group_by':'holder_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ==================== Action ==================== -->
+    <record id="action_od19_iso_print_copy" model="ir.actions.act_window">
+        <field name="name">ทะเบียนสำเนาควบคุม</field>
+        <field name="res_model">od19.iso.print.copy</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="view_od19_iso_print_copy_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">ยังไม่มีสำเนา — สร้างจากใบขอพิมพ์ที่อนุมัติ</p>
+        </field>
+    </record>
+
+    <!-- ==================== Menu ==================== -->
+    <menuitem id="menu_od19_iso_print_copy"
+              name="ทะเบียนสำเนาควบคุม"
+              parent="od19_iso_document_control.menu_iso_document_control"
+              action="action_od19_iso_print_copy"
+              sequence="60"/>
+
+</odoo>
