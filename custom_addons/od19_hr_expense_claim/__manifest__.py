@@ -11,6 +11,7 @@
         "base_tier_validation",
         "base_tier_validation_forward",
         "od19_hr_expense_thai",
+        "od19_approval_center",
         "mail",
     ],
     "data": [
@@ -18,6 +19,7 @@
         "security/od19_expense_claim_security.xml",
         "data/ir_sequence_data.xml",
         "data/tier_definition_data.xml",
+        "data/approval_source_data.xml",
         "views/od19_expense_claim_views.xml",
     ],
     "installable": True,
