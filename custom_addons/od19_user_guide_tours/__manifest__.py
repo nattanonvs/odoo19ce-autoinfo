@@ -134,6 +134,7 @@ Tours can be started from:
         'od19_document_hub',
         'od19_iso_dar',
         'od19_recognition',
+        'od19_mis_balance_sheet',
     ],
     'data': [
         'data/tour_data.xml',
