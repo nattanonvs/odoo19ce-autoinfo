@@ -1,77 +1,65 @@
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { stepUtils, navSection, navItem, waitForAction } from "@od19_user_guide_tours/tours/tour_utils";
+import { stepUtils, navSection, waitForAction } from "@od19_user_guide_tours/tours/tour_utils";
 import { markup } from "@odoo/owl";
 
 /**
  * OD19 Internal Helpdesk Tour
  *
- * Walks the user through the internal IT helpdesk. The internal queues are a
- * section of the single OCA Helpdesk application, so the tour opens it there:
+ * Walks the user through the internal IT helpdesk. Since the 2026 internal-issue
+ * revision the internal queues are dedicated sections of the single OCA Helpdesk
+ * application, so the tour opens them directly:
  *  1. Open the Helpdesk app
- *  2. Open the "Internal Helpdesk" section and browse the internal tickets
- *  3. Create a ticket (subject, team, priority)
+ *  2. Open the "IT Support" queue and browse the internal tickets
+ *  3. Report a ticket (subject, description) — the team is routed automatically
  *  4. Assign the ticket to yourself
- *  5. Switch to the "My Internal Tickets" personal queue
+ *  5. Follow your own reported issues from the "เรื่องของฉัน" (my issues) queue
  */
 registry.category("web_tour.tours").add("od19_internal_helpdesk_tour", {
     url: "/odoo",
     steps: () => [
         ...stepUtils.goToAppSteps(
             "helpdesk_mgmt.helpdesk_ticket_main_menu",
-            markup(_t("Let's handle an <b>Internal Helpdesk</b> ticket."))
+            markup(_t("มาดูขั้นตอนการจัดการตั๋ว <b>Internal Helpdesk</b> กัน"))
         ),
 
         {
-            trigger: navSection("Internal Helpdesk"),
-            content: markup(_t("Open the <b>Internal Helpdesk</b> section of the Helpdesk app.")),
+            trigger: navSection("IT Support"),
+            content: markup(_t("เปิดคิว <b>IT Support</b> — คิวงานไอที/ระบบขององค์กร")),
             tooltipPosition: "bottom",
             run: "click",
         },
+        waitForAction("IT Support"),
         {
-            trigger: navItem("Internal Tickets"),
-            content: markup(_t("Open the <b>Internal Tickets</b> list of the internal IT team.")),
-            tooltipPosition: "bottom",
-            run: "click",
-        },
-        waitForAction("Internal Tickets"),
-        {
-            trigger: ".o_kanban_view",
+            trigger: ".o_list_renderer, .o_kanban_view",
             content: markup(_t(
-                "Tickets are grouped by <b>stage</b>. Drag a card to the next stage " +
-                "to move a ticket forward."
+                "รายการเรื่องภายในของทีม พร้อม <b>ประเภทเรื่อง</b>, <b>ตำแหน่งในคิว</b> " +
+                "และ <b>การมองเห็น</b>"
             )),
+            tooltipPosition: "bottom",
         },
         {
-            trigger: ".o-kanban-button-new",
-            content: markup(_t("Click <b>New</b> to report an incident.")),
+            trigger: ".o_list_button_add, .o-kanban-button-new",
+            content: markup(_t("กด <b>สร้าง</b> เพื่อแจ้งเรื่องใหม่")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
             trigger: ".o_field_widget[name='name'] input",
-            content: markup(_t("Describe the problem: <b>subject</b> of the ticket.")),
-            run: "edit Printer on the 3rd floor is not responding",
+            content: markup(_t("กรอก <b>หัวข้อ</b> ของเรื่อง")),
+            run: "edit เครื่องพิมพ์ชั้น 3 ใช้งานไม่ได้",
         },
         {
             trigger: ".o_field_widget[name='description'] .odoo-editor-editable",
-            content: markup(_t(
-                "<b>Description</b> is mandatory — add the details of the incident."
-            )),
+            content: markup(_t("<b>รายละเอียด</b> เป็นฟิลด์บังคับ — อธิบายอาการของปัญหาให้ชัดเจน")),
             tooltipPosition: "bottom",
-            run: "editor The printer on the 3rd floor does not respond when printing from the ERP.",
+            run: "editor เครื่องพิมพ์ชั้น 3 ไม่ตอบสนองเมื่อสั่งพิมพ์จากระบบ ERP",
         },
         {
             trigger: ".o_field_widget[name='team_id']",
             content: markup(_t(
-                "Check the <b>team</b>. Internal tickets always go to the internal IT team."
-            )),
-            tooltipPosition: "bottom",
-        },
-        {
-            trigger: ".o_field_widget[name='priority']",
-            content: markup(_t(
-                "Set the <b>priority</b> so urgent incidents are handled first."
+                "ทีมถูกกำหนดให้ <b>อัตโนมัติ</b> ตามประเภทเรื่องและกฎการส่งเรื่อง " +
+                "(เรื่องที่ไม่ระบุประเภทจะเข้าทีม Triage)"
             )),
             tooltipPosition: "bottom",
         },
@@ -79,31 +67,25 @@ registry.category("web_tour.tours").add("od19_internal_helpdesk_tour", {
         {
             isActive: ["button[name='assign_to_me']:visible"],
             trigger: "button[name='assign_to_me']:visible",
-            content: markup(_t("Click <b>Assign to me</b> to take ownership of the ticket.")),
+            content: markup(_t("กด <b>Assign to me</b> เพื่อรับเรื่องนี้ไปดูแล")),
             tooltipPosition: "bottom",
             run: "click",
         },
         ...stepUtils.discardForm(),
 
         {
-            trigger: navSection("Internal Helpdesk"),
-            content: markup(_t("Reopen the <b>Internal Helpdesk</b> section.")),
+            trigger: navSection("เรื่องของฉัน"),
+            content: markup(_t("เปิดคิว <b>เรื่องของฉัน</b> — รวมเรื่องที่คุณเป็นผู้แจ้ง")),
             tooltipPosition: "bottom",
             run: "click",
         },
-        {
-            trigger: navItem("My Internal Tickets"),
-            content: markup(_t("Open <b>My Internal Tickets</b> — your personal queue.")),
-            tooltipPosition: "bottom",
-            run: "click",
-        },
-        waitForAction("My Internal Tickets"),
+        waitForAction("เรื่องของฉัน"),
 
         {
-            trigger: ".o_kanban_view, .o_list_renderer",
+            trigger: ".o_list_view, .o_kanban_view",
             content: markup(_t(
-                "Internal Helpdesk complete! Report a ticket → set team &amp; priority → " +
-                "<b>Assign to me</b>. Follow your own workload from <b>My Internal Tickets</b>."
+                "จบการแนะนำ <b>Internal Helpdesk</b> แล้ว! แจ้งเรื่อง → ระบบส่งเข้าทีมตามประเภท " +
+                "→ รับเรื่องด้วย <b>Assign to me</b> → ติดตามจาก <b>เรื่องของฉัน</b>"
             )),
             run: "click",
         },
