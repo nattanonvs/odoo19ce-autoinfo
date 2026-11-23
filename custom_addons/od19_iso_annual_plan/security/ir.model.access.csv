@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_iso_annual_plan_user,od19.iso.annual.plan.user,model_od19_iso_annual_plan,base.group_user,1,1,1,0
+access_iso_annual_plan_manager,od19.iso.annual.plan.manager,model_od19_iso_annual_plan,base.group_system,1,1,1,1
+access_iso_annual_plan_line_user,od19.iso.annual.plan.line.user,model_od19_iso_annual_plan_line,base.group_user,1,1,1,0
+access_iso_annual_plan_line_manager,od19.iso.annual.plan.line.manager,model_od19_iso_annual_plan_line,base.group_system,1,1,1,1
+access_iso_annual_plan_schedule_user,od19.iso.annual.plan.schedule.user,model_od19_iso_annual_plan_schedule,base.group_user,1,1,1,0
+access_iso_annual_plan_schedule_manager,od19.iso.annual.plan.schedule.manager,model_od19_iso_annual_plan_schedule,base.group_system,1,1,1,1
+access_iso_plan_activity_type_user,od19.iso.plan.activity.type.user,model_od19_iso_plan_activity_type,base.group_user,1,0,0,0
+access_iso_plan_activity_type_manager,od19.iso.plan.activity.type.manager,model_od19_iso_plan_activity_type,base.group_system,1,1,1,1

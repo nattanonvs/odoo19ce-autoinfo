@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!--
+        รายการกิจกรรม ISO มาตรฐาน (แก้ไข/เพิ่มเติมได้จากเมนูตั้งค่า)
+    -->
+    <record id="plan_activity_internal_audit" model="od19.iso.plan.activity.type">
+        <field name="name">ตรวจภายใน (Internal Audit)</field>
+        <field name="code">AUDIT</field>
+        <field name="default_frequency">semi_annual</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="plan_activity_management_review" model="od19.iso.plan.activity.type">
+        <field name="name">ทบทวนฝ่ายบริหาร (Management Review)</field>
+        <field name="code">MGMT_REVIEW</field>
+        <field name="default_frequency">semi_annual</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="plan_activity_training" model="od19.iso.plan.activity.type">
+        <field name="name">อบรม (Training)</field>
+        <field name="code">TRAINING</field>
+        <field name="default_frequency">annual</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <record id="plan_activity_risk_review" model="od19.iso.plan.activity.type">
+        <field name="name">ทบทวนความเสี่ยง (Risk Review)</field>
+        <field name="code">RISK</field>
+        <field name="default_frequency">annual</field>
+        <field name="sequence">40</field>
+    </record>
+
+    <record id="plan_activity_calibration" model="od19.iso.plan.activity.type">
+        <field name="name">สอบเทียบ (Calibration)</field>
+        <field name="code">CALIBRATION</field>
+        <field name="default_frequency">annual</field>
+        <field name="sequence">50</field>
+    </record>
+
+    <record id="plan_activity_supplier_eval" model="od19.iso.plan.activity.type">
+        <field name="name">ประเมินผู้ขาย (Supplier Evaluation)</field>
+        <field name="code">SUPPLIER_EVAL</field>
+        <field name="default_frequency">annual</field>
+        <field name="sequence">60</field>
+    </record>
+
+    <record id="plan_activity_satisfaction" model="od19.iso.plan.activity.type">
+        <field name="name">สำรวจความพึงพอใจลูกค้า (Customer Satisfaction)</field>
+        <field name="code">SATISFACTION</field>
+        <field name="default_frequency">annual</field>
+        <field name="sequence">70</field>
+    </record>
+
+    <record id="plan_activity_document_review" model="od19.iso.plan.activity.type">
+        <field name="name">ทบทวนเอกสาร (Document Review)</field>
+        <field name="code">DOC_REVIEW</field>
+        <field name="default_frequency">annual</field>
+        <field name="sequence">80</field>
+    </record>
+
+</odoo>

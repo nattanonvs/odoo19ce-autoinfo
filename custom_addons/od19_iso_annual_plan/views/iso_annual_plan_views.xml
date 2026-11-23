@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ===================== Annual Plan ===================== -->
+    <record id="view_iso_annual_plan_tree" model="ir.ui.view">
+        <field name="name">od19.iso.annual.plan.tree</field>
+        <field name="model">od19.iso.annual.plan</field>
+        <field name="arch" type="xml">
+            <list string="แผนงาน ISO ประจำปี">
+                <field name="name"/>
+                <field name="year"/>
+                <field name="responsible_id"/>
+                <field name="line_count"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_iso_annual_plan_kanban" model="ir.ui.view">
+        <field name="name">od19.iso.annual.plan.kanban</field>
+        <field name="model">od19.iso.annual.plan</field>
+        <field name="arch" type="xml">
+            <kanban default_order="year desc">
+                <field name="name"/>
+                <field name="year"/>
+                <field name="responsible_id"/>
+                <field name="state"/>
+                <field name="line_count"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_content">
+                            <div><strong><field name="name"/></strong></div>
+                            <div>ปี: <field name="year"/></div>
+                            <div>ผู้รับผิดชอบ: <field name="responsible_id"/></div>
+                            <div>กิจกรรม: <field name="line_count"/></div>
+                            <div><field name="state" widget="label_selection" options="{'classes': {'draft': 'info', 'approved': 'success', 'closed': 'muted'}}"/></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_iso_annual_plan_form" model="ir.ui.view">
+        <field name="name">od19.iso.annual.plan.form</field>
+        <field name="model">od19.iso.annual.plan</field>
+        <field name="arch" type="xml">
+            <form string="แผนงาน ISO ประจำปี">
+                <header>
+                    <button name="action_approve" type="object" string="อนุมัติ" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_close" type="object" string="ปิด" invisible="state != 'approved'"/>
+                    <button name="action_reset_to_draft" type="object" string="กลับเป็นร่าง" invisible="state == 'draft'"/>
+                    <button name="action_open_matrix" type="object" string="ดูตารางทั้งปี"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="year"/>
+                            <field name="responsible_id"/>
+                            <field name="standard_ids" widget="many2many_tags"/>
+                        </group>
+                        <group>
+                            <field name="reminder_days"/>
+                            <field name="line_count"/>
+                            <field name="schedule_count"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="ตารางแผนงานทั้งปี">
+                            <field name="line_ids" context="{'default_plan_id': id}">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="activity_type_id"/>
+                                    <field name="name"/>
+                                    <field name="responsible_id"/>
+                                    <field name="department_id"/>
+                                    <field name="frequency"/>
+                                    <field name="month_01"/>
+                                    <field name="month_02"/>
+                                    <field name="month_03"/>
+                                    <field name="month_04"/>
+                                    <field name="month_05"/>
+                                    <field name="month_06"/>
+                                    <field name="month_07"/>
+                                    <field name="month_08"/>
+                                    <field name="month_09"/>
+                                    <field name="month_10"/>
+                                    <field name="month_11"/>
+                                    <field name="month_12"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="กำหนดการรายเดือน">
+                            <field name="schedule_ids" readonly="1">
+                                <list>
+                                    <field name="line_id"/>
+                                    <field name="month"/>
+                                    <field name="planned_date"/>
+                                    <field name="status"/>
+                                    <field name="responsible_id"/>
+                                    <field name="is_overdue"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="หมายเหตุ">
+                            <field name="note"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_iso_annual_plan" model="ir.actions.act_window">
+        <field name="name">แผนงาน ISO ประจำปี</field>
+        <field name="res_model">od19.iso.annual.plan</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="help" type="html"><p class="o_view_nocontent_smiling_face">สร้างแผนงาน ISO ประจำปีใหม่</p></field>
+    </record>
+
+    <!-- ===================== Annual Plan Line (year matrix) ===================== -->
+    <record id="view_iso_annual_plan_line_tree" model="ir.ui.view">
+        <field name="name">od19.iso.annual.plan.line.tree</field>
+        <field name="model">od19.iso.annual.plan.line</field>
+        <field name="arch" type="xml">
+            <list string="ตารางแผนงาน ISO ทั้งปี">
+                <field name="activity_type_id"/>
+                <field name="name"/>
+                <field name="responsible_id"/>
+                <field name="department_id"/>
+                <field name="frequency"/>
+                <field name="month_01"/>
+                <field name="month_02"/>
+                <field name="month_03"/>
+                <field name="month_04"/>
+                <field name="month_05"/>
+                <field name="month_06"/>
+                <field name="month_07"/>
+                <field name="month_08"/>
+                <field name="month_09"/>
+                <field name="month_10"/>
+                <field name="month_11"/>
+                <field name="month_12"/>
+                <field name="plan_id" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_iso_annual_plan_line_form" model="ir.ui.view">
+        <field name="name">od19.iso.annual.plan.line.form</field>
+        <field name="model">od19.iso.annual.plan.line</field>
+        <field name="arch" type="xml">
+            <form string="กิจกรรมตามแผนงาน">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="plan_id"/>
+                            <field name="activity_type_id"/>
+                            <field name="name"/>
+                            <field name="responsible_id"/>
+                        </group>
+                        <group>
+                            <field name="department_id"/>
+                            <field name="frequency"/>
+                            <field name="year"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <group string="ภาพรวมรายเดือน">
+                        <group>
+                            <field name="month_01"/><field name="month_04"/>
+                            <field name="month_07"/><field name="month_10"/>
+                        </group>
+                        <group>
+                            <field name="month_02"/><field name="month_05"/>
+                            <field name="month_08"/><field name="month_11"/>
+                        </group>
+                        <group>
+                            <field name="month_03"/><field name="month_06"/>
+                            <field name="month_09"/><field name="month_12"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="กำหนดการรายเดือน">
+                            <field name="schedule_ids">
+                                <list editable="bottom">
+                                    <field name="month"/>
+                                    <field name="planned_date"/>
+                                    <field name="status"/>
+                                    <field name="responsible_id"/>
+                                    <field name="is_overdue"/>
+                                    <field name="completed_date"/>
+                                    <field name="note"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="หมายเหตุ">
+                            <field name="note"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_iso_annual_plan_line_search" model="ir.ui.view">
+        <field name="name">od19.iso.annual.plan.line.search</field>
+        <field name="model">od19.iso.annual.plan.line</field>
+        <field name="arch" type="xml">
+            <search string="ตารางแผนงาน ISO ทั้งปี">
+                <field name="name"/>
+                <field name="activity_type_id"/>
+                <field name="responsible_id"/>
+                <field name="department_id"/>
+                <field name="plan_id"/>
+                <filter name="filter_overdue" string="เลยกำหนด" domain="[('schedule_ids.is_overdue', '=', True)]"/>
+                <group>
+                    <filter name="group_plan" string="แผนงาน" context="{'group_by': 'plan_id'}"/>
+                    <filter name="group_year" string="ปี" context="{'group_by': 'year'}"/>
+                    <filter name="group_department" string="แผนก" context="{'group_by': 'department_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_iso_annual_plan_line" model="ir.actions.act_window">
+        <field name="name">ตารางแผนงาน ISO ทั้งปี</field>
+        <field name="res_model">od19.iso.annual.plan.line</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_iso_annual_plan_line_search"/>
+        <field name="context">{"search_default_group_plan": 1}</field>
+    </record>
+
+</odoo>
