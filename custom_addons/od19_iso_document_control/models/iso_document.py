@@ -1,6 +1,8 @@
 # Copyright 2026 TRAE
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
 
+from datetime import date
+
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError, UserError
 
@@ -170,6 +172,15 @@ class IsoDocument(models.Model):
     active = fields.Boolean(string="ใช้งาน", default=True)
 
     # ------------------------------------------------------------------
+    # Auto document generation (WP3)
+    # ------------------------------------------------------------------
+    print_cover_page = fields.Boolean(
+        string="พิมพ์หน้าปกเอกสาร",
+        default=True,
+        help="แสดงหน้าปก (Cover Page) เมื่อพิมพ์เอกสารควบคุม",
+    )
+
+    # ------------------------------------------------------------------
     # Computed helpers
     # ------------------------------------------------------------------
     display_name = fields.Char(
@@ -212,6 +223,81 @@ class IsoDocument(models.Model):
         self.ensure_one()
         ext = extension.lstrip(".")
         return f"{self.filename_pattern}.{ext}"
+
+    # ------------------------------------------------------------------
+    # Auto document generation helpers (WP3)
+    # ------------------------------------------------------------------
+    def _get_revision_history(self):
+        """Return the revision history records (newest first).
+
+        The recordset order follows ``od19.iso.document.revision``
+        (effective date desc, then id desc).
+        """
+        self.ensure_one()
+        return self.revision_history_ids.sorted(
+            key=lambda rev: (rev.effective_date or date.min, rev.id),
+            reverse=True,
+        )
+
+    def _get_distribution_lines(self):
+        """Return the recipient lines of the active distribution list.
+
+        The distribution list lives in ``od19_iso_print_control`` which
+        depends on this module, so the model is resolved dynamically to
+        keep this module usable when print control is not installed.
+        Prefers the list declared for the document's current revision.
+        """
+        self.ensure_one()
+        DistributionList = self.env.get("od19.iso.distribution.list")
+        if DistributionList is None:
+            return []
+        active_domain = [
+            ("document_id", "=", self.id),
+            ("state", "=", "active"),
+        ]
+        distribution = DistributionList.search(
+            active_domain + [("revision", "=", self.revision or "")],
+            order="effective_date desc, id desc",
+            limit=1,
+        )
+        if not distribution:
+            distribution = DistributionList.search(
+                active_domain, order="effective_date desc, id desc", limit=1
+            )
+        return distribution.line_ids
+
+    def _get_print_copies(self):
+        """Return the controlled print copies of this document.
+
+        Returns an empty list when ``od19_iso_print_control`` is not installed.
+        """
+        self.ensure_one()
+        PrintCopy = self.env.get("od19.iso.print.copy")
+        if PrintCopy is None:
+            return []
+        return PrintCopy.search(
+            [("document_id", "=", self.id)], order="copy_number"
+        )
+
+    def _get_content_pdf_streams(self):
+        """Return the raw bytes of PDF attachments appended to the report."""
+        self.ensure_one()
+        streams = []
+        for attachment in self.document_attachment_ids:
+            if (attachment.mimetype or "") != "application/pdf":
+                continue
+            data = attachment.raw
+            if data:
+                streams.append(data)
+        return streams
+
+    def action_print_controlled_document(self):
+        """Print the controlled document (cover/history/distribution/stamp)."""
+        self.ensure_one()
+        report = self.env.ref(
+            "od19_iso_document_control.action_report_iso_controlled_document"
+        )
+        return report.report_action(self)
 
     # ------------------------------------------------------------------
     # Constraints

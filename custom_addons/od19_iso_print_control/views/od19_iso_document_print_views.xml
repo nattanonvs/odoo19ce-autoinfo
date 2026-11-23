@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_iso_document_form_print_button" model="ir.ui.view">
+        <field name="name">od19.iso.document.form.print.button</field>
+        <field name="model">od19.iso.document</field>
+        <field name="inherit_id" ref="od19_iso_document_control.view_iso_document_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('oe_title')]" position="after">
+                <div class="oe_button_box" name="button_box_print">
+                    <button name="action_view_print_requests"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-print">
+                        <field name="print_request_count" widget="statinfo" string="ใบขอพิมพ์"/>
+                    </button>
+                    <button name="action_view_print_copies"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-copy">
+                        <field name="print_copy_count" widget="statinfo" string="สำเนาควบคุม"/>
+                    </button>
+                    <button name="action_view_distribution_lists"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-share-alt">
+                        <field name="distribution_list_count" widget="statinfo" string="ทะเบียนแจกจ่าย"/>
+                    </button>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

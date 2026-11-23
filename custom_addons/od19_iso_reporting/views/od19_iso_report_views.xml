@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ==================================================================
+         WP4 · ISO Report menu (8 reports) and their dedicated views.
+         Reports over od19.iso.dar / od19.iso.document / od19.iso.print.copy
+         reuse the model default views; the revision and distribution line
+         reports need a standalone list view because those models have none.
+         ================================================================== -->
+
+    <!-- ===================== Document Register view ===================== -->
+    <record id="view_od19_iso_document_register_list" model="ir.ui.view">
+        <field name="name">od19.iso.document.register.list</field>
+        <field name="model">od19.iso.document</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0">
+                <field name="code"/>
+                <field name="document_title"/>
+                <field name="revision"/>
+                <field name="department_id"/>
+                <field name="effective_date"/>
+                <field name="review_date"/>
+                <field name="status" widget="badge"
+                       decoration-success="status == 'approved'"
+                       decoration-info="status in ('draft', 'review')"
+                       decoration-warning="status in ('approval', 'final_approval')"
+                       decoration-danger="status == 'rejected'"
+                       decoration-muted="status in ('obsolete',)"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_od19_iso_document_register_search" model="ir.ui.view">
+        <field name="name">od19.iso.document.register.search</field>
+        <field name="model">od19.iso.document</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="code"/>
+                <field name="document_title"/>
+                <field name="department_id"/>
+                <field name="category_id"/>
+                <filter name="filter_approved" string="Approved"
+                        domain="[('status', '=', 'approved')]"/>
+                <filter name="filter_active" string="Active"
+                        domain="[('status', 'not in', ['obsolete', 'rejected'])]"/>
+                <separator/>
+                <filter name="group_department" string="Department"
+                        context="{'group_by': 'department_id'}"/>
+                <filter name="group_category" string="Category"
+                        context="{'group_by': 'category_id'}"/>
+                <filter name="group_status" string="Status"
+                        context="{'group_by': 'status'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- ===================== Revision Report view ===================== -->
+    <record id="view_od19_iso_revision_list" model="ir.ui.view">
+        <field name="name">od19.iso.document.revision.report.list</field>
+        <field name="model">od19.iso.document.revision</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0">
+                <field name="document_id"/>
+                <field name="revision"/>
+                <field name="effective_date"/>
+                <field name="approved_by"/>
+                <field name="note"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_od19_iso_revision_search" model="ir.ui.view">
+        <field name="name">od19.iso.document.revision.report.search</field>
+        <field name="model">od19.iso.document.revision</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="document_id"/>
+                <field name="revision"/>
+                <field name="approved_by"/>
+                <separator/>
+                <filter name="group_document" string="Document"
+                        context="{'group_by': 'document_id'}"/>
+                <filter name="group_revision" string="Revision"
+                        context="{'group_by': 'revision'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- ===================== Distribution Report view ===================== -->
+    <record id="view_od19_iso_distribution_line_list" model="ir.ui.view">
+        <field name="name">od19.iso.distribution.line.report.list</field>
+        <field name="model">od19.iso.distribution.line</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0">
+                <field name="distribution_list_id"/>
+                <field name="document_id"/>
+                <field name="recipient_id"/>
+                <field name="holder_name"/>
+                <field name="department_id"/>
+                <field name="copies_required"/>
+                <field name="copy_type" widget="badge"
+                       decoration-success="copy_type == 'controlled'"
+                       decoration-muted="copy_type == 'uncontrolled'"/>
+                <field name="acknowledged" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_od19_iso_distribution_line_search" model="ir.ui.view">
+        <field name="name">od19.iso.distribution.line.report.search</field>
+        <field name="model">od19.iso.distribution.line</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="document_id"/>
+                <field name="distribution_list_id"/>
+                <field name="recipient_id"/>
+                <field name="department_id"/>
+                <filter name="filter_controlled" string="Controlled"
+                        domain="[('copy_type', '=', 'controlled')]"/>
+                <filter name="filter_uncontrolled" string="Uncontrolled"
+                        domain="[('copy_type', '=', 'uncontrolled')]"/>
+                <filter name="filter_pending_ack" string="Not Acknowledged"
+                        domain="[('acknowledged', '=', False)]"/>
+                <separator/>
+                <filter name="group_document" string="Document"
+                        context="{'group_by': 'document_id'}"/>
+                <filter name="group_department" string="Department"
+                        context="{'group_by': 'department_id'}"/>
+                <filter name="group_copy_type" string="Copy Type"
+                        context="{'group_by': 'copy_type'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- ===================== Report actions ===================== -->
+
+    <record id="action_od19_iso_report_pending_dar" model="ir.actions.act_window">
+        <field name="name">Pending Tasks</field>
+        <field name="res_model">od19.iso.dar</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('status', 'in', ['review', 'approval', 'final_approval'])]</field>
+    </record>
+
+    <record id="action_od19_iso_report_active_dar" model="ir.actions.act_window">
+        <field name="name">Active Requests</field>
+        <field name="res_model">od19.iso.dar</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('status', 'not in', ['approved', 'cancelled', 'closed'])]</field>
+    </record>
+
+    <record id="action_od19_iso_report_registered_docs" model="ir.actions.act_window">
+        <field name="name">Registered Documents</field>
+        <field name="res_model">od19.iso.document</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('status', '=', 'approved')]</field>
+    </record>
+
+    <record id="action_od19_iso_report_all_docs" model="ir.actions.act_window">
+        <field name="name">All ISO Documents</field>
+        <field name="res_model">od19.iso.document</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_od19_iso_report_document_register" model="ir.actions.act_window">
+        <field name="name">Document Register</field>
+        <field name="res_model">od19.iso.document</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_od19_iso_document_register_list"/>
+        <field name="search_view_id" ref="view_od19_iso_document_register_search"/>
+    </record>
+
+    <record id="action_od19_iso_report_revision" model="ir.actions.act_window">
+        <field name="name">Revision Report</field>
+        <field name="res_model">od19.iso.document.revision</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_od19_iso_revision_list"/>
+        <field name="search_view_id" ref="view_od19_iso_revision_search"/>
+        <field name="context">{'search_default_group_document': 1}</field>
+    </record>
+
+    <record id="action_od19_iso_report_distribution" model="ir.actions.act_window">
+        <field name="name">Distribution Report</field>
+        <field name="res_model">od19.iso.distribution.line</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_od19_iso_distribution_line_list"/>
+        <field name="search_view_id" ref="view_od19_iso_distribution_line_search"/>
+    </record>
+
+    <record id="action_od19_iso_report_print_register" model="ir.actions.act_window">
+        <field name="name">Print Register</field>
+        <field name="res_model">od19.iso.print.copy</field>
+        <field name="view_mode">list,kanban,form</field>
+    </record>
+
+    <!-- ===================== Report menu ===================== -->
+
+    <menuitem id="menu_iso_reporting"
+              name="รายงาน ISO"
+              parent="od19_iso_document_control.menu_iso_root"
+              sequence="60"/>
+
+    <menuitem id="menu_iso_report_pending_dar"
+              name="งานค้างรออนุมัติ"
+              parent="menu_iso_reporting"
+              action="action_od19_iso_report_pending_dar"
+              sequence="10"/>
+
+    <menuitem id="menu_iso_report_active_dar"
+              name="คำขอที่ใช้งานอยู่"
+              parent="menu_iso_reporting"
+              action="action_od19_iso_report_active_dar"
+              sequence="20"/>
+
+    <menuitem id="menu_iso_report_registered_docs"
+              name="เอกสารขึ้นทะเบียน"
+              parent="menu_iso_reporting"
+              action="action_od19_iso_report_registered_docs"
+              sequence="30"/>
+
+    <menuitem id="menu_iso_report_all_docs"
+              name="เอกสาร ISO ทั้งหมด"
+              parent="menu_iso_reporting"
+              action="action_od19_iso_report_all_docs"
+              sequence="40"/>
+
+    <menuitem id="menu_iso_report_document_register"
+              name="ทะเบียนเอกสารควบคุม"
+              parent="menu_iso_reporting"
+              action="action_od19_iso_report_document_register"
+              sequence="50"/>
+
+    <menuitem id="menu_iso_report_revision"
+              name="รายงานประวัติการแก้ไข"
+              parent="menu_iso_reporting"
+              action="action_od19_iso_report_revision"
+              sequence="60"/>
+
+    <menuitem id="menu_iso_report_distribution"
+              name="รายงานทะเบียนแจกจ่าย"
+              parent="menu_iso_reporting"
+              action="action_od19_iso_report_distribution"
+              sequence="70"/>
+
+    <menuitem id="menu_iso_report_print_register"
+              name="ทะเบียนการพิมพ์"
+              parent="menu_iso_reporting"
+              action="action_od19_iso_report_print_register"
+              sequence="80"/>
+
+</odoo>

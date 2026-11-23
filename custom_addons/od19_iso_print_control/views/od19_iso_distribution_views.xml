@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ==================== List ==================== -->
+    <record id="view_od19_iso_distribution_list" model="ir.ui.view">
+        <field name="name">od19.iso.distribution.list.list</field>
+        <field name="model">od19.iso.distribution.list</field>
+        <field name="arch" type="xml">
+            <list string="ทะเบียนแจกจ่าย">
+                <field name="name"/>
+                <field name="document_id"/>
+                <field name="revision"/>
+                <field name="effective_date"/>
+                <field name="line_count"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-success="state == 'active'"
+                       decoration-muted="state == 'superseded'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ==================== Form ==================== -->
+    <record id="view_od19_iso_distribution_form" model="ir.ui.view">
+        <field name="name">od19.iso.distribution.list.form</field>
+        <field name="model">od19.iso.distribution.list</field>
+        <field name="arch" type="xml">
+            <form string="ทะเบียนแจกจ่าย">
+                <header>
+                    <button name="action_activate" type="object"
+                            string="ประกาศใช้" class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_supersede" type="object"
+                            string="ตั้งเป็น superseded" class="btn-secondary"
+                            invisible="state != 'active'"/>
+                    <button name="action_reset_draft" type="object"
+                            string="ย้อนเป็นร่าง" class="btn-secondary"
+                            invisible="state != 'active'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,active,superseded"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1" placeholder="DL26-001"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="document_id"/>
+                            <field name="revision"/>
+                        </group>
+                        <group>
+                            <field name="effective_date"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="ผู้รับ" name="recipients">
+                            <field name="line_ids">
+                                <list editable="bottom">
+                                    <field name="recipient_id"/>
+                                    <field name="holder_name"/>
+                                    <field name="department_id"/>
+                                    <field name="copies_required"/>
+                                    <field name="copy_type"/>
+                                    <field name="acknowledged"/>
+                                    <field name="note"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="หมายเหตุ" name="note">
+                            <field name="note" placeholder="หมายเหตุการแจกจ่าย"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ==================== Search ==================== -->
+    <record id="view_od19_iso_distribution_search" model="ir.ui.view">
+        <field name="name">od19.iso.distribution.list.search</field>
+        <field name="model">od19.iso.distribution.list</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="document_id"/>
+                <filter name="filter_active" string="ประกาศใช้"
+                        domain="[('state','=','active')]"/>
+                <filter name="filter_draft" string="ร่าง"
+                        domain="[('state','=','draft')]"/>
+                <group>
+                    <filter name="group_document" string="เอกสาร"
+                            context="{'group_by':'document_id'}"/>
+                    <filter name="group_state" string="สถานะ"
+                            context="{'group_by':'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ==================== Action ==================== -->
+    <record id="action_od19_iso_distribution_list" model="ir.actions.act_window">
+        <field name="name">ทะเบียนแจกจ่าย</field>
+        <field name="res_model">od19.iso.distribution.list</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_od19_iso_distribution_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">สร้างทะเบียนแจกจ่ายฉบับแรก</p>
+        </field>
+    </record>
+
+    <!-- ==================== Menu ==================== -->
+    <menuitem id="menu_od19_iso_distribution_list"
+              name="ทะเบียนแจกจ่าย"
+              parent="od19_iso_document_control.menu_iso_document_control"
+              action="action_od19_iso_distribution_list"
+              sequence="40"/>
+
+</odoo>

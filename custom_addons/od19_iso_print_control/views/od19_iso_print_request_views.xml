@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ==================== List ==================== -->
+    <record id="view_od19_iso_print_request_list" model="ir.ui.view">
+        <field name="name">od19.iso.print.request.list</field>
+        <field name="model">od19.iso.print.request</field>
+        <field name="arch" type="xml">
+            <list string="ใบขอพิมพ์">
+                <field name="name"/>
+                <field name="document_id"/>
+                <field name="revision"/>
+                <field name="request_type"/>
+                <field name="copies_count"/>
+                <field name="copy_type"/>
+                <field name="requester_id"/>
+                <field name="state" widget="badge"
+                       decoration-info="state in ('draft','review')"
+                       decoration-success="state in ('approved','printed')"
+                       decoration-danger="state == 'cancelled'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ==================== Kanban ==================== -->
+    <record id="view_od19_iso_print_request_kanban" model="ir.ui.view">
+        <field name="name">od19.iso.print.request.kanban</field>
+        <field name="model">od19.iso.print.request</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state">
+                <field name="name"/>
+                <field name="document_id"/>
+                <field name="state"/>
+                <field name="copies_count"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_content">
+                            <div><strong><field name="name"/></strong></div>
+                            <div><field name="document_id"/></div>
+                            <div>สำเนา: <field name="copies_count"/></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- ==================== Form ==================== -->
+    <record id="view_od19_iso_print_request_form" model="ir.ui.view">
+        <field name="name">od19.iso.print.request.form</field>
+        <field name="model">od19.iso.print.request</field>
+        <field name="arch" type="xml">
+            <form string="ใบขอพิมพ์">
+                <header>
+                    <button name="action_submit" type="object"
+                            string="ส่งอนุมัติ" class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_approve" type="object"
+                            string="อนุมัติ" class="btn-success"
+                            invisible="state != 'review'"/>
+                    <button name="action_mark_printed" type="object"
+                            string="บันทึกพิมพ์แล้ว" class="btn-primary"
+                            invisible="state != 'approved'"/>
+                    <button name="action_cancel" type="object"
+                            string="ยกเลิก" class="btn-secondary"
+                            invisible="state in ('printed','cancelled')"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,review,approved,printed"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1" placeholder="PRN26-001"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="document_id"/>
+                            <field name="revision"/>
+                            <field name="request_type"/>
+                            <field name="distribution_list_id"
+                                   invisible="request_type not in ('new_print','reprint','replace_revision')"/>
+                        </group>
+                        <group>
+                            <field name="copies_count"/>
+                            <field name="copy_type"/>
+                            <field name="requester_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="printed_by_id"/>
+                        <field name="print_date"/>
+                    </group>
+                    <notebook>
+                        <page string="สำเนาที่พิมพ์" name="copies">
+                            <field name="copy_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="copy_number"/>
+                                    <field name="copy_type"/>
+                                    <field name="holder_id"/>
+                                    <field name="holder_name"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="หมายเหตุ" name="note">
+                            <field name="note" placeholder="หมายเหตุการขอพิมพ์"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ==================== Search ==================== -->
+    <record id="view_od19_iso_print_request_search" model="ir.ui.view">
+        <field name="name">od19.iso.print.request.search</field>
+        <field name="model">od19.iso.print.request</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="document_id"/>
+                <field name="requester_id"/>
+                <filter name="filter_draft" string="ร่าง"
+                        domain="[('state','=','draft')]"/>
+                <filter name="filter_review" string="รออนุมัติ"
+                        domain="[('state','=','review')]"/>
+                <filter name="filter_approved" string="อนุมัติแล้ว"
+                        domain="[('state','in',['approved','printed'])]"/>
+                <filter name="filter_replace" string="พิมพ์แทน (เปลี่ยน revision)"
+                        domain="[('request_type','=','replace_revision')]"/>
+                <group>
+                    <filter name="group_state" string="สถานะ"
+                            context="{'group_by':'state'}"/>
+                    <filter name="group_type" string="ประเภท"
+                            context="{'group_by':'request_type'}"/>
+                    <filter name="group_document" string="เอกสาร"
+                            context="{'group_by':'document_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ==================== Action ==================== -->
+    <record id="action_od19_iso_print_request" model="ir.actions.act_window">
+        <field name="name">ใบขอพิมพ์</field>
+        <field name="res_model">od19.iso.print.request</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="view_od19_iso_print_request_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">สร้างใบขอพิมพ์ฉบับแรก</p>
+        </field>
+    </record>
+
+    <!-- ==================== Menu ==================== -->
+    <menuitem id="menu_od19_iso_print_request"
+              name="ใบขอพิมพ์"
+              parent="od19_iso_document_control.menu_iso_document_control"
+              action="action_od19_iso_print_request"
+              sequence="50"/>
+
+</odoo>

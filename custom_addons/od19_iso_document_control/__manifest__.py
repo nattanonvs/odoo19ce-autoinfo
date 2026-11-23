@@ -25,6 +25,7 @@
         "data/ir_sequence_data.xml",
         "report/iso_footer_templates.xml",
         "report/external_layout_footer.xml",
+        "report/od19_iso_controlled_document.xml",
         "views/iso_document_views.xml",
         "views/iso_document_category_views.xml",
         "views/iso_standard_views.xml",

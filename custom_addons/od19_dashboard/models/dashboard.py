@@ -44,6 +44,7 @@ DATE_RANGES = [
     ("this_quarter", "This Quarter"),
     ("this_year", "This Year"),
     ("next_7_days", "Next 7 Days"),
+    ("next_30_days", "Next 30 Days"),
     ("overdue", "Overdue"),
 ]
 
@@ -1787,6 +1788,8 @@ class Od19DashboardWidget(models.Model):
             start, end = today.replace(month=1, day=1), today
         elif effective_range == "next_7_days":
             start, end = today, today + timedelta(days=7)
+        elif effective_range == "next_30_days":
+            start, end = today, today + timedelta(days=30)
         elif effective_range == "overdue":
             start, end = None, today - timedelta(days=1)
         else:

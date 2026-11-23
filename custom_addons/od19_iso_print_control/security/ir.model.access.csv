@@ -1,0 +1,17 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_od19_iso_distribution_list_user,od19.iso.distribution.list.user,model_od19_iso_distribution_list,base.group_user,1,0,0,0
+access_od19_iso_distribution_list_controller,od19.iso.distribution.list.controller,model_od19_iso_distribution_list,od19_iso_print_control.group_iso_print_controller,1,1,1,0
+access_od19_iso_distribution_list_manager,od19.iso.distribution.list.manager,model_od19_iso_distribution_list,od19_iso_print_control.group_iso_print_manager,1,1,1,1
+access_od19_iso_distribution_list_system,od19.iso.distribution.list.system,model_od19_iso_distribution_list,base.group_system,1,1,1,1
+access_od19_iso_distribution_line_user,od19.iso.distribution.line.user,model_od19_iso_distribution_line,base.group_user,1,0,0,0
+access_od19_iso_distribution_line_controller,od19.iso.distribution.line.controller,model_od19_iso_distribution_line,od19_iso_print_control.group_iso_print_controller,1,1,1,1
+access_od19_iso_distribution_line_system,od19.iso.distribution.line.system,model_od19_iso_distribution_line,base.group_system,1,1,1,1
+access_od19_iso_print_request_user,od19.iso.print.request.user,model_od19_iso_print_request,base.group_user,1,1,1,0
+access_od19_iso_print_request_controller,od19.iso.print.request.controller,model_od19_iso_print_request,od19_iso_print_control.group_iso_print_controller,1,1,1,0
+access_od19_iso_print_request_manager,od19.iso.print.request.manager,model_od19_iso_print_request,od19_iso_print_control.group_iso_print_manager,1,1,1,1
+access_od19_iso_print_request_system,od19.iso.print.request.system,model_od19_iso_print_request,base.group_system,1,1,1,1
+access_od19_iso_print_copy_user,od19.iso.print.copy.user,model_od19_iso_print_copy,base.group_user,1,0,0,0
+access_od19_iso_print_copy_controller,od19.iso.print.copy.controller,model_od19_iso_print_copy,od19_iso_print_control.group_iso_print_controller,1,1,1,0
+access_od19_iso_print_copy_manager,od19.iso.print.copy.manager,model_od19_iso_print_copy,od19_iso_print_control.group_iso_print_manager,1,1,1,1
+access_od19_iso_print_copy_system,od19.iso.print.copy.system,model_od19_iso_print_copy,base.group_system,1,1,1,1
+access_od19_iso_print_issue_wizard_user,od19.iso.print.issue.wizard.user,model_od19_iso_print_issue_wizard,base.group_user,1,1,1,1
