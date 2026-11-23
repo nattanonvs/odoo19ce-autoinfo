@@ -80,3 +80,7 @@
 [submodule "third_party/oca/contract"]
 	path = third_party/oca/contract
 	url = https://github.com/OCA/contract.git
+[submodule "third_party/oca/server-env"]
+	path = third_party/oca/server-env
+	url = https://github.com/OCA/server-env.git
+	ignore = untracked
