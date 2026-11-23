@@ -27,6 +27,7 @@ class TestCheque(TransactionCase):
                 "name": "Cheque Receivable",
                 "code": "112001",
                 "account_type": "asset_current",
+                "reconcile": True,
             }
         )
         cls.cheque_payable_account = cls.env["account.account"].create(
@@ -303,3 +304,81 @@ class TestCheque(TransactionCase):
         )
         self.assertTrue(ap_line.reconciled)
         self.assertEqual(ap_line.amount_residual, 0.0)
+
+    def _get_cheque_method_line(self):
+        method = self.env.ref(
+            "od19_accounting_cheque.payment_method_od19_cheque"
+        )
+        method_line = self.bank_journal.inbound_payment_method_line_ids.filtered(
+            lambda line: line.payment_method_id == method
+        )[:1]
+        if not method_line:
+            method_line = self.env["account.payment.method.line"].create({
+                "name": method.name,
+                "payment_method_id": method.id,
+                "journal_id": self.bank_journal.id,
+            })
+        return method_line
+
+    def test_cheque_payment_method_uses_received_account(self):
+        """The cheque receipt payment methods park money on Cheque Received."""
+        method_line = self._get_cheque_method_line()
+        payment = self.env["account.payment"].create({
+            "payment_type": "inbound",
+            "partner_type": "customer",
+            "partner_id": self.customer.id,
+            "journal_id": self.bank_journal.id,
+            "amount": 100000.0,
+            "payment_method_line_id": method_line.id,
+        })
+        self.assertEqual(payment.outstanding_account_id, self.cheque_receivable_account)
+
+    def test_receive_customer_cheque_through_payment(self):
+        """Receiving a customer cheque creates an account.payment posting
+        Dr Cheque Received / Cr Accounts Receivable."""
+        cheque = self._create_customer_cheque(100000.0, "CHQP01")
+        cheque.action_register_payment()
+
+        self.assertEqual(cheque.state, "confirmed")
+        self.assertTrue(cheque.payment_id)
+        self.assertEqual(cheque.payment_id.payment_method_code, "od19_cheque")
+        self.assertEqual(cheque.payment_id.state, "in_process")
+        self.assertTrue(cheque.received_move_id)
+
+        move = cheque.received_move_id
+        liquidity = move.line_ids.filtered(
+            lambda line: line.account_id == self.cheque_receivable_account
+        )
+        self.assertEqual(sum(liquidity.mapped("debit")), 100000.0)
+        receivable = move.line_ids.filtered(
+            lambda line: line.account_id
+            == self.customer.property_account_receivable_id
+        )
+        self.assertEqual(sum(receivable.mapped("credit")), 100000.0)
+
+    def test_deposit_received_cheque_through_payment(self):
+        """Depositing a cheque received through a payment creates a second
+        payment posting Dr Bank / Cr Cheque Received and clears the account."""
+        cheque = self._create_customer_cheque(100000.0, "CHQP02")
+        cheque.action_register_payment()
+        cheque.action_deposit()
+
+        self.assertEqual(cheque.state, "deposited")
+        self.assertTrue(cheque.deposit_payment_id)
+        self.assertTrue(cheque.deposited_move_id)
+
+        move = cheque.deposited_move_id
+        bank_line = move.line_ids.filtered(
+            lambda line: line.account_id == self.cash_account
+        )
+        self.assertEqual(sum(bank_line.mapped("debit")), 100000.0)
+        credit_line = move.line_ids.filtered(
+            lambda line: line.account_id == self.cheque_receivable_account
+        )
+        self.assertEqual(sum(credit_line.mapped("credit")), 100000.0)
+
+        # The two Cheque Received lines are reconciled, leaving a zero balance.
+        received_line = cheque.received_move_id.line_ids.filtered(
+            lambda line: line.account_id == self.cheque_receivable_account
+        )
+        self.assertEqual(received_line.amount_residual, 0.0)
