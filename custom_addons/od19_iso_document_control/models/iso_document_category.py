@@ -13,7 +13,14 @@ class IsoDocumentCategory(models.Model):
     prefix = fields.Char(
         string="คำนำหน้า",
         required=True,
-        help="คำนำหน้ารหัสเอกสาร เช่น FM, PROC, WI, REC, MANUAL",
+        help="คำนำหน้ารหัสเอกสาร เช่น FM, PM, WI, REC, MANUAL",
+    )
+    use_sequence = fields.Boolean(
+        string="ใช้เลขคุม",
+        default=True,
+        help="เปิด = สร้างรหัสอัตโนมัติ (คำนำหน้า-แผนก-ลำดับ) "
+        "ปิด = ไม่สร้างรหัสอัตโนมัติ (เช่น บันทึก/คู่มือระบบ/นโยบาย) "
+        "โดยยังใช้คำนำหน้าได้ในภายหลังหากเปิดกลับ",
     )
     description = fields.Text(string="คำอธิบาย")
     active = fields.Boolean(string="ใช้งาน", default=True)

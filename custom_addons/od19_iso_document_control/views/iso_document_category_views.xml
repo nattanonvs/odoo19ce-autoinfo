@@ -8,6 +8,7 @@
             <list string="ประเภทเอกสาร">
                 <field name="prefix"/>
                 <field name="name"/>
+                <field name="use_sequence" widget="boolean_toggle"/>
                 <field name="description"/>
                 <field name="active" widget="boolean_toggle"/>
             </list>
@@ -23,6 +24,7 @@
                     <group>
                         <field name="prefix"/>
                         <field name="name"/>
+                        <field name="use_sequence"/>
                         <field name="description"/>
                         <field name="active" invisible="1"/>
                     </group>

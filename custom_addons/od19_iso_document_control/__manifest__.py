@@ -3,7 +3,7 @@
 
 {
     "name": "ISO Document Control",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.2.0",
     "category": "ISO/Quality",
     "license": "LGPL-3",
     "author": "TRAE",
