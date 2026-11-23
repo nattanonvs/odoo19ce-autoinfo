@@ -30,6 +30,7 @@ sub=ISO 9001 ระบบคุณภาพ — เอกสารควบค�
       <li><a href="#iso-8">ความพึงพอใจลูกค้า (Customer Satisfaction)</a></li>
       <li><a href="#iso-9">การทบทวนระบบจัดการ (Management Review)</a></li>
       <li><a href="#iso-10">ใบคำขอ DAR (Document Action Request)</a></li>
+      <li><a href="#iso-11">แผนงาน ISO ประจำปี (Annual Plan · ตารางทั้งปี)</a></li>
     </ol>
   </nav>
 
@@ -80,17 +81,23 @@ sub=ISO 9001 ระบบคุณภาพ — เอกสารควบค�
   <h4>รหัสเอกสารและประเภทเอกสารมาตรฐาน</h4>
   <p>ระบบสร้างรหัสเอกสารอัตโนมัติเมื่อบันทึก โดยรูปแบบคือ <code>{PREFIX}-{รหัสแผนก}-{เลขรัน 3 หลัก}</code> เช่น <code>FM-PU-012</code> (รหัสแผนกดึงจาก <span class="pill">hr.department.code</span> ถ้าไม่ระบุจะใช้ <code>XX</code> แล้วสร้างใหม่เมื่อกำหนดแผนกภายหลัง)</p>
   <table>
-    <thead><tr><th>ประเภทเอกสาร</th><th>Prefix</th><th>ตัวอย่างรหัส</th></tr></thead>
+    <thead><tr><th>ประเภทเอกสาร</th><th>Prefix</th><th>ใช้เลขคุม</th><th>ตัวอย่างรหัส</th></tr></thead>
     <tbody>
-      <tr><td>แบบฟอร์ม (Form)</td><td><code>FM</code></td><td>FM-PU-012</td></tr>
-      <tr><td>ขั้นตอนการทำงาน (Procedure)</td><td><code>PROC</code></td><td>PROC-QA-001</td></tr>
-      <tr><td>คู่มือการทำงาน (Work Instruction)</td><td><code>WI</code></td><td>WI-PU-003</td></tr>
-      <tr><td>ฟอร์ม (Form Record)</td><td><code>FORM</code></td><td>FORM-SA-004</td></tr>
-      <tr><td>บันทึก (Record)</td><td><code>REC</code></td><td>REC-QA-021</td></tr>
-      <tr><td>คู่มือระบบ (Manual)</td><td><code>MANUAL</code></td><td>MANUAL-XX-001</td></tr>
-      <tr><td>นโยบาย (Policy)</td><td><code>POL</code></td><td>POL-XX-001</td></tr>
+      <tr><td>แบบฟอร์ม (Form)</td><td><code>FM</code></td><td>✔</td><td>FM-PU-012</td></tr>
+      <tr><td>ขั้นตอนการปฏิบัติงาน (Procedure Manual)</td><td><code>PM</code></td><td>✔</td><td>PM-QA-001</td></tr>
+      <tr><td>คู่มือการทำงาน (Work Instruction)</td><td><code>WI</code></td><td>✔</td><td>WI-PU-003</td></tr>
+      <tr><td>ฟอร์ม (Form Record)</td><td><code>FORM</code></td><td>✔</td><td>FORM-SA-004</td></tr>
+      <tr><td>บันทึก (Record)</td><td><code>REC</code></td><td>—</td><td>—</td></tr>
+      <tr><td>คู่มือระบบ (Manual)</td><td><code>MANUAL</code></td><td>—</td><td>—</td></tr>
+      <tr><td>นโยบาย (Policy)</td><td><code>POL</code></td><td>—</td><td>—</td></tr>
     </tbody>
   </table>
+  <div class="callout note">
+    <strong>ฟิลด์ “ใช้เลขคุม” (<span class="pill">use_sequence</span>):</strong> เปิด (ค่าเริ่มต้น) = ระบบสร้างรหัสอัตโนมัติ <code>{PREFIX}-{แผนก}-{เลขรัน}</code> ·
+    ปิด = ยังเก็บ “คำนำหน้า” ไว้ได้ แต่ <strong>ไม่</strong> สร้างรหัสอัตโนมัติ (เว้นว่างให้กรอกเอง) —
+    ค่าเริ่มต้นปิดไว้ให้ 3 ประเภทคือ <strong>บันทึก (REC)</strong>, <strong>คู่มือระบบ (MANUAL)</strong> และ <strong>นโยบาย (POL)</strong>
+    โดยเปิดกลับได้ทุกเมื่อที่ <span class="path">ISO Management › ตั้งค่า › ประเภทเอกสาร</span>
+  </div>
 
   <h4>ขั้นตอนการจัดทำเอกสาร</h4>
   <ol class="steps">
@@ -524,6 +531,99 @@ sub=ISO 9001 ระบบคุณภาพ — เอกสารควบค�
 
   <div class="callout tip">
     ในหน้าเอกสารควบคุม จะมีปุ่มสถิติ “ใบ DAR” แสดงจำนวนใบที่เกี่ยวข้อง และกดเปิดดูได้ทันที
+  </div>
+
+  <!-- ============================================================ -->
+  <h3 class="mod" id="iso-11"><span class="mtag">od19_iso_annual_plan</span> แผนงาน ISO ประจำปี (Annual Plan)</h3>
+
+  <h4>วัตถุประสงค์</h4>
+  <p>
+    รวมกิจกรรม ISO ทั้งหมดของปีไว้ในที่เดียว แล้วแสดงเป็น <strong>ตารางเมทริกซ์ 12 เดือน</strong> —
+    แต่ละแถวคือกิจกรรม (แถว) และแต่ละคอลัมน์คือเดือน (ม.ค.–ธ.ค.) ทำให้เห็นภาพรวมทั้งปีได้ในหน้าเดียวว่า
+    เดือนไหนต้องทำอะไร พร้อมสถานะความคืบหน้า และ <strong>แจ้งเตือนอัตโนมัติ</strong> เมื่อกิจกรรมใกล้ถึงกำหนดหรือเลยกำหนด
+  </p>
+
+  <h4>เมนู</h4>
+  <ul>
+    <li><span class="path">ISO Management › แผนงาน ISO ประจำปี › แผนงานประจำปี</span> — สร้าง/อนุมัติ/ปิดแผน และดูตารางทั้งปีของแผนนั้น</li>
+    <li><span class="path">ISO Management › แผนงาน ISO ประจำปี › ตารางแผนงานทั้งปี</span> — ตารางเมทริกซ์ 12 เดือนรวมทุกแผน</li>
+    <li><span class="path">ISO Management › ตั้งค่า › ประเภทกิจกรรมแผนงาน ISO</span> — ทะเบียนรายการกิจกรรม ISO มาตรฐาน (แก้ไข/เพิ่ม/ปิดใช้งานได้)</li>
+  </ul>
+
+  <h4>โครงสร้างข้อมูล</h4>
+  <div class="grid two">
+    <div class="tile"><div class="t">แผนงานประจำปี <span class="pill">od19.iso.annual.plan</span></div><p>ชื่อแผน, ปี, มาตรฐาน ISO, ผู้รับผิดชอบแผน, สถานะ (ร่าง · อนุมัติแล้ว · ปิด) และ “แจ้งล่วงหน้า (วัน)”</p></div>
+    <div class="tile"><div class="t">กิจกรรม/ตารางทั้งปี <span class="pill">od19.iso.annual.plan.line</span></div><p>1 แถว = 1 กิจกรรม (ประเภทกิจกรรม, ผู้รับผิดชอบ, แผนก, ความถี่) + คอลัมน์สถานะ 12 เดือน (อ่านอย่างเดียว)</p></div>
+    <div class="tile"><div class="t">กำหนดการรายเดือน <span class="pill">od19.iso.annual.plan.schedule</span></div><p>1 รายการ = กิจกรรม 1 เดือน (เดือน, วันที่ตามแผน, สถานะ, ผู้รับผิดชอบ, วันที่เสร็จ) — ต้นทางของคอลัมน์ทั้ง 12</p></div>
+    <div class="tile"><div class="t">ประเภทกิจกรรม <span class="pill">od19.iso.plan.activity.type</span></div><p>รายการกิจกรรม ISO มาตรฐานที่แก้ไขได้ พร้อม “ความถี่เริ่มต้น”</p></div>
+  </div>
+
+  <h4>รายการกิจกรรม ISO มาตรฐาน (แก้ไขได้ · 8 รายการเริ่มต้น)</h4>
+  <table>
+    <thead><tr><th>กิจกรรม</th><th>รหัส</th><th>ความถี่เริ่มต้น</th></tr></thead>
+    <tbody>
+      <tr><td>ตรวจภายใน (Internal Audit)</td><td><code>AUDIT</code></td><td>ครึ่งปี</td></tr>
+      <tr><td>ทบทวนฝ่ายบริหาร (Management Review)</td><td><code>MGMT_REVIEW</code></td><td>ครึ่งปี</td></tr>
+      <tr><td>อบรม (Training)</td><td><code>TRAINING</code></td><td>รายปี</td></tr>
+      <tr><td>ทบทวนความเสี่ยง (Risk Review)</td><td><code>RISK</code></td><td>รายปี</td></tr>
+      <tr><td>สอบเทียบ (Calibration)</td><td><code>CALIBRATION</code></td><td>รายปี</td></tr>
+      <tr><td>ประเมินผู้ขาย (Supplier Evaluation)</td><td><code>SUPPLIER_EVAL</code></td><td>รายปี</td></tr>
+      <tr><td>สำรวจความพึงพอใจลูกค้า (Customer Satisfaction)</td><td><code>SATISFACTION</code></td><td>รายปี</td></tr>
+      <tr><td>ทบทวนเอกสาร (Document Review)</td><td><code>DOC_REVIEW</code></td><td>รายปี</td></tr>
+    </tbody>
+  </table>
+  <p>ความถี่ที่เลือกได้: <span class="badge b-gray">รายเดือน</span> <span class="badge b-gray">รายไตรมาส</span> <span class="badge b-gray">ครึ่งปี</span> <span class="badge b-gray">รายปี</span> <span class="badge b-gray">ตามความจำเป็น</span></p>
+
+  <h4>วิธีอ่าน “ตารางแผนงาน ISO ทั้งปี”</h4>
+  <p>คอลัมน์ ม.ค.–ธ.ค. ของแต่ละกิจกรรมจะแสดง <strong>สถานะของเดือนนั้น</strong> โดยระบบรวมจาก “กำหนดการรายเดือน” ให้อัตโนมัติ (ถ้าเดือนนั้นมีหลายรายการ จะแสดงสถานะที่ “ด่วนที่สุด”)</p>
+  <table>
+    <thead><tr><th>สถานะในช่องเดือน</th><th>ความหมาย</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge b-gray">วางแผน</span></td><td>มีกำหนดการในเดือนนั้น แต่ยังไม่เริ่มและยังไม่ถึงกำหนด</td></tr>
+      <tr><td><span class="badge b-blue">กำลังทำ</span></td><td>กำหนดการถูกตั้งเป็น “กำลังทำ”</td></tr>
+      <tr><td><span class="badge b-green">เสร็จ</span></td><td>กำหนดการเสร็จสิ้นแล้ว (บันทึกวันที่เสร็จ)</td></tr>
+      <tr><td><span class="badge b-red">เลยกำหนด</span></td><td>เลยวันที่ตามแผนแล้วและยังไม่เสร็จ</td></tr>
+    </tbody>
+  </table>
+
+  <h4>ขั้นตอนการใช้งาน</h4>
+  <ol class="steps">
+    <li><span class="stitle">สร้างแผนงาน</span> — ที่เมนู “แผนงานประจำปี” กด “สร้าง”, ระบุชื่อแผน, ปี, มาตรฐาน ISO และผู้รับผิดชอบ (สถานะเริ่มต้น = ร่าง)</li>
+    <li><span class="stitle">เพิ่มกิจกรรมตามแผน</span> — ในแท็บ “ตารางแผนงานทั้งปี” เพิ่มแถวกิจกรรม เลือก <span class="pill">ประเภทกิจกรรม</span> (ระบบเติมชื่อ/ความถี่ให้), ผู้รับผิดชอบ และแผนก</li>
+    <li><span class="stitle">ตั้งกำหนดการรายเดือน</span> — เปิดกิจกรรมแต่ละแถว แล้วเพิ่ม “กำหนดการรายเดือน” ระบุ <span class="pill">เดือน</span>, <span class="pill">วันที่ตามแผน</span>, ผู้รับผิดชอบ และสถานะ</li>
+    <li><span class="stitle">อนุมัติและติดตาม</span> — กด <span class="badge b-green">อนุมัติ</span> ให้แผนมีผล แล้วติดตามผ่าน “ดูตารางทั้งปี”; เมื่อกิจกรรมเริ่ม/เสร็จกดปุ่มบนกำหนดการ</li>
+    <li><span class="stitle">ปิดแผน</span> — เมื่อครบทั้งปี/ครบทุกกิจกรรม กด <span class="badge b-blue">ปิด</span></li>
+  </ol>
+
+  <h4>ปุ่มสำคัญ</h4>
+  <table>
+    <thead><tr><th>ปุ่ม</th><th>การทำงาน</th></tr></thead>
+    <tbody>
+      <tr><td>อนุมัติ</td><td>จาก “ร่าง” → “อนุมัติแล้ว” (แผนมีผลและเริ่มการแจ้งเตือน)</td></tr>
+      <tr><td>ปิด / กลับเป็นร่าง</td><td>ปิดแผนเมื่อจบรอบ หรือย้อนกลับเป็นร่างเพื่อแก้ไข</td></tr>
+      <tr><td>ดูตารางทั้งปี</td><td>เปิดตารางเมทริกซ์ 12 เดือนกรองเฉพาะแผนนี้</td></tr>
+      <tr><td>เริ่ม / เสร็จ / รีเซ็ต (บนกำหนดการ)</td><td>เปลี่ยนสถานะกำหนดการรายเดือน (ยังไม่เริ่ม → กำลังทำ → เสร็จ)</td></tr>
+    </tbody>
+  </table>
+
+  <h4>ฟิลด์สำคัญ</h4>
+  <ul>
+    <li><span class="pill">ปี</span> — ต้องอยู่ระหว่าง 2000–2100 และ <span class="pill">แจ้งล่วงหน้า (วัน)</span> ใส่ได้หลายค่าคั่นด้วยจุลภาค (ค่าเริ่มต้น <code>30,15,7</code>)</li>
+    <li><span class="pill">วันที่ตามแผน</span> (บนกำหนดการรายเดือน) — เป็นตัวขับการคิด “เลยกำหนด” และการแจ้งเตือน</li>
+    <li><span class="pill">ตัวกรอง “เลยกำหนด”</span> ในหน้ามุมมองรายการ — แสดงเฉพาะกิจกรรมที่มีกำหนดการเลยกำหนด</li>
+  </ul>
+
+  <div class="callout note">
+    <strong>แจ้งเตือนอัตโนมัติ:</strong> มีงานประจำ (cron) รายวัน (08:00) —
+    <strong>ใกล้ถึงกำหนด:</strong> แจ้งผู้รับผิดชอบครั้งเดียวที่ช่วงล่วงหน้าที่ใกล้ที่สุดตาม “แจ้งล่วงหน้า (วัน)” (เช่น 30/15/7 วัน) ·
+    <strong>เลยกำหนด:</strong> แจ้งเมื่อเลยวันที่ตามแผนแล้วและยังไม่เสร็จ
+    — แจ้งผ่าน <strong>กิจกรรม (Activity) + ข้อความใน Chatter</strong> และส่งออกผ่านบริการแจ้งเตือนหลายช่องทาง (อีเมล/Inbox/LINE) เมื่อโมดูลแจ้งเตือนถูกติดตั้ง
+    (ระบบกันแจ้งซ้ำด้วยการตรวจว่ามีกิจกรรมชื่อเดียวกันค้างอยู่หรือไม่)
+  </div>
+
+  <div class="callout tip">
+    <strong>มุมมองภาพรวมทั้งปี:</strong> ใช้เมนู <span class="path">ISO Management › แผนงาน ISO ประจำปี › ตารางแผนงานทั้งปี</span>
+    เพื่อดูทุกแผนพร้อมกัน และจัดกลุ่มตาม แผนงาน / ปี / แผนก ได้จากตัวกรอง “จัดกลุ่ม”
   </div>
 
   <hr>
