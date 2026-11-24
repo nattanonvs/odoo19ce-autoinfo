@@ -47,11 +47,34 @@ class TestExpenseClaim(AccountTestInvoicingCommon):
             # l10n_th_account_tax ที่บังคับเลข/วันที่ใบกำกับภาษีตอนโพสต์
             "supplier_taxes_id": [Command.clear()],
         })
-        cls.employee = cls.env["hr.employee"].create({"name": "Claim Employee"})
+        cls.employee_partner = cls.env["res.partner"].create({
+            "name": "Claim Employee Contact",
+        })
+        cls.employee = cls.env["hr.employee"].create({
+            "name": "Claim Employee",
+            "work_contact_id": cls.employee_partner.id,
+        })
         cls.analytic = cls.env["account.analytic.account"].create({
             "name": "Claim Analytic",
             "plan_id": cls.env.ref("analytic.analytic_plan_projects").id,
         })
+        # บัญชีสำหรับสายเงินทดรอง/เงินสดย่อย (P2)
+        cls.advance_account = cls.copy_account(
+            cls.company_data["default_account_receivable"],
+            {"name": "Claim Advance (Test)", "reconcile": True},
+        )
+        cls.expense_account = cls.copy_account(
+            cls.company_data["default_account_expense"],
+            {"name": "Claim Advance Expense (Test)"},
+        )
+        cls.advance_product = cls.env["product.product"].create({
+            "name": "Claim Advance Expense Product",
+            "type": "service",
+            "property_account_expense_id": cls.expense_account.id,
+            "supplier_taxes_id": [Command.clear()],
+        })
+        cls.bank_journal = cls.company_data["default_journal_bank"]
+        cls.cash_journal = cls.company_data["default_journal_cash"]
 
     def _make_claim(self, lines=None, with_attachment=True):
         lines = lines or [{"name": "Line A", "total_amount": 100.0}]
@@ -348,3 +371,205 @@ class TestExpenseClaim(AccountTestInvoicingCommon):
         visible = self.Claim.with_user(employee_user).search([])
         self.assertIn(own, visible)
         self.assertNotIn(foreign, visible)
+
+    # ---------------------------------------------------------------
+    # P2: เงินทดรอง (advance) — lifecycle ครบวงจร
+    # ---------------------------------------------------------------
+    def _make_advance(self, amount=10000.0, purpose="Site visit",
+                      claim_type="advance", claim_source="self_service", **kw):
+        vals = {
+            "employee_id": self.employee.id,
+            "company_id": self.env.company.id,
+            "claim_type": claim_type,
+            "claim_source": claim_source,
+            "payment_mode": "company_account",
+            "amount": amount,
+            "purpose": purpose,
+            "advance_account_id": self.advance_account.id,
+        }
+        vals.update(kw)
+        return self.Claim.create(vals)
+
+    def _approve_claim_tiers(self, claim, tiers=3):
+        claim.action_submit()
+        claim.with_user(self.supervisor).validate_tier()
+        claim.invalidate_recordset()
+        claim.with_user(self.accountant).validate_tier()
+        claim.invalidate_recordset()
+        if tiers >= 3:
+            claim.with_user(self.ceo).validate_tier()
+            claim.invalidate_recordset()
+        return claim
+
+    def _make_advance_expense(self, amount):
+        return self.env["hr.expense"].create({
+            "name": "Advance Clearing Expense",
+            "employee_id": self.employee.id,
+            "product_id": self.advance_product.id,
+            "total_amount": amount,
+            "payment_mode": "own_account",
+            "company_id": self.env.company.id,
+        })
+
+    def test_advance_requires_company_account(self):
+        with self.assertRaises(ValidationError):
+            self.Claim.create({
+                "employee_id": self.employee.id,
+                "company_id": self.env.company.id,
+                "claim_type": "advance",
+                "payment_mode": "own_account",
+                "amount": 100.0,
+                "purpose": "Test",
+                "advance_account_id": self.advance_account.id,
+            })
+
+    def test_advance_submit_requires_amount(self):
+        claim = self._make_advance(amount=0.0)
+        with self.assertRaises(UserError):
+            claim.action_submit()
+
+    def test_advance_full_lifecycle(self):
+        claim = self._make_advance(10000.0)
+        self._approve_claim_tiers(claim)
+        self.assertEqual(claim.state, "approved")
+        claim.action_pay()
+        claim.invalidate_recordset()
+        self.assertEqual(claim.state, "paid")
+        self.assertEqual(claim.cash_state, "issued")
+        self.assertTrue(claim.payment_id)
+        self.assertAlmostEqual(claim.remaining_amount, 10000.0)
+
+        expense = self._make_advance_expense(10000.0)
+        wizard = self.env["od19.expense.claim.clear"].create({
+            "claim_id": claim.id,
+            "clear_date": fields.Date.context_today(self.env.user),
+            "expense_ids": [Command.set([expense.id])],
+        })
+        wizard.action_clear()
+        claim.invalidate_recordset()
+        self.assertEqual(claim.state, "cleared")
+        self.assertEqual(claim.cash_state, "settled")
+        self.assertAlmostEqual(claim.remaining_amount, 0.0)
+        self.assertEqual(expense.od19_hr_advance_id, claim)
+        self.assertTrue(claim.clear_move_id)
+
+    def test_advance_partial_clear_sets_partially_used(self):
+        claim = self._make_advance(10000.0)
+        self._approve_claim_tiers(claim)
+        claim.action_pay()
+        claim.invalidate_recordset()
+        expense = self._make_advance_expense(4000.0)
+        wizard = self.env["od19.expense.claim.clear"].create({
+            "claim_id": claim.id,
+            "clear_date": fields.Date.context_today(self.env.user),
+            "expense_ids": [Command.set([expense.id])],
+        })
+        wizard.action_clear()
+        claim.invalidate_recordset()
+        self.assertEqual(claim.state, "paid")
+        self.assertEqual(claim.cash_state, "partially_used")
+        self.assertAlmostEqual(claim.remaining_amount, 6000.0)
+
+    def test_advance_clear_with_returned_cash(self):
+        claim = self._make_advance(10000.0)
+        self._approve_claim_tiers(claim)
+        claim.action_pay()
+        claim.invalidate_recordset()
+        expense = self._make_advance_expense(8000.0)
+        wizard = self.env["od19.expense.claim.clear"].create({
+            "claim_id": claim.id,
+            "clear_date": fields.Date.context_today(self.env.user),
+            "journal_id": self.bank_journal.id,
+            "expense_ids": [Command.set([expense.id])],
+            "returned_amount": 2000.0,
+        })
+        wizard.action_clear()
+        claim.invalidate_recordset()
+        self.assertEqual(claim.state, "cleared")
+        self.assertAlmostEqual(claim.remaining_amount, 0.0)
+
+    def test_advance_clear_exceeding_remaining_raises(self):
+        claim = self._make_advance(10000.0)
+        self._approve_claim_tiers(claim)
+        claim.action_pay()
+        claim.invalidate_recordset()
+        expense = self._make_advance_expense(15000.0)
+        wizard = self.env["od19.expense.claim.clear"].create({
+            "claim_id": claim.id,
+            "clear_date": fields.Date.context_today(self.env.user),
+            "expense_ids": [Command.set([expense.id])],
+        })
+        with self.assertRaises(UserError):
+            wizard.action_clear()
+
+    def test_advance_clear_requires_paid(self):
+        claim = self._make_advance(10000.0)
+        self._approve_claim_tiers(claim)
+        expense = self._make_advance_expense(10000.0)
+        wizard = self.env["od19.expense.claim.clear"].create({
+            "claim_id": claim.id,
+            "clear_date": fields.Date.context_today(self.env.user),
+            "expense_ids": [Command.set([expense.id])],
+        })
+        with self.assertRaises(UserError):
+            wizard.action_clear()
+
+    def test_advance_pay_requires_approved(self):
+        claim = self._make_advance(10000.0)
+        with self.assertRaises(UserError):
+            claim.action_pay()
+
+    def test_pay_rejected_for_reimbursement(self):
+        claim = self._make_claim()
+        self._approve_claim(claim)
+        with self.assertRaises(UserError):
+            claim.action_pay()
+
+    # ---------------------------------------------------------------
+    # P2: เงินสดย่อย (petty_cash) — อนุมัติเบา 2 ชั้น (ข้าม CEO)
+    # ---------------------------------------------------------------
+    def _make_petty_cash(self, amount=5000.0):
+        return self.Claim.create({
+            "employee_id": self.employee.id,
+            "company_id": self.env.company.id,
+            "claim_type": "petty_cash",
+            "claim_source": "on_behalf",
+            "submitted_for_id": self.employee.id,
+            "payment_mode": "company_account",
+            "amount": amount,
+            "cash_fund_id": self.cash_journal.id,
+            "advance_account_id": self.advance_account.id,
+            "line_ids": [
+                Command.create({
+                    "name": "Petty Cash Expense",
+                    "product_id": self.product.id,
+                    "total_amount": amount,
+                    "employee_id": self.employee.id,
+                    "payment_mode": "company_account",
+                    "company_id": self.env.company.id,
+                    "analytic_distribution": {str(self.analytic.id): 100.0},
+                })
+            ],
+        })
+
+    def test_petty_cash_requires_on_behalf(self):
+        with self.assertRaises(ValidationError):
+            self.Claim.create({
+                "employee_id": self.employee.id,
+                "company_id": self.env.company.id,
+                "claim_type": "petty_cash",
+                "claim_source": "self_service",
+                "amount": 100.0,
+                "cash_fund_id": self.cash_journal.id,
+            })
+
+    def test_petty_cash_submit_creates_two_reviews(self):
+        claim = self._make_petty_cash()
+        claim.action_submit()
+        self.assertEqual(claim.state, "submitted")
+        self.assertEqual(len(claim.review_ids), 2)
+
+    def test_petty_cash_approved_after_two_tiers(self):
+        claim = self._make_petty_cash()
+        self._approve_claim_tiers(claim, tiers=2)
+        self.assertEqual(claim.state, "approved")
