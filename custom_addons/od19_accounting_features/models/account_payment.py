@@ -23,12 +23,22 @@ class AccountPayment(models.Model):
     od19_payer_id = fields.Many2one(
         comodel_name="res.partner",
         string="ผู้จ่ายเงิน / Payer",
-        help="Partner who actually pays.",
+        compute="_compute_od19_payer_id",
+        store=True,
+        readonly=False,
+        precompute=True,
+        help="Partner who actually pays. ฝั่งจ่าย (outbound) ค่าเริ่มต้นคือบริษัทเรา",
     )
     od19_payee_id = fields.Many2one(
         comodel_name="res.partner",
         string="ผู้รับเงิน / Payee",
-        help="Partner who actually receives the payment.",
+        compute="_compute_od19_payee_id",
+        store=True,
+        readonly=False,
+        precompute=True,
+        domain="[('supplier_rank', '>', 0)]",
+        help="Partner who actually receives the payment. ฝั่งจ่าย (outbound) "
+        "จำกัดเฉพาะผู้ขาย (Vendor) และเติมจากคู่ค้า (partner_id) อัตโนมัติ",
     )
 
     # ------------------------------------------------------------------
@@ -191,6 +201,24 @@ class AccountPayment(models.Model):
         # Fee is subtracted by the fee module (the field lives there).
         for payment in self:
             payment.od19_amount_net = payment.amount - payment.od19_wht_amount
+
+    # ------------------------------------------------------------------
+    # Payer / Payee defaults (จ่ายชำระ / outbound)
+    #   - Payer = บริษัทเรา (company partner)
+    #   - Payee = คู่ค้า (partner_id / ผู้ขาย)
+    # เติมให้อัตโนมัติเมื่อว่าง และผู้ใช้ยังแก้ไขได้
+    # ------------------------------------------------------------------
+    @api.depends("company_id", "payment_type")
+    def _compute_od19_payer_id(self):
+        for payment in self:
+            if payment.payment_type == "outbound" and not payment.od19_payer_id:
+                payment.od19_payer_id = payment.company_id.partner_id
+
+    @api.depends("partner_id", "payment_type")
+    def _compute_od19_payee_id(self):
+        for payment in self:
+            if payment.payment_type == "outbound" and not payment.od19_payee_id:
+                payment.od19_payee_id = payment.partner_id
 
     # ------------------------------------------------------------------
     # Journal preparation helpers (WHT lines + manual exchange rate)
