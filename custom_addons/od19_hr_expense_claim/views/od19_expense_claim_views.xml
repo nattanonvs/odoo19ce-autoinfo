@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_od19_expense_claim_list" model="ir.ui.view">
+        <field name="name">od19.expense.claim.list</field>
+        <field name="model">od19.expense.claim</field>
+        <field name="arch" type="xml">
+            <list string="Expense Claims"
+                  decoration-info="state == 'draft'"
+                  decoration-warning="state in ('submitted', 'refused')"
+                  decoration-success="state in ('approved', 'sent', 'posted', 'paid')">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="department_id" optional="show"/>
+                <field name="date"/>
+                <field name="total_amount" sum="Total"/>
+                <field name="payment_mode" optional="hide"/>
+                <field name="state" widget="badge"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_od19_expense_claim_form" model="ir.ui.view">
+        <field name="name">od19.expense.claim.form</field>
+        <field name="model">od19.expense.claim</field>
+        <field name="arch" type="xml">
+            <form string="Expense Claim">
+                <header>
+                    <button name="action_submit" type="object" string="Submit"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <!-- รอยต่อ: พนักงานยืนยันส่งใบเบิกให้ฝ่ายบัญชี (approved -> sent) -->
+                    <button name="action_send_to_accounting" type="object"
+                            string="ยืนยันส่งบัญชี"
+                            class="btn-primary"
+                            invisible="state != 'approved'"/>
+                    <!-- บันทึกบัญชีเป็นหน้าที่ของฝ่ายบัญชีเท่านั้น (เห็นเฉพาะกลุ่มบัญชี) -->
+                    <button name="action_post" type="object" string="Post Journal Entries"
+                            class="btn-primary"
+                            groups="account.group_account_manager"
+                            invisible="state != 'sent'"/>
+                    <button name="action_refuse" type="object" string="Refuse"
+                            invisible="state not in ('submitted', 'approved')"/>
+                    <button name="action_reset" type="object" string="Reset to Draft"
+                            invisible="state != 'refused'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,submitted,approved,sent,posted,paid,refused"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="employee_id"
+                                   readonly="state != 'draft'"/>
+                            <field name="department_id" readonly="1"/>
+                            <field name="date" readonly="state != 'draft'"/>
+                            <field name="payment_mode" widget="radio" readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="total_amount"/>
+                            <field name="currency_id" groups="base.group_multi_currency"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="submit_date" readonly="1"/>
+                            <field name="approval_date" readonly="1"/>
+                            <field name="transfer_date" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Expense Lines" name="lines">
+                            <field name="line_ids"
+                                   context="{'default_employee_id': employee_id,
+                                             'default_payment_mode': payment_mode,
+                                             'default_company_id': company_id}">
+                                <list editable="bottom">
+                                    <field name="name"/>
+                                    <field name="product_id"/>
+                                    <field name="quantity"/>
+                                    <field name="price_unit"/>
+                                    <field name="analytic_distribution"
+                                           widget="analytic_distribution"
+                                           string="Analytic Account"
+                                           required="1"
+                                           options="{'product_field': 'product_id', 'business_domain': 'expense'}"/>
+                                    <field name="total_amount" sum="Total"/>
+                                    <field name="payment_mode" column_invisible="1"/>
+                                    <field name="employee_id" column_invisible="1"/>
+                                    <field name="company_id" column_invisible="1"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="note" placeholder="Internal notes..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_od19_expense_claim_kanban" model="ir.ui.view">
+        <field name="name">od19.expense.claim.kanban</field>
+        <field name="model">od19.expense.claim</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="total_amount"/>
+                <field name="currency_id"/>
+                <field name="state"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="d-flex justify-content-between">
+                            <field name="name" class="fw-bold"/>
+                            <field name="state" widget="badge"/>
+                        </div>
+                        <div><field name="employee_id"/></div>
+                        <div class="text-end">
+                            <field name="total_amount" widget="monetary"/>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_od19_expense_claim_search" model="ir.ui.view">
+        <field name="name">od19.expense.claim.search</field>
+        <field name="model">od19.expense.claim</field>
+        <field name="arch" type="xml">
+            <search string="Search Expense Claims">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Submitted" name="submitted" domain="[('state', '=', 'submitted')]"/>
+                <filter string="Approved" name="approved" domain="[('state', '=', 'approved')]"/>
+                <filter string="Sent to Accounting" name="sent" domain="[('state', '=', 'sent')]"/>
+                <filter string="Posted" name="posted" domain="[('state', '=', 'posted')]"/>
+                <filter string="Refused" name="refused" domain="[('state', '=', 'refused')]"/>
+                <separator/>
+                <filter string="My Claims" name="my_claims"
+                        domain="[('employee_id.user_id', '=', uid)]"/>
+                <group>
+                    <filter string="Employee" name="group_employee" context="{'group_by': 'employee_id'}"/>
+                    <filter string="Department" name="group_department" context="{'group_by': 'department_id'}"/>
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_od19_expense_claim_my" model="ir.actions.act_window">
+        <field name="name">ใบเบิกของฉัน</field>
+        <field name="res_model">od19.expense.claim</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('employee_id.user_id', '=', uid)]</field>
+        <field name="context">{'search_default_my_claims': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create your first expense claim</p>
+            <p>รวมค่าใช้จ่ายหลายรายการไว้ในใบเบิกเดียว แล้วอนุมัติครั้งเดียว</p>
+        </field>
+    </record>
+
+    <record id="action_od19_expense_claim_all" model="ir.actions.act_window">
+        <field name="name">ใบเบิกทั้งหมด</field>
+        <field name="res_model">od19.expense.claim</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No expense claims yet</p>
+        </field>
+    </record>
+
+    <menuitem
+        id="menu_od19_expense_claim_my"
+        name="ใบเบิกของฉัน"
+        parent="hr_expense.menu_hr_expense_root"
+        action="action_od19_expense_claim_my"
+        sequence="2"
+    />
+    <menuitem
+        id="menu_od19_expense_claim_all"
+        name="ใบเบิกทั้งหมด"
+        parent="hr_expense.menu_hr_expense_root"
+        action="action_od19_expense_claim_all"
+        sequence="3"
+        groups="hr_expense.group_hr_expense_manager,account.group_account_manager"
+    />
+
+    <!--
+        App switcher / landing page fix.
+        The "Expenses" app root (``hr_expense.menu_hr_expense_root``) has no
+        action of its own, so ``load_web_menus`` falls back to the action of
+        its *first* child (by sequence). That first child is the quick-create
+        wizard popup shipped by ``od19_hr_expense_portal`` (sequence 1), which
+        is why clicking the app opened a floating wizard instead of the claim
+        list. Bind the app root straight to the "ใบเบิกของฉัน" list so the app
+        always opens the correct page.
+    -->
+    <record id="hr_expense.menu_hr_expense_root" model="ir.ui.menu">
+        <field name="action" ref="action_od19_expense_claim_my"/>
+    </record>
+
+    <!--
+        Dedup: the expense claim (od19.expense.claim) is now the single entry
+        point for filing an expense. Hide the legacy per-expense menu of the
+        core app so the employee no longer sees two competing "my expenses"
+        entry points.
+    -->
+    <record id="hr_expense.menu_hr_expense_my_expenses" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+
+</odoo>

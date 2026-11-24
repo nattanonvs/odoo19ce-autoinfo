@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!--
+    K8: Approval Center อ่านงานอนุมัติของค่าใช้จ่ายจาก "หัวใบ" (od19.expense.claim)
+    ไม่ใช่ hr.expense รายบรรทัด ใช้กลไก OCA tier_validation (ไม่มี step เพราะอ่าน
+    สถานะจาก tier.review)
+
+    seed ด้วย XML (noupdate) แทน post_init_hook ของ od19_approval_center เพราะ
+    - approval_center โหลดก่อนโมดูลนี้ (โมเดลยังไม่มีตอน hook รัน)
+    - hook รันเฉพาะตอนติดตั้ง ไม่รันตอน -u (upgrade)
+    รูปแบบเดียวกับ od19_iso_dar/data/approval_source_data.xml
+    -->
+    <record id="approval_source_expense_claim" model="od19.approval.source">
+        <field name="name">ใบเบิกค่าใช้จ่าย (Expense Claim)</field>
+        <field name="model_id" ref="model_od19_expense_claim"/>
+        <field name="icon">fa-money</field>
+        <field name="action_xmlid">od19_hr_expense_claim.action_od19_expense_claim_all</field>
+        <field name="sequence">10</field>
+        <field name="requester_field">employee_id</field>
+        <field name="requester_kind">employee</field>
+        <field name="submitted_date_field">submit_date</field>
+        <field name="rejected_states">refused</field>
+        <field name="success_states">approved,posted,paid</field>
+        <field name="strategy">tier_validation</field>
+        <field name="sla_days">3</field>
+    </record>
+</odoo>

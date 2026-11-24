@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_od19_expense_claim_employee,od19.expense.claim.employee,model_od19_expense_claim,base.group_user,1,1,1,0
+access_od19_expense_claim_user,od19.expense.claim.user,model_od19_expense_claim,hr_expense.group_hr_expense_user,1,1,1,0
+access_od19_expense_claim_manager,od19.expense.claim.manager,model_od19_expense_claim,hr_expense.group_hr_expense_manager,1,1,1,1
+access_od19_expense_claim_account,od19.expense.claim.account,model_od19_expense_claim,account.group_account_manager,1,1,1,0
+access_od19_expense_claim_ceo,od19.expense.claim.ceo,model_od19_expense_claim,od19_hr_expense_thai.group_od19_expense_ceo_approver,1,1,0,0

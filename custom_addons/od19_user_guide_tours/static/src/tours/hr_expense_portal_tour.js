@@ -53,6 +53,14 @@ registry.category("web_tour.tours").add("od19_hr_expense_portal_tour", {
             run: "edit ค่าเดินทางเข้าพบลูกค้า - เดโม OD19",
         },
         {
+            trigger: ".o_field_widget[name='analytic_account_id']",
+            content: markup(_t(
+                "เลือก <b>Analytic Account</b> (บังคับ) เพื่อกำหนดว่าค่าใช้จ่ายนี้ " +
+                "ปันส่วนต้นทุนไปที่โครงการ/แผนกใด"
+            )),
+            tooltipPosition: "bottom",
+        },
+        {
             trigger: ".o_field_widget[name='total_amount']",
             content: markup(_t(
                 "<b>ยอดรวม</b> คำนวณให้เองจากจำนวนเงิน หรือ ระยะทาง × อัตรา ในกรณี Mileage"

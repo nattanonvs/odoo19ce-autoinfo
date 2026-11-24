@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- พนักงานเห็นเฉพาะใบเบิกของตัวเอง (employee_id.user_id หรือ create_uid) -->
+    <record id="ir_rule_od19_expense_claim_own" model="ir.rule">
+        <field name="name">Expense Claim: own records</field>
+        <field name="model_id" ref="model_od19_expense_claim"/>
+        <field name="domain_force">['|',
+            ('employee_id.user_id', '=', user.id),
+            ('create_uid', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <!-- ผู้อนุมัติ (หัวหน้าแผนก/บัญชี/CEO) เห็นทั้งหมด -->
+    <record id="ir_rule_od19_expense_claim_all" model="ir.rule">
+        <field name="name">Expense Claim: approvers see all</field>
+        <field name="model_id" ref="model_od19_expense_claim"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[
+            (4, ref('hr_expense.group_hr_expense_manager')),
+            (4, ref('account.group_account_manager')),
+            (4, ref('od19_hr_expense_thai.group_od19_expense_ceo_approver'))]"/>
+    </record>
+
+    <!-- multi-company (global) -->
+    <record id="ir_rule_od19_expense_claim_company" model="ir.rule">
+        <field name="name">Expense Claim: multi-company</field>
+        <field name="model_id" ref="model_od19_expense_claim"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+</odoo>

@@ -39,11 +39,14 @@
         </field>
     </record>
 
-    <menuitem id="menu_od19_my_expenses"
-              name="ใบเบิกของฉัน"
-              parent="hr_expense.menu_hr_expense_root"
-              action="action_od19_my_expenses"
-              sequence="2"
-              groups="base.group_user"/>
+    <!--
+        Dedup: the personal kanban of raw ``hr.expense`` lines duplicated the
+        "ใบเบิกของฉัน" menu of od19_hr_expense_claim. The claim is now the
+        single entry point, so this legacy menu is deactivated (the view and
+        action stay declared for reference).
+    -->
+    <record id="menu_od19_my_expenses" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
 
 </odoo>

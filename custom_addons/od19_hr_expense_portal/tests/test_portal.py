@@ -29,6 +29,10 @@ class TestExpensePortalBase:
             "standard_price": 0.0,
             "can_be_expensed": True,
         })
+        cls.analytic = cls.env["account.analytic.account"].create({
+            "name": "Portal analytic",
+            "plan_id": cls.env.ref("analytic.analytic_plan_projects").id,
+        })
 
     @classmethod
     def _make_portal_employee(cls, login):
@@ -52,6 +56,25 @@ class TestExpensePortalBase:
             "name": name,
             "total_amount": amount,
         })
+
+    @classmethod
+    def _make_claim(cls, employee, name, amount):
+        """Create an expense claim header plus one line (analytic filled in)."""
+        claim = cls.env["od19.expense.claim"].create({
+            "employee_id": employee.id,
+            "company_id": cls.company.id,
+        })
+        cls.env["hr.expense"].create({
+            "od19_claim_id": claim.id,
+            "employee_id": employee.id,
+            "product_id": cls.category.id,
+            "name": name,
+            "total_amount": amount,
+            "payment_mode": "own_account",
+            "company_id": cls.company.id,
+            "analytic_distribution": {str(cls.analytic.id): 100.0},
+        })
+        return claim
 
 
 @tagged("post_install", "-at_install")
@@ -85,7 +108,7 @@ class TestExpensePortalHttp(TestExpensePortalBase, HttpCase):
         cls._setup_portal_fixtures()
         cls.user_a, cls.employee_a = cls._make_portal_employee("od19_portal_flow")
         cls.user_b, cls.employee_b = cls._make_portal_employee("od19_portal_other")
-        cls.expense_other = cls._make_expense(
+        cls.expense_other = cls._make_claim(
             cls.employee_b, "Other expense", 55.0)
 
     def _csrf_token(self):
@@ -107,15 +130,19 @@ class TestExpensePortalHttp(TestExpensePortalBase, HttpCase):
             "expense_category_id": self.category.id,
             "expense_date": fields.Date.today().isoformat(),
             "description": "Portal expense",
+            "analytic_account_id": self.analytic.id,
             "amount": "123.0",
         })
         self.assertEqual(response.status_code, 200)
 
-        expense = self.env["hr.expense"].search(
-            [("name", "=", "Portal expense")], limit=1)
-        self.assertTrue(expense)
-        self.assertEqual(expense.employee_id, self.employee_a)
-        self.assertEqual(expense.total_amount, 123.0)
+        claim = self.env["od19.expense.claim"].search(
+            [("line_ids.name", "=", "Portal expense")], limit=1)
+        self.assertTrue(claim)
+        self.assertEqual(claim.employee_id, self.employee_a)
+        self.assertEqual(claim.total_amount, 123.0)
+        self.assertEqual(
+            claim.line_ids.analytic_distribution,
+            {str(self.analytic.id): 100.0})
 
     def test_t8_cannot_open_other_expense(self):
         self.authenticate("od19_portal_flow", "od19_portal_flow")
@@ -133,7 +160,7 @@ class TestExpensePortalHttp(TestExpensePortalBase, HttpCase):
 
     def test_p4a_draft_cleared_on_detail(self):
         self.authenticate("od19_portal_flow", "od19_portal_flow")
-        expense = self._make_expense(self.employee_a, "Own draft", 12.0)
+        expense = self._make_claim(self.employee_a, "Own draft", 12.0)
         response = self.url_open("/my/expenses/%s" % expense.id)
         self.assertEqual(response.status_code, 200)
         self.assertIn(

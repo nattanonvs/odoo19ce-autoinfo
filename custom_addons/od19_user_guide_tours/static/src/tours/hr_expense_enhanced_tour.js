@@ -1,6 +1,6 @@
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { stepUtils } from "@od19_user_guide_tours/tours/tour_utils";
+import { stepUtils, navSection, navItem, waitForAction } from "@od19_user_guide_tours/tours/tour_utils";
 import { markup } from "@odoo/owl";
 
 /**
@@ -22,15 +22,26 @@ registry.category("web_tour.tours").add("od19_hr_expense_enhanced_tour", {
         ),
 
         // --- Create an expense ---
+        // The per-expense "My Expenses" menu of the core app is hidden (the
+        // expense claim is the only entry point). The hr.expense record itself
+        // — which hosts the cash-advance lifecycle and the XLSX export — is
+        // reachable from Reporting > Expenses Analysis.
         {
-            trigger: ".o_menu_sections .dropdown-toggle:text('My Expenses')",
-            content: markup(_t("Open the <b>My Expenses</b> menu.")),
+            trigger: navSection("Reporting"),
+            content: markup(_t("Open the <b>Reporting</b> menu.")),
             tooltipPosition: "bottom",
             run: "click",
         },
         {
-            trigger: ".dropdown-menu .dropdown-item:text('My Expenses')",
-            content: markup(_t("Open <b>My Expenses</b>.")),
+            trigger: navItem("Expenses Analysis"),
+            content: markup(_t("Open <b>Expenses Analysis</b> to work with expense records.")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        waitForAction("Expenses Analysis"),
+        {
+            trigger: ".o_switch_view.o_list",
+            content: _t("Switch to the list view."),
             tooltipPosition: "bottom",
             run: "click",
         },

@@ -12,6 +12,7 @@
                         <field name="employee_id"/>
                         <field name="expense_date"/>
                         <field name="description"/>
+                        <field name="analytic_account_id"/>
                     </group>
                     <group name="step2" string="2. จำนวนเงิน">
                         <field name="currency_id" invisible="1"/>

@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 """Tests for the quick expense submission wizard."""
 
+import base64
+
+from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase, tagged
 
 
@@ -20,6 +23,10 @@ class TestQuickCreate(TransactionCase):
             "name": "Wizard Employee",
             "user_id": cls.user.id,
         })
+        cls.analytic_account = cls.env["account.analytic.account"].create({
+            "name": "Wizard Analytic",
+            "plan_id": cls.env.ref("analytic.analytic_plan_projects").id,
+        })
         cls.category = cls.env["product.product"].create({
             "name": "Wizard plain category",
             "type": "service",
@@ -37,6 +44,7 @@ class TestQuickCreate(TransactionCase):
     def _wizard(self, **vals):
         base = {
             "employee_id": self.employee.id,
+            "analytic_account_id": self.analytic_account.id,
             "submit_now": False,
         }
         base.update(vals)
@@ -47,11 +55,18 @@ class TestQuickCreate(TransactionCase):
         wiz = self._wizard(expense_category_id=self.category.id, amount=250.0)
         self.assertFalse(wiz.od19_is_mileage)
         action = wiz.action_create_expense()
-        expense = self.env["hr.expense"].browse(action["res_id"])
-        self.assertEqual(expense.total_amount, 250.0)
-        self.assertEqual(expense.employee_id, self.employee)
-        self.assertEqual(expense.product_id, self.category)
-        self.assertEqual(expense.state, "draft")
+        self.assertEqual(action["res_model"], "od19.expense.claim")
+        claim = self.env["od19.expense.claim"].browse(action["res_id"])
+        line = claim.line_ids
+        self.assertEqual(len(line), 1)
+        self.assertEqual(line.total_amount, 250.0)
+        self.assertEqual(line.employee_id, self.employee)
+        self.assertEqual(line.product_id, self.category)
+        self.assertEqual(line.state, "draft")
+        self.assertEqual(
+            line.analytic_distribution,
+            {str(self.analytic_account.id): 100.0},
+        )
 
     def test_mileage_expense_created(self):
         wiz = self._wizard(
@@ -59,15 +74,38 @@ class TestQuickCreate(TransactionCase):
         self.assertTrue(wiz.od19_is_mileage)
         self.assertEqual(wiz.total_amount, 100.0)
         action = wiz.action_create_expense()
-        expense = self.env["hr.expense"].browse(action["res_id"])
-        self.assertTrue(expense.od19_is_mileage)
-        self.assertEqual(expense.quantity, 20.0)
-        self.assertEqual(expense.total_amount, 100.0)
-        self.assertEqual(expense.price_unit, 5.0)
+        self.assertEqual(action["res_model"], "od19.expense.claim")
+        line = self.env["od19.expense.claim"].browse(action["res_id"]).line_ids
+        self.assertTrue(line.od19_is_mileage)
+        self.assertEqual(line.quantity, 20.0)
+        self.assertEqual(line.total_amount, 100.0)
+        self.assertEqual(line.price_unit, 5.0)
 
     def test_submit_now_submits(self):
         wiz = self._wizard(
-            expense_category_id=self.category.id, amount=100.0, submit_now=True)
+            expense_category_id=self.category.id, amount=100.0, submit_now=True,
+            attachment=base64.b64encode(b"receipt"),
+            attachment_filename="receipt.png")
         action = wiz.action_create_expense()
-        expense = self.env["hr.expense"].browse(action["res_id"])
-        self.assertNotEqual(expense.state, "draft")
+        claim = self.env["od19.expense.claim"].browse(action["res_id"])
+        self.assertNotEqual(claim.state, "draft")
+        self.assertEqual(
+            self.env["ir.attachment"].search_count([
+                ("res_model", "=", "od19.expense.claim"),
+                ("res_id", "=", claim.id),
+            ]),
+            1,
+        )
+
+    def test_submit_now_requires_attachment(self):
+        wiz = self._wizard(
+            expense_category_id=self.category.id, amount=100.0, submit_now=True)
+        with self.assertRaises(UserError):
+            wiz.action_create_expense()
+
+    def test_analytic_account_is_required(self):
+        """Without an analytic account the wizard refuses to create the claim."""
+        with self.assertRaises(Exception):
+            self._wizard(
+                expense_category_id=self.category.id, amount=10.0,
+                analytic_account_id=False)

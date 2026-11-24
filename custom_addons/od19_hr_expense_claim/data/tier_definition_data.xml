@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
     <!--
-    HR Expense Tier Validation — สายอนุมัติ 3 ชั้น (อนุมัติตามลำดับ)
-      ชั้นที่ 1  หัวหน้าแผนก        (hr_expense.group_hr_expense_manager)   sequence 30
-      ชั้นที่ 2  ฝ่ายบัญชี          (account.group_account_manager)         sequence 20
-      ชั้นที่ 3  CEO               (od19_hr_expense_thai.group_od19_expense_ceo_approver) sequence 10
+    Expense Claim Tier Validation — สายอนุมัติ 3 ชั้น (อนุมัติตามลำดับ) ที่ "หัวใบ"
+      ชั้นที่ 1  หัวหน้าแผนก   (hr_expense.group_hr_expense_manager)                      sequence 30
+      ชั้นที่ 2  ฝ่ายบัญชี     (account.group_account_manager)                             sequence 20
+      ชั้นที่ 3  CEO          (od19_hr_expense_thai.group_od19_expense_ceo_approver)      sequence 10
 
     กลไก OCA ``request_validation`` เรียง ``tier.definition`` ด้วย ``sequence desc``
     แล้วแปลงเป็น ``tier.review.sequence`` 1, 2, 3, ...
     => definition ที่ ``sequence`` สูงกว่า จะถูกอนุมัติก่อน (ชั้น 1 = sequence 30)
 
-    ``has_forward`` มาจากโมดูล base_tier_validation_forward (เปิดให้ผู้ตรวจ
-    มอบหมายต่อให้ผู้ใช้อื่นในกลุ่มได้)
+    ``has_forward`` มาจากโมดูล base_tier_validation_forward
     -->
-    <record id="tier_definition_hr_expense_manager" model="tier.definition">
-        <field name="name">Expense - Department Manager (ชั้นที่ 1 หัวหน้าแผนก)</field>
-        <field name="model_id" ref="hr_expense.model_hr_expense"/>
+    <record id="tier_definition_claim_manager" model="tier.definition">
+        <field name="name">Expense Claim - Department Manager (ชั้นที่ 1 หัวหน้าแผนก)</field>
+        <field name="model_id" ref="model_od19_expense_claim"/>
         <field name="review_type">group</field>
         <field name="reviewer_group_id" ref="hr_expense.group_hr_expense_manager"/>
         <field name="definition_type">domain</field>
@@ -28,9 +27,9 @@
         <field name="notify_on_pending" eval="True"/>
     </record>
 
-    <record id="tier_definition_hr_expense_accounting" model="tier.definition">
-        <field name="name">Expense - Accounting (ชั้นที่ 2 บัญชี)</field>
-        <field name="model_id" ref="hr_expense.model_hr_expense"/>
+    <record id="tier_definition_claim_accounting" model="tier.definition">
+        <field name="name">Expense Claim - Accounting (ชั้นที่ 2 บัญชี)</field>
+        <field name="model_id" ref="model_od19_expense_claim"/>
         <field name="review_type">group</field>
         <field name="reviewer_group_id" ref="account.group_account_manager"/>
         <field name="definition_type">domain</field>
@@ -43,9 +42,9 @@
         <field name="notify_on_pending" eval="True"/>
     </record>
 
-    <record id="tier_definition_hr_expense_ceo" model="tier.definition">
-        <field name="name">Expense - CEO (ชั้นที่ 3 CEO)</field>
-        <field name="model_id" ref="hr_expense.model_hr_expense"/>
+    <record id="tier_definition_claim_ceo" model="tier.definition">
+        <field name="name">Expense Claim - CEO (ชั้นที่ 3 CEO)</field>
+        <field name="model_id" ref="model_od19_expense_claim"/>
         <field name="review_type">group</field>
         <field name="reviewer_group_id" ref="od19_hr_expense_thai.group_od19_expense_ceo_approver"/>
         <field name="definition_type">domain</field>
