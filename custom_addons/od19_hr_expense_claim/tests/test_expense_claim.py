@@ -273,13 +273,14 @@ class TestExpenseClaim(AccountTestInvoicingCommon):
         self.assertTrue(all(l.state in ("posted", "paid") for l in claim.line_ids))
 
     # ---------------------------------------------------------------
-    # รอยต่อ: พนักงานยืนยันส่งบัญชี + บังคับแนบหลักฐาน
+    # รอยต่อ: พนักงานยืนยันส่งบัญชี + ส่งได้โดยไม่ต้องแนบหลักฐาน
     # ---------------------------------------------------------------
-    def test_submit_requires_attachment(self):
+    def test_submit_without_attachment(self):
+        """ส่งขออนุมัติได้แม้ไม่มีไฟล์แนบ (บังคับแนบถูกยกเลิกแล้ว)."""
         claim = self._make_claim(with_attachment=False)
-        with self.assertRaises(UserError):
-            claim.action_submit()
-        self.assertEqual(claim.state, "draft")
+        claim.action_submit()
+        self.assertEqual(claim.state, "submitted")
+        self.assertEqual(len(claim.review_ids), 3)
 
     def test_send_to_accounting_requires_approved(self):
         claim = self._make_claim()
@@ -287,6 +288,20 @@ class TestExpenseClaim(AccountTestInvoicingCommon):
         self.assertEqual(claim.state, "submitted")
         with self.assertRaises(UserError):
             claim.action_send_to_accounting()
+
+    # ---------------------------------------------------------------
+    # เอกสารเบิก: พิมพ์ได้ โดยแสดงผู้อนุมัติครบทั้ง 3 ชั้น
+    # ---------------------------------------------------------------
+    def test_print_expense_claim_document(self):
+        claim = self._make_claim([{"name": "A", "total_amount": 100.0}])
+        self._approve_claim(claim)
+        html, _ = self.env["ir.actions.report"]._render_qweb_html(
+            "od19_hr_expense_claim.od19_expense_claim_document", claim.ids)
+        text = html.decode("utf-8") if isinstance(html, bytes) else html
+        self.assertIn(claim.name, text)
+        self.assertIn("Approval Trail", text)
+        for review in claim.review_ids:
+            self.assertIn(review.done_by.name, text)
 
     # ---------------------------------------------------------------
     # K6: ใบเดียวห้ามผสม payment_mode
