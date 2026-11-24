@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ตัวอย่างโครงร่างงบการเงิน (Header-Level) — OD19</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --maroon:#9E2424;
+    --maroon-soft:#c76b6b;
+    --ink:#1f2430;
+    --muted:#8b93a3;
+    --line:#e7eaef;
+    --bg:#f6f7f9;
+    --card:#ffffff;
+    --g1:#eef3fb;  /* สรุปสุด */
+    --g2:#f6eefb;  /* กลุ่มหลัก */
+    --g3:#fdf3e9;  /* หัวข้อ 4 หลัก */
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; padding:32px 20px 64px;
+    font-family:"Sarabun","Noto Sans Thai",system-ui,sans-serif;
+    background:var(--bg); color:var(--ink); font-size:15px; line-height:1.5;
+  }
+  .wrap{max-width:1080px;margin:0 auto}
+  .banner{
+    background:#2b1c1c;color:#fff;border-radius:10px;padding:10px 16px;
+    font-size:13px;display:flex;gap:10px;align-items:center;margin-bottom:20px;
+  }
+  .banner b{color:#ffcfcf;font-weight:600}
+  h1{font-size:22px;font-weight:700;margin:0 0 4px}
+  h1 .sub{display:block;font-size:13px;font-weight:400;color:var(--muted);margin-top:4px}
+  .toolbar{
+    display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:18px 0 22px;
+  }
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+  .seg button{
+    border:0;background:#fff;padding:9px 18px;font:inherit;font-size:14px;font-weight:600;
+    color:var(--muted);cursor:pointer;border-right:1px solid var(--line);
+  }
+  .seg button:last-child{border-right:0}
+  .seg button.on{color:#fff}
+  .seg button[data-g="1"].on{background:#3f6fb5}
+  .seg button[data-g="2"].on{background:#7a52a8}
+  .seg button[data-g="3"].on{background:#c2762a}
+  .hint{font-size:13px;color:var(--muted)}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  @media(max-width:860px){.grid{grid-template-columns:1fr}}
+
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;
+    box-shadow:0 1px 2px rgba(16,24,40,.04),0 8px 24px rgba(16,24,40,.05);
+  }
+  .card > header{
+    padding:14px 18px;border-bottom:1px solid var(--line);display:flex;
+    justify-content:space-between;align-items:baseline;gap:12px;
+    background:linear-gradient(180deg,#fff, #fbfcfd);
+  }
+  .card h2{margin:0;font-size:16px;font-weight:700;color:var(--maroon)}
+  .card .tag{font-size:11px;font-weight:600;color:var(--muted);border:1px solid var(--line);border-radius:20px;padding:2px 10px;white-space:nowrap}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:9px 18px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  thead th{
+    font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);
+    font-weight:600;background:#fafbfc;
+  }
+  td.amt,th.amt{text-align:right;font-variant-numeric:tabular-nums;color:#b9c0cc;white-space:nowrap;width:120px}
+  tr.l1 td{font-weight:700;color:var(--ink);background:var(--g1)}
+  tr.l2 td{font-weight:600}
+  tr.l2 td.code{color:#7a52a8}
+  tr.l3 td{color:#3a4250}
+  tr.l3 td.code{color:#c2762a;font-weight:600}
+  td.code{font-variant-numeric:tabular-nums;width:58px;font-weight:600;color:var(--muted)}
+  tr.sub td{font-weight:700;border-top:1px solid #d8dde6;border-bottom:1px solid #d8dde6}
+  tr.total td{font-weight:700;background:#fbeeee;color:var(--maroon);border-top:2px solid var(--maroon-soft)}
+  td.indent{padding-left:40px}
+  .dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:7px;vertical-align:middle}
+  .dot.g1{background:#3f6fb5}.dot.g2{background:#7a52a8}.dot.g3{background:#c2762a}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin-top:26px}
+  .legend span{display:inline-flex;align-items:center}
+  .note{font-size:12.5px;color:var(--muted);margin-top:10px}
+  [data-view]{display:none}
+  [data-view].show{display:block}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="banner">
+    <b>ตัวอย่างโครงร่าง (MOCKUP)</b>
+    <span>ยังไม่ได้ผูกตัวเลขจริง — แสดงเฉพาะโครงสร้างหัวข้อบัญชี เพื่อเลือกระดับความละเอียด · ข้อมูลจากผังบัญชีจริง 384 บัญชี</span>
+  </div>
+
+  <h1>โครงร่างรายงานงบการเงินระดับหัวข้อ (Header-Level)
+    <span class="sub">Balance Sheet ← หมวด 1 / 2 / 3 · Profit &amp; Loss ← หมวด 4 / 5 · ทุกแบบคือการ “รวมยอดลูกเข้าแม่ (roll-up)” ไม่ใช่การกรองรหัสลงท้าย .00</span>
+  </h1>
+
+  <div class="toolbar">
+    <div class="seg" id="seg">
+      <button data-g="1">แบบ ก. สรุปสุด (1 หลัก)</button>
+      <button data-g="2">แบบ ข. กลุ่มหลัก (2 หลัก)</button>
+      <button data-g="3">แบบ ค. หัวข้อ 4 หลัก</button>
+    </div>
+    <span class="hint" id="hint"></span>
+  </div>
+
+  <div class="grid">
+
+    <!-- ================= BALANCE SHEET ================= -->
+    <section class="card">
+      <header>
+        <h2>งบแสดงฐานะทางการเงิน (Balance Sheet)</h2>
+        <span class="tag">หมวด 1 / 2 / 3</span>
+      </header>
+
+      <!-- ก. สรุปสุด -->
+      <div data-view="1">
+        <table>
+          <thead><tr><th>รหัส</th><th>รายการ</th><th class="amt">งวดนี้</th><th class="amt">งวดก่อน</th></tr></thead>
+          <tbody>
+            <tr class="l1"><td class="code">1000</td><td>สินทรัพย์</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l1"><td class="code">2000</td><td>หนี้สิน</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l1"><td class="code">3000</td><td>ส่วนของผู้ถือหุ้น</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="total"><td class="code"></td><td>รวมหนี้สินและส่วนของผู้ถือหุ้น</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="sub"><td class="code"></td><td>ผลต่าง (สินทรัพย์ − หนี้สิน+ทุน)</td><td class="amt">—</td><td class="amt">—</td></tr>
+          </tbody>
+        </table>
+        <p class="note" style="padding:0 18px 14px">เหมาะกับ: งบหน้าเดียวสำหรับผู้บริหาร</p>
+      </div>
+
+      <!-- ข. กลุ่มหลัก -->
+      <div data-view="2">
+        <table>
+          <thead><tr><th>รหัส</th><th>รายการ</th><th class="amt">งวดนี้</th><th class="amt">งวดก่อน</th></tr></thead>
+          <tbody>
+            <tr class="l1"><td class="code">1000</td><td>สินทรัพย์</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l2"><td class="code">1100</td><td><span class="dot g2"></span>สินทรัพย์หมุนเวียน</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l2"><td class="code">1200</td><td><span class="dot g2"></span>สินทรัพย์ไม่หมุนเวียน</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l2"><td class="code">1300</td><td><span class="dot g2"></span>ที่ดิน อาคารและอุปกรณ์-สุทธิ</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l2"><td class="code">1400</td><td><span class="dot g2"></span>สินทรัพย์ไม่หมุนเวียนอื่น</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l1"><td class="code">2000</td><td>หนี้สิน</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l2"><td class="code">2100</td><td><span class="dot g2"></span>หนี้สินหมุนเวียน</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l2"><td class="code">2200</td><td><span class="dot g2"></span>หนี้สินหมุนเวียนอื่น</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l2"><td class="code">2300</td><td><span class="dot g2"></span>หนี้สินไม่หมุนเวียน</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l1"><td class="code">3000</td><td>ส่วนของผู้ถือหุ้น</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l2"><td class="code">3100</td><td><span class="dot g2"></span>ทุนเรือนหุ้น</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l2"><td class="code">3200</td><td><span class="dot g2"></span>สำรองตามกฎหมาย</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l2"><td class="code">3300</td><td><span class="dot g2"></span>กำไร (ขาดทุน) สะสม</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l2"><td class="code">3400</td><td><span class="dot g2"></span>กำไร (ขาดทุน) สุทธิ</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="total"><td class="code"></td><td>รวมหนี้สินและส่วนของผู้ถือหุ้น</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="sub"><td class="code"></td><td>ผลต่างตรวจสอบ</td><td class="amt">—</td><td class="amt">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ค. หัวข้อ 4 หลัก -->
+      <div data-view="3">
+        <table>
+          <thead><tr><th>รหัส</th><th>รายการ</th><th class="amt">งวดนี้</th><th class="amt">งวดก่อน</th></tr></thead>
+          <tbody>
+            <tr class="l1"><td class="code">1000</td><td>สินทรัพย์</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l3"><td class="code">1110</td><td class="indent"><span class="dot g3"></span>เงินสดและเงินฝากธนาคาร</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l3"><td class="code">1120</td><td class="indent"><span class="dot g3"></span>ลูกหนี้การค้าและลูกหนี้อื่น</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l3"><td class="code">1131</td><td class="indent"><span class="dot g3"></span>เงินทดรองจ่ายและเงินให้กู้ยืม</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l3"><td class="code">1140</td><td class="indent"><span class="dot g3"></span>สินค้าคงเหลือ</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l3"><td class="code">1150</td><td class="indent"><span class="dot g3"></span>สินทรัพย์หมุนเวียนอื่น</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l3"><td class="code">1210</td><td class="indent"><span class="dot g3"></span>เงินลงทุนระยะยาว</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l3"><td class="code">1310</td><td class="indent"><span class="dot g3"></span>ที่ดิน อาคารและอุปกรณ์</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l3"><td class="code">1320</td><td class="indent"><span class="dot g3"></span>ค่าเสื่อมราคาสะสม</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l3"><td class="code">1410</td><td class="indent"><span class="dot g3"></span>เงินมัดจำและเงินค้ำประกัน</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l1"><td class="code">2000</td><td>หนี้สิน</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l3"><td class="code">2110</td><td class="indent"><span class="dot g3"></span>เงินเบิกเกินบัญชีและเงินกู้จากธนาคาร</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l3"><td class="code">2120</td><td class="indent"><span class="dot g3"></span>ตั๋วเงินจ่ายและเช็คจ่ายล่วงหน้า</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l3"><td class="code">2130</td><td class="indent"><span class="dot g3"></span>เจ้าหนี้การค้าและเจ้าหนี้อื่น</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l3"><td class="code">2210</td><td class="indent"><span class="dot g3"></span>หนี้สินหมุนเวียนอื่น</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l3"><td class="code">2310</td><td class="indent"><span class="dot g3"></span>เงินกู้ยืมระยะยาวจากธนาคาร</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l1"><td class="code">3000</td><td>ส่วนของผู้ถือหุ้น</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l3"><td class="code">3100</td><td class="indent"><span class="dot g3"></span>ทุนเรือนหุ้น</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l3"><td class="code">3200</td><td class="indent"><span class="dot g3"></span>สำรองตามกฎหมาย</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l3"><td class="code">3300</td><td class="indent"><span class="dot g3"></span>กำไร (ขาดทุน) สะสม</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l3"><td class="code">3400</td><td class="indent"><span class="dot g3"></span>กำไร (ขาดทุน) สุทธิ</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="total"><td class="code"></td><td>รวมหนี้สินและส่วนของผู้ถือหุ้น</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="sub"><td class="code"></td><td>ผลต่างตรวจสอบ</td><td class="amt">—</td><td class="amt">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= PROFIT & LOSS ================= -->
+    <section class="card">
+      <header>
+        <h2>งบกำไรขาดทุน (Profit &amp; Loss)</h2>
+        <span class="tag">หมวด 4 / 5</span>
+      </header>
+
+      <!-- ก. สรุปสุด -->
+      <div data-view="1">
+        <table>
+          <thead><tr><th>รหัส</th><th>รายการ</th><th class="amt">งวดนี้</th><th class="amt">งวดก่อน</th></tr></thead>
+          <tbody>
+            <tr class="l1"><td class="code">4000</td><td>รายได้</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l1"><td class="code">5000</td><td>ต้นทุนและค่าใช้จ่าย</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="total"><td class="code"></td><td>กำไร (ขาดทุน) สุทธิ</td><td class="amt">—</td><td class="amt">—</td></tr>
+          </tbody>
+        </table>
+        <p class="note" style="padding:0 18px 14px">เหมาะกับ: ภาพรวมกำไรสุทธิ</p>
+      </div>
+
+      <!-- ข. กลุ่มหลัก -->
+      <div data-view="2">
+        <table>
+          <thead><tr><th>รหัส</th><th>รายการ</th><th class="amt">งวดนี้</th><th class="amt">งวดก่อน</th></tr></thead>
+          <tbody>
+            <tr class="l1"><td class="code">4000</td><td>รายได้</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l2"><td class="code">4100</td><td><span class="dot g2"></span>รายได้จากการขายและบริการ</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l2"><td class="code">4200</td><td><span class="dot g2"></span>กำไรจากอัตราแลกเปลี่ยน</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l2"><td class="code">4300</td><td><span class="dot g2"></span>รายได้อื่น</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="sentinel"><td class="code"></td><td></td><td></td><td></td></tr>
+            <tr class="sub"><td class="code"></td><td>กำไรขั้นต้น</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l1"><td class="code">5000</td><td>ต้นทุนและค่าใช้จ่าย</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l2"><td class="code">5100</td><td><span class="dot g2"></span>ต้นทุนขายและต้นทุนบริการ</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l2"><td class="code">5200</td><td><span class="dot g2"></span>ค่าใช้จ่ายในการขายและการบริหาร</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l2"><td class="code">5400</td><td><span class="dot g2"></span>ต้นทุนทางการเงิน / ภาษี</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="total"><td class="code"></td><td>กำไร (ขาดทุน) สุทธิ</td><td class="amt">—</td><td class="amt">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ค. หัวข้อ 4 หลัก -->
+      <div data-view="3">
+        <table>
+          <thead><tr><th>รหัส</th><th>รายการ</th><th class="amt">งวดนี้</th><th class="amt">งวดก่อน</th></tr></thead>
+          <tbody>
+            <tr class="l1"><td class="code">4000</td><td>รายได้</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l3"><td class="code">4110</td><td class="indent"><span class="dot g3"></span>รายได้จากการขาย</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l3"><td class="code">4120</td><td class="indent"><span class="dot g3"></span>รายได้จากการบริการ</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l3"><td class="code">4200</td><td class="indent"><span class="dot g3"></span>กำไรจากอัตราแลกเปลี่ยน</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l3"><td class="code">4300</td><td class="indent"><span class="dot g3"></span>รายได้อื่น</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="sub"><td class="code"></td><td>รวมรายได้</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l1"><td class="code">5000</td><td>ต้นทุนและค่าใช้จ่าย</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l3"><td class="code">5110</td><td class="indent"><span class="dot g3"></span>ต้นทุนขาย</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l3"><td class="code">5120</td><td class="indent"><span class="dot g3"></span>ต้นทุนบริการ</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l3"><td class="code">5123</td><td class="indent"><span class="dot g3"></span>ต้นทุนในการวางระบบ</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l3"><td class="code">5130</td><td class="indent"><span class="dot g3"></span>ขาดทุนจากอัตราแลกเปลี่ยน</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l3"><td class="code">5210</td><td class="indent"><span class="dot g3"></span>ค่าใช้จ่ายในการขาย</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l3"><td class="code">5300</td><td class="indent"><span class="dot g3"></span>ค่าใช้จ่ายในการบริหาร</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l3"><td class="code">5400</td><td class="indent"><span class="dot g3"></span>ต้นทุนทางการเงิน</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l3"><td class="code">5410</td><td class="indent"><span class="dot g3"></span>ค่าใช้จ่ายต้องห้ามตามประมวลฯ</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="l3"><td class="code">5420</td><td class="indent"><span class="dot g3"></span>ภาษีเงินได้นิติบุคคล</td><td class="amt">—</td><td class="amt">—</td></tr>
+            <tr class="total"><td class="code"></td><td>กำไร (ขาดทุน) สุทธิ</td><td class="amt">—</td><td class="amt">—</td></tr>
+          </tbody>
+        </table>
+        <p class="note" style="padding:0 18px 14px">หมายเหตุ: รหัส 5400/5410/5420 วางไว้ล่างสุดเพื่อแยก “กำไรก่อนภาษี” ออกจาก “กำไรหลังภาษี”</p>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="legend">
+    <span><i class="dot g1" style="margin-right:7px"></i>แบบ ก. ระดับหมวดใหญ่ (1 หลัก)</span>
+    <span><i class="dot g2" style="margin-right:7px"></i>แบบ ข. กลุ่มหลัก (2 หลัก)</span>
+    <span><i class="dot g3" style="margin-right:7px"></i>แบบ ค. หัวข้อบัญชี (4 หลัก)</span>
+    <span>ยอดทุกแถว = ผลรวมบัญชีลูกทั้งหมดที่ขึ้นต้นด้วยรหัสนั้น (roll-up)</span>
+  </div>
+
+</div>
+
+<script>
+  const seg = document.getElementById('seg');
+  const hint = document.getElementById('hint');
+  const hints = {
+    "1":"แสดงแค่หมวดใหญ่สุด — กระชับ เหมาะกับสรุปผู้บริหาร",
+    "2":"แสดงกลุ่มหลักตามรหัส 2 หลัก — สมดุลระหว่างความกระชับและรายละเอียด",
+    "3":"แสดงทุกหัวข้อบัญชี 4 หลัก — ละเอียดสุด แต่ยังไม่ถึงระดับบัญชีลูก"
+  };
+  function setView(g){
+    document.querySelectorAll('[data-view]').forEach(el=>{
+      el.classList.toggle('show', el.getAttribute('data-view')===g);
+    });
+    seg.querySelectorAll('button').forEach(b=>b.classList.toggle('on', b.getAttribute('data-g')===g));
+    hint.textContent = hints[g] || '';
+  }
+  seg.addEventListener('click', e=>{
+    const btn = e.target.closest('button[data-g]');
+    if(btn) setView(btn.getAttribute('data-g'));
+  });
+  setView('2');
+</script>
+</body>
+</html>

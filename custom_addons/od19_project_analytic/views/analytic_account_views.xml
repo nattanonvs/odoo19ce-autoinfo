@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_account_analytic_account_form_inherit_od19" model="ir.ui.view">
+        <field name="name">account.analytic.account.form.od19</field>
+        <field name="model">account.analytic.account</field>
+        <field name="inherit_id" ref="analytic.view_account_analytic_account_form"/>
+        <field name="arch" type="xml">
+            <!-- Project reference shown under the analytic name -->
+            <xpath expr="//div[@name='project']" position="replace">
+                <div name="project" class="od19-analytic-line mt-1" invisible="not project_count">
+                    <span class="od19-analytic-label">
+                        <i class="fa fa-industry me-1"/>โครงการ
+                    </span>
+                    <field name="od19_project_ref" readonly="1" nolabel="1" class="oe_inline"/>
+                </div>
+            </xpath>
+            <!-- Smart button: open the linked project(s) -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button class="oe_stat_button" type="object" name="action_view_projects"
+                        icon="fa-folder-open" invisible="not project_count">
+                    <div class="o_stat_info">
+                        <span class="o_stat_text">โครงการ</span>
+                        <span class="o_stat_value"><field name="project_count"/></span>
+                    </div>
+                </button>
+            </xpath>
+        </field>
+    </record>
+</odoo>

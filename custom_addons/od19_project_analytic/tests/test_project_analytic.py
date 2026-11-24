@@ -99,3 +99,30 @@ class TestProjectAnalytic(TransactionCase):
         self.assertEqual(project.project_owner_id, self.owner)
         self.assertIn(self.contractor, project.contractor_ids)
         self.assertTrue(project.account_id)
+
+    def test_analytic_code_equals_job_no(self):
+        # The auto-created analytic uses the job number as its code so it
+        # shows up as the "[code]" prefix of the analytic display name.
+        project = self.env["project.project"].create(
+            {"name": "Airport Expansion", "job_no": "JOB-2026-042"}
+        )
+        self.assertEqual(project.account_id.code, "JOB-2026-042")
+
+    def test_od19_project_ref_lists_project(self):
+        project = self.env["project.project"].create(
+            {"name": "Airport Expansion", "job_no": "JOB-2026-043"}
+        )
+        self.assertEqual(
+            project.account_id.od19_project_ref,
+            "JOB-2026-043 · Airport Expansion",
+        )
+
+    def test_action_create_analytic_links_missing_project(self):
+        project = self.env["project.project"].create(
+            {"name": "Airport Expansion", "job_no": "JOB-2026-044"}
+        )
+        project.account_id = False
+        self.assertFalse(project.account_id)
+        project.action_od19_create_analytic()
+        self.assertTrue(project.account_id)
+        self.assertEqual(project.account_id.code, "JOB-2026-044")

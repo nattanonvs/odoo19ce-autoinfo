@@ -1,0 +1,43 @@
+.o_form_view {
+    .od19-analytic-line {
+        display: flex;
+        align-items: center;
+        gap: .45rem;
+        font-size: .8125rem;
+        line-height: 1.5;
+
+        .od19-analytic-label {
+            color: #6e6e7a;
+            white-space: nowrap;
+        }
+
+        .o_field_widget {
+            color: #4a4460;
+        }
+    }
+
+    .od19-analytic-missing {
+        .od19-analytic-warn {
+            color: #b7791f;
+            white-space: nowrap;
+        }
+    }
+
+    .od19-chip-btn {
+        border: 1px dashed #e0b96a;
+        border-radius: .45rem;
+        background: transparent;
+        color: #b7791f;
+        font-size: .78rem;
+        font-weight: 600;
+        padding: .05rem .55rem;
+        line-height: 1.7;
+
+        &:hover,
+        &:focus {
+            background: #fff8e6;
+            border-color: #d8a53f;
+            color: #8f5f13;
+        }
+    }
+}

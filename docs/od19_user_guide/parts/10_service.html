@@ -13,7 +13,7 @@ sub=ประกัน/เคลม · บัตรบริการและ�
       ส่วนนี้รวบรวมงานบริการหลังการขายทั้งวงจร — ตั้งแต่ <strong>ใบรับประกันสินค้าและ Lot/Serial</strong>,
       <strong>การเคลม/RMA</strong>, <strong>บัตรบริการ (บำรุงรักษาเชิงป้องกัน)</strong>, <strong>สัญญาบริการเรียกเก็บรายงวด (PM/AMC)</strong>,
       ไปจนถึง <strong>การควบคุมคุณภาพ QC</strong> ขาเข้า-ขาออก, <strong>ศูนย์ Helpdesk</strong> ทั้งฝั่งลูกค้าและภายในองค์กร,
-      <strong>รายงาน KPI หลังการขาย</strong> และ <strong>ระบบแจ้งปัญหาภายในพร้อมการอนุมัติเป็นชั้น</strong>
+      <strong>รายงาน KPI หลังการขาย</strong> และ <strong>ระบบแจ้งปัญหาภายในพร้อมคิวที่เป็นธรรมและการแซงคิว</strong>
     </p>
   </div>
 
@@ -26,7 +26,7 @@ sub=ประกัน/เคลม · บัตรบริการและ�
       <li><a href="#svc-4">od19_quality_control — ตรวจสอบคุณภาพขาเข้า/ขาออก และ Nonconformity</a></li>
       <li><a href="#svc-5">od19_helpdesk_extension — Helpdesk ภายใน vs บริการลูกค้า</a></li>
       <li><a href="#svc-6">od19_after_sales_reporting — รายงาน KPI และแดชบอร์ดหลังการขาย</a></li>
-      <li><a href="#svc-7">od19_internal_issue — แจ้งปัญหาภายใน ความเป็นส่วนตัว และการอนุมัติ</a></li>
+      <li><a href="#svc-7">od19_internal_issue — แจ้งปัญหาภายใน ความเป็นธรรมของคิว และการแซงคิว</a></li>
     </ol>
   </nav>
 
@@ -311,15 +311,19 @@ sub=ประกัน/เคลม · บัตรบริการและ�
   <h4>1) วัตถุประสงค์</h4>
   <p>
     แยกศูนย์บริการออกเป็นสองโหมดอย่างชัดเจนบน OCA helpdesk_mgmt — <strong>Internal IT Helpdesk</strong> (คำร้องจากพนักงาน, ไม่มีรายได้)
-    และ <strong>Customer Sales Services</strong> (งานบริการลูกค้าที่มีรายได้ เช่น ซ่อม ติดตั้ง บำรุงรักษา รับประกัน) พร้อมแยกสิทธิ์การมองเห็นตามทีม
+    และ <strong>Customer Sales Services</strong> (งานบริการลูกค้าที่มีรายได้ เช่น ซ่อม ติดตั้ง บำรุงรักษา, รับประกัน) พร้อมแยกสิทธิ์การมองเห็นตามทีม
+    โดยคำร้องภายในถูกจัดเป็น <strong>คิวงานอย่างเป็นธรรม</strong> ผ่านโมดูล <span class="mtag">od19_internal_issue</span> (เกณฑ์ความเป็นธรรมของคิวดูหัวข้อ <a href="#svc-7">svc-7</a>)
   </p>
 
   <h4>2) เมนู</h4>
   <table>
     <thead><tr><th>เมนู</th><th>ใช้ทำอะไร</th><th>กลุ่มสิทธิ์</th></tr></thead>
     <tbody>
-      <tr><td><span class="path">Helpdesk › Internal Helpdesk › Internal Tickets</span></td><td>คำร้อง IT ของพนักงานทั้งหมด</td><td>Internal Helpdesk User</td></tr>
-      <tr><td><span class="path">Helpdesk › Internal Helpdesk › My Internal Tickets</span></td><td>เฉพาะคำร้อง IT ที่มอบหมายให้ฉัน</td><td>Internal Helpdesk User</td></tr>
+      <tr><td><span class="path">Helpdesk › เรื่องของฉัน</span></td><td>เรื่องภายในทั้งหมดที่ฉันเป็นผู้แจ้ง</td><td>ผู้ใช้ภายใน</td></tr>
+      <tr><td><span class="path">Helpdesk › IT Support</span></td><td>คิวงานไอที/ระบบขององค์กร</td><td>ผู้ใช้ภายใน</td></tr>
+      <tr><td><span class="path">Helpdesk › ปรับปรุง-ISO</span></td><td>คิวข้อเสนอแนะปรับปรุง และคุณภาพ/ISO (CAPA)</td><td>ผู้ใช้ภายใน</td></tr>
+      <tr><td><span class="path">Helpdesk › Triage</span></td><td>กล่องกลางสำหรับเรื่องที่ยังไม่ระบุประเภท</td><td>ผู้ใช้ภายใน</td></tr>
+      <tr><td><span class="path">Helpdesk › คำขอแซงคิว</span></td><td>ติดตาม/อนุมัติคำขอแซงคิวของคิวภายใน</td><td>ผู้ใช้ภายใน</td></tr>
       <tr><td><span class="path">การขาย › Sales Services › Service Tickets</span></td><td>งานบริการลูกค้าทั้งหมด (มีค่าบริการ)</td><td>Sales Services User</td></tr>
       <tr><td><span class="path">การขาย › Sales Services › My Service Tickets</span></td><td>เฉพาะงานบริการลูกค้าของฉัน</td><td>Sales Services User</td></tr>
     </tbody>
@@ -328,7 +332,7 @@ sub=ประกัน/เคลม · บัตรบริการและ�
   <h4>3) ขั้นตอนการใช้งาน</h4>
   <ol class="steps">
     <li><span class="stitle">สร้างทีมและเลือกชนิดทีม</span> ไปที่หน้าทีม Helpdesk เลือก <span class="pill">Team Type</span> เป็น <em>Internal IT Helpdesk</em> หรือ <em>Customer Sales Services</em> (ค่าเริ่มต้น = Internal)</li>
-    <li><span class="stitle">เปิดตั๋ว</span> สร้างตั๋วในทีมที่ต้องการ — ชนิดทีมจะถูกดึงมาแสดงที่ตั๋วโดยอัตโนมัติ</li>
+    <li><span class="stitle">เปิดตั๋ว</span> สำหรับงานภายใน เปิดคิวที่ต้องการ (เช่น <span class="path">IT Support</span> หรือ <span class="path">เรื่องของฉัน</span>) แล้วกด <span class="badge b-blue">สร้าง</span>; สำหรับงานลูกค้าเปิดตั๋วในทีม Sales Services — ชนิดทีมจะถูกดึงมาแสดงที่ตั๋วโดยอัตโนมัติ</li>
     <li><span class="stitle">(งานลูกค้า) กรอกข้อมูลบริการ</span> ในกลุ่ม <strong>Service Information</strong> ของตั๋วลูกค้า ระบุ <span class="pill">Service Type</span>, สินค้า, Lot/Serial, ช่างเทคนิค, ใบสั่งขาย และวันนัด</li>
     <li><span class="stitle">คิดค่าบริการ</span> กรอก <span class="pill">Service Cost</span> แล้วกด <span class="badge b-blue">Create Invoice</span> เพื่อสร้างใบแจ้งหนี้ให้ลูกค้า (ลิงก์กลับที่ช่อง <span class="pill">Invoice</span>)</li>
     <li><span class="stitle">ปิดงาน</span> บันทึก <span class="pill">Resolution</span> และเลื่อนขั้นไปจนถึงขั้น Invoiced (ขั้นปิด) ของทีม Sales Services</li>
@@ -338,7 +342,7 @@ sub=ประกัน/เคลม · บัตรบริการและ�
   <table>
     <thead><tr><th>ทีม</th><th>ขั้นงาน (Stages)</th></tr></thead>
     <tbody>
-      <tr><td>Internal IT Helpdesk</td><td>New → In Progress → Resolved → Closed</td></tr>
+      <tr><td>Internal IT Helpdesk (คิวภายใน)</td><td>ใหม่ → มอบหมายแล้ว → กำลังดำเนินการ → รอผู้แจ้ง → แก้ไขแล้ว → ปิด</td></tr>
       <tr><td>Sales Services</td><td>New → Confirmed → On Site → Done → Invoiced</td></tr>
     </tbody>
   </table>
@@ -347,6 +351,11 @@ sub=ประกัน/เคลม · บัตรบริการและ�
   <table>
     <thead><tr><th>ฟิลด์/ปุ่ม</th><th>ความหมาย</th></tr></thead>
     <tbody>
+      <tr><td><span class="pill">ประเภทเรื่อง</span></td><td>ไอที/ระบบ · ข้อเสนอแนะปรับปรุง · คุณภาพ/ISO (CAPA) · ไม่แน่ใจ (คิวภายใน)</td></tr>
+      <tr><td><span class="pill">ผู้แจ้ง (Reported By)</span></td><td>ผู้แจ้งเรื่อง (ค่าเริ่มต้น = ผู้ใช้ปัจจุบัน) — ใช้กำหนดคิว “เรื่องของฉัน” ของใคร</td></tr>
+      <tr><td><span class="pill">การมองเห็น (Visibility)</span></td><td>สาธารณะ / เฉพาะแผนก / ส่วนตัว (คุมขอบเขตการเห็นเรื่องภายใน)</td></tr>
+      <tr><td><span class="pill">ฉุกเฉิน (Emergency)</span></td><td>แจ้งเตือนทุกช่องทางทันที รวมหัวหน้าทีมเจ้าของเรื่องและหัวหน้าทีม Triage</td></tr>
+      <tr><td><span class="pill">ความสำคัญ / ตำแหน่งในคิว</span></td><td>ความสำคัญคำนวณจากผลกระทบ × ความเร่งด่วน พร้อมอันดับคิวภายในทีม (ดู <a href="#svc-7">svc-7</a>)</td></tr>
       <tr><td><span class="pill">Team Type</span></td><td>ชนิดทีมของตั๋ว (แสดงผลจากทีม) ใช้แยกขอบเขตข้อมูล</td></tr>
       <tr><td><span class="pill">Service Type</span></td><td>Repair / Installation / Maintenance / Warranty / Inspection / Other</td></tr>
       <tr><td><span class="pill">Technician</span></td><td>พนักงานช่างเทคนิค (อ้างอิงพนักงาน HR)</td></tr>
@@ -362,7 +371,8 @@ sub=ประกัน/เคลม · บัตรบริการและ�
   </ul>
 
   <div class="callout note">
-    <strong>หมายเหตุ:</strong> เพื่อไม่ให้เมนูซ้ำซ้อน งาน IT ภายในถูกจัดเป็น <em>ส่วนย่อย</em> ภายใต้แอป Helpdesk เดียวกัน
+    <strong>หมายเหตุ:</strong> เพื่อไม่ให้เมนูซ้ำซ้อน งานภายในถูกจัดเป็น <em>ส่วนย่อย</em> (คิวงาน) ภายใต้แอป Helpdesk เดียวกัน
+    และมีความเป็นธรรมของคิวจากโมดูล <span class="mtag">od19_internal_issue</span> (ดู <a href="#svc-7">svc-7</a>)
     ส่วนงานบริการลูกค้าอยู่ใต้แอป <strong>การขาย</strong> และตัวกรอง <span class="badge b-gray">Internal IT</span> / <span class="badge b-gray">Sales Services</span> ช่วยแบ่งมุมมองในหน้าเดียว
   </div>
 
@@ -437,69 +447,111 @@ sub=ประกัน/เคลม · บัตรบริการและ�
   </div>
 
   <!-- ============================================================= -->
-  <h3 class="mod" id="svc-7"><span class="mtag">od19_internal_issue</span> แจ้งปัญหาภายใน ความเป็นส่วนตัว และการอนุมัติ</h3>
+  <h3 class="mod" id="svc-7"><span class="mtag">od19_internal_issue</span> แจ้งปัญหาภายใน ความเป็นธรรมของคิว และการแซงคิว</h3>
 
   <h4>1) วัตถุประสงค์</h4>
   <p>
-    ต่อยอดจาก OCA helpdesk_mgmt ให้เป็นระบบ <strong>แจ้งปัญหาภายในองค์กร</strong> พร้อม <strong>การควบคุมความเป็นส่วนตัว</strong>
-    (สาธารณะ/แผนก/ส่วนตัว), <strong>ธงเหตุฉุกเฉิน</strong>, <strong>การอนุมัติเป็นชั้น (Tier Validation)</strong> ก่อนเริ่มดำเนินการ,
-    <strong>การแจ้งเตือนหลายช่องทาง</strong> เมื่อมอบหมาย/อัปเดต และบันทึก <strong>แนวทางแก้ไข</strong> ที่นำไปทำคลังความรู้ต่อได้
+    ต่อยอดจาก OCA helpdesk_mgmt ให้เป็นระบบ <strong>แจ้งปัญหาภายในองค์กร</strong> ที่มี <strong>คิวต่อทีมอย่างเป็นธรรม</strong> —
+    คิดความสำคัญจาก <strong>ผลกระทบ × ความเร่งด่วน (Impact × Urgency)</strong>, เรียงคิวแบบ <strong>FIFO</strong> ภายในความสำคัญเดียวกัน,
+    แยก <strong>ประเภทเรื่อง</strong> และส่งเข้าทีม <strong>อัตโนมัติ</strong> (พร้อมกล่องกลาง Triage), ควบคุม <strong>ความเป็นส่วนตัว</strong>
+    (สาธารณะ/แผนก/ส่วนตัว), มี <strong>ธงเหตุฉุกเฉิน</strong> และเปิด <strong>คำขอแซงคิว</strong> ที่ต้อง <strong>อนุมัติ 2 ชั้น</strong>
+    (หัวหน้าแผนกผู้แจ้ง → หัวหน้าทีมเจ้าของคิว) พร้อม <strong>การแจ้งเตือนหลายช่องทาง</strong> เมื่อมอบหมาย/อัปเดต
   </p>
 
   <h4>2) เมนู</h4>
-  <p>ไม่มีเมนูใหม่ — ระบบต่อยอดจากหน้าตั๋ว Helpdesk เดิม โดยเพิ่มฟิลด์และแท็บ <strong>Internal</strong> ในฟอร์มตั๋ว (รวมถึงหน้าหมวดหมู่ที่มีช่องผู้รับผิดชอบ/ทีมตั้งต้น)</p>
+  <table>
+    <thead><tr><th>เมนู / ตำแหน่ง</th><th>ใช้ทำอะไร</th></tr></thead>
+    <tbody>
+      <tr><td><span class="path">Helpdesk › เรื่องของฉัน</span></td><td>เรื่องทั้งหมดที่ฉันเป็นผู้แจ้ง</td></tr>
+      <tr><td><span class="path">Helpdesk › IT Support</span></td><td>คิวงานไอที/ระบบ</td></tr>
+      <tr><td><span class="path">Helpdesk › ปรับปรุง-ISO</span></td><td>คิวข้อเสนอแนะปรับปรุง และคุณภาพ/ISO (CAPA)</td></tr>
+      <tr><td><span class="path">Helpdesk › Triage</span></td><td>กล่องกลางสำหรับเรื่องที่ยังไม่ระบุประเภท</td></tr>
+      <tr><td><span class="path">Helpdesk › คำขอแซงคิว</span></td><td>ติดตาม/อนุมัติคำขอแซงคิว</td></tr>
+      <tr><td><span class="path">Helpdesk › Configuration › กฎการส่งเรื่องอัตโนมัติ</span></td><td>ตั้งกฎคำค้น (keyword) เพื่อส่งเรื่องเข้าทีม</td></tr>
+    </tbody>
+  </table>
+  <p class="footnote">เมนูทั้งหมดเป็นส่วนย่อยของแอป <strong>Helpdesk</strong> เดียวกัน (ไม่สร้างแอปซ้ำซ้อน)</p>
 
   <h4>3) ขั้นตอนการใช้งาน</h4>
   <ol class="steps">
-    <li><span class="stitle">ตั้งค่าความเป็นส่วนตัว</span> สร้างตั๋ว เลือก <span class="pill">Visibility</span> เป็น <em>Public</em> (ทุกคนเห็น), <em>Department</em> (เฉพาะแผนกเดียวกัน — ต้องระบุแผนก), หรือ <em>Private</em> (เฉพาะผู้แจ้ง/ผู้รับผิดชอบ)</li>
-    <li><span class="stitle">ระบุผู้แจ้งและความเร่งด่วน</span> ตั้ง <span class="pill">Reported By</span> และติ๊ก <span class="pill">Emergency</span> ถ้าเป็นเรื่องฉุกเฉิน</li>
-    <li><span class="stitle">ส่งตรวจสอบ</span> กด <span class="badge b-blue">ส่งตรวจสอบ</span> เอกสารจะเข้าสู่กระบวนการอนุมัติ (สถานะเป็น <em>ส่งตรวจสอบแล้ว</em>)</li>
-    <li><span class="stitle">อนุมัติ/ปฏิเสธ</span> ผู้อนุมัติกด <span class="badge b-green">ตรวจสอบผ่าน</span> (เมื่อครบทุกชั้นจะเปลี่ยนเป็น <em>ตรวจสอบผ่าน</em>) หรือ <span class="badge b-red">ปฏิเสธ</span> (กลับเป็นฉบับร่าง)</li>
-    <li><span class="stitle">ดำเนินการและปิด</span> เมื่อตรวจสอบผ่านแล้วกด <span class="badge b-gray">เริ่มดำเนินการ</span> → กรอก <span class="pill">Resolution</span> → <span class="badge b-green">เสร็จสิ้น</span></li>
+    <li><span class="stitle">แจ้งเรื่อง</span> เปิดคิวที่ต้องการ (เช่น <span class="path">IT Support</span>) กด <span class="badge b-blue">สร้าง</span> กรอก <span class="pill">หัวข้อ</span> และ <span class="pill">รายละเอียด</span> (บังคับ)</li>
+    <li><span class="stitle">จัดประเภท</span> เลือก <span class="pill">ประเภทเรื่อง</span> — ไอที/ระบบ, ข้อเสนอแนะปรับปรุง, คุณภาพ/ISO (CAPA) หรือ <em>ไม่แน่ใจ</em> (ระบบส่งเข้าทีม <strong>Triage</strong>) แล้วระบบจะส่งเรื่องเข้าทีมให้อัตโนมัติตามประเภท + กฎคำค้น</li>
+    <li><span class="stitle">กำหนดความเป็นส่วนตัวและความฉุกเฉิน</span> เลือก <span class="pill">การมองเห็น</span> — สาธารณะ / เฉพาะแผนก (ต้องระบุแผนก) / ส่วนตัว และติ๊ก <span class="pill">ฉุกเฉิน</span> เพื่อแจ้งเตือนทุกช่องทางทันที</li>
+    <li><span class="stitle">ให้คะแนนความเป็นธรรม</span> เปิดแท็บ <span class="pill">ความเป็นธรรม &amp; คิว</span> ให้คะแนน <span class="pill">ผลกระทบ</span> และ <span class="pill">ความเร่งด่วน</span> — ระบบคำนวณ <span class="pill">ความสำคัญ</span> ให้อัตโนมัติ (ผลกระทบ × ความเร่งด่วน) และแสดง <span class="pill">ตำแหน่งในคิว</span></li>
+    <li><span class="stitle">(ถ้าจำเป็น) ขอแซงคิว</span> กด <span class="badge b-blue">ขอแซงคิว</span> กรอกเหตุผลแล้วส่งคำขอ — ต้องอนุมัติ 2 ชั้นตามลำดับ</li>
+    <li><span class="stitle">ดำเนินการและปิด</span> เมื่องานถึงคิว ผู้รับผิดชอบกดรับเรื่องด้วย <span class="badge b-blue">Assign to me</span> ดำเนินการ แล้วเลื่อนขั้นตามสถานะของทีมจนถึง <em>ปิด</em></li>
   </ol>
 
-  <h4>4) สถานะ/การอนุมัติ</h4>
-  <div class="flow">
-    <span class="stp">ร่าง</span><span class="arrow">→</span>
-    <span class="stp">ส่งตรวจสอบแล้ว</span><span class="arrow">→</span>
-    <span class="stp">ตรวจสอบผ่าน</span><span class="arrow">→</span>
-    <span class="stp">กำลังดำเนินการ</span><span class="arrow">→</span>
-    <span class="stp">เสร็จสิ้น</span>
-  </div>
+  <h4>4) เกณฑ์ความเป็นธรรมของคิว และการแซงคิว</h4>
+  <p>ความสำคัญคำนวณจาก <strong>ผลกระทบ × ความเร่งด่วน</strong> (ผลรวม 2–6) แล้วแปลงเป็นระดับความสำคัญของระบบ:</p>
   <table>
-    <thead><tr><th>ชั้นการอนุมัติ</th><th>เงื่อนไข</th><th>ผู้อนุมัติ</th></tr></thead>
+    <thead><tr><th>ผลรวม (Impact + Urgency)</th><th>ความสำคัญที่ได้</th></tr></thead>
     <tbody>
-      <tr><td>Urgent (เหตุฉุกเฉิน)</td><td>ติ๊ก <span class="pill">Emergency</span></td><td>กลุ่มผู้ดูแลระบบ (ปรับได้)</td></tr>
-      <tr><td>Standard (เรื่องทั่วไป)</td><td>ไม่ใช่เหตุฉุกเฉิน</td><td>อย่างน้อย 1 ชั้น</td></tr>
+      <tr><td>6</td><td>ด่วนวิกฤต (P3)</td></tr>
+      <tr><td>5</td><td>สูง (P2)</td></tr>
+      <tr><td>3–4</td><td>กลาง (P1)</td></tr>
+      <tr><td>2</td><td>ต่ำ (P0)</td></tr>
     </tbody>
   </table>
-  <p class="footnote">ระบบกันการเปลี่ยนสถานะ “ร่าง → ตรวจสอบผ่าน” ตรง ๆ หากรอบการอนุมัติยังไม่ผ่าน</p>
+  <p>คิวเรียงต่อทีมตาม <strong>ความสำคัญ (มาก→น้อย)</strong> แล้วจึงตาม <strong>ลำดับคิว</strong> (ค่าน้อยก่อน) และ <strong>รหัสเรื่อง</strong> (FIFO) — ผู้แจ้งเห็นตำแหน่งคิวและจำนวนงานก่อนหน้าได้ทั้งบนหน้าตั๋วและบน Portal</p>
+  <p><strong>คำขอแซงคิว (Queue jump)</strong> ต้องอนุมัติ 2 ชั้น:</p>
+  <div class="flow">
+    <span class="stp">ร่าง</span><span class="arrow">→</span>
+    <span class="stp">รอหัวหน้าแผนกผู้แจ้ง</span><span class="arrow">→</span>
+    <span class="stp">รอหัวหน้าทีมเจ้าของคิว</span><span class="arrow">→</span>
+    <span class="stp">อนุมัติแล้ว</span>
+  </div>
+  <p class="footnote">ผู้อนุมัติเลือกตำแหน่งแทรกได้ (แทรกก่อนเรื่องใดในคิว) — ระบบจะดันลำดับคิวให้เรื่องนั้นอยู่ก่อนตำแหน่งที่เลือก · คำขอที่ไม่ได้รับการอนุมัติภายในเวลาที่กำหนด (ค่าเริ่มต้น 24 ชม.) จะ <em>หมดอายุ</em> อัตโนมัติ</p>
 
   <h4>5) ฟิลด์/ปุ่มสำคัญ</h4>
   <table>
     <thead><tr><th>ฟิลด์/ปุ่ม</th><th>ความหมาย</th></tr></thead>
     <tbody>
-      <tr><td><span class="pill">Visibility</span></td><td>ระดับการมองเห็น: Public / Department / Private</td></tr>
-      <tr><td><span class="pill">Department</span></td><td>แผนกที่ผูกกับปัญหา (แสดงเมื่อเลือกแบบแผนก)</td></tr>
-      <tr><td><span class="pill">Reported By</span></td><td>ผู้แจ้งปัญหา (ค่าเริ่มต้น = ผู้ใช้ปัจจุบัน)</td></tr>
-      <tr><td><span class="pill">Emergency</span></td><td>ทำเครื่องหมายว่าเป็นเหตุฉุกเฉิน → เข้ากระบวนการอนุมัติเร่งด่วน</td></tr>
-      <tr><td><span class="pill">Resolution</span></td><td>สาเหตุและแนวทางแก้ไข (แปลงเป็นบทความคลังความรู้ได้)</td></tr>
-      <tr><td><span class="pill">Default Assignee / Default Team</span></td><td>ที่หน้าหมวดหมู่ — มอบหมายผู้รับผิดชอบ/ทีมให้ตั๋วอัตโนมัติเมื่อเลือกหมวดนี้</td></tr>
+      <tr><td><span class="pill">ประเภทเรื่อง</span></td><td>ไอที/ระบบ · ข้อเสนอแนะปรับปรุง · คุณภาพ/ISO (CAPA) · ไม่แน่ใจ → ใช้ส่งเรื่องเข้าทีมอัตโนมัติ</td></tr>
+      <tr><td><span class="pill">การมองเห็น (Visibility)</span></td><td>สาธารณะ / เฉพาะแผนก / ส่วนตัว (มีกฎบันทึกระดับระบบ)</td></tr>
+      <tr><td><span class="pill">แผนกที่มองเห็น</span></td><td>แผนกที่ผูกกับเรื่อง (แสดงเมื่อเลือกแบบ “เฉพาะแผนก”)</td></tr>
+      <tr><td><span class="pill">ผู้แจ้ง (Reported By)</span></td><td>ผู้แจ้งเรื่อง (ค่าเริ่มต้น = ผู้ใช้ปัจจุบัน)</td></tr>
+      <tr><td><span class="pill">ฉุกเฉิน (Emergency)</span></td><td>แจ้งเตือนทุกช่องทางทันทีไปยังหัวหน้าทีมเจ้าของเรื่องและหัวหน้าทีม Triage — การแทรกคิวยังต้องผ่านการอนุมัติแซงคิว</td></tr>
+      <tr><td><span class="pill">ผลกระทบ × ความเร่งด่วน</span></td><td>เกณฑ์ให้คะแนนความเป็นธรรม</td></tr>
+      <tr><td><span class="pill">ความสำคัญ (Priority)</span></td><td>คำนวณอัตโนมัติจาก Impact × Urgency (ผู้จัดการปรับได้ พร้อมบันทึก audit)</td></tr>
+      <tr><td><span class="pill">ตำแหน่งในคิว / งานก่อนหน้า</span></td><td>อันดับคิวของเรื่องภายในทีม และจำนวนงานที่อยู่ก่อนหน้า</td></tr>
+      <tr><td><span class="badge b-blue">ขอแซงคิว</span></td><td>เปิดคำขอแซงคิว (ปิดเองเมื่อเรื่องอยู่ในสถานะรออนุมัติแซงคิว)</td></tr>
+      <tr><td><span class="pill">สถานะการยินยอม</span></td><td>ยินยอม (เข้าคิว) / ขอแซงคิว (รออนุมัติ)</td></tr>
+      <tr><td><span class="pill">แปลงเป็น KB</span></td><td>ทำเครื่องหมายเรื่องที่นำแนวทางแก้ไขไปทำเป็นบทความคลังความรู้</td></tr>
+      <tr><td><span class="pill">อ้างอิงบทความ KB</span></td><td>ลิงก์/รหัสบทความคลังความรู้ที่อ้างอิงจากเรื่องนี้ (แสดงเมื่อติ๊ก “แปลงเป็น KB”)</td></tr>
+      <tr><td><span class="pill">เปิดให้ขอแซงคิวถึง</span></td><td>วันเวลาสิ้นสุดที่ยังกดขอแซงคิวได้ (ค่าเริ่มต้น 24 ชม. นับจากเปิดเรื่อง — พ้นกำหนดแล้วปุ่มจะปิดเอง)</td></tr>
     </tbody>
   </table>
 
   <h4>6) สิทธิ์การใช้งาน</h4>
   <ul>
-    <li><strong>ผู้ใช้ทั่วไป:</strong> เห็นตั๋วแบบ Public ทั้งหมด, แบบ Department เฉพาะแผนกของตัวเอง, และแบบ Private เฉพาะที่ตัวเองเป็นผู้แจ้งหรือผู้รับผิดชอบ</li>
-    <li><strong>ขอบเขตตามแผนก (Department Scope):</strong> ผู้ใช้บางบทบาทเห็นเฉพาะตั๋วของแผนกตัวเองและตั๋วที่ยังไม่ระบุแผนก (กันข้อมูลหลุดแบบ fail-safe)</li>
-    <li><strong>บทบาทระดับบริหาร/บัญชี/คลัง:</strong> เห็นได้ทุกแผนก</li>
+    <li><strong>ผู้ใช้ทั่วไป:</strong> เห็นเรื่องแบบสาธารณะทั้งหมด, แบบเฉพาะแผนกเมื่ออยู่ในแผนกนั้น, และแบบส่วนตัวเฉพาะที่ตัวเองเป็นผู้แจ้งหรือผู้รับผิดชอบ</li>
+    <li><strong>ผู้อนุมัติแซงคิว:</strong> เฉพาะหัวหน้าแผนกผู้แจ้งและหัวหน้าทีมเจ้าของคิว (หรือผู้จัดการ Helpdesk) เท่านั้นที่อนุมัติ/ปฏิเสธคำขอได้</li>
+    <li><strong>ขอบเขตตามแผนก:</strong> ผู้ใช้บางบทบาทเห็นเฉพาะเรื่องของแผนกตัวเองและเรื่องที่ยังไม่ระบุแผนก (กันข้อมูลหลุดแบบ fail-safe)</li>
+  </ul>
+
+  <h4>7) ทีมปลายทาง ช่องทางรับเรื่อง และรอบงานประจำ</h4>
+  <p>ระบบส่งเรื่องเข้าทีมให้อัตโนมัติจาก <span class="pill">ประเภทเรื่อง</span> (และกฎคำค้น) โดยมีสี่ทีมงานภายใน:</p>
+  <table>
+    <thead><tr><th>ประเภทเรื่อง</th><th>ทีมปลายทาง</th></tr></thead>
+    <tbody>
+      <tr><td>ไอที/ระบบ</td><td>IT Support</td></tr>
+      <tr><td>ข้อเสนอแนะปรับปรุง</td><td>ข้อเสนอแนะปรับปรุง</td></tr>
+      <tr><td>คุณภาพ/ISO (CAPA)</td><td>คุณภาพ / ISO (CAPA)</td></tr>
+      <tr><td>ไม่แน่ใจ</td><td>กล่องกลาง (Triage)</td></tr>
+    </tbody>
+  </table>
+  <ul>
+    <li><strong>รับเรื่องทางอีเมล:</strong> ส่งอีเมลเข้าที่ alias <span class="pill">internal-issue</span> — เรื่องที่เข้ามาจะถูกตั้งประเภทเป็น <em>ไม่แน่ใจ</em> และเข้าคิว <strong>กล่องกลาง (Triage)</strong> เพื่อรอคัดแยก</li>
+    <li><strong>รอบงานประจำ (Scheduled Action):</strong> งานพื้นหลัง <em>Internal Issue: Expire stale queue requests</em> ทำงานทุก 1 ชั่วโมง คอยปิดคำขอแซงคิวที่เลยกำหนดหมดอายุแล้วโดยอัตโนมัติ</li>
+    <li><strong>Portal:</strong> ผู้แจ้งดูสถานะและ <span class="pill">ตำแหน่งในคิว</span> ของเรื่องตัวเองได้จากหน้า Portal โดยไม่ต้องเข้า backend</li>
   </ul>
 
   <div class="callout tip">
-    <strong>เคล็ดลับ:</strong> กรอก <span class="pill">Resolution</span> ทุกครั้งที่ปิดงาน — ข้อความนี้ใช้เป็นต้นทางของบทความในคลังความรู้ และช่วยให้ปัญหาซ้ำแก้ได้เร็วขึ้น
+    <strong>เคล็ดลับ:</strong> ให้คะแนน <span class="pill">ผลกระทบ</span> และ <span class="pill">ความเร่งด่วน</span> ตามจริง — ระบบจะคำนวณความสำคัญและจัดคิวอย่างเป็นธรรมให้เอง ไม่ต้องพึ่งการแซงคิว
   </div>
   <div class="callout warn">
-    <strong>ข้อควรระวัง:</strong> การเลือก <em>Department</em> โดยไม่ระบุแผนก อาจทำให้ผู้แจ้งเห็นข้อมูลผิดขอบเขต — ระบบจึงบังคับให้ระบุ <span class="pill">Department</span> เมื่อเลือกโหมดนี้
+    <strong>ข้อควรระวัง:</strong> การเลือก <em>เฉพาะแผนก</em> โดยไม่ระบุแผนก ทำให้ผู้แจ้งเห็นข้อมูลผิดขอบเขต — ระบบจึงบังคับให้ระบุ <span class="pill">แผนกที่มองเห็น</span> เมื่อเลือกโหมดนี้ · ปุ่ม <strong>ขอแซงคิว</strong> จะปิดเองหลังพ้นหน้าต่างเวลาที่เปิดให้ขอ
   </div>
 
 </section>

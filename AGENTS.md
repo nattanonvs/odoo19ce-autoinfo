@@ -4,8 +4,8 @@
 
 - **ผลบังคับใช้ (Scope)**: AI agent ทุกตัวที่ทำงานใน repository นี้ (Codex, Claude Code, Trae, Gemini ฯลฯ)
 - **สถานะ (Status)**: **LOCKED** — agent **ห้ามแก้** ไฟล์นี้และไฟล์ใน `docs/agents/` เอง ต้องได้อนุมัติจากผู้ใช้เป็นรายครั้ง
-- **Revision**: r7 (2026-11-21) — ระบุชัดว่า **S1 เดินอัตโนมัติทันทีหลังเทสต์ผ่าน ไม่ต้องขออนุมัติ** (การถือ lease = ขั้นตอนปฏิบัติ ไม่ใช่การขออนุมัติ; restart `8070` ยังเป็น Destructive)
-- **Revision history**: r6 (2026-11-20) ยกเครื่องโครงสร้าง + Capability-based + Delivery Pipeline time-box · r5 (2026-11-19) pdev-first delivery · r4 (2026-11-19) worktree hygiene · r3 (2026-11-12) self install/update + counter · r2 (2026-11-10) Resource-Scoped Lease (แทน Single-writer)
+- **Revision**: r8 (2026-11-22) — **S1 ต้อง deploy โค้ดขึ้น release + restart `8070` ทันทีหลัง `-u` pdev** (อัตโนมัติ ไม่ต้องขออนุมัติ) และ **ถ้า start ไม่ขึ้นต้องกู้ server กลับมาให้ได้** (recovery/rollback) — เป็นข้อยกเว้น HARD LOCK เฉพาะกรณี deploy งานตัวเอง
+- **Revision history**: r7 (2026-11-21) S1 เดินอัตโนมัติทันทีหลังเทสต์ผ่าน (การถือ lease = ขั้นตอนปฏิบัติ; restart `8070` ยังเป็น Destructive) · r6 (2026-11-20) ยกเครื่องโครงสร้าง + Capability-based + Delivery Pipeline time-box · r5 (2026-11-19) pdev-first delivery · r4 (2026-11-19) worktree hygiene · r3 (2026-11-12) self install/update + counter · r2 (2026-11-10) Resource-Scoped Lease (แทน Single-writer)
 - **Repository**: `nattanonvs/odoo19ce-autoinfo` · branch หลัก `19.0` · ฐานข้อมูลหลัก `odoo19_pdev`
 
 ---
@@ -30,7 +30,7 @@
 | **Read** | อ่าน/grep/glob, `git status·log·diff·show·fsck·branch -a` | ไม่ต้องอนุมัติ · ขนานไม่จำกัด |
 | **Write-Scope** | แก้ `custom_addons/`·`docs/`·config ใน worktree ตัวเอง; commit/push branch ตัวเอง | ทำได้เองหลังผ่าน Pre-flight |
 | **Shared-Resource** | เขียน/`-u` บน DB แชร์, port `8070`, `git worktree/gc`, ไฟล์ hot (`AGENTS.md`, `odoo.conf`, `run-tests.ps1`) | **ต้องถือ lease** |
-| **Destructive** | `push --force` · push เข้า `19.0/main` · amend/rebase/`reset --hard` · `git config` · `stash drop`/`clean -fdx` · `.git/hooks/` · ปิด/รีสตาร์ท `8070`/nginx | **HARD LOCK** อนุมัติรายครั้ง |
+| **Destructive** | `push --force` · push เข้า `19.0/main` · amend/rebase/`reset --hard` · `git config` · `stash drop`/`clean -fdx` · `.git/hooks/` · ปิด/รีสตาร์ท `8070`/nginx (**ยกเว้น** deploy+restart ใน S1) | **HARD LOCK** อนุมัติรายครั้ง |
 
 ---
 
@@ -38,7 +38,7 @@
 
 | การใช้งาน | ค่า | หมายเหตุ |
 |---|---|---|
-| Odoo dev/prod (แชร์) | `8070` | **ห้าม agent รัน/ปิด** ต้องขออนุมัติ |
+| Odoo dev/prod (แชร์) | `8070` | **ห้าม agent รัน/ปิด** ต้องขออนุมัติ — **ยกเว้น** deploy+restart ใน S1 |
 | Test ต่อ agent | `8081`–`8099` | ผูกกับ AGENT_ID ห้ามซ้ำ |
 | DB หลัก (แชร์) | `odoo19_pdev`, `odoo19_puat` | ต้องถือ lease ถ้าเขียน |
 | DB ทดสอบส่วนตัว | `odoo19_t_<AGENT_ID>` | สร้างจาก template ของตัวเอง |
@@ -48,7 +48,7 @@
 
 ## Delivery Pipeline อย่างย่อ (time-box)
 
-1. **S1**: แก้/สร้างโมดูล + **Test ผ่าน** → ติดตั้ง/อัปเดต `odoo19_pdev` + commit (แยกโดเมน) **ทันทีโดยไม่ต้องขออนุมัติ** (ถือ lease `db:odoo19_pdev` เป็นขั้นตอนปฏิบัติ ไม่ใช่การขออนุมัติ)
+1. **S1**: แก้/สร้างโมดูล + **Test ผ่าน** → ติดตั้ง/อัปเดต `odoo19_pdev` → **deploy โค้ดขึ้น `C:\odoo-dev\od19_release\custom_addons` (ยืนยันไบต์ตรงกัน) → restart `8070` → verify online (ถ้า start ไม่ขึ้น ต้องกู้กลับมาให้ได้)** → commit (แยกโดเมน) **ทันทีโดยไม่ต้องขออนุมัติ** (ถือ lease `db:odoo19_pdev` + `instance:8070` เป็นขั้นตอนปฏิบัติ ไม่ใช่การขออนุมัติ)
 2. **S2**: **+24 ชม.** ไม่มีคำสั่ง/ผลตรวจ → ถือว่าผ่าน → ติดตั้ง `odoo19_puat` + **push**
 3. **S3**: **+24 ชม.** ไม่มีคำสั่ง → ถือว่าผ่าน → **เปิด PR** (feature/* → `19.0`) แล้ว **รออนุมัติ merge**
 4. **S4**: merge เข้า `19.0` แล้ว **+7 วัน** → ตรวจไฟล์ตรงกันทุกไบต์ → **auto-cleanup** ลบ source branch/worktree + ไฟล์ TEST + DB TEST
