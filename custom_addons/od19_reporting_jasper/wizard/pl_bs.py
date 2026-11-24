@@ -74,7 +74,14 @@ LEVEL_SELECTION = [
     ("pl_bs_lvl3", "Level - 3"),
     ("pl_bs_lvl4", "Level - 4"),
     ("pl_bs", "Full"),
+    ("pl_bs_header", "หัวข้อบัญชี (Header)"),
 ]
+
+# The "หัวข้อบัญชี" template prints one roll-up row per 4-digit account header
+# (mirroring the MIS Builder reports shipped by
+# ``od19_mis_financial_statements``) instead of the full account tree, and
+# carries its own header map inside the JRXML query.
+HEADER_TEMPLATE = "pl_bs_header"
 
 LEVEL_BY_TEMPLATE = {"pl_bs_lvl3": "3", "pl_bs_lvl4": "4", "pl_bs": "5"}
 
@@ -93,7 +100,9 @@ class PlBsReport(models.TransientModel):
     # "Report Name" (otherwise Odoo logs a duplicate-label warning).
     name = fields.Char(string="Internal Name", default="Financial Statement")
     jasper_file = fields.Char(
-        default=lambda self: self.get_jasper_file(__file__, base_name="pl_bs")
+        default=lambda self: self.get_jasper_file(
+            __file__, base_name=self._jasper_base_name()
+        )
     )
     company_id = fields.Many2one(
         "res.company",
@@ -170,6 +179,18 @@ class PlBsReport(models.TransientModel):
         """``account_type`` values printed by this statement (overridden)."""
         return []
 
+    def _jasper_base_name(self):
+        """JRXML base name selected by the Level.
+
+        ``pl_bs_header`` switches to the "หัวข้อบัญชี" template; every other
+        Level keeps the historical ``pl_bs`` template.
+        """
+        return HEADER_TEMPLATE if self.report_template == HEADER_TEMPLATE else "pl_bs"
+
+    def _header_scope(self):
+        """Statement block printed by the "หัวข้อบัญชี" template (overridden)."""
+        return "ALL"
+
     def _year_text(self, ce_year, is_english=False):
         """Buddhist-era label for a CE year (or the CE year for English)."""
         label = dict(self._selection_year()).get(str(ce_year), str(ce_year))
@@ -212,7 +233,9 @@ class PlBsReport(models.TransientModel):
 
     # ------------------------------------------------------------- lifecycle
     def show_report(self, report_name=False, email_subject=False, email_document_number=False):
-        self.jasper_file = self.get_jasper_file(__file__, base_name="pl_bs")
+        self.jasper_file = self.get_jasper_file(
+            __file__, base_name=self._jasper_base_name()
+        )
         return super().show_report(report_name, email_subject, email_document_number)
 
     # ------------------------------------------------------------ parameters
@@ -303,6 +326,10 @@ class PlBsReport(models.TransientModel):
 
         if self.rpt_amt_flag:
             parms["account_criteria"] = self._movement_criteria(parms["account_criteria"])
+        if self.report_template == HEADER_TEMPLATE:
+            # The "หัวข้อบัญชี" template carries its own header map; it only
+            # needs to know which statement block (BS / PL / ALL) to print.
+            parms["p_scope"] = self._header_scope()
         return parms
 
 
@@ -343,6 +370,9 @@ class ProfitLossReport(models.TransientModel):
             "expense_depreciation",
             "expense_direct_cost",
         ]
+
+    def _header_scope(self):
+        return "PL"
 
     def get_move_criteria(self):
         # Profit & Loss accounts are reset every January 1st.
@@ -426,6 +456,9 @@ class BalanceSheetReport(models.TransientModel):
             "equity",
             "equity_unaffected",
         ]
+
+    def _header_scope(self):
+        return "BS"
 
     def get_move_criteria(self):
         # The Balance Sheet carries the whole history forward.

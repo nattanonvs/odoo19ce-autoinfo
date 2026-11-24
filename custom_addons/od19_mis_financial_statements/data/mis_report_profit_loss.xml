@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="True">
+
+    <record id="mis_report_profit_loss" model="mis.report">
+        <field name="name">งบกำไรขาดทุน (หัวข้อบัญชี)</field>
+        <field name="description">งบกำไรขาดทุนระดับหัวข้อบัญชี หมวด 4/5 — รวมยอดบัญชีลูกเข้ามายอดหัวข้อ (แบบ ค)</field>
+    </record>
+
+    <!-- ============================== รายได้ (4xxx) ============================== -->
+    <record id="mis_kpi_pl_4110" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_profit_loss" />
+        <field name="name">pl_4110</field>
+        <field name="description">รายได้จากการขาย</field>
+        <field name="sequence">10</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">-bale[('code','=like','4110%.%')]</field>
+    </record>
+
+    <record id="mis_kpi_pl_4120" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_profit_loss" />
+        <field name="name">pl_4120</field>
+        <field name="description">รายได้จากการบริการ</field>
+        <field name="sequence">20</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">-bale[('code','=like','4120%.%')]</field>
+    </record>
+
+    <record id="mis_kpi_pl_total_income" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_profit_loss" />
+        <field name="name">pl_total_income</field>
+        <field name="description">รวมรายได้</field>
+        <field name="sequence">30</field>
+        <field name="style_id" ref="mis_style_fs_subtotal" />
+        <field name="compare_method">diff</field>
+        <field name="expression">pl_4110 + pl_4120</field>
+    </record>
+
+    <!-- ============================== ต้นทุนขาย/บริการ (511x/512x) ============================== -->
+    <record id="mis_kpi_pl_5110" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_profit_loss" />
+        <field name="name">pl_5110</field>
+        <field name="description">ต้นทุนขาย</field>
+        <field name="sequence">40</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">-bale[('code','=like','511%.%')]</field>
+    </record>
+
+    <record id="mis_kpi_pl_5120" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_profit_loss" />
+        <field name="name">pl_5120</field>
+        <field name="description">ต้นทุนบริการและต้นทุนในการวางระบบ</field>
+        <field name="sequence">50</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">-bale[('code','=like','512%.%')]</field>
+    </record>
+
+    <record id="mis_kpi_pl_gross_profit" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_profit_loss" />
+        <field name="name">pl_gross_profit</field>
+        <field name="description">กำไร (ขาดทุน) ขั้นต้น</field>
+        <field name="sequence">60</field>
+        <field name="style_id" ref="mis_style_fs_subtotal" />
+        <field name="compare_method">diff</field>
+        <field name="expression">pl_total_income + pl_5110 + pl_5120</field>
+    </record>
+
+    <!-- ============================== รายได้อื่น / ค่าใช้จ่ายอื่น ============================== -->
+    <record id="mis_kpi_pl_4200" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_profit_loss" />
+        <field name="name">pl_4200</field>
+        <field name="description">กำไรจากอัตราแลกเปลี่ยน</field>
+        <field name="sequence">70</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">-bale[('code','=like','4200%.%')]</field>
+    </record>
+
+    <record id="mis_kpi_pl_4300" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_profit_loss" />
+        <field name="name">pl_4300</field>
+        <field name="description">รายได้อื่น</field>
+        <field name="sequence">80</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">-bale[('code','=like','4300%.%')]</field>
+    </record>
+
+    <record id="mis_kpi_pl_5130" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_profit_loss" />
+        <field name="name">pl_5130</field>
+        <field name="description">ขาดทุนจากอัตราแลกเปลี่ยน</field>
+        <field name="sequence">90</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">-bale[('code','=like','5130%.%')]</field>
+    </record>
+
+    <!-- ============================== ค่าใช้จ่ายดำเนินงาน (52x/53x) ============================== -->
+    <record id="mis_kpi_pl_5210" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_profit_loss" />
+        <field name="name">pl_5210</field>
+        <field name="description">ค่าใช้จ่ายในการขาย</field>
+        <field name="sequence">100</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">-bale[('code','=like','521%.%')]</field>
+    </record>
+
+    <record id="mis_kpi_pl_5300" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_profit_loss" />
+        <field name="name">pl_5300</field>
+        <field name="description">ค่าใช้จ่ายในการบริหาร</field>
+        <field name="sequence">110</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">-bale[('code','=like','53%.%')]</field>
+    </record>
+
+    <!-- ============================== ต้นทุนทางการเงิน / กำไรก่อนภาษี ============================== -->
+    <record id="mis_kpi_pl_5400" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_profit_loss" />
+        <field name="name">pl_5400</field>
+        <field name="description">ต้นทุนทางการเงิน</field>
+        <field name="sequence">120</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">-bale[('code','=like','5400%.%')]</field>
+    </record>
+
+    <record id="mis_kpi_pl_5410" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_profit_loss" />
+        <field name="name">pl_5410</field>
+        <field name="description">ค่าใช้จ่ายต้องห้ามตามประมวลรัษฎากร</field>
+        <field name="sequence">130</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">-bale[('code','=like','5410%.%')]</field>
+    </record>
+
+    <record id="mis_kpi_pl_pretax" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_profit_loss" />
+        <field name="name">pl_pretax</field>
+        <field name="description">กำไร (ขาดทุน) ก่อนภาษีเงินได้</field>
+        <field name="sequence">140</field>
+        <field name="style_id" ref="mis_style_fs_subtotal" />
+        <field name="compare_method">diff</field>
+        <field name="expression">pl_gross_profit + pl_4200 + pl_4300 + pl_5130 + pl_5210 + pl_5300 + pl_5400 + pl_5410</field>
+    </record>
+
+    <!-- ============================== ภาษี / กำไรสุทธิ ============================== -->
+    <record id="mis_kpi_pl_5420" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_profit_loss" />
+        <field name="name">pl_5420</field>
+        <field name="description">ภาษีเงินได้นิติบุคคล</field>
+        <field name="sequence">150</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">-bale[('code','=like','5420%.%')]</field>
+    </record>
+
+    <record id="mis_kpi_pl_net" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_profit_loss" />
+        <field name="name">pl_net</field>
+        <field name="description">กำไร (ขาดทุน) สุทธิ</field>
+        <field name="sequence">160</field>
+        <field name="style_id" ref="mis_style_fs_total" />
+        <field name="compare_method">diff</field>
+        <field name="expression">pl_pretax + pl_5420</field>
+    </record>
+
+</odoo>
