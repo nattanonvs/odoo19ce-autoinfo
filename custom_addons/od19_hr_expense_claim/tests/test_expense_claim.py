@@ -584,16 +584,18 @@ class TestExpenseClaim(AccountTestInvoicingCommon):
     def _action_context(self, action):
         return ast.literal_eval(action.context or "{}")
 
-    def test_accounting_menu_points_to_claim_action(self):
-        """Employee Expenses (vendor) ถูกดัดแปลงเป็นศูนย์งานฝ่ายบัญชีของ claim."""
+    def test_vendors_menu_keeps_legacy_employee_expenses(self):
+        """Employee Expenses (Vendors) คงไว้เป็นทางเข้า legacy + ติดป้าย (Legacy)."""
         menu = self.env.ref(
             "hr_expense.menu_hr_expense_account_employee_expenses")
-        action = menu.action
-        self.assertEqual(action.res_model, "od19.expense.claim")
+        self.assertIn("Legacy", menu.name)
         self.assertEqual(
-            action,
-            self.env.ref(
-                "od19_hr_expense_claim.action_od19_expense_claim_accounting"),
+            menu.action,
+            self.env.ref("hr_expense.action_hr_expense_account"),
+        )
+        self.assertEqual(
+            menu.parent_id,
+            self.env.ref("account.menu_finance_payables"),
         )
 
     def test_accounting_action_defaults_on_behalf(self):
@@ -626,6 +628,18 @@ class TestExpenseClaim(AccountTestInvoicingCommon):
         menu = self.env.ref(
             "od19_hr_expense_claim.menu_od19_expense_claim_petty_cash")
         self.assertEqual(menu.action, action)
+
+    def test_accounting_menu_under_app_root(self):
+        """P4 (ข้อ 2): เมนู 'ศูนย์งานฝ่ายบัญชี' ใต้แอป Expenses ชี้ action บัญชี."""
+        action = self.env.ref(
+            "od19_hr_expense_claim.action_od19_expense_claim_accounting")
+        menu = self.env.ref(
+            "od19_hr_expense_claim.menu_od19_expense_claim_accounting")
+        self.assertEqual(menu.action, action)
+        self.assertEqual(
+            menu.parent_id, self.env.ref("hr_expense.menu_hr_expense_root"))
+        self.assertIn(
+            self.env.ref("account.group_account_manager"), menu.group_ids)
 
     # ---------------------------------------------------------------
     # P4: "รออนุมัติฝ่ายบัญชี" (tier ชั้นบัญชี = current) — ตัวกรองพร้อมใช้

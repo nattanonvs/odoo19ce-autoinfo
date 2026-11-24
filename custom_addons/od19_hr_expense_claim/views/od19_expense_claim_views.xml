@@ -388,12 +388,30 @@
     />
 
     <!--
-        §10.1 / §10.3 — "Employee Expenses" (vendor) คงไว้ แต่ยกระดับเป็น
-        *ศูนย์งานฝ่ายบัญชี* ที่ชี้ใบเบิก (od19.expense.claim) แทน hr.expense ดิบ
-        และเปิดให้กลุ่มฝ่ายบัญชีเห็นด้วย (เดิมจำกัดที่ hr_expense.group_hr_expense_user)
+        P4 (ข้อ 2) — ทางเข้าตรงชื่อสำหรับฝ่ายบัญชี: เพิ่มเมนู "ศูนย์งานฝ่ายบัญชี"
+        ใต้แอป Expenses เอง (ไม่ต้องไปงมหาใต้ Accounting ▸ Vendors) ชี้ action
+        เดียวกับเมนู vendor ด้านล่าง (action_od19_expense_claim_accounting)
+    -->
+    <menuitem
+        id="menu_od19_expense_claim_accounting"
+        name="ศูนย์งานฝ่ายบัญชี (Employee Expenses)"
+        parent="hr_expense.menu_hr_expense_root"
+        action="action_od19_expense_claim_accounting"
+        sequence="6"
+        groups="account.group_account_manager"
+    />
+
+    <!--
+        P4 (ปรับตามคำสั่ง) — เมนู "Employee Expenses" ใต้ Accounting ▸ Vendors
+        คงไว้เป็น *ทางเข้าแบบเดิม (legacy)* ชี้ action core hr.expense
+        (hr_expense.action_hr_expense_account, path "expenses-employee")
+        แล้วติดป้าย "(Legacy)" ให้ชัดว่าเป็นของเก่า
+        ส่วนศูนย์งานฝ่ายบัญชีของ claim ใหม่ย้ายไปอยู่ใต้แอป Expenses แล้ว
+        (menu_od19_expense_claim_accounting ด้านบน)
     -->
     <record id="hr_expense.menu_hr_expense_account_employee_expenses" model="ir.ui.menu">
-        <field name="action" ref="action_od19_expense_claim_accounting"/>
+        <field name="name">Employee Expenses (Legacy)</field>
+        <field name="action" ref="hr_expense.action_hr_expense_account"/>
         <field name="group_ids" eval="[(6, 0, [ref('hr_expense.group_hr_expense_user'),
                                               ref('account.group_account_manager')])]"/>
     </record>
@@ -409,6 +427,12 @@
         always opens the correct page.
     -->
     <record id="hr_expense.menu_hr_expense_root" model="ir.ui.menu">
+        <!--
+            P4 (ข้อ 3) — ไทล์แอปใช้ชื่อกลาง (ไม่ผูกบทบาท employee/accounting)
+            บทบาทจริงกำกับที่ชื่อเมนูย่อยด้านบน: "ใบเบิกของฉัน" (พนักงาน) และ
+            "ศูนย์งานฝ่ายบัญชี (Employee Expenses)" (ฝ่ายบัญชี)
+        -->
+        <field name="name">ค่าใช้จ่าย</field>
         <field name="action" ref="action_od19_expense_claim_my"/>
     </record>
 
