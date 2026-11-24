@@ -103,10 +103,71 @@ class Od19ExpenseClaim(models.Model):
     line_ids = fields.One2many(
         "hr.expense", "od19_claim_id", string="Expense Lines",
     )
+
+    # ------------------------------------------------------------------
+    # ประเภทบรรทัด — 4 แท็บของหน้า /odoo/expenses
+    # ------------------------------------------------------------------
+    # Odoo 19 ไม่ใช้ ``domain`` ที่ประกาศบน view ในการกรองบรรทัดที่โหลดในฟอร์ม
+    # (ยืนยันจาก odoo/orm/fields_relational.py::One2many.read ที่กรองด้วย
+    # ``get_comodel_domain`` = domain ใน field definition เท่านั้น) จึงแยก
+    # One2many ต่อประเภทแล้วประกาศ domain ที่นี่ — รูปแบบเดียวกับ
+    # account.move.line_ids / invoice_line_ids (หลายฟิลด์ใช้ inverse เดียวกัน)
+    # แต่ละแท็บจึงแสดงเฉพาะบรรทัดของตัวเองและยังเพิ่ม/แก้ไขได้ตามปกติ
+    general_line_ids = fields.One2many(
+        "hr.expense", "od19_claim_id", string="General Lines",
+        domain=[("od19_is_per_diem", "=", False),
+                ("od19_is_mileage", "=", False),
+                ("od19_is_toll", "=", False)],
+        help="รายการเบิกทั่วไป (ไม่ใช่เบี้ยเลี้ยง/ไมเลจ/ค่าผ่านทาง)",
+    )
+    per_diem_line_ids = fields.One2many(
+        "hr.expense", "od19_claim_id", string="Per Diem Lines",
+        domain=[("od19_is_per_diem", "=", True),
+                ("od19_is_mileage", "=", False),
+                ("od19_is_toll", "=", False)],
+        help="รายการเบี้ยเลี้ยง ม.42(3)",
+    )
+    mileage_line_ids = fields.One2many(
+        "hr.expense", "od19_claim_id", string="Mileage Lines",
+        domain=[("od19_is_mileage", "=", True),
+                ("od19_is_toll", "=", False)],
+        help="รายการค่าเดินทางตามระยะทาง (ไมเลจ)",
+    )
+    toll_line_ids = fields.One2many(
+        "hr.expense", "od19_claim_id", string="Toll Lines",
+        domain=[("od19_is_toll", "=", True)],
+        help="รายการค่าผ่านทาง (ทางด่วน/ทางพิเศษ) ตามใบเสร็จในมือ",
+    )
+
     total_amount = fields.Monetary(
         string="Total", currency_field="currency_id",
         compute="_compute_total_amount", store=True,
     )
+
+    # ยอดแยกตามประเภท + ยอดเบิกรวมสุทธิของทั้งเอกสาร (แสดงบนหัวใบ)
+    general_total = fields.Monetary(
+        string="General Total", currency_field="currency_id",
+        compute="_compute_breakdown_totals", store=True,
+    )
+    per_diem_total = fields.Monetary(
+        string="Per Diem Total", currency_field="currency_id",
+        compute="_compute_breakdown_totals", store=True,
+    )
+    mileage_total = fields.Monetary(
+        string="Mileage Total", currency_field="currency_id",
+        compute="_compute_breakdown_totals", store=True,
+    )
+    toll_total = fields.Monetary(
+        string="Toll Total", currency_field="currency_id",
+        compute="_compute_breakdown_totals", store=True,
+    )
+    net_total = fields.Monetary(
+        string="Net Total / ยอดเบิกรวมสุทธิ", currency_field="currency_id",
+        compute="_compute_breakdown_totals", store=True,
+        help="ยอดเบิกรวมสุทธิของเอกสารเบิกนี้ "
+             "= รายการทั่วไป + เบี้ยเลี้ยง + ไมเลจ + ค่าผ่านทาง",
+    )
+
     payment_mode = fields.Selection(
         [("own_account", "Employee (to reimburse)"),
          ("company_account", "Company")],
@@ -203,6 +264,33 @@ class Od19ExpenseClaim(models.Model):
     def _compute_total_amount(self):
         for claim in self:
             claim.total_amount = sum(claim.line_ids.mapped("total_amount"))
+
+    @api.depends(
+        "line_ids.total_amount",
+        "line_ids.od19_is_per_diem",
+        "line_ids.od19_is_mileage",
+        "line_ids.od19_is_toll",
+    )
+    def _compute_breakdown_totals(self):
+        """ยอดแยกตามประเภท (ให้ตรงกับ domain ของทั้ง 4 แท็บ) + ยอดรวมสุทธิ.
+
+        การจัดประเภทใช้ลำดับความสำคัญ toll > mileage > per diem > general
+        เหมือนกันทั้งใน domain ของแต่ละแท็บและที่นี่ เพื่อไม่ให้ยอดซ้ำกัน
+        """
+        for claim in self:
+            lines = claim.line_ids
+            toll = lines.filtered("od19_is_toll")
+            mileage = (lines - toll).filtered("od19_is_mileage")
+            per_diem = (lines - toll - mileage).filtered("od19_is_per_diem")
+            general = lines - toll - mileage - per_diem
+            claim.toll_total = sum(toll.mapped("total_amount"))
+            claim.mileage_total = sum(mileage.mapped("total_amount"))
+            claim.per_diem_total = sum(per_diem.mapped("total_amount"))
+            claim.general_total = sum(general.mapped("total_amount"))
+            claim.net_total = (
+                claim.general_total + claim.per_diem_total
+                + claim.mileage_total + claim.toll_total
+            )
 
     @api.depends(
         "amount",

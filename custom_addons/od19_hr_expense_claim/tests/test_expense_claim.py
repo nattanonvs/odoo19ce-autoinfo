@@ -677,3 +677,120 @@ class TestExpenseClaim(AccountTestInvoicingCommon):
         for fname in ("od19_supplier_doc_number", "od19_supplier_doc_date",
                       "od19_supplier_tax_id"):
             self.assertIn(fname, fields)
+
+    # ---------------------------------------------------------------
+    # 4 แท็บตามประเภท + สรุปยอด + ยอดเบิกรวมสุทธิ (net_total)
+    # ---------------------------------------------------------------
+    def _base_line(self, name, total, **extra):
+        """บรรทัด hr.expense มาตรฐานของใบเบิก (ใช้ product ที่ไม่มีภาษี)."""
+        vals = {
+            "name": name,
+            "product_id": self.product.id,
+            "total_amount": total,
+            "employee_id": self.employee.id,
+            "payment_mode": "own_account",
+            "company_id": self.env.company.id,
+        }
+        vals.update(extra)
+        return Command.create(vals)
+
+    def _make_typed_claim(self):
+        """ใบเบิกที่มีบรรทัดครบทั้ง 4 ประเภท (ทั่วไป/เบี้ยเลี้ยง/ไมเลจ/ค่าผ่านทาง)."""
+        return self.Claim.create({
+            "employee_id": self.employee.id,
+            "company_id": self.env.company.id,
+            "line_ids": [
+                self._base_line("ค่าอุปกรณ์สำนักงาน", 500.0),
+                self._base_line(
+                    "เบี้ยเลี้ยงเดินทาง", 1200.0,
+                    od19_is_per_diem=True, od19_per_diem_days=2.0,
+                    od19_per_diem_reason="ปฏิบัติงานนอกพื้นที่",
+                ),
+                self._base_line(
+                    "ค่าเดินทางตามระยะทาง", 800.0,
+                    od19_is_mileage=True, od19_mileage_distance_km=200.0,
+                ),
+                self._base_line(
+                    "ค่าผ่านทาง", 0.0,
+                    od19_is_toll=True, od19_toll_receipt_count=3,
+                    od19_toll_unit_amount=60.0,
+                ),
+            ],
+        })
+
+    def test_typed_lines_split_into_own_tab(self):
+        """แต่ละ One2many ต่อประเภทแสดงเฉพาะบรรทัดประเภทของตัวเอง."""
+        claim = self._make_typed_claim()
+        self.assertEqual(len(claim.line_ids), 4)
+        for fname in ("general_line_ids", "per_diem_line_ids",
+                      "mileage_line_ids", "toll_line_ids"):
+            self.assertEqual(len(claim[fname]), 1)
+
+        general = claim.general_line_ids
+        per_diem = claim.per_diem_line_ids
+        mileage = claim.mileage_line_ids
+        toll = claim.toll_line_ids
+
+        self.assertFalse(general.od19_is_per_diem)
+        self.assertFalse(general.od19_is_mileage)
+        self.assertFalse(general.od19_is_toll)
+        self.assertTrue(per_diem.od19_is_per_diem)
+        self.assertTrue(mileage.od19_is_mileage)
+        self.assertTrue(toll.od19_is_toll)
+        # ไม่มีบรรทัดใดโผล่ซ้ำในแท็บอื่น
+        self.assertEqual(
+            len(general + per_diem + mileage + toll), len(claim.line_ids))
+
+    def test_breakdown_totals_and_net_total(self):
+        """ยอดแยกประเภท + ยอดเบิกรวมสุทธิ = ผลรวมทั้ง 4 ส่วน = total_amount."""
+        claim = self._make_typed_claim()
+        self.assertAlmostEqual(claim.general_total, 500.0)
+        self.assertAlmostEqual(claim.per_diem_total, 1200.0)
+        self.assertAlmostEqual(claim.mileage_total, 800.0)
+        self.assertAlmostEqual(claim.toll_total, 180.0)
+        self.assertAlmostEqual(claim.net_total, 2680.0)
+        self.assertAlmostEqual(claim.net_total, claim.total_amount)
+
+    def test_toll_line_net_amount_is_count_times_unit(self):
+        """ยอดสุทธิต่อแถวค่าผ่านทาง = จำนวนใบ × ค่าผ่านทางต่อใบ และ sync ยอดรวม."""
+        claim = self._make_typed_claim()
+        toll = claim.toll_line_ids
+        self.assertEqual(toll.od19_toll_receipt_count, 3)
+        self.assertAlmostEqual(toll.od19_toll_unit_amount, 60.0)
+        self.assertAlmostEqual(toll.od19_toll_net_amount, 180.0)
+        # create override sync quantity/total_amount ให้ตรงกับยอดสุทธิ
+        self.assertAlmostEqual(toll.quantity, 3.0)
+        self.assertAlmostEqual(toll.total_amount, 180.0)
+        self.assertTrue(toll.name)
+
+    def test_toll_line_recomputes_on_count_change(self):
+        """แก้จำนวนใบ/ค่าต่อใบ -> ยอดสุทธิและยอดรวมหัวใบอัปเดตตาม."""
+        claim = self._make_typed_claim()
+        toll = claim.toll_line_ids
+        toll.write({"od19_toll_receipt_count": 5})
+        claim.invalidate_recordset()
+        self.assertAlmostEqual(toll.od19_toll_net_amount, 300.0)
+        self.assertAlmostEqual(toll.total_amount, 300.0)
+        self.assertAlmostEqual(claim.toll_total, 300.0)
+        self.assertAlmostEqual(claim.net_total, 500.0 + 1200.0 + 800.0 + 300.0)
+
+    def test_line_type_priority_avoids_double_count(self):
+        """บรรทัดที่ติดหลายธง (toll+mileage) ถูกจัดเป็นค่าผ่านทางเท่านั้น."""
+        claim = self.Claim.create({
+            "employee_id": self.employee.id,
+            "company_id": self.env.company.id,
+            "line_ids": [
+                self._base_line(
+                    "ค่าผ่านทางพร้อมไมล์", 240.0,
+                    od19_is_mileage=True, od19_is_toll=True,
+                    od19_toll_receipt_count=4, od19_toll_unit_amount=60.0,
+                ),
+            ],
+        })
+        line = claim.line_ids
+        self.assertIn(line, claim.toll_line_ids)
+        self.assertNotIn(line, claim.mileage_line_ids)
+        self.assertAlmostEqual(claim.toll_total, 240.0)
+        self.assertAlmostEqual(claim.mileage_total, 0.0)
+        self.assertAlmostEqual(claim.net_total, 240.0)
+        self.assertAlmostEqual(claim.net_total, claim.total_amount)
