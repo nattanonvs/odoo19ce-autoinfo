@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Annual plan submenu under the ISO Management root -->
+    <menuitem id="menu_iso_annual_plan_root"
+              name="แผนงาน ISO ประจำปี"
+              parent="od19_iso_document_control.menu_iso_root"
+              sequence="20"/>
+
+    <menuitem id="menu_iso_annual_plan"
+              name="แผนงานประจำปี"
+              parent="menu_iso_annual_plan_root"
+              action="action_iso_annual_plan"
+              sequence="10"/>
+
+    <menuitem id="menu_iso_annual_plan_matrix"
+              name="ตารางแผนงานทั้งปี"
+              parent="menu_iso_annual_plan_root"
+              action="action_iso_annual_plan_line"
+              sequence="20"/>
+
+    <!-- Configuration -->
+    <menuitem id="menu_iso_plan_activity_type"
+              name="ประเภทกิจกรรมแผนงาน ISO"
+              parent="od19_iso_document_control.menu_iso_configuration"
+              action="action_iso_plan_activity_type"
+              sequence="30"/>
+
+</odoo>

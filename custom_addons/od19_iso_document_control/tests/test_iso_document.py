@@ -14,6 +14,7 @@ class TestIsoDocumentSequence(TransactionCase):
 
         cls.cat_fm = cls.env.ref("od19_iso_document_control.iso_doc_cat_fm")
         cls.cat_proc = cls.env.ref("od19_iso_document_control.iso_doc_cat_proc")
+        cls.cat_rec = cls.env.ref("od19_iso_document_control.iso_doc_cat_rec")
         cls.dept = cls.Dept.create({"name": "Purchasing", "code": "PU"})
 
     def _create_doc(self, **overrides):
@@ -65,7 +66,17 @@ class TestIsoDocumentSequence(TransactionCase):
         doc_fm = self._create_doc(category_id=self.cat_fm.id)
         doc_proc = self._create_doc(category_id=self.cat_proc.id)
         self.assertTrue(doc_fm.code.startswith("FM-"))
-        self.assertTrue(doc_proc.code.startswith("PROC-"))
+        self.assertTrue(doc_proc.code.startswith("PM-"))
+
+    def test_category_without_sequence_has_empty_code(self):
+        """Categories with "ใช้เลขคุม" off (REC/MANUAL/POL) must not get a code."""
+        doc = self._create_doc(category_id=self.cat_rec.id)
+        self.assertFalse(doc.code)
+        self.assertEqual(doc.display_name, doc.document_title)
+        self.assertFalse(doc.filename_pattern.startswith("_"))
+        # Writing a department must not regenerate a controlled code.
+        doc.write({"department_id": self.dept.id})
+        self.assertFalse(doc.code)
 
     # ------------------------------------------------------------------
     # department_code related field

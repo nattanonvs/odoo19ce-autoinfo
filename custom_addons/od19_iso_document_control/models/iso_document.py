@@ -57,7 +57,7 @@ class IsoDocument(models.Model):
         readonly=True,
         copy=False,
         tracking=True,
-        help="รูปแบบ เช่น FM-PU-12, PROC-QA-01, WI-PU-03 "
+        help="รูปแบบ เช่น FM-PU-12, PM-QA-01, WI-PU-03 "
         "(สร้างอัตโนมัติเมื่อบันทึกเอกสาร)",
     )
     document_title = fields.Char(
@@ -195,7 +195,10 @@ class IsoDocument(models.Model):
     @api.depends("code", "document_title", "revision")
     def _compute_display_name(self):
         for doc in self:
-            doc.display_name = f"{doc.code} - {doc.document_title}"
+            if doc.code:
+                doc.display_name = f"{doc.code} - {doc.document_title}"
+            else:
+                doc.display_name = doc.document_title or ""
 
     @api.depends("code", "document_title", "revision")
     def _compute_filename_pattern(self):
@@ -211,6 +214,8 @@ class IsoDocument(models.Model):
                 safe_title = safe_title.replace(ch, "_")
             doc.filename_pattern = (
                 f"{doc.code}_{safe_title}_Rev.{doc.revision or '00'}"
+                if doc.code
+                else f"{safe_title}_Rev.{doc.revision or '00'}"
             )
 
     def _get_download_filename(self, extension="pdf"):
@@ -523,7 +528,8 @@ class IsoDocument(models.Model):
     def _generate_document_code(self, vals):
         """Generate the document code: {PREFIX}-{DEPT}-{NNN}.
 
-        Falls back to '/' when no category is set.
+        Returns an empty string when the category is not set or does not use
+        a controlled number ("ใช้เลขคุม" ปิด) — e.g. บันทึก/คู่มือระบบ/นโยบาย.
         """
         category_id = vals.get("category_id")
         if not category_id:
@@ -531,6 +537,8 @@ class IsoDocument(models.Model):
         category = self.env["od19.iso.document.category"].browse(category_id)
         if not category:
             return "/"
+        if not category.use_sequence:
+            return ""
         prefix = (category.prefix or "").strip().upper()
         if not prefix:
             return "/"
