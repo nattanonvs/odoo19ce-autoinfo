@@ -1,3 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_od19_expense_quick_create_user,access.od19.expense.quick.create,model_od19_expense_quick_create,base.group_user,1,1,1,1
-access_hr_expense_portal_portal,access.hr.expense.portal,model_hr_expense,base.group_portal,1,0,0,0
+access_od19_expense_claim_portal,access.od19.expense.claim.portal,od19_hr_expense_claim.model_od19_expense_claim,base.group_portal,1,0,0,0
+access_hr_expense_portal_portal,access.hr.expense.portal,hr_expense.model_hr_expense,base.group_portal,1,0,0,0

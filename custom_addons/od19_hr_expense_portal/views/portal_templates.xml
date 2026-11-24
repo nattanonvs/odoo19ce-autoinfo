@@ -9,7 +9,7 @@
                 <t t-else="">ใบเบิกค่าใช้จ่าย</t>
             </li>
             <li t-if="expense" class="breadcrumb-item active">
-                <t t-out="expense.name or expense.product_id.display_name"/>
+                <t t-out="expense.name"/>
             </li>
         </xpath>
     </template>
@@ -59,7 +59,7 @@
                             <td><span t-field="expense.date"/></td>
                             <td>
                                 <a t-attf-href="/my/expenses/#{expense.id}">
-                                    <t t-out="expense.name or expense.product_id.display_name"/>
+                                    <t t-out="expense.name"/>
                                 </a>
                             </td>
                             <td class="text-end pe-3">
@@ -69,9 +69,6 @@
                                 <span t-attf-class="badge rounded-pill #{'text-bg-success' if expense.state in ('approved', 'posted', 'in_payment', 'paid') else ('text-bg-danger' if expense.state == 'refused' else 'text-bg-info')}">
                                     <t t-out="state_labels.get(expense.state, expense.state)"/>
                                 </span>
-                                <small class="d-block text-muted" t-if="expense.state == 'submitted'">
-                                    <t t-out="expense.od19_approval_hint"/>
-                                </small>
                             </td>
                         </tr>
                     </t>
@@ -84,10 +81,11 @@
     <template id="portal_my_expense_detail" name="My Expense Detail">
         <t t-call="portal.portal_layout">
             <t t-set="review_labels" t-value="{
-                'none': 'ยังไม่ถึงคิว',
+                'waiting': 'ยังไม่ถึงคิว',
                 'pending': 'รออนุมัติ',
                 'approved': 'อนุมัติแล้ว',
                 'rejected': 'ถูกปฏิเสธ',
+                'cancel': 'ยกเลิก',
             }"/>
             <t t-set="state_labels" t-value="{
                 'draft': 'ฉบับร่าง',
@@ -98,11 +96,15 @@
                 'paid': 'จ่ายแล้ว',
                 'refused': 'ถูกปฏิเสธ',
             }"/>
+            <t t-set="payment_labels" t-value="{
+                'own_account': 'พนักงานออกเงินเอง (ขอคืน)',
+                'company_account': 'บริษัทจ่าย',
+            }"/>
 
             <div class="row">
                 <div class="col-lg-8">
                     <h3 class="mb-3">
-                        <t t-out="expense.name or expense.product_id.display_name"/>
+                        <t t-out="expense.name"/>
                     </h3>
                     <span t-attf-class="badge rounded-pill mb-3 #{'text-bg-success' if expense.state in ('approved', 'posted', 'in_payment', 'paid') else ('text-bg-danger' if expense.state == 'refused' else 'text-bg-info')}">
                         <t t-out="state_labels.get(expense.state, expense.state)"/>
@@ -113,25 +115,57 @@
                             <strong>วันที่:</strong> <span t-field="expense.date"/>
                         </div>
                         <div class="col-sm-6">
-                            <strong>หมวดค่าใช้จ่าย:</strong> <span t-field="expense.product_id"/>
+                            <strong>พนักงาน:</strong> <span t-field="expense.employee_id"/>
                         </div>
                         <div class="col-sm-6">
-                            <strong>จำนวนเงิน:</strong>
+                            <strong>วิธีจ่าย:</strong>
+                            <t t-out="payment_labels.get(expense.payment_mode, expense.payment_mode)"/>
+                        </div>
+                        <div class="col-sm-6">
+                            <strong>จำนวนเงินรวม:</strong>
                             <span t-out="expense.total_amount" t-options='{"widget": "monetary", "display_currency": expense.currency_id}'/>
                         </div>
-                        <div class="col-sm-6" t-if="expense.od19_is_mileage">
-                            <strong>ระยะทาง:</strong> <span t-field="expense.od19_mileage_distance_km"/> กม.
-                        </div>
-                        <div class="col-sm-6" t-if="expense.od19_is_mileage and expense.od19_mileage_vehicle_id">
-                            <strong>รถ:</strong> <span t-field="expense.od19_mileage_vehicle_id"/>
-                        </div>
-                        <div class="col-sm-6" t-if="expense.od19_is_mileage and expense.od19_mileage_origin">
-                            <strong>ต้นทาง:</strong> <span t-field="expense.od19_mileage_origin"/>
-                        </div>
-                        <div class="col-sm-6" t-if="expense.od19_is_mileage and expense.od19_mileage_destination">
-                            <strong>ปลายทาง:</strong> <span t-field="expense.od19_mileage_destination"/>
-                        </div>
                     </div>
+
+                    <h5 class="mb-2">รายการค่าใช้จ่าย</h5>
+                    <table class="table table-sm align-middle">
+                        <thead>
+                            <tr class="active">
+                                <th>รายการ</th>
+                                <th>หมวดค่าใช้จ่าย</th>
+                                <th>ศูนย์ต้นทุน</th>
+                                <th class="text-end">จำนวนเงิน</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="expense.line_ids" t-as="line">
+                                <tr>
+                                    <td>
+                                        <t t-out="line.name or ''"/>
+                                        <div t-if="line.od19_is_mileage" class="small text-muted">
+                                            <span t-if="line.od19_mileage_origin"><t t-out="line.od19_mileage_origin"/> → </span>
+                                            <t t-out="line.od19_mileage_destination"/>
+                                            <t t-if="line.od19_mileage_distance_km">(<t t-out="line.od19_mileage_distance_km"/> กม.)</t>
+                                        </div>
+                                    </td>
+                                    <td><span t-field="line.product_id"/></td>
+                                    <td>
+                                        <t t-if="line.analytic_distribution">
+                                            <t t-foreach="line.analytic_distribution" t-as="dist">
+                                                <span t-if="str(dist).isdigit()" class="badge bg-light text-dark">
+                                                    <t t-out="request.env['account.analytic.account'].sudo().browse(int(dist)).display_name"/>
+                                                </span>
+                                            </t>
+                                        </t>
+                                        <t t-else="">-</t>
+                                    </td>
+                                    <td class="text-end">
+                                        <span t-out="line.total_amount" t-options='{"widget": "monetary", "display_currency": line.currency_id}'/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
 
                     <form t-if="expense.state == 'draft'" method="post" t-attf-action="/my/expenses/#{expense.id}/submit">
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
@@ -221,6 +255,19 @@
                     <label class="form-label" for="description">รายละเอียด</label>
                     <input type="text" name="description" id="description" class="form-control"
                            t-att-value="form.get('description') or ''"/>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="analytic_account_id">ศูนย์ต้นทุน (Analytic Account)</label>
+                    <select name="analytic_account_id" id="analytic_account_id" class="form-select" required="required">
+                        <option value="">-- เลือก --</option>
+                        <t t-foreach="analytics" t-as="analytic">
+                            <option t-att-value="analytic.id"
+                                    t-att-selected="form.get('analytic_account_id') == analytic.id">
+                                <t t-out="analytic.display_name"/>
+                            </option>
+                        </t>
+                    </select>
                 </div>
 
                 <div class="mb-3">

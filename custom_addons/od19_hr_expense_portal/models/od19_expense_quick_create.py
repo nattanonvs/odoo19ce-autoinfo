@@ -26,6 +26,11 @@ class Od19ExpenseQuickCreate(models.TransientModel):
     description = fields.Char(
         string='Description / รายละเอียด',
     )
+    analytic_account_id = fields.Many2one(
+        'account.analytic.account',
+        string='Analytic Account / ศูนย์ต้นทุน',
+        required=True,
+    )
     currency_id = fields.Many2one(
         'res.currency',
         default=lambda self: self.env.company.currency_id.id,
@@ -99,41 +104,55 @@ class Od19ExpenseQuickCreate(models.TransientModel):
                     [('employee_id', '=', wiz.employee_id.id)], limit=1)
 
     def action_create_expense(self):
-        """Create the ``hr.expense`` and optionally submit it for approval."""
+        """Create an expense claim (header + one line) and optionally submit it."""
         self.ensure_one()
-        vals = {
+        date = self.expense_date or fields.Date.context_today(self)
+        claim = self.env['od19.expense.claim'].create({
+            'employee_id': self.employee_id.id,
+            'company_id': self.env.company.id,
+            'date': date,
+        })
+        line_vals = {
+            'od19_claim_id': claim.id,
             'employee_id': self.employee_id.id,
             'product_id': self.expense_category_id.id,
-            'date': self.expense_date or fields.Date.context_today(self),
+            'company_id': self.env.company.id,
+            'payment_mode': claim.payment_mode,
+            'date': date,
         }
         if self.description:
-            vals['name'] = self.description
+            line_vals['name'] = self.description
+        if self.analytic_account_id:
+            line_vals['analytic_distribution'] = {
+                str(self.analytic_account_id.id): 100.0,
+            }
         if self.od19_is_mileage:
             distance = self.distance_km or 0.0
             rate = self.env.company.od19_mileage_rate
             # price_unit is read-only in core: drive the amount through
             # quantity (= km) and total_amount (= km x rate) so core derives
             # price_unit for the no-cost mileage category.
-            vals.update({
+            line_vals.update({
                 'od19_is_mileage': True,
                 'od19_mileage_distance_km': distance,
                 'od19_mileage_vehicle_id': self.vehicle_id.id,
                 'od19_mileage_origin': self.origin,
                 'od19_mileage_destination': self.destination,
-                'od19_mileage_date': self.expense_date,
+                'od19_mileage_date': date,
                 'quantity': distance,
                 'total_amount': distance * rate,
             })
         else:
-            vals['total_amount'] = self.amount
-        expense = self.env['hr.expense'].create(vals)
+            line_vals['total_amount'] = self.amount
+        self.env['hr.expense'].create(line_vals)
+        claim.invalidate_recordset(['total_amount'])
         if self.submit_now:
-            expense.action_submit()
+            claim.action_submit()
         return {
             'type': 'ir.actions.act_window',
-            'name': 'Expense',
-            'res_model': 'hr.expense',
-            'res_id': expense.id,
+            'name': 'Expense Claim',
+            'res_model': 'od19.expense.claim',
+            'res_id': claim.id,
             'view_mode': 'form',
             'target': 'current',
         }

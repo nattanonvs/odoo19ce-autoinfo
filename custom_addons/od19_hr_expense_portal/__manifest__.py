@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'HR Expense Portal',
-    'version': '19.0.2.4.0',
+    'version': '19.0.2.5.0',
     'category': 'Human Resources/Expenses',
     'summary': (
         'Employee-facing expense experience: a quick submission wizard, a '
@@ -13,6 +13,7 @@
     'license': 'LGPL-3',
     'depends': [
         'hr_expense',
+        'od19_hr_expense_claim',
         'od19_hr_expense_thai',
         'mail',
         'portal',

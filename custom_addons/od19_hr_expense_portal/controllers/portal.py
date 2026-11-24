@@ -39,13 +39,13 @@ class Od19HrExpensePortal(CustomerPortal):
         return [('employee_id.user_id', '=', request.env.user.id)]
 
     def _expense_check_access(self, expense_id):
-        """Return the expense if it belongs to the current user, else raise."""
-        expense = request.env['hr.expense'].sudo().search(
+        """Return the claim if it belongs to the current user, else raise."""
+        claim = request.env['od19.expense.claim'].sudo().search(
             self._expense_domain() + [('id', '=', expense_id)], limit=1)
-        if not expense:
+        if not claim:
             raise MissingError(
                 _("The expense does not exist or you do not have access to it."))
-        return expense
+        return claim
 
     def _prepare_expense_form_values(self):
         """Values needed to render the submission form."""
@@ -55,6 +55,8 @@ class Od19HrExpensePortal(CustomerPortal):
             'employee': employee,
             'categories': request.env['product.product'].sudo().search(
                 [('can_be_expensed', '=', True)], order='name'),
+            'analytics': request.env['account.analytic.account'].sudo().search(
+                [], order='name'),
             'vehicles': Vehicle.search([('employee_id', '=', employee.id)])
             if employee else Vehicle.browse(),
             'today': fields.Date.context_today(request.env.user),
@@ -86,6 +88,7 @@ class Od19HrExpensePortal(CustomerPortal):
             'expense_date': post.get('expense_date')
             or fields.Date.context_today(request.env.user),
             'description': post.get('description'),
+            'analytic_account_id': _int(post.get('analytic_account_id')),
             'amount': _float(post.get('amount')),
             'distance_km': _float(post.get('distance_km')),
             'vehicle_id': _int(post.get('vehicle_id')),
@@ -186,17 +189,17 @@ class Od19HrExpensePortal(CustomerPortal):
     )
     def portal_my_expenses(self, page=1, **kw):
         values = self._prepare_portal_layout_values()
-        Expense = request.env['hr.expense'].sudo()
+        Claim = request.env['od19.expense.claim'].sudo()
         domain = self._expense_domain()
 
         pager = portal_pager(
             url='/my/expenses',
             url_args={},
-            total=Expense.search_count(domain),
+            total=Claim.search_count(domain),
             page=page,
             step=self._items_per_page,
         )
-        expenses = Expense.search(
+        expenses = Claim.search(
             domain, order='date desc, id desc',
             limit=self._items_per_page, offset=pager['offset'],
         )
@@ -267,12 +270,12 @@ class Od19HrExpensePortal(CustomerPortal):
     )
     def portal_my_expense_detail(self, expense_id, **kw):
         try:
-            expense = self._expense_check_access(expense_id)
+            claim = self._expense_check_access(expense_id)
         except MissingError:
             return request.not_found()
         values = self._prepare_portal_layout_values()
         values.update({
-            'expense': expense,
+            'expense': claim,
             'page_name': 'expense',
         })
         return request.render(
@@ -284,9 +287,9 @@ class Od19HrExpensePortal(CustomerPortal):
     )
     def portal_my_expense_submit(self, expense_id, **post):
         try:
-            expense = self._expense_check_access(expense_id)
+            claim = self._expense_check_access(expense_id)
         except MissingError:
             return request.not_found()
-        if expense.state == 'draft':
-            expense.action_submit()
+        if claim.state == 'draft':
+            claim.action_submit()
         return request.redirect('/my/expenses/%s' % expense_id)
