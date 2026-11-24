@@ -139,11 +139,20 @@
                         </field>
                     </page>
 
-                    <!-- 5) Invoice — every related document (K7/R9); the
-                         document type is only an initial filter, the user
-                         can pick a different one. -->
+                    <!-- 5) Invoice — the documents the clerk can settle
+                         (K7/R9/T9). The list is editable: pick several
+                         partner documents and they are reconciled on Post.
+                         The document type (in/out invoice·refund) is only an
+                         initial filter, never a rigid one. -->
                     <page string="เอกสารต้นทาง / Invoices" name="od19_invoices">
-                        <field name="od19_source_move_ids" readonly="1" nolabel="1">
+                        <field name="od19_source_move_ids" nolabel="1"
+                               readonly="state != 'draft'"
+                               options="{'no_create': True, 'no_quick_create': True, 'no_create_edit': True}"
+                               domain="[('partner_id', '=', partner_id),
+                                        ('company_id', '=', company_id),
+                                        ('state', '=', 'posted'),
+                                        ('move_type', 'in', ['in_invoice', 'in_refund', 'out_invoice', 'out_refund']),
+                                        ('payment_state', '!=', 'paid')]">
                             <list>
                                 <field name="move_type"/>
                                 <field name="name"/>
@@ -152,6 +161,7 @@
                                 <field name="amount_untaxed" optional="show"/>
                                 <field name="amount_tax" optional="show"/>
                                 <field name="amount_total"/>
+                                <field name="payment_state"/>
                                 <field name="state"/>
                             </list>
                         </field>

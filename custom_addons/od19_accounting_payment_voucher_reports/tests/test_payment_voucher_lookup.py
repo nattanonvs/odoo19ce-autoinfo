@@ -148,3 +148,59 @@ class TestVoucherRetrospectiveLookup(AccountTestInvoicingCommon):
             payment.ids,
         )
         self.assertIn(b"PAYMENT VOUCHER REGISTER", html.upper())
+
+    # ------------------------------------------------------------------
+    # T9 — picking the source documents on the "เอกสารต้นทาง / Invoices" tab
+    # ------------------------------------------------------------------
+    def _create_outbound_payment(self, amount):
+        """A supplier payment created straight on the form (no wizard)."""
+        return self.env["account.payment"].create(
+            {
+                "payment_type": "outbound",
+                "partner_type": "supplier",
+                "partner_id": self.partner_a.id,
+                "amount": amount,
+                "journal_id": self.company_data["default_journal_bank"].id,
+                "date": "2016-01-01",
+            }
+        )
+
+    def test_manual_source_selection_is_kept(self):
+        bill = self._create_bill()
+        payment = self._create_outbound_payment(bill.amount_total)
+        payment.od19_source_move_ids = bill
+        self.assertEqual(payment.od19_source_move_ids, bill)
+
+    def test_manual_source_selection_drives_amounts(self):
+        bill = self._create_bill(amount=1000.0)
+        payment = self._create_outbound_payment(1000.0)
+        payment.od19_source_move_ids = bill
+        self.assertAlmostEqual(
+            payment.od19_bill_total_amount, bill.amount_total, places=2
+        )
+
+    def test_manual_source_selection_settles_bill_on_post(self):
+        bill = self._create_bill()
+        payment = self._create_outbound_payment(bill.amount_total)
+        payment.od19_source_move_ids = bill
+        payment.action_post()
+        self.assertEqual(bill.payment_state, "paid")
+
+    def test_manual_selection_settles_several_bills_on_post(self):
+        bill_a = self._create_bill(amount=1000.0)
+        bill_b = self._create_bill(amount=500.0)
+        payment = self._create_outbound_payment(
+            bill_a.amount_total + bill_b.amount_total
+        )
+        payment.od19_source_move_ids = bill_a | bill_b
+        payment.action_post()
+        self.assertEqual(bill_a.payment_state, "paid")
+        self.assertEqual(bill_b.payment_state, "paid")
+
+    def test_clearing_manual_selection_keeps_it_empty(self):
+        bill = self._create_bill()
+        payment = self._create_outbound_payment(bill.amount_total)
+        payment.od19_source_move_ids = bill
+        payment.od19_source_move_ids = False
+        self.assertFalse(payment.od19_source_move_ids)
+

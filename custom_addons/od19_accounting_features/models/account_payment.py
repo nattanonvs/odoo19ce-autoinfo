@@ -342,6 +342,15 @@ class AccountPayment(models.Model):
             )
             if staged_bills:
                 return True
+        # Documents picked by hand on the "เอกสารต้นทาง / Invoices" tab
+        # (``od19_source_move_ids``, K7/R9/T9) count as the linked vendor bill
+        # too: the clerk selected them from the partner's own posted bills.
+        if "od19_source_move_ids" in self._fields:
+            picked_bills = self.od19_source_move_ids.filtered(
+                lambda move: move.is_purchase_document(include_receipts=True)
+            )
+            if picked_bills:
+                return True
         return False
 
     def _od19_check_vendor_bill_required(self):

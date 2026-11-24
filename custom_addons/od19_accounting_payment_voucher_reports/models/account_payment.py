@@ -118,8 +118,13 @@ class AccountPayment(models.Model):
         column2="move_id",
         string="เอกสารต้นทาง / Source documents",
         compute="_compute_od19_source_move_ids",
-        help="ใบแจ้งหนี้/ใบตั้งหนี้ที่รายการจ่ายนี้ชำระ รวมรายการที่พักไว้ "
-        "ตอนเตรียมจ่ายซึ่งยังไม่ถูกตัดจ่ายจนกว่าจะ Post",
+        store=True,
+        readonly=False,
+        precompute=True,
+        help="เอกสารที่รายการจ่ายนี้ตัดจ่าย — เลือกเองได้ตาม K7/R9 "
+        "(ประเภทเอกสารเป็นเพียงตัวกรองเริ่มต้น ไม่กรองตายตัว). "
+        "ค่าเริ่มต้นดึงจากรายการที่พักไว้ตอนเตรียมจ่ายและที่ตัดจ่ายแล้ว "
+        "แล้วผู้ใช้เพิ่ม/ถอดเอกสารของคู่ค้าได้เอง",
     )
     od19_payee_display = fields.Char(
         string="จ่ายให้/รับจาก / Paid to",
@@ -194,7 +199,14 @@ class AccountPayment(models.Model):
         "reconciled_bill_ids",
     )
     def _compute_od19_source_move_ids(self):
+        # The field is a ready-to-edit *default*, not a derivation: it seeds
+        # itself from the documents staged at "prepare" time and the ones
+        # already reconciled, but never overwrites a selection the clerk made
+        # on the "เอกสารต้นทาง / Invoices" tab (K7/R9). This keeps the amounts
+        # and the settlement in step with whatever the user actually picked.
         for payment in self:
+            if payment.od19_source_move_ids:
+                continue
             payment.od19_source_move_ids = (
                 payment.od19_pending_reconcile_line_ids.move_id
                 | payment.invoice_ids
@@ -216,12 +228,7 @@ class AccountPayment(models.Model):
             else:
                 payment.od19_direction_label = _("รับชำระจาก / Received from")
 
-    @api.depends(
-        "od19_pending_reconcile_line_ids",
-        "invoice_ids",
-        "reconciled_invoice_ids",
-        "reconciled_bill_ids",
-    )
+    @api.depends("od19_source_move_ids")
     def _compute_od19_bill_amounts(self):
         for payment in self:
             bills = payment.od19_source_move_ids.filtered(
@@ -233,12 +240,7 @@ class AccountPayment(models.Model):
             payment.od19_bill_tax_amount = sum(bills.mapped("amount_tax"))
             payment.od19_bill_total_amount = sum(bills.mapped("amount_total"))
 
-    @api.depends(
-        "od19_pending_reconcile_line_ids",
-        "invoice_ids",
-        "reconciled_invoice_ids",
-        "reconciled_bill_ids",
-    )
+    @api.depends("od19_source_move_ids")
     def _compute_od19_source_info(self):
         for payment in self:
             moves = payment.od19_source_move_ids
@@ -251,12 +253,7 @@ class AccountPayment(models.Model):
             )
             payment.od19_salesperson_id = first_move.invoice_user_id or False
 
-    @api.depends(
-        "od19_pending_reconcile_line_ids",
-        "invoice_ids",
-        "reconciled_invoice_ids",
-        "reconciled_bill_ids",
-    )
+    @api.depends("od19_source_move_ids")
     def _compute_od19_job_no(self):
         for payment in self:
             payment.od19_job_no = payment._od19_find_job_no()
@@ -438,13 +435,25 @@ class AccountPayment(models.Model):
     def _od19_reconcile_staged_lines(self):
         """Settle the source invoice/bill lines once the payment is posted.
 
-        Payments created through the "Prepare payment" option of the Register
-        Payment wizard are kept in draft, so the standard wizard reconciliation
-        cannot run at creation time. It is replayed here instead.
+        Two sources feed the settlement:
+
+        * ``od19_pending_reconcile_line_ids`` — lines staged by the "Prepare
+          payment" option of the Register Payment wizard. That flow keeps the
+          payment in draft, so the standard wizard reconciliation cannot run at
+          creation time and is replayed here instead.
+        * ``od19_source_move_ids`` — the documents the clerk picked on the
+          "เอกสารต้นทาง / Invoices" tab (K7/R9/T9). Their open receivable /
+          payable lines are settled too, so a manually chosen set really gets
+          paid off, not just displayed.
         """
         helper = self.env["account.move"]._od19_reconcile_move_lines
-        for payment in self.filtered("od19_pending_reconcile_line_ids"):
+        for payment in self:
             if not payment.move_id:
+                continue
+            target_lines = payment.od19_pending_reconcile_line_ids
+            if payment.od19_source_move_ids:
+                target_lines |= payment.od19_source_move_ids.line_ids
+            if not target_lines:
                 continue
             domain = [
                 ("parent_state", "=", "posted"),
@@ -452,14 +461,17 @@ class AccountPayment(models.Model):
                 ("reconciled", "=", False),
             ]
             payment_lines = payment.move_id.line_ids.filtered_domain(domain)
-            staged_lines = payment.od19_pending_reconcile_line_ids.filtered_domain(domain)
+            staged_lines = target_lines.filtered_domain(domain)
             for account in payment_lines.account_id:
                 helper(
                     (payment_lines + staged_lines).filtered_domain(
                         [("account_id", "=", account.id), ("reconciled", "=", False)]
                     )
                 )
-            staged_lines.move_id.matched_payment_ids = [Command.link(payment.id)]
+            if staged_lines:
+                staged_lines.move_id.matched_payment_ids = [
+                    Command.link(payment.id)
+                ]
         return True
 
     def _od19_requires_prepare_approval(self):
