@@ -5,9 +5,10 @@ from odoo.tests.common import TransactionCase, tagged
 
 @tagged("post_install", "-at_install")
 class TestProjectTitleDisplay(TransactionCase):
-    """The project heading must render as '(job_no) project name', with the Job
-    Number and Project Name repeated as separate pieces of information in the
-    form title bar and on the kanban card.
+    """The project heading must render as '(job_no) project name'. The form title
+    bar keeps the Job Number and Project Name as separate, editable fields; the
+    list uses a single combined column; and the kanban card shows complementary
+    context (project category / department) instead of repeating the title.
     """
 
     def _combined(self, xmlid):
@@ -46,9 +47,13 @@ class TestProjectTitleDisplay(TransactionCase):
             kanban.xpath("//span[contains(@class,'fs-4')]//field[@name='od19_title']"),
             "The kanban card heading must display the combined title.",
         )
-        self.assertTrue(
+        self.assertFalse(
             kanban.xpath("//div[contains(@class,'od19-kanban-project-meta')]"),
-            "The kanban card must repeat Job Number / Project Name below the title.",
+            "The kanban card must not repeat Job Number / Project Name below the title.",
+        )
+        self.assertTrue(
+            kanban.xpath("//field[@name='od19_project_type_id']"),
+            "The kanban card must show complementary context (project category).",
         )
 
     def test_list_shows_combined_title(self):
@@ -56,4 +61,8 @@ class TestProjectTitleDisplay(TransactionCase):
         self.assertTrue(
             lst.xpath("//field[@name='od19_title']"),
             "The project list must show the combined '(job_no) name' column.",
+        )
+        self.assertTrue(
+            lst.xpath("//field[@name='name'][@optional='hide']"),
+            "The core 'name' column must be hidden by default (shown via od19_title).",
         )

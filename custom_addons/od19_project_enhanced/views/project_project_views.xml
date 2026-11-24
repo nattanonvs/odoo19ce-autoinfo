@@ -43,18 +43,22 @@
             <xpath expr="//h1[field[@name='job_no']]" position="replace">
                 <h1 class="d-flex flex-row">
                     <field name="is_favorite" nolabel="1" widget="project_is_favorite" class="me-2" options="{'autosave': False}"/>
-                    <field name="od19_title" nolabel="1" class="o_text_overflow fw-bold"/>
+                    <field name="od19_title" nolabel="1" class="o_text_overflow"/>
                 </h1>
             </xpath>
             <xpath expr="//h2[field[@name='name']]" position="replace">
                 <div class="od19-title-fields mt-2">
-                    <div class="d-flex align-items-baseline">
-                        <span class="text-muted fw-semibold me-2" style="min-width: 110px;">Job Number</span>
-                        <field name="job_no" nolabel="1" class="o_text_overflow" placeholder="e.g. JOB-2026-001" required="1"/>
+                    <div class="row g-0 align-items-baseline mb-1">
+                        <div class="col-12 col-sm-3 col-lg-2 text-muted fw-semibold">Job Number</div>
+                        <div class="col-12 col-sm-9 col-lg-10">
+                            <field name="job_no" nolabel="1" class="o_text_overflow" placeholder="e.g. JOB-2026-001" required="1"/>
+                        </div>
                     </div>
-                    <div class="d-flex align-items-baseline mt-1">
-                        <span class="text-muted fw-semibold me-2" style="min-width: 110px;">Project Name</span>
-                        <field name="name" nolabel="1" widget="text" options="{'line_breaks': False}" class="o_text_overflow" placeholder="e.g. Project Name"/>
+                    <div class="row g-0 align-items-baseline">
+                        <div class="col-12 col-sm-3 col-lg-2 text-muted fw-semibold">Project Name</div>
+                        <div class="col-12 col-sm-9 col-lg-10">
+                            <field name="name" nolabel="1" widget="text" options="{'line_breaks': False}" class="o_text_overflow" placeholder="e.g. Project Name"/>
+                        </div>
                     </div>
                 </div>
             </xpath>
@@ -69,8 +73,14 @@
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="od19_project_type_id" optional="show"/>
             </xpath>
+            <!-- Single, combined title column. The core 'name' column is kept
+                 available (hidden by default) so it can still be used for
+                 sorting, while '(job_no) name' is the primary column shown. -->
+            <xpath expr="//field[@name='name']" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </xpath>
             <xpath expr="//field[@name='name']" position="after">
-                <field name="od19_title" optional="show"/>
+                <field name="od19_title" string="Project" class="fw-bold" optional="show"/>
             </xpath>
         </field>
     </record>
@@ -88,24 +98,25 @@
             <xpath expr="//kanban" position="attributes">
                 <attribute name="action"></attribute>
             </xpath>
-            <!-- Card heading shows '(job_no) project name'; the Job Number and
-                 Project Name are repeated as separate lines underneath. -->
+            <!-- Card heading shows '(job_no) project name'. The Job Number and
+                 Project Name are not repeated; the card shows complementary
+                 context instead (project category and department). -->
             <xpath expr="//kanban/templates" position="before">
                 <field name="od19_title"/>
-                <field name="job_no"/>
-                <field name="name"/>
+                <field name="od19_project_type_id"/>
+                <field name="od19_department_id"/>
             </xpath>
             <xpath expr="//span[hasclass('fs-4')]" position="replace">
                 <span class="text-truncate d-block fs-4 fw-bold" t-att-title="record.od19_title.value"><field name="od19_title"/></span>
             </xpath>
             <xpath expr="//div[hasclass('o_project_kanban_body')]" position="before">
-                <div class="od19-kanban-project-meta text-muted small mb-1">
-                    <div class="text-truncate" t-if="record.job_no.raw_value">
-                        <span class="fw-semibold">Job Number:</span> <field name="job_no"/>
-                    </div>
-                    <div class="text-truncate">
-                        <span class="fw-semibold">Project Name:</span> <field name="name"/>
-                    </div>
+                <div class="text-muted d-flex align-items-baseline" t-if="record.od19_project_type_id.raw_value">
+                    <span class="fa fa-tag me-2" title="Project Category"/>
+                    <field name="od19_project_type_id" class="text-truncate"/>
+                </div>
+                <div class="text-muted d-flex align-items-baseline" t-if="record.od19_department_id.raw_value">
+                    <span class="fa fa-building me-2" title="Department"/>
+                    <field name="od19_department_id" class="text-truncate"/>
                 </div>
             </xpath>
         </field>
