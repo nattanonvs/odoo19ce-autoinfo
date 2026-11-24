@@ -1,0 +1,229 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* od19_payment_pull
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-21 00:00+0000\n"
+"PO-Revision-Date: 2026-11-21 00:00+0000\n"
+"Last-Translator: OD19\n"
+"Language-Team: Thai\n"
+"Language: th\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#. module: od19_payment_pull
+#: model_terms:ir.ui.view,arch_db:od19_payment_pull.view_od19_payment_pull_wizard_form
+msgid "Cancel"
+msgstr "ยกเลิก"
+
+#. module: od19_payment_pull
+#: model:ir.model.fields,field_description:od19_payment_pull.field_od19_payment_pull_wizard__company_id
+msgid "บริษัท / Company"
+msgstr "บริษัท / Company"
+
+#. module: od19_payment_pull
+#: model:ir.model.fields,field_description:od19_payment_pull.field_od19_payment_pull_wizard__partner_id
+msgid "คู่ค้า (ตัวกรอง) / Partner filter"
+msgstr "คู่ค้า (ตัวกรอง) / Partner filter"
+
+#. module: od19_payment_pull
+#: model:ir.model.fields,field_description:od19_payment_pull.field_od19_payment_pull_wizard_line__partner_id
+msgid "คู่ค้า / Partner"
+msgstr "คู่ค้า / Partner"
+
+#. module: od19_payment_pull
+#: model:ir.model.fields,field_description:od19_payment_pull.field_od19_payment_pull_wizard_line__is_partial
+msgid "จ่ายบางส่วน / Partial"
+msgstr "จ่ายบางส่วน / Partial"
+
+#. module: od19_payment_pull
+#: model:ir.model.fields.selection,name:od19_payment_pull.selection__od19_payment_pull_wizard__payment_type__outbound
+msgid "จ่าย (เจ้าหนี้) / Outbound (Vendor)"
+msgstr "จ่าย (เจ้าหนี้) / Outbound (Vendor)"
+
+#. module: od19_payment_pull
+#: model:ir.model.fields,field_description:od19_payment_pull.field_od19_payment_pull_wizard__journal_id
+msgid "สมุดบัญชี / Journal"
+msgstr "สมุดบัญชี / Journal"
+
+#. module: od19_payment_pull
+#: model:ir.model.fields,field_description:od19_payment_pull.field_od19_payment_pull_wizard__date_to
+msgid "ถึงวันที่ / Date to"
+msgstr "ถึงวันที่ / Date to"
+
+#. module: od19_payment_pull
+#: model:ir.model.fields,field_description:od19_payment_pull.field_od19_payment_pull_wizard__date_from
+msgid "ตั้งแต่วันที่ / Date from"
+msgstr "ตั้งแต่วันที่ / Date from"
+
+#. module: od19_payment_pull
+#: model:ir.model.fields,field_description:od19_payment_pull.field_od19_payment_pull_wizard__only_overdue
+msgid "เฉพาะเกินกำหนด / Only overdue"
+msgstr "เฉพาะเกินกำหนด / Only overdue"
+
+#. module: od19_payment_pull
+#: model:ir.model.fields,field_description:od19_payment_pull.field_od19_payment_pull_wizard__include_refunds
+msgid "รวมใบลดหนี้/คืนเงิน / Include refunds"
+msgstr "รวมใบลดหนี้/คืนเงิน / Include refunds"
+
+#. module: od19_payment_pull
+#: model:ir.model.fields,field_description:od19_payment_pull.field_od19_payment_pull_wizard__group_by_partner
+msgid "รวมเป็นใบสำคัญเดียวต่อคู่ค้า / One voucher per partner"
+msgstr "รวมเป็นใบสำคัญเดียวต่อคู่ค้า / One voucher per partner"
+
+#. module: od19_payment_pull
+#: model:ir.model.fields,field_description:od19_payment_pull.field_od19_payment_pull_wizard__selected_count
+msgid "จำนวนที่เลือก / Selected count"
+msgstr "จำนวนที่เลือก / Selected count"
+
+#. module: od19_payment_pull
+#: model:ir.model.fields,field_description:od19_payment_pull.field_od19_payment_pull_wizard__planned_voucher_count
+msgid "จำนวนใบสำคัญที่จะสร้าง / Planned vouchers"
+msgstr "จำนวนใบสำคัญที่จะสร้าง / Planned vouchers"
+
+#. module: od19_payment_pull
+#: model:ir.model.fields,field_description:od19_payment_pull.field_od19_payment_pull_wizard__payment_type
+msgid "ประเภทใบสำคัญ / Voucher Type"
+msgstr "ประเภทใบสำคัญ / Voucher Type"
+
+#. module: od19_payment_pull
+#: model:ir.model.fields,field_description:od19_payment_pull.field_od19_payment_pull_wizard_line__invoice_date
+msgid "วันที่เอกสาร / Invoice date"
+msgstr "วันที่เอกสาร / Invoice date"
+
+#. module: od19_payment_pull
+#: model:ir.model.fields,field_description:od19_payment_pull.field_od19_payment_pull_wizard__payment_date
+msgid "วันที่จ่าย/รับ / Payment date"
+msgstr "วันที่จ่าย/รับ / Payment date"
+
+#. module: od19_payment_pull
+#: model:ir.model.fields,field_description:od19_payment_pull.field_od19_payment_pull_wizard_line__date_due
+msgid "กำหนดชำระ / Due date"
+msgstr "กำหนดชำระ / Due date"
+
+#. module: od19_payment_pull
+#: model:ir.model.fields,field_description:od19_payment_pull.field_od19_payment_pull_wizard_line__currency_id
+#: model:ir.model.fields,field_description:od19_payment_pull.field_od19_payment_pull_wizard__currency_id
+msgid "สกุลเงิน / Currency"
+msgstr "สกุลเงิน / Currency"
+
+#. module: od19_payment_pull
+#: model:ir.model.fields.selection,name:od19_payment_pull.selection__od19_payment_pull_wizard__payment_type__inbound
+msgid "รับ (ลูกหนี้) / Inbound (Customer)"
+msgstr "รับ (ลูกหนี้) / Inbound (Customer)"
+
+#. module: od19_payment_pull
+#: model:ir.model.fields,field_description:od19_payment_pull.field_od19_payment_pull_wizard_line__selected
+msgid "เลือก / Select"
+msgstr "เลือก / Select"
+
+#. module: od19_payment_pull
+#: model:ir.model.fields,field_description:od19_payment_pull.field_od19_payment_pull_wizard_line__move_id
+msgid "เอกสาร / Document"
+msgstr "เอกสาร / Document"
+
+#. module: od19_payment_pull
+#: model:ir.model.fields,field_description:od19_payment_pull.field_od19_payment_pull_wizard_line__ref
+msgid "เลขที่ / Number"
+msgstr "เลขที่ / Number"
+
+#. module: od19_payment_pull
+#: model:ir.model.fields,field_description:od19_payment_pull.field_od19_payment_pull_wizard_line__amount_total
+msgid "ยอดรวม / Total"
+msgstr "ยอดรวม / Total"
+
+#. module: od19_payment_pull
+#: model:ir.model.fields,field_description:od19_payment_pull.field_od19_payment_pull_wizard__selected_amount
+msgid "ยอดรวมที่เลือก / Selected amount"
+msgstr "ยอดรวมที่เลือก / Selected amount"
+
+#. module: od19_payment_pull
+#: model:ir.model.fields,field_description:od19_payment_pull.field_od19_payment_pull_wizard_line__amount_residual
+msgid "ยอดค้าง (สกุลเอกสาร) / Residual"
+msgstr "ยอดค้าง (สกุลเอกสาร) / Residual"
+
+#. module: od19_payment_pull
+#: model:ir.model.fields,field_description:od19_payment_pull.field_od19_payment_pull_wizard_line__amount_to_pay
+msgid "ยอดจ่ายครั้งนี้ / Amount to pay"
+msgstr "ยอดจ่ายครั้งนี้ / Amount to pay"
+
+#. module: od19_payment_pull
+#: model:ir.model.fields,field_description:od19_payment_pull.field_od19_payment_pull_wizard__line_ids
+msgid "รายการเอกสาร / Documents"
+msgstr "รายการเอกสาร / Documents"
+
+#. module: od19_payment_pull
+#. odoo-python
+#: code:addons/od19_payment_pull/wizards/od19_payment_pull_wizard.py:0
+msgid "กรุณาเลือกรายการเอกสารอย่างน้อย 1 รายการ / Please select at least one document."
+msgstr "กรุณาเลือกรายการเอกสารอย่างน้อย 1 รายการ / Please select at least one document."
+
+#. module: od19_payment_pull
+#. odoo-python
+#: code:addons/od19_payment_pull/wizards/od19_payment_pull_wizard.py:0
+#, python-format
+msgid ""
+"ยอดจ่ายของเอกสาร %(doc)s ต้องมากกว่า 0 / The amount to pay for %(doc)s must "
+"be greater than 0."
+msgstr ""
+"ยอดจ่ายของเอกสาร %(doc)s ต้องมากกว่า 0 / The amount to pay for %(doc)s must "
+"be greater than 0."
+
+#. module: od19_payment_pull
+#. odoo-python
+#: code:addons/od19_payment_pull/wizards/od19_payment_pull_wizard.py:0
+#, python-format
+msgid ""
+"ยอดจ่ายของเอกสาร %(doc)s เกินยอดค้างชำระ / The amount to pay for %(doc)s "
+"exceeds the residual amount."
+msgstr ""
+"ยอดจ่ายของเอกสาร %(doc)s เกินยอดค้างชำระ / The amount to pay for %(doc)s "
+"exceeds the residual amount."
+
+#. module: od19_payment_pull
+#. odoo-python
+#: code:addons/od19_payment_pull/wizards/od19_payment_pull_wizard.py:0
+msgid "สร้างใบสำคัญเรียบร้อย / Vouchers created"
+msgstr "สร้างใบสำคัญเรียบร้อย / Vouchers created"
+
+#. module: od19_payment_pull
+#. odoo-python
+#: code:addons/od19_payment_pull/wizards/od19_payment_pull_wizard.py:0
+#, python-format
+msgid ""
+"สร้างใบสำคัญจำนวน %(count)s ใบ ในสถานะร่าง / %(count)s voucher(s) created in "
+"draft state."
+msgstr ""
+"สร้างใบสำคัญจำนวน %(count)s ใบ ในสถานะร่าง / %(count)s voucher(s) created in "
+"draft state."
+
+#. module: od19_payment_pull
+#. odoo-python
+#: code:addons/od19_payment_pull/wizards/od19_payment_pull_wizard.py:0
+msgid "ใบสำคัญที่สร้าง / Created Vouchers"
+msgstr "ใบสำคัญที่สร้าง / Created Vouchers"
+
+#. module: od19_payment_pull
+#: model_terms:ir.ui.view,arch_db:od19_payment_pull.view_od19_payment_pull_wizard_form
+msgid "ดึงเอกสารตั้งใบสำคัญ / Pull documents into voucher"
+msgstr "ดึงเอกสารตั้งใบสำคัญ / Pull documents into voucher"
+
+#. module: od19_payment_pull
+#: model_terms:ir.ui.view,arch_db:od19_payment_pull.view_od19_payment_pull_wizard_form
+msgid "ดึงรายการ &amp; สร้างใบสำคัญ / Pull &amp; Create"
+msgstr "ดึงรายการ &amp; สร้างใบสำคัญ / Pull &amp; Create"
+
+#. module: od19_payment_pull
+#: model_terms:ir.ui.view,arch_db:od19_payment_pull.view_od19_payment_voucher_tree_pull
+msgid "สร้างใบสำคัญจ่าย (ดึงเอกสาร) / New Voucher (Pull)"
+msgstr "สร้างใบสำคัญจ่าย (ดึงเอกสาร) / New Voucher (Pull)"
+
+#. module: od19_payment_pull
+#: model_terms:ir.ui.view,arch_db:od19_payment_pull.view_od19_payment_voucher_tree_pull
+msgid "สร้างใบสำคัญรับ (ดึงเอกสาร) / New Voucher (Pull)"
+msgstr "สร้างใบสำคัญรับ (ดึงเอกสาร) / New Voucher (Pull)"
