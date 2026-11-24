@@ -8,12 +8,15 @@
             <list string="Expense Claims"
                   decoration-info="state == 'draft'"
                   decoration-warning="state in ('submitted', 'refused')"
-                  decoration-success="state in ('approved', 'sent', 'posted', 'paid')">
+                  decoration-success="state in ('approved', 'sent', 'posted', 'paid', 'cleared')">
                 <field name="name"/>
                 <field name="employee_id"/>
                 <field name="department_id" optional="show"/>
+                <field name="claim_type" widget="badge" optional="show"/>
                 <field name="date"/>
-                <field name="total_amount" sum="Total"/>
+                <field name="total_amount" sum="Total" optional="show"/>
+                <field name="remaining_amount" optional="hide"/>
+                <field name="cash_state" optional="hide"/>
                 <field name="payment_mode" optional="hide"/>
                 <field name="state" widget="badge"/>
                 <field name="currency_id" column_invisible="1"/>
@@ -39,6 +42,14 @@
                             class="btn-primary"
                             groups="account.group_account_manager"
                             invisible="state != 'sent'"/>
+                    <!-- จ่ายเงินทดรอง/เงินสดย่อยให้พนักงาน (approved -> paid) -->
+                    <button name="action_pay" type="object" string="จ่ายเงิน"
+                            class="btn-primary"
+                            invisible="claim_type not in ('advance', 'petty_cash') or state != 'approved'"/>
+                    <!-- เคลียร์เงินทดรอง/เงินสดย่อย (paid -> cleared) -->
+                    <button name="action_open_clear_wizard" type="object" string="เคลียร์/คืนเงิน"
+                            class="btn-primary"
+                            invisible="claim_type not in ('advance', 'petty_cash') or state != 'paid'"/>
                     <button name="action_refuse" type="object" string="Refuse"
                             invisible="state not in ('submitted', 'approved')"/>
                     <button name="action_reset" type="object" string="Reset to Draft"
@@ -47,7 +58,7 @@
                     <button name="%(action_report_od19_expense_claim)d" type="action"
                             string="พิมพ์เอกสารเบิก" class="btn-secondary"/>
                     <field name="state" widget="statusbar"
-                           statusbar_visible="draft,submitted,approved,sent,posted,paid,refused"/>
+                           statusbar_visible="draft,submitted,approved,sent,posted,paid,cleared,refused"/>
                 </header>
                 <sheet>
                     <div class="oe_title">
@@ -58,20 +69,55 @@
                             <field name="employee_id"
                                    readonly="state != 'draft'"/>
                             <field name="department_id" readonly="1"/>
+                            <field name="claim_type" readonly="state != 'draft'"/>
+                            <field name="claim_source" readonly="state != 'draft'"/>
+                            <field name="submitted_for_id"
+                                   invisible="claim_source != 'on_behalf'"
+                                   readonly="state != 'draft'"/>
                             <field name="date" readonly="state != 'draft'"/>
                             <field name="payment_mode" widget="radio" readonly="state != 'draft'"/>
+                            <field name="purpose" invisible="claim_type != 'advance'"
+                                   readonly="state != 'draft'"/>
                         </group>
                         <group>
-                            <field name="total_amount"/>
+                            <field name="total_amount" invisible="claim_type == 'advance'"/>
+                            <field name="amount" invisible="claim_type == 'reimbursement'"
+                                   readonly="state != 'draft'"/>
+                            <field name="advance_id" invisible="claim_type != 'reimbursement'"
+                                   readonly="state != 'draft'"/>
+                            <field name="cash_fund_id" invisible="claim_type != 'petty_cash'"
+                                   readonly="state != 'draft'"/>
+                            <field name="advance_account_id" invisible="claim_type == 'reimbursement'"
+                                   readonly="state != 'draft'"/>
+                            <field name="journal_id" invisible="claim_type == 'reimbursement'"
+                                   readonly="state != 'draft'"/>
+                            <field name="payment_method" invisible="claim_type == 'reimbursement'"/>
                             <field name="currency_id" groups="base.group_multi_currency"/>
                             <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <group string="Cash Tracking" invisible="claim_type == 'reimbursement'">
+                        <group>
+                            <field name="cash_state" widget="badge"/>
+                            <field name="cleared_amount"/>
+                            <field name="remaining_amount"/>
+                        </group>
+                        <group>
+                            <field name="payment_date" readonly="1"/>
+                            <field name="clear_date" readonly="1"/>
+                            <field name="payment_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
                             <field name="submit_date" readonly="1"/>
                             <field name="approval_date" readonly="1"/>
                             <field name="transfer_date" readonly="1"/>
                         </group>
                     </group>
                     <notebook>
-                        <page string="Expense Lines" name="lines">
+                        <page string="Expense Lines" name="lines"
+                              invisible="claim_type != 'reimbursement'">
                             <field name="line_ids"
                                    context="{'default_employee_id': employee_id,
                                              'default_payment_mode': payment_mode,
@@ -142,13 +188,27 @@
                 <filter string="Approved" name="approved" domain="[('state', '=', 'approved')]"/>
                 <filter string="Sent to Accounting" name="sent" domain="[('state', '=', 'sent')]"/>
                 <filter string="Posted" name="posted" domain="[('state', '=', 'posted')]"/>
+                <filter string="Paid" name="paid" domain="[('state', '=', 'paid')]"/>
+                <filter string="Cleared" name="cleared" domain="[('state', '=', 'cleared')]"/>
                 <filter string="Refused" name="refused" domain="[('state', '=', 'refused')]"/>
+                <separator/>
+                <filter string="Reimbursement" name="type_reimbursement"
+                        domain="[('claim_type', '=', 'reimbursement')]"/>
+                <filter string="Cash Advance" name="type_advance"
+                        domain="[('claim_type', '=', 'advance')]"/>
+                <filter string="Petty Cash" name="type_petty_cash"
+                        domain="[('claim_type', '=', 'petty_cash')]"/>
+                <separator/>
+                <filter string="Outstanding Cash" name="outstanding_cash"
+                        domain="[('cash_state', 'in', ('issued', 'partially_used'))]"/>
                 <separator/>
                 <filter string="My Claims" name="my_claims"
                         domain="[('employee_id.user_id', '=', uid)]"/>
                 <group>
                     <filter string="Employee" name="group_employee" context="{'group_by': 'employee_id'}"/>
                     <filter string="Department" name="group_department" context="{'group_by': 'department_id'}"/>
+                    <filter string="Claim Type" name="group_claim_type" context="{'group_by': 'claim_type'}"/>
+                    <filter string="Cash State" name="group_cash_state" context="{'group_by': 'cash_state'}"/>
                     <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
                 </group>
             </search>
