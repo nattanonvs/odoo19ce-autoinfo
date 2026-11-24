@@ -390,6 +390,39 @@ class TestPlBsReport(TransactionCase):
         self.assertIsInstance(parameters["pl_balance"], str)
         self.assertIsInstance(parameters["pl_cmp_balance"], str)
 
+    def test_header_template_switches_jasper_file(self):
+        report = self.env["profit.loss.report"].create({})
+        self.assertEqual(report._jasper_base_name(), "pl_bs")
+        report.report_template = "pl_bs_header"
+        self.assertEqual(report._jasper_base_name(), "pl_bs_header")
+
+    def test_header_template_prints_scope_per_statement(self):
+        profit_loss = self.env["profit.loss.report"].create(
+            {"report_template": "pl_bs_header"}
+        )
+        self.assertEqual(profit_loss.get_parameters()["p_scope"], "PL")
+
+        balance_sheet = self.env["balance.sheet.report"].create(
+            {"report_template": "pl_bs_header"}
+        )
+        self.assertEqual(balance_sheet.get_parameters()["p_scope"], "BS")
+
+        combined = self.env["pl.bs.report"].create({"report_template": "pl_bs_header"})
+        self.assertEqual(combined.get_parameters()["p_scope"], "ALL")
+
+    def test_default_levels_omit_header_scope(self):
+        report = self.env["profit.loss.report"].create({})
+        self.assertNotIn("p_scope", report.get_parameters())
+
+    def test_header_jasper_template_is_shipped(self):
+        for model in ("pl.bs.report", "profit.loss.report", "balance.sheet.report"):
+            report = self.env[model].create({"report_template": "pl_bs_header"})
+            path = report.get_jasper_file(
+                __file__, base_name=report._jasper_base_name()
+            )
+            self.assertTrue(path.endswith("pl_bs_header.jasper"), path)
+            self.assertTrue(os.path.isfile(path), path)
+
 
 class TestJournalVoucherForm(TransactionCase):
     @classmethod

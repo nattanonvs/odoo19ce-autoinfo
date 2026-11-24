@@ -1,7 +1,7 @@
 {
     "name": "OD19 Reporting - Jasper Reports Foundation",
     "author": "OD19",
-    "version": "19.0.1.4.0",
+    "version": "19.0.1.5.0",
     "category": "Reporting",
     "summary": "Foundation for Jasper and QWeb report templates",
     "depends": [

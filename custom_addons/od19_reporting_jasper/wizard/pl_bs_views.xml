@@ -159,6 +159,31 @@
         <field name="context">{'default_report_template': 'pl_bs_lvl4'}</field>
     </record>
 
+    <!--
+        "หัวข้อบัญชี" (account header) statement: one roll-up row per 4-digit
+        account header, printed from ``pl_bs_header.jrxml``.  The same wizard
+        serves the interactive Balance Sheet / Profit & Loss entry points
+        (Level = "หัวข้อบัญชี"), and this menu pre-selects it for the combined
+        Balance Sheet + Profit & Loss report.
+    -->
+    <record id="action_pl_bs_header" model="ir.actions.act_window">
+        <field name="name">(J-Report OD15) งบการเงิน (หัวข้อบัญชี)</field>
+        <field name="res_model">pl.bs.report</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_pl_bs_report"/>
+        <field name="target">new</field>
+        <field name="context">{'default_report_template': 'pl_bs_header'}</field>
+    </record>
+
+    <menuitem
+        id="menu_pl_bs_header"
+        name="(J-Report OD15) งบการเงิน (หัวข้อบัญชี)"
+        parent="account.menu_finance_reports"
+        action="action_pl_bs_header"
+        groups="account.group_account_user,account.group_account_manager"
+        sequence="87"
+    />
+
     <menuitem
         id="menu_pl_bs_lvl3"
         name="(J-Report OD15) งบการเงิน (ระดับ 3)"
