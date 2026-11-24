@@ -44,6 +44,22 @@
         </field>
     </record>
 
+    <!-- Clicking a project card must open the project form (summary/details)
+         instead of jumping straight to the task list. Core wires the kanban
+         card click to the task list via the 'action' attribute; dropping it
+         restores the default behaviour (open the record). Tasks stay reachable
+         from the card's "..." menu. -->
+    <record id="view_project_project_kanban_inherit_od19_enhanced" model="ir.ui.view">
+        <field name="name">project.project.kanban.od19.enhanced</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.view_project_kanban"/>
+        <field name="arch" type="xml">
+            <xpath expr="//kanban" position="attributes">
+                <attribute name="action"></attribute>
+            </xpath>
+        </field>
+    </record>
+
     <!-- D7: data quality KPIs -->
     <record id="view_project_project_kpi_list" model="ir.ui.view">
         <field name="name">project.project.kpi.list</field>
