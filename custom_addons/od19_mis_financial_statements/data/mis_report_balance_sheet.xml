@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="True">
+
+    <record id="mis_report_balance_sheet" model="mis.report">
+        <field name="name">งบแสดงฐานะทางการเงิน (หัวข้อบัญชี)</field>
+        <field name="description">งบดุลระดับหัวข้อบัญชี หมวด 1/2/3 — รวมยอดบัญชีลูกเข้ามายอดหัวข้อ (แบบ ค)</field>
+    </record>
+
+    <!-- ============================== สินทรัพย์ (1xxx) ============================== -->
+    <record id="mis_kpi_bs_assets" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_assets</field>
+        <field name="description">สินทรัพย์</field>
+        <field name="sequence">5</field>
+        <field name="style_id" ref="mis_style_fs_group" />
+        <field name="compare_method">none</field>
+    </record>
+
+    <record id="mis_kpi_bs_1110" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_1110</field>
+        <field name="description">เงินสดและเงินฝากธนาคาร</field>
+        <field name="sequence">10</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">bale[('code','=like','111%.%')]</field>
+    </record>
+
+    <record id="mis_kpi_bs_1120" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_1120</field>
+        <field name="description">ลูกหนี้การค้าและลูกหนี้อื่น</field>
+        <field name="sequence">20</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">bale[('code','=like','112%.%')] + bale[('code','=like','1130%.%')]</field>
+    </record>
+
+    <record id="mis_kpi_bs_1131" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_1131</field>
+        <field name="description">เงินทดรองจ่ายและเงินให้กู้ยืม</field>
+        <field name="sequence">30</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">bale[('code','=like','1131%.%')]</field>
+    </record>
+
+    <record id="mis_kpi_bs_1140" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_1140</field>
+        <field name="description">สินค้าคงเหลือ</field>
+        <field name="sequence">40</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">bale[('code','=like','1140%.%')]</field>
+    </record>
+
+    <record id="mis_kpi_bs_1150" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_1150</field>
+        <field name="description">สินทรัพย์หมุนเวียนอื่น</field>
+        <field name="sequence">50</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">bale[('code','=like','115%.%')]</field>
+    </record>
+
+    <record id="mis_kpi_bs_cur_assets" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_cur_assets</field>
+        <field name="description">รวมสินทรัพย์หมุนเวียน</field>
+        <field name="sequence">60</field>
+        <field name="style_id" ref="mis_style_fs_subtotal" />
+        <field name="compare_method">diff</field>
+        <field name="expression">bs_1110 + bs_1120 + bs_1131 + bs_1140 + bs_1150</field>
+    </record>
+
+    <record id="mis_kpi_bs_1210" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_1210</field>
+        <field name="description">เงินลงทุนระยะยาว</field>
+        <field name="sequence">70</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">bale[('code','=like','121%.%')]</field>
+    </record>
+
+    <record id="mis_kpi_bs_1310" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_1310</field>
+        <field name="description">ที่ดิน อาคารและอุปกรณ์</field>
+        <field name="sequence">80</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">bale[('code','=like','131%.%')]</field>
+    </record>
+
+    <record id="mis_kpi_bs_1320" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_1320</field>
+        <field name="description">ค่าเสื่อมราคาสะสม</field>
+        <field name="sequence">90</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">bale[('code','=like','132%.%')]</field>
+    </record>
+
+    <record id="mis_kpi_bs_1410" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_1410</field>
+        <field name="description">เงินมัดจำและเงินค้ำประกัน</field>
+        <field name="sequence">100</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">bale[('code','=like','141%.%')]</field>
+    </record>
+
+    <record id="mis_kpi_bs_noncur_assets" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_noncur_assets</field>
+        <field name="description">รวมสินทรัพย์ไม่หมุนเวียน</field>
+        <field name="sequence">110</field>
+        <field name="style_id" ref="mis_style_fs_subtotal" />
+        <field name="compare_method">diff</field>
+        <field name="expression">bs_1210 + bs_1310 + bs_1320 + bs_1410</field>
+    </record>
+
+    <record id="mis_kpi_bs_total_assets" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_total_assets</field>
+        <field name="description">รวมสินทรัพย์</field>
+        <field name="sequence">120</field>
+        <field name="style_id" ref="mis_style_fs_total" />
+        <field name="compare_method">diff</field>
+        <field name="expression">bs_cur_assets + bs_noncur_assets</field>
+    </record>
+
+    <!-- ============================== หนี้สิน (2xxx) ============================== -->
+    <record id="mis_kpi_bs_liab" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_liab</field>
+        <field name="description">หนี้สิน</field>
+        <field name="sequence">205</field>
+        <field name="style_id" ref="mis_style_fs_group" />
+        <field name="compare_method">none</field>
+    </record>
+
+    <record id="mis_kpi_bs_2110" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_2110</field>
+        <field name="description">เงินเบิกเกินบัญชีและเงินกู้ยืมจากธนาคาร</field>
+        <field name="sequence">210</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">-bale[('code','=like','2110%.%')]</field>
+    </record>
+
+    <record id="mis_kpi_bs_2120" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_2120</field>
+        <field name="description">ตั๋วเงินจ่ายและเช็คจ่ายล่วงหน้า</field>
+        <field name="sequence">220</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">-bale[('code','=like','2120%.%')]</field>
+    </record>
+
+    <record id="mis_kpi_bs_2130" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_2130</field>
+        <field name="description">เจ้าหนี้การค้าและเจ้าหนี้อื่น</field>
+        <field name="sequence">230</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">-bale[('code','=like','213%.%')]</field>
+    </record>
+
+    <record id="mis_kpi_bs_2210" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_2210</field>
+        <field name="description">หนี้สินหมุนเวียนอื่น</field>
+        <field name="sequence">240</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">-bale[('code','=like','221%.%')]</field>
+    </record>
+
+    <record id="mis_kpi_bs_cur_liab" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_cur_liab</field>
+        <field name="description">รวมหนี้สินหมุนเวียน</field>
+        <field name="sequence">250</field>
+        <field name="style_id" ref="mis_style_fs_subtotal" />
+        <field name="compare_method">diff</field>
+        <field name="expression">bs_2110 + bs_2120 + bs_2130 + bs_2210</field>
+    </record>
+
+    <record id="mis_kpi_bs_2310" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_2310</field>
+        <field name="description">เงินกู้ยืมระยะยาวจากธนาคาร</field>
+        <field name="sequence">260</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">-bale[('code','=like','231%.%')]</field>
+    </record>
+
+    <record id="mis_kpi_bs_total_liab" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_total_liab</field>
+        <field name="description">รวมหนี้สิน</field>
+        <field name="sequence">270</field>
+        <field name="style_id" ref="mis_style_fs_total" />
+        <field name="compare_method">diff</field>
+        <field name="expression">bs_cur_liab + bs_2310</field>
+    </record>
+
+    <!-- ============================== ส่วนของผู้ถือหุ้น (3xxx) ============================== -->
+    <record id="mis_kpi_bs_equity" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_equity</field>
+        <field name="description">ส่วนของผู้ถือหุ้น</field>
+        <field name="sequence">305</field>
+        <field name="style_id" ref="mis_style_fs_group" />
+        <field name="compare_method">none</field>
+    </record>
+
+    <record id="mis_kpi_bs_3100" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_3100</field>
+        <field name="description">ทุนเรือนหุ้น</field>
+        <field name="sequence">310</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">-bale[('code','=like','3100%.%')]</field>
+    </record>
+
+    <record id="mis_kpi_bs_3200" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_3200</field>
+        <field name="description">สำรองตามกฎหมาย</field>
+        <field name="sequence">320</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">-bale[('code','=like','3200%.%')]</field>
+    </record>
+
+    <record id="mis_kpi_bs_3300" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_3300</field>
+        <field name="description">กำไร (ขาดทุน) สะสม</field>
+        <field name="sequence">330</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">-bale[('code','=like','3300%.%')] - bale[('account_type','=','equity_unaffected')]</field>
+    </record>
+
+    <record id="mis_kpi_bs_3400" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_3400</field>
+        <field name="description">กำไร (ขาดทุน) สุทธิสำหรับงวด</field>
+        <field name="sequence">340</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">-(bale[('code','=like','4110%.%')] + bale[('code','=like','4120%.%')] + bale[('code','=like','4200%.%')] + bale[('code','=like','4300%.%')] + bale[('code','=like','511%.%')] + bale[('code','=like','512%.%')] + bale[('code','=like','5130%.%')] + bale[('code','=like','521%.%')] + bale[('code','=like','53%.%')] + bale[('code','=like','5400%.%')] + bale[('code','=like','5410%.%')] + bale[('code','=like','5420%.%')])</field>
+    </record>
+
+    <record id="mis_kpi_bs_total_equity" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_total_equity</field>
+        <field name="description">รวมส่วนของผู้ถือหุ้น</field>
+        <field name="sequence">350</field>
+        <field name="style_id" ref="mis_style_fs_subtotal" />
+        <field name="compare_method">diff</field>
+        <field name="expression">bs_3100 + bs_3200 + bs_3300 + bs_3400</field>
+    </record>
+
+    <!-- ============================== รวมและตรวจสอบ ============================== -->
+    <record id="mis_kpi_bs_liab_equity_total" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_liab_equity_total</field>
+        <field name="description">รวมหนี้สินและส่วนของผู้ถือหุ้น</field>
+        <field name="sequence">410</field>
+        <field name="style_id" ref="mis_style_fs_total" />
+        <field name="compare_method">diff</field>
+        <field name="expression">bs_total_liab + bs_total_equity</field>
+    </record>
+
+    <record id="mis_kpi_bs_check" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_balance_sheet" />
+        <field name="name">bs_check</field>
+        <field name="description">ผลต่างตรวจสอบ (สินทรัพย์ − หนี้สินและส่วนของผู้ถือหุ้น)</field>
+        <field name="sequence">420</field>
+        <field name="compare_method">none</field>
+        <field name="style_expression">'FS - Good' if abs(bs_check) &lt; 0.005 else 'FS - Bad'</field>
+        <field name="expression">bs_total_assets - bs_liab_equity_total</field>
+    </record>
+
+</odoo>

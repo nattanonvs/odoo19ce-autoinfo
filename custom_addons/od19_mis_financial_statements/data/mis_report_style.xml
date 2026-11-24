@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="True">
+    <record id="mis_style_fs_line" model="mis.report.style">
+        <field name="name">FS - line</field>
+        <field name="indent_level_inherit" eval="False" />
+        <field name="indent_level">1</field>
+    </record>
+    <record id="mis_style_fs_group" model="mis.report.style">
+        <field name="name">FS - group header</field>
+        <field name="font_weight_inherit" eval="False" />
+        <field name="font_weight">bold</field>
+        <field name="indent_level_inherit" eval="False" />
+        <field name="indent_level">0</field>
+    </record>
+    <record id="mis_style_fs_subtotal" model="mis.report.style">
+        <field name="name">FS - sub total</field>
+        <field name="background_color_inherit" eval="False" />
+        <field name="background_color">#EAD6D6</field>
+        <field name="font_weight_inherit" eval="False" />
+        <field name="font_weight">bold</field>
+    </record>
+    <record id="mis_style_fs_total" model="mis.report.style">
+        <field name="name">FS - total</field>
+        <field name="color_inherit" eval="False" />
+        <field name="color">#FFFFFF</field>
+        <field name="background_color_inherit" eval="False" />
+        <field name="background_color">#7A1C1C</field>
+        <field name="font_weight_inherit" eval="False" />
+        <field name="font_weight">bold</field>
+    </record>
+    <record id="mis_style_fs_good" model="mis.report.style">
+        <field name="name">FS - Good</field>
+        <field name="color_inherit" eval="False" />
+        <field name="color">#1B5E20</field>
+    </record>
+    <record id="mis_style_fs_bad" model="mis.report.style">
+        <field name="name">FS - Bad</field>
+        <field name="color_inherit" eval="False" />
+        <field name="color">#B71C1C</field>
+        <field name="font_weight_inherit" eval="False" />
+        <field name="font_weight">bold</field>
+    </record>
+</odoo>
