@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_config_settings_view_form_od19_bring_forward" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.od19.bring.forward</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='account']" position="inside">
+                <block title="Bring Forward (ยกยอดปิดงวด)" id="od19_bring_forward">
+                    <setting string="Bring Forward Journal (สมุดรายวัน)"
+                             help="สมุดรายวันเริ่มต้นที่ใช้บันทึกรายการยกยอดปิดงวด">
+                        <field name="bring_forward_journal_id" options="{'no_create': True}"/>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

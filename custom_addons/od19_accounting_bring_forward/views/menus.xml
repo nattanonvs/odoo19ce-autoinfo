@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_od19_bring_forward"
+              name="Bring Forward"
+              parent="account.account_closing_menu"
+              action="action_od19_bring_forward"
+              groups="account.group_account_user"
+              sequence="10"/>
+
+</odoo>
