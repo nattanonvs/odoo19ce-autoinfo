@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 """Tests for the quick expense submission wizard."""
 
+import base64
+
+from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase, tagged
 
 
@@ -80,10 +83,25 @@ class TestQuickCreate(TransactionCase):
 
     def test_submit_now_submits(self):
         wiz = self._wizard(
-            expense_category_id=self.category.id, amount=100.0, submit_now=True)
+            expense_category_id=self.category.id, amount=100.0, submit_now=True,
+            attachment=base64.b64encode(b"receipt"),
+            attachment_filename="receipt.png")
         action = wiz.action_create_expense()
         claim = self.env["od19.expense.claim"].browse(action["res_id"])
         self.assertNotEqual(claim.state, "draft")
+        self.assertEqual(
+            self.env["ir.attachment"].search_count([
+                ("res_model", "=", "od19.expense.claim"),
+                ("res_id", "=", claim.id),
+            ]),
+            1,
+        )
+
+    def test_submit_now_requires_attachment(self):
+        wiz = self._wizard(
+            expense_category_id=self.category.id, amount=100.0, submit_now=True)
+        with self.assertRaises(UserError):
+            wiz.action_create_expense()
 
     def test_analytic_account_is_required(self):
         """Without an analytic account the wizard refuses to create the claim."""

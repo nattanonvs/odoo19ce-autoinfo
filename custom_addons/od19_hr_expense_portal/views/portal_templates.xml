@@ -22,6 +22,7 @@
                 'draft': 'ฉบับร่าง',
                 'submitted': 'รออนุมัติ',
                 'approved': 'อนุมัติแล้ว',
+                'sent': 'ส่งบัญชีแล้ว',
                 'posted': 'บันทึกบัญชีแล้ว',
                 'in_payment': 'กำลังจ่าย',
                 'paid': 'จ่ายแล้ว',
@@ -66,7 +67,7 @@
                                 <span t-out="expense.total_amount" t-options='{"widget": "monetary", "display_currency": expense.currency_id}'/>
                             </td>
                             <td>
-                                <span t-attf-class="badge rounded-pill #{'text-bg-success' if expense.state in ('approved', 'posted', 'in_payment', 'paid') else ('text-bg-danger' if expense.state == 'refused' else 'text-bg-info')}">
+                                <span t-attf-class="badge rounded-pill #{'text-bg-success' if expense.state in ('approved', 'sent', 'posted', 'in_payment', 'paid') else ('text-bg-danger' if expense.state == 'refused' else 'text-bg-info')}">
                                     <t t-out="state_labels.get(expense.state, expense.state)"/>
                                 </span>
                             </td>
@@ -91,6 +92,7 @@
                 'draft': 'ฉบับร่าง',
                 'submitted': 'รออนุมัติ',
                 'approved': 'อนุมัติแล้ว',
+                'sent': 'ส่งบัญชีแล้ว',
                 'posted': 'บันทึกบัญชีแล้ว',
                 'in_payment': 'กำลังจ่าย',
                 'paid': 'จ่ายแล้ว',
@@ -106,7 +108,7 @@
                     <h3 class="mb-3">
                         <t t-out="expense.name"/>
                     </h3>
-                    <span t-attf-class="badge rounded-pill mb-3 #{'text-bg-success' if expense.state in ('approved', 'posted', 'in_payment', 'paid') else ('text-bg-danger' if expense.state == 'refused' else 'text-bg-info')}">
+                    <span t-attf-class="badge rounded-pill mb-3 #{'text-bg-success' if expense.state in ('approved', 'sent', 'posted', 'in_payment', 'paid') else ('text-bg-danger' if expense.state == 'refused' else 'text-bg-info')}">
                         <t t-out="state_labels.get(expense.state, expense.state)"/>
                     </span>
 
@@ -229,7 +231,7 @@
                 </button>
             </div>
 
-            <form method="post" action="/my/expenses/new" class="col-lg-8" id="od19_expense_form">
+            <form method="post" action="/my/expenses/new" class="col-lg-8" id="od19_expense_form" enctype="multipart/form-data">
                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
 
                 <div class="mb-3">
@@ -315,6 +317,13 @@
                     </div>
                 </fieldset>
 
+                <div class="mb-3">
+                    <label class="form-label" for="attachment">แนบหลักฐานค่าใช้จ่าย (ใบเสร็จ/ใบกำกับ)</label>
+                    <input type="file" name="attachment" id="attachment" class="form-control"
+                           accept="image/*,application/pdf"/>
+                    <div class="form-text">ต้องแนบอย่างน้อย 1 ไฟล์เมื่อส่งขออนุมัติ</div>
+                </div>
+
                 <div class="form-check mb-3">
                     <input type="checkbox" class="form-check-input" id="submit_now" name="submit_now" value="1" checked="checked"/>
                     <label class="form-check-label" for="submit_now">ส่งอนุมัติทันที</label>
@@ -337,6 +346,7 @@
                         Object.keys(data).forEach(function (name) {
                             var el = form.elements[name];
                             if (!el) { return; }
+                            if (el.type === 'file') { return; }
                             if (el.type === 'checkbox') {
                                 el.checked = !!data[name];
                             } else if (!el.value) {
@@ -349,7 +359,7 @@
                     try {
                         var data = {};
                         Array.prototype.forEach.call(form.elements, function (el) {
-                            if (!el.name || el.name === 'csrf_token') { return; }
+                            if (!el.name || el.name === 'csrf_token' || el.type === 'file') { return; }
                             data[el.name] = el.type === 'checkbox' ? el.checked : el.value;
                         });
                         window.localStorage.setItem(KEY, JSON.stringify(data));
@@ -364,6 +374,16 @@
                         try { window.localStorage.removeItem(KEY); } catch (e) {}
                         form.reset();
                     });
+                }
+                // The receipt is only mandatory when the claim is submitted now.
+                var submitNow = form.elements['submit_now'];
+                var attach = form.elements['attachment'];
+                var syncRequired = function () {
+                    if (attach &amp;&amp; submitNow) { attach.required = !!submitNow.checked; }
+                };
+                if (submitNow) {
+                    submitNow.addEventListener('change', syncRequired);
+                    syncRequired();
                 }
             })();
             </script>

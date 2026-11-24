@@ -72,6 +72,13 @@ class Od19ExpenseQuickCreate(models.TransientModel):
         string='Submit now / ส่งอนุมัติทันที',
         default=True,
     )
+    attachment = fields.Binary(
+        string='Receipt / หลักฐานค่าใช้จ่าย',
+        attachment=False,
+    )
+    attachment_filename = fields.Char(
+        string='Attachment Filename / ชื่อไฟล์หลักฐาน',
+    )
 
     @api.depends('expense_category_id')
     def _compute_od19_is_mileage(self):
@@ -146,6 +153,13 @@ class Od19ExpenseQuickCreate(models.TransientModel):
             line_vals['total_amount'] = self.amount
         self.env['hr.expense'].create(line_vals)
         claim.invalidate_recordset(['total_amount'])
+        if self.attachment:
+            self.env['ir.attachment'].create({
+                'name': self.attachment_filename or 'receipt',
+                'datas': self.attachment,
+                'res_model': 'od19.expense.claim',
+                'res_id': claim.id,
+            })
         if self.submit_now:
             claim.action_submit()
         return {

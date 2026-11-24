@@ -7,6 +7,7 @@ domain ``[('employee_id.user_id', '=', request.env.user.id)]`` so a user can
 never reach an expense belonging to somebody else.
 """
 
+import base64
 import logging
 
 import requests
@@ -247,6 +248,10 @@ class Od19HrExpensePortal(CustomerPortal):
             return request.redirect('/my')
 
         vals = self._expense_form_to_wizard_vals(post)
+        upload = request.httprequest.files.get('attachment')
+        if upload and upload.filename:
+            vals['attachment'] = base64.b64encode(upload.read())
+            vals['attachment_filename'] = upload.filename
         try:
             wizard = request.env['od19.expense.quick.create'].sudo().create(vals)
             action = wizard.action_create_expense()
