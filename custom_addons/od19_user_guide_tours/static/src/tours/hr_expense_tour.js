@@ -10,9 +10,10 @@ import { markup } from "@odoo/owl";
  * filing an expense. This tour walks the user through:
  *  1. Creating an expense claim (header + expense lines)
  *  2. Filling the mandatory analytic account on every line
- *  3. Submitting the claim
+ *  3. Attaching the receipt and submitting the claim
  *  4. Tier validation (Dept Manager -> Accounting -> CEO)
- *  5. Posting the journal entries once approved
+ *  5. The employee confirming the hand-off (Send to Accounting)
+ *  6. Accounting posting the journal entries (Accounting's job, not the employee's)
  */
 registry.category("web_tour.tours").add("od19_hr_expense_tour", {
     url: "/odoo",
@@ -122,7 +123,10 @@ registry.category("web_tour.tours").add("od19_hr_expense_tour", {
         // --- Submit ---
         ...stepUtils.statusbarButtonsSteps(
             "Submit",
-            markup(_t("Click <b>Submit</b> to send the claim for approval.")),
+            markup(_t(
+                "Attach at least one receipt (chatter, paper-clip icon) and click " +
+                "<b>Submit</b> to send the claim for approval."
+            )),
             ".o_form_view"
         ),
 
@@ -139,12 +143,26 @@ registry.category("web_tour.tours").add("od19_hr_expense_tour", {
             run: "click",
         },
 
-        // --- Post the journal entries once fully approved ---
+        // --- Employee confirms the hand-off to accounting (the "รอยต่อ") ---
+        {
+            isActive: ["button[name='action_send_to_accounting']"],
+            trigger: "button[name='action_send_to_accounting']",
+            content: markup(_t(
+                "Once fully approved, the employee clicks <b>ยืนยันส่งบัญชี</b> " +
+                "(Send to Accounting) to hand the claim over. The employee never " +
+                "posts the journal entries."
+            )),
+            tooltipPosition: "left",
+            run: "click",
+        },
+
+        // --- Accounting books the journal entries (Post) ---
         {
             isActive: ["button[name='action_post']"],
             trigger: "button[name='action_post']",
             content: markup(_t(
-                "Once approved, click <b>Post Journal Entries</b> to account the expense lines."
+                "Accounting — and only Accounting — clicks <b>Post Journal Entries</b> " +
+                "once the claim has been sent to them."
             )),
             tooltipPosition: "left",
             run: "click",
@@ -163,9 +181,10 @@ registry.category("web_tour.tours").add("od19_hr_expense_tour", {
         {
             trigger: ".o_kanban_view, .o_list_renderer",
             content: markup(_t(
-                "Expense Claim workflow complete! The process is: <b>Create → Submit → " +
-                "Validate ×3 → Approved → Post</b>. Every line carries an analytic account " +
-                "so costs are allocated to the right project or department."
+                "Expense Claim workflow complete! The process is: <b>Create → Attach receipt → " +
+                "Submit → Validate ×3 → Approved → Send to Accounting → Posted</b>. Every line " +
+                "carries an analytic account so costs are allocated to the right project or " +
+                "department."
             )),
             run: "click",
         },
