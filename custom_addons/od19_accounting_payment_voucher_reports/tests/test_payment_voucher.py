@@ -51,6 +51,24 @@ class TestPaymentVoucherNumber(TransactionCase):
         self.assertTrue(payment.od19_voucher_no)
         self.assertTrue(payment.od19_voucher_no.startswith("RV"))
 
+    def test_receipt_doc_type_gets_re_number(self):
+        payment = self._create_payment("inbound", "customer")
+        payment.od19_receipt_doc_type = "receipt"
+        payment._od19_assign_voucher_number()
+        self.assertTrue(payment.od19_voucher_no.startswith("RE"))
+
+    def test_tax_invoice_doc_type_gets_ti_number(self):
+        payment = self._create_payment("inbound", "customer")
+        payment.od19_receipt_doc_type = "tax_invoice"
+        payment._od19_assign_voucher_number()
+        self.assertTrue(payment.od19_voucher_no.startswith("TI"))
+
+    def test_outbound_ignores_receipt_doc_type(self):
+        payment = self._create_payment("outbound", "supplier")
+        payment.od19_receipt_doc_type = "receipt"
+        payment._od19_assign_voucher_number()
+        self.assertTrue(payment.od19_voucher_no.startswith("PV"))
+
     def test_voucher_number_is_not_reassigned(self):
         payment = self._create_payment("outbound", "supplier")
         payment._od19_assign_voucher_number()

@@ -30,6 +30,19 @@ class TestPaymentFee(TransactionCase):
             [("account_type", "=", "expense"), ("company_ids", "in", cls.company.id)],
             limit=1,
         )
+        # A WHT type to exercise the combined net (T4) and WHT booking (T7).
+        cls.wht_account = cls.env["account.account"].create({
+            "name": "OD19 WHT Payable",
+            "code": "999191",
+            "account_type": "liability_current",
+            "wht_account": True,
+        })
+        cls.wht_tax = cls.env["account.withholding.tax"].create({
+            "name": "OD19 WHT 3%",
+            "account_id": cls.wht_account.id,
+            "amount": 3.0,
+            "company_id": cls.company.id,
+        })
 
     def _create_payment(self, amount=1000, fee=50):
         return self.env["account.payment"].create({
@@ -78,3 +91,68 @@ class TestPaymentFee(TransactionCase):
             lambda l: l.account_id == self.fee_account
         )
         self.assertFalse(fee_lines, "No fee line when fee is zero")
+
+    # ------------------------------------------------------------------
+    # K2/K3 detail lines: several fees, each on its own line (T6)
+    # ------------------------------------------------------------------
+    def _create_payment_with_fee_lines(self, amount=1000, fees=(30, 20)):
+        return self.env["account.payment"].create({
+            "partner_id": self.partner.id,
+            "payment_type": "inbound",
+            "partner_type": "customer",
+            "amount": amount,
+            "journal_id": self.bank_journal.id,
+            "od19_fee_ids": [
+                (0, 0, {
+                    "name": f"Fee {i + 1}",
+                    "account_id": self.fee_account.id,
+                    "amount": fee_amount,
+                })
+                for i, fee_amount in enumerate(fees)
+            ],
+        })
+
+    def test_fee_ids_multiple_lines_adjust_journal(self):
+        payment = self._create_payment_with_fee_lines(amount=1000, fees=(30, 20))
+        self.assertEqual(payment.od19_fee_amount, 50.0)
+        payment.action_post()
+        move = payment.move_id
+        fee_lines = move.line_ids.filtered(
+            lambda l: l.account_id == self.fee_account
+        )
+        self.assertEqual(sum(fee_lines.mapped("balance")), 50.0)
+        liquidity = move.line_ids.filtered(
+            lambda l: l.account_id == payment.outstanding_account_id
+        )
+        self.assertEqual(sum(liquidity.mapped("balance")), 950.0)
+        self.assertAlmostEqual(sum(move.line_ids.mapped("balance")), 0.0, places=2)
+
+    def test_fee_ids_total_and_net(self):
+        payment = self._create_payment_with_fee_lines(amount=1000, fees=(30, 20))
+        self.assertEqual(payment.od19_fee_amount, 50.0)
+        self.assertEqual(payment.od19_amount_net, 950.0)
+
+    # ------------------------------------------------------------------
+    # T4: net = amount - WHT - Fees (inbound sign)
+    # ------------------------------------------------------------------
+    def test_net_includes_wht_and_fees(self):
+        payment = self.env["account.payment"].create({
+            "partner_id": self.partner.id,
+            "payment_type": "inbound",
+            "partner_type": "customer",
+            "amount": 1000,
+            "journal_id": self.bank_journal.id,
+            "od19_wht_line_ids": [
+                (0, 0, {"tax_id": self.wht_tax.id, "pay_amount": 1000}),
+            ],
+            "od19_fee_ids": [
+                (0, 0, {
+                    "name": "Fee A",
+                    "account_id": self.fee_account.id,
+                    "amount": 30,
+                }),
+            ],
+        })
+        self.assertEqual(payment.od19_wht_amount, 30.0)  # 1000 * 3%
+        self.assertEqual(payment.od19_fee_amount, 30.0)
+        self.assertEqual(payment.od19_amount_net, 940.0)  # 1000 - 30 - 30

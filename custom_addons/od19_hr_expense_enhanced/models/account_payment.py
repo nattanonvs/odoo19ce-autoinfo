@@ -74,6 +74,10 @@ class AccountPayment(models.Model):
 
     @api.depends('od19_wht_type', 'od19_wht_base_amount')
     def _compute_od19_wht_amount(self):
+        # EXTENDS 'od19_accounting_features' — keep the base computation
+        # (WHT detail lines / invoice amount) and only override it for
+        # expense payments that carry their own WHT type + base amount.
+        super()._compute_od19_wht_amount()
         for payment in self:
             if payment.od19_wht_type and payment.od19_wht_base_amount:
                 try:
@@ -81,8 +85,6 @@ class AccountPayment(models.Model):
                 except (ValueError, TypeError):
                     rate = 0.0
                 payment.od19_wht_amount = payment.od19_wht_base_amount * rate / 100.0
-            else:
-                payment.od19_wht_amount = 0.0
 
     @api.constrains('od19_wht_base_amount', 'od19_wht_amount')
     def _check_od19_wht_amounts(self):

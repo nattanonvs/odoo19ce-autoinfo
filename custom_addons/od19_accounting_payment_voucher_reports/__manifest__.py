@@ -1,7 +1,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 {
     "name": "OD19 Accounting - Payment Voucher & Receipt Reports",
-    "version": "19.0.1.6.0",
+    "version": "19.0.1.7.0",
     "category": "Accounting/Payments",
     "summary": "Thai payment voucher (ใบสำคัญจ่าย) and payment receipt (ใบสำคัญรับเงิน) QWeb reports with Thai document numbers, plus the Prepare/Approve step on account.payment",
     "author": "Custom",
@@ -11,6 +11,10 @@
         "od19_thai_font_support",
         "od19_accounting_document_sequence",
         "od19_accounting_features",
+        # The form layout (totals strip + 7-tab notebook) is composed here and
+        # references the fee / cheque detail models owned by these modules.
+        "od19_accounting_payment_fee",
+        "od19_accounting_cheque",
     ],
     "data": [
         "security/od19_payment_security.xml",
