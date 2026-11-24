@@ -323,6 +323,7 @@ sub=ประกัน/เคลม · บัตรบริการและ�
       <tr><td><span class="path">Helpdesk › IT Support</span></td><td>คิวงานไอที/ระบบขององค์กร</td><td>ผู้ใช้ภายใน</td></tr>
       <tr><td><span class="path">Helpdesk › ปรับปรุง-ISO</span></td><td>คิวข้อเสนอแนะปรับปรุง และคุณภาพ/ISO (CAPA)</td><td>ผู้ใช้ภายใน</td></tr>
       <tr><td><span class="path">Helpdesk › Triage</span></td><td>กล่องกลางสำหรับเรื่องที่ยังไม่ระบุประเภท</td><td>ผู้ใช้ภายใน</td></tr>
+      <tr><td><span class="path">Helpdesk › คำขอแซงคิว</span></td><td>ติดตาม/อนุมัติคำขอแซงคิวของคิวภายใน</td><td>ผู้ใช้ภายใน</td></tr>
       <tr><td><span class="path">การขาย › Sales Services › Service Tickets</span></td><td>งานบริการลูกค้าทั้งหมด (มีค่าบริการ)</td><td>Sales Services User</td></tr>
       <tr><td><span class="path">การขาย › Sales Services › My Service Tickets</span></td><td>เฉพาะงานบริการลูกค้าของฉัน</td><td>Sales Services User</td></tr>
     </tbody>
@@ -351,6 +352,9 @@ sub=ประกัน/เคลม · บัตรบริการและ�
     <thead><tr><th>ฟิลด์/ปุ่ม</th><th>ความหมาย</th></tr></thead>
     <tbody>
       <tr><td><span class="pill">ประเภทเรื่อง</span></td><td>ไอที/ระบบ · ข้อเสนอแนะปรับปรุง · คุณภาพ/ISO (CAPA) · ไม่แน่ใจ (คิวภายใน)</td></tr>
+      <tr><td><span class="pill">ผู้แจ้ง (Reported By)</span></td><td>ผู้แจ้งเรื่อง (ค่าเริ่มต้น = ผู้ใช้ปัจจุบัน) — ใช้กำหนดคิว “เรื่องของฉัน” ของใคร</td></tr>
+      <tr><td><span class="pill">การมองเห็น (Visibility)</span></td><td>สาธารณะ / เฉพาะแผนก / ส่วนตัว (คุมขอบเขตการเห็นเรื่องภายใน)</td></tr>
+      <tr><td><span class="pill">ฉุกเฉิน (Emergency)</span></td><td>แจ้งเตือนทุกช่องทางทันที รวมหัวหน้าทีมเจ้าของเรื่องและหัวหน้าทีม Triage</td></tr>
       <tr><td><span class="pill">ความสำคัญ / ตำแหน่งในคิว</span></td><td>ความสำคัญคำนวณจากผลกระทบ × ความเร่งด่วน พร้อมอันดับคิวภายในทีม (ดู <a href="#svc-7">svc-7</a>)</td></tr>
       <tr><td><span class="pill">Team Type</span></td><td>ชนิดทีมของตั๋ว (แสดงผลจากทีม) ใช้แยกขอบเขตข้อมูล</td></tr>
       <tr><td><span class="pill">Service Type</span></td><td>Repair / Installation / Maintenance / Warranty / Inspection / Other</td></tr>
@@ -507,13 +511,15 @@ sub=ประกัน/เคลม · บัตรบริการและ�
       <tr><td><span class="pill">การมองเห็น (Visibility)</span></td><td>สาธารณะ / เฉพาะแผนก / ส่วนตัว (มีกฎบันทึกระดับระบบ)</td></tr>
       <tr><td><span class="pill">แผนกที่มองเห็น</span></td><td>แผนกที่ผูกกับเรื่อง (แสดงเมื่อเลือกแบบ “เฉพาะแผนก”)</td></tr>
       <tr><td><span class="pill">ผู้แจ้ง (Reported By)</span></td><td>ผู้แจ้งเรื่อง (ค่าเริ่มต้น = ผู้ใช้ปัจจุบัน)</td></tr>
-      <tr><td><span class="pill">ฉุกเฉิน (Emergency)</span></td><td>แจ้งเตือนทุกช่องทางทันที — การแทรกคิวยังต้องผ่านการอนุมัติแซงคิว</td></tr>
+      <tr><td><span class="pill">ฉุกเฉิน (Emergency)</span></td><td>แจ้งเตือนทุกช่องทางทันทีไปยังหัวหน้าทีมเจ้าของเรื่องและหัวหน้าทีม Triage — การแทรกคิวยังต้องผ่านการอนุมัติแซงคิว</td></tr>
       <tr><td><span class="pill">ผลกระทบ × ความเร่งด่วน</span></td><td>เกณฑ์ให้คะแนนความเป็นธรรม</td></tr>
       <tr><td><span class="pill">ความสำคัญ (Priority)</span></td><td>คำนวณอัตโนมัติจาก Impact × Urgency (ผู้จัดการปรับได้ พร้อมบันทึก audit)</td></tr>
       <tr><td><span class="pill">ตำแหน่งในคิว / งานก่อนหน้า</span></td><td>อันดับคิวของเรื่องภายในทีม และจำนวนงานที่อยู่ก่อนหน้า</td></tr>
       <tr><td><span class="badge b-blue">ขอแซงคิว</span></td><td>เปิดคำขอแซงคิว (ปิดเองเมื่อเรื่องอยู่ในสถานะรออนุมัติแซงคิว)</td></tr>
       <tr><td><span class="pill">สถานะการยินยอม</span></td><td>ยินยอม (เข้าคิว) / ขอแซงคิว (รออนุมัติ)</td></tr>
       <tr><td><span class="pill">แปลงเป็น KB</span></td><td>ทำเครื่องหมายเรื่องที่นำแนวทางแก้ไขไปทำเป็นบทความคลังความรู้</td></tr>
+      <tr><td><span class="pill">อ้างอิงบทความ KB</span></td><td>ลิงก์/รหัสบทความคลังความรู้ที่อ้างอิงจากเรื่องนี้ (แสดงเมื่อติ๊ก “แปลงเป็น KB”)</td></tr>
+      <tr><td><span class="pill">เปิดให้ขอแซงคิวถึง</span></td><td>วันเวลาสิ้นสุดที่ยังกดขอแซงคิวได้ (ค่าเริ่มต้น 24 ชม. นับจากเปิดเรื่อง — พ้นกำหนดแล้วปุ่มจะปิดเอง)</td></tr>
     </tbody>
   </table>
 
@@ -522,6 +528,23 @@ sub=ประกัน/เคลม · บัตรบริการและ�
     <li><strong>ผู้ใช้ทั่วไป:</strong> เห็นเรื่องแบบสาธารณะทั้งหมด, แบบเฉพาะแผนกเมื่ออยู่ในแผนกนั้น, และแบบส่วนตัวเฉพาะที่ตัวเองเป็นผู้แจ้งหรือผู้รับผิดชอบ</li>
     <li><strong>ผู้อนุมัติแซงคิว:</strong> เฉพาะหัวหน้าแผนกผู้แจ้งและหัวหน้าทีมเจ้าของคิว (หรือผู้จัดการ Helpdesk) เท่านั้นที่อนุมัติ/ปฏิเสธคำขอได้</li>
     <li><strong>ขอบเขตตามแผนก:</strong> ผู้ใช้บางบทบาทเห็นเฉพาะเรื่องของแผนกตัวเองและเรื่องที่ยังไม่ระบุแผนก (กันข้อมูลหลุดแบบ fail-safe)</li>
+  </ul>
+
+  <h4>7) ทีมปลายทาง ช่องทางรับเรื่อง และรอบงานประจำ</h4>
+  <p>ระบบส่งเรื่องเข้าทีมให้อัตโนมัติจาก <span class="pill">ประเภทเรื่อง</span> (และกฎคำค้น) โดยมีสี่ทีมงานภายใน:</p>
+  <table>
+    <thead><tr><th>ประเภทเรื่อง</th><th>ทีมปลายทาง</th></tr></thead>
+    <tbody>
+      <tr><td>ไอที/ระบบ</td><td>IT Support</td></tr>
+      <tr><td>ข้อเสนอแนะปรับปรุง</td><td>ข้อเสนอแนะปรับปรุง</td></tr>
+      <tr><td>คุณภาพ/ISO (CAPA)</td><td>คุณภาพ / ISO (CAPA)</td></tr>
+      <tr><td>ไม่แน่ใจ</td><td>กล่องกลาง (Triage)</td></tr>
+    </tbody>
+  </table>
+  <ul>
+    <li><strong>รับเรื่องทางอีเมล:</strong> ส่งอีเมลเข้าที่ alias <span class="pill">internal-issue</span> — เรื่องที่เข้ามาจะถูกตั้งประเภทเป็น <em>ไม่แน่ใจ</em> และเข้าคิว <strong>กล่องกลาง (Triage)</strong> เพื่อรอคัดแยก</li>
+    <li><strong>รอบงานประจำ (Scheduled Action):</strong> งานพื้นหลัง <em>Internal Issue: Expire stale queue requests</em> ทำงานทุก 1 ชั่วโมง คอยปิดคำขอแซงคิวที่เลยกำหนดหมดอายุแล้วโดยอัตโนมัติ</li>
+    <li><strong>Portal:</strong> ผู้แจ้งดูสถานะและ <span class="pill">ตำแหน่งในคิว</span> ของเรื่องตัวเองได้จากหน้า Portal โดยไม่ต้องเข้า backend</li>
   </ul>
 
   <div class="callout tip">

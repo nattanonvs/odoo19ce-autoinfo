@@ -10,12 +10,14 @@ import { markup } from "@odoo/owl";
  * layers on top of the OCA Helpdesk ticket. The 2026 revision replaced the old
  * tier-validation flow with a "fair queue":
  *  1. Report the issue in the IT Support queue (subject, description)
- *  2. Classify it: ประเภทเรื่อง (issue stream) + visibility (public / department
- *     / private) + emergency flag
+ *  2. Classify it: ประเภทเรื่อง (issue stream) + ผู้แจ้ง + visibility (public /
+ *     department / private) + emergency flag
  *  3. Score it fairly — Impact × Urgency -> the Odoo priority is computed
  *  4. Follow the queue: open the "ความเป็นธรรม & คิว" tab to read the queue
- *     position, and (optionally) ask to jump the queue, which needs a two-level
- *     approval (หัวหน้าแผนกผู้แจ้ง -> หัวหน้าทีมเจ้าของคิว)
+ *     position / ahead count, the consent window and the Knowledge-Base handoff
+ *  5. (optionally) ask to jump the queue, which needs a two-level approval
+ *     (หัวหน้าแผนกผู้แจ้ง -> หัวหน้าทีมเจ้าของคิว) and is tracked in the
+ *     "คำขอแซงคิว" queue
  */
 registry.category("web_tour.tours").add("od19_internal_issue_tour", {
     url: "/odoo",
@@ -36,7 +38,8 @@ registry.category("web_tour.tours").add("od19_internal_issue_tour", {
             trigger: ".o_list_renderer, .o_kanban_view",
             content: markup(_t(
                 "คิวภายในแสดง <b>ประเภทเรื่อง</b>, <b>ตำแหน่งในคิว</b>, <b>การมองเห็น</b> " +
-                "และธง <b>ฉุกเฉิน</b> — เรื่องจะถูกส่งเข้าทีมตามประเภทและกฎอัตโนมัติ"
+                "และธง <b>ฉุกเฉิน</b> — ใช้ตัวกรอง <em>ฉุกเฉิน / สาธารณะ / เฉพาะแผนก / ส่วนตัว</em> " +
+                "ที่เมนู <b>ตัวกรอง</b> เพื่อเจาะดูเรื่องที่ต้องการ"
             )),
             tooltipPosition: "bottom",
         },
@@ -66,10 +69,18 @@ registry.category("web_tour.tours").add("od19_internal_issue_tour", {
             tooltipPosition: "bottom",
         },
         {
+            trigger: ".o_field_widget[name='reported_by_id']",
+            content: markup(_t(
+                "<b>ผู้แจ้ง (Reported by)</b> — ค่าเริ่มต้นคือผู้ใช้ปัจจุบัน " +
+                "ใช้กำหนดว่าเรื่องนี้จะอยู่ในคิว <b>เรื่องของฉัน</b> ของใคร"
+            )),
+            tooltipPosition: "bottom",
+        },
+        {
             trigger: ".o_field_widget[name='visibility']",
             content: markup(_t(
-                "กำหนด <b>การมองเห็น</b>: สาธารณะ (ทุกคน) / เฉพาะแผนก (ต้องระบุแผนก) / ส่วนตัว " +
-                "(เฉพาะผู้แจ้งและผู้รับผิดชอบ)"
+                "กำหนด <b>การมองเห็น</b>: สาธารณะ (ทุกคน) / เฉพาะแผนก (จะปรากฏช่อง <em>แผนกที่มองเห็น</em> ให้ระบุ) " +
+                "/ ส่วนตัว (เฉพาะผู้แจ้งและผู้รับผิดชอบ)"
             )),
             tooltipPosition: "bottom",
         },
@@ -77,7 +88,7 @@ registry.category("web_tour.tours").add("od19_internal_issue_tour", {
             trigger: ".o_field_widget[name='emergency']",
             content: markup(_t(
                 "ติ๊ก <b>ฉุกเฉิน (Emergency)</b> เพื่อแจ้งเตือนทุกช่องทางทันที " +
-                "แต่การแทรกคิวยังต้องผ่านการอนุมัติแซงคิว"
+                "(รวมหัวหน้าทีมและทีม Triage) แต่การแทรกคิวยังต้องผ่านการอนุมัติแซงคิว"
             )),
             tooltipPosition: "bottom",
         },
@@ -112,8 +123,24 @@ registry.category("web_tour.tours").add("od19_internal_issue_tour", {
         {
             trigger: ".o_field_widget[name='queue_position']",
             content: markup(_t(
-                "ดู <b>ตำแหน่งในคิว</b> และจำนวนงานก่อนหน้า — คิวเรียงตามความสำคัญ " +
-                "แล้วจึงตามลำดับก่อน–หลัง (FIFO) อย่างเป็นธรรม"
+                "ดู <b>ตำแหน่งในคิว</b> และ <b>งานก่อนหน้า</b> — คิวเรียงตามความสำคัญ " +
+                "แล้วจึงตามลำดับคิว/รหัสเรื่อง (FIFO) อย่างเป็นธรรม"
+            )),
+            tooltipPosition: "bottom",
+        },
+        {
+            trigger: ".o_field_widget[name='consent_state']",
+            content: markup(_t(
+                "<b>สถานะการยินยอม</b> — ปกติเป็น <em>ยินยอม (เข้าคิว)</em> " +
+                "และมีช่อง <em>เปิดให้ขอแซงคิวถึง</em> กำหนดช่วงเวลาที่กดขอแซงคิวได้"
+            )),
+            tooltipPosition: "bottom",
+        },
+        {
+            trigger: ".o_field_widget[name='kb_converted']",
+            content: markup(_t(
+                "เมื่อแนวทางแก้ไขมีค่า ให้ทำเครื่องหมาย <b>แปลงเป็น KB</b> " +
+                "และอ้างอิงบทความคลังความรู้ในช่อง <em>อ้างอิงบทความ KB</em>"
             )),
             tooltipPosition: "bottom",
         },
@@ -128,11 +155,41 @@ registry.category("web_tour.tours").add("od19_internal_issue_tour", {
             tooltipPosition: "bottom",
         },
         ...stepUtils.discardForm(),
+
+        // ติดตามคิวคำขอแซงคิว (แสดงเฉพาะเมื่อเมนูอยู่ในแถบนำทาง)
+        {
+            isActive: [navSection("คำขอแซงคิว")],
+            trigger: navSection("คำขอแซงคิว"),
+            content: markup(_t("เปิดคิว <b>คำขอแซงคิว</b> เพื่อติดตาม/อนุมัติคำขอทั้งหมด")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        {
+            isActive: [navSection("คำขอแซงคิว")],
+            ...waitForAction("คำขอแซงคิว"),
+        },
+        {
+            isActive: [navSection("คำขอแซงคิว")],
+            trigger: ".o_list_renderer",
+            content: markup(_t(
+                "แต่ละคำขอแสดง <b>สถานะ</b> (ร่าง → รอหัวหน้าแผนก → รอหัวหน้าทีม → อนุมัติ/ปฏิเสธ/หมดอายุ), " +
+                "<b>ผู้อนุมัติ</b> และ <b>กำหนดหมดอายุ</b>"
+            )),
+            tooltipPosition: "bottom",
+        },
+
+        {
+            trigger: navSection("IT Support"),
+            content: markup(_t("กลับมาที่คิว <b>IT Support</b>")),
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        waitForAction("IT Support"),
         {
             trigger: ".o_list_renderer, .o_kanban_view",
             content: markup(_t(
                 "จบการแนะนำ <b>ปัญหาภายใน</b> แล้ว! แจ้งเรื่อง → จัดประเภท/ให้คะแนน " +
-                "→ ระบบคำนวณความสำคัญและจัดคิวอย่างเป็นธรรม"
+                "→ ระบบคำนวณความสำคัญและจัดคิวอย่างเป็นธรรม → ติดตามจากคิวและคำขอแซงคิว"
             )),
             run: "click",
         },
