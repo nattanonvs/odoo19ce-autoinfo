@@ -3,7 +3,7 @@
 
 {
     "name": "ISO Document Action Request (DAR)",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "category": "ISO/Quality",
     "license": "LGPL-3",
     "author": "TRAE",
@@ -15,6 +15,7 @@
         "hr",
         "web",
         "od19_iso_document_control",
+        "od19_iso_print_control",
         "od19_approval_center",
         "od19_thai_font_support",
         "od19_security_roles",

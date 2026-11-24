@@ -3,7 +3,7 @@
 
 {
     "name": "ISO Document Control",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "category": "ISO/Quality",
     "license": "LGPL-3",
     "author": "TRAE",
@@ -25,6 +25,7 @@
         "data/ir_sequence_data.xml",
         "report/iso_footer_templates.xml",
         "report/external_layout_footer.xml",
+        "report/od19_iso_controlled_document.xml",
         "views/iso_document_views.xml",
         "views/iso_document_category_views.xml",
         "views/iso_standard_views.xml",

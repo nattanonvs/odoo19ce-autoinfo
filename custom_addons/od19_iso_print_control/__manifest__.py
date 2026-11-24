@@ -1,0 +1,40 @@
+# Copyright 2026 TRAE
+# License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
+
+{
+    "name": "ISO Print & Distribution Control",
+    "version": "19.0.1.0.0",
+    "category": "ISO/Quality",
+    "license": "LGPL-3",
+    "author": "TRAE",
+    "website": "https://www.trae.ai",
+    "summary": "ทะเบียนพิมพ์ · ทะเบียนแจกจ่าย · คุมสำเนาควบคุม และติดตามคืน/เปลี่ยนเมื่อ revision ใหม่ (ISO)",
+    "depends": [
+        "base",
+        "mail",
+        "hr",
+        "web",
+        "od19_iso_document_control",
+        "od19_thai_font_support",
+        "od19_security_roles",
+    ],
+    "data": [
+        "security/od19_iso_print_groups.xml",
+        "security/ir.model.access.csv",
+        "security/od19_department_rule.xml",
+        "data/ir_sequence_data.xml",
+        "data/mail_template_data.xml",
+        "data/ir_cron_data.xml",
+        "wizard/od19_iso_print_issue_wizard_views.xml",
+        "views/od19_iso_distribution_views.xml",
+        "views/od19_iso_print_request_views.xml",
+        "views/od19_iso_print_copy_views.xml",
+        "views/od19_iso_document_print_views.xml",
+        "report/od19_iso_print_report.xml",
+        "views/menu.xml",
+    ],
+    "demo": [],
+    "installable": True,
+    "application": False,
+    "auto_install": False,
+}

@@ -2,6 +2,13 @@
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
 
 from odoo import fields, models
+from odoo.tools.pdf import merge_pdf
+
+# Report that assembles the controlled document and concatenates the
+# document's PDF attachments after the generated pages.
+CONTROLLED_DOCUMENT_REPORT = (
+    "od19_iso_document_control.report_iso_controlled_document"
+)
 
 
 class IrActionsReport(models.Model):
@@ -30,3 +37,26 @@ class IrActionsReport(models.Model):
         values = super()._get_rendering_context(report, docids, data)
         values.setdefault("report_action", report)
         return values
+
+    def _render_qweb_pdf(self, report_ref, res_ids=None, data=None):
+        """Append the document's PDF attachments to the controlled document.
+
+        Only the ``report_iso_controlled_document`` report is affected; every
+        other report keeps the default behaviour.
+        """
+        pdf_content, report_type = super()._render_qweb_pdf(
+            report_ref, res_ids, data
+        )
+        if report_type != "pdf" or not res_ids:
+            return pdf_content, report_type
+        report = self._get_report(report_ref)
+        if report.report_name != CONTROLLED_DOCUMENT_REPORT:
+            return pdf_content, report_type
+        ids = res_ids if isinstance(res_ids, (list, tuple)) else [res_ids]
+        if len(ids) != 1:
+            return pdf_content, report_type
+        document = self.env["od19.iso.document"].browse(ids[0])
+        extra_streams = document.sudo()._get_content_pdf_streams()
+        if not extra_streams:
+            return pdf_content, report_type
+        return merge_pdf([pdf_content, *extra_streams]), report_type

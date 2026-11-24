@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================
+         1. Print Register — ทะเบียนพิมพ์ทั้งหมด
+    ============================================================ -->
+    <record id="action_report_od19_iso_print_register" model="ir.actions.report">
+        <field name="name">ทะเบียนพิมพ์ (Print Register)</field>
+        <field name="model">od19.iso.print.copy</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">od19_iso_print_control.report_od19_iso_print_register</field>
+        <field name="report_file">od19_iso_print_control.report_od19_iso_print_register</field>
+        <field name="print_report_name">'PrintRegister_%s' % (object.document_id.code or object.id)</field>
+        <field name="binding_model_id" ref="model_od19_iso_print_copy"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_od19_iso_print_register">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2 class="text-center">ทะเบียนพิมพ์ (Print Register)</h2>
+                        <div class="row mb-2">
+                            <div class="col-6"><strong>เอกสาร:</strong> <span t-field="o.document_id.code"/> — <span t-field="o.document_id.document_title"/></div>
+                            <div class="col-6 text-end"><strong>Revision:</strong> <span t-field="o.revision"/></div>
+                        </div>
+                        <table class="table table-sm table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>เลขสำเนา</th>
+                                    <th>ประเภท</th>
+                                    <th>ผู้ถือครอง</th>
+                                    <th>วันจ่าย</th>
+                                    <th>กำหนดคืน</th>
+                                    <th>สถานะ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="o.document_id.print_copy_ids" t-as="copy">
+                                    <td><span t-field="copy.name"/></td>
+                                    <td><span t-field="copy.copy_type"/></td>
+                                    <td>
+                                        <span t-field="copy.holder_id"/>
+                                        <span t-field="copy.holder_name"/>
+                                    </td>
+                                    <td><span t-field="copy.issue_date"/></td>
+                                    <td><span t-field="copy.return_due_date"/></td>
+                                    <td><span t-field="copy.state"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="mt-4 border-top pt-1">
+                            <t t-call="od19_iso_document_control.iso_footer">
+                                <t t-set="iso_code" t-value="o.document_id.code or ''"/>
+                                <t t-set="iso_revision" t-value="o.document_id.revision or '00'"/>
+                                <t t-set="iso_effective_date" t-value="o.document_id.effective_date.strftime('%d/%m/%y') if o.document_id.effective_date else ''"/>
+                            </t>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- ============================================================
+         2. Distribution Report — รายชื่อผู้รับตาม revision
+    ============================================================ -->
+    <record id="action_report_od19_iso_distribution" model="ir.actions.report">
+        <field name="name">ทะเบียนแจกจ่าย (Distribution Report)</field>
+        <field name="model">od19.iso.distribution.list</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">od19_iso_print_control.report_od19_iso_distribution</field>
+        <field name="report_file">od19_iso_print_control.report_od19_iso_distribution</field>
+        <field name="print_report_name">'Distribution_%s' % (object.name or object.id)</field>
+        <field name="binding_model_id" ref="model_od19_iso_distribution_list"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_od19_iso_distribution">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2 class="text-center">ทะเบียนแจกจ่ายเอกสารควบคุม (Distribution List)</h2>
+                        <div class="row mb-2">
+                            <div class="col-6"><strong>เลขที่:</strong> <span t-field="o.name"/></div>
+                            <div class="col-6 text-end"><strong>วันที่มีผล:</strong> <span t-field="o.effective_date"/></div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-6"><strong>เอกสาร:</strong> <span t-field="o.document_id.code"/> — <span t-field="o.document_id.document_title"/></div>
+                            <div class="col-6 text-end"><strong>Revision:</strong> <span t-field="o.revision"/></div>
+                        </div>
+                        <table class="table table-sm table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>ผู้รับ</th>
+                                    <th>แผนก</th>
+                                    <th>จำนวนสำเนา</th>
+                                    <th>ประเภท</th>
+                                    <th>รับทราบ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="o.line_ids" t-as="line">
+                                    <td><span t-esc="line_index + 1"/></td>
+                                    <td>
+                                        <span t-field="line.recipient_id"/>
+                                        <span t-field="line.holder_name"/>
+                                    </td>
+                                    <td><span t-field="line.department_id"/></td>
+                                    <td><span t-field="line.copies_required"/></td>
+                                    <td><span t-field="line.copy_type"/></td>
+                                    <td><span t-esc="'✓' if line.acknowledged else ''"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="mt-4 border-top pt-1">
+                            <t t-call="od19_iso_document_control.iso_footer">
+                                <t t-set="iso_code" t-value="o.document_id.code or ''"/>
+                                <t t-set="iso_revision" t-value="o.revision or '00'"/>
+                                <t t-set="iso_effective_date" t-value="o.effective_date.strftime('%d/%m/%y') if o.effective_date else ''"/>
+                            </t>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- ============================================================
+         3. Copy Label — ตราประทับควบคุม + QR (สำหรับติดบนกระดาษ)
+    ============================================================ -->
+    <record id="action_report_od19_iso_copy_label" model="ir.actions.report">
+        <field name="name">ตราประทับสำเนาควบคุม (Copy Label)</field>
+        <field name="model">od19.iso.print.copy</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">od19_iso_print_control.report_od19_iso_copy_label</field>
+        <field name="report_file">od19_iso_print_control.report_od19_iso_copy_label</field>
+        <field name="print_report_name">'CopyLabel_%s' % (object.name or object.id).replace('/', '-')</field>
+        <field name="binding_model_id" ref="model_od19_iso_print_copy"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_od19_iso_copy_label">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div style="border: 2px solid #000; padding: 12px; width: 340px;">
+                            <div style="text-align:center; font-weight:bold; font-size:14px;">
+                                <span t-field="o.stamp_text"/>
+                            </div>
+                            <hr/>
+                            <table class="table table-sm table-borderless mb-1">
+                                <tr>
+                                    <td><strong>เอกสาร</strong></td>
+                                    <td><span t-field="o.document_id.code"/></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Revision</strong></td>
+                                    <td><span t-field="o.revision"/></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>เลขสำเนา</strong></td>
+                                    <td><span t-field="o.name"/></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>ผู้ถือครอง</strong></td>
+                                    <td>
+                                        <span t-field="o.holder_id"/>
+                                        <span t-field="o.holder_name"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>วันจ่าย</strong></td>
+                                    <td><span t-field="o.issue_date"/></td>
+                                </tr>
+                            </table>
+                            <div style="text-align:center;">
+                                <img t-attf-src="/report/barcode/QR/{{(o.qr_payload or o.name).replace(' ', '%20')}}?&amp;width=120&amp;height=120&amp;quiet=0" alt="QR Code"/>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- ============================================================
+         4. Copy Return Report — สำเนาที่ค้างคืน/สูญหาย
+    ============================================================ -->
+    <record id="action_report_od19_iso_copy_return" model="ir.actions.report">
+        <field name="name">รายงานสำเนาค้างคืน/สูญหาย (Copy Return Report)</field>
+        <field name="model">od19.iso.print.copy</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">od19_iso_print_control.report_od19_iso_copy_return</field>
+        <field name="report_file">od19_iso_print_control.report_od19_iso_copy_return</field>
+        <field name="print_report_name">'CopyReturn_%s' % (object.name or object.id).replace('/', '-')</field>
+        <field name="binding_model_id" ref="model_od19_iso_print_copy"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_od19_iso_copy_return">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2 class="text-center">รายงานสำเนาค้างคืน / สูญหาย</h2>
+                        <div class="row mb-2">
+                            <div class="col-6"><strong>เอกสาร:</strong> <span t-field="o.document_id.code"/></div>
+                            <div class="col-6 text-end"><strong>ผู้ถือครอง:</strong> <span t-field="o.holder_id"/><span t-field="o.holder_name"/></div>
+                        </div>
+                        <table class="table table-sm table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>เลขสำเนา</th>
+                                    <th>Revision</th>
+                                    <th>วันจ่าย</th>
+                                    <th>กำหนดคืน</th>
+                                    <th>สถานะ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span t-field="o.name"/></td>
+                                    <td><span t-field="o.revision"/></td>
+                                    <td><span t-field="o.issue_date"/></td>
+                                    <td><span t-field="o.return_due_date"/></td>
+                                    <td><span t-field="o.state"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="mt-4 border-top pt-1">
+                            <t t-call="od19_iso_document_control.iso_footer">
+                                <t t-set="iso_code" t-value="o.document_id.code or ''"/>
+                                <t t-set="iso_revision" t-value="o.revision or '00'"/>
+                                <t t-set="iso_effective_date" t-value="o.document_id.effective_date.strftime('%d/%m/%y') if o.document_id.effective_date else ''"/>
+                            </t>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>
