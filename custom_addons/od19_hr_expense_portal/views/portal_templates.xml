@@ -52,6 +52,7 @@
                         <th name="expense_name">รายการ</th>
                         <th name="expense_amount" class="text-end pe-3">จำนวนเงิน</th>
                         <th name="expense_status">สถานะ</th>
+                        <th name="expense_actions" class="text-end">&#160;</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -70,6 +71,12 @@
                                 <span t-attf-class="badge rounded-pill #{'text-bg-success' if expense.state in ('approved', 'sent', 'posted', 'in_payment', 'paid') else ('text-bg-danger' if expense.state == 'refused' else 'text-bg-info')}">
                                     <t t-out="state_labels.get(expense.state, expense.state)"/>
                                 </span>
+                            </td>
+                            <td class="text-end">
+                                <a t-attf-href="/my/expenses/#{expense.id}/print" target="_blank" rel="noopener"
+                                   class="btn btn-sm btn-outline-secondary" title="พิมพ์เอกสารเบิก">
+                                    <i class="fa fa-print"/>
+                                </a>
                             </td>
                         </tr>
                     </t>
@@ -175,6 +182,13 @@
                             <i class="fa fa-paper-plane me-1"/> ส่งอนุมัติ
                         </button>
                     </form>
+
+                    <div class="mt-3">
+                        <a class="btn btn-outline-secondary"
+                           t-attf-href="/my/expenses/#{expense.id}/print" target="_blank" rel="noopener">
+                            <i class="fa fa-print me-1"/> พิมพ์เอกสารเบิก
+                        </a>
+                    </div>
                 </div>
 
                 <div class="col-lg-4">
@@ -321,7 +335,7 @@
                     <label class="form-label" for="attachment">แนบหลักฐานค่าใช้จ่าย (ใบเสร็จ/ใบกำกับ)</label>
                     <input type="file" name="attachment" id="attachment" class="form-control"
                            accept="image/*,application/pdf"/>
-                    <div class="form-text">ต้องแนบอย่างน้อย 1 ไฟล์เมื่อส่งขออนุมัติ</div>
+                    <div class="form-text">ไม่บังคับ — แนบไว้เพื่อเป็นหลักฐานประกอบ (ถ้ามี)</div>
                 </div>
 
                 <div class="form-check mb-3">
@@ -374,16 +388,6 @@
                         try { window.localStorage.removeItem(KEY); } catch (e) {}
                         form.reset();
                     });
-                }
-                // The receipt is only mandatory when the claim is submitted now.
-                var submitNow = form.elements['submit_now'];
-                var attach = form.elements['attachment'];
-                var syncRequired = function () {
-                    if (attach &amp;&amp; submitNow) { attach.required = !!submitNow.checked; }
-                };
-                if (submitNow) {
-                    submitNow.addEventListener('change', syncRequired);
-                    syncRequired();
                 }
             })();
             </script>
@@ -490,10 +494,12 @@
                     ท่านสามารถแก้ไขตัวเลขได้ตามจริง
                 </p>
 
-                <h5>พิมพ์ใบสรุป</h5>
+                <h5>พิมพ์เอกสารเบิก</h5>
                 <p>
-                    ผู้ดูแลระบบสามารถพิมพ์ "ใบสรุปการเบิกค่าใช้จ่าย" (Expense
-                    Reimbursement Summary) ได้จากเมนู Print บนเอกสารใบเบิกในระบบหลังบ้าน
+                    กดปุ่ม <strong>พิมพ์เอกสารเบิก</strong> ที่หน้ารายละเอียดของแต่ละใบเบิก
+                    เพื่อพิมพ์เอกสารที่มีรายการเบิก ยอดรวม ขั้นตอนการอนุมัติ (ผู้อนุมัติครบ)
+                    และช่องลงนาม (ผู้เบิก / ผู้อนุมัติ / ผู้จ่าย) ผู้ดูแลระบบพิมพ์ได้เช่นกัน
+                    จากปุ่ม Print บนเอกสารใบเบิกในระบบหลังบ้าน
                 </p>
             </div>
 

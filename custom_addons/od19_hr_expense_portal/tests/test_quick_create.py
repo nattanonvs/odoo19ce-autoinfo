@@ -3,7 +3,6 @@
 
 import base64
 
-from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase, tagged
 
 
@@ -97,11 +96,13 @@ class TestQuickCreate(TransactionCase):
             1,
         )
 
-    def test_submit_now_requires_attachment(self):
+    def test_submit_now_without_attachment(self):
+        """ส่งอนุมัติทันทีได้โดยไม่ต้องแนบไฟล์แนบ (บังคับแนบถูกยกเลิกแล้ว)."""
         wiz = self._wizard(
             expense_category_id=self.category.id, amount=100.0, submit_now=True)
-        with self.assertRaises(UserError):
-            wiz.action_create_expense()
+        action = wiz.action_create_expense()
+        claim = self.env["od19.expense.claim"].browse(action["res_id"])
+        self.assertNotEqual(claim.state, "draft")
 
     def test_analytic_account_is_required(self):
         """Without an analytic account the wizard refuses to create the claim."""
