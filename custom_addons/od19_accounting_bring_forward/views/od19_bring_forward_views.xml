@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_od19_bring_forward_form" model="ir.ui.view">
+        <field name="name">od19.bring.forward.form</field>
+        <field name="model">od19.bring.forward</field>
+        <field name="arch" type="xml">
+            <form string="Bring Forward">
+                <header>
+                    <button name="action_gather"
+                            string="Gather Documents"
+                            type="object"
+                            class="oe_highlight"
+                            invisible="mode != 'auto' or state == 'posted' or state == 'cancelled'"/>
+                    <button name="action_compute"
+                            string="Compute"
+                            type="object"
+                            class="oe_highlight"
+                            invisible="state != 'draft'"/>
+                    <button name="action_compute"
+                            string="Recompute"
+                            type="object"
+                            class="oe_highlight"
+                            invisible="state != 'computed'"/>
+                    <button name="action_post"
+                            string="Post"
+                            type="object"
+                            class="oe_highlight"
+                            confirm="Do you confirm to Validate?"
+                            invisible="state != 'computed'"/>
+                    <field name="state" widget="statusbar" readonly="1"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" name="view_customer_invoices" type="object" icon="fa-list">
+                            <field string="Customer Invoices" name="customer_invoice_count" widget="statinfo"/>
+                        </button>
+                        <button class="oe_stat_button" name="view_vendor_bills" type="object" icon="fa-list">
+                            <field string="Vendor Bills" name="vendor_bill_count" widget="statinfo"/>
+                        </button>
+                        <button class="oe_stat_button" name="view_payment_receipt" type="object" icon="fa-list">
+                            <field string="Payment Receipt" name="payment_receipt_count" widget="statinfo"/>
+                        </button>
+                        <button class="oe_stat_button" name="view_payment_send" type="object" icon="fa-list">
+                            <field string="Payment Send Money" name="payment_send_count" widget="statinfo"/>
+                        </button>
+                        <button class="oe_stat_button" name="view_fixed_assets" type="object" icon="fa-list">
+                            <field string="Fixed Assets" name="account_asset_asset_count" widget="statinfo"/>
+                        </button>
+                        <button class="oe_stat_button" name="view_inventory_adjustment" type="object" icon="fa-list">
+                            <field string="Inventory Adjustment" name="inven_adjust_count" widget="statinfo"/>
+                        </button>
+                        <button class="oe_stat_button" name="view_customer_credit_note" type="object" icon="fa-list">
+                            <field string="Customer Credit Note" name="customer_credit_note_count" widget="statinfo"/>
+                        </button>
+                        <button class="oe_stat_button" name="view_customer_debit_note" type="object" icon="fa-list">
+                            <field string="Customer Debit Note" name="customer_debit_note_count" widget="statinfo"/>
+                        </button>
+                        <button class="oe_stat_button" name="view_vendor_credit_note" type="object" icon="fa-list">
+                            <field string="Vendor Credit Note" name="vendor_credit_note_count" widget="statinfo"/>
+                        </button>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="doc_no"/>
+                            <field name="name" readonly="state in ('posted', 'cancelled')"/>
+                            <field name="remark" readonly="state in ('posted', 'cancelled')"/>
+                            <field name="mode" readonly="state in ('posted', 'cancelled')"/>
+                        </group>
+                        <group>
+                            <field name="date" readonly="state in ('posted', 'cancelled')"/>
+                            <field name="date_from" invisible="mode != 'auto'" required="mode == 'auto'" readonly="state in ('posted', 'cancelled')"/>
+                            <field name="date_to" invisible="mode != 'auto'" required="mode == 'auto'" readonly="state in ('posted', 'cancelled')"/>
+                            <field name="journal_id" domain="[('company_id', '=', company_id)]" readonly="state in ('posted', 'cancelled')"/>
+                            <field name="move_id" invisible="not move_id" readonly="1"/>
+                            <field name="company_id" groups="base.group_multi_company" readonly="state in ('posted', 'cancelled')"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Chart of Accounts" name="chart_of_accounts">
+                            <field name="line_ids" nolabel="1" readonly="state in ('posted', 'cancelled')">
+                                <list editable="bottom"
+                                      create="1"
+                                      edit="1"
+                                      delete="1"
+                                      limit="1000000"
+                                      decoration-warning="(difference_debit &lt; 0 and difference_credit &gt; 0) or (difference_debit &gt; 0 and difference_credit &lt; 0)"
+                                      decoration-danger="difference_debit &lt; 0 and difference_credit &lt; 0">
+                                    <field name="is_create_manual" column_invisible="1"/>
+                                    <field name="account_id_show" readonly="not is_create_manual" options="{'no_create': True}"/>
+                                    <field name="target_total_debit" sum="Total Target Debit"/>
+                                    <field name="compute_debit" sum="Total Compute Debit"/>
+                                    <field name="difference_debit" sum="Total Difference Debit"/>
+                                    <field name="target_total_credit" sum="Total Target Credit"/>
+                                    <field name="compute_credit" sum="Total Compute Credit"/>
+                                    <field name="difference_credit" sum="Total Difference Credit"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_od19_bring_forward_list" model="ir.ui.view">
+        <field name="name">od19.bring.forward.list</field>
+        <field name="model">od19.bring.forward</field>
+        <field name="arch" type="xml">
+            <list string="Bring Forward" create="1" delete="1" edit="1">
+                <field name="doc_no"/>
+                <field name="name"/>
+                <field name="journal_id"/>
+                <field name="date"/>
+                <field name="state"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_od19_bring_forward_search" model="ir.ui.view">
+        <field name="name">od19.bring.forward.search</field>
+        <field name="model">od19.bring.forward</field>
+        <field name="arch" type="xml">
+            <search string="Bring Forward">
+                <field name="name"/>
+                <field name="doc_no"/>
+                <field name="journal_id"/>
+                <field name="date"/>
+                <field name="state"/>
+                <filter name="filter_draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <filter name="filter_computed" string="Computed" domain="[('state', '=', 'computed')]"/>
+                <filter name="filter_posted" string="Posted" domain="[('state', '=', 'posted')]"/>
+                <group name="groupby">
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_company" string="Company" context="{'group_by': 'company_id'}" groups="base.group_multi_company"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_od19_bring_forward" model="ir.actions.act_window">
+        <field name="name">Bring Forward</field>
+        <field name="res_model">od19.bring.forward</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_od19_bring_forward_search"/>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Click to add a new Bring Forward
+            </p>
+        </field>
+    </record>
+
+</odoo>
