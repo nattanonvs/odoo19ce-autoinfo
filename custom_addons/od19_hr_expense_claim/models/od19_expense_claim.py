@@ -50,6 +50,9 @@ class Od19ExpenseClaim(models.Model):
     )
     submit_date = fields.Datetime(string="Submitted On", readonly=True, copy=False)
     approval_date = fields.Datetime(string="Approved On", readonly=True, copy=False)
+    transfer_date = fields.Datetime(
+        string="Sent to Accounting On", readonly=True, copy=False,
+        help="เวลาที่พนักงานยืนยันส่งใบเบิกให้ฝ่ายบัญชี (รอยต่อ approved -> sent)")
     line_ids = fields.One2many(
         "hr.expense", "od19_claim_id", string="Expense Lines",
     )
@@ -66,6 +69,7 @@ class Od19ExpenseClaim(models.Model):
         [("draft", "Draft"),
          ("submitted", "Submitted"),
          ("approved", "Approved"),
+         ("sent", "Sent to Accounting"),
          ("posted", "Posted"),
          ("paid", "Paid"),
          ("refused", "Refused")],
@@ -118,6 +122,14 @@ class Od19ExpenseClaim(models.Model):
                 raise UserError(_(
                     "ต้องระบุ Analytic Account ให้ครบทุกรายการก่อนส่งอนุมัติ "
                     "(ขาด %s รายการ)", len(missing_analytic)))
+            attachment_count = self.env["ir.attachment"].search_count([
+                ("res_model", "=", claim._name),
+                ("res_id", "=", claim.id),
+            ])
+            if not attachment_count:
+                raise UserError(_(
+                    "ต้องแนบหลักฐานค่าใช้จ่ายจริง (ใบเสร็จ/ใบกำกับ) อย่างน้อย 1 ไฟล์ "
+                    "ก่อนส่งขออนุมัติ"))
             claim.line_ids.write({"approval_state": "submitted"})
             claim.write({
                 "state": "submitted",
@@ -150,11 +162,33 @@ class Od19ExpenseClaim(models.Model):
             })
         return True
 
+    def action_send_to_accounting(self):
+        """รอยต่อ: พนักงานยืนยันส่งใบเบิกที่อนุมัติแล้วให้ฝ่ายบัญชี (approved -> sent).
+
+        พนักงานเป็นผู้กดยืนยันว่าพร้อมให้บัญชีจ่ายคืน หลังจากนี้ฝ่ายบัญชี
+        จะเป็นผู้บันทึกบัญชีและจัดสรรเงินคืนให้พนักงานเอง
+        """
+        for claim in self:
+            if claim.state != "approved":
+                raise UserError(_(
+                    "ยืนยันส่งบัญชีได้เฉพาะใบเบิกที่อนุมัติครบแล้ว"))
+            claim.write({
+                "state": "sent",
+                "transfer_date": fields.Datetime.now(),
+            })
+            claim.message_post(body=_(
+                "พนักงานยืนยันส่งใบเบิกให้ฝ่ายบัญชีแล้ว — รอฝ่ายบัญชีบันทึกบัญชีและจ่ายคืน"))
+        return True
+
     def action_post(self):
-        """โพสต์บันทึกบัญชีที่บรรทัด (กลไก core เดิม)."""
+        """บันทึกบัญชีที่บรรทัด (กลไก core เดิม) — เฉพาะฝ่ายบัญชีเท่านั้น."""
         self.ensure_one()
-        if self.state != "approved":
-            raise UserError(_("โพสต์ได้เฉพาะใบเบิกที่อนุมัติครบแล้ว"))
+        if not self.env.user.has_group("account.group_account_manager"):
+            raise UserError(_(
+                "การบันทึกบัญชี (Post) เป็นหน้าที่ของฝ่ายบัญชีเท่านั้น"))
+        if self.state != "sent":
+            raise UserError(_(
+                "บันทึกบัญชีได้เฉพาะใบเบิกที่พนักงานยืนยันส่งบัญชีแล้ว (สถานะ ส่งบัญชีแล้ว)"))
         lines = self.line_ids
         # core action_post() คืน wizard (ไม่โพสต์ทันที) สำหรับบรรทัดที่พนักงานออกเงินเอง
         # จึงเรียก _post_without_wizard() เพื่อโพสต์จากหัวใบแบบ headless

@@ -8,7 +8,7 @@
             <list string="Expense Claims"
                   decoration-info="state == 'draft'"
                   decoration-warning="state in ('submitted', 'refused')"
-                  decoration-success="state in ('approved', 'posted', 'paid')">
+                  decoration-success="state in ('approved', 'sent', 'posted', 'paid')">
                 <field name="name"/>
                 <field name="employee_id"/>
                 <field name="department_id" optional="show"/>
@@ -29,14 +29,22 @@
                 <header>
                     <button name="action_submit" type="object" string="Submit"
                             class="btn-primary" invisible="state != 'draft'"/>
+                    <!-- รอยต่อ: พนักงานยืนยันส่งใบเบิกให้ฝ่ายบัญชี (approved -> sent) -->
+                    <button name="action_send_to_accounting" type="object"
+                            string="ยืนยันส่งบัญชี"
+                            class="btn-primary"
+                            invisible="state != 'approved'"/>
+                    <!-- บันทึกบัญชีเป็นหน้าที่ของฝ่ายบัญชีเท่านั้น (เห็นเฉพาะกลุ่มบัญชี) -->
                     <button name="action_post" type="object" string="Post Journal Entries"
-                            class="btn-primary" invisible="state != 'approved'"/>
+                            class="btn-primary"
+                            groups="account.group_account_manager"
+                            invisible="state != 'sent'"/>
                     <button name="action_refuse" type="object" string="Refuse"
                             invisible="state not in ('submitted', 'approved')"/>
                     <button name="action_reset" type="object" string="Reset to Draft"
                             invisible="state != 'refused'"/>
                     <field name="state" widget="statusbar"
-                           statusbar_visible="draft,submitted,approved,posted,paid,refused"/>
+                           statusbar_visible="draft,submitted,approved,sent,posted,paid,refused"/>
                 </header>
                 <sheet>
                     <div class="oe_title">
@@ -56,6 +64,7 @@
                             <field name="company_id" groups="base.group_multi_company"/>
                             <field name="submit_date" readonly="1"/>
                             <field name="approval_date" readonly="1"/>
+                            <field name="transfer_date" readonly="1"/>
                         </group>
                     </group>
                     <notebook>
@@ -128,6 +137,7 @@
                 <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
                 <filter string="Submitted" name="submitted" domain="[('state', '=', 'submitted')]"/>
                 <filter string="Approved" name="approved" domain="[('state', '=', 'approved')]"/>
+                <filter string="Sent to Accounting" name="sent" domain="[('state', '=', 'sent')]"/>
                 <filter string="Posted" name="posted" domain="[('state', '=', 'posted')]"/>
                 <filter string="Refused" name="refused" domain="[('state', '=', 'refused')]"/>
                 <separator/>
@@ -178,6 +188,20 @@
         sequence="3"
         groups="hr_expense.group_hr_expense_manager,account.group_account_manager"
     />
+
+    <!--
+        App switcher / landing page fix.
+        The "Expenses" app root (``hr_expense.menu_hr_expense_root``) has no
+        action of its own, so ``load_web_menus`` falls back to the action of
+        its *first* child (by sequence). That first child is the quick-create
+        wizard popup shipped by ``od19_hr_expense_portal`` (sequence 1), which
+        is why clicking the app opened a floating wizard instead of the claim
+        list. Bind the app root straight to the "ใบเบิกของฉัน" list so the app
+        always opens the correct page.
+    -->
+    <record id="hr_expense.menu_hr_expense_root" model="ir.ui.menu">
+        <field name="action" ref="action_od19_expense_claim_my"/>
+    </record>
 
     <!--
         Dedup: the expense claim (od19.expense.claim) is now the single entry

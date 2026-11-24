@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import base64
+
 from odoo import Command, fields
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests import tagged
@@ -51,9 +53,9 @@ class TestExpenseClaim(AccountTestInvoicingCommon):
             "plan_id": cls.env.ref("analytic.analytic_plan_projects").id,
         })
 
-    def _make_claim(self, lines=None):
+    def _make_claim(self, lines=None, with_attachment=True):
         lines = lines or [{"name": "Line A", "total_amount": 100.0}]
-        return self.Claim.create({
+        claim = self.Claim.create({
             "employee_id": self.employee.id,
             "company_id": self.env.company.id,
             "line_ids": [
@@ -69,6 +71,15 @@ class TestExpenseClaim(AccountTestInvoicingCommon):
                 for line in lines
             ],
         })
+        if with_attachment:
+            # หลักฐานค่าใช้จ่ายจริง (บังคับ ≥1 ไฟล์ตอน submit)
+            self.env["ir.attachment"].create({
+                "name": "receipt.pdf",
+                "res_model": "od19.expense.claim",
+                "res_id": claim.id,
+                "datas": base64.b64encode(b"receipt"),
+            })
+        return claim
 
     # ---------------------------------------------------------------
     # Helpers
@@ -218,7 +229,7 @@ class TestExpenseClaim(AccountTestInvoicingCommon):
         self.assertTrue(all(not l.approval_state for l in claim.line_ids))
 
     # ---------------------------------------------------------------
-    # T7: โพสต์บรรทัดจากหัวใบเมื่ออนุมัติครบ
+    # T7: โพสต์บรรทัดจากหัวใบเมื่ออนุมัติครบ + ส่งบัญชีแล้ว
     # ---------------------------------------------------------------
     def test_post_after_approval(self):
         claim = self._make_claim([
@@ -226,12 +237,23 @@ class TestExpenseClaim(AccountTestInvoicingCommon):
         ])
         self._approve_claim(claim)
         self.assertEqual(claim.state, "approved")
+        claim.action_send_to_accounting()
+        self.assertEqual(claim.state, "sent")
+        self.assertTrue(claim.transfer_date)
         claim.action_post()
         self.assertEqual(claim.state, "posted")
         self.assertTrue(all(l.state in ("posted", "paid") for l in claim.line_ids))
 
     def test_post_before_approval_raises(self):
         claim = self._make_claim()
+        with self.assertRaises(UserError):
+            claim.action_post()
+
+    def test_post_requires_sent_not_just_approved(self):
+        """บันทึกบัญชีได้เฉพาะใบที่พนักงานยืนยันส่งบัญชีแล้ว (state=sent)."""
+        claim = self._make_claim()
+        self._approve_claim(claim)
+        self.assertEqual(claim.state, "approved")
         with self.assertRaises(UserError):
             claim.action_post()
 
@@ -242,12 +264,29 @@ class TestExpenseClaim(AccountTestInvoicingCommon):
             {"name": "B", "total_amount": 200.0},
         ])
         self._approve_claim(claim)
+        claim.action_send_to_accounting()
         claim.action_post()
         self.assertEqual(claim.state, "posted")
         self.assertEqual(len(claim.line_ids), 2)
         # ทุกบรรทัดถูกโพสต์จริง (มี account.move) ไม่ใช่ค้างรอ wizard
         self.assertTrue(all(l.account_move_id for l in claim.line_ids))
         self.assertTrue(all(l.state in ("posted", "paid") for l in claim.line_ids))
+
+    # ---------------------------------------------------------------
+    # รอยต่อ: พนักงานยืนยันส่งบัญชี + บังคับแนบหลักฐาน
+    # ---------------------------------------------------------------
+    def test_submit_requires_attachment(self):
+        claim = self._make_claim(with_attachment=False)
+        with self.assertRaises(UserError):
+            claim.action_submit()
+        self.assertEqual(claim.state, "draft")
+
+    def test_send_to_accounting_requires_approved(self):
+        claim = self._make_claim()
+        claim.action_submit()
+        self.assertEqual(claim.state, "submitted")
+        with self.assertRaises(UserError):
+            claim.action_send_to_accounting()
 
     # ---------------------------------------------------------------
     # K6: ใบเดียวห้ามผสม payment_mode
