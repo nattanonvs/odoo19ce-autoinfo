@@ -95,11 +95,9 @@ registry.category("web_tour.tours").add("od19_hr_expense_tour", {
             )),
             run: "click",
         },
-        {
-            trigger: ".analytic_distribution_popup .o_field_x2many_list_row_add a",
-            content: _t("Add a distribution line."),
-            run: "click",
-        },
+        // Opening the widget already appends the first distribution line
+        // (analytic_distribution.js: openAnalyticEditor() -> addLine()), so the
+        // popup never starts empty — no extra "Add a Line" click is needed.
         {
             trigger: ".analytic_distribution_popup .o_field_widget[name='account_id'] input",
             content: _t("Pick the analytic account to charge."),
