@@ -1,141 +1,158 @@
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
-import { stepUtils } from "@od19_user_guide_tours/tours/tour_utils";
+import { stepUtils, navSection, waitForAction } from "@od19_user_guide_tours/tours/tour_utils";
 import { markup } from "@odoo/owl";
 
 /**
  * OD19 HR Expense Tour
  *
- * Walks the user through:
- *  1. Creating an expense line
- *  2. Submitting the expense sheet
- *  3. Request Validation (tier validation: Dept Manager -> Accounting -> CEO)
- *  4. Marking as reimbursed
- *  5. Thai expense types and payment methods
+ * The expense claim (od19.expense.claim) is the single entry point for
+ * filing an expense. This tour walks the user through:
+ *  1. Creating an expense claim (header + expense lines)
+ *  2. Filling the mandatory analytic account on every line
+ *  3. Submitting the claim
+ *  4. Tier validation (Dept Manager -> Accounting -> CEO)
+ *  5. Posting the journal entries once approved
  */
 registry.category("web_tour.tours").add("od19_hr_expense_tour", {
     url: "/odoo",
     steps: () => [
         ...stepUtils.goToAppSteps(
             "hr_expense.menu_hr_expense_root",
-            markup(_t("Let's learn the <b>HR Expense</b> workflow with 3-level tier approval."))
+            markup(_t("Let's learn the <b>Expense Claim</b> workflow with 3-level tier approval."))
         ),
 
-        // --- Create Expense ---
+        // --- Single entry point: the expense claim ---
         {
-            trigger: ".o_menu_sections .dropdown-toggle:text('My Expenses')",
-            content: markup(_t("Open the <b>My Expenses</b> menu.")),
-            tooltipPosition: "bottom",
-            run: "click",
-        },
-        {
-            trigger: ".dropdown-menu .dropdown-item:text('My Expenses')",
-            content: markup(_t("Open <b>My Expenses</b> to create a new expense.")),
-            tooltipPosition: "bottom",
-            run: "click",
-        },
-        {
-            trigger: ".o_list_button_add",
-            content: _t("Create a new expense line."),
-            tooltipPosition: "bottom",
-            run: "click",
-        },
-        {
-            trigger: ".o_field_widget[name='name'] input",
-            content: _t("Enter the expense description."),
-            run: "edit Client Visit - Transportation",
-        },
-        {
-            trigger: ".o_field_widget[name='product_id'] input",
-            content: _t("Select the expense product/category."),
-            run: "click",
-        },
-        {
-            trigger: ".o_field_widget[name='product_id'] .o-autocomplete--dropdown-menu a.dropdown-item:not(.o_loading)",
-            content: _t("Pick the first available expense category."),
-            run: "click",
-        },
-        {
-            trigger: ".o_field_widget[name='quantity'] input",
+            trigger: navSection("ใบเบิกของฉัน"),
             content: markup(_t(
-                "Set the <b>quantity</b> (and unit price); the expense <b>total amount</b> is " +
-                "computed automatically from both."
+                "Open <b>ใบเบิกของฉัน</b> — the single place to file and follow an expense claim."
             )),
-            run: "edit 1",
+            tooltipPosition: "bottom",
+            run: "click",
+        },
+        waitForAction("ใบเบิกของฉัน"),
+        {
+            trigger: ".o-kanban-button-new",
+            content: _t("Create a new expense claim."),
+            tooltipPosition: "bottom",
+            run: "click",
         },
         {
-            trigger: ".o_field_widget[name='total_amount']",
-            content: markup(_t(
-                "The <b>total amount</b> is a computed, read-only field: quantity x unit price."
-            )),
+            trigger: ".o_field_widget[name='employee_id'] input",
+            content: _t("Set the employee the claim belongs to."),
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='employee_id'] .o-autocomplete--dropdown-menu a.dropdown-item:not(.o_loading)",
+            content: _t("Pick the employee."),
+            run: "click",
         },
         {
             trigger: ".o_field_widget[name='payment_mode'] .o_radio_input[data-value='own_account']",
             content: markup(_t(
-                "Choose <b>Payment Mode</b>: own account (employee paid) or company account."
+                "Choose <b>Paid By</b>: employee (to reimburse) or company. " +
+                "All lines of a claim must share the same mode."
+            )),
+            run: "click",
+        },
+
+        // --- Add an expense line ---
+        {
+            trigger: ".o_field_widget[name='line_ids'] .o_field_x2many_list_row_add a",
+            content: _t("Add an expense line to the claim (a claim groups several expenses)."),
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='line_ids'] .o_field_widget[name='name'] input",
+            content: _t("Enter the expense description."),
+            run: "edit Client Visit - Transportation",
+        },
+        {
+            trigger: ".o_field_widget[name='line_ids'] .o_field_widget[name='product_id'] input",
+            content: _t("Select the expense product/category."),
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='line_ids'] .o-autocomplete--dropdown-menu a.dropdown-item:not(.o_loading)",
+            content: _t("Pick the first available expense category."),
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='line_ids'] .o_field_widget[name='quantity'] input",
+            content: markup(_t(
+                "Set the <b>quantity</b> (and unit price); the line <b>total</b> is " +
+                "computed from both."
+            )),
+            run: "edit 1",
+        },
+
+        // --- Analytic distribution (mandatory on every line) ---
+        {
+            trigger: ".o_field_widget[name='line_ids'] .o_field_widget[name='analytic_distribution'] .o_input_dropdown",
+            content: markup(_t(
+                "Every line must carry an <b>Analytic Account</b>. Open the analytic distribution."
             )),
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='payment_method'] .o_select_menu_toggler",
-            content: markup(_t(
-                "Set the <b>Payment Method</b> (cash, transfer, etc.)."
-            )),
+            trigger: ".analytic_distribution_popup .o_field_x2many_list_row_add a",
+            content: _t("Add a distribution line."),
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='thai_expense_type'] .o_select_menu_toggler",
-            content: markup(_t(
-                "Set the <b>Thai Expense Type</b> for tax and reporting classification."
-            )),
+            trigger: ".analytic_distribution_popup .o_field_widget[name='account_id'] input",
+            content: _t("Pick the analytic account to charge."),
             run: "click",
+        },
+        {
+            trigger: ".analytic_distribution_popup .o-autocomplete--dropdown-menu a.dropdown-item:not(.o_loading)",
+            content: _t("Select the analytic account."),
+            run: "click",
+        },
+        {
+            trigger: ".analytic_distribution_popup .popupButtons .btn",
+            content: _t("Close the analytic distribution popup."),
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='total_amount']",
+            content: markup(_t("The claim <b>Total</b> sums every expense line.")),
         },
         ...stepUtils.saveForm(),
 
         // --- Submit ---
         ...stepUtils.statusbarButtonsSteps(
             "Submit",
-            markup(_t("Click <b>Submit</b> to send the expense for approval.")),
+            markup(_t("Click <b>Submit</b> to send the claim for approval.")),
             ".o_form_view"
         ),
 
         // --- Tier Validation ---
-        // เอกสารที่ต้องขออนุมัติจะแสดงปุ่ม "Request Validation"
-        // (need_validation = True) หลัง Submit
-        {
-            isActive: ["button[name='request_validation']"],
-            trigger: "button[name='request_validation']",
-            content: markup(_t(
-                "Click <b>Request Validation</b> to start the 3-level approval: " +
-                "Department Manager → Accounting → CEO."
-            )),
-            tooltipPosition: "left",
-            run: "click",
-        },
+        // อนุมัติ 3 ชั้นที่หัวใบ: หัวหน้าแผนก → บัญชี → CEO
         {
             isActive: ["button[name='validate_tier']"],
             trigger: "button[name='validate_tier']",
             content: markup(_t(
-                "Each approver clicks <b>Validate</b> in their turn. " +
-                "Approval follows the sequence and cannot be skipped."
+                "Each approver clicks <b>Validate</b> in their turn: " +
+                "Department Manager → Accounting → CEO. Approval follows the sequence."
             )),
             tooltipPosition: "left",
             run: "click",
         },
 
-        // --- Mark Reimbursed ---
+        // --- Post the journal entries once fully approved ---
         {
-            isActive: ["button[name='action_mark_reimbursed']"],
-            trigger: "button[name='action_mark_reimbursed']",
+            isActive: ["button[name='action_post']"],
+            trigger: "button[name='action_post']",
             content: markup(_t(
-                "For own-account expenses, click <b>Mark Reimbursed</b> once the employee has been paid."
+                "Once approved, click <b>Post Journal Entries</b> to account the expense lines."
             )),
             tooltipPosition: "left",
             run: "click",
         },
-        // Submitting or reimbursing can raise a "Confirmation" dialog (e.g. an
-        // expense that duplicates an existing one). Acknowledge it first,
-        // otherwise the discard/back buttons below are blocked by the modal.
+        // Posting can raise a "Confirmation" dialog. Acknowledge it first,
+        // otherwise the back/discard buttons below are blocked by the modal.
         {
             isActive: [".modal-footer .btn-primary"],
             trigger: ".modal-footer .btn-primary",
@@ -146,11 +163,11 @@ registry.category("web_tour.tours").add("od19_hr_expense_tour", {
         ...stepUtils.discardForm(),
 
         {
-            trigger: ".o_list_renderer",
+            trigger: ".o_kanban_view, .o_list_renderer",
             content: markup(_t(
-                "HR Expense workflow complete! The process is: <b>Create → Submit → " +
-                "Request Validation → Validate ×3 → Approve → Reimbursed</b>. " +
-                "Thai expense types and payment methods support local compliance."
+                "Expense Claim workflow complete! The process is: <b>Create → Submit → " +
+                "Validate ×3 → Approved → Post</b>. Every line carries an analytic account " +
+                "so costs are allocated to the right project or department."
             )),
             run: "click",
         },
