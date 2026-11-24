@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import ast
 import base64
 
 from odoo import Command, fields
@@ -573,3 +574,92 @@ class TestExpenseClaim(AccountTestInvoicingCommon):
         claim = self._make_petty_cash()
         self._approve_claim_tiers(claim, tiers=2)
         self.assertEqual(claim.state, "approved")
+
+    # ---------------------------------------------------------------
+    # P4: ศูนย์งานฝ่ายบัญชี + เมนู (ซ่อนเมนูเดิม) — §10
+    # ---------------------------------------------------------------
+    def _action_domain(self, action):
+        return ast.literal_eval(action.domain or "[]")
+
+    def _action_context(self, action):
+        return ast.literal_eval(action.context or "{}")
+
+    def test_accounting_menu_points_to_claim_action(self):
+        """Employee Expenses (vendor) ถูกดัดแปลงเป็นศูนย์งานฝ่ายบัญชีของ claim."""
+        menu = self.env.ref(
+            "hr_expense.menu_hr_expense_account_employee_expenses")
+        action = menu.action
+        self.assertEqual(action.res_model, "od19.expense.claim")
+        self.assertEqual(
+            action,
+            self.env.ref(
+                "od19_hr_expense_claim.action_od19_expense_claim_accounting"),
+        )
+
+    def test_accounting_action_defaults_on_behalf(self):
+        """สร้างใบเบิกแทนพนักงาน: ปุ่มสร้างจากศูนย์งานฝ่ายบัญชี -> on_behalf."""
+        action = self.env.ref(
+            "od19_hr_expense_claim.action_od19_expense_claim_accounting")
+        ctx = self._action_context(action)
+        self.assertEqual(ctx.get("default_claim_source"), "on_behalf")
+        self.assertEqual(ctx.get("search_default_accounting_todo"), 1)
+
+    def test_advance_menu_filter_and_defaults(self):
+        action = self.env.ref(
+            "od19_hr_expense_claim.action_od19_expense_claim_advance")
+        self.assertEqual(action.res_model, "od19.expense.claim")
+        self.assertIn(("claim_type", "=", "advance"), self._action_domain(action))
+        self.assertEqual(
+            self._action_context(action).get("default_claim_type"), "advance")
+        menu = self.env.ref(
+            "od19_hr_expense_claim.menu_od19_expense_claim_advance")
+        self.assertEqual(menu.action, action)
+
+    def test_petty_cash_menu_filter_and_defaults(self):
+        action = self.env.ref(
+            "od19_hr_expense_claim.action_od19_expense_claim_petty_cash")
+        self.assertIn(
+            ("claim_type", "=", "petty_cash"), self._action_domain(action))
+        ctx = self._action_context(action)
+        self.assertEqual(ctx.get("default_claim_type"), "petty_cash")
+        self.assertEqual(ctx.get("default_claim_source"), "on_behalf")
+        menu = self.env.ref(
+            "od19_hr_expense_claim.menu_od19_expense_claim_petty_cash")
+        self.assertEqual(menu.action, action)
+
+    # ---------------------------------------------------------------
+    # P4: "รออนุมัติฝ่ายบัญชี" (tier ชั้นบัญชี = current) — ตัวกรองพร้อมใช้
+    # ---------------------------------------------------------------
+    def test_waiting_accounting_approval_flag(self):
+        claim = self._make_claim()
+        claim.action_submit()
+        # ค้างที่ชั้น 1 (หัวหน้าแผนก) -> ยังไม่ใช่รอฝ่ายบัญชี
+        self.assertFalse(claim.od19_waiting_accounting_approval)
+        claim.with_user(self.supervisor).validate_tier()
+        claim.invalidate_recordset()
+        # ค้างที่ชั้น 2 (ฝ่ายบัญชี)
+        self.assertTrue(claim.od19_waiting_accounting_approval)
+        claim.with_user(self.accountant).validate_tier()
+        claim.invalidate_recordset()
+        self.assertFalse(claim.od19_waiting_accounting_approval)
+
+    def test_waiting_accounting_approval_search(self):
+        claim = self._make_claim()
+        claim.action_submit()
+        claim.with_user(self.supervisor).validate_tier()
+        claim.invalidate_recordset()
+        found = self.Claim.search(
+            [("od19_waiting_accounting_approval", "=", True)])
+        self.assertIn(claim, found)
+        not_found = self.Claim.search(
+            [("od19_waiting_accounting_approval", "=", False)])
+        self.assertNotIn(claim, not_found)
+
+    # ---------------------------------------------------------------
+    # P4: ฟิลด์อ้างอิงเอกสารรายบรรทัด (§5.3) อยู่บน hr.expense
+    # ---------------------------------------------------------------
+    def test_supplier_doc_fields_on_expense(self):
+        fields = self.env["hr.expense"]._fields
+        for fname in ("od19_supplier_doc_number", "od19_supplier_doc_date",
+                      "od19_supplier_tax_id"):
+            self.assertIn(fname, fields)

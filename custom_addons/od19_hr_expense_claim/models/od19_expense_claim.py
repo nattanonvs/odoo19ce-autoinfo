@@ -166,6 +166,15 @@ class Od19ExpenseClaim(models.Model):
         "od19.expense.claim", "advance_id", string="Clearing Claims",
     )
 
+    # P4 — ตัวกรองพร้อมใช้ของศูนย์งานฝ่ายบัญชี (§10.3):
+    # ใบที่ค้างอนุมัติอยู่ที่ชั้นฝ่ายบัญชี (ชั้นที่ 2) — ไม่เก็บลง DB คำนวณจาก tier.review
+    od19_waiting_accounting_approval = fields.Boolean(
+        string="Waiting Accounting Approval",
+        compute="_compute_od19_waiting_accounting_approval",
+        search="_search_od19_waiting_accounting_approval",
+        help="ใบที่ค้างอนุมัติอยู่ที่ชั้นฝ่ายบัญชี (ชั้นที่ 2)",
+    )
+
     state = fields.Selection(
         [("draft", "Draft"),
          ("submitted", "Submitted"),
@@ -219,6 +228,37 @@ class Od19ExpenseClaim(models.Model):
     def _compute_remaining_amount(self):
         for claim in self:
             claim.remaining_amount = claim.amount - claim.cleared_amount
+
+    @api.depends("state", "review_ids.status", "review_ids.definition_id")
+    def _compute_od19_waiting_accounting_approval(self):
+        accounting_group = self.env.ref(
+            "account.group_account_manager", raise_if_not_found=False)
+        for claim in self:
+            pending = claim.review_ids.filtered(
+                lambda review: review.status == "pending"
+            ).sorted("sequence")[:1]
+            claim.od19_waiting_accounting_approval = bool(
+                claim.state == "submitted"
+                and pending
+                and pending.definition_id.reviewer_group_id == accounting_group
+            )
+
+    def _search_od19_waiting_accounting_approval(self, operator, value):
+        if operator not in ("=", "!="):
+            raise UserError(_("Unsupported operator for this filter."))
+        if not isinstance(value, bool):
+            value = bool(value)
+        accounting_group = self.env.ref(
+            "account.group_account_manager", raise_if_not_found=False)
+        reviews = self.env["tier.review"].search([
+            ("model", "=", "od19.expense.claim"),
+            ("status", "=", "pending"),
+            ("definition_id.reviewer_group_id", "=", accounting_group.id),
+        ])
+        ids = [review.res_id for review in reviews if review.res_id]
+        if (operator == "=") == value:
+            return [("id", "in", ids)]
+        return [("id", "not in", ids)]
 
     @api.model_create_multi
     def create(self, vals_list):

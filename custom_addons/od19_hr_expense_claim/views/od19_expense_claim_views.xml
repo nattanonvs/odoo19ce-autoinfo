@@ -132,6 +132,10 @@
                                            string="Analytic Account"
                                            required="1"
                                            options="{'product_field': 'product_id', 'business_domain': 'expense'}"/>
+                                    <!-- §5.3 ฟิลด์อ้างอิงเอกสารรายบรรทัด (optional) -->
+                                    <field name="od19_supplier_doc_number" optional="hide"/>
+                                    <field name="od19_supplier_doc_date" optional="hide"/>
+                                    <field name="od19_supplier_tax_id" optional="hide"/>
                                     <field name="total_amount" sum="Total"/>
                                     <field name="payment_mode" column_invisible="1"/>
                                     <field name="employee_id" column_invisible="1"/>
@@ -215,6 +219,71 @@
         </field>
     </record>
 
+    <!-- P4: ศูนย์งานฝ่ายบัญชี (§10.3) — search view เฉพาะงานฝ่ายบัญชี -->
+    <record id="view_od19_expense_claim_search_accounting" model="ir.ui.view">
+        <field name="name">od19.expense.claim.search.accounting</field>
+        <field name="model">od19.expense.claim</field>
+        <field name="arch" type="xml">
+            <search string="Search Expense Claims (Accounting)">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="submitted_for_id"/>
+                <filter string="งานฝ่ายบัญชีที่ต้องทำ" name="accounting_todo"
+                        domain="['|', ('state', 'in', ('approved', 'posted')),
+                                        ('cash_state', 'in', ('issued', 'partially_used'))]"/>
+                <filter string="รออนุมัติฝ่ายบัญชี" name="waiting_accounting"
+                        domain="[('od19_waiting_accounting_approval', '=', True)]"/>
+                <separator/>
+                <filter string="อนุมัติครบ รอลงบัญชี" name="acct_to_post"
+                        domain="[('state', '=', 'approved')]"/>
+                <filter string="รอจ่ายคืน" name="acct_to_pay"
+                        domain="[('state', '=', 'posted'), ('claim_type', '=', 'reimbursement')]"/>
+                <filter string="รอเคลียร์ทดรอง/เงินสดย่อย" name="acct_to_clear"
+                        domain="[('cash_state', 'in', ('issued', 'partially_used'))]"/>
+                <separator/>
+                <filter string="เงินสดย่อย" name="acct_petty_cash"
+                        domain="[('claim_type', '=', 'petty_cash')]"/>
+                <filter string="เงินทดรอง" name="acct_advance"
+                        domain="[('claim_type', '=', 'advance')]"/>
+                <filter string="ฝ่ายบัญชีทำแทน" name="acct_on_behalf"
+                        domain="[('claim_source', '=', 'on_behalf')]"/>
+                <separator/>
+                <group>
+                    <filter string="พนักงาน" name="acct_group_employee" context="{'group_by': 'employee_id'}"/>
+                    <filter string="แผนก" name="acct_group_department" context="{'group_by': 'department_id'}"/>
+                    <filter string="ประเภท" name="acct_group_claim_type" context="{'group_by': 'claim_type'}"/>
+                    <filter string="แหล่งที่มา" name="acct_group_claim_source" context="{'group_by': 'claim_source'}"/>
+                    <filter string="สถานะ" name="acct_group_state" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- P4: คอลัมน์ของศูนย์งานฝ่ายบัญชี (§10.3) -->
+    <record id="view_od19_expense_claim_list_accounting" model="ir.ui.view">
+        <field name="name">od19.expense.claim.list.accounting</field>
+        <field name="model">od19.expense.claim</field>
+        <field name="arch" type="xml">
+            <list string="Employee Expenses"
+                  decoration-info="state == 'draft'"
+                  decoration-warning="state in ('submitted', 'refused')"
+                  decoration-success="state in ('approved', 'sent', 'posted', 'paid', 'cleared')">
+                <field name="date"/>
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="submitted_for_id" optional="hide"/>
+                <field name="claim_type" widget="badge"/>
+                <field name="claim_source" optional="show"/>
+                <field name="total_amount" sum="Total"/>
+                <field name="validation_status" optional="show"/>
+                <field name="state" widget="badge"/>
+                <field name="cash_state" optional="show"/>
+                <field name="remaining_amount" optional="show"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
     <record id="action_od19_expense_claim_my" model="ir.actions.act_window">
         <field name="name">ใบเบิกของฉัน</field>
         <field name="res_model">od19.expense.claim</field>
@@ -251,6 +320,83 @@
         sequence="3"
         groups="hr_expense.group_hr_expense_manager,account.group_account_manager"
     />
+
+    <!-- ================================================================
+         P4: เมนูเป้าหมาย (§10.1)
+         - ใบขอเงินทดรอง      : กรอง claim_type=advance (รวมจาก menu_od19_hr_advance)
+         - เงินสดย่อย (บัญชี)  : กรอง claim_type=petty_cash (ทางลัดไปศูนย์งานฝ่ายบัญชี)
+         - Employee Expenses   : ดัดแปลงเป็นศูนย์งานฝ่ายบัญชี (override ด้านล่าง)
+         ================================================================ -->
+    <record id="action_od19_expense_claim_advance" model="ir.actions.act_window">
+        <field name="name">ใบขอเงินทดรอง</field>
+        <field name="res_model">od19.expense.claim</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('claim_type', '=', 'advance')]</field>
+        <field name="context">{'search_default_type_advance': 1,
+                                'default_claim_type': 'advance',
+                                'default_payment_mode': 'company_account'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">ขอเงินทดรองใบแรก</p>
+            <p>ขอเงินทดรองล่วงหน้า อนุมัติที่หัวใบครั้งเดียว จ่ายเงิน แล้วเคลียร์ด้วยใบเบิกคืน</p>
+        </field>
+    </record>
+
+    <record id="action_od19_expense_claim_petty_cash" model="ir.actions.act_window">
+        <field name="name">เงินสดย่อย (ฝ่ายบัญชี)</field>
+        <field name="res_model">od19.expense.claim</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('claim_type', '=', 'petty_cash')]</field>
+        <field name="context">{'search_default_type_petty_cash': 1,
+                                'default_claim_type': 'petty_cash',
+                                'default_claim_source': 'on_behalf',
+                                'default_payment_mode': 'company_account'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">สร้างใบเงินสดย่อย</p>
+            <p>ฝ่ายบัญชีสร้างใบแทนพนักงาน จ่ายจากกองทุนเงินสดย่อย แล้วใช้/ปิดตามแนวคิดเงินค้างมือเดียวกับทดรอง</p>
+        </field>
+    </record>
+
+    <record id="action_od19_expense_claim_accounting" model="ir.actions.act_window">
+        <field name="name">Employee Expenses (Accounting)</field>
+        <field name="res_model">od19.expense.claim</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="view_od19_expense_claim_search_accounting"/>
+        <field name="view_id" ref="view_od19_expense_claim_list_accounting"/>
+        <field name="domain">[]</field>
+        <field name="context">{'search_default_accounting_todo': 1,
+                                'default_claim_source': 'on_behalf'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">ไม่มีงานฝ่ายบัญชีค้าง</p>
+            <p>ศูนย์งานฝ่ายบัญชี: สร้างใบเบิกแทนพนักงาน/เงินสดย่อย, บันทึกบัญชี, จ่ายคืน, เคลียร์ทดรอง</p>
+        </field>
+    </record>
+
+    <menuitem
+        id="menu_od19_expense_claim_advance"
+        name="ใบขอเงินทดรอง"
+        parent="hr_expense.menu_hr_expense_root"
+        action="action_od19_expense_claim_advance"
+        sequence="4"
+    />
+    <menuitem
+        id="menu_od19_expense_claim_petty_cash"
+        name="เงินสดย่อย (ฝ่ายบัญชี)"
+        parent="hr_expense.menu_hr_expense_root"
+        action="action_od19_expense_claim_petty_cash"
+        sequence="5"
+        groups="account.group_account_manager"
+    />
+
+    <!--
+        §10.1 / §10.3 — "Employee Expenses" (vendor) คงไว้ แต่ยกระดับเป็น
+        *ศูนย์งานฝ่ายบัญชี* ที่ชี้ใบเบิก (od19.expense.claim) แทน hr.expense ดิบ
+        และเปิดให้กลุ่มฝ่ายบัญชีเห็นด้วย (เดิมจำกัดที่ hr_expense.group_hr_expense_user)
+    -->
+    <record id="hr_expense.menu_hr_expense_account_employee_expenses" model="ir.ui.menu">
+        <field name="action" ref="action_od19_expense_claim_accounting"/>
+        <field name="group_ids" eval="[(6, 0, [ref('hr_expense.group_hr_expense_user'),
+                                              ref('account.group_account_manager')])]"/>
+    </record>
 
     <!--
         App switcher / landing page fix.
