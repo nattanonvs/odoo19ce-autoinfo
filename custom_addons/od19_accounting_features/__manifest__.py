@@ -3,7 +3,7 @@
 
 {
     "name": "OD19 Accounting Features",
-    "version": "19.0.1.8.0",
+    "version": "19.0.1.10.0",
     "author": "OD19",
     "category": "Accounting/Localizations",
     "summary": "Cancel reason wizard, payer/payee, BOT URL, prepayment due date, "

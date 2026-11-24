@@ -17,3 +17,7 @@ access_od19_account_suspense_clear_wizard_user,od19.account.suspense.clear.wizar
 access_od19_account_suspense_clear_wizard_manager,od19.account.suspense.clear.wizard manager,model_od19_account_suspense_clear_wizard,account.group_account_manager,1,1,1,1
 access_od19_account_suspense_clear_line_user,od19.account.suspense.clear.line user,model_od19_account_suspense_clear_line,account.group_account_user,1,1,1,1
 access_od19_account_suspense_clear_line_manager,od19.account.suspense.clear.line manager,model_od19_account_suspense_clear_line,account.group_account_manager,1,1,1,1
+access_od19_payment_wht_line_user,od19.payment.wht.line user,model_od19_payment_wht_line,account.group_account_invoice,1,1,1,1
+access_od19_payment_wht_line_manager,od19.payment.wht.line manager,model_od19_payment_wht_line,account.group_account_manager,1,1,1,1
+access_od19_payment_vat_line_user,od19.payment.vat.line user,model_od19_payment_vat_line,account.group_account_invoice,1,1,1,1
+access_od19_payment_vat_line_manager,od19.payment.vat.line manager,model_od19_payment_vat_line,account.group_account_manager,1,1,1,1

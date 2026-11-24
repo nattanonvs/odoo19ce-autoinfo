@@ -1,7 +1,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 {
     "name": "OD19 Accounting - Cheque Management",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.2.0",
     "category": "Accounting/Payments",
     "summary": "Customer and supplier cheque management with cheque book and printing",
     "author": "Custom",

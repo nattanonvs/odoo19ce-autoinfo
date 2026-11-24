@@ -55,6 +55,147 @@
                        readonly="1"
                        invisible="not od19_override_by"/>
             </field>
+
+            <!-- ============================================================
+                 Totals strip + 7-tab notebook (spec §5/§9).
+                 This module is the single layout owner of the payment form:
+                 the Fees / Cheques / WHT / VAT / Invoice pages are all
+                 composed here, while the underlying models live in the
+                 feature modules (od19_accounting_payment_fee, ..._cheque,
+                 od19_accounting_features).
+                 ============================================================ -->
+            <xpath expr="//group[@name='main_group']" position="after">
+                <!-- Totals strip (R5): the figures the clerk must know -->
+                <group name="od19_totals_strip" string="สรุปยอด / Totals">
+                    <group>
+                        <field name="amount" readonly="state != 'draft'"
+                               string="ยอดรับ/จ่าย / Amount"/>
+                        <field name="od19_cheque_collect_amount" readonly="1"
+                               invisible="payment_type != 'inbound'"/>
+                        <field name="od19_exchange_rate"/>
+                    </group>
+                    <group>
+                        <field name="od19_wht_amount" readonly="1"/>
+                        <field name="od19_amount_net" readonly="1"/>
+                    </group>
+                </group>
+
+                <notebook>
+                    <!-- 1) Fees / Charges (K2/K3) -->
+                    <page string="ค่าธรรมเนียม / Fees" name="od19_fees">
+                        <field name="od19_fee_ids" nolabel="1">
+                            <list editable="bottom">
+                                <field name="name"/>
+                                <field name="account_id"/>
+                                <field name="analytic_distribution"
+                                       widget="analytic_distribution"
+                                       optional="hide"/>
+                                <field name="percent" optional="show"/>
+                                <field name="amount" sum="รวมค่าธรรมเนียม"/>
+                                <field name="is_profit" optional="hide"/>
+                            </list>
+                        </field>
+                    </page>
+
+                    <!-- 2) Collecting Cheques (F9/R6) -->
+                    <page string="เช็คที่รับชำระ / Collecting Cheques"
+                          name="od19_cheques"
+                          invisible="payment_type != 'inbound'">
+                        <field name="od19_cheque_collect_ids" nolabel="1">
+                            <list editable="bottom">
+                                <field name="name"/>
+                                <field name="bank_id"/>
+                                <field name="bank_branch"/>
+                                <field name="cheque_date"/>
+                                <field name="amount" sum="รวมเช็ค"/>
+                                <field name="journal_id"/>
+                            </list>
+                        </field>
+                    </page>
+
+                    <!-- 3) Withholding Tax (K2/K3) -->
+                    <page string="หัก ณ ที่จ่าย / Withholding Tax" name="od19_wht">
+                        <field name="od19_wht_line_ids" nolabel="1">
+                            <list editable="bottom">
+                                <field name="tax_id"/>
+                                <field name="income_type"/>
+                                <field name="pay_amount"/>
+                                <field name="wht_amount" sum="รวมหัก ณ ที่จ่าย"/>
+                                <field name="account_id" readonly="1"/>
+                            </list>
+                        </field>
+                    </page>
+
+                    <!-- 4) VAT (K4/K5/K9) -->
+                    <page string="ภาษีมูลค่าเพิ่ม / VAT" name="od19_vat">
+                        <field name="od19_vat_line_ids" nolabel="1">
+                            <list editable="bottom">
+                                <field name="tax_id"/>
+                                <field name="base_amount"/>
+                                <field name="vat_amount" sum="รวม VAT"/>
+                                <field name="vat_date"/>
+                                <field name="invoice_id"/>
+                            </list>
+                        </field>
+                    </page>
+
+                    <!-- 5) Invoice — every related document (K7/R9); the
+                         document type is only an initial filter, the user
+                         can pick a different one. -->
+                    <page string="เอกสารต้นทาง / Invoices" name="od19_invoices">
+                        <field name="od19_source_move_ids" readonly="1" nolabel="1">
+                            <list>
+                                <field name="move_type"/>
+                                <field name="name"/>
+                                <field name="invoice_date"/>
+                                <field name="invoice_date_due"/>
+                                <field name="amount_untaxed" optional="show"/>
+                                <field name="amount_tax" optional="show"/>
+                                <field name="amount_total"/>
+                                <field name="state"/>
+                            </list>
+                        </field>
+                    </page>
+
+                    <!-- 6) WHT Invoice — source document info used to build
+                         the withholding base. -->
+                    <page string="ใบกำกับภาษี / WHT Invoice"
+                          name="od19_wht_invoices">
+                        <group>
+                            <group>
+                                <field name="od19_source_reference" readonly="1"/>
+                                <field name="od19_payment_term_name" readonly="1"/>
+                                <field name="od19_due_date" readonly="1"/>
+                                <field name="od19_job_no" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="od19_bill_untaxed_amount" readonly="1"/>
+                                <field name="od19_bill_tax_amount" readonly="1"/>
+                                <field name="od19_bill_total_amount" readonly="1"/>
+                                <field name="od19_salesperson_id" readonly="1"/>
+                            </group>
+                        </group>
+                    </page>
+
+                    <!-- 7) WHT Summary -->
+                    <page string="สรุปหัก ณ ที่จ่าย / WHT Summary"
+                          name="od19_wht_summary">
+                        <group>
+                            <group>
+                                <field name="od19_wht_invoice_base_amount"
+                                       readonly="1" string="ยอดฐานหัก ณ ที่จ่าย"/>
+                                <field name="od19_wht_rate" readonly="1"/>
+                                <field name="od19_wht_invoice_amount" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="od19_wht_amount" readonly="1"/>
+                                <field name="od19_vat_amount" readonly="1"/>
+                                <field name="od19_amount_net" readonly="1"/>
+                            </group>
+                        </group>
+                    </page>
+                </notebook>
+            </xpath>
         </field>
     </record>
 

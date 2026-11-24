@@ -7,11 +7,14 @@
         <field name="inherit_id" ref="account.view_account_payment_form"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='amount']" position="after">
-                <field name="fee_amount"/>
-                <field name="fee_account_id"
-                       invisible="fee_amount == 0"
-                       required="fee_amount != 0"/>
+                <field name="od19_fee_amount"
+                       readonly="1"
+                       invisible="od19_fee_amount == 0"/>
             </xpath>
+
+            <!-- Fee detail lines (K2/K3) are composed by the layout owner
+                 (od19_accounting_payment_voucher_reports) in the form
+                 notebook; this module only defines the field / model. -->
         </field>
     </record>
 

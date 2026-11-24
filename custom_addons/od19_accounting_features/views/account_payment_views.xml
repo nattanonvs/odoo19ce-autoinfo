@@ -9,32 +9,24 @@
         <field name="inherit_id" ref="account.view_account_payment_form"/>
         <field name="arch" type="xml">
 
-            <!-- Payer / Payee -->
+            <!-- Payer / Payee (K1): hidden on the inbound receipt form, where
+                 partner_id already is the payer. Kept for the outbound flow
+                 (e.g. paying on behalf of another partner). -->
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="od19_payer_id"
-                       string="ผู้จ่ายเงิน / Payer"/>
+                       string="ผู้จ่ายเงิน / Payer"
+                       invisible="payment_type == 'inbound'"/>
                 <field name="od19_payee_id"
-                       string="ผู้รับเงิน / Payee"/>
+                       string="ผู้รับเงิน / Payee"
+                       invisible="payment_type == 'inbound'"/>
+                <!-- R3: receipt document type drives the RE / TI number series (K8). -->
+                <field name="od19_receipt_doc_type"
+                       string="ประเภทการเปิดเอกสาร / Document type"
+                       invisible="payment_type != 'inbound'"/>
             </xpath>
-
-            <!-- WHT section -->
-            <xpath expr="//sheet" position="inside">
-                <group string="Withholding Tax (WHT)"
-                       invisible="payment_type == 'inbound'">
-                    <group>
-                        <field name="od19_wht_type_id" string="WHT Type"/>
-                        <field name="od19_wht_rate" string="WHT Rate"/>
-                    </group>
-                    <group>
-                        <field name="od19_wht_invoice_base_amount"
-                               string="WHT Base Amount"
-                               readonly="1"/>
-                        <field name="od19_wht_invoice_amount"
-                               string="WHT Amount"
-                               readonly="1"/>
-                    </group>
-                </group>
-            </xpath>
+            <!-- WHT / VAT detail is composed by the layout owner
+                 (od19_accounting_payment_voucher_reports) in the form
+                 notebook; this module only defines the fields. -->
         </field>
     </record>
 

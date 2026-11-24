@@ -9,6 +9,14 @@ VOUCHER_SEQUENCE_BY_PAYMENT_TYPE = {
     "inbound": "account.voucher.customer.payment",
 }
 
+# Inbound receipts draw from a series per document type (K8). When the user
+# has not picked a type yet the legacy inbound series (RV) is used so the
+# number is never left blank.
+RECEIPT_SEQUENCE_BY_DOC_TYPE = {
+    "receipt": "account.voucher.receipt",
+    "tax_invoice": "account.voucher.tax.invoice",
+}
+
 # Move types that a payment can settle and that carry untaxed / VAT totals.
 SOURCE_BILL_MOVE_TYPES = ("in_invoice", "in_refund", "out_invoice", "out_refund")
 
@@ -307,6 +315,11 @@ class AccountPayment(models.Model):
 
     def _od19_voucher_sequence_code(self):
         self.ensure_one()
+        if self.payment_type == "inbound":
+            return RECEIPT_SEQUENCE_BY_DOC_TYPE.get(
+                self.od19_receipt_doc_type,
+                VOUCHER_SEQUENCE_BY_PAYMENT_TYPE["inbound"],
+            )
         return VOUCHER_SEQUENCE_BY_PAYMENT_TYPE.get(self.payment_type)
 
     def _od19_assign_voucher_number(self):

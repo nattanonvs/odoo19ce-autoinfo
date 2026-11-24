@@ -6,3 +6,4 @@ from . import test_period_clear
 from . import test_clearing_wizards
 from . import test_supplier_ref_unique
 from . import test_vendor_bill_required
+from . import test_od19_payment_wht
