@@ -23,7 +23,7 @@
         <field name="sequence">10</field>
         <field name="style_id" ref="mis_style_fs_line" />
         <field name="compare_method">diff</field>
-        <field name="expression">bale[('code','=like','111%.%')]</field>
+        <field name="expression">bale[('code','=like','111%')]</field>
     </record>
 
     <record id="mis_kpi_bs_1120" model="mis.report.kpi">
@@ -173,7 +173,7 @@
         <field name="sequence">230</field>
         <field name="style_id" ref="mis_style_fs_line" />
         <field name="compare_method">diff</field>
-        <field name="expression">-bale[('code','=like','213%.%')]</field>
+        <field name="expression">-bale[('code','=like','213%')]</field>
     </record>
 
     <record id="mis_kpi_bs_2210" model="mis.report.kpi">
@@ -253,7 +253,7 @@
         <field name="sequence">330</field>
         <field name="style_id" ref="mis_style_fs_line" />
         <field name="compare_method">diff</field>
-        <field name="expression">-bale[('code','=like','3300%.%')] - bale[('account_type','=','equity_unaffected')]</field>
+        <field name="expression">-bale[('code','=like','3300%.%')] - bale[('account_type','=','equity_unaffected')] - balu[('account_type','=','equity_unaffected')]</field>
     </record>
 
     <record id="mis_kpi_bs_3400" model="mis.report.kpi">

@@ -1,6 +1,6 @@
 {
     "name": "OD19 MIS Financial Statements (Header Level)",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "summary": "งบแสดงฐานะทางการเงิน และ งบกำไรขาดทุน ระดับหัวข้อบัญชี (แบบ ค) บน OCA MIS Builder",
     "author": "TRAE",
     "category": "Accounting/Accounting",
