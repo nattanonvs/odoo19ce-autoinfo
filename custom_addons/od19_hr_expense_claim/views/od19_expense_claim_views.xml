@@ -69,6 +69,11 @@
                                     <field name="product_id"/>
                                     <field name="quantity"/>
                                     <field name="price_unit"/>
+                                    <field name="analytic_distribution"
+                                           widget="analytic_distribution"
+                                           string="Analytic Account"
+                                           required="1"
+                                           options="{'product_field': 'product_id', 'business_domain': 'expense'}"/>
                                     <field name="total_amount" sum="Total"/>
                                     <field name="payment_mode" column_invisible="1"/>
                                     <field name="employee_id" column_invisible="1"/>
@@ -138,7 +143,7 @@
     </record>
 
     <record id="action_od19_expense_claim_my" model="ir.actions.act_window">
-        <field name="name">My Expense Claims</field>
+        <field name="name">ใบเบิกของฉัน</field>
         <field name="res_model">od19.expense.claim</field>
         <field name="view_mode">kanban,list,form</field>
         <field name="domain">[('employee_id.user_id', '=', uid)]</field>
@@ -150,7 +155,7 @@
     </record>
 
     <record id="action_od19_expense_claim_all" model="ir.actions.act_window">
-        <field name="name">All Expense Claims</field>
+        <field name="name">ใบเบิกทั้งหมด</field>
         <field name="res_model">od19.expense.claim</field>
         <field name="view_mode">list,kanban,form</field>
         <field name="help" type="html">
@@ -160,18 +165,28 @@
 
     <menuitem
         id="menu_od19_expense_claim_my"
-        name="My Expense Claims"
+        name="ใบเบิกของฉัน"
         parent="hr_expense.menu_hr_expense_root"
         action="action_od19_expense_claim_my"
-        sequence="20"
+        sequence="2"
     />
     <menuitem
         id="menu_od19_expense_claim_all"
-        name="All Expense Claims"
+        name="ใบเบิกทั้งหมด"
         parent="hr_expense.menu_hr_expense_root"
         action="action_od19_expense_claim_all"
-        sequence="21"
+        sequence="3"
         groups="hr_expense.group_hr_expense_manager,account.group_account_manager"
     />
+
+    <!--
+        Dedup: the expense claim (od19.expense.claim) is now the single entry
+        point for filing an expense. Hide the legacy per-expense menu of the
+        core app so the employee no longer sees two competing "my expenses"
+        entry points.
+    -->
+    <record id="hr_expense.menu_hr_expense_my_expenses" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
 
 </odoo>

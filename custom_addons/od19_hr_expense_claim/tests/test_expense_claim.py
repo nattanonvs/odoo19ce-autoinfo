@@ -46,6 +46,10 @@ class TestExpenseClaim(AccountTestInvoicingCommon):
             "supplier_taxes_id": [Command.clear()],
         })
         cls.employee = cls.env["hr.employee"].create({"name": "Claim Employee"})
+        cls.analytic = cls.env["account.analytic.account"].create({
+            "name": "Claim Analytic",
+            "plan_id": cls.env.ref("analytic.analytic_plan_projects").id,
+        })
 
     def _make_claim(self, lines=None):
         lines = lines or [{"name": "Line A", "total_amount": 100.0}]
@@ -60,6 +64,7 @@ class TestExpenseClaim(AccountTestInvoicingCommon):
                     "employee_id": self.employee.id,
                     "payment_mode": "own_account",
                     "company_id": self.env.company.id,
+                    "analytic_distribution": {str(self.analytic.id): 100.0},
                 })
                 for line in lines
             ],

@@ -112,6 +112,12 @@ class Od19ExpenseClaim(models.Model):
                 raise UserError(_("ส่งได้เฉพาะใบเบิกที่เป็นฉบับร่าง"))
             if not claim.line_ids:
                 raise UserError(_("ใบเบิกต้องมีอย่างน้อย 1 บรรทัด"))
+            missing_analytic = claim.line_ids.filtered(
+                lambda line: not line.analytic_distribution)
+            if missing_analytic:
+                raise UserError(_(
+                    "ต้องระบุ Analytic Account ให้ครบทุกรายการก่อนส่งอนุมัติ "
+                    "(ขาด %s รายการ)", len(missing_analytic)))
             claim.line_ids.write({"approval_state": "submitted"})
             claim.write({
                 "state": "submitted",
