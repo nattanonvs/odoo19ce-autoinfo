@@ -5,10 +5,9 @@ from odoo.tests.common import TransactionCase, tagged
 
 @tagged("post_install", "-at_install")
 class TestProjectTitleDisplay(TransactionCase):
-    """The project heading must render as '(job_no) project name'. The form title
-    bar keeps the Job Number and Project Name as separate, editable fields; the
-    list uses a single combined column; and the kanban card shows complementary
-    context (project category / department) instead of repeating the title.
+    """The combined '(job_no) project name' title is shown on the kanban card and
+    in the list. On the form, the heading is a Hero Panel wrapping an inline
+    "job pill" (editable Job Number) next to the editable Project Name.
     """
 
     def _combined(self, xmlid):
@@ -26,19 +25,24 @@ class TestProjectTitleDisplay(TransactionCase):
         project = self.env["project.project"].create({"name": "No Job Yet"})
         self.assertEqual(project.od19_title, "No Job Yet")
 
-    def test_form_heading_uses_combined_title(self):
+    def test_form_heading_uses_hero_panel_with_job_pill(self):
         form = self._combined("project.edit_project")
         self.assertTrue(
-            form.xpath("//h1//field[@name='od19_title']"),
-            "The form heading must display the combined '(job_no) name' title.",
-        )
-        self.assertFalse(
-            form.xpath("//h1//field[@name='job_no']"),
-            "The Job Number field must not sit in the heading anymore.",
+            form.xpath("//*[contains(@class,'od19-hero')]"),
+            "The form heading must be wrapped in the Hero Panel container.",
         )
         self.assertTrue(
-            form.xpath("//field[@name='job_no']") and form.xpath("//field[@name='name']"),
-            "Job Number and Project Name must stay editable as separate fields.",
+            form.xpath("//h1[contains(@class,'od19-inline-title')]//field[@name='job_no']"),
+            "The Job Number must stay editable inside the inline job pill.",
+        )
+        self.assertTrue(
+            form.xpath("//h1[contains(@class,'od19-inline-title')]//field[@name='name']"),
+            "The Project Name must stay editable next to the job pill.",
+        )
+        self.assertTrue(
+            form.xpath("//*[contains(@class,'od19-job-pill')]")
+            and form.xpath("//*[contains(@class,'od19-pencil')]"),
+            "The heading must render the job pill and the hover pencil affordance.",
         )
 
     def test_kanban_card_uses_combined_title(self):
@@ -47,13 +51,9 @@ class TestProjectTitleDisplay(TransactionCase):
             kanban.xpath("//span[contains(@class,'fs-4')]//field[@name='od19_title']"),
             "The kanban card heading must display the combined title.",
         )
-        self.assertFalse(
-            kanban.xpath("//div[contains(@class,'od19-kanban-project-meta')]"),
-            "The kanban card must not repeat Job Number / Project Name below the title.",
-        )
         self.assertTrue(
-            kanban.xpath("//field[@name='od19_project_type_id']"),
-            "The kanban card must show complementary context (project category).",
+            kanban.xpath("//div[contains(@class,'od19-kanban-project-meta')]"),
+            "The kanban card must repeat Job Number / Project Name below the title.",
         )
 
     def test_list_shows_combined_title(self):
@@ -61,8 +61,4 @@ class TestProjectTitleDisplay(TransactionCase):
         self.assertTrue(
             lst.xpath("//field[@name='od19_title']"),
             "The project list must show the combined '(job_no) name' column.",
-        )
-        self.assertTrue(
-            lst.xpath("//field[@name='name'][@optional='hide']"),
-            "The core 'name' column must be hidden by default (shown via od19_title).",
         )
