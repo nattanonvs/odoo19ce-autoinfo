@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup — ฟอร์มรับชำระ (Customer Receipt) · OD19-PAYMENT-RECEIPT</title>
+<style>
+  :root{
+    --odoo:#714B67; --odoo-dark:#5a3c53; --accent:#017e84;
+    --bg:#f7f7f8; --panel:#fff; --line:#e2e3e6; --muted:#6b6f76;
+    --ok:#28a745; --warn:#e0a800; --info:#0d6efd; --soft:#f2f0f2;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI","Noto Sans Thai",Tahoma,sans-serif;background:var(--bg);color:#1f2126;font-size:13px}
+  .page{max-width:1180px;margin:0 auto;padding:20px}
+  .doc-head{background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--odoo);border-radius:8px;padding:16px 18px;margin-bottom:16px}
+  .doc-head h1{margin:0 0 6px;font-size:18px}
+  .doc-head p{margin:2px 0;color:var(--muted)}
+  .doc-head .tag{display:inline-block;background:var(--soft);border:1px solid var(--line);border-radius:20px;padding:2px 10px;margin:2px 6px 2px 0;font-size:11px;color:var(--odoo)}
+  .switcher{display:flex;gap:8px;margin:18px 0 12px}
+  .switcher button{border:1px solid var(--line);background:var(--panel);padding:9px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;color:var(--muted)}
+  .switcher button.active{background:var(--odoo);color:#fff;border-color:var(--odoo)}
+  .note{background:#fff8e6;border:1px solid #f0e0b0;border-radius:6px;padding:8px 12px;color:#7a5b00;margin:10px 0;font-size:12px}
+  .variant{display:none}
+  .variant.active{display:block}
+
+  /* Odoo-like window */
+  .win{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+  .win-bar{background:var(--odoo);color:#fff;padding:8px 14px;display:flex;align-items:center;gap:10px;font-weight:600}
+  .win-bar .crumbs{opacity:.85;font-weight:400;font-size:12px}
+  .win-bar .spacer{flex:1}
+  .btn{border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.12);color:#fff;border-radius:4px;padding:4px 10px;font-size:12px;cursor:pointer}
+  .btn.primary{background:#fff;color:var(--odoo);border-color:#fff;font-weight:700}
+  .body{padding:16px 18px}
+  .partner-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+  .partner{font-weight:700;font-size:15px}
+  .chip{background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:2px 10px;font-size:11px;color:var(--muted)}
+  .chip.ok{background:#eaf7ee;border-color:#bfe4c9;color:#1e7a3a}
+
+  /* Totals strip */
+  .totals{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden;margin:12px 0 16px}
+  .tot{background:var(--panel);padding:10px 12px}
+  .tot .k{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
+  .tot .v{font-size:16px;font-weight:700;margin-top:3px}
+  .tot .v.big{color:var(--odoo)}
+  .tot .v.small{font-size:13px;font-weight:600;color:var(--muted)}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px 32px}
+  .field{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px dashed #eeeff1}
+  .field label{color:var(--muted);flex:0 0 45%}
+  .field .val{font-weight:600;text-align:right}
+  .field .val.req{color:#c0392b}
+  select,input{margin:0}
+
+  /* Tabs */
+  .tabs{display:flex;gap:2px;border-bottom:2px solid var(--line);margin-top:6px;flex-wrap:wrap}
+  .tab{padding:8px 14px;border:1px solid transparent;border-bottom:none;border-radius:6px 6px 0 0;cursor:pointer;color:var(--muted);font-weight:600;font-size:12.5px}
+  .tab.active{background:var(--panel);border-color:var(--line);border-bottom:2px solid var(--panel);margin-bottom:-2px;color:var(--odoo)}
+  .tab .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--odoo);margin-left:6px;vertical-align:middle}
+  .pane{display:none;border:1px solid var(--line);border-top:none;border-radius:0 0 6px 6px;padding:14px}
+  .pane.active{display:block}
+
+  table{width:100%;border-collapse:collapse}
+  th{background:var(--soft);text-align:left;font-size:11px;text-transform:uppercase;color:var(--muted);padding:7px 8px;border-bottom:1px solid var(--line)}
+  td{padding:7px 8px;border-bottom:1px solid #f0f0f2}
+  td.num{text-align:right;font-variant-numeric:tabular-nums}
+  tr.total td{font-weight:700;background:#fafafa}
+  .link{color:var(--accent);text-decoration:none;font-weight:600}
+  .addrow{color:var(--accent);font-weight:600;padding:8px 8px 2px;display:inline-block;font-size:12px;cursor:pointer}
+  .empty-note{color:var(--muted);padding:10px 4px}
+  .pill{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11px;font-weight:600}
+  .pill.in{background:#e7f1ff;color:#0d6efd}
+  .pill.paid{background:#eaf7ee;color:#1e7a3a}
+  .pill.draft{background:#fdf3e0;color:#9a6b00}
+
+  /* Variant B extras */
+  .v15box{border:1px solid var(--line);border-radius:6px;padding:12px;margin-bottom:14px;background:#fcfcfd}
+  .v15box h4{margin:0 0 8px;font-size:12.5px;color:var(--odoo);text-transform:uppercase;letter-spacing:.4px}
+  .inline-row{display:grid;grid-template-columns:1.4fr 1.2fr .8fr .9fr auto;gap:8px;align-items:center;margin-bottom:6px}
+  .legend{color:var(--muted);font-size:11.5px;margin-top:10px}
+  .legend b{color:#1f2126}
+  .badge-new{background:#e8f7ef;color:#1e7a3a;border:1px solid #bfe4c9;border-radius:10px;padding:0 7px;font-size:10px;margin-left:6px;vertical-align:middle}
+  .footer{margin:24px 0 60px;color:var(--muted);font-size:12px;text-align:center}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="doc-head">
+    <h1>ภาพจำลองฟอร์ม — “รับชำระจากลูกค้า” (Customer Receipt)</h1>
+    <p>งาน <b>OD19-PAYMENT-RECEIPT</b> · เทียบเท่า Odoo 15 · <b>ขอบเขตเฟสนี้: ฝั่งรับชำระ (inbound)</b></p>
+    <p>
+      <span class="tag">ไม่มี Payer / Payee</span>
+      <span class="tag">เลือก ใบกำกับภาษี / ใบรับเงิน</span>
+      <span class="tag">Notebook 7 แท็บ</span>
+      <span class="tag">Totals strip</span>
+      <span class="tag">เช็คหลายใบ</span>
+      <span class="tag">Invoice ดึงเอกสารคู่ค้าให้เลือก</span>
+    </p>
+    <p style="font-size:12px">เอกสารออกแบบฉบับเต็ม: <a class="link" href="2026-11-23-od19-payment-receipt-form-design.md">2026-11-23-od19-payment-receipt-form-design.md</a></p>
+  </div>
+
+  <div class="switcher">
+    <button id="btnA" class="active" onclick="showVariant('A')">แบบ A — กระชับ (แนะนำ)</button>
+    <button id="btnB" onclick="showVariant('B')">แบบ B — ตาม Odoo 15 เป๊ะ</button>
+  </div>
+
+  <div class="note">
+    ทั้งสองแบบ <b>ไม่มีช่อง “ผู้จ่ายเงิน / ผู้รับเงิน”</b> (คู่ค้าเดียว = ผู้จ่ายอยู่แล้ว) ·
+    ปุ่ม <b>“เตรียมจ่าย / Prepare”</b> ไม่แสดงฝั่งรับชำระ (มีเฉพาะฝั่ง Vendor) ·
+    ต่างกันแค่ “การจัดวาง” เท่านั้น — ข้อมูลที่บันทึกเหมือนกัน 100%
+    <br>เลขที่เอกสาร <b>แยกชุดตามประเภทการเปิดเอกสาร</b> (K8): ใบรับเงิน <b>RE2611-0001</b> · ใบกำกับภาษี <b>TI2611-0001</b>
+  </div>
+
+  <!-- ============================ VARIANT A ============================ -->
+  <div class="variant active" id="varA">
+    <div class="win">
+      <div class="win-bar">
+        <span>ใบสำคัญรับเงิน</span>
+        <span class="crumbs">/ ลูกค้า / บริษัท เอบีซี จำกัด (มหาชน)</span>
+        <span class="spacer"></span>
+        <button class="btn primary">ยืนยัน / Confirm</button>
+        <button class="btn">พิมพ์ใบรับเงิน</button>
+      </div>
+      <div class="body">
+
+        <div class="partner-row">
+          <span class="partner">บริษัท เอบีซี จำกัด (มหาชน)</span>
+          <span class="chip">receipt currency: THB</span>
+          <span class="chip in">รับชำระ / Inbound</span>
+          <span class="chip ok">เลขที่ RE2611-0123 · ใบรับเงิน</span>
+        </div>
+
+        <!-- TOTALS STRIP -->
+        <div class="totals">
+          <div class="tot"><div class="k">จำนวนเงิน / Amount</div><div class="v">107,000.00</div></div>
+          <div class="tot"><div class="k">Total Collecting Cheques</div><div class="v small">35,000.00</div></div>
+          <div class="tot"><div class="k">Exchange Rate</div><div class="v small">1.0000</div></div>
+          <div class="tot"><div class="k">Withholding Tax</div><div class="v small">3,000.00</div></div>
+          <div class="tot"><div class="k">Net Received</div><div class="v big">104,000.00</div></div>
+        </div>
+
+        <!-- HEADER FIELDS -->
+        <div class="grid2">
+          <div>
+            <div class="field"><label>วันที่ / Date</label><span class="val">23/11/2026</span></div>
+            <div class="field"><label>ช่องทางรับชำระ / Payment Method</label><span class="val">โอนผ่านธนาคาร + เช็ค</span></div>
+            <div class="field"><label>บัญชีรับเงิน / Journal</label><span class="val">ธนาคารกสิกรไทย (K-Bank)</span></div>
+          </div>
+          <div>
+            <div class="field">
+              <label>ประเภทการเปิดเอกสาร / Document Type <span class="val req">*</span></label>
+              <span class="val">
+                <select>
+                  <option>ใบกำกับภาษี / Tax Invoice</option>
+                  <option selected>ใบรับเงิน / Receipt</option>
+                </select>
+              </span>
+            </div>
+            <div class="field"><label>อ้างอิง / Reference</label><span class="val">INV/2026/00123</span></div>
+            <div class="field"><label>ผู้รับเงิน (โดย) / Received by</label><span class="val">สมชาย (การเงิน)</span></div>
+          </div>
+        </div>
+
+        <!-- TABS -->
+        <div class="tabs" id="tabsA">
+          <div class="tab active" onclick="showTab('A','fees',this)">Fees / Charges<span class="dot"></span></div>
+          <div class="tab" onclick="showTab('A','cheque',this)">Collecting Cheques<span class="dot"></span></div>
+          <div class="tab" onclick="showTab('A','wht',this)">Withholding Tax<span class="dot"></span></div>
+          <div class="tab" onclick="showTab('A','vat',this)">VAT</div>
+          <div class="tab" onclick="showTab('A','invoice',this)">Invoice</div>
+          <div class="tab" onclick="showTab('A','whtinv',this)">WHT Invoice</div>
+          <div class="tab" onclick="showTab('A','whtsum',this)">WHT Summary</div>
+        </div>
+
+        <div class="pane active" data-variant="A" data-pane="fees">
+          <table>
+            <thead><tr><th style="width:60px">กำไร?</th><th>รายการ</th><th>บัญชี</th><th>%</th><th class="num">จำนวนเงิน</th></tr></thead>
+            <tbody>
+              <tr><td>☐</td><td>ค่าธรรมเนียมโอนเงิน (Bank charge)</td><td>5810 ค่าธรรมเนียมธนาคาร</td><td class="num">—</td><td class="num">150.00</td></tr>
+              <tr><td>☑</td><td>ส่วนลดชำระเร็ว (Early-pay rebate)</td><td>4210 รายได้อื่น</td><td class="num">1.00</td><td class="num">-1,000.00</td></tr>
+            </tbody>
+            <tfoot><tr class="total"><td colspan="4">รวมค่าธรรมเนียม / Total Fees</td><td class="num">-850.00</td></tr></tfoot>
+          </table>
+          <span class="addrow">+ เพิ่มบรรทัดค่าธรรมเนียม</span>
+        </div>
+
+        <div class="pane" data-variant="A" data-pane="cheque">
+          <table>
+            <thead><tr><th>เลขที่เช็ค</th><th>ธนาคาร</th><th>สาขา</th><th>วันที่เช็ค</th><th class="num">จำนวนเงิน</th></tr></thead>
+            <tbody>
+              <tr><td>0123456</td><td>กสิกรไทย</td><td>สีลม</td><td>23/11/2026</td><td class="num">20,000.00</td></tr>
+              <tr><td>0123457</td><td>กรุงไทย</td><td>อโศก</td><td>23/11/2026</td><td class="num">15,000.00</td></tr>
+            </tbody>
+            <tfoot><tr class="total"><td colspan="4">Total Collecting Cheques</td><td class="num">35,000.00</td></tr></tfoot>
+          </table>
+          <span class="addrow">+ เพิ่มเช็ค</span>
+          <div class="legend">รับเช็คได้หลายใบ · ยอดรวมไหลขึ้นแถบ Totals strip อัตโนมัติ</div>
+        </div>
+
+        <div class="pane" data-variant="A" data-pane="wht">
+          <table>
+            <thead><tr><th>WHT Type</th><th>ประเภทเงินได้</th><th class="num">ฐานเงินได้</th><th class="num">หัก ณ ที่จ่าย</th></tr></thead>
+            <tbody>
+              <tr><td>ภ.ง.ด.53 3%</td><td>ค่าบริการ (ม.3 เตรส)</td><td class="num">100,000.00</td><td class="num">3,000.00</td></tr>
+            </tbody>
+            <tfoot><tr class="total"><td colspan="3">รวมหัก ณ ที่จ่าย</td><td class="num">3,000.00</td></tr></tfoot>
+          </table>
+          <span class="addrow">+ เพิ่มบรรทัดหัก ณ ที่จ่าย</span>
+        </div>
+
+        <div class="pane" data-variant="A" data-pane="vat">
+          <table>
+            <thead><tr><th>ใบกำกับภาษี</th><th>ประเภท</th><th class="num">ฐาน VAT</th><th class="num">VAT 7%</th></tr></thead>
+            <tbody>
+              <tr><td>INV/2026/00123</td><td>ขายสินค้า/บริการ</td><td class="num">100,000.00</td><td class="num">7,000.00</td></tr>
+            </tbody>
+            <tfoot><tr class="total"><td colspan="2">รวม</td><td class="num">100,000.00</td><td class="num">7,000.00</td></tr></tfoot>
+          </table>
+          <div class="empty-note">อ่านจากใบกำกับภาษีที่ตัดจ่าย (read-only)</div>
+        </div>
+
+        <div class="pane" data-variant="A" data-pane="invoice">
+          <table>
+            <thead><tr><th style="width:44px">เลือก</th><th>เอกสารที่เกี่ยวข้องของคู่ค้า</th><th>ประเภท</th><th>วันที่</th><th>ครบกำหนด</th><th class="num">ยอดคงค้าง</th><th class="num">ตัดจ่ายครั้งนี้</th></tr></thead>
+            <tbody>
+              <tr><td>☑</td><td>INV/2026/00123</td><td>ใบกำกับภาษี / ใบแจ้งหนี้</td><td>05/11/2026</td><td>05/12/2026</td><td class="num">107,000.00</td><td class="num">107,000.00</td></tr>
+              <tr><td>☐</td><td>INV/2026/00110</td><td>ใบกำกับภาษี / ใบแจ้งหนี้</td><td>20/10/2026</td><td>20/11/2026</td><td class="num">53,500.00</td><td class="num">0.00</td></tr>
+              <tr><td>☐</td><td>RC/2026/00042</td><td>ใบรับเงิน</td><td>12/10/2026</td><td>—</td><td class="num">10,000.00</td><td class="num">0.00</td></tr>
+            </tbody>
+            <tfoot><tr class="total"><td colspan="6">รวมตัดจ่ายครั้งนี้</td><td class="num">107,000.00</td></tr></tfoot>
+          </table>
+          <div class="legend">ดึง <b>เอกสารที่เกี่ยวข้องทั้งหมดของคู่ค้า</b> (ใบแจ้งหนี้ / ใบกำกับภาษี / ใบรับเงิน) มาให้เลือกเอง · “ประเภทการเปิดเอกสาร” เป็นเพียง<b>ตัวกรองเริ่มต้น</b> ไม่ตัดเอกสารอื่นออก</div>
+        </div>
+
+        <div class="pane" data-variant="A" data-pane="whtinv">
+          <div class="empty-note">ยังไม่มีใบกำกับภาษีที่ออกให้สำหรับ WHT ในรายการนี้ — เมื่อเลือก “ใบกำกับภาษี” จะแสดงเลขที่ ภ.พ.30 ที่เกี่ยวข้อง</div>
+        </div>
+
+        <div class="pane" data-variant="A" data-pane="whtsum">
+          <table>
+            <thead><tr><th>แบบ</th><th class="num">ฐานเงินได้</th><th class="num">อัตรา</th><th class="num">ภาษีที่หัก</th></tr></thead>
+            <tbody><tr><td>ภ.ง.ด.53</td><td class="num">100,000.00</td><td class="num">3%</td><td class="num">3,000.00</td></tr></tbody>
+            <tfoot><tr class="total"><td colspan="3">รวมที่ต้องนำส่ง</td><td class="num">3,000.00</td></tr></tfoot>
+          </table>
+        </div>
+
+        <p class="legend"><b>แบบ A:</b> แถบผลรวมอยู่บนสุด → เห็นเลขสำคัญทันที · แท็บเรียง Fees → Collecting Cheques → WHT ... เพราะเป็นงานที่ต้องกรอกบ่อยที่สุด</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================ VARIANT B ============================ -->
+  <div class="variant" id="varB">
+    <div class="win">
+      <div class="win-bar">
+        <span>Payment</span>
+        <span class="crumbs">/ Customer Receipt</span>
+        <span class="spacer"></span>
+        <button class="btn primary">Confirm</button>
+      </div>
+      <div class="body">
+
+        <div class="partner-row">
+          <span class="partner">บริษัท เอบีซี จำกัด (มหาชน)</span>
+          <span class="chip in">Inbound · Customer</span>
+          <span class="chip ok">เลขที่ RE2611-0123</span>
+        </div>
+
+        <div class="grid2">
+          <div>
+            <div class="field"><label>Amount</label><span class="val">107,000.00</span></div>
+            <div class="field"><label>Payment Date</label><span class="val">23/11/2026</span></div>
+            <div class="field">
+              <label>Document Type <span class="val req">*</span></label>
+              <span class="val"><select><option selected>ใบรับเงิน / Receipt</option><option>ใบกำกับภาษี / Tax Invoice</option></select></span>
+            </div>
+          </div>
+          <div>
+            <div class="field"><label>Journal</label><span class="val">ธนาคารกสิกรไทย</span></div>
+            <div class="field"><label>Exchange Rate</label><span class="val">1.0000</span></div>
+            <div class="field"><label>Total Collecting Cheques</label><span class="val">35,000.00</span></div>
+          </div>
+        </div>
+
+        <div class="v15box">
+          <h4>Net Received (ตาม v15)</h4>
+          <div class="field"><label>Untaxed Amount</label><span class="val">100,000.00</span></div>
+          <div class="field"><label>Withholding Tax</label><span class="val">3,000.00</span></div>
+          <div class="field"><label>Net Paid/Received</label><span class="val">104,000.00 ( <span style="color:#c0392b">-850.00</span> )</span></div>
+          <div class="field"><label>Amount with fee</label><span class="val">104,850.00</span></div>
+        </div>
+
+        <div class="v15box">
+          <h4>Collecting Cheques</h4>
+          <table>
+            <thead><tr><th>เลขที่เช็ค</th><th>ธนาคาร</th><th>สาขา</th><th>วันที่เช็ค</th><th class="num">จำนวนเงิน</th></tr></thead>
+            <tbody>
+              <tr><td>0123456</td><td>กสิกรไทย</td><td>สีลม</td><td>23/11/2026</td><td class="num">20,000.00</td></tr>
+              <tr><td>0123457</td><td>กรุงไทย</td><td>อโศก</td><td>23/11/2026</td><td class="num">15,000.00</td></tr>
+            </tbody>
+            <tfoot><tr class="total"><td colspan="4">Total Collecting Cheques</td><td class="num">35,000.00</td></tr></tfoot>
+          </table>
+          <span class="addrow">+ เพิ่มเช็ค</span>
+        </div>
+
+        <div class="tabs" id="tabsB">
+          <div class="tab active" onclick="showTab('B','wht',this)">Withholding Tax</div>
+          <div class="tab" onclick="showTab('B','fee',this)">Fees/Charges</div>
+          <div class="tab" onclick="showTab('B','vat',this)">VAT</div>
+          <div class="tab" onclick="showTab('B','invoice',this)">Invoice</div>
+          <div class="tab" onclick="showTab('B','whtinv',this)">WHT Invoice</div>
+          <div class="tab" onclick="showTab('B','whtsum',this)">WHT Summary</div>
+        </div>
+
+        <div class="pane active" data-variant="B" data-pane="wht">
+          <div class="inline-row">
+            <select><option>ภ.ง.ด.53 (3%)</option></select>
+            <input placeholder="ประเภทเงินได้ (ค่าบริการ)" value="ค่าบริการ">
+            <input placeholder="Amount" value="100,000.00">
+            <input placeholder="Tax" value="3,000.00">
+            <span class="chip ok">✓</span>
+          </div>
+          <span class="addrow">+ เพิ่มบรรทัด</span>
+        </div>
+        <div class="pane" data-variant="B" data-pane="fee">
+          <table>
+            <thead><tr><th style="width:50px">กำไร?</th><th>รายการ</th><th>บัญชี</th><th>%</th><th class="num">จำนวนเงิน</th></tr></thead>
+            <tbody>
+              <tr><td>☐</td><td>ค่าธรรมเนียมโอนเงิน</td><td>5810</td><td class="num">—</td><td class="num">150.00</td></tr>
+              <tr><td>☑</td><td>ส่วนลดชำระเร็ว</td><td>4210</td><td class="num">1.00</td><td class="num">-1,000.00</td></tr>
+            </tbody>
+          </table>
+          <span class="addrow">+ เพิ่มบรรทัด</span>
+        </div>
+        <div class="pane" data-variant="B" data-pane="vat"><div class="empty-note">VAT 7% = 7,000.00 (จาก INV/2026/00123)</div></div>
+        <div class="pane" data-variant="B" data-pane="invoice"><div class="empty-note">ดึงเอกสารที่เกี่ยวข้องของคู่ค้าทั้งหมดให้เลือกเอง — INV/2026/00123 (107,000.00) · INV/2026/00110 (53,500.00) · RC/2026/00042 (10,000.00)</div></div>
+        <div class="pane" data-variant="B" data-pane="whtinv"><div class="empty-note">—</div></div>
+        <div class="pane" data-variant="B" data-pane="whtsum"><div class="empty-note">ภ.ง.ด.53 · ฐาน 100,000.00 · 3% · 3,000.00</div></div>
+
+        <p class="legend"><b>แบบ B:</b> ยอดอยู่ในการ์ด/v15-style box · แท็บ WHT มาก่อน · ใกล้เคียง Odoo 15 มากที่สุด</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    OD19-PAYMENT-RECEIPT · ภาพจำลองเพื่อขออนุมัติทิศทาง (ยังไม่ใช่โค้ดจริง) · 23/11/2026
+  </div>
+</div>
+
+<script>
+function showVariant(v){
+  document.getElementById('varA').classList.toggle('active', v==='A');
+  document.getElementById('varB').classList.toggle('active', v==='B');
+  document.getElementById('btnA').classList.toggle('active', v==='A');
+  document.getElementById('btnB').classList.toggle('active', v==='B');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function showTab(variant, name, el){
+  var root = document.getElementById(variant==='A'?'varA':'varB');
+  root.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  root.querySelectorAll('.pane').forEach(function(p){p.classList.remove('active')});
+  root.querySelector('.pane[data-pane="'+name+'"]').classList.add('active');
+}
+</script>
+</body>
+</html>

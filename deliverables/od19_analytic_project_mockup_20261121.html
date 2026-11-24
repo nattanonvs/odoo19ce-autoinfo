@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OD19 · Mockup: Analytic ↔ Project</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --accent:#71639e;        /* Odoo primary purple */
+    --accent-soft:#f1eff7;
+    --maroon:#9E2424;        /* AutoInfo brand */
+    --ink:#1f1f28;
+    --muted:#6e6e7a;
+    --faint:#9a9aa6;
+    --line:#e7e7ec;
+    --page:#f4f5f7;
+    --warn:#b7791f;
+    --warn-bg:#fff8e6;
+    --ok:#2e7d46;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--page); color:var(--ink);
+    font-family:"Sarabun","Noto Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-size:15px; line-height:1.5; padding:28px 18px 60px;
+  }
+  .page-head{max-width:1180px;margin:0 auto 22px}
+  .page-head h1{margin:0 0 4px;font-size:24px;letter-spacing:-.2px}
+  .page-head p{margin:0;color:var(--muted);font-size:14px}
+  .page-head .brand{color:var(--maroon);font-weight:700}
+
+  .grid{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  .full{grid-column:1 / -1}
+
+  .variant{
+    background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;
+    box-shadow:0 1px 2px rgba(20,20,40,.04),0 8px 24px -18px rgba(20,20,40,.25);
+  }
+  .variant > .cap{
+    padding:13px 16px;border-bottom:1px solid var(--line);
+    display:flex;align-items:flex-start;gap:10px;background:#fcfcfe;
+  }
+  .badge{
+    flex:none;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;
+    background:var(--accent-soft);color:var(--accent);border:1px solid #ddd7ee;white-space:nowrap;margin-top:2px;
+  }
+  .badge.rec{background:#eaf7ee;color:var(--ok);border-color:#cfe9d8}
+  .badge.alt{background:#f3f4f7;color:var(--muted);border-color:#e4e5ea}
+  .cap b{display:block;font-size:14.5px}
+  .cap span{display:block;color:var(--muted);font-size:12.8px;margin-top:1px}
+
+  /* ---- Odoo form shell ---- */
+  .sheet{padding:26px 26px 30px;position:relative}
+  .oe-title{margin-bottom:18px}
+  .star{color:#e0a63a;font-size:18px;margin-right:8px;vertical-align:-1px}
+  h1.job{margin:0;font-size:27px;font-weight:700;letter-spacing:-.4px;line-height:1.25}
+  h1.aname{margin:0;font-size:26px;font-weight:600;letter-spacing:-.3px;line-height:1.3}
+  h2.pname{margin:5px 0 0;font-size:19px;font-weight:500;color:#4a4a57;line-height:1.35}
+
+  /* muted analytic line (variant A1 / B1) */
+  .meta-line{
+    display:flex;align-items:center;gap:8px;margin-top:9px;
+    font-size:13.5px;color:var(--muted);
+  }
+  .meta-line .ico{color:var(--accent);font-size:14px}
+  .meta-line .code{
+    font-weight:600;color:var(--accent);background:var(--accent-soft);
+    border:1px solid #ddd7ee;border-radius:6px;padding:1px 7px;font-size:12.5px;
+  }
+  .meta-line .sep{color:#c9c9d2}
+  .meta-line a{color:var(--muted);text-decoration:none;border-bottom:1px dashed #c9c9d2;cursor:pointer}
+  .meta-line.warn{color:var(--warn)}
+  .meta-line.warn .code{color:var(--warn);background:var(--warn-bg);border-color:#f0d9a8}
+
+  /* chip / smart button (variant A2 / B2) */
+  .chip-row{margin-top:11px;display:flex;gap:10px;flex-wrap:wrap}
+  .chip{
+    display:inline-flex;align-items:center;gap:9px;
+    background:var(--accent-soft);border:1px solid #dcd6ef;border-radius:10px;
+    padding:7px 13px;font-size:13px;color:#4a4460;
+  }
+  .chip .c-code{font-weight:700;color:var(--accent)}
+  .chip .c-bal{margin-left:6px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+  .chip.multi{cursor:pointer}
+  .chip .cnt{background:var(--accent);color:#fff;border-radius:999px;font-size:11px;font-weight:700;padding:1px 8px}
+  .chip.ghost{background:#fff;border-style:dashed;color:var(--muted)}
+  .chip.warnchip{background:var(--warn-bg);border-color:#f0d9a8;color:var(--warn)}
+  .chip.warnchip .c-code{color:var(--warn)}
+
+  /* fields */
+  .frow{display:grid;grid-template-columns:160px 1fr;gap:10px 14px;margin-top:22px;border-top:1px solid var(--line);padding-top:20px}
+  .frow .lbl{color:var(--muted);font-size:13px;font-weight:600;padding-top:6px}
+  .frow .val{border-bottom:1px solid var(--line);padding:5px 0 7px;font-size:14.5px;min-height:30px}
+  .frow .val.mono{border-bottom:none}
+  .pill{display:inline-block;background:#eef0f6;border:1px solid #dfe2ec;border-radius:7px;padding:2px 9px;font-size:12.5px;color:#4a4a57;margin:2px 4px 2px 0}
+  .fieldbox{border:1px solid #d9dae2;border-radius:8px;padding:6px 10px;background:#fff;font-size:13.5px;color:var(--muted);display:inline-flex;align-items:center;gap:7px}
+  .dashline{border-bottom:1px dashed #cfd0da;min-width:120px;display:inline-block;height:16px;vertical-align:-3px}
+
+  /* analytic form specifics */
+  .btnbox{
+    position:absolute;right:24px;top:22px;display:flex;gap:8px;
+  }
+  .stat{
+    border:1px solid var(--line);border-radius:9px;background:#fbfbfd;
+    padding:7px 12px;text-align:center;min-width:104px;
+  }
+  .stat .k{font-size:11px;color:var(--faint);display:block}
+  .stat .v{font-size:15px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+
+  .note{
+    margin-top:16px;background:#fafafc;border:1px solid var(--line);border-left:3px solid var(--accent);
+    border-radius:8px;padding:10px 13px;font-size:12.8px;color:var(--muted);
+  }
+  .note b{color:var(--ink)}
+  .sec-title{max-width:1180px;margin:34px auto 12px;font-size:16px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:10px}
+  .sec-title .tag{font-size:12.5px;font-weight:600;color:var(--accent);background:var(--accent-soft);border:1px solid #ddd7ee;border-radius:999px;padding:2px 10px}
+  @media(max-width:900px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="page-head">
+  <h1>OD19 · Mockup: การแสดงเลข Analytic ↔ ชื่อ Project</h1>
+  <p>แบบร่างเพื่อเลือกก่อน implement — <span class="brand">AutoInfo</span> · ฐานข้อมูล odoo19_pdev · 2026-11-21</p>
+</div>
+
+<div class="sec-title"><span class="tag">ทิศทาง A</span> Project → แสดงเลข Analytic ใต้ชื่อโครงการ</div>
+
+<div class="grid">
+
+  <!-- A1 : muted line -->
+  <div class="variant">
+    <div class="cap">
+      <span class="badge rec">แนะนำ</span>
+      <div><b>A1 · บรรทัดเล็กใต้ชื่อ (Muted line)</b><span>เรียบ สะอาด ไม่แย่งสายตากับชื่อโครงการ อ่านอย่างเดียว</span></div>
+    </div>
+    <div class="sheet">
+      <div class="oe-title">
+        <h1 class="job"><span class="star">★</span>JOB-2026-001</h1>
+        <h2 class="pname">ก่อสร้างอาคารสำนักงาน ชั้น 3</h2>
+        <div class="meta-line">
+          <span class="ico">🔗</span>
+          <span>Analytic</span>
+          <span class="code">[JOB-2026-001]</span>
+          <span class="sep">·</span>
+          <a>ก่อสร้างอาคารสำนักงาน ชั้น 3</a>
+        </div>
+      </div>
+      <div class="frow">
+        <div class="lbl">ลูกค้า</div><div class="val">บริษัท เอ็นจิเนียริ่ง จำกัด</div>
+        <div class="lbl">แผนก</div><div class="val">แผนกก่อสร้าง</div>
+        <div class="lbl">บัญชีวิเคราะห์</div><div class="val"><span class="pill">[JOB-2026-001] ก่อสร้างอาคารสำนักงาน ชั้น 3</span></div>
+      </div>
+      <div class="note">สถานะเมื่อ <b>ยังไม่มีเลข analytic</b> → แสดงบรรทัดสีส้มเตือนพร้อมปุ่มไปสร้าง</div>
+      <div class="meta-line warn">
+        <span class="ico">⚠️</span>
+        <span>ยังไม่มีเลข Analytic</span>
+        <span class="sep">·</span>
+        <a style="color:var(--warn);border-color:#e2c68c">+ สร้าง Analytic</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- A2 : chip / smart button -->
+  <div class="variant">
+    <div class="cap">
+      <span class="badge alt">ทางเลือก</span>
+      <div><b>A2 · ป้าย Chip (Smart chip)</b><span>เด่นกว่าแบบ A1 พร้อมยอดคงเหลือ — เหมาะถ้าต้องการเห็นตัวเลขกำไร</span></div>
+    </div>
+    <div class="sheet">
+      <div class="oe-title">
+        <h1 class="job"><span class="star">★</span>JOB-2026-001</h1>
+        <h2 class="pname">ก่อสร้างอาคารสำนักงาน ชั้น 3</h2>
+        <div class="chip-row">
+          <span class="chip">🔗 <span class="c-code">[JOB-2026-001]</span> Analytic <span class="c-bal">฿ 1,240,500.00</span></span>
+        </div>
+      </div>
+      <div class="frow">
+        <div class="lbl">ลูกค้า</div><div class="val">บริษัท เอ็นจิเนียริ่ง จำกัด</div>
+        <div class="lbl">แผนก</div><div class="val">แผนกก่อสร้าง</div>
+      </div>
+      <div class="note">สถานะไม่มี analytic → chip แบบเส้นประ แทนบรรทัดเตือน</div>
+      <div class="chip-row"><span class="chip ghost">＋ ผูกบัญชีวิเคราะห์</span></div>
+    </div>
+  </div>
+
+  <!-- A3 : inline in subtitle -->
+  <div class="variant full" style="max-width:100%">
+    <div class="cap">
+      <span class="badge alt">ทางเลือก</span>
+      <div><b>A3 · ต่อท้ายชื่อโครงการแบบ Inline</b><span>ประหยัดพื้นที่ที่สุด — จำนวนบรรทัดในหัวเท่าเดิม (ชื่อ + เลข อยู่บรรทัดเดียวกับ H2)</span></div>
+    </div>
+    <div class="sheet">
+      <div class="oe-title">
+        <h1 class="job"><span class="star">★</span>JOB-2026-001</h1>
+        <h2 class="pname">ก่อสร้างอาคารสำนักงาน ชั้น 3
+          <span class="code" style="font-weight:600;color:var(--accent);background:var(--accent-soft);border:1px solid #ddd7ee;border-radius:6px;padding:1px 8px;font-size:12.5px;margin-left:8px;vertical-align:2px;">[JOB-2026-001]</span>
+        </h2>
+      </div>
+      <div class="frow">
+        <div class="lbl">ลูกค้า</div><div class="val">บริษัท เอ็นจิเนียริ่ง จำกัด</div>
+        <div class="lbl">แผนก</div><div class="val">แผนกก่อสร้าง</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="sec-title"><span class="tag">ทิศทาง B</span> Analytic → แสดงชื่อ Project ใต้ชื่อ</div>
+
+<div class="grid">
+
+  <!-- B1 : muted line under analytic name -->
+  <div class="variant">
+    <div class="cap">
+      <span class="badge rec">แนะนำ</span>
+      <div><b>B1 · บรรทัดเล็กใต้ชื่อ Analytic</b><span>ใช้ hook <code>&lt;div name="project"/&gt;</code> ของ core · เปิดโปรเจกต์ได้ทันที</span></div>
+    </div>
+    <div class="sheet">
+      <div class="btnbox">
+        <div class="stat"><span class="k">Gross Margin</span><span class="v">฿ 412,300</span></div>
+      </div>
+      <div class="oe-title">
+        <h1 class="aname">ก่อสร้างอาคารสำนักงาน ชั้น 3</h1>
+        <div class="meta-line">
+          <span class="ico">🏗</span>
+          <span>Project</span>
+          <span class="code">JOB-2026-001</span>
+          <span class="sep">·</span>
+          <a>ก่อสร้างอาคารสำนักงาน ชั้น 3</a>
+        </div>
+      </div>
+      <div class="frow">
+        <div class="lbl">รหัส (Code)</div><div class="val">JOB-2026-001</div>
+        <div class="lbl">Plan</div><div class="val"><span class="pill">Projects</span></div>
+        <div class="lbl">ลูกค้า</div><div class="val">บริษัท เอ็นจิเนียริ่ง จำกัด</div>
+      </div>
+      <div class="note">แสดงเฉพาะ analytic ที่อยู่ plan <b>Projects</b> — plan อื่น (ฝ่าย / ค่าใช้จ่าย) จะไม่โชว์ชื่อโครงการ</div>
+    </div>
+  </div>
+
+  <!-- B2 : multi project smart button -->
+  <div class="variant">
+    <div class="cap">
+      <span class="badge alt">ทางเลือก</span>
+      <div><b>B2 · ปุ่มลิงก์เมื่อมีหลายโปรเจกต์</b><span>core รองรับ 1 analytic → N project จึงแสดงเป็น smart button "Projects (n)"</span></div>
+    </div>
+    <div class="sheet">
+      <div class="oe-title">
+        <h1 class="aname">ค่าใช้จ่ายส่วนกลาง โครงการ A</h1>
+        <div class="chip-row">
+          <span class="chip multi">🏗 Projects <span class="cnt">3</span></span>
+        </div>
+      </div>
+      <div class="frow">
+        <div class="lbl">รหัส (Code)</div><div class="val">AN-2026-0007</div>
+        <div class="lbl">Plan</div><div class="val"><span class="pill">Projects</span></div>
+      </div>
+      <div class="note">กรณี 1 โปรเจกต์ → คลิกเข้าฟอร์มโปรเจกต์ตรง (แบบ B1) · หลายโปรเจกต์ → เปิด list กรองไว้</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="sec-title"><span class="tag">สรุป</span> ข้อสังเกตก่อนตัดสินใจ</div>
+<div class="grid">
+  <div class="variant full">
+    <div class="sheet" style="padding:20px 24px">
+      <ul style="margin:0;padding-left:20px;color:#4a4a57;font-size:13.5px;line-height:1.9">
+        <li>ปัจจุบัน analytic ถูกสร้างด้วย <b>name = job_no</b> และ <b>code ว่าง</b> → ต้องตั้ง <b>code = job_no</b> ตอนสร้าง เพื่อให้ "เลข analytic" มีค่า (ตรงกับที่เลือกไว้)</li>
+        <li>ถ้าเลือก A1/B1 จะได้ความสม่ำเสมอของสองฝั่ง (บรรทัดเล็กเหมือนกัน) — ถ้าต้องการเด่นเลือก A2</li>
+        <li>ทิศทาง B ควรจำกัดเฉพาะ plan = "Projects" เพื่อกันชื่อโครงการไปโผล่ผิด plan</li>
+        <li>ทุกแบบเป็น read-only + ลิงก์ ไม่กระทบ logic การบันทึกเดิม</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mockup — รวมระบบ ใบเบิก / เงินทดรอง / Portal (Odoo 19 CE)</title>
+<style>
+  :root{
+    --odoo:#714b67; --odoo-d:#5a3b52; --accent:#017e84; --accent-d:#016b70;
+    --bg:#f4f5f7; --card:#ffffff; --line:#e3e6ea; --text:#2b2b2b; --muted:#7c8794;
+    --ok:#28a745; --warn:#e8a33d; --danger:#d9534f; --info:#3b7dd8; --soon:#8e9aa8;
+    --radius:10px; --shadow:0 1px 3px rgba(0,0,0,.08),0 8px 24px rgba(0,0,0,.05);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:"Segoe UI","Noto Sans Thai","Leelawadee UI",Tahoma,sans-serif;line-height:1.5}
+  header.page{background:linear-gradient(135deg,#714b67,#4f3448);color:#fff;padding:26px 32px}
+  header.page h1{margin:0 0 6px;font-size:21px;font-weight:600}
+  header.page p{margin:0;opacity:.85;font-size:13px}
+  .wrap{max-width:1180px;margin:0 auto;padding:26px 20px 70px}
+  .note{background:#fff8e6;border:1px solid #f0dca0;border-left:4px solid var(--warn);
+    padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:22px}
+  h2.sec{font-size:16px;margin:34px 0 14px;padding-left:12px;border-left:4px solid var(--odoo)}
+  h2.sec small{font-weight:400;color:var(--muted);font-size:12.5px;margin-left:8px}
+  .annot{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;margin-left:8px;vertical-align:middle}
+  .a-must{background:#e6f4ea;color:#1e7e34;border:1px solid #b7e0c1}
+  .a-opt{background:#eef1f5;color:#5a6673;border:1px solid #d5dbe3}
+  .a-new{background:#e8f0fb;color:#2b5fa8;border:1px solid #c3d7f4}
+
+  /* ---------- Desktop window ---------- */
+  .win{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;
+    border:1px solid var(--line);margin-bottom:10px}
+  .win-top{height:44px;background:#39434f;display:flex;align-items:center;padding:0 14px;gap:8px}
+  .dot{width:11px;height:11px;border-radius:50%}
+  .win-body{display:flex;min-height:420px}
+  .rail{width:196px;background:#2f3742;color:#cfd6de;padding:12px 0;flex:0 0 196px}
+  .rail .brand{display:flex;align-items:center;gap:9px;padding:6px 16px 14px;color:#fff;font-weight:600;font-size:13.5px}
+  .rail .brand .ico{width:26px;height:26px;border-radius:7px;background:var(--odoo);display:grid;place-items:center;font-size:14px}
+  .rail a{display:flex;align-items:center;gap:9px;padding:8px 16px;font-size:13px;color:#c3ccd6;text-decoration:none;border-left:3px solid transparent}
+  .rail a.on{background:#3b4653;color:#fff;border-left-color:var(--accent)}
+  .rail a .g{margin-left:auto;font-size:10px;background:#4a5563;border-radius:10px;padding:1px 7px;color:#aeb9c6}
+  .rail .grp{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:#7f8b99;padding:14px 16px 5px}
+  .main{flex:1;min-width:0;background:#fff}
+  .crumbs{padding:12px 18px;border-bottom:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+  .crumbs b{color:var(--text)}
+  .sheethead{padding:16px 18px 6px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .sheethead h3{margin:0;font-size:17px;font-weight:600}
+  .badge{font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:20px}
+  .b-reim{background:#e8f0fb;color:#2b5fa8}
+  .b-adv{background:#fdefe3;color:#b06a12}
+  .btn{font-size:12.5px;font-weight:600;padding:7px 14px;border-radius:6px;border:1px solid transparent;cursor:default}
+  .btn-p{background:var(--accent);color:#fff}
+  .btn-s{background:#fff;color:var(--accent);border-color:var(--accent)}
+  .btn-g{background:#eef1f5;color:#4b5560;border-color:#d5dbe3}
+  .btn-sm{padding:4px 9px;font-size:11.5px}
+
+  /* statusbar */
+  .statebar{display:flex;gap:0;padding:6px 18px 14px;flex-wrap:wrap}
+  .st{font-size:12px;color:var(--muted);padding:5px 14px;border-radius:20px;position:relative}
+  .st.done{color:var(--accent);font-weight:600}
+  .st.now{background:var(--odoo);color:#fff;border-radius:20px}
+  .st.arrow::after{content:"›";position:absolute;right:-3px;color:#c7ced6;font-size:15px;top:3px}
+  .st:last-child::after{content:""}
+
+  .grid2{display:grid;grid-template-columns:1fr 320px;gap:0}
+  .colL{padding:0 18px 18px;border-right:1px solid var(--line)}
+  .colR{padding:12px 16px 18px;background:#fbfbfc}
+  .tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);padding:0 18px}
+  .tab{font-size:13px;padding:9px 12px;color:var(--muted);border-bottom:2px solid transparent}
+  .tab.on{color:var(--odoo);border-bottom-color:var(--odoo);font-weight:600}
+  table.lines{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px}
+  table.lines th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);
+    border-bottom:1px solid var(--line);padding:7px 8px;font-weight:600}
+  table.lines td{padding:8px;border-bottom:1px solid #eef0f3;vertical-align:top}
+  table.lines tr:nth-child(even) td{background:#fafbfc}
+  .money{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .chk{color:var(--ok);font-weight:700}
+  .opt-tag{color:var(--muted);font-size:11px}
+  .field{margin:10px 0}
+  .field label{display:block;font-size:11.5px;color:var(--muted);margin-bottom:3px}
+  .field .inp{border:1px solid var(--line);border-radius:6px;padding:7px 10px;font-size:13px;background:#fff}
+  .field .inp.req{border-color:#b7e0c1;background:#f6fbf7}
+  .tot{display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px dashed #e2e6ea}
+  .tot.big{font-size:15px;font-weight:700;border:none}
+
+  /* tier widget */
+  .tierbox{background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px;margin-top:8px}
+  .tierbox h4{margin:0 0 10px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .step{display:flex;gap:10px;padding:7px 0}
+  .step .num{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;flex:0 0 22px}
+  .step.ok .num{background:var(--ok);color:#fff}
+  .step.now .num{background:var(--warn);color:#fff}
+  .step.wait .num{background:#e8ebef;color:#8b95a1}
+  .step .txt{font-size:12.5px}
+  .step .txt small{display:block;color:var(--muted);font-size:11px}
+
+  /* cash state */
+  .cash{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+  .cs{font-size:11px;padding:4px 10px;border-radius:20px;background:#eef1f5;color:#7c8794;border:1px solid #e1e6ec}
+  .cs.on{background:var(--odoo);color:#fff;border-color:var(--odoo);font-weight:600}
+  .cs.done{background:#e6f4ea;color:#1e7e34;border-color:#b7e0c1}
+
+  /* ---------- Phone ---------- */
+  .phones{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start}
+  .phone{width:322px;background:#111;border-radius:34px;padding:12px;box-shadow:var(--shadow)}
+  .screen{background:#fff;border-radius:24px;overflow:hidden;min-height:600px;display:flex;flex-direction:column}
+  .statusbar{height:26px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;color:#5b6672}
+  .p-head{background:var(--odoo);color:#fff;padding:12px 16px 14px}
+  .p-head .t{font-size:15px;font-weight:600}
+  .p-head .s{font-size:11.5px;opacity:.85}
+  .p-tabs{display:flex;background:#fff;border-bottom:1px solid var(--line)}
+  .p-tabs div{flex:1;text-align:center;font-size:12.5px;padding:10px 0;color:var(--muted)}
+  .p-tabs div.on{color:var(--odoo);font-weight:700;border-bottom:2px solid var(--odoo)}
+  .p-body{padding:12px;background:var(--bg);flex:1;overflow:auto}
+  .p-card{background:#fff;border-radius:10px;box-shadow:0 1px 2px rgba(0,0,0,.06);padding:12px;margin-bottom:10px}
+  .p-card .row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .p-card .no{font-size:11.5px;color:var(--muted)}
+  .p-card .amt{font-weight:700;font-size:14px}
+  .pill{font-size:10.5px;font-weight:600;padding:2px 9px;border-radius:20px}
+  .pill.wait{background:#fff4e0;color:#a9720f}
+  .pill.ok{background:#e6f4ea;color:#1e7e34}
+  .pill.draft{background:#eef1f5;color:#6b7580}
+  .pill.pay{background:#e8f0fb;color:#2b5fa8}
+  .p-btn{display:block;text-align:center;background:var(--accent);color:#fff;font-weight:600;font-size:13.5px;
+    padding:12px;border-radius:10px;margin:10px 12px}
+  .p-btn.g{background:#fff;color:var(--accent);border:1px solid var(--accent)}
+  .p-line{border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:8px;background:#fff}
+  .p-line .h{display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;margin-bottom:6px}
+  .p-line label{font-size:10.5px;color:var(--muted);display:block;margin-top:6px}
+  .p-line .inp{border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-size:12.5px;margin-top:2px}
+  .p-line .inp.req{border-color:#b7e0c1;background:#f6fbf7}
+  .p-upload{border:1.5px dashed #cfd6de;border-radius:8px;padding:14px;text-align:center;color:var(--muted);font-size:12px;background:#fafbfc}
+  .p-note{font-size:10.5px;color:var(--muted);padding:0 14px 4px}
+
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:6px 0 0}
+  footer.page{max-width:1180px;margin:0 auto;padding:0 20px 50px;color:var(--muted);font-size:12px}
+  .kbd{background:#eef1f5;border:1px solid #d5dbe3;border-radius:5px;padding:1px 6px;font-size:11px}
+</style>
+</head>
+<body>
+
+<header class="page">
+  <h1>Mockup — รวมระบบ ใบเบิก / เงินทดรอง / ค่าใช้จ่ายพนักงาน</h1>
+  <p>Odoo 19 CE · อ้างอิงเอกสารออกแบบ 2026-11-24-od19-hr-expense-advance-portal-consolidation-design.md · ภาพจำลอง static (ยังไม่ใช่โค้ดทำงาน)</p>
+</header>
+
+<div class="wrap">
+
+  <div class="note">
+    <b>จุดที่ต่างจากของเดิม (ตามผลออกแบบ):</b><br>
+    • <b>ใบเบิกใบเดียว</b> มีป้าย <span class="badge b-reim">ขอเบิกคืน</span> / <span class="badge b-adv">ขอเงินทดรอง</span> (รวม 2 เอกสารเป็น 1)
+    &nbsp;• <b>Analytic</b> บังคับทุกบรรทัด <span class="annot a-must">บังคับ</span>
+    &nbsp;• <b>แนบหลักฐาน</b> ไม่บังคับ <span class="annot a-opt">ไม่บังคับ</span>
+    &nbsp;• <b>cash state + advance</b> รวมเป็นแถบเดียว
+    &nbsp;• <b>portal</b> เพิ่มแท็บ/หน้าขอเงินทดรอง <span class="annot a-new">ใหม่</span>
+    &nbsp;• เมนู <b>Employee Expenses</b> (vendor) → <b>ศูนย์งานฝ่ายบัญชี</b> (ทำใบแทน/เงินสดย่อย/ลงบัญชี)
+    &nbsp;• <b>เงินสดย่อย</b> (<code>petty_cash</code>) ฝ่ายบัญชีทำแทนได้ — ใช้ cash state เดียวกัน <span class="annot a-new">ใหม่</span>
+  </div>
+
+  <!-- ================= MENU MAP ================= -->
+  <h2 class="sec">1. โครงเมนูหลังบ้าน <small>รวม Expenses app + Employee Expenses (vendor)</small></h2>
+  <div class="win">
+    <div class="win-top"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span></div>
+    <div class="win-body">
+      <nav class="rail">
+        <div class="brand"><span class="ico">🧾</span> Expenses</div>
+        <a class="on">📄 ใบเบิกของฉัน <span class="g">5</span></a>
+        <a>📑 ใบเบิกทั้งหมด <span class="g">23</span></a>
+        <a>💵 ใบขอเงินทดรอง <span class="g">4</span></a>
+        <div class="grp">Configuration</div>
+        <a>⚙️ ตั้งค่า</a>
+      </nav>
+      <div class="main">
+        <div class="crumbs"><b>โมดูล Expenses</b> — แต่ละเมนูชี้ไปที่หัวใบ <span class="kbd">od19.expense.claim</span></div>
+        <div style="padding:18px">
+          <div class="field"><label>เมนูหลัก (แอป Expenses)</label>
+            <table class="lines">
+              <tr><th>เมนู</th><th>ชี้ไป</th><th>กลุ่ม</th><th>หมายเหตุ</th></tr>
+              <tr><td>ใบเบิกของฉัน</td><td>claim (ของตัวเอง)</td><td>พนักงาน</td><td>เปิดแอปที่นี่ (เดิมเปิด hr.expense)</td></tr>
+              <tr><td>ใบเบิกทั้งหมด</td><td>claim (ทั้งหมด)</td><td>ผู้จัดการ/บัญชี</td><td>—</td></tr>
+              <tr><td>ใบขอเงินทดรอง</td><td>claim กรอง <code>claim_type=advance</code></td><td>พนักงาน+</td><td><span class="annot a-new">ใหม่</span> รวมจากโมดูล advance เดิม</td></tr>
+              <tr><td><b>เงินสดย่อย</b> (ฝ่ายบัญชี)</td><td>claim กรอง <code>claim_type=petty_cash</code></td><td>บัญชี</td><td><span class="annot a-new">ใหม่</span> ทางลัดไปศูนย์งานฝ่ายบัญชี</td></tr>
+              <tr><td style="color:#a33">Employee Expenses <b>(vendor)</b></td><td>claim (ศูนย์งานฝ่ายบัญชี)</td><td>บัญชี</td><td><b>ดัดแปลง:</b> จาก hr.expense ดิบ → <i>ศูนย์งานฝ่ายบัญชี</i> (ทำใบแทน/เงินสดย่อย/ลงบัญชี/จ่าย)</td></tr>
+              <tr><td style="color:var(--muted);text-decoration:line-through">Expenses › My Expenses</td><td>—</td><td>—</td><td>ปิด (active=False)</td></tr>
+              <tr><td style="color:var(--muted);text-decoration:line-through">Advances (เมนูเดิม)</td><td>—</td><td>—</td><td>ปิด (ยุบเข้าใบเบิก)</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= CLAIM FORM ================= -->
+  <h2 class="sec">2. ฟอร์มใบเบิกคืน (หลังบ้าน) <small>od19.expense.claim · claim_type = reimbursement</small></h2>
+  <div class="win">
+    <div class="win-top"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span></div>
+    <div class="win-body">
+      <nav class="rail">
+        <div class="brand"><span class="ico">🧾</span> Expenses</div>
+        <a class="on">📄 ใบเบิกของฉัน</a>
+        <a>📑 ใบเบิกทั้งหมด</a>
+        <a>💵 ใบขอเงินทดรอง</a>
+      </nav>
+      <div class="main">
+        <div class="crumbs">ใบเบิกของฉัน / <b>EXC/2026/0012</b></div>
+        <div class="sheethead">
+          <h3>EXC/2026/0012</h3>
+          <span class="badge b-reim">ขอเบิกคืน</span>
+          <span style="margin-left:auto"></span>
+          <span class="btn btn-s">ส่งอนุมัติ</span>
+          <span class="btn btn-g">ยกเลิก</span>
+        </div>
+        <div class="statebar">
+          <span class="st done arrow">ฉบับร่าง</span>
+          <span class="st now arrow">รออนุมัติ</span>
+          <span class="st arrow">อนุมัติแล้ว</span>
+          <span class="st arrow">ส่งบัญชี</span>
+          <span class="st arrow">บันทึกบัญชี</span>
+          <span class="st">จ่ายแล้ว</span>
+        </div>
+        <div class="tabs">
+          <span class="tab on">รายการค่าใช้จ่าย</span>
+          <span class="tab">ไฟล์แนบ</span>
+          <span class="tab">ประวัติอนุมัติ</span>
+          <span class="tab">หมายเหตุ</span>
+        </div>
+        <div class="grid2">
+          <div class="colL">
+            <table class="lines">
+              <tr>
+                <th>วันที่</th><th>ประเภท</th><th>รายละเอียด</th>
+                <th>Analytic <span class="annot a-must">บังคับ</span></th><th class="money">จำนวน</th>
+              </tr>
+              <tr>
+                <td>21/11/2026</td><td>ค่าที่พัก</td><td>โรงแรม 2 คืน (กรุงเทพฯ)</td>
+                <td>• ฝ่ายขาย / ทริปเหนือ</td><td class="money">3,500.00</td>
+              </tr>
+              <tr>
+                <td>21/11/2026</td><td>ค่าเดินทาง</td><td>รถไฟ</td>
+                <td>• ฝ่ายขาย / ทริปเหนือ</td><td class="money">920.00</td>
+              </tr>
+              <tr>
+                <td>22/11/2026</td><td>ค่าเบี้ยเลี้ยง</td><td>ม.42(3) 2 วัน</td>
+                <td>• ฝ่ายขาย / ทริปเหนือ</td><td class="money">700.00</td>
+              </tr>
+              <tr>
+                <td colspan="4" style="color:var(--muted)">+ เพิ่มรายการ &nbsp;·&nbsp; เลขที่ใบกำกับ: INV-5582 &nbsp;·&nbsp; VAT หักได้: ใช่</td>
+                <td></td>
+              </tr>
+            </table>
+            <div class="field" style="margin-top:14px">
+              <label>ไฟล์แนบ <span class="annot a-opt">ไม่บังคับ</span></label>
+              <div class="p-upload" style="max-width:420px">📎 แนบใบเสร็จ/รูปถ่าย (ไม่บังคับ — ส่งได้แม้ไม่มีไฟล์)</div>
+            </div>
+          </div>
+          <aside class="colR">
+            <div class="tot"><span>ยอดรวม</span><b>5,120.00</b></div>
+            <div class="tot"><span>VAT หักได้</span><span>312.68</span></div>
+            <div class="tot big"><span>สุทธิขอเบิก</span><span>5,120.00 THB</span></div>
+
+            <div class="tierbox">
+              <h4>สายอนุมัติ 3 ชั้น</h4>
+              <div class="step ok"><span class="num">1</span><span class="txt">หัวหน้าแผนก<small>สมชาย · อนุมัติ 21/11</small></span></div>
+              <div class="step now"><span class="num">2</span><span class="txt">ฝ่ายบัญชี<small>รอดำเนินการ</small></span></div>
+              <div class="step wait"><span class="num">3</span><span class="txt">CEO<small>รอคิว</small></span></div>
+            </div>
+
+            <div class="field"><label>พนักงาน</label><div class="inp">สมหญิง ใจดี · ฝ่ายขาย</div></div>
+            <div class="field"><label>วิธีรับเงินคืน</label><div class="inp">โอนผ่านธนาคาร</div></div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= ADVANCE FORM ================= -->
+  <h2 class="sec">3. ฟอร์มใบขอเงินทดรอง (หลังบ้าน) <small>od19.expense.claim · claim_type = advance · cash state รวม</small></h2>
+  <div class="win">
+    <div class="win-top"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span></div>
+    <div class="win-body">
+      <nav class="rail">
+        <div class="brand"><span class="ico">🧾</span> Expenses</div>
+        <a>📄 ใบเบิกของฉัน</a>
+        <a>📑 ใบเบิกทั้งหมด</a>
+        <a class="on">💵 ใบขอเงินทดรอง</a>
+      </nav>
+      <div class="main">
+        <div class="crumbs">ใบขอเงินทดรอง / <b>ADV/2026/0007</b></div>
+        <div class="sheethead">
+          <h3>ADV/2026/0007</h3>
+          <span class="badge b-adv">ขอเงินทดรอง</span>
+          <span style="margin-left:auto"></span>
+          <span class="btn btn-s">เคลียร์ยอด</span>
+          <span class="btn btn-g">คืนเงินส่วนที่เหลือ</span>
+        </div>
+        <div class="statebar">
+          <span class="st done arrow">ฉบับร่าง</span>
+          <span class="st done arrow">รออนุมัติ</span>
+          <span class="st done arrow">อนุมัติแล้ว</span>
+          <span class="st now arrow">จ่ายเงินแล้ว</span>
+          <span class="st arrow">เคลียร์แล้ว</span>
+          <span class="st">ปิด</span>
+        </div>
+        <div class="grid2">
+          <div class="colL">
+            <div class="field"><label>วัตถุประสงค์</label><div class="inp">เงินทดรองล่วงหน้า ทริปดูงานลูกค้าเชียงใหม่</div></div>
+            <div class="field"><label>จำนวนขอทดรอง</label><div class="inp">10,000.00 THB</div></div>
+            <div class="field"><label>บัญชีเงินทดรอง (ลูกหนี้พนักงาน)</label><div class="inp">1150 · เงินทดรองพนักงาน — สมหญิง ใจดี</div></div>
+            <div class="field"><label>สมุด/วิธีจ่าย</label><div class="inp">ธนาคารกรุงไทย · โอน</div></div>
+
+            <h4 style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:16px 0 4px">การเคลียร์ยอด (ด้วยใบเบิกคืน)</h4>
+            <table class="lines">
+              <tr><th>ใบเบิกคืน</th><th class="money">ยอดใช้</th><th>วันที่</th><th>สถานะ</th></tr>
+              <tr><td>EXC/2026/0013</td><td class="money">6,800.00</td><td>25/11/2026</td><td><span class="chk">✔ เคลียร์แล้ว</span></td></tr>
+              <tr><td>—</td><td class="money">—</td><td>—</td><td style="color:var(--muted)">รอใบเบิกเพิ่มเติม</td></tr>
+            </table>
+          </div>
+          <aside class="colR">
+            <div class="tot"><span>ยอดทดรอง</span><b>10,000.00</b></div>
+            <div class="tot"><span>ใช้ไปแล้ว</span><span>6,800.00</span></div>
+            <div class="tot big"><span>คงเหลือในมือ</span><span style="color:var(--warn)">3,200.00</span></div>
+
+            <div class="tierbox">
+              <h4>สถานะเงิน (cash state — รวมแนวคิด)</h4>
+              <div class="cash">
+                <span class="cs done">ยังไม่จ่าย</span>
+                <span class="cs on">จ่ายแล้ว</span>
+                <span class="cs on">ใช้บางส่วน</span>
+                <span class="cs">เคลียร์ครบ</span>
+              </div>
+              <p style="font-size:11px;color:var(--muted);margin:10px 0 0">แถบนี้แทนทั้ง “cash state” เดิมและ “advance” เดิม — แนวคิดเดียว</p>
+            </div>
+
+            <div class="tierbox">
+              <h4>สายอนุมัติ</h4>
+              <div class="step ok"><span class="num">1</span><span class="txt">หัวหน้าแผนก<small>อนุมัติแล้ว</small></span></div>
+              <div class="step ok"><span class="num">2</span><span class="txt">ฝ่ายบัญชี<small>อนุมัติแล้ว</small></span></div>
+              <div class="step wait"><span class="num">3</span><span class="txt">CEO<small>ข้าม (≤ วงเงินอนุมัติ)</small></span></div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= ACCOUNTING WORKSPACE ================= -->
+  <h2 class="sec">4. ศูนย์งานฝ่ายบัญชี — “Employee Expenses” (vendor) <small>ฝ่ายบัญชีทำใบแทน + เงินสดย่อย + ลงบัญชี/จ่าย</small></h2>
+  <div class="win">
+    <div class="win-top"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span></div>
+    <div class="win-body">
+      <nav class="rail">
+        <div class="brand"><span class="ico">📚</span> Accounting</div>
+        <div class="grp">Vendor / Payables</div>
+        <a class="on">🧑💼 Employee Expenses <span class="g">18</span></a>
+        <a>🧾 Vendor Bills</a>
+        <a>💳 Payments</a>
+      </nav>
+      <div class="main">
+        <div class="crumbs">Payables / <b>Employee Expenses</b> — claim (ศูนย์งานฝ่ายบัญชี)</div>
+        <div class="sheethead">
+          <h3>Employee Expenses</h3>
+          <span class="badge b-reim">เบิกคืน</span>
+          <span class="badge b-adv">ทดรอง</span>
+          <span class="badge" style="background:#ece7f1;color:#5a3b52">เงินสดย่อย</span>
+          <span style="margin-left:auto"></span>
+          <span class="btn btn-p">สร้างใบเบิกแทนพนักงาน</span>
+          <span class="btn btn-s">สร้างใบเงินสดย่อย</span>
+        </div>
+        <div style="padding:0 18px 8px;display:flex;gap:6px;flex-wrap:wrap">
+          <span class="btn btn-g btn-sm">รออนุมัติฝ่ายบัญชี</span>
+          <span class="btn btn-g btn-sm">อนุมัติครบ รอลงบัญชี</span>
+          <span class="btn btn-g btn-sm">รอจ่ายคืน</span>
+          <span class="btn btn-g btn-sm" style="background:#ece7f1;color:#5a3b52;border-color:#d8cee0">เงินสดย่อย</span>
+          <span class="btn btn-g btn-sm">ฝ่ายบัญชีทำแทน</span>
+          <span class="btn btn-g btn-sm">รอเคลียร์ทดรอง</span>
+        </div>
+        <div style="padding:0 18px 18px">
+          <table class="lines">
+            <tr><th>วันที่</th><th>เลขที่</th><th>พนักงาน</th><th>ประเภท</th><th>แหล่งที่มา</th><th class="money">ยอด</th><th>อนุมัติ</th><th>จ่าย</th><th class="money">คงเหลือ</th></tr>
+            <tr>
+              <td>24/11</td><td>PC/2026/0003</td><td>สมหญิง ใจดี</td>
+              <td><span class="badge" style="background:#ece7f1;color:#5a3b52">เงินสดย่อย</span></td>
+              <td>ฝ่ายบัญชีทำแทน</td><td class="money">800.00</td>
+              <td><span class="chk">✔</span></td><td><span class="chk">✔</span></td><td class="money">0.00</td>
+            </tr>
+            <tr>
+              <td>23/11</td><td>ADV/2026/0007</td><td>สมชาย มั่นคง</td>
+              <td><span class="badge b-adv">ทดรอง</span></td>
+              <td>พนักงานยื่น</td><td class="money">10,000.00</td>
+              <td><span class="chk">✔</span></td><td><span class="chk">✔</span></td>
+              <td class="money" style="color:var(--warn)">3,200.00</td>
+            </tr>
+            <tr>
+              <td>22/11</td><td>EXC/2026/0012</td><td>สมหญิง ใจดี</td>
+              <td><span class="badge b-reim">เบิกคืน</span></td>
+              <td>พนักงานยื่น</td><td class="money">5,120.00</td>
+              <td><span class="pill wait" style="font-size:10px">รอชั้น 2</span></td><td>—</td><td class="money">—</td>
+            </tr>
+            <tr>
+              <td>22/11</td><td>EXC/2026/0013</td><td>สมชาย มั่นคง</td>
+              <td><span class="badge b-reim">เบิกคืน</span></td>
+              <td>พนักงานยื่น</td><td class="money">6,800.00</td>
+              <td><span class="chk">✔</span></td><td><span class="pill pay" style="font-size:10px">รอจ่าย</span></td><td class="money">—</td>
+            </tr>
+          </table>
+          <p style="font-size:11.5px;color:var(--muted);margin-top:12px">
+            <b>ปุ่ม mass action (เลือกหลายใบ):</b>
+            <span class="btn btn-g btn-sm">บันทึกบัญชี</span>
+            <span class="btn btn-g btn-sm">จ่ายคืน</span>
+            <span class="btn btn-g btn-sm">ส่งออก XLSX</span>
+            &nbsp;·&nbsp; <b>สร้างใบเบิกแทนพนักงาน</b> ใช้เมื่อพนักงานยื่นเองไม่ได้ (หรือเป็นเงินสดย่อย)
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= PORTAL ================= -->
+  <h2 class="sec">5. Portal พนักงาน (มือถือ) <small>od19_hr_expense_portal · /my/expenses + /my/advances</small></h2>
+  <div class="phones">
+
+    <!-- 4.1 list -->
+    <div class="phone">
+      <div class="screen">
+        <div class="statusbar">9:41</div>
+        <div class="p-head"><div class="t">ศูนย์เบิกเงิน</div><div class="s">สมหญิง ใจดี · ฝ่ายขาย</div></div>
+        <div class="p-tabs"><div class="on">ใบเบิกของฉัน</div><div>เงินทดรอง</div></div>
+        <div class="p-body">
+          <div class="p-card">
+            <div class="row"><span class="no">EXC/2026/0012</span><span class="pill wait">รออนุมัติ</span></div>
+            <div class="row" style="margin-top:6px"><span class="no">ทริปเหนือ · 21/11</span><span class="amt">฿5,120</span></div>
+          </div>
+          <div class="p-card">
+            <div class="row"><span class="no">EXC/2026/0009</span><span class="pill ok">อนุมัติแล้ว</span></div>
+            <div class="row" style="margin-top:6px"><span class="no">ค่าอาหารลูกค้า · 15/11</span><span class="amt">฿1,850</span></div>
+          </div>
+          <div class="p-card">
+            <div class="row"><span class="no">EXC/2026/0005</span><span class="pill pay">จ่ายแล้ว</span></div>
+            <div class="row" style="margin-top:6px"><span class="no">ค่าแท็กซี่ · 08/11</span><span class="amt">฿420</span></div>
+          </div>
+          <div class="p-card">
+            <div class="row"><span class="no">EXC/2026/0014</span><span class="pill draft">ฉบับร่าง</span></div>
+            <div class="row" style="margin-top:6px"><span class="no">ยังไม่ส่ง · 23/11</span><span class="amt">฿0</span></div>
+          </div>
+        </div>
+        <div class="p-btn">＋ ยื่นใบเบิกใหม่</div>
+      </div>
+    </div>
+
+    <!-- 4.2 new claim form -->
+    <div class="phone">
+      <div class="screen">
+        <div class="statusbar">9:41</div>
+        <div class="p-head"><div class="t">ยื่นใบเบิกใหม่</div><div class="s">หลายรายการในใบเดียว</div></div>
+        <div class="p-body">
+          <div class="p-line">
+            <div class="h"><span>รายการที่ 1</span><span style="color:var(--odoo);font-weight:600">ประเภท ▾</span></div>
+            <label>รายละเอียด</label><div class="inp">ค่าที่พัก 2 คืน</div>
+            <label>จำนวนเงิน</label><div class="inp">฿ 3,500</div>
+            <label>Analytic <span class="annot a-must">บังคับ</span></label>
+            <div class="inp req">ฝ่ายขาย › ทริปเหนือ</div>
+          </div>
+          <div class="p-line">
+            <div class="h"><span>รายการที่ 2</span><span style="color:var(--odoo);font-weight:600">ประเภท ▾</span></div>
+            <label>รายละเอียด</label><div class="inp">ค่าเดินทาง</div>
+            <label>จำนวนเงิน</label><div class="inp">฿ 920</div>
+            <label>Analytic <span class="annot a-must">บังคับ</span></label>
+            <div class="inp req">ฝ่ายขาย › ทริปเหนือ</div>
+          </div>
+          <div style="text-align:center;color:var(--accent);font-size:13px;font-weight:600;padding:4px">＋ เพิ่มรายการ</div>
+          <label style="font-size:10.5px;color:var(--muted)">แนบหลักฐาน <span class="annot a-opt">ไม่บังคับ</span></label>
+          <div class="p-upload" style="margin-top:4px">📷 ถ่าย/แนบใบเสร็จ (ข้ามได้)</div>
+        </div>
+        <div class="p-note">ยอดรวม ฿4,420 · Analytic ครบทุกรายการ ✓</div>
+        <div class="p-btn">ส่งอนุมัติ</div>
+      </div>
+    </div>
+
+    <!-- 4.3 new advance -->
+    <div class="phone">
+      <div class="screen">
+        <div class="statusbar">9:41</div>
+        <div class="p-head" style="background:#a9720f"><div class="t">ขอเงินทดรอง</div><div class="s">เบิกล่วงหน้าก่อนออกเดินทาง</div></div>
+        <div class="p-tabs"><div>ใบเบิกของฉัน</div><div class="on">เงินทดรอง</div></div>
+        <div class="p-body">
+          <div class="p-card">
+            <div class="row"><span class="no">ADV/2026/0007</span><span class="pill pay">จ่ายแล้ว</span></div>
+            <div class="row" style="margin-top:6px"><span class="no">คงเหลือในมือ</span><span class="amt" style="color:var(--warn)">฿3,200</span></div>
+          </div>
+          <label style="font-size:10.5px;color:var(--muted)">ยอดขอทดรอง</label>
+          <div class="inp" style="border:1px solid var(--line);border-radius:6px;padding:8px;font-size:13px;background:#fff">฿ 10,000</div>
+          <label style="font-size:10.5px;color:var(--muted);display:block;margin-top:10px">วัตถุประสงค์</label>
+          <div class="inp" style="border:1px solid var(--line);border-radius:6px;padding:8px;font-size:13px;background:#fff">ทริปดูงานลูกค้าเชียงใหม่</div>
+          <label style="font-size:10.5px;color:var(--muted);display:block;margin-top:10px">บัญชีเงินทดรอง</label>
+          <div class="inp" style="border:1px solid var(--line);border-radius:6px;padding:8px;font-size:12.5px;background:#fff">1150 · เงินทดรองพนักงาน</div>
+        </div>
+        <div class="p-btn" style="background:#a9720f">ยื่นขอเงินทดรอง</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= FLOW ================= -->
+  <h2 class="sec">6. เส้นทางรวม (one flow) <small>เบิกคืน + ทดรอง + เงินสดย่อย อยู่ที่หัวใบเดียว</small></h2>
+  <div class="win"><div style="padding:18px">
+    <table class="lines">
+      <tr><th>ขั้น</th><th>ขอเบิกคืน (reimbursement)</th><th>ขอเงินทดรอง (advance)</th></tr>
+      <tr><td>ยื่น</td><td>portal/หลังบ้าน สร้างใบ + บรรทัด (analytic บังคับ)</td><td>portal/หลังบ้าน ยื่นคำขอ (ไม่ต้องมีบรรทัด)</td></tr>
+      <tr><td>อนุมัติ</td><td>3 ชั้นที่หัวใบ (หัวหน้า › บัญชี › CEO)</td><td>ชุดเดียว เช่นเดิม (ข้าม CEO ถ้า ≤ วงเงิน)</td></tr>
+      <tr><td>จ่ายเงิน</td><td>จ่ายคืนพนักงาน (account.payment + reconcile)</td><td>จ่ายล่วงหน้า → เดบิตบัญชีเงินทดรอง</td></tr>
+      <tr><td>เคลียร์</td><td>—</td><td>ใบเบิกคืนอ้างอิงใบทดรอง → ใช้บางส่วน/ครบ</td></tr>
+      <tr><td>คืนเงิน</td><td>—</td><td>คืนส่วนที่เหลือ → ปิดยอด</td></tr>
+      <tr><td>สถานะเงิน</td><td colspan="2">แถบ cash state เดียว: ยังไม่จ่าย › จ่ายแล้ว › ใช้บางส่วน › เคลียร์ครบ</td></tr>
+    </table>
+    <p style="font-size:12px;color:var(--muted);margin:12px 0 0">
+      ＋ <b>เงินสดย่อย (petty_cash)</b>: ฝ่ายบัญชีสร้างใบแทนพนักงานจากเมนู <b>Employee Expenses</b> — จ่ายจากกองทุนเงินสดย่อย แล้วใช้ cash state ชุดเดียวกัน (จ่ายแล้ว › ใช้บางส่วน › ปิด) · อนุมัติเบา (หัวหน้า+บัญชี)
+    </p>
+  </div></div>
+
+</div>
+
+<footer class="page">
+  Mockup นี้เป็นภาพจำลองเพื่อรีวิว UX — ยังไม่ผูกกับโค้ด · หากเห็นชอบโครงนี้ จะเริ่มเฟส P1 ตามเอกสารออกแบบ
+</footer>
+
+</body>
+</html>
