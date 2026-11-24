@@ -113,7 +113,7 @@
                                     <a class="od19-shortcut" href="/my/approvals">
                                         <i class="fa fa-check-square-o" aria-hidden="true"/><span>อนุมัติ</span>
                                     </a>
-                                    <a class="od19-shortcut" href="/web#action=hr_expense.hr_expense_actions_my_all">
+                                    <a class="od19-shortcut" href="/web#action=od19_hr_expense_claim.action_od19_expense_claim_my">
                                         <i class="fa fa-money" aria-hidden="true"/><span>ค่าใช้จ่าย</span>
                                     </a>
                                     <a class="od19-shortcut" href="/web#action=od19_meeting_room_booking.action_meeting_room_booking">
@@ -425,7 +425,7 @@
                                 <div class="od19-portal-icon"><i class="fa fa-money" aria-hidden="true"/></div>
                                 <h5>ค่าใช้จ่าย</h5>
                                 <p>HR Expense</p>
-                                <a href="/web#action=hr_expense.hr_expense_actions_my_all" aria-label="เปิดใช้งาน ค่าใช้จ่าย">เปิดใช้งาน →</a>
+                                <a href="/web#action=od19_hr_expense_claim.action_od19_expense_claim_my" aria-label="เปิดใช้งาน ค่าใช้จ่าย">เปิดใช้งาน →</a>
                             </div>
                         </div>
                         <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
