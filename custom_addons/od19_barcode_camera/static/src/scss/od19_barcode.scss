@@ -1,0 +1,167 @@
+// Copyright 2026 OD19
+// License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0)
+
+// ---------------------------------------------------------------------------
+// OD19 Barcode Camera — mobile scanner client action
+// ---------------------------------------------------------------------------
+
+$od19-bc-accent: #8a1c2b;
+$od19-bc-dark: #3a0d13;
+$od19-bc-ok: #157347;
+
+.od19-barcode {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 12px;
+
+    .od19-barcode-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .od19-barcode-title {
+        font-size: 1.15rem;
+        font-weight: 600;
+        color: $od19-bc-dark;
+    }
+
+    .od19-barcode-context {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        border: 1px solid #dee2e6;
+        border-radius: 999px;
+        background: #f8f9fa;
+        font-size: 0.85rem;
+        color: $od19-bc-dark;
+    }
+
+    .od19-barcode-scan-area {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #000;
+        min-height: 240px;
+        aspect-ratio: 4 / 3;
+        display: flex;
+    }
+
+    .od19-barcode-idle,
+    .od19-barcode-unsupported {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        text-align: center;
+        padding: 16px;
+    }
+
+    .od19-barcode-idle i {
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .od19-barcode-stop {
+        position: absolute;
+        bottom: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 5;
+    }
+
+    .od19-barcode-results-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-weight: 600;
+        color: $od19-bc-dark;
+    }
+
+    .od19-barcode-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 12px;
+        margin-top: 8px;
+        border: 1px solid #dee2e6;
+        border-left: 4px solid #adb5bd;
+        border-radius: 8px;
+        background: #fff;
+
+        &.is-matched {
+            border-left-color: $od19-bc-ok;
+        }
+
+        &.is-unmatched {
+            border-left-color: #dc3545;
+            background: #fff5f5;
+        }
+    }
+
+    .od19-barcode-card-main {
+        min-width: 0;
+    }
+
+    .od19-barcode-card-type {
+        display: inline-block;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #fff;
+        background: $od19-bc-accent;
+        border-radius: 4px;
+        padding: 1px 6px;
+        margin-bottom: 2px;
+    }
+
+    .od19-barcode-card-name {
+        font-weight: 600;
+        color: $od19-bc-dark;
+        overflow-wrap: anywhere;
+    }
+
+    .od19-barcode-card-code {
+        font-family: monospace;
+        font-size: 0.8rem;
+        color: #6c757d;
+        overflow-wrap: anywhere;
+    }
+
+    .od19-barcode-card-extra {
+        font-size: 0.78rem;
+        color: #6c757d;
+    }
+
+    .od19-barcode-card-actions {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex: 0 0 auto;
+    }
+
+    .od19-barcode-qty {
+        width: 120px;
+    }
+}
+
+@media (max-width: 480px) {
+    .od19-barcode {
+        .od19-barcode-card {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .od19-barcode-card-actions {
+            justify-content: flex-end;
+        }
+
+        .od19-barcode-qty {
+            width: 100%;
+        }
+    }
+}

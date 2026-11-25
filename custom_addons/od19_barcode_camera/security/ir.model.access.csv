@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_od19_barcode_scan_log_user,od19.barcode.scan.log.user,model_od19_barcode_scan_log,base.group_user,1,1,1,1
+access_od19_barcode_scan_wizard_user,od19.barcode.scan.wizard.user,model_od19_barcode_scan_wizard,base.group_user,1,1,1,1

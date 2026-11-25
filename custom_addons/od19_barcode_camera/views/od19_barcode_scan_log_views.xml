@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Scan history list -->
+    <record id="view_od19_barcode_scan_log_list" model="ir.ui.view">
+        <field name="name">od19.barcode.scan.log.list</field>
+        <field name="model">od19.barcode.scan.log</field>
+        <field name="arch" type="xml">
+            <list string="ประวัติการสแกน" create="false" edit="false">
+                <field name="create_date" string="เวลา"/>
+                <field name="barcode"/>
+                <field name="scan_type" widget="badge"/>
+                <field name="res_name" string="รายการที่พบ"/>
+                <field name="product_id" optional="show"/>
+                <field name="lot_id" optional="hide"/>
+                <field name="picking_id" optional="show"/>
+                <field name="quantity" optional="show"/>
+                <field name="user_id" optional="show"/>
+                <field name="matched" widget="boolean_toggle" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Scan history form -->
+    <record id="view_od19_barcode_scan_log_form" model="ir.ui.view">
+        <field name="name">od19.barcode.scan.log.form</field>
+        <field name="model">od19.barcode.scan.log</field>
+        <field name="arch" type="xml">
+            <form string="รายละเอียดการสแกน" create="false" edit="false">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="barcode"/>
+                            <field name="scan_type" widget="badge"/>
+                            <field name="matched"/>
+                            <field name="quantity"/>
+                            <field name="user_id"/>
+                            <field name="create_date"/>
+                        </group>
+                        <group>
+                            <field name="res_name" string="รายการที่พบ"/>
+                            <field name="product_id"/>
+                            <field name="lot_id"/>
+                            <field name="location_id"/>
+                            <field name="package_id"/>
+                            <field name="picking_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search filters -->
+    <record id="view_od19_barcode_scan_log_search" model="ir.ui.view">
+        <field name="name">od19.barcode.scan.log.search</field>
+        <field name="model">od19.barcode.scan.log</field>
+        <field name="arch" type="xml">
+            <search string="ประวัติการสแกน">
+                <field name="barcode"/>
+                <field name="res_name"/>
+                <field name="product_id"/>
+                <field name="picking_id"/>
+                <filter name="unmatched" string="ไม่พบข้อมูล" domain="[('matched', '=', False)]"/>
+                <separator/>
+                <filter name="scan_type_product" string="สินค้า" domain="[('scan_type', '=', 'product')]"/>
+                <filter name="scan_type_lot" string="ล็อต/ซีเรียล" domain="[('scan_type', '=', 'lot')]"/>
+                <filter name="scan_type_location" string="ตำแหน่งจัดเก็บ" domain="[('scan_type', '=', 'location')]"/>
+                <filter name="scan_type_package" string="หีบห่อ" domain="[('scan_type', '=', 'package')]"/>
+                <group>
+                    <filter name="group_scan_type" string="ประเภท" context="{'group_by': 'scan_type'}"/>
+                    <filter name="group_user" string="ผู้สแกน" context="{'group_by': 'user_id'}"/>
+                    <filter name="group_picking" string="ใบรับ/ส่ง" context="{'group_by': 'picking_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_od19_barcode_scan_log" model="ir.actions.act_window">
+        <field name="name">ประวัติการสแกน</field>
+        <field name="res_model">od19.barcode.scan.log</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_od19_barcode_scan_log_search"/>
+    </record>
+</odoo>

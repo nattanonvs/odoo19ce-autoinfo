@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+    <t t-name="od19_barcode_camera.BarcodeScannerAction">
+        <div class="od19-barcode o_action">
+            <div class="od19-barcode-top">
+                <div class="od19-barcode-title">
+                    <i class="fa fa-barcode me-2"/>
+                    <span>สแกนบาร์โค้ด</span>
+                </div>
+                <span t-if="state.pickingName" class="od19-barcode-context">
+                    <i class="fa fa-cube me-1"/>
+                    <t t-esc="state.pickingName"/>
+                </span>
+            </div>
+
+            <div t-if="state.errorMessage" class="alert alert-warning d-flex align-items-center" role="alert">
+                <i class="fa fa-exclamation-triangle me-2"/>
+                <span t-esc="state.errorMessage"/>
+            </div>
+
+            <div class="od19-barcode-scan-area">
+                <BarcodeVideoScanner
+                    t-if="state.isScanning && state.isSupported"
+                    facingMode="'environment'"
+                    onResult.bind="onScannerResult"
+                    onError.bind="onScannerError"
+                    delayBetweenScan="1200"
+                />
+                <div t-elif="state.isScanning && !state.isSupported" class="od19-barcode-unsupported">
+                    <i class="fa fa-camera fa-2x mb-2"/>
+                    <div>อุปกรณ์/เบราว์เซอร์นี้ไม่รองรับกล้อง</div>
+                    <div class="text-muted small">ต้องเปิดผ่าน https หรือ localhost และอนุญาตสิทธิ์กล้อง</div>
+                </div>
+                <div t-else="" class="od19-barcode-idle">
+                    <i class="fa fa-barcode fa-3x mb-3"/>
+                    <button
+                        type="button"
+                        class="btn btn-primary btn-lg"
+                        t-on-click="toggleScanner"
+                        t-att-disabled="!state.isSupported"
+                    >
+                        <i class="fa fa-camera me-2"/> เปิดกล้องสแกน
+                    </button>
+                    <div t-if="!state.isSupported" class="text-muted small mt-2">
+                        ไม่รองรับกล้องบนอุปกรณ์นี้ — ใช้ช่องกรอกด้านล่างแทน
+                    </div>
+                </div>
+                <button
+                    t-if="state.isScanning"
+                    type="button"
+                    class="btn btn-danger od19-barcode-stop"
+                    t-on-click="toggleScanner"
+                >
+                    <i class="fa fa-stop me-1"/> หยุดสแกน
+                </button>
+            </div>
+
+            <div class="od19-barcode-manual input-group mt-3">
+                <span class="input-group-text"><i class="fa fa-keyboard"/></span>
+                <input
+                    type="text"
+                    class="form-control"
+                    placeholder="พิมพ์หรือยิงบาร์โค้ดด้วยเครื่องสแกน แล้วกด Enter"
+                    t-model="state.manualCode"
+                    t-on-keydown="onManualKeydown"
+                />
+                <button type="button" class="btn btn-secondary" t-on-click="submitManual">
+                    <i class="fa fa-check"/>
+                </button>
+            </div>
+
+            <div class="od19-barcode-results mt-3">
+                <div class="od19-barcode-results-head">
+                    <span>ผลการสแกน (<t t-esc="state.results.length"/>)</span>
+                    <button
+                        t-if="state.results.length"
+                        type="button"
+                        class="btn btn-link btn-sm"
+                        t-on-click="clearResults"
+                    >
+                        ล้าง
+                    </button>
+                </div>
+                <div t-if="!state.results.length" class="text-muted small py-3 text-center">
+                    ยังไม่มีการสแกน
+                </div>
+                <div
+                    t-foreach="state.results"
+                    t-as="result"
+                    t-key="result.clientId"
+                    class="od19-barcode-card"
+                    t-att-class="{ 'is-matched': result.matched, 'is-unmatched': !result.matched }"
+                >
+                    <div class="od19-barcode-card-main">
+                        <div class="od19-barcode-card-type" t-esc="typeLabels[result.type]"/>
+                        <div class="od19-barcode-card-name" t-esc="result.display_name || result.barcode"/>
+                        <div class="od19-barcode-card-code" t-esc="result.barcode"/>
+                        <div t-if="result.extra" class="od19-barcode-card-extra" t-esc="result.extra"/>
+                    </div>
+                    <div class="od19-barcode-card-actions">
+                        <button
+                            t-if="result.res_model && result.res_id"
+                            type="button"
+                            class="btn btn-sm btn-outline-secondary"
+                            title="เปิดรายการ"
+                            t-on-click="() => this.openRecord(result)"
+                        >
+                            <i class="fa fa-external-link"/>
+                        </button>
+                        <t t-if="state.pickingId && result.matched && (result.type === 'product' || result.type === 'lot')">
+                            <div class="od19-barcode-qty input-group input-group-sm">
+                                <input
+                                    type="number"
+                                    step="any"
+                                    min="0"
+                                    class="form-control"
+                                    t-model="result.qty"
+                                    t-att-disabled="result.applied"
+                                />
+                                <span class="input-group-text" t-esc="result.uom"/>
+                            </div>
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-primary"
+                                t-on-click="() => this.applyResult(result)"
+                                t-att-disabled="result.applying"
+                            >
+                                <i class="fa" t-att-class="result.applied ? 'fa-check' : 'fa-save'"/>
+                                <t t-if="result.applied"> บันทึกแล้ว</t>
+                                <t t-else=""> บันทึก</t>
+                            </button>
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>

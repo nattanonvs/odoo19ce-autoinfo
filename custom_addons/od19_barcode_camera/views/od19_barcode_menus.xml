@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Mobile camera scanner (fullscreen client action) -->
+    <record id="action_od19_barcode_scan" model="ir.actions.client">
+        <field name="name">สแกนบาร์โค้ด</field>
+        <field name="tag">od19_barcode_camera.scan</field>
+    </record>
+
+    <menuitem
+        id="menu_od19_barcode_scan"
+        name="สแกนบาร์โค้ด"
+        parent="stock.menu_stock_root"
+        action="action_od19_barcode_scan"
+        sequence="15"
+        groups="stock.group_stock_user"
+    />
+
+    <menuitem
+        id="menu_od19_barcode_history"
+        name="ประวัติการสแกน"
+        parent="stock.menu_stock_root"
+        action="action_od19_barcode_scan_log"
+        sequence="16"
+        groups="stock.group_stock_user"
+    />
+</odoo>

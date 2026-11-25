@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_picking_form_od19_barcode" model="ir.ui.view">
+        <field name="name">stock.picking.form.od19.barcode</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button
+                    name="action_od19_open_barcode_scanner"
+                    type="object"
+                    string="สแกนบาร์โค้ด"
+                    class="btn-secondary"
+                    groups="stock.group_stock_user"
+                />
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_picking_form_od19_barcode_button_box" model="ir.ui.view">
+        <field name="name">stock.picking.form.od19.barcode.button.box</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button
+                    name="action_od19_view_scan_history"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-barcode"
+                    invisible="od19_scan_count == 0"
+                >
+                    <field name="od19_scan_count" widget="statinfo" string="สแกน"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+</odoo>
