@@ -10,3 +10,13 @@ class ResConfigSettings(models.TransientModel):
         readonly=False,
         string="ISO Logo (โลโก้ ISO)",
     )
+    od19_email_sales = fields.Char(
+        related="company_id.od19_email_sales",
+        readonly=False,
+        string="Document E-mail: Sales (อีเมลเอกสารฝ่ายขาย)",
+    )
+    od19_email_accounts = fields.Char(
+        related="company_id.od19_email_accounts",
+        readonly=False,
+        string="Document E-mail: Accounting (อีเมลเอกสารฝ่ายบัญชี)",
+    )

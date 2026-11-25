@@ -12,6 +12,14 @@
                        class="img-fluid"
                        help="ISO certification logo (โลโก้ ISO)"/>
             </xpath>
+            <xpath expr="//field[@name='email']" position="after">
+                <field name="od19_email_sales"
+                       placeholder="sales@auto-info.co.th"
+                       help="E-mail printed on documents from sales (quotations, sales orders)."/>
+                <field name="od19_email_accounts"
+                       placeholder="accounts@auto-info.co.th"
+                       help="E-mail printed on documents from purchase, inventory and accounting."/>
+            </xpath>
         </field>
     </record>
 

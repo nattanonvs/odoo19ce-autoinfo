@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Fill the document e-mail fields with their defaults for companies
+         that were created before the fields existed. The method only writes
+         values that are empty, so it never overwrites a user's own setting. -->
+    <function model="res.company" name="_od19_ensure_document_emails"/>
+
+</odoo>

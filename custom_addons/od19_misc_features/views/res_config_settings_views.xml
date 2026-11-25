@@ -19,6 +19,21 @@
                         </div>
                     </div>
                 </setting>
+                <setting id="od19_document_emails_setting"
+                         string="Document E-mails"
+                         help="E-mail printed on documents. Sales documents use the Sales e-mail; purchase, inventory and accounting documents use the Accounting e-mail."
+                         company_dependent="1">
+                    <div class="content-group">
+                        <div class="mt16">
+                            <label for="od19_email_sales" class="o_light_label"/>
+                            <field name="od19_email_sales" class="oe_inline"/>
+                        </div>
+                        <div class="mt16">
+                            <label for="od19_email_accounts" class="o_light_label"/>
+                            <field name="od19_email_accounts" class="oe_inline"/>
+                        </div>
+                    </div>
+                </setting>
             </xpath>
         </field>
     </record>

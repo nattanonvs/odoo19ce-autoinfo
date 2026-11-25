@@ -1,17 +1,19 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 {
     "name": "OD19 Misc Features",
-    "version": "19.0.1.0.0",
-    "summary": "Consolidation of small missing features (logo ISO, sequence constraint skip, data link mixin, runtime guard, repeat customer report)",
+    "version": "19.0.1.1.0",
+    "summary": "Consolidation of small missing features (logo ISO, document e-mails, sequence constraint skip, data link mixin, runtime guard, repeat customer report)",
     "author": "OD19",
     "category": "Tools",
-    "depends": ["base", "mail", "sale"],
+    "depends": ["base", "mail", "sale", "web"],
     "data": [
         "security/ir.model.access.csv",
         "views/res_company_views.xml",
         "views/res_config_settings_views.xml",
         "views/runtime_guard_views.xml",
         "views/repeat_customer_report_views.xml",
+        "report/document_emails_footer.xml",
+        "data/company_document_emails.xml",
     ],
     "installable": True,
     "application": False,

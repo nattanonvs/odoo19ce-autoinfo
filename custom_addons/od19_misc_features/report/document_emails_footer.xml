@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================
+         Company document e-mail shown at the bottom of every printed
+         document that uses a standard Odoo external layout.
+
+         Which e-mail is printed depends on the document type:
+         - sale.*                     -> Sales e-mail (od19_email_sales)
+         - purchase.* / stock.* /
+           account.*                  -> Accounting e-mail (od19_email_accounts)
+
+         The addresses are configured per company in Settings
+         (Companies block) and on the Company form.
+    ============================================================ -->
+
+    <template id="od19_report_company_email">
+        <t t-if="o">
+            <t t-set="od19_doc_model" t-value="o._name or ''"/>
+            <t t-set="od19_doc_email" t-value="
+                company.od19_email_sales if od19_doc_model.startswith('sale.')
+                else company.od19_email_accounts if (
+                    od19_doc_model.startswith('purchase.')
+                    or od19_doc_model.startswith('stock.')
+                    or od19_doc_model.startswith('account.'))
+                else False"/>
+            <div t-if="od19_doc_email" class="text-center text-muted" style="font-size: 9px;">
+                E-mail: <span t-out="od19_doc_email"/>
+            </div>
+        </t>
+    </template>
+
+    <!-- Inject into each standard layout's footer div. -->
+    <template id="od19_report_company_email_standard" inherit_id="web.external_layout_standard">
+        <xpath expr="//div[contains(@t-attf-class, 'footer o_company_')]" position="inside">
+            <t t-call="od19_misc_features.od19_report_company_email"/>
+        </xpath>
+    </template>
+
+    <template id="od19_report_company_email_boxed" inherit_id="web.external_layout_boxed">
+        <xpath expr="//div[contains(@t-attf-class, 'footer o_company_')]" position="inside">
+            <t t-call="od19_misc_features.od19_report_company_email"/>
+        </xpath>
+    </template>
+
+    <template id="od19_report_company_email_bold" inherit_id="web.external_layout_bold">
+        <xpath expr="//div[contains(@t-attf-class, 'footer o_company_')]" position="inside">
+            <t t-call="od19_misc_features.od19_report_company_email"/>
+        </xpath>
+    </template>
+
+    <template id="od19_report_company_email_striped" inherit_id="web.external_layout_striped">
+        <xpath expr="//div[contains(@t-attf-class, 'footer o_company_')]" position="inside">
+            <t t-call="od19_misc_features.od19_report_company_email"/>
+        </xpath>
+    </template>
+
+    <template id="od19_report_company_email_folder" inherit_id="web.external_layout_folder">
+        <xpath expr="//div[contains(@t-attf-class, 'footer o_company_')]" position="inside">
+            <t t-call="od19_misc_features.od19_report_company_email"/>
+        </xpath>
+    </template>
+
+    <template id="od19_report_company_email_wave" inherit_id="web.external_layout_wave">
+        <xpath expr="//div[contains(@t-attf-class, 'footer o_company_')]" position="inside">
+            <t t-call="od19_misc_features.od19_report_company_email"/>
+        </xpath>
+    </template>
+
+    <template id="od19_report_company_email_bubble" inherit_id="web.external_layout_bubble">
+        <xpath expr="//div[contains(@t-attf-class, 'footer o_company_')]" position="inside">
+            <t t-call="od19_misc_features.od19_report_company_email"/>
+        </xpath>
+    </template>
+
+</odoo>
