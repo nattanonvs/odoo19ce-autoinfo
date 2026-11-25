@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+    <t t-name="od19_document_scan.CameraDialog">
+        <Dialog size="'xl'" title="'ถ่ายภาพด้วยกล้อง'" footer="!state.errorMessage">
+            <div class="od19-camera-dialog">
+                <div t-if="state.errorMessage" class="alert alert-warning mb-0 d-flex align-items-center" role="alert">
+                    <i class="fa fa-exclamation-triangle me-2"/>
+                    <span t-esc="state.errorMessage"/>
+                </div>
+                <t t-else="">
+                    <div class="od19-camera-stage">
+                        <video
+                            t-ref="videoPreview"
+                            class="od19-camera-video"
+                            t-att-class="{ 'od19-camera-mirror': state.facingMode === 'user' }"
+                            autoplay="autoplay"
+                            playsinline="playsinline"
+                            muted="muted"
+                        />
+                        <div t-if="!state.isReady" class="od19-camera-loading">
+                            <i class="fa fa-spinner fa-spin fa-2x"/>
+                            <div class="mt-2">กำลังเปิดกล้อง…</div>
+                        </div>
+                    </div>
+                    <p class="text-muted small mt-2 mb-0">
+                        <i class="fa fa-info-circle me-1"/>
+                        วางเอกสารให้เต็มกรอบ แสงพอเพียง แล้วกด “ถ่ายภาพ” (ภาพจะถูกย่อ/บีบอัดอัตโนมัติ)
+                    </p>
+                    <div t-if="state.shots.length" class="od19-camera-shots">
+                        <div t-foreach="state.shots" t-as="shot" t-key="shot.url" class="od19-camera-shot">
+                            <img t-att-src="shot.url" alt="captured photo"/>
+                            <button
+                                type="button"
+                                class="od19-camera-shot-remove"
+                                title="ลบภาพนี้"
+                                aria-label="ลบภาพนี้"
+                                t-on-click="() => this.removeShot(shot_index)"
+                            >
+                                <i class="fa fa-times"/>
+                            </button>
+                        </div>
+                    </div>
+                </t>
+            </div>
+
+            <t t-set-slot="footer">
+                <button
+                    t-if="!state.errorMessage"
+                    type="button"
+                    class="btn btn-secondary me-auto"
+                    t-on-click="switchCamera"
+                    t-att-disabled="!state.isReady"
+                >
+                    <i class="fa fa-refresh me-1"/> สลับกล้อง
+                </button>
+                <button type="button" class="btn btn-secondary" t-on-click="cancel">
+                    ปิด
+                </button>
+                <button
+                    t-if="!state.errorMessage and props.multiple and state.shots.length"
+                    type="button"
+                    class="btn btn-success"
+                    t-on-click="() => this.finish()"
+                >
+                    <i class="fa fa-check me-1"/> ใช้ภาพทั้งหมด (<t t-esc="state.shots.length"/>)
+                </button>
+                <button
+                    t-if="!state.errorMessage"
+                    type="button"
+                    class="btn btn-primary"
+                    t-on-click="capture"
+                    t-att-disabled="!state.isReady or state.isBusy"
+                >
+                    <i class="fa fa-camera me-1"/>
+                    <t t-if="props.multiple">ถ่ายภาพ (<t t-esc="state.shots.length"/>)</t>
+                    <t t-else="">ถ่ายภาพ</t>
+                </button>
+            </t>
+        </Dialog>
+    </t>
+
+</templates>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+    <!--
+        Add a "take a photo" button to the chatter topbar, right next to the
+        attachment paperclip. Because ``mail.Chatter`` backs every chatter in the
+        system, the button shows up everywhere (form views, records, ...).
+    -->
+    <t t-inherit="mail.Chatter" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('o-mail-Followers')]" position="before">
+            <button
+                t-if="cameraSupported"
+                class="o-mail-Chatter-takePhoto btn btn-link text-action px-1 d-flex align-items-center"
+                t-att-class="{ 'my-2': !props.compactHeight }"
+                aria-label="Take a photo"
+                title="ถ่ายภาพด้วยกล้อง"
+                t-on-click="onCameraCapture"
+            >
+                <i class="fa fa-camera fa-lg"/>
+            </button>
+        </xpath>
+    </t>
+
+</templates>

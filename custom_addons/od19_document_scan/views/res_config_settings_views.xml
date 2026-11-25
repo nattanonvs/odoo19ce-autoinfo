@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_config_settings_view_form_scan" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.od19.scan</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@id='od19_ai_settings']" position="after">
+                <block title="สแกนเอกสาร (OD19)" id="od19_scan_settings">
+                    <setting
+                        id="od19_scan_ocr_setting"
+                        string="การอ่านข้อความจากภาพ (OCR)"
+                        help="เลือกตัวอ่านข้อความเริ่มต้นสำหรับแปลงไฟล์สแกนเป็นข้อความ"
+                        groups="base.group_system"
+                    >
+                        <div class="content-group">
+                            <div class="row mt16">
+                                <label for="od19_scan_ocr_engine" class="col-lg-3 o_light_label"/>
+                                <field name="od19_scan_ocr_engine"/>
+                            </div>
+                            <div class="row">
+                                <label for="od19_scan_vision_model" class="col-lg-3 o_light_label"/>
+                                <field name="od19_scan_vision_model" placeholder="qwen2.5vl:7b"/>
+                            </div>
+                            <div class="row">
+                                <label for="od19_scan_tesseract_lang" class="col-lg-3 o_light_label"/>
+                                <field name="od19_scan_tesseract_lang" placeholder="tha+eng"/>
+                            </div>
+                        </div>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

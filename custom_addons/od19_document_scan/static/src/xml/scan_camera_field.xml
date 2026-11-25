@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+    <t t-name="od19_document_scan.ScanCameraField">
+        <div class="od19-camera-field d-flex align-items-start gap-3">
+            <div class="od19-camera-field-preview" t-if="previewUrl">
+                <img t-att-src="previewUrl" t-att-alt="fileName or 'scan image'"/>
+            </div>
+            <div class="od19-camera-field-preview od19-camera-field-empty" t-else="">
+                <i class="fa fa-file-image-o fa-2x"/>
+            </div>
+            <div class="od19-camera-field-actions d-flex flex-column gap-1">
+                <button
+                    t-if="cameraSupported and !props.readonly"
+                    type="button"
+                    class="btn btn-primary btn-sm"
+                    t-on-click="onCameraCapture"
+                >
+                    <i class="fa fa-camera me-1"/> ถ่ายภาพ
+                </button>
+                <FileUploader
+                    t-if="!props.readonly"
+                    acceptedFileExtensions="props.acceptedFileExtensions"
+                    allowedMIMETypes="props.allowedMIMETypes"
+                    onUploaded.bind="update"
+                >
+                    <t t-set-slot="toggler">
+                        <button type="button" class="btn btn-secondary btn-sm">
+                            <i class="fa fa-upload me-1"/> เลือกไฟล์
+                        </button>
+                    </t>
+                </FileUploader>
+                <button
+                    t-if="!props.readonly and props.record.data[props.name]"
+                    type="button"
+                    class="btn btn-link btn-sm text-danger p-0"
+                    t-on-click="() => this.update({})"
+                >
+                    <i class="fa fa-trash-o me-1"/> ลบภาพ
+                </button>
+                <a
+                    t-if="props.readonly and props.record.resId and props.record.data[props.name]"
+                    class="o_form_uri btn btn-link btn-sm p-0"
+                    href="#"
+                    t-on-click.prevent.stop="onFileDownload"
+                >
+                    <i class="fa fa-download me-1"/> ดาวน์โหลด
+                </a>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="od19_document_scan.ListScanCameraField">
+        <div class="od19-camera-field-list d-inline-flex align-items-center gap-1">
+            <img
+                t-if="previewUrl"
+                class="od19-camera-thumb"
+                t-att-src="previewUrl"
+                alt="scan image"
+            />
+            <button
+                t-if="cameraSupported and !props.readonly"
+                type="button"
+                class="btn btn-link btn-sm p-0"
+                title="ถ่ายภาพด้วยกล้อง"
+                aria-label="ถ่ายภาพด้วยกล้อง"
+                t-on-click="onCameraCapture"
+            >
+                <i class="fa fa-camera"/>
+            </button>
+            <FileUploader
+                t-if="!props.readonly"
+                acceptedFileExtensions="props.acceptedFileExtensions"
+                onUploaded.bind="update"
+            >
+                <t t-set-slot="toggler">
+                    <button type="button" class="btn btn-link btn-sm p-0" title="อัปโหลดไฟล์">
+                        <i class="fa fa-upload"/>
+                    </button>
+                </t>
+            </FileUploader>
+        </div>
+    </t>
+
+</templates>

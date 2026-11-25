@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Nest the scan wizard inside the existing Knowledge app -->
+    <menuitem
+        id="menu_od19_scan_article"
+        name="สแกนเป็นบทความ"
+        parent="document_knowledge.menu_document_root"
+        action="action_od19_scan_article_wizard"
+        sequence="20"
+        groups="base.group_user"
+    />
+
+</odoo>
