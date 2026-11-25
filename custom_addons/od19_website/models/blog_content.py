@@ -166,6 +166,170 @@ _POSTS = [
                   "<li>วิ่งหรือเดินระยะทางใดก็ได้ภายในช่วงเวลากิจกรรม</li>"
                   "<li>ส่งผลการวิ่งเพื่อขึ้นกระดานผู้นำของบริษัท</li></ul>"
                   "<p>ค่าสมัครทั้งหมดจะนำเข้ากองทุนเพื่อสังคมของบริษัท</p>"}),
+    (
+        "blog_tag_news",
+        "2024-12-04 09:00:00",
+        {"en_US": "Auto-Info certified ISO 9001:2015 for the 5th consecutive year",
+         "th_TH": "ออโต้-อินโฟ ผ่านการรับรอง ISO 9001:2015 ต่อเนื่องเป็นปีที่ 5"},
+        {"en_US": "Our quality management system passed its annual surveillance audit once again.",
+         "th_TH": "ระบบบริหารคุณภาพของบริษัทผ่านการตรวจประเมินติดตามผลประจำปีอีกครั้ง"},
+        {"en_US": "<p>For the fifth year in a row our quality management system has passed the "
+                  "annual ISO 9001:2015 surveillance audit. The audit reviewed project delivery, "
+                  "after-sales service and procurement across the head office and the engineering "
+                  "centre.</p>"
+                  "<p>Continuity matters as much as the certificate itself: the same documented "
+                  "processes cover every project we deliver, from the first site survey to the "
+                  "final hand-over.</p>",
+         "th_TH": "<p>เป็นปีที่ 5 ติดต่อกันที่ระบบบริหารคุณภาพของบริษัทผ่านการตรวจประเมิน "
+                  "ISO 9001:2015 ประจำปี โดยการตรวจครั้งนี้ครอบคลุมงานส่งมอบโครงการ "
+                  "งานบริการหลังการขาย และงานจัดซื้อ ทั้งที่สำนักงานใหญ่และศูนย์วิศวกรรม</p>"
+                  "<p>ความต่อเนื่องสำคัญไม่แพ้ตัวใบรับรอง เพราะกระบวนการที่บันทึกเป็นเอกสารชุดเดียวกัน "
+                  "ครอบคลุมทุกโครงการที่เราส่งมอบ ตั้งแต่การสำรวจหน้างานครั้งแรกจนถึงการส่งมอบครั้งสุดท้าย</p>"}),
+    (
+        "blog_tag_news",
+        "2023-08-31 09:00:00",
+        {"en_US": "Auto-Info Partner Network for Building Automation",
+         "th_TH": "เครือข่ายพันธมิตรระบบอัตโนมัติอาคารของออโต้-อินโฟ"},
+        {"en_US": "Bringing system integrators, consultants and technology partners together.",
+         "th_TH": "รวมผู้ติดตั้งระบบ ที่ปรึกษา และพันธมิตรเทคโนโลยีไว้ในงานเดียวกัน"},
+        {"en_US": "<p>We hosted a partner day dedicated to building automation, bringing together "
+                  "system integrators, consulting engineers and technology partners to share "
+                  "project experience and product roadmaps.</p>"
+                  "<p>The sessions covered HVAC control, room automation, energy management and "
+                  "the commissioning practices that keep a building running efficiently long "
+                  "after hand-over.</p>",
+         "th_TH": "<p>บริษัทได้จัดงานพบปะพันธมิตรด้านระบบอัตโนมัติอาคาร โดยเชิญผู้ติดตั้งระบบ "
+                  "วิศวกรที่ปรึกษา และพันธมิตรเทคโนโลยีมาร่วมแลกเปลี่ยนประสบการณ์จากโครงการ "
+                  "และอัปเดตแผนผลิตภัณฑ์</p>"
+                  "<p>หัวข้อในงานครอบคลุมระบบควบคุม HVAC ระบบอัตโนมัติภายในห้อง การจัดการพลังงาน "
+                  "และแนวปฏิบัติด้านการทดสอบส่งมอบที่ทำให้อาคารทำงานอย่างมีประสิทธิภาพในระยะยาว</p>"}),
+    (
+        "blog_tag_news",
+        "2026-03-24 09:00:00",
+        {"en_US": "Siemens RXD Summit 2026 in Bangkok",
+         "th_TH": "ออโต้-อินโฟร่วมงาน Siemens RXD Summit 2026 ที่กรุงเทพฯ"},
+        {"en_US": "Two days of product, roadmap and partner updates from Siemens.",
+         "th_TH": "สองวันกับอัปเดตสินค้า แผนงาน และพันธมิตรจาก Siemens"},
+        {"en_US": "<p>Our engineering and sales teams joined the Siemens RXD Summit 2026 in "
+                  "Bangkok for two days of product launches, roadmap briefings and hands-on "
+                  "sessions.</p>"
+                  "<p>The summit is a chance to align early with the platforms we deploy in the "
+                  "field, so our customers benefit from proven configurations from day one.</p>",
+         "th_TH": "<p>ทีมวิศวกรรมและทีมขายของเราเข้าร่วมงาน Siemens RXD Summit 2026 ที่กรุงเทพฯ "
+                  "เป็นเวลาสองวัน กับกิจกรรมเปิดตัวสินค้า การบรรยายแผนงาน และเวิร์กช็อปแบบลงมือปฏิบัติ</p>"
+                  "<p>งานนี้เป็นโอกาสให้เราปรับแนวทางล่วงหน้าให้สอดคล้องกับแพลตฟอร์มที่เราใช้งานจริง "
+                  "เพื่อให้ลูกค้าได้ประโยชน์จากรูปแบบการติดตั้งที่ผ่านการพิสูจน์แล้วตั้งแต่วันแรก</p>"}),
+    (
+        "blog_tag_news",
+        "2025-10-10 09:00:00",
+        {"en_US": "Honeywell Enraf channel-partner training 2025",
+         "th_TH": "อบรมช่องทางพันธมิตร Honeywell Enraf ประจำปี 2025"},
+        {"en_US": "Terminal gauging and loading-control specialists refreshed their certifications.",
+         "th_TH": "ทีมผู้เชี่ยวชาญระบบวัดระดับถังและควบคุมการโหลดต่ออายุการรับรอง"},
+        {"en_US": "<p>Our terminal-automation engineers completed the annual Honeywell Enraf "
+                  "channel-partner training, covering tank gauging, overfill prevention and "
+                  "loading-control systems.</p>"
+                  "<p>Staying certified means our commissioning and service teams can work "
+                  "directly on the instruments they install, keeping terminals safe and "
+                  "compliant.</p>",
+         "th_TH": "<p>วิศวกรด้านระบบอัตโนมัติคลังน้ำมันของเราเข้าร่วมการอบรมช่องทางพันธมิตร "
+                  "Honeywell Enraf ประจำปี ซึ่งครอบคลุมระบบวัดระดับถัง ระบบป้องกันน้ำมันล้น "
+                  "และระบบควบคุมการโหลด</p>"
+                  "<p>การรักษาสถานะการรับรองทำให้ทีมทดสอบส่งมอบและทีมบริการสามารถทำงานกับเครื่องมือวัด "
+                  "ที่เราติดตั้งได้โดยตรง ช่วยให้คลังน้ำมันปลอดภัยและเป็นไปตามข้อกำหนด</p>"}),
+    (
+        "blog_tag_news",
+        "2026-06-11 09:00:00",
+        {"en_US": "Certified Alliance Partner — Control Systems 2026",
+         "th_TH": "ได้รับการรับรอง Certified Alliance Partner — ระบบควบคุม 2026"},
+        {"en_US": "Renewed certification covering industrial control and safety systems.",
+         "th_TH": "ต่ออายุการรับรองครอบคลุมระบบควบคุมและความปลอดภัยในงานอุตสาหกรรม"},
+        {"en_US": "<p>Our certification as a Certified Alliance Partner for control systems has "
+                  "been renewed for 2026, covering programmable controllers, process safety and "
+                  "the associated engineering toolchains.</p>"
+                  "<p>The renewal confirms that our engineers are trained and audited on the "
+                  "platforms we deliver for industrial customers.</p>",
+         "th_TH": "<p>การรับรองสถานะ Certified Alliance Partner ด้านระบบควบคุมของเราได้รับการต่ออายุ "
+                  "สำหรับปี 2026 โดยครอบคลุมตัวควบคุมแบบโปรแกรมได้ ระบบความปลอดภัยในกระบวนการผลิต "
+                  "และเครื่องมือทางวิศวกรรมที่เกี่ยวข้อง</p>"
+                  "<p>การต่ออายุครั้งนี้ยืนยันว่าวิศวกรของเราผ่านการอบรมและตรวจประเมินบนแพลตฟอร์ม "
+                  "ที่เราส่งมอบให้ลูกค้าอุตสาหกรรม</p>"}),
+    (
+        "blog_tag_news",
+        "2024-08-19 09:00:00",
+        {"en_US": "Channel Partner of the Year — Terminals 2023",
+         "th_TH": "รางวัล Channel Partner of the Year — กลุ่มคลังน้ำมัน ปี 2023"},
+        {"en_US": "Recognised for terminal-automation performance across the region.",
+         "th_TH": "ได้รับการยอมรับจากผลงานระบบอัตโนมัติคลังน้ำมันในภูมิภาค"},
+        {"en_US": "<p>We are proud to have been named Channel Partner of the Year for the "
+                  "terminals business. The award reflects the tank-gauging, loading-control and "
+                  "inventory-management projects delivered for customers across the region.</p>"
+                  "<p>Thank you to the terminal operators and partners who put their trust in "
+                  "our team.</p>",
+         "th_TH": "<p>เราภูมิใจที่ได้รับรางวัล Channel Partner of the Year ในกลุ่มธุรกิจคลังน้ำมัน "
+                  "รางวัลนี้สะท้อนผลงานโครงการระบบวัดระดับถัง ระบบควบคุมการโหลด "
+                  "และการจัดการสินค้าคงคลังที่เราส่งมอบให้ลูกค้าทั่วภูมิภาค</p>"
+                  "<p>ขอขอบคุณผู้ประกอบการคลังน้ำมันและพันธมิตรทุกท่านที่ไว้วางใจทีมงานของเรา</p>"}),
+    (
+        "blog_tag_news",
+        "2024-02-29 09:00:00",
+        {"en_US": "Building Products ASEAN Partner Awards 2024",
+         "th_TH": "รางวัลพันธมิตร Building Products ASEAN 2024"},
+        {"en_US": "Our building-automation team was honoured at the regional partner awards.",
+         "th_TH": "ทีมระบบอัตโนมัติอาคารของเราได้รับเกียรติในงานมอบรางวัลพันธมิตรระดับภูมิภาค"},
+        {"en_US": "<p>Our building-automation team was recognised at the Building Products ASEAN "
+                  "Partner Awards 2024. The award acknowledges consistent delivery of HVAC "
+                  "control, room automation and energy-management projects.</p>"
+                  "<p>It is a shared result — with our customers, our consultants and the "
+                  "engineers who commission every site.</p>",
+         "th_TH": "<p>ทีมระบบอัตโนมัติอาคารของเราได้รับรางวัลในงาน Building Products ASEAN "
+                  "Partner Awards 2024 โดยรางวัลนี้ยอมรับการส่งมอบโครงการระบบควบคุม HVAC "
+                  "ระบบอัตโนมัติภายในห้อง และการจัดการพลังงานอย่างต่อเนื่อง</p>"
+                  "<p>นี่คือผลลัพธ์ที่เกิดร่วมกัน ทั้งจากลูกค้า ที่ปรึกษา และวิศวกรที่ทดสอบส่งมอบทุกโครงการ</p>"}),
+    (
+        "blog_tag_events",
+        "2025-09-06 09:00:00",
+        {"en_US": "AUTO TOGETHER 2025 #12.2 — Mangrove reforestation",
+         "th_TH": "AUTO TOGETHER 2025 #12.2 — ปลูกป่าชายเลน"},
+        {"en_US": "Staff and their families planted mangroves as part of our community programme.",
+         "th_TH": "พนักงานและครอบครัวร่วมกันปลูกป่าชายเลนในกิจกรรมเพื่อสังคมของบริษัท"},
+        {"en_US": "<p>Our team spent the day planting mangrove saplings as part of the company's "
+                  "community programme. Mangrove forests protect coastlines and act as an "
+                  "important carbon sink.</p>"
+                  "<p>Thank you to everyone who came along — and to the families who joined in.</p>",
+         "th_TH": "<p>ทีมงานของเราใช้เวลาทั้งวันในการปลูกกล้าป่าชายเลน ในกิจกรรมเพื่อสังคมของบริษัท "
+                  "ป่าชายเลนช่วยปกป้องแนวชายฝั่งและเป็นแหล่งกักเก็บคาร์บอนที่สำคัญ</p>"
+                  "<p>ขอขอบคุณทุกท่านที่มาร่วมกิจกรรม และครอบครัวที่ร่วมแรงร่วมใจกันในครั้งนี้</p>"}),
+    (
+        "blog_tag_events",
+        "2026-01-18 09:00:00",
+        {"en_US": "Annual Travel 2025 — Kaeng Krachan",
+         "th_TH": "ทริปประจำปี 2025 — แก่งกระจาน"},
+        {"en_US": "Two days in Kaeng Krachan National Park with the whole team.",
+         "th_TH": "สองวันในอุทยานแห่งชาติแก่งกระจานพร้อมทีมงานทั้งบริษัท"},
+        {"en_US": "<p>Our annual company trip took the whole team to Kaeng Krachan National Park "
+                  "for two days of nature, team activities and good food.</p>"
+                  "<p>It is the one time of year the field engineers, office and management "
+                  "teams are all in the same place — a small thank-you for a busy year.</p>",
+         "th_TH": "<p>ทริปประจำปีของบริษัทพาทีมงานทั้งหมดไปยังอุทยานแห่งชาติแก่งกระจาน "
+                  "เป็นเวลาสองวัน กับธรรมชาติ กิจกรรมสร้างความสัมพันธ์ และอาหารอร่อย ๆ</p>"
+                  "<p>นี่คือช่วงเวลาหนึ่งของปีที่วิศวกรภาคสนาม ทีมสำนักงาน และผู้บริหารได้อยู่พร้อมหน้ากัน "
+                  "เป็นคำขอบคุณเล็ก ๆ สำหรับปีที่ทำงานหนัก</p>"}),
+    (
+        "blog_tag_events",
+        "2024-05-18 09:00:00",
+        {"en_US": "AUTO TOGETHER 2024 — Tawan Ron",
+         "th_TH": "AUTO TOGETHER 2024 — ตะวันรอน"},
+        {"en_US": "A team day out of the office for the whole company.",
+         "th_TH": "วันทำกิจกรรมนอกสถานที่ของคนทั้งบริษัท"},
+        {"en_US": "<p>The whole company stepped away from the screens for AUTO TOGETHER 2024 — a "
+                  "day of games, food and time together outside the office.</p>"
+                  "<p>These days matter: they are how a company spread across project sites stays "
+                  "one team.</p>",
+         "th_TH": "<p>พนักงานทั้งบริษัทวางงานหน้าจอไว้ชั่วคราวเพื่อร่วมกิจกรรม AUTO TOGETHER 2024 "
+                  "วันแห่งเกม อาหาร และเวลาร่วมกันนอกออฟฟิศ</p>"
+                  "<p>วันแบบนี้สำคัญ เพราะเป็นวิธีที่ทำให้บริษัทที่กระจายอยู่ตามหน้างานต่าง ๆ "
+                  "ยังคงเป็นทีมเดียวกัน</p>"}),
 ]
 
 
@@ -315,12 +479,12 @@ class BlogBlog(models.Model):
             tags[xml_name] = tag
 
         # --- Sample posts ---------------------------------------------------
-        # New posts are only created while the blog is still empty, so a blog
-        # that the customer already filled in is never polluted.  Posts that
-        # match one of the seeds are refreshed on every upgrade, which also
-        # repairs the translations of an existing database.
+        # The blog is a module-managed hub, so every seed post is ensured on
+        # each upgrade.  Posts are matched by their (translated) title: an
+        # existing seed is refreshed — translations included — instead of being
+        # duplicated, and a post the customer added on their own is never
+        # touched.
         BlogPost = self.env["blog.post"].sudo()
-        empty_blog = not blog.blog_post_ids
         # Index the existing posts by every language they already hold: a
         # database seeded before the translations were fixed carries the Thai
         # title under ``en_US``, and it still has to be recognised as a seed so
@@ -342,8 +506,6 @@ class BlogBlog(models.Model):
         for xml_name, post_date, title, subtitle, content in _POSTS:
             post = existing.get(title["en_US"]) or existing.get(title.get("th_TH"))
             if not post:
-                if not empty_blog:
-                    continue
                 post = BlogPost.create({
                     "blog_id": blog.id,
                     "name": title["en_US"],

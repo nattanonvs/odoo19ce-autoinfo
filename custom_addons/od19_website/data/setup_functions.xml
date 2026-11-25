@@ -23,8 +23,13 @@
     <function model="website.menu" name="od19_configure_menus"/>
 
     <!-- Rename the blog to "News &amp; Events", translate its tags and
-         seed the sample posts the first time the blog is still empty. -->
+         ensure the seed posts (matched by title, so they are refreshed
+         instead of duplicated on every upgrade). -->
     <function model="blog.blog" name="od19_setup_blog"/>
+
+    <!-- Publish the default customer-portal notices (idempotent, keyed by
+         ir.model.data xmlids so re-running refreshes instead of duplicating). -->
+    <function model="od19.customer.notice" name="od19_setup_notices"/>
 
     <!-- Propagate the company Google Analytics ID to the website and seed
          the default robots.txt (only when still empty). -->

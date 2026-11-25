@@ -1,7 +1,7 @@
 {
     "name": "Auto-Info Corporate Website & Employee Portal",
     "summary": "Public website and employee portal for The Auto-Info Co., Ltd. on Odoo 19",
-    "version": "19.0.1.4.0",
+    "version": "19.0.1.5.0",
     "category": "Website",
     "author": "The Auto-Info Co., Ltd.",
     "website": "https://www.auto-info.co.th",
