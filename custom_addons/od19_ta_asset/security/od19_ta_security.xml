@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="module_category_od19_ta" model="ir.module.category">
+        <field name="name">TA Asset Register</field>
+        <field name="description">ทะเบียนสินทรัพย์ ATG (TA Asset Register)</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <record id="privilege_od19_ta" model="res.groups.privilege">
+        <field name="name">TA Asset Register</field>
+        <field name="category_id" ref="module_category_od19_ta" />
+    </record>
+
+    <record id="group_od19_ta_user" model="res.groups">
+        <field name="name">TA User</field>
+        <field name="privilege_id" ref="privilege_od19_ta" />
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]" />
+        <field
+            name="comment"
+        >ผู้ใช้งานทะเบียนสินทรัพย์ ATG — อ่าน/เพิ่ม/แก้ไข Plant · Tank · อุปกรณ์</field>
+    </record>
+
+    <record id="group_od19_ta_manager" model="res.groups">
+        <field name="name">TA Manager</field>
+        <field name="privilege_id" ref="privilege_od19_ta" />
+        <field name="implied_ids" eval="[(4, ref('group_od19_ta_user'))]" />
+        <field
+            name="comment"
+        >ผู้จัดการทะเบียนสินทรัพย์ ATG — ลบและดูแลข้อมูลได้ทั้งหมด</field>
+    </record>
+</odoo>

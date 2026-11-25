@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- ============ Plant (ไซต์/คลัง) ============ -->
+    <record id="od19_ta_plant_view_list" model="ir.ui.view">
+        <field name="name">od19.ta.plant.list</field>
+        <field name="model">od19.ta.plant</field>
+        <field name="arch" type="xml">
+            <list string="TA Plants" sample="1">
+                <field name="code" />
+                <field name="name" />
+                <field name="partner_id" />
+                <field name="province" />
+                <field name="tank_count" />
+                <field name="equipment_count" />
+                <field name="active" invisible="1" />
+            </list>
+        </field>
+    </record>
+
+    <record id="od19_ta_plant_view_form" model="ir.ui.view">
+        <field name="name">od19.ta.plant.form</field>
+        <field name="model">od19.ta.plant</field>
+        <field name="arch" type="xml">
+            <form string="TA Plant">
+                <sheet>
+                    <field name="active" invisible="1" />
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="action_view_tanks"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-truck"
+                        >
+                            <field name="tank_count" widget="statinfo" string="Tanks" />
+                        </button>
+                        <button
+                            name="action_view_equipment"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-wrench"
+                        >
+                            <field
+                                name="equipment_count"
+                                widget="statinfo"
+                                string="Equipment"
+                            />
+                        </button>
+                    </div>
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="text-bg-danger"
+                        invisible="active"
+                    />
+                    <div class="oe_title">
+                        <label for="name" />
+                        <h1>
+                            <field name="name" placeholder="e.g. BCP Terminal" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code" />
+                            <field
+                                name="partner_id"
+                                options="{'no_create': True}"
+                                context="{'default_is_company': True}"
+                            />
+                            <field name="province" />
+                        </group>
+                        <group>
+                            <field name="merged_into_id" />
+                            <field name="latitude" />
+                            <field name="longitude" />
+                        </group>
+                    </group>
+                    <group string="Site Address">
+                        <field name="street" nolabel="1" placeholder="Full site address" />
+                    </group>
+                    <notebook>
+                        <page string="Technical" name="technical">
+                            <group>
+                                <field name="interface_type" />
+                                <field name="system_version" />
+                                <field name="inventory_software" />
+                                <field name="aliases" />
+                            </group>
+                        </page>
+                        <page string="Access" name="access">
+                            <field name="access_requirements" nolabel="1" />
+                        </page>
+                        <page string="Tanks" name="tanks">
+                            <field name="tank_ids" nolabel="1">
+                                <list editable="bottom">
+                                    <field name="tag" />
+                                    <field name="area" />
+                                    <field name="product" />
+                                    <field name="height_mm" />
+                                    <field name="has_stilling_well" />
+                                    <field name="equipment_count" />
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Equipment" name="equipment">
+                            <field name="equipment_ids" nolabel="1" readonly="1">
+                                <list>
+                                    <field name="name" />
+                                    <field name="od19_ta_tank_id" />
+                                    <field name="serial_no" />
+                                    <field name="model" />
+                                    <field name="od19_ta_state" />
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes" nolabel="1" />
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <record id="od19_ta_plant_view_search" model="ir.ui.view">
+        <field name="name">od19.ta.plant.search</field>
+        <field name="model">od19.ta.plant</field>
+        <field name="arch" type="xml">
+            <search string="TA Plants">
+                <field
+                    name="name"
+                    filter_domain="['|', ('name', 'ilike', self), ('code', 'ilike', self)]"
+                />
+                <field name="partner_id" />
+                <field name="province" />
+                <separator />
+                <filter
+                    string="Archived"
+                    name="inactive"
+                    domain="[('active', '=', False)]"
+                />
+                <group>
+                    <filter
+                        string="Owner"
+                        name="group_partner"
+                        context="{'group_by': 'partner_id'}"
+                    />
+                    <filter
+                        string="Province"
+                        name="group_province"
+                        context="{'group_by': 'province'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="od19_ta_plant_action" model="ir.actions.act_window">
+        <field name="name">Plants</field>
+        <field name="res_model">od19.ta.plant</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="od19_ta_plant_view_search" />
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">เพิ่มไซต์/คลัง (Plant) แห่งแรก</p>
+            <p>Plant คือสถานที่ตั้งของถังและอุปกรณ์ ATG — ผูกกับเจ้าของที่เป็น
+                <b>res.partner</b> มาตรฐาน</p>
+        </field>
+    </record>
+</odoo>

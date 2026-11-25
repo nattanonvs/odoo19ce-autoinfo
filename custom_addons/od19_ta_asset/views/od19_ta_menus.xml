@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- ============ เมนูราก TA Asset Register ============ -->
+    <menuitem
+        id="od19_ta_menu_root"
+        name="TA Asset Register"
+        web_icon="od19_ta_asset,static/description/icon.svg"
+        sequence="85"
+        groups="group_od19_ta_user"
+    />
+
+    <menuitem
+        id="od19_ta_menu_plants"
+        name="Plants &amp; Tanks"
+        parent="od19_ta_menu_root"
+        action="od19_ta_plant_action"
+        sequence="10"
+    />
+    <menuitem
+        id="od19_ta_menu_tanks"
+        name="Tanks"
+        parent="od19_ta_menu_plants"
+        action="od19_ta_tank_action"
+        sequence="20"
+    />
+    <menuitem
+        id="od19_ta_menu_equipment"
+        name="ATG Equipment"
+        parent="od19_ta_menu_root"
+        action="od19_ta_equipment_action"
+        sequence="30"
+    />
+    <menuitem
+        id="od19_ta_menu_partners"
+        name="TA Companies"
+        parent="od19_ta_menu_root"
+        action="od19_ta_partner_action"
+        sequence="40"
+    />
+</odoo>

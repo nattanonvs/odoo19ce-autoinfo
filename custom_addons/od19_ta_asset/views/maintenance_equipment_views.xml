@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- ============ maintenance.equipment (core) — โมดูลเสริม ============ -->
+
+    <!-- ฟอร์ม: เพิ่มหน้า ATG / TA เข้าไปใน notebook ของ core -->
+    <record id="od19_ta_equipment_view_form_inherit" model="ir.ui.view">
+        <field name="name">maintenance.equipment.form.inherit.od19.ta</field>
+        <field name="model">maintenance.equipment</field>
+        <field name="inherit_id" ref="maintenance.hr_equipment_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//notebook/page[@name='description']" position="after">
+                <page string="ATG / TA" name="od19_ta">
+                    <group>
+                        <field name="od19_ta_is_ta" />
+                    </group>
+                    <group invisible="not od19_ta_is_ta">
+                        <group string="Location">
+                            <field
+                                name="od19_ta_plant_id"
+                                options="{'no_create': True}"
+                            />
+                            <field
+                                name="od19_ta_tank_id"
+                                options="{'no_create': True}"
+                            />
+                        </group>
+                        <group string="Status">
+                            <field name="od19_ta_state" />
+                            <field name="od19_ta_source" />
+                            <field name="od19_ta_function" />
+                        </group>
+                    </group>
+                    <group invisible="not od19_ta_is_ta">
+                        <group string="Lifecycle">
+                            <field name="od19_ta_install_date" />
+                            <field name="od19_ta_removal_date" />
+                            <field name="od19_ta_test_date" />
+                        </group>
+                        <group string="Traceability">
+                            <field name="od19_ta_replaces_id" />
+                            <field name="od19_ta_job_id" />
+                            <field name="od19_ta_job_no" />
+                            <field name="od19_ta_model_code" />
+                        </group>
+                    </group>
+                    <group
+                        string="Options"
+                        invisible="not od19_ta_is_ta"
+                    >
+                        <group>
+                            <field name="od19_ta_opt_pressure" />
+                            <field name="od19_ta_opt_alarm_relay" />
+                            <field name="od19_ta_opt_analog_out" />
+                        </group>
+                        <group>
+                            <field name="od19_ta_opt_sil_relay" />
+                            <field name="od19_ta_opt_sil_4_20" />
+                        </group>
+                    </group>
+                    <field
+                        name="od19_ta_replaced_by_ids"
+                        invisible="not od19_ta_is_ta"
+                    >
+                        <list>
+                            <field name="name" />
+                            <field name="serial_no" />
+                            <field name="od19_ta_install_date" />
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ลิสต์: เพิ่มคอลัมน์ตำแหน่งติดตั้ง/สถานะ ATG -->
+    <record id="od19_ta_equipment_view_list_inherit" model="ir.ui.view">
+        <field name="name">maintenance.equipment.list.inherit.od19.ta</field>
+        <field name="model">maintenance.equipment</field>
+        <field name="inherit_id" ref="maintenance.hr_equipment_view_tree" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="od19_ta_is_ta" column_invisible="True" />
+                <field name="od19_ta_plant_id" optional="show" />
+                <field name="od19_ta_tank_id" optional="hide" />
+                <field name="od19_ta_state" optional="show" />
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ค้นหา: เพิ่มฟิลด์/ตัวกรอง/จัดกลุ่ม ATG -->
+    <record id="od19_ta_equipment_view_search_inherit" model="ir.ui.view">
+        <field name="name">maintenance.equipment.search.inherit.od19.ta</field>
+        <field name="model">maintenance.equipment</field>
+        <field name="inherit_id" ref="maintenance.hr_equipment_view_search" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='owner_user_id']" position="after">
+                <field name="od19_ta_plant_id" />
+                <field name="od19_ta_tank_id" />
+            </xpath>
+            <xpath expr="//filter[@name='inactive']" position="before">
+                <filter
+                    string="TA / ATG"
+                    name="od19_ta_only"
+                    domain="[('od19_ta_is_ta', '=', True)]"
+                />
+                <separator />
+                <filter
+                    string="In Service"
+                    name="od19_ta_in_service"
+                    domain="[('od19_ta_state', '=', 'in_service')]"
+                />
+                <filter
+                    string="Spare"
+                    name="od19_ta_spare"
+                    domain="[('od19_ta_state', '=', 'spare')]"
+                />
+                <separator />
+            </xpath>
+            <xpath expr="//group" position="inside">
+                <filter
+                    string="Plant"
+                    name="group_od19_ta_plant"
+                    context="{'group_by': 'od19_ta_plant_id'}"
+                />
+                <filter
+                    string="Tank"
+                    name="group_od19_ta_tank"
+                    context="{'group_by': 'od19_ta_tank_id'}"
+                />
+                <filter
+                    string="ATG Status"
+                    name="group_od19_ta_state"
+                    context="{'group_by': 'od19_ta_state'}"
+                />
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ============ Actions ============ -->
+    <record id="od19_ta_equipment_action" model="ir.actions.act_window">
+        <field name="name">ATG Equipment</field>
+        <field name="res_model">maintenance.equipment</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="context">{'search_default_od19_ta_only': 1, 'default_od19_ta_is_ta': True}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">เพิ่มอุปกรณ์ ATG ชิ้นแรก</p>
+            <p>อุปกรณ์ ATG ใช้ <b>maintenance.equipment</b> (core) เป็นฐาน —
+                เพิ่มเฉพาะตำแหน่งติดตั้ง (Plant/Tank) และข้อมูลเฉพาะโดเมน</p>
+        </field>
+    </record>
+
+    <record id="od19_ta_equipment_action_tank" model="ir.actions.act_window">
+        <field name="name">Equipment</field>
+        <field name="res_model">maintenance.equipment</field>
+        <field name="view_mode">list,form,kanban</field>
+        <field name="domain">[('od19_ta_tank_id', '=', active_id)]</field>
+        <field name="context">{'default_od19_ta_tank_id': active_id, 'default_od19_ta_is_ta': True}</field>
+    </record>
+</odoo>

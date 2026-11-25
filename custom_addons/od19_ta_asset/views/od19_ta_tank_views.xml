@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- ============ Tank (ถัง) ============ -->
+    <record id="od19_ta_tank_view_list" model="ir.ui.view">
+        <field name="name">od19.ta.tank.list</field>
+        <field name="model">od19.ta.tank</field>
+        <field name="arch" type="xml">
+            <list string="TA Tanks" sample="1">
+                <field name="plant_id" />
+                <field name="tag" />
+                <field name="area" />
+                <field name="product" />
+                <field name="tank_type" />
+                <field name="equipment_count" />
+            </list>
+        </field>
+    </record>
+
+    <record id="od19_ta_tank_view_form" model="ir.ui.view">
+        <field name="name">od19.ta.tank.form</field>
+        <field name="model">od19.ta.tank</field>
+        <field name="arch" type="xml">
+            <form string="TA Tank">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="%(od19_ta_equipment_action_tank)d"
+                            type="action"
+                            class="oe_stat_button"
+                            icon="fa-wrench"
+                        >
+                            <field
+                                name="equipment_count"
+                                widget="statinfo"
+                                string="Equipment"
+                            />
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="tag" string="Tank Tag" />
+                        <h1>
+                            <field name="tag" placeholder="e.g. TK-101" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field
+                                name="plant_id"
+                                options="{'no_create': True}"
+                            />
+                            <field name="partner_id" />
+                        </group>
+                        <group>
+                            <field name="area" />
+                            <field name="tank_type" />
+                            <field name="product" />
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="height_mm" />
+                            <field name="has_stilling_well" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Equipment" name="equipment">
+                            <field name="equipment_ids" nolabel="1" readonly="1">
+                                <list>
+                                    <field name="name" />
+                                    <field name="serial_no" />
+                                    <field name="model" />
+                                    <field name="od19_ta_state" />
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes" nolabel="1" />
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <record id="od19_ta_tank_view_search" model="ir.ui.view">
+        <field name="name">od19.ta.tank.search</field>
+        <field name="model">od19.ta.tank</field>
+        <field name="arch" type="xml">
+            <search string="TA Tanks">
+                <field name="tag" />
+                <field name="plant_id" />
+                <field name="partner_id" />
+                <field name="product" />
+                <filter
+                    string="With ATG"
+                    name="with_atg"
+                    domain="[('equipment_ids', '!=', False)]"
+                />
+                <filter
+                    string="Movement"
+                    name="movement"
+                    domain="[('area', '=', 'movement')]"
+                />
+                <group>
+                    <filter
+                        string="Plant"
+                        name="group_plant"
+                        context="{'group_by': 'plant_id'}"
+                    />
+                    <filter
+                        string="Area"
+                        name="group_area"
+                        context="{'group_by': 'area'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="od19_ta_tank_action" model="ir.actions.act_window">
+        <field name="name">Tanks</field>
+        <field name="res_model">od19.ta.tank</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="od19_ta_tank_view_search" />
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">เพิ่มถัง (Tank) ภายในไซต์</p>
+        </field>
+    </record>
+</odoo>

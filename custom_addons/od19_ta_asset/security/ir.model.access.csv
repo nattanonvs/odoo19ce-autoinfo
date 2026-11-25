@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_od19_ta_plant_user,od19.ta.plant.user,model_od19_ta_plant,group_od19_ta_user,1,1,1,0
+access_od19_ta_plant_manager,od19.ta.plant.manager,model_od19_ta_plant,group_od19_ta_manager,1,1,1,1
+access_od19_ta_tank_user,od19.ta.tank.user,model_od19_ta_tank,group_od19_ta_user,1,1,1,0
+access_od19_ta_tank_manager,od19.ta.tank.manager,model_od19_ta_tank,group_od19_ta_manager,1,1,1,1
