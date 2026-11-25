@@ -4,7 +4,7 @@
 ลำดับการนำเข้า (ห้ามสลับ เพราะมีการอ้างอิงถึงกัน):
     1) hr.department  — แผนก (ยังไม่ตั้ง parent_id / manager_id)
     2) hr.job         — ตำแหน่งงาน (อ้างแผนก)
-    3) res.users      — ผู้ใช้ (*** ไม่ตั้งรหัสผ่าน *** ให้ผู้ใช้รีเซ็ตเอง)
+    3) res.users      — ผู้ใช้ (รหัสผ่านตั้งเฉพาะเมื่อกำหนด MIG_USER_PASSWORD)
     4) hr.employee    — พนักงาน (อ้างแผนก/ตำแหน่ง/ผู้ใช้)
     5) เชื่อมความสัมพันธ์ย้อนหลัง: แผนกแม่ / ผู้จัดการแผนก / ผู้จัดการพนักงาน
 
@@ -16,8 +16,12 @@ identification_id / marital / sex / employee_type ฯลฯ) ย้ายไป�
 ขอบเขตของ step นี้: นำเข้า "ตัวบุคคล/องค์กร" เท่านั้น
     * ไม่ผูกบทบาท/สิทธิ์ (res.users.role) — มอบหมายผ่าน UI หรือ step RBAC แยก
       เพื่อรักษาหลัก Segregation of Duties (ดู discovery doc section 3.6)
-    * ไม่ตั้งรหัสผ่านคงที่ให้บัญชีใด ๆ
+    * รหัสผ่าน: ค่าเริ่มต้น "ไม่" ตั้งรหัสผ่านคงที่ให้บัญชีใด ๆ
+      จะตั้งให้เฉพาะเมื่อกำหนด environment variable MIG_USER_PASSWORD เท่านั้น
+      และยกเว้นบัญชีผู้ดูแลระบบ (base.user_admin) เสมอ เพื่อกันการล็อกตัวเองออก
 """
+import os
+
 import common
 
 # บัญชีเทมเพลตมาตรฐานของ Odoo (base สร้างให้ทุกฐานข้อมูลอยู่แล้ว) — ไม่นำเข้าซ้ำ
@@ -28,6 +32,16 @@ _NAME_MAX = 250
 
 # ค่าที่ยอมรับได้ของ sex / employee_type / marital (ตรงกับ Odoo 19)
 _SEX_ALLOWED = {'male', 'female', 'other'}
+
+# รหัสผ่านที่จะตั้งให้ผู้ใช้ที่นำเข้า (อ่านจาก env var)
+# ค่าเริ่มต้นว่าง = ไม่ตั้งรหัสผ่านเลย (ปลอดภัยไว้ก่อน)
+_USER_PASSWORD = os.environ.get('MIG_USER_PASSWORD') or ''
+
+
+def _admin_user_id():
+    """คืนค่า id ของบัญชีผู้ดูแลระบบ (base.user_admin) — 0 ถ้าหาไม่เจอ."""
+    admin = common.odoo_env().ref('base.user_admin', raise_if_not_found=False)
+    return admin.id if admin else 0
 
 
 # --------------------------------------------------------------------------
@@ -238,7 +252,11 @@ def _sync_jobs(stats, dept_ids):
 # 3) ผู้ใช้
 # --------------------------------------------------------------------------
 def _sync_users(stats):
-    """นำเข้าผู้ใช้ (login/ชื่อ/บริษัท/สถานะ) — ไม่ตั้งรหัสผ่าน และไม่ผูกบทบาท."""
+    """นำเข้าผู้ใช้ (login/ชื่อ/บริษัท/สถานะ) — ไม่ผูกบทบาท.
+
+    รหัสผ่าน: ตั้งให้ทุกบัญชีที่นำเข้าเฉพาะเมื่อกำหนด MIG_USER_PASSWORD
+    โดยยกเว้นบัญชีผู้ดูแลระบบ (base.user_admin) เสมอ
+    """
     import legacy
     rows = legacy.fetch_all(
         "SELECT u.id, u.login, u.active, u.company_id, u.share, p.name AS partner_name "
@@ -249,6 +267,10 @@ def _sync_users(stats):
     Users = env['res.users']
     portal_group = env.ref('base.group_portal', raise_if_not_found=False)
     companies = _company_map()
+    admin_id = _admin_user_id()
+    if _USER_PASSWORD:
+        common.log("โหมดตั้งรหัสผ่าน: ตั้งรหัสผ่านให้ผู้ใช้ที่นำเข้า "
+                   "ยกเว้นบัญชีผู้ดูแลระบบ (id=%s)" % admin_id)
 
     result = {}
     for row in rows:
@@ -262,12 +284,20 @@ def _sync_users(stats):
             stats.skipped += 1
             continue
 
+        set_pw = bool(_USER_PASSWORD)
+
         existing = Users.with_context(active_test=False).search(
             [('login', '=', login)], limit=1)
         if existing:
             _attach_xmlid('res.users', row['id'], existing)
-            common.log("พบบัญชี '%s' ใน Odoo 19 แล้ว — ผูก External ID "
-                       "โดยไม่แก้ข้อมูลเดิม" % login)
+            if set_pw and existing.id != admin_id:
+                if not common.DRY_RUN:
+                    existing.write({'password': _USER_PASSWORD})
+                common.log("พบบัญชี '%s' ใน Odoo 19 แล้ว — ผูก External ID "
+                           "และตั้งรหัสผ่านใหม่" % login)
+            else:
+                common.log("พบบัญชี '%s' ใน Odoo 19 แล้ว — ผูก External ID "
+                           "โดยไม่ตั้งรหัสผ่าน" % login)
             stats.bump('updated')
             result[row['id']] = existing.id
             continue
@@ -284,6 +314,8 @@ def _sync_users(stats):
         if row.get('share') and portal_group:
             from odoo import Command
             vals['group_ids'] = [Command.set([portal_group.id])]
+        if set_pw:
+            vals['password'] = _USER_PASSWORD
 
         rec, action = common.upsert('res.users', row['id'], vals)
         stats.bump(action)
