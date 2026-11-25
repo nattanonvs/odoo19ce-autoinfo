@@ -2,7 +2,7 @@
 {
     "name": "OD19 HR - Expense Claim (ใบเบิกค่าใช้จ่ายรวมหลายรายการ)",
     "author": "OD19",
-    "version": "19.0.1.1.0",
+    "version": "19.0.1.2.0",
     "category": "Human Resources/Expenses",
     "summary": "หัวใบเบิกค่าใช้จ่ายรวมหลายรายการ + อนุมัติ 3 ชั้นที่หัวใบ",
     "depends": [
@@ -20,6 +20,7 @@
         "data/ir_sequence_data.xml",
         "data/tier_definition_data.xml",
         "data/approval_source_data.xml",
+        "report/od19_expense_claim_report.xml",
         "views/od19_expense_claim_views.xml",
     ],
     "installable": True,

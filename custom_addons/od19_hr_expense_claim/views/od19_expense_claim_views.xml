@@ -43,6 +43,9 @@
                             invisible="state not in ('submitted', 'approved')"/>
                     <button name="action_reset" type="object" string="Reset to Draft"
                             invisible="state != 'refused'"/>
+                    <!-- เอกสารเบิกที่พิมพ์ได้ (มีรายการเบิก + ผู้อนุมัติครบ + ช่องลงนาม) -->
+                    <button name="%(action_report_od19_expense_claim)d" type="action"
+                            string="พิมพ์เอกสารเบิก" class="btn-secondary"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="draft,submitted,approved,sent,posted,paid,refused"/>
                 </header>

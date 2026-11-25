@@ -122,14 +122,6 @@ class Od19ExpenseClaim(models.Model):
                 raise UserError(_(
                     "ต้องระบุ Analytic Account ให้ครบทุกรายการก่อนส่งอนุมัติ "
                     "(ขาด %s รายการ)", len(missing_analytic)))
-            attachment_count = self.env["ir.attachment"].search_count([
-                ("res_model", "=", claim._name),
-                ("res_id", "=", claim.id),
-            ])
-            if not attachment_count:
-                raise UserError(_(
-                    "ต้องแนบหลักฐานค่าใช้จ่ายจริง (ใบเสร็จ/ใบกำกับ) อย่างน้อย 1 ไฟล์ "
-                    "ก่อนส่งขออนุมัติ"))
             claim.line_ids.write({"approval_state": "submitted"})
             claim.write({
                 "state": "submitted",

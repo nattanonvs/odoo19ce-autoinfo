@@ -298,3 +298,32 @@ class Od19HrExpensePortal(CustomerPortal):
         if claim.state == 'draft':
             claim.action_submit()
         return request.redirect('/my/expenses/%s' % expense_id)
+
+    @http.route(
+        '/my/expenses/<int:expense_id>/print', type='http', auth='user',
+        website=True,
+    )
+    def portal_my_expense_print(self, expense_id, **kw):
+        """Return the printable expense-claim document (PDF) for its owner.
+
+        The claim is fetched through ``_expense_check_access`` (owner-only),
+        then rendered in sudo so the portal user does not need back-office
+        access to the analytic accounts referenced by the report.
+        """
+        try:
+            claim = self._expense_check_access(expense_id)
+        except MissingError:
+            return request.not_found()
+        pdf_content, _report_type = request.env[
+            'ir.actions.report'
+        ].sudo()._render_qweb_pdf(
+            'od19_hr_expense_claim.od19_expense_claim_document', claim.ids)
+        return request.make_response(
+            pdf_content,
+            headers=[
+                ('Content-Type', 'application/pdf'),
+                ('Content-Disposition',
+                 'inline; filename="ExpenseClaim-%s.pdf"'
+                 % (claim.name or claim.id)),
+            ],
+        )
