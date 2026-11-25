@@ -355,13 +355,13 @@
     </record>
 
     <menuitem id="menu_od19_prepare_payment"
-              name="ใบสำคัญจ่าย — รออนุมัติ / Payment Vouchers"
+              name="Payment Vouchers"
               parent="account.menu_finance_payables"
               action="action_od19_payment_vouchers"
               sequence="18"
               groups="account.group_account_invoice,account.group_account_readonly"/>
     <menuitem id="menu_od19_prepare_receipt"
-              name="ใบสำคัญรับเงิน — รออนุมัติ / Receipt Vouchers"
+              name="Receipt Vouchers"
               parent="account.menu_finance_receivables"
               action="action_od19_receipt_vouchers"
               sequence="14"
@@ -372,12 +372,14 @@
          - เมนู OD19 ด้านบน = ทะเบียนใบสำคัญ (งานรออนุมัติ/รอจ่าย)
          - เมนู Core เดิมชื่อ "Payments" = ประวัติ/ค้นหารายการจ่าย-รับทุกสถานะ
          ปรับผ่าน ir.ui.menu ของ Core เท่านั้น ไม่แตะไฟล์ Core
+         ชื่อ/คำแปลไทย (th_TH) ถูกจัดให้สอดคล้องกันใน
+         od19_ui_defaults._od19_sequence_account_partner_menus ซึ่งรันหลังไฟล์นี้
          ============================================================ -->
     <record id="account.menu_action_account_payments_payable" model="ir.ui.menu">
-        <field name="name">รายการจ่ายทั้งหมด / All Payments</field>
+        <field name="name">All Payments</field>
     </record>
     <record id="account.menu_action_account_payments_receivable" model="ir.ui.menu">
-        <field name="name">รายการรับชำระทั้งหมด / All Payments</field>
+        <field name="name">All Payments</field>
     </record>
 
 </odoo>

@@ -102,6 +102,82 @@ APP_MENU_ADMINISTRATION_XMLIDS = (
 APP_MENU_REORDER_CONTEXT = "od19_app_menu_reorder"
 
 # ---------------------------------------------------------------------------
+# Accounting partner menus (Accounting > Customers / Vendors)
+# ---------------------------------------------------------------------------
+
+# The Customers and Vendors sections of Accounting gather a long list of
+# sections that Odoo ships in no meaningful order. They are re-sequenced into
+# three clusters that follow the accounting workflow -- source documents, then
+# money movements, then master data -- so the everyday entries stay at the top
+# and the parameter menus drop to the bottom.
+#
+# Each entry is ``(parent_xmlid, ((menu_xmlid, sequence), ...))``. Sequences are
+# handed out in blocks of 10 per cluster, which leaves room to insert a section
+# without renumbering the rest. Sections of modules that are not installed are
+# skipped, so this module needs no dependency on them. The list is re-applied
+# from ``data/ui_defaults.xml`` on every install/upgrade, which keeps the order
+# in place after the owning modules rewrite their own menu data.
+ACCOUNTING_PARTNER_MENU_SEQUENCES = (
+    # Customers (Accounting > Customers): sales documents, receipts, master data.
+    ("account.menu_finance_receivables", (
+        # Sales documents
+        ("account.menu_action_move_out_invoice_type", 10),
+        ("account.menu_action_move_out_refund_type", 20),
+        ("contract.menu_contract_contract_customer", 30),
+        ("od19_service_contract.menu_service_contract", 40),
+        ("contract.sale_contract_manually_create_invoice_menu", 50),
+        ("account_billing.menu_action_customer_billing", 60),
+        # Receipts
+        ("od19_accounting_payment_voucher_reports.menu_od19_prepare_receipt", 110),
+        ("account.menu_action_account_payments_receivable", 120),
+        ("account_check_deposit.menu_check_deposit_tree", 130),
+        ("od19_accounting_doubtful_debt.menu_od19_doubtful_debt_root", 140),
+        # Master data
+        ("account_invoice_pricelist.menu_product_pricelist_main", 210),
+        ("account.product_product_menu_sellable", 220),
+        ("account.menu_account_customer", 230),
+    )),
+    # Vendors (Accounting > Vendors): purchase documents, payments, master data.
+    ("account.menu_finance_payables", (
+        # Purchase documents
+        ("account.menu_action_move_in_invoice_type", 10),
+        ("account.menu_action_move_in_refund_type", 20),
+        ("contract.menu_contract_contract_supplier", 30),
+        ("contract.purchase_contract_manually_create_invoice_menu", 40),
+        ("hr_expense.menu_hr_expense_account_employee_expenses", 50),
+        # Payments
+        ("od19_accounting_payment_voucher_reports.menu_od19_prepare_payment", 110),
+        ("account_billing.menu_action_supplier_billing", 120),
+        ("account.menu_action_account_payments_payable", 130),
+        ("l10n_th_account_tax.menu_withholding_tax_cert", 140),
+        # Master data
+        ("account.product_product_menu_purchasable", 210),
+        ("account.menu_account_supplier", 220),
+    )),
+)
+
+# Sections of the two partner menus that are renamed to remove an ambiguity.
+# The Thai translation of several core payment menus used to fall back to the
+# generic "การชำระเงิน", which made the dedicated OD19 menus look missing in a
+# Thai interface. Each entry is ``(menu_xmlid, label_en, label_th)``; the Thai
+# label is always written alongside the source one so the override survives a
+# language switch.
+ACCOUNTING_PARTNER_RENAMES = (
+    ("account.menu_action_move_in_invoice_type", "Bills", "ใบแจ้งหนี้จากผู้ขาย"),
+    ("account.menu_action_move_in_refund_type", "Refunds", "ใบลดหนี้จากผู้ขาย"),
+    ("account.menu_action_account_payments_receivable", "All Payments", "รายการรับชำระทั้งหมด"),
+    ("account.menu_action_account_payments_payable", "All Payments", "รายการจ่ายทั้งหมด"),
+    ("account_billing.menu_action_supplier_billing", "Prepare Payments", "เตรียมการจ่ายเงิน"),
+    ("account_billing.menu_action_customer_billing", "Billing", "การวางบิล"),
+    ("od19_accounting_payment_voucher_reports.menu_od19_prepare_receipt",
+     "Receipt Vouchers", "ใบสำคัญรับเงิน — รออนุมัติ"),
+    ("od19_accounting_payment_voucher_reports.menu_od19_prepare_payment",
+     "Payment Vouchers", "ใบสำคัญจ่าย — รออนุมัติ"),
+    ("od19_accounting_doubtful_debt.menu_od19_doubtful_debt_root",
+     "Doubtful Debt", "หนี้สงสัยจะสูญ"),
+)
+
+# ---------------------------------------------------------------------------
 # NavBar grouping
 # ---------------------------------------------------------------------------
 
@@ -450,3 +526,47 @@ class IrUiMenu(models.Model):
             last_sequence = max(siblings.mapped("sequence"))
             if menu.sequence <= last_sequence:
                 menu.sequence = last_sequence + 1
+
+    @api.model
+    def _od19_sequence_account_partner_menus(self):
+        """Order Accounting > Customers / Vendors and disambiguate their labels.
+
+        Both sections are regrouped into the three workflow clusters held in
+        :data:`ACCOUNTING_PARTNER_MENU_SEQUENCES` (documents, money movements,
+        master data) and a handful of sections are relabelled from
+        :data:`ACCOUNTING_PARTNER_RENAMES`.
+
+        The method is idempotent -- a value is only written when it actually
+        changes -- and skips every entry whose module is not installed, so the
+        list may safely reference optional modules. Entries whose section does
+        not belong to the expected parent (because it was moved somewhere else)
+        are left alone rather than being re-parented.
+        """
+        menu_model = self.env["ir.ui.menu"].with_context(
+            **{APP_MENU_REORDER_CONTEXT: True, "lang": "en_US"}
+        )
+        # Thai labels are only written when the language is actually activated:
+        # ``update_field_translations`` raises a UserError on a database where
+        # ``th_TH`` is not installed (e.g. a fresh test database).
+        th_active = "th_TH" in self.env["res.lang"].search(
+            [("active", "=", True)]
+        ).mapped("code")
+        for parent_xmlid, entries in ACCOUNTING_PARTNER_MENU_SEQUENCES:
+            parent = self.env.ref(parent_xmlid, raise_if_not_found=False)
+            if not parent:
+                continue
+            for menu_xmlid, sequence in entries:
+                menu = self.env.ref(menu_xmlid, raise_if_not_found=False)
+                if not menu or menu.parent_id.id != parent.id:
+                    continue
+                if menu.sequence != sequence:
+                    menu_model.browse(menu.id).write({"sequence": sequence})
+        for menu_xmlid, label_en, label_th in ACCOUNTING_PARTNER_RENAMES:
+            menu = self.env.ref(menu_xmlid, raise_if_not_found=False)
+            if not menu:
+                continue
+            record = menu_model.browse(menu.id)
+            if record.name != label_en:
+                record.write({"name": label_en})
+            if th_active:
+                record.update_field_translations("name", {"th_TH": label_th})

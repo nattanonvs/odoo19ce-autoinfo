@@ -36,4 +36,12 @@
     -->
     <function model="ir.ui.menu" name="_od19_sequence_app_menus"/>
 
+    <!--
+        Order Accounting > Customers / Vendors by the accounting workflow
+        (documents, money movements, master data) and disambiguate the labels
+        of the payment menus. See ACCOUNTING_PARTNER_MENU_SEQUENCES and
+        ACCOUNTING_PARTNER_RENAMES in models/ir_ui_menu.py.
+    -->
+    <function model="ir.ui.menu" name="_od19_sequence_account_partner_menus"/>
+
 </odoo>
