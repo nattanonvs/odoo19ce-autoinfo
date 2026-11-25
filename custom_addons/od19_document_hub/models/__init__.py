@@ -5,4 +5,5 @@ from . import od19_document_retention_policy
 from . import od19_document_category
 from . import od19_document_extract
 from . import ir_attachment
+from . import od19_document_bulk_category
 from . import report_archive_mixin

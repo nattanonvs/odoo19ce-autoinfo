@@ -32,11 +32,16 @@
         <field name="model">ir.attachment</field>
         <field name="inherit_id" ref="base.view_attachment_tree"/>
         <field name="arch" type="xml">
+            <list position="attributes">
+                <attribute name="decoration-danger">od19_duplicate_count &gt; 0</attribute>
+            </list>
             <field name="name" position="after">
                 <field name="od19_category_id"/>
                 <field name="od19_origin"/>
                 <field name="od19_doc_date"/>
                 <field name="od19_confidentiality"/>
+                <field name="file_size"/>
+                <field name="od19_duplicate_count" string="ซ้ำ"/>
             </field>
         </field>
     </record>
@@ -47,17 +52,26 @@
         <field name="inherit_id" ref="base.view_attachment_search"/>
         <field name="arch" type="xml">
             <field name="name" position="after">
+                <field name="od19_search_text" string="ค้นชื่อ/เนื้อหาไฟล์"
+                       filter_domain="[('od19_search_text', 'ilike', self)]"/>
                 <field name="od19_category_id"/>
                 <field name="od19_partner_id"/>
+                <field name="od19_department_id"/>
+                <field name="od19_confidentiality"/>
                 <field name="od19_doc_date"/>
+                <field name="od19_index_state"/>
             </field>
             <filter name="binary_filter" position="after">
                 <filter name="od19_external" string="รับจากภายนอก"
                         domain="[('od19_origin','=','external')]"/>
                 <filter name="od19_internal" string="สร้างจากระบบ"
                         domain="[('od19_origin','=','internal')]"/>
+                <separator/>
                 <filter name="od19_index_pending" string="รอสกัดข้อความ"
                         domain="[('od19_index_state','in',['pending','failed'])]"/>
+                <separator/>
+                <filter name="od19_confidential" string="ความลับขึ้นไป"
+                        domain="[('od19_confidentiality','in',['confidential','secret'])]"/>
             </filter>
             <group position="inside">
                 <filter name="od19_group_category" string="หมวดเอกสาร"
@@ -66,6 +80,14 @@
                         domain="[]" context="{'group_by':'od19_origin'}"/>
                 <filter name="od19_group_department" string="แผนก"
                         domain="[]" context="{'group_by':'od19_department_id'}"/>
+                <filter name="od19_group_partner" string="คู่ค้า"
+                        domain="[]" context="{'group_by':'od19_partner_id'}"/>
+                <filter name="od19_group_confidentiality" string="ระดับความลับ"
+                        domain="[]" context="{'group_by':'od19_confidentiality'}"/>
+                <filter name="od19_group_index_state" string="สถานะสกัดข้อความ"
+                        domain="[]" context="{'group_by':'od19_index_state'}"/>
+                <filter name="od19_group_checksum" string="แฟ้มเนื้อหาเดียวกัน"
+                        domain="[]" context="{'group_by':'checksum'}"/>
             </group>
         </field>
     </record>
