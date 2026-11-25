@@ -203,11 +203,13 @@
                                     <field name="date" optional="show"/>
                                     <field name="name"/>
                                     <field name="product_id"/>
+                                    <field name="od19_mileage_origin"/>
+                                    <field name="od19_mileage_destination"/>
+                                    <field name="od19_mileage_odometer_start"/>
+                                    <field name="od19_mileage_odometer_end"/>
                                     <field name="od19_mileage_distance_km"/>
                                     <field name="od19_mileage_rate" readonly="1"/>
                                     <field name="total_amount" sum="Total"/>
-                                    <field name="od19_mileage_origin" optional="hide"/>
-                                    <field name="od19_mileage_destination" optional="hide"/>
                                     <field name="od19_mileage_date" optional="hide"/>
                                     <field name="analytic_distribution"
                                            widget="analytic_distribution"
