@@ -1,17 +1,20 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 {
     "name": "OD19 UI Defaults",
-    "version": "19.0.1.3.0",
+    "version": "19.0.1.5.0",
     "summary": (
         "Project-wide UI defaults: Configuration menu is always the last menu of "
         "its app, related NavBar sections are grouped, moved or renamed together, "
-        "form fields are more readable, the chatter can be collapsed per user, "
-        "and the standard Sales 'Discounts' setting is enabled"
+        "the Accounting Customers/Vendors sections follow the accounting "
+        "workflow, form fields are more readable, the chatter can be collapsed "
+        "per user, Developer Tools and About stay at the bottom of the Settings "
+        "page, and the standard Sales 'Discounts' setting is enabled"
     ),
     "author": "OD19",
     "category": "Tools",
-    "depends": ["base", "sale"],
+    "depends": ["base", "sale", "base_setup"],
     "data": [
+        "views/res_config_settings_views.xml",
         "data/ui_defaults.xml",
     ],
     "assets": {

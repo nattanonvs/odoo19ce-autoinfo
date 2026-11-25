@@ -3,7 +3,7 @@
 
 {
     "name": "OD19 Field Hints",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.0.2",
     "author": "OD19",
     "category": "Productivity",
     "summary": "ข้อความตัวอย่าง/คำแนะนำ/คำเตือนสีเทาในช่องกรอกของ Odoo 19",
@@ -18,6 +18,7 @@
             "od19_field_hints/static/src/js/od19_field_hints.js",
         ],
     },
+    "icon": "/od19_field_hints/static/description/icon.svg",
     "installable": True,
     "application": False,
     "auto_install": False,

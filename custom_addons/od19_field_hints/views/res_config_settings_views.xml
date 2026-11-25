@@ -14,8 +14,11 @@
                         help="แสดงข้อความตัวอย่าง/คำแนะนำ/คำเตือนเป็นสีเทาในช่องที่ยังว่างอยู่ ไม่บันทึกเป็นข้อมูลจริง"
                         groups="base.group_system">
                         <field name="od19_field_hints_enabled"/>
-                        <div class="text-muted mt8">
-                            <field name="od19_field_hints_apply_core"/>
+                        <div class="row mt-2">
+                            <field name="od19_field_hints_apply_core" class="col flex-grow-0 ml16 mr0 pe-2"/>
+                            <div class="col ps-0">
+                                <label for="od19_field_hints_apply_core"/>
+                            </div>
                         </div>
                     </setting>
                 </block>
