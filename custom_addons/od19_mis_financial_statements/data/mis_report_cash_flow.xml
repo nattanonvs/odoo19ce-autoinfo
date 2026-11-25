@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="True">
+
+    <record id="mis_report_cash_flow" model="mis.report">
+        <field name="name">งบกระแสเงินสด (วิธีทางอ้อม)</field>
+        <field name="description">งบกระแสเงินสด แยกกิจกรรมดำเนินงาน / ลงทุน / จัดหาเงิน — วิธีทางอ้อม (indirect method)
+อาศัยผลต่างของแต่ละประเภทบัญชี (account_type) ในงวด : balp = ผลต่างในงวด, bali = ยอดยกมา, bale = ยอดสิ้นงวด
+แนวคิด: เงินสดต้นงวด + กระแสเงินสดสุทธิ = เงินสดสิ้นงวด (บรรทัด cf_check ต้องเป็น 0)</field>
+    </record>
+
+    <!-- ============================== กิจกรรมดำเนินงาน ============================== -->
+    <record id="mis_kpi_cf_op_header" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_cash_flow" />
+        <field name="name">cf_op_header</field>
+        <field name="description">กระแสเงินสดจากกิจกรรมดำเนินงาน</field>
+        <field name="sequence">10</field>
+        <field name="style_id" ref="mis_style_fs_group" />
+        <field name="compare_method">none</field>
+    </record>
+
+    <record id="mis_kpi_cf_op_result" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_cash_flow" />
+        <field name="name">cf_op_result</field>
+        <field name="description">กำไร (ขาดทุน) สุทธิสำหรับงวด</field>
+        <field name="sequence">20</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">-balp[][('account_type', 'in', ('income', 'income_other', 'expense', 'expense_other', 'expense_depreciation', 'expense_direct_cost'))]</field>
+    </record>
+
+    <record id="mis_kpi_cf_op_depr" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_cash_flow" />
+        <field name="name">cf_op_depr</field>
+        <field name="description">บวกกลับ: ค่าเสื่อมราคาและค่าตัดจำหน่าย</field>
+        <field name="sequence">25</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">balp[][('account_type', '=', 'expense_depreciation')]</field>
+    </record>
+
+    <record id="mis_kpi_cf_op_receivable" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_cash_flow" />
+        <field name="name">cf_op_receivable</field>
+        <field name="description">ลูกหนี้การค้าและลูกหนี้อื่น (เพิ่มขึ้น)/ลดลง</field>
+        <field name="sequence">30</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">-balp[][('account_type', '=', 'asset_receivable')]</field>
+    </record>
+
+    <record id="mis_kpi_cf_op_current_asset" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_cash_flow" />
+        <field name="name">cf_op_current_asset</field>
+        <field name="description">สินทรัพย์หมุนเวียนอื่น (เพิ่มขึ้น)/ลดลง</field>
+        <field name="sequence">40</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">-balp[][('account_type', '=', 'asset_current')]</field>
+    </record>
+
+    <record id="mis_kpi_cf_op_prepay" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_cash_flow" />
+        <field name="name">cf_op_prepay</field>
+        <field name="description">ค่าใช้จ่ายจ่ายล่วงหน้า (เพิ่มขึ้น)/ลดลง</field>
+        <field name="sequence">45</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">-balp[][('account_type', '=', 'asset_prepayments')]</field>
+    </record>
+
+    <record id="mis_kpi_cf_op_payable" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_cash_flow" />
+        <field name="name">cf_op_payable</field>
+        <field name="description">เจ้าหนี้การค้าและเจ้าหนี้อื่น เพิ่มขึ้น/(ลดลง)</field>
+        <field name="sequence">50</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">-balp[][('account_type', '=', 'liability_payable')]</field>
+    </record>
+
+    <record id="mis_kpi_cf_op_other_liab" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_cash_flow" />
+        <field name="name">cf_op_other_liab</field>
+        <field name="description">หนี้สินหมุนเวียนอื่น เพิ่มขึ้น/(ลดลง)</field>
+        <field name="sequence">60</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">-balp[][('account_type', 'in', ('liability_current', 'liability_credit_card'))]</field>
+    </record>
+
+    <record id="mis_kpi_cf_op_total" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_cash_flow" />
+        <field name="name">cf_op_total</field>
+        <field name="description">กระแสเงินสดสุทธิจากกิจกรรมดำเนินงาน</field>
+        <field name="sequence">70</field>
+        <field name="style_id" ref="mis_style_fs_subtotal" />
+        <field name="compare_method">diff</field>
+        <field name="expression">cf_op_result + cf_op_depr + cf_op_receivable + cf_op_current_asset + cf_op_prepay + cf_op_payable + cf_op_other_liab</field>
+    </record>
+
+    <!-- ============================== กิจกรรมลงทุน ============================== -->
+    <record id="mis_kpi_cf_inv_header" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_cash_flow" />
+        <field name="name">cf_inv_header</field>
+        <field name="description">กระแสเงินสดจากกิจกรรมลงทุน</field>
+        <field name="sequence">80</field>
+        <field name="style_id" ref="mis_style_fs_group" />
+        <field name="compare_method">none</field>
+    </record>
+
+    <record id="mis_kpi_cf_inv_fixed" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_cash_flow" />
+        <field name="name">cf_inv_fixed</field>
+        <field name="description">ที่ดิน อาคารและอุปกรณ์ / เงินลงทุนระยะยาว (ซื้อ)/ขาย (ไม่รวมค่าเสื่อมราคา)</field>
+        <field name="sequence">90</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">-balp[][('account_type', 'in', ('asset_fixed', 'asset_non_current'))] - balp[][('account_type', '=', 'expense_depreciation')]</field>
+    </record>
+
+    <record id="mis_kpi_cf_inv_total" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_cash_flow" />
+        <field name="name">cf_inv_total</field>
+        <field name="description">กระแสเงินสดสุทธิจากกิจกรรมลงทุน</field>
+        <field name="sequence">110</field>
+        <field name="style_id" ref="mis_style_fs_subtotal" />
+        <field name="compare_method">diff</field>
+        <field name="expression">cf_inv_fixed</field>
+    </record>
+
+    <!-- ============================== กิจกรรมจัดหาเงิน ============================== -->
+    <record id="mis_kpi_cf_fin_header" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_cash_flow" />
+        <field name="name">cf_fin_header</field>
+        <field name="description">กระแสเงินสดจากกิจกรรมจัดหาเงิน</field>
+        <field name="sequence">120</field>
+        <field name="style_id" ref="mis_style_fs_group" />
+        <field name="compare_method">none</field>
+    </record>
+
+    <record id="mis_kpi_cf_fin_loan" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_cash_flow" />
+        <field name="name">cf_fin_loan</field>
+        <field name="description">เงินกู้ยืมระยะยาว เพิ่มขึ้น/(ลดลง)</field>
+        <field name="sequence">130</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">-balp[][('account_type', '=', 'liability_non_current')]</field>
+    </record>
+
+    <record id="mis_kpi_cf_fin_equity" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_cash_flow" />
+        <field name="name">cf_fin_equity</field>
+        <field name="description">ส่วนของผู้ถือหุ้น เพิ่มขึ้น/(ลดลง)</field>
+        <field name="sequence">140</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">diff</field>
+        <field name="expression">-balp[][('account_type', 'in', ('equity', 'equity_unaffected'))]</field>
+    </record>
+
+    <record id="mis_kpi_cf_fin_total" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_cash_flow" />
+        <field name="name">cf_fin_total</field>
+        <field name="description">กระแสเงินสดสุทธิจากกิจกรรมจัดหาเงิน</field>
+        <field name="sequence">150</field>
+        <field name="style_id" ref="mis_style_fs_subtotal" />
+        <field name="compare_method">diff</field>
+        <field name="expression">cf_fin_loan + cf_fin_equity</field>
+    </record>
+
+    <!-- ============================== สรุปเงินสด ============================== -->
+    <record id="mis_kpi_cf_net_change" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_cash_flow" />
+        <field name="name">cf_net_change</field>
+        <field name="description">กระแสเงินสดสุทธิเพิ่มขึ้น/(ลดลง)</field>
+        <field name="sequence">160</field>
+        <field name="style_id" ref="mis_style_fs_subtotal" />
+        <field name="compare_method">diff</field>
+        <field name="expression">cf_op_total + cf_inv_total + cf_fin_total</field>
+    </record>
+
+    <record id="mis_kpi_cf_cash_begin" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_cash_flow" />
+        <field name="name">cf_cash_begin</field>
+        <field name="description">เงินสดและรายการเทียบเท่าเงินสด ณ วันต้นงวด</field>
+        <field name="sequence">170</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">none</field>
+        <field name="expression">bali[][('account_type', '=', 'asset_cash')]</field>
+    </record>
+
+    <record id="mis_kpi_cf_cash_end" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_cash_flow" />
+        <field name="name">cf_cash_end</field>
+        <field name="description">เงินสดและรายการเทียบเท่าเงินสด ณ วันสิ้นงวด</field>
+        <field name="sequence">180</field>
+        <field name="style_id" ref="mis_style_fs_total" />
+        <field name="compare_method">none</field>
+        <field name="expression">bale[][('account_type', '=', 'asset_cash')]</field>
+    </record>
+
+    <record id="mis_kpi_cf_check" model="mis.report.kpi">
+        <field name="report_id" ref="mis_report_cash_flow" />
+        <field name="name">cf_check</field>
+        <field name="description">ผลต่างตรวจสอบ (เงินสดต้นงวด + กระแสเงินสดสุทธิ − เงินสดสิ้นงวด)</field>
+        <field name="sequence">190</field>
+        <field name="style_id" ref="mis_style_fs_line" />
+        <field name="compare_method">none</field>
+        <field name="expression">cf_cash_begin + cf_net_change - cf_cash_end</field>
+        <field name="style_expression">'FS - Good' if abs(cf_check) &lt; 0.005 else 'FS - Bad'</field>
+    </record>
+
+</odoo>

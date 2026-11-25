@@ -12,6 +12,7 @@
         <field name="name">pl_4110</field>
         <field name="description">รายได้จากการขาย</field>
         <field name="sequence">10</field>
+        <field name="budgetable" eval="True" />
         <field name="style_id" ref="mis_style_fs_line" />
         <field name="compare_method">diff</field>
         <field name="expression">-bale[('code','=like','4110%.%')]</field>
@@ -22,6 +23,7 @@
         <field name="name">pl_4120</field>
         <field name="description">รายได้จากการบริการ</field>
         <field name="sequence">20</field>
+        <field name="budgetable" eval="True" />
         <field name="style_id" ref="mis_style_fs_line" />
         <field name="compare_method">diff</field>
         <field name="expression">-bale[('code','=like','4120%.%')]</field>
@@ -43,6 +45,7 @@
         <field name="name">pl_5110</field>
         <field name="description">ต้นทุนขาย</field>
         <field name="sequence">40</field>
+        <field name="budgetable" eval="True" />
         <field name="style_id" ref="mis_style_fs_line" />
         <field name="compare_method">diff</field>
         <field name="expression">-bale[('code','=like','511%.%')]</field>
@@ -53,6 +56,7 @@
         <field name="name">pl_5120</field>
         <field name="description">ต้นทุนบริการและต้นทุนในการวางระบบ</field>
         <field name="sequence">50</field>
+        <field name="budgetable" eval="True" />
         <field name="style_id" ref="mis_style_fs_line" />
         <field name="compare_method">diff</field>
         <field name="expression">-bale[('code','=like','512%.%')]</field>
@@ -74,6 +78,7 @@
         <field name="name">pl_4200</field>
         <field name="description">กำไรจากอัตราแลกเปลี่ยน</field>
         <field name="sequence">70</field>
+        <field name="budgetable" eval="True" />
         <field name="style_id" ref="mis_style_fs_line" />
         <field name="compare_method">diff</field>
         <field name="expression">-bale[('code','=like','4200%.%')]</field>
@@ -84,6 +89,7 @@
         <field name="name">pl_4300</field>
         <field name="description">รายได้อื่น</field>
         <field name="sequence">80</field>
+        <field name="budgetable" eval="True" />
         <field name="style_id" ref="mis_style_fs_line" />
         <field name="compare_method">diff</field>
         <field name="expression">-bale[('code','=like','4300%.%')]</field>
@@ -94,6 +100,7 @@
         <field name="name">pl_5130</field>
         <field name="description">ขาดทุนจากอัตราแลกเปลี่ยน</field>
         <field name="sequence">90</field>
+        <field name="budgetable" eval="True" />
         <field name="style_id" ref="mis_style_fs_line" />
         <field name="compare_method">diff</field>
         <field name="expression">-bale[('code','=like','5130%.%')]</field>
@@ -105,6 +112,7 @@
         <field name="name">pl_5210</field>
         <field name="description">ค่าใช้จ่ายในการขาย</field>
         <field name="sequence">100</field>
+        <field name="budgetable" eval="True" />
         <field name="style_id" ref="mis_style_fs_line" />
         <field name="compare_method">diff</field>
         <field name="expression">-bale[('code','=like','521%.%')]</field>
@@ -115,6 +123,7 @@
         <field name="name">pl_5300</field>
         <field name="description">ค่าใช้จ่ายในการบริหาร</field>
         <field name="sequence">110</field>
+        <field name="budgetable" eval="True" />
         <field name="style_id" ref="mis_style_fs_line" />
         <field name="compare_method">diff</field>
         <field name="expression">-bale[('code','=like','53%.%')]</field>
@@ -126,6 +135,7 @@
         <field name="name">pl_5400</field>
         <field name="description">ต้นทุนทางการเงิน</field>
         <field name="sequence">120</field>
+        <field name="budgetable" eval="True" />
         <field name="style_id" ref="mis_style_fs_line" />
         <field name="compare_method">diff</field>
         <field name="expression">-bale[('code','=like','5400%.%')]</field>
@@ -136,6 +146,7 @@
         <field name="name">pl_5410</field>
         <field name="description">ค่าใช้จ่ายต้องห้ามตามประมวลรัษฎากร</field>
         <field name="sequence">130</field>
+        <field name="budgetable" eval="True" />
         <field name="style_id" ref="mis_style_fs_line" />
         <field name="compare_method">diff</field>
         <field name="expression">-bale[('code','=like','5410%.%')]</field>
@@ -157,6 +168,7 @@
         <field name="name">pl_5420</field>
         <field name="description">ภาษีเงินได้นิติบุคคล</field>
         <field name="sequence">150</field>
+        <field name="budgetable" eval="True" />
         <field name="style_id" ref="mis_style_fs_line" />
         <field name="compare_method">diff</field>
         <field name="expression">-bale[('code','=like','5420%.%')]</field>
