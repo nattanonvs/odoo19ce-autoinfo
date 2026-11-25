@@ -64,8 +64,17 @@ export class ListScanCameraField extends ListBinaryField {
     static template = "od19_document_scan.ListScanCameraField";
 }
 
-Object.assign(ScanCameraField.prototype, cameraFieldMixin);
-Object.assign(ListScanCameraField.prototype, cameraFieldMixin);
+// ``Object.assign`` would *call* the getters above, with ``cameraFieldMixin`` as
+// ``this`` (where ``props`` is undefined), and throw while the module loads.
+// Copy the descriptors instead so the getters stay lazy on the component.
+Object.defineProperties(
+    ScanCameraField.prototype,
+    Object.getOwnPropertyDescriptors(cameraFieldMixin)
+);
+Object.defineProperties(
+    ListScanCameraField.prototype,
+    Object.getOwnPropertyDescriptors(cameraFieldMixin)
+);
 
 export const scanCameraField = {
     ...binaryField,
