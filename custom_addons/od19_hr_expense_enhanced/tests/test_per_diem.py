@@ -8,7 +8,7 @@ claimed allowance is above the limit.
 """
 
 from odoo.exceptions import ValidationError
-from odoo.tests.common import TransactionCase, tagged
+from odoo.tests.common import Form, TransactionCase, tagged
 
 
 @tagged("post_install", "-at_install")
@@ -74,6 +74,26 @@ class TestPerDiem(TransactionCase):
             days=2.0, total=1000.0, reason="Extra night on site")
         self.assertTrue(expense.od19_per_diem_over_limit)
         self.assertEqual(expense.od19_per_diem_reason, "Extra night on site")
+
+    # ------------------------------------------------------------------
+    # Total is auto-filled from days x standard rate (still editable)
+    # ------------------------------------------------------------------
+    def _open_form(self):
+        form = Form(self.env["hr.expense"])
+        form.name = "Per diem allowance"
+        form.employee_id = self.employee
+        form.product_id = self.product
+        form.payment_mode = "own_account"
+        return form
+
+    def test_total_autofilled_from_days_and_rate(self):
+        with self._open_form() as form:
+            form.od19_is_per_diem = True
+            form.od19_per_diem_region = "domestic"
+            form.od19_per_diem_days = 3.0
+            expense = form.save()
+        self.assertEqual(expense.total_amount, 900.0)
+        self.assertEqual(expense.od19_per_diem_limit, 900.0)
 
     # ------------------------------------------------------------------
     # Non per-diem expenses are unaffected

@@ -434,6 +434,20 @@ class HrExpense(models.Model):
             expense.od19_per_diem_limit = limit
             expense.od19_per_diem_over_limit = expense.total_amount > limit
 
+    @api.onchange('od19_is_per_diem', 'od19_per_diem_days',
+                  'od19_per_diem_region')
+    def _onchange_od19_per_diem_amount(self):
+        """Offer the standard allowance (rate x days) as the claim amount.
+
+        The value is only a suggestion: the field stays editable so the
+        employee can claim below the standard limit or, with a reason,
+        above it.
+        """
+        if not self.od19_is_per_diem or not self.company_id:
+            return
+        rate = self.company_id._od19_per_diem_rate(self.od19_per_diem_region)
+        self.total_amount = rate * (self.od19_per_diem_days or 0.0)
+
     @api.constrains('od19_is_per_diem', 'od19_per_diem_over_limit',
                     'od19_per_diem_reason')
     def _check_od19_per_diem_over_limit_reason(self):
