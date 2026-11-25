@@ -3,7 +3,7 @@
 
 {
     "name": "OD19 Document Hub",
-    "version": "19.0.1.1.0",
+    "version": "19.0.1.1.1",
     "category": "Document Management",
     "summary": "ศูนย์กลาง metadata หมวด และการค้นหาเอกสารแนบ (ir.attachment)",
     "author": "TRAE",
@@ -20,6 +20,7 @@
         "views/ir_attachment_views.xml",
         "views/od19_document_hub_menus.xml",
     ],
+    "icon": "/od19_document_hub/static/description/icon.svg",
     "installable": True,
     "application": True,
     "auto_install": False,

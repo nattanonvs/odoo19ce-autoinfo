@@ -3,7 +3,7 @@
 
 {
     "name": "OD19 Claim Document Store",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.0.1",
     "category": "Document Management",
     "summary": "ที่เก็บเอกสารสำหรับทำเรื่องเรียกร้อง/คำขอของบริษัท (หมวด + ทะเบียนแบบฟอร์ม + แฟ้มเรื่องเรียกร้อง)",
     "author": "TRAE",
@@ -17,6 +17,7 @@
         "views/od19_claim_request_views.xml",
         "views/od19_claim_menus.xml",
     ],
+    "icon": "/od19_claim_document/static/description/icon.svg",
     "installable": True,
     "application": False,
     "auto_install": False,

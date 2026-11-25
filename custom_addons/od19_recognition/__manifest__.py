@@ -1,7 +1,7 @@
 {
     "name": "Auto-Info Recognition & Belonging",
     "summary": "Kudos wall, birthdays and work anniversaries for the employee portal",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.0.1",
     "category": "Human Resources",
     "author": "The Auto-Info Co., Ltd.",
     "website": "https://www.auto-info.co.th",
@@ -26,6 +26,7 @@
             "od19_recognition/static/src/js/od19_recognition_wall.js",
         ],
     },
+    "icon": "/od19_recognition/static/description/icon.svg",
     "installable": True,
     "application": False,
     "auto_install": False,

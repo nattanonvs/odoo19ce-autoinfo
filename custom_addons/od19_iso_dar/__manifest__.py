@@ -3,7 +3,7 @@
 
 {
     "name": "ISO Document Action Request (DAR)",
-    "version": "19.0.1.1.0",
+    "version": "19.0.1.1.1",
     "category": "ISO/Quality",
     "license": "LGPL-3",
     "author": "TRAE",
@@ -36,6 +36,7 @@
         "report/od19_iso_dar_report.xml",
     ],
     "demo": [],
+    "icon": "/od19_iso_dar/static/description/icon.svg",
     "installable": True,
     "application": False,
     "auto_install": False,

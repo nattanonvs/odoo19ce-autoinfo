@@ -3,7 +3,7 @@
 
 {
     "name": "ISO Print & Distribution Control",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.0.1",
     "category": "ISO/Quality",
     "license": "LGPL-3",
     "author": "TRAE",
@@ -34,6 +34,7 @@
         "views/menu.xml",
     ],
     "demo": [],
+    "icon": "/od19_iso_print_control/static/description/icon.svg",
     "installable": True,
     "application": False,
     "auto_install": False,

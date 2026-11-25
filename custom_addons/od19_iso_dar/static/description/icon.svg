@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="ISO Document Action Request">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#B02A2A"/>
+      <stop offset="1" stop-color="#7A1B1B"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="120" height="120" rx="28" fill="url(#bg)"/>
+  <g fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="36" y="28" width="52" height="72" rx="8"/>
+    <path d="M48 46h28"/>
+    <path d="M48 60h28"/>
+    <path d="M48 74h18"/>
+  </g>
+  <g fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="88" cy="88" r="17" fill="#7A1B1B"/>
+    <path d="M81 88l5 5 10-11"/>
+  </g>
+</svg>

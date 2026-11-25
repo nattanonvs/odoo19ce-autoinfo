@@ -1,6 +1,6 @@
 {
     "name": "OD19 Web Navigation (Back / Forward)",
-    "version": "19.0.1.1.0",
+    "version": "19.0.1.1.1",
     "summary": "ปุ่มย้อนกลับ / ไปข้างหน้า ถัดจาก Home Menu ใน NavBar ของ Odoo 19 Backend (สไตล์ Liquid Glass) พร้อมคีย์ลัด Alt+← / Alt+→",
     "author": "The Auto-Info Co., Ltd.",
     "website": "https://www.auto-info.co.th",
@@ -15,6 +15,7 @@
             "od19_web_navigation/static/src/css/od19_nav_buttons.css",
         ],
     },
+    "icon": "/od19_web_navigation/static/description/icon.svg",
     "installable": True,
     "application": False,
     "auto_install": False,

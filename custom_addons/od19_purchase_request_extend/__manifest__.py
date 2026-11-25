@@ -1,6 +1,6 @@
 {
     "name": "OD19 Purchase Request Extension",
-    "version": "19.0.1.2.0",
+    "version": "19.0.1.2.1",
     "category": "Purchase Management",
     "summary": "Thai-specific extension for OCA Purchase Request",
     "author": "OD19",
@@ -19,6 +19,7 @@
         "views/purchase_request_views.xml",
         "views/purchase_request_line_views.xml",
     ],
+    "icon": "/od19_purchase_request_extend/static/description/icon.svg",
     "installable": True,
     "application": False,
 }

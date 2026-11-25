@@ -1,7 +1,7 @@
 {
     "name": "OD19 Accounting - Bring Forward (ยกยอดปิดงวด)",
     "author": "OD19",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.0.1",
     "category": "Accounting/Accounting",
     "summary": "ยกยอดคงเหลือเอกสารปิดงวด (AR/AP, CN/DN, Payment, สินทรัพย์ถาวร, "
     "ปรับปรุงสต็อก) ไปงวดใหม่ พร้อมโหมดอัตโนมัติรวมเอกสารและคำนวณ",
@@ -45,5 +45,5 @@ OD19 Accounting - Bring Forward (ยกยอดปิดงวด)
     "installable": True,
     "application": False,
     "license": "LGPL-3",
-    "icon": "/od19_accounting_dncn/static/description/icon.svg",
+    "icon": "/od19_accounting_bring_forward/static/description/icon.svg",
 }

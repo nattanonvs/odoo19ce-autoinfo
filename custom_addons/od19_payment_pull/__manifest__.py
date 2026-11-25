@@ -3,7 +3,7 @@
 
 {
     "name": "OD19 Payment Pull",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.0.1",
     "author": "OD19",
     "category": "Accounting/Payments",
     "summary": "Pull open vendor bills and customer invoices into payment "
@@ -17,6 +17,7 @@
         "security/ir.model.access.csv",
         "views/od19_payment_pull_views.xml",
     ],
+    "icon": "/od19_payment_pull/static/description/icon.svg",
     "installable": True,
     "application": False,
 }

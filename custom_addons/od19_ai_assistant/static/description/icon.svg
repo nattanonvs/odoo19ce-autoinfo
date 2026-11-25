@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="AI Assistant">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#B02A2A"/>
+      <stop offset="1" stop-color="#7A1B1B"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="120" height="120" rx="28" fill="url(#bg)"/>
+  <g fill="#ffffff" stroke="none">
+    <path d="M60 28l7 19 19 7-19 7-7 19-7-19-19-7 19-7z"/>
+    <path d="M94 76l4 11 11 4-11 4-4 11-4-11-11-4 11-4z"/>
+  </g>
+</svg>

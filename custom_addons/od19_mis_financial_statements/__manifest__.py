@@ -1,6 +1,6 @@
 {
     "name": "OD19 MIS Financial Statements (Header Level)",
-    "version": "19.0.1.2.0",
+    "version": "19.0.1.2.1",
     "summary": "งบแสดงฐานะทางการเงิน งบกำไรขาดทุน งบกระแสเงินสด และงบประมาณเทียบผลจริง ระดับหัวข้อบัญชี (แบบ ค) บน OCA MIS Builder",
     "author": "TRAE",
     "category": "Accounting/Accounting",
@@ -19,6 +19,7 @@
         "data/mis_report_instance_cash_flow.xml",
         "data/mis_report_budget.xml",
     ],
+    "icon": "/od19_mis_financial_statements/static/description/icon.svg",
     "installable": True,
     "application": False,
 }

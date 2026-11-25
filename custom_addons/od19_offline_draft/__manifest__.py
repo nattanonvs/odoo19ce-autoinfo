@@ -3,7 +3,7 @@
 
 {
     "name": "OD19 Offline Draft (ร่างอัตโนมัติ)",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.0.1",
     "category": "Productivity",
     "summary": "Autosave + restore drafts across backend and portal (T1 Draft Hub)",
     "author": "TRAE",
@@ -27,6 +27,7 @@
             "od19_offline_draft/static/src/portal/portal_autosave.js",
         ],
     },
+    "icon": "/od19_offline_draft/static/description/icon.svg",
     "installable": True,
     "application": False,
     "auto_install": False,

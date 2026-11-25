@@ -3,7 +3,7 @@
 
 {
     "name": "OD19 AI Assistant",
-    "version": "19.0.3.0.0",
+    "version": "19.0.3.0.1",
     "author": "OD19",
     "category": "Productivity",
     "summary": "Free / self-hosted AI assistant for Odoo 19 CE "
@@ -29,6 +29,7 @@
             "od19_ai_assistant/static/src/js/systray_item.js",
         ],
     },
+    "icon": "/od19_ai_assistant/static/description/icon.svg",
     "installable": True,
     "application": True,
 }
