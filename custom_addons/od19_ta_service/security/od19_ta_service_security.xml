@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- ============ กลุ่มผู้ใช้งานงานบริการ ATG ============ -->
+    <!-- ใช้ privilege ของทะเบียน ATG (od19_ta_asset) เพื่อให้รวมอยู่หมวดเดียวกัน -->
+    <record id="group_od19_ta_service" model="res.groups">
+        <field name="name">TA Service User</field>
+        <field name="privilege_id" ref="od19_ta_asset.privilege_od19_ta" />
+        <field
+            name="implied_ids"
+            eval="[(4, ref('od19_ta_asset.group_od19_ta_user')), (4, ref('helpdesk_mgmt.group_helpdesk_user'))]"
+        />
+        <field
+            name="comment"
+        >ผู้ใช้งานงานบริการ ATG — บันทึก/ติดตามงานบริการบน OCA helpdesk_mgmt และผูกกับทะเบียน ATG</field>
+    </record>
+</odoo>

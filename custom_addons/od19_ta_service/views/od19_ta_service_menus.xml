@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- ============ เมนู TA Service (อยู่ใต้แอปทะเบียน ATG) ============ -->
+
+    <record id="od19_ta_service_action" model="ir.actions.act_window">
+        <field name="name">Service Tickets</field>
+        <field name="res_model">helpdesk.ticket</field>
+        <field name="view_mode">kanban,list,form,pivot</field>
+        <field name="domain">[('od19_ta_is_ta', '=', True)]</field>
+        <field name="context">{'search_default_od19_ta_only': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">บันทึกงานบริการ ATG งานแรก</p>
+            <p>งานบริการ/PM/Event ใช้ <b>helpdesk.ticket</b> (OCA helpdesk_mgmt)
+                เป็นฐาน — เลือก Plant/อุปกรณ์ ATG เพื่อผูกกับทะเบียน</p>
+        </field>
+    </record>
+
+    <record id="od19_ta_service_my_action" model="ir.actions.act_window">
+        <field name="name">My Service Tickets</field>
+        <field name="res_model">helpdesk.ticket</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('od19_ta_is_ta', '=', True), ('user_id', '=', uid)]</field>
+        <field name="context">{'search_default_od19_ta_only': 1}</field>
+    </record>
+
+    <menuitem
+        id="od19_ta_menu_service"
+        name="Service"
+        parent="od19_ta_asset.od19_ta_menu_root"
+        sequence="35"
+        groups="group_od19_ta_service"
+    />
+    <menuitem
+        id="od19_ta_menu_service_tickets"
+        name="Service Tickets"
+        parent="od19_ta_menu_service"
+        action="od19_ta_service_action"
+        sequence="10"
+        groups="group_od19_ta_service"
+    />
+    <menuitem
+        id="od19_ta_menu_service_my"
+        name="My Service Tickets"
+        parent="od19_ta_menu_service"
+        action="od19_ta_service_my_action"
+        sequence="20"
+        groups="group_od19_ta_service"
+    />
+</odoo>

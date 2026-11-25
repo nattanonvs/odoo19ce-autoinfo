@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- ============ helpdesk.ticket (OCA) — โมดูลเสริม TA Service ============ -->
+
+    <!-- ฟอร์ม: เพิ่มกลุ่ม TA Asset + หน้าสรุปงาน -->
+    <record id="od19_ta_ticket_view_form_inherit" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.form.inherit.od19.ta</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk_mgmt.ticket_view_form" />
+        <field name="arch" type="xml">
+            <field name="active" position="after">
+                <field name="od19_ta_is_ta" invisible="1" />
+            </field>
+            <group name="main" position="after">
+                <group string="TA Asset" name="od19_ta_asset">
+                    <group>
+                        <field
+                            name="od19_ta_plant_id"
+                            options="{'no_create': True}"
+                        />
+                        <field
+                            name="od19_ta_tank_id"
+                            options="{'no_create': True}"
+                        />
+                        <field
+                            name="od19_ta_equipment_id"
+                            options="{'no_create': True}"
+                        />
+                    </group>
+                    <group>
+                        <field name="od19_ta_job_type" />
+                        <field name="od19_ta_work_date" />
+                    </group>
+                </group>
+            </group>
+            <page name="description" position="after">
+                <page string="TA Work" name="od19_ta_work">
+                    <field name="od19_ta_work_summary" widget="html" />
+                </page>
+            </page>
+        </field>
+    </record>
+
+    <!-- ลิสต์: เพิ่มคอลัมน์ตำแหน่ง/ประเภทงาน -->
+    <record id="od19_ta_ticket_view_tree_inherit" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.list.inherit.od19.ta</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk_mgmt.ticket_view_tree" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="od19_ta_plant_id" optional="show" />
+                <field name="od19_ta_equipment_id" optional="hide" />
+                <field name="od19_ta_job_type" optional="show" />
+                <field name="od19_ta_work_date" optional="hide" />
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ค้นหา: เพิ่มฟิลด์/ตัวกรอง/จัดกลุ่ม TA -->
+    <record id="od19_ta_ticket_view_search_inherit" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.search.inherit.od19.ta</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk_mgmt.helpdesk_ticket_view_search" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="od19_ta_plant_id" />
+                <field name="od19_ta_tank_id" />
+                <field name="od19_ta_equipment_id" />
+            </xpath>
+            <filter name="open" position="after">
+                <separator />
+                <filter
+                    string="TA Service"
+                    name="od19_ta_only"
+                    domain="[('od19_ta_is_ta', '=', True)]"
+                />
+            </filter>
+            <xpath expr="//group" position="inside">
+                <filter
+                    string="TA Plant"
+                    name="group_od19_ta_plant"
+                    context="{'group_by': 'od19_ta_plant_id'}"
+                />
+                <filter
+                    string="TA Equipment"
+                    name="group_od19_ta_equipment"
+                    context="{'group_by': 'od19_ta_equipment_id'}"
+                />
+                <filter
+                    string="Job Type"
+                    name="group_od19_ta_job_type"
+                    context="{'group_by': 'od19_ta_job_type'}"
+                />
+            </xpath>
+        </field>
+    </record>
+</odoo>
