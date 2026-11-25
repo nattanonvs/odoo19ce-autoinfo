@@ -70,6 +70,10 @@
                     <field name="od19_certificate_number"
                            invisible="od19_document_type != 'payment_certificate'"/>
                     <field name="od19_vat_creditable"/>
+                    <field name="od19_supplier_doc_number"/>
+                    <field name="od19_supplier_doc_date"/>
+                    <field name="od19_supplier_tax_id"
+                           invisible="not od19_vat_creditable"/>
                 </group>
                 <group string="Delegation / การมอบหมาย" col="3">
                     <field name="od19_delegate_approver_id"/>

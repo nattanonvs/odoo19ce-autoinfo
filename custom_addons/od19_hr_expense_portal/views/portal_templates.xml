@@ -40,6 +40,9 @@
                 <a class="btn btn-outline-secondary" href="/my/expenses/help">
                     <i class="fa fa-question-circle me-1"/> คู่มือการใช้งาน
                 </a>
+                <a class="btn btn-outline-secondary" href="/my/advances">
+                    <i class="fa fa-money me-1"/> เงินทดรองของฉัน
+                </a>
             </div>
 
             <t t-if="not expenses">
@@ -504,6 +507,260 @@
             </div>
 
             <a href="/my/expenses" class="btn btn-secondary">กลับไปหน้ารายการ</a>
+        </t>
+    </template>
+
+    <!-- Portal home shortcuts for expenses and advances -->
+    <template id="portal_my_home_od19_expense" name="Portal: Expenses / Advances entries" inherit_id="portal.portal_my_home" priority="30">
+        <xpath expr="//div[@id='portal_common_category']" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="config_card" t-value="True"/>
+                <t t-set="title">ใบเบิกค่าใช้จ่าย</t>
+                <t t-set="text">ยื่นและติดตามใบเบิกค่าใช้จ่ายของฉัน</t>
+                <t t-set="url" t-value="'/my/expenses'"/>
+            </t>
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="config_card" t-value="True"/>
+                <t t-set="title">เงินทดรอง</t>
+                <t t-set="text">ขอและติดตามเงินทดรองของฉัน</t>
+                <t t-set="url" t-value="'/my/advances'"/>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- Breadcrumb entry for the /my/advances pages -->
+    <template id="portal_my_advances_breadcrumb" name="Portal: My Advances breadcrumb" inherit_id="portal.portal_breadcrumbs" priority="41">
+        <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+            <li name="od19_advance_breadcrumb" t-if="page_name == 'advance'" t-attf-class="breadcrumb-item #{'active ' if not advance else ''}">
+                <a t-if="advance" href="/my/advances">เงินทดรอง</a>
+                <t t-else="">เงินทดรอง</t>
+            </li>
+            <li t-if="advance" class="breadcrumb-item active">
+                <t t-out="advance.name"/>
+            </li>
+        </xpath>
+    </template>
+
+    <!-- List of the current user's cash advances -->
+    <template id="portal_my_advances" name="My Advances">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-set="state_labels" t-value="{
+                'draft': 'ฉบับร่าง',
+                'submitted': 'รออนุมัติ',
+                'approved': 'อนุมัติแล้ว',
+                'sent': 'ส่งบัญชีแล้ว',
+                'posted': 'บันทึกบัญชีแล้ว',
+                'paid': 'จ่ายแล้ว',
+                'cleared': 'เคลียร์ครบ',
+                'refused': 'ถูกปฏิเสธ',
+            }"/>
+            <t t-set="cash_labels" t-value="{
+                'not_issued': 'ยังไม่จ่าย',
+                'issued': 'จ่ายแล้ว (ถือเงินอยู่)',
+                'partially_used': 'ใช้ไปบางส่วน',
+                'settled': 'เคลียร์ครบ',
+            }"/>
+
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">เงินทดรองของฉัน</t>
+            </t>
+
+            <div class="mb-3">
+                <a class="btn btn-primary" href="/my/advances/new">
+                    <i class="fa fa-plus me-1"/> ขอเงินทดรอง
+                </a>
+                <a class="btn btn-outline-secondary" href="/my/expenses">
+                    <i class="fa fa-file-text-o me-1"/> ใบเบิกค่าใช้จ่ายของฉัน
+                </a>
+            </div>
+
+            <t t-if="not advances">
+                <p class="alert alert-warning">ยังไม่มีรายการเงินทดรอง</p>
+            </t>
+            <t t-if="advances" t-call="portal.portal_table">
+                <thead>
+                    <tr class="active">
+                        <th name="advance_date">วันที่</th>
+                        <th name="advance_name">เลขที่</th>
+                        <th name="advance_purpose">วัตถุประสงค์</th>
+                        <th name="advance_amount" class="text-end pe-3">จำนวนเงิน</th>
+                        <th name="advance_remaining" class="text-end pe-3">คงเหลือ</th>
+                        <th name="advance_status">สถานะ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="advances" t-as="advance">
+                        <tr>
+                            <td><span t-field="advance.date"/></td>
+                            <td>
+                                <a t-attf-href="/my/advances/#{advance.id}">
+                                    <t t-out="advance.name"/>
+                                </a>
+                            </td>
+                            <td><t t-out="advance.purpose or ''"/></td>
+                            <td class="text-end pe-3">
+                                <span t-out="advance.amount" t-options='{"widget": "monetary", "display_currency": advance.currency_id}'/>
+                            </td>
+                            <td class="text-end pe-3">
+                                <span t-out="advance.remaining_amount" t-options='{"widget": "monetary", "display_currency": advance.currency_id}'/>
+                            </td>
+                            <td>
+                                <span t-attf-class="badge rounded-pill #{'text-bg-success' if advance.state in ('approved', 'paid', 'cleared') else ('text-bg-danger' if advance.state == 'refused' else 'text-bg-info')}">
+                                    <t t-out="state_labels.get(advance.state, advance.state)"/>
+                                </span>
+                            </td>
+                        </tr>
+                    </t>
+                </tbody>
+            </t>
+        </t>
+    </template>
+
+    <!-- Advance detail + approval timeline + cash status -->
+    <template id="portal_my_advance_detail" name="My Advance Detail">
+        <t t-call="portal.portal_layout">
+            <t t-set="review_labels" t-value="{
+                'waiting': 'ยังไม่ถึงคิว',
+                'pending': 'รออนุมัติ',
+                'approved': 'อนุมัติแล้ว',
+                'rejected': 'ถูกปฏิเสธ',
+                'cancel': 'ยกเลิก',
+            }"/>
+            <t t-set="state_labels" t-value="{
+                'draft': 'ฉบับร่าง',
+                'submitted': 'รออนุมัติ',
+                'approved': 'อนุมัติแล้ว',
+                'sent': 'ส่งบัญชีแล้ว',
+                'posted': 'บันทึกบัญชีแล้ว',
+                'paid': 'จ่ายแล้ว',
+                'cleared': 'เคลียร์ครบ',
+                'refused': 'ถูกปฏิเสธ',
+            }"/>
+            <t t-set="cash_labels" t-value="{
+                'not_issued': 'ยังไม่จ่าย',
+                'issued': 'จ่ายแล้ว (ถือเงินอยู่)',
+                'partially_used': 'ใช้ไปบางส่วน',
+                'settled': 'เคลียร์ครบ',
+            }"/>
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <h3 class="mb-3">
+                        <t t-out="advance.name"/>
+                    </h3>
+                    <span t-attf-class="badge rounded-pill mb-3 #{'text-bg-success' if advance.state in ('approved', 'paid', 'cleared') else ('text-bg-danger' if advance.state == 'refused' else 'text-bg-info')}">
+                        <t t-out="state_labels.get(advance.state, advance.state)"/>
+                    </span>
+
+                    <div class="row gy-2 mb-4">
+                        <div class="col-sm-6">
+                            <strong>วันที่:</strong> <span t-field="advance.date"/>
+                        </div>
+                        <div class="col-sm-6">
+                            <strong>พนักงาน:</strong> <span t-field="advance.employee_id"/>
+                        </div>
+                        <div class="col-sm-6">
+                            <strong>วัตถุประสงค์:</strong> <t t-out="advance.purpose or '-'"/>
+                        </div>
+                        <div class="col-sm-6">
+                            <strong>จำนวนที่ขอ:</strong>
+                            <span t-out="advance.amount" t-options='{"widget": "monetary", "display_currency": advance.currency_id}'/>
+                        </div>
+                        <div class="col-sm-6">
+                            <strong>สถานะเงิน:</strong>
+                            <t t-out="cash_labels.get(advance.cash_state, advance.cash_state)"/>
+                        </div>
+                        <div class="col-sm-6">
+                            <strong>ยอดคงเหลือ:</strong>
+                            <span t-out="advance.remaining_amount" t-options='{"widget": "monetary", "display_currency": advance.currency_id}'/>
+                        </div>
+                    </div>
+
+                    <form t-if="advance.state == 'draft'" method="post" t-attf-action="/my/advances/#{advance.id}/submit">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa fa-paper-plane me-1"/> ส่งอนุมัติ
+                        </button>
+                    </form>
+
+                    <div class="mt-3">
+                        <a class="btn btn-outline-secondary" href="/my/advances">
+                            <i class="fa fa-arrow-left me-1"/> กลับไปหน้ารายการ
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <h5 class="mb-3">สถานะการอนุมัติ</h5>
+                    <t t-if="advance.review_ids">
+                        <ul class="list-group">
+                            <t t-foreach="advance.review_ids" t-as="review">
+                                <li class="list-group-item d-flex justify-content-between align-items-start gap-2">
+                                    <div>
+                                        <div class="fw-bold">
+                                            <t t-out="review.sequence"/>. <t t-out="review.name"/>
+                                        </div>
+                                        <small class="text-muted" t-if="review.done_by">
+                                            โดย <t t-out="review.done_by.name"/>
+                                        </small>
+                                        <small class="d-block text-muted" t-if="review.reviewed_date">
+                                            <span t-field="review.reviewed_date"/>
+                                        </small>
+                                    </div>
+                                    <span t-attf-class="badge #{'text-bg-success' if review.display_status == 'approved' else ('text-bg-danger' if review.display_status == 'rejected' else 'text-bg-secondary')}">
+                                        <t t-out="review_labels.get(review.display_status, review.display_status)"/>
+                                    </span>
+                                </li>
+                            </t>
+                        </ul>
+                    </t>
+                    <t t-else="">
+                        <p class="text-muted">ยังไม่มีขั้นตอนการอนุมัติ</p>
+                    </t>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Cash-advance request form -->
+    <template id="portal_my_advance_new" name="New Advance">
+        <t t-call="portal.portal_layout">
+            <h3 class="mb-3">ขอเงินทดรอง</h3>
+
+            <t t-if="error">
+                <div class="alert alert-danger" t-out="error"/>
+            </t>
+
+            <form method="post" action="/my/advances/new" class="col-lg-8">
+                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                <div class="mb-3">
+                    <label class="form-label" for="advance_date">วันที่</label>
+                    <input type="date" name="advance_date" id="advance_date" class="form-control"
+                           t-att-value="form.get('advance_date') or today"/>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="amount">จำนวนเงินที่ขอ</label>
+                    <input type="number" step="0.01" name="amount" id="amount" class="form-control"
+                           required="required" t-att-value="form.get('amount') or ''"/>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="purpose">วัตถุประสงค์</label>
+                    <input type="text" name="purpose" id="purpose" class="form-control"
+                           required="required" t-att-value="form.get('purpose') or ''"/>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input type="checkbox" class="form-check-input" id="submit_now" name="submit_now" value="1" checked="checked"/>
+                    <label class="form-check-label" for="submit_now">ส่งอนุมัติทันที</label>
+                </div>
+
+                <button type="submit" class="btn btn-primary">ขอเงินทดรอง</button>
+                <a href="/my/advances" class="btn btn-secondary">ยกเลิก</a>
+            </form>
         </t>
     </template>
 

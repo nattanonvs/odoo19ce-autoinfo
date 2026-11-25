@@ -2,7 +2,7 @@
 {
     "name": "OD19 HR - Employee Advance (เงินทดรองจ่ายพนักงาน)",
     "author": "OD19",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "category": "Human Resources/Expenses",
     "summary": "ใบเบิกเงินทดรองจ่ายพนักงาน: อนุมัติ 2 ชั้น, จ่ายเงินจริง, เคลียร์และคืนเงินส่วนที่เหลือ",
     "depends": [

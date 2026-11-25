@@ -138,12 +138,17 @@
         </field>
     </record>
 
+    <!-- The advance flow is consolidated into od19.expense.claim
+         (design §7 "one concept"). Keep the model/action for data
+         compatibility but hide this legacy menu entry: new advances are
+         created from the unified expense-claim workspace. -->
     <menuitem
         id="menu_od19_hr_advance"
         name="Employee Advances"
         parent="hr_expense.menu_hr_expense_root"
         action="action_od19_hr_advance"
         sequence="25"
+        active="False"
     />
 
 </odoo>

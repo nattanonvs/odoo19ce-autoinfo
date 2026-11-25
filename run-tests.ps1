@@ -30,6 +30,7 @@ param(
     [string[]]$Module,
 
     [string]$Database,
+    [string]$DbFilter,
     [string]$DataDir,
     [int]$HttpPort = 8075,
     [string]$LogFile,
@@ -58,6 +59,9 @@ function Read-OdooConf {
 $conf = Read-OdooConf
 
 if (-not $Database) { $Database = if ($conf['db_name']) { $conf['db_name'] } else { 'odoo19_pdev' } }
+# odoo.conf จำกัด dbfilter ให้เฉพาะ DB แชร์ (pdev/puat) ทำให้ DB ทดสอบส่วนตัว
+# ถูกปฏิเสธตอนล็อกอิน (HttpCase ได้ 404) จึง override ให้ตรงกับ -Database เสมอ
+if (-not $DbFilter) { $DbFilter = '^' + [regex]::Escape($Database) + '$' }
 if (-not $DataDir) {
     # ให้ --data-dir ตรงกับ data_dir ที่ odoo.conf ใช้กับ DB จริง
     # ป้องกัน asset bundle เขียนลง DB แต่ไฟล์ไปอยู่คนละ filestore -> 404 -> จอขาว
@@ -73,6 +77,7 @@ Write-Host $sep
 Write-Host ("  modules   : {0}" -f ($Module -join ', '))
 Write-Host ("  test-tags : {0}" -f $testTags)
 Write-Host ("  database  : {0}" -f $Database)
+Write-Host ("  db-filter : {0}" -f $DbFilter)
 Write-Host ("  data-dir  : {0}" -f $DataDir)
 Write-Host ("  http-port : {0}" -f $HttpPort)
 Write-Host ("  log       : {0}" -f $LogFile)
@@ -101,6 +106,7 @@ if ($Clean) {
 $odooArgs = @(
     $OdooBin, '-c', $Config,
     '-d', $Database,
+    '--db-filter', $DbFilter,
     '-u', ($Module -join ','),
     '--data-dir', $DataDir,
     '--http-port', $HttpPort,

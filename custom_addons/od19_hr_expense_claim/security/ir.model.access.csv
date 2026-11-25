@@ -4,3 +4,5 @@ access_od19_expense_claim_user,od19.expense.claim.user,model_od19_expense_claim,
 access_od19_expense_claim_manager,od19.expense.claim.manager,model_od19_expense_claim,hr_expense.group_hr_expense_manager,1,1,1,1
 access_od19_expense_claim_account,od19.expense.claim.account,model_od19_expense_claim,account.group_account_manager,1,1,1,0
 access_od19_expense_claim_ceo,od19.expense.claim.ceo,model_od19_expense_claim,od19_hr_expense_thai.group_od19_expense_ceo_approver,1,1,0,0
+access_od19_expense_claim_clear_manager,od19.expense.claim.clear.manager,model_od19_expense_claim_clear,hr_expense.group_hr_expense_manager,1,1,1,1
+access_od19_expense_claim_clear_account,od19.expense.claim.clear.account,model_od19_expense_claim_clear,account.group_account_manager,1,1,1,1

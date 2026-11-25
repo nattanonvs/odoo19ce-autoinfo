@@ -344,6 +344,25 @@ class HrExpense(models.Model):
                 ))
 
     # ------------------------------------------------------------------
+    # Supplier document reference, per line (design §5.3, closes gap C4)
+    # ------------------------------------------------------------------
+    # Captures the vendor document behind the line so input VAT can be
+    # traced and audited later. All three are optional at submission time.
+    od19_supplier_doc_number = fields.Char(
+        string='เลขที่ใบกำกับ/ใบเสร็จผู้ขาย / Supplier Doc No',
+        copy=False,
+        help='Number printed on the supplier tax invoice or receipt.',
+    )
+    od19_supplier_doc_date = fields.Date(
+        string='วันที่เอกสารผู้ขาย / Supplier Doc Date',
+        help='Date shown on the supplier document.',
+    )
+    od19_supplier_tax_id = fields.Char(
+        string='เลขผู้เสียภาษีผู้ขาย / Supplier Tax ID',
+        help='Vendor tax ID, used to support a claimable input VAT.',
+    )
+
+    # ------------------------------------------------------------------
     # Per diem allowance - Section 42(3) Revenue Code
     # (เบี้ยเลี้ยง ม.42(3))
     # ------------------------------------------------------------------

@@ -11,6 +11,9 @@
     => definition ที่ ``sequence`` สูงกว่า จะถูกอนุมัติก่อน (ชั้น 1 = sequence 30)
 
     ``has_forward`` มาจากโมดูล base_tier_validation_forward
+
+    เงินสดย่อย (``claim_type='petty_cash'``) อนุมัติเบา 2 ชั้น — ข้าม CEO
+    (กำหนดผ่าน ``definition_domain`` ของชั้น CEO ให้ยกเว้น petty_cash)
     -->
     <record id="tier_definition_claim_manager" model="tier.definition">
         <field name="name">Expense Claim - Department Manager (ชั้นที่ 1 หัวหน้าแผนก)</field>
@@ -48,7 +51,7 @@
         <field name="review_type">group</field>
         <field name="reviewer_group_id" ref="od19_hr_expense_thai.group_od19_expense_ceo_approver"/>
         <field name="definition_type">domain</field>
-        <field name="definition_domain">[(1, '=', 1)]</field>
+        <field name="definition_domain">[('claim_type', '!=', 'petty_cash')]</field>
         <field name="sequence">10</field>
         <field name="approve_sequence" eval="True"/>
         <field name="has_forward" eval="True"/>
