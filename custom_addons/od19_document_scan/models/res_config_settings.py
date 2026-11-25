@@ -28,3 +28,23 @@ class ResConfigSettings(models.TransientModel):
         config_parameter="od19_scan.tesseract_lang",
         help="รหัสภาษาแบบ Tesseract เช่น tha+eng (ไทย+อังกฤษ), eng",
     )
+    od19_scan_server_compress_enabled = fields.Boolean(
+        string="บีบอัดภาพฝั่งเซิร์ฟเวอร์ (ชั้นที่ 2)",
+        config_parameter="od19_scan.server_compress_enabled",
+        default=True,
+        help="บีบอัดภาพอัตโนมัติบนเซิร์ฟเวอร์ก่อนบันทึก ใช้กับไฟล์ภาพที่อัปโหลด"
+        "จากทุกช่องทาง (ต่อจากการบีบอัดในเบราว์เซอร์ชั้นที่ 1) "
+        "ไฟล์ที่ไม่ใช่ภาพหรือไฟล์เล็กอยู่แล้วจะไม่ถูกแตะ",
+    )
+    od19_scan_server_max_px = fields.Integer(
+        string="ขนาดภาพสูงสุด (พิกเซล)",
+        config_parameter="od19_scan.server_max_px",
+        default=1600,
+        help="ความยาวด้านที่ยาวที่สุดของภาพหลังบีบอัด (พิกเซล). ใส่ 0 เพื่อปิดการย่อ",
+    )
+    od19_scan_server_quality = fields.Integer(
+        string="คุณภาพ JPEG (%)",
+        config_parameter="od19_scan.server_quality",
+        default=78,
+        help="คุณภาพการเข้ารหัส JPEG (1-95) ยิ่งต่ำไฟล์ยิ่งเล็ก (มีผลกับ JPEG เท่านั้น)",
+    )

@@ -3,7 +3,7 @@
 
 {
     "name": "OD19 Document Scan",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "author": "OD19",
     "category": "Productivity/Document",
     "summary": "สแกนเอกสาร/ภาพถ่ายด้วยกล้องมือถือ แปลงเป็นบทความ Knowledge "

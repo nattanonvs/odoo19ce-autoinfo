@@ -8,7 +8,11 @@ calls are patched so the suite stays deterministic and offline.
 """
 
 import base64
+import io
+import os
 from unittest.mock import patch
+
+from PIL import Image
 
 from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase, tagged
@@ -313,3 +317,80 @@ class TestOd19ScanWizard(TransactionCase):
     def test_category_label(self):
         wiz = self._make_wizard(category="troubleshooting")
         self.assertIn("Troubleshooting", wiz._category_label())
+
+
+@tagged("post_install", "-at_install")
+class TestOd19AttachmentCompression(TransactionCase):
+    """ir.attachment server-side compression (layer 2)."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.Attachment = cls.env["ir.attachment"]
+        cls.Icp = cls.env["ir.config_parameter"].sudo()
+
+    def setUp(self):
+        super().setUp()
+        self.Icp.set_param("od19_scan.server_compress_enabled", "True")
+        self.Icp.set_param("od19_scan.server_max_px", "1600")
+        self.Icp.set_param("od19_scan.server_quality", "78")
+
+    # ------------------------------------------------------------------
+    # Helpers
+    # ------------------------------------------------------------------
+    def _noisy_jpeg(self, width, height):
+        """A random-noise JPEG stays heavy, unlike a flat-colour one."""
+        raw = os.urandom(width * height * 3)
+        image = Image.frombytes("RGB", (width, height), raw)
+        buffer = io.BytesIO()
+        image.save(buffer, format="JPEG", quality=100)
+        return buffer.getvalue()
+
+    def _create_image_attachment(self, data, name="scan.jpg"):
+        return self.Attachment.create(
+            {"name": name, "datas": base64.b64encode(data), "mimetype": "image/jpeg"}
+        )
+
+    @staticmethod
+    def _stored_bytes(attachment):
+        return base64.b64decode(attachment.datas)
+
+    # ------------------------------------------------------------------
+    # Tests
+    # ------------------------------------------------------------------
+    def test_large_jpeg_is_shrunk_and_capped(self):
+        original = self._noisy_jpeg(1800, 1200)
+        self.assertGreater(len(original), 100 * 1024)  # above the skip threshold
+        attachment = self._create_image_attachment(original)
+        stored = self._stored_bytes(attachment)
+        self.assertLess(len(stored), len(original))
+        with Image.open(io.BytesIO(stored)) as img:
+            self.assertLessEqual(max(img.size), 1600)
+
+    def test_disabled_leaves_image_untouched(self):
+        self.Icp.set_param("od19_scan.server_compress_enabled", "False")
+        original = self._noisy_jpeg(1800, 1200)
+        attachment = self._create_image_attachment(original)
+        self.assertEqual(self._stored_bytes(attachment), original)
+
+    def test_non_image_is_untouched(self):
+        payload = b"%PDF-1.7\n" + os.urandom(400 * 1024)
+        attachment = self.Attachment.create(
+            {"name": "doc.pdf", "datas": base64.b64encode(payload), "mimetype": "application/pdf"}
+        )
+        self.assertEqual(self._stored_bytes(attachment), payload)
+
+    def test_small_image_skipped(self):
+        buffer = io.BytesIO()
+        Image.new("RGB", (200, 200), (10, 20, 30)).save(buffer, format="JPEG", quality=80)
+        original = buffer.getvalue()
+        self.assertLess(len(original), 100 * 1024)
+        attachment = self._create_image_attachment(original, name="small.jpg")
+        self.assertEqual(self._stored_bytes(attachment), original)
+
+    def test_custom_max_px_is_honoured(self):
+        self.Icp.set_param("od19_scan.server_max_px", "800")
+        original = self._noisy_jpeg(1800, 1200)
+        attachment = self._create_image_attachment(original)
+        with Image.open(io.BytesIO(self._stored_bytes(attachment))) as img:
+            self.assertLessEqual(max(img.size), 800)

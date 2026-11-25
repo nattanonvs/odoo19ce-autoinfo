@@ -3,4 +3,5 @@
 
 from . import od19_ocr_service
 from . import od19_scan_article_wizard
+from . import ir_attachment
 from . import res_config_settings

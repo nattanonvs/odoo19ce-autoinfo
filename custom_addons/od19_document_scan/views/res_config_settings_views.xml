@@ -29,6 +29,27 @@
                             </div>
                         </div>
                     </setting>
+                    <setting
+                        id="od19_scan_compress_setting"
+                        string="บีบอัดภาพฝั่งเซิร์ฟเวอร์ (ชั้นที่ 2)"
+                        help="บีบอัดภาพอัตโนมัติก่อนบันทึกลงระบบ เพื่อไม่ให้พื้นที่จัดเก็บเต็ม"
+                        groups="base.group_system"
+                    >
+                        <div class="content-group">
+                            <div class="row mt16">
+                                <label for="od19_scan_server_compress_enabled" class="col-lg-3 o_light_label"/>
+                                <field name="od19_scan_server_compress_enabled"/>
+                            </div>
+                            <div class="row">
+                                <label for="od19_scan_server_max_px" class="col-lg-3 o_light_label"/>
+                                <field name="od19_scan_server_max_px"/>
+                            </div>
+                            <div class="row">
+                                <label for="od19_scan_server_quality" class="col-lg-3 o_light_label"/>
+                                <field name="od19_scan_server_quality"/>
+                            </div>
+                        </div>
+                    </setting>
                 </block>
             </xpath>
         </field>
