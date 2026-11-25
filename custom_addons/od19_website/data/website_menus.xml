@@ -56,6 +56,14 @@
         <field name="sequence" eval="30"/>
     </record>
 
+    <record id="menu_industries" model="website.menu">
+        <field name="name">Industries</field>
+        <field name="url">/industries</field>
+        <field name="website_id" ref="website.default_website"/>
+        <field name="parent_id" ref="website.main_menu"/>
+        <field name="sequence" eval="32"/>
+    </record>
+
     <record id="menu_quality" model="website.menu">
         <field name="name">Quality</field>
         <field name="url">/quality-certifications</field>
@@ -94,6 +102,14 @@
         <field name="website_id" ref="website.default_website"/>
         <field name="parent_id" ref="website.main_menu"/>
         <field name="sequence" eval="50"/>
+    </record>
+
+    <record id="menu_faq" model="website.menu">
+        <field name="name">FAQ</field>
+        <field name="url">/faq</field>
+        <field name="website_id" ref="website.default_website"/>
+        <field name="parent_id" ref="website.main_menu"/>
+        <field name="sequence" eval="55"/>
     </record>
 
     <record id="menu_contact" model="website.menu">

@@ -5,3 +5,4 @@ from . import website_menu
 from . import blog_content
 from . import job_opening
 from . import job_application
+from . import customer_notice

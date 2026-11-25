@@ -21,7 +21,7 @@
         <field name="is_published" eval="True"/>
         <field name="website_meta_title">Auto-Info | Total Integrated Automation Solutions, Bangkok</field>
         <field name="website_meta_description">The Auto-Info Co., Ltd. delivers total integrated automation — industrial (PLC/SCADA), building (BMS/HVAC) and terminal automation — with ISO 9001:2015 certified engineering, installation and service from Bangkok, Thailand.</field>
-        <field name="website_meta_keywords">automation Thailand, industrial automation, building automation, terminal automation, PLC, SCADA, BMS, HVAC, system integrator Bangkok, ISO 9001</field>
+        <field name="website_meta_keywords">automation Thailand, industrial automation, building automation, terminal automation, PLC, SCADA, BMS, HVAC, system integrator Bangkok, ISO 9001, 自动化, 工业自动化, 楼宇自动化, 码头自动化, 泰国自动化, 系统集成, 曼谷</field>
     </record>
 
     <record id="industrial_page" model="website.page">
@@ -32,7 +32,7 @@
         <field name="is_published" eval="True"/>
         <field name="website_meta_title">Industrial Automation | PLC, SCADA &amp; Process Control | Auto-Info</field>
         <field name="website_meta_description">Industrial automation solutions from Auto-Info: Modicon PLCs, SCADA and historian centralisation, variable-speed drives, process instrumentation and engineered control panels for process and manufacturing plants.</field>
-        <field name="website_meta_keywords">industrial automation, PLC, SCADA, Modicon M580, Altivar drive, control panel, process control, instrumentation, Thailand</field>
+        <field name="website_meta_keywords">industrial automation, PLC, SCADA, Modicon M580, Altivar drive, control panel, process control, instrumentation, Thailand, 工业自动化, 过程控制, 变频器, 泰国</field>
     </record>
 
     <record id="building_page" model="website.page">
@@ -43,7 +43,7 @@
         <field name="is_published" eval="True"/>
         <field name="website_meta_title">Building Automation | BMS, HVAC &amp; Energy Management | Auto-Info</field>
         <field name="website_meta_description">Building automation from Auto-Info: building management systems (BMS), HVAC and clean-room control, environmental monitoring, fume-hood control and energy management for offices, hospitals and life-science facilities.</field>
-        <field name="website_meta_keywords">building automation, BMS, HVAC control, clean room, environmental monitoring, energy management, Desigo CC, GMP, Thailand</field>
+        <field name="website_meta_keywords">building automation, BMS, HVAC control, clean room, environmental monitoring, energy management, Desigo CC, GMP, Thailand, 楼宇自动化, 楼宇管理系统, 暖通空调, 洁净室, 能源管理, 泰国</field>
     </record>
 
     <record id="terminal_page" model="website.page">
@@ -54,7 +54,7 @@
         <field name="is_published" eval="True"/>
         <field name="website_meta_title">Terminal Automation | Tank Gauging &amp; Loading Control | Auto-Info</field>
         <field name="website_meta_description">Terminal automation from Auto-Info: automatic tank gauging, tank inventory and reconciliation, loading-arm and metering skids, overfill prevention and integrated terminal management systems.</field>
-        <field name="website_meta_keywords">terminal automation, tank gauging, ATG, tank inventory, loading arm, overfill prevention, TMS, fuel depot, Thailand</field>
+        <field name="website_meta_keywords">terminal automation, tank gauging, ATG, tank inventory, loading arm, overfill prevention, TMS, fuel depot, Thailand, 码头自动化, 储罐计量, 装车控制, 油库, 泰国</field>
     </record>
 
     <record id="products_page" model="website.page">
@@ -65,7 +65,7 @@
         <field name="is_published" eval="True"/>
         <field name="website_meta_title">Products | Automation Hardware &amp; Systems | Auto-Info</field>
         <field name="website_meta_description">Browse the Auto-Info automation catalog: Schneider Electric Modicon PLCs, Magelis HMI and Altivar drives, Siemens Symaro sensors and Desigo CC, Emerson Rosemount instrumentation and OPW loading controllers.</field>
-        <field name="website_meta_keywords">automation products, Modicon M580, M340, Magelis HMI, Altivar, Desigo CC, Symaro, Rosemount, Micro Motion, OPW Fusion, Thailand</field>
+        <field name="website_meta_keywords">automation products, Modicon M580, M340, Magelis HMI, Altivar, Desigo CC, Symaro, Rosemount, Micro Motion, OPW Fusion, Thailand, 自动化产品, 变频器, 仪器仪表, 泰国</field>
     </record>
 
     <record id="about_page" model="website.page">
@@ -76,7 +76,7 @@
         <field name="is_published" eval="True"/>
         <field name="website_meta_title">About Auto-Info | Automation System Integrator in Thailand</field>
         <field name="website_meta_description">Learn about The Auto-Info Co., Ltd. — a Bangkok-based automation system integrator delivering industrial, building and terminal automation projects with ISO 9001:2015 certified quality since day one.</field>
-        <field name="website_meta_keywords">Auto-Info, about us, automation system integrator, Bangkok, Thailand, ISO 9001, engineering, installation, service</field>
+        <field name="website_meta_keywords">Auto-Info, about us, automation system integrator, Bangkok, Thailand, ISO 9001, engineering, installation, service, 自动化系统集成商, 曼谷, 泰国</field>
     </record>
 
     <record id="quality_page" model="website.page">
@@ -87,7 +87,7 @@
         <field name="is_published" eval="True"/>
         <field name="website_meta_title">Quality &amp; Certifications | ISO 9001, GMP, CSV | Auto-Info</field>
         <field name="website_meta_description">Auto-Info quality and compliance: ISO 9001:2015 certified quality management, GMP-ready life-science automation and GAMP 5 / CSV documentation for regulated industries.</field>
-        <field name="website_meta_keywords">ISO 9001, ISO 14001, GMP, CSV, GAMP 5, quality management, compliance, automation, Thailand</field>
+        <field name="website_meta_keywords">ISO 9001, ISO 14001, GMP, CSV, GAMP 5, quality management, compliance, automation, Thailand, 质量管理, 合规, 验证, 泰国</field>
     </record>
 
     <record id="portfolio_page" model="website.page">
@@ -98,7 +98,29 @@
         <field name="is_published" eval="True"/>
         <field name="website_meta_title">Project References | Automation Case Studies | Auto-Info</field>
         <field name="website_meta_description">Selected automation project references from Auto-Info across petrochemical, manufacturing, life-science, commercial building and fuel-terminal sectors — scope, year and delivered results.</field>
-        <field name="website_meta_keywords">automation projects, case studies, references, SCADA project, BMS project, terminal automation, Thailand</field>
+        <field name="website_meta_keywords">automation projects, case studies, references, SCADA project, BMS project, terminal automation, Thailand, 自动化项目, 案例, 参考, 泰国</field>
+    </record>
+
+    <record id="industries_page" model="website.page">
+        <field name="name">Industries</field>
+        <field name="url">/industries</field>
+        <field name="view_id" ref="od19_industries_page"/>
+        <field name="website_id" ref="website.default_website"/>
+        <field name="is_published" eval="True"/>
+        <field name="website_meta_title">Industries We Serve | Petrochemical, Pharma, Buildings &amp; Terminals | Auto-Info</field>
+        <field name="website_meta_description">Auto-Info serves petrochemical and refining, manufacturing, pharmaceutical and life-science, hospitals, commercial buildings, and fuel terminals with integrated automation — system design, implementation, training and service.</field>
+        <field name="website_meta_keywords">automation industries, petrochemical automation, pharmaceutical GMP automation, hospital building automation, commercial BMS, fuel terminal automation, system integrator Thailand, 行业, 石化自动化, 制药自动化, 医院楼宇自动化, 油库自动化, 泰国</field>
+    </record>
+
+    <record id="faq_page" model="website.page">
+        <field name="name">FAQ</field>
+        <field name="url">/faq</field>
+        <field name="view_id" ref="od19_faq_page"/>
+        <field name="website_id" ref="website.default_website"/>
+        <field name="is_published" eval="True"/>
+        <field name="website_meta_title">FAQ | Automation Services, Certifications &amp; Support | Auto-Info</field>
+        <field name="website_meta_description">Frequently asked questions about The Auto-Info Co., Ltd.: what we do, the industries we serve, ISO 9001 and GMP/CSV compliance, the platforms we work with, legacy PLC/SCADA migration, service contracts and how to request a quotation.</field>
+        <field name="website_meta_keywords">Auto-Info FAQ, automation questions, ISO 9001, GMP, CSV, PLC migration, SCADA, service contract, quotation, Thailand, 常见问题, 自动化, 泰国</field>
     </record>
 
 </odoo>

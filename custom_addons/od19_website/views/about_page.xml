@@ -64,6 +64,27 @@
                     </div>
                 </section>
 
+                <!-- Vision & Mission -->
+                <section class="od19-section">
+                    <div class="container">
+                        <div class="od19-section-title">
+                            <h2>Vision &amp; Mission</h2>
+                            <div class="od19-divider"/>
+                            <p class="od19-careers-lead">The direction and the commitment that guide everything we engineer.</p>
+                        </div>
+                        <div class="od19-vm-grid">
+                            <div class="od19-vm-card od19-pc-reveal">
+                                <h3><i class="fa fa-eye"/>Our Vision</h3>
+                                <p t-esc="website.od19_vision()"/>
+                            </div>
+                            <div class="od19-vm-card od19-vm-mission od19-pc-reveal">
+                                <h3><i class="fa fa-bullseye"/>Our Mission</h3>
+                                <p t-esc="website.od19_mission()"/>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
                 <!-- Domains -->
                 <section class="od19-section bg-light">
                     <div class="container">
@@ -135,11 +156,30 @@
                     </div>
                 </section>
 
+                <!-- Excellence -->
+                <section class="od19-section bg-light">
+                    <div class="container">
+                        <div class="od19-section-title">
+                            <h2>The Excellence We Pursue</h2>
+                            <div class="od19-divider"/>
+                            <p class="od19-careers-lead">Six disciplines that shape how we serve customers and grow our people.</p>
+                        </div>
+                        <div class="od19-cap-grid">
+                            <div t-foreach="website.od19_excellence()" t-as="pillar"
+                                 class="od19-cap-card od19-pc-reveal" t-att-data-od19-key="pillar['key']">
+                                <div class="od19-cap-icon"><i t-attf-class="fa #{pillar['icon']}"/></div>
+                                <h4 t-esc="pillar['title']"/>
+                                <p t-esc="pillar['desc']"/>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
                 <!-- Stats -->
                 <section class="od19-stats">
                     <div class="container">
                         <div class="row">
-                            <div class="col-md-3 col-6"><div class="od19-stat-number">20+</div><div class="od19-stat-label">Years of Experience</div></div>
+                            <div class="col-md-3 col-6"><div class="od19-stat-number">1997</div><div class="od19-stat-label">Founded in Bangkok</div></div>
                             <div class="col-md-3 col-6"><div class="od19-stat-number">3</div><div class="od19-stat-label">Core Domains</div></div>
                             <div class="col-md-3 col-6"><div class="od19-stat-number">500+</div><div class="od19-stat-label">Projects Delivered</div></div>
                             <div class="col-md-3 col-6"><div class="od19-stat-number">100%</div><div class="od19-stat-label">GMP &amp; CSV Ready</div></div>
@@ -151,29 +191,16 @@
                 <section class="od19-section">
                     <div class="container">
                         <div class="od19-section-title">
-                            <h2>Our Journey</h2>
+                            <h2>Our Growth Path</h2>
                             <div class="od19-divider"/>
+                            <p class="od19-careers-lead">From our founding in 1997 to Southeast Asia's foremost provider of integrated automation solutions.</p>
                         </div>
                         <div class="od19-timeline">
-                            <div class="od19-tl-item od19-pc-reveal">
-                                <div class="od19-tl-year">FOUNDATION</div>
-                                <h4>Established in Bangkok</h4>
-                                <p>Auto-Info is founded as an automation solution provider serving Thai industry.</p>
-                            </div>
-                            <div class="od19-tl-item od19-pc-reveal">
-                                <div class="od19-tl-year">GROWTH</div>
-                                <h4>Industrial &amp; Terminal practices</h4>
-                                <p>Expansion into process control, SCADA and terminal load-out automation projects.</p>
-                            </div>
-                            <div class="od19-tl-item od19-pc-reveal">
-                                <div class="od19-tl-year">LEADERSHIP</div>
-                                <h4>Life-science &amp; GMP/CSV focus</h4>
-                                <p>Became a leading partner for Building Automation in Thailand's life-science sector.</p>
-                            </div>
-                            <div class="od19-tl-item od19-pc-reveal">
-                                <div class="od19-tl-year">TODAY</div>
-                                <h4>Total integrated automation</h4>
-                                <p>Delivering design, implementation, training and long-term service under one roof.</p>
+                            <div t-foreach="website.od19_growth_path()" t-as="step"
+                                 class="od19-tl-item od19-pc-reveal">
+                                <div class="od19-tl-year" t-esc="step['year']"/>
+                                <h4 t-esc="step['title']"/>
+                                <p t-esc="step['desc']"/>
                             </div>
                         </div>
                     </div>

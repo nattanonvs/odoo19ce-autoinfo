@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- Industries We Serve                                           -->
+    <!-- ============================================================ -->
+    <template id="od19_industries_page" name="Industries Page">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                <section class="od19-page-hero od19-pc-reveal"
+                         t-attf-style="background-image:url('/od19_website/static/src/img/content/industrial.jpg')">
+                    <div class="od19-page-hero-overlay"/>
+                    <div class="container">
+                        <nav class="od19-breadcrumb">
+                            <a href="/">Home</a>
+                            <i class="fa fa-angle-right"/>
+                            <span>Industries</span>
+                        </nav>
+                        <span class="od19-eyebrow">Industries We Serve</span>
+                        <h1>Automation for the industries that keep Thailand running</h1>
+                        <p class="od19-lead">
+                            From petrochemical plants and life-science facilities to commercial buildings
+                            and fuel terminals — Auto-Info delivers integrated automation engineered around
+                            each sector's own rules, risks and uptime demands.
+                        </p>
+                        <div class="od19-hero-actions">
+                            <a href="/contactus" class="btn btn-hero">Discuss Your Project <i class="fa fa-arrow-right"/></a>
+                            <a href="/portfolio" class="btn btn-ghost-light">See References</a>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Sectors -->
+                <section class="od19-section">
+                    <div class="container">
+                        <div class="od19-section-title">
+                            <h2>Sectors We Serve</h2>
+                            <div class="od19-divider"/>
+                            <p class="od19-careers-lead">Deep domain experience across six sectors, built over nearly three decades.</p>
+                        </div>
+                        <div class="od19-cap-grid">
+                            <div t-foreach="website.od19_industries()" t-as="ind"
+                                 class="od19-cap-card od19-pc-reveal" t-att-data-od19-key="ind['key']">
+                                <div class="od19-cap-icon"><i t-attf-class="fa #{ind['icon']}"/></div>
+                                <h4 t-esc="ind['title']"/>
+                                <p t-esc="ind['desc']"/>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Service lines -->
+                <section class="od19-section bg-light">
+                    <div class="container">
+                        <div class="od19-section-title">
+                            <h2>What We Deliver</h2>
+                            <div class="od19-divider"/>
+                            <p class="od19-careers-lead">Six service lines covering the full automation lifecycle, under one roof.</p>
+                        </div>
+                        <div class="od19-cap-grid">
+                            <div t-foreach="website.od19_services()" t-as="svc"
+                                 class="od19-cap-card od19-pc-reveal" t-att-data-od19-key="svc['key']">
+                                <div class="od19-cap-icon"><i t-attf-class="fa #{svc['icon']}"/></div>
+                                <h4 t-esc="svc['title']"/>
+                                <p t-esc="svc['desc']"/>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Service list structured data (AEO) -->
+                <script type="application/ld+json" t-out="website.od19_services_jsonld()"/>
+
+                <t t-call="od19_website.od19_cta_section"
+                   cta_title.f="Not sure which solution fits your industry?"
+                   cta_text.f="Tell us about your plant, building or terminal and we will propose the right approach."/>
+            </div>
+        </t>
+    </template>
+
+    <!-- ============================================================ -->
+    <!-- Frequently Asked Questions (AEO)                              -->
+    <!-- ============================================================ -->
+    <template id="od19_faq_page" name="FAQ Page">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                <section class="od19-page-hero od19-pc-reveal"
+                         t-attf-style="background-image:url('/od19_website/static/src/img/misc/hero-circuit.jpg')">
+                    <div class="od19-page-hero-overlay"/>
+                    <div class="container">
+                        <nav class="od19-breadcrumb">
+                            <a href="/">Home</a>
+                            <i class="fa fa-angle-right"/>
+                            <span>FAQ</span>
+                        </nav>
+                        <span class="od19-eyebrow">Frequently Asked Questions</span>
+                        <h1>Answers about our automation solutions</h1>
+                        <p class="od19-lead">
+                            The questions customers and search engines ask most often — about our services,
+                            industries, certifications and how to work with us.
+                        </p>
+                        <div class="od19-hero-actions">
+                            <a href="/contactus" class="btn btn-hero">Ask a Question <i class="fa fa-arrow-right"/></a>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="od19-section">
+                    <div class="container od19-faq-wrap">
+                        <div class="accordion od19-faq" id="od19FaqAccordion">
+                            <t t-foreach="website.od19_faq()" t-as="faq">
+                                <t t-set="fid" t-value="'od19-faq-%s' % faq_index"/>
+                                <div class="accordion-item od19-pc-reveal">
+                                    <h2 class="accordion-header" t-att-id="fid + '-head'">
+                                        <button class="accordion-button collapsed" type="button"
+                                                data-bs-toggle="collapse"
+                                                t-att-data-bs-target="'#' + fid"
+                                                aria-expanded="false" t-att-aria-controls="fid">
+                                            <t t-esc="faq['q']"/>
+                                        </button>
+                                    </h2>
+                                    <div t-att-id="fid" class="accordion-collapse collapse"
+                                         t-att-aria-labelledby="fid + '-head'"
+                                         data-bs-parent="#od19FaqAccordion">
+                                        <div class="accordion-body">
+                                            <p t-esc="faq['a']"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- FAQPage structured data (AEO) -->
+                <script type="application/ld+json" t-out="website.od19_faq_jsonld()"/>
+
+                <t t-call="od19_website.od19_cta_section"
+                   cta_title.f="Still have a question?"
+                   cta_text.f="Our engineers are happy to answer anything about our solutions."/>
+            </div>
+        </t>
+    </template>
+
+</odoo>

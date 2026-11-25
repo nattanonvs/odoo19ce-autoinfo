@@ -268,7 +268,9 @@ a:hover { color: #7A1B1B; }
 .od19-footer-sep { opacity: 0.4; margin: 0 8px; }
 .od19-footer-legal { color: #c2c9d3; text-decoration: none; }
 .od19-footer-legal:hover { color: #fff; text-decoration: underline; }
+.od19-footer-portal,
 .od19-footer-staff { color: #c2c9d3; text-decoration: none; }
+.od19-footer-portal:hover,
 .od19-footer-staff:hover { color: #fff; text-decoration: underline; }
 
 /* The website footer element carries ``o_footer`` and a colour combination
@@ -286,11 +288,13 @@ a:hover { color: #7A1B1B; }
     color: var(--od19-secondary);
 }
 #wrapwrap .od19-footer a.od19-footer-legal,
+#wrapwrap .od19-footer a.od19-footer-portal,
 #wrapwrap .od19-footer a.od19-footer-staff {
     color: #c2c9d3;
     text-decoration: none;
 }
 #wrapwrap .od19-footer a.od19-footer-legal:hover,
+#wrapwrap .od19-footer a.od19-footer-portal:hover,
 #wrapwrap .od19-footer a.od19-footer-staff:hover {
     color: #fff;
     text-decoration: underline;
@@ -354,6 +358,70 @@ a:hover { color: #7A1B1B; }
     border-radius: 12px;
     font-size: 0.75rem;
     font-weight: 700;
+    white-space: nowrap;
+}
+
+/* ---------- Customer Portal: notices on /my ---------- */
+.od19-cn-wrap {
+    margin-bottom: 24px;
+}
+.od19-cn-title {
+    color: var(--od19-dark);
+    font-weight: 700;
+    margin-bottom: 14px;
+}
+.od19-cn-title .od19-cn-title-en {
+    color: var(--od19-gray);
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-left: 6px;
+}
+.od19-cn-card {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-left: 5px solid var(--od19-primary);
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    padding: 18px 20px;
+    height: 100%;
+}
+.od19-cn-card.od19-cn-warning {
+    border-left-color: var(--od19-secondary);
+}
+.od19-cn-card.od19-cn-mandatory {
+    border-left-color: #c0392b;
+    background: #fff8f7;
+}
+.od19-cn-name {
+    color: var(--od19-dark);
+}
+.od19-cn-body {
+    color: var(--od19-gray);
+    font-size: 0.92rem;
+}
+.od19-cn-body p:last-child {
+    margin-bottom: 0;
+}
+.od19-cn-badge-info {
+    background: var(--od19-primary);
+}
+.od19-cn-badge-warning {
+    background: var(--od19-secondary);
+    color: #2a1a1a;
+}
+.od19-cn-badge-mandatory {
+    background: #c0392b;
+}
+.od19-cn-link {
+    display: inline-block;
+    margin-top: 10px;
+    color: var(--od19-primary);
+    font-weight: 600;
+    font-size: 0.88rem;
+    text-decoration: none;
+}
+.od19-cn-link:hover {
+    text-decoration: underline;
 }
 
 /* ---------- Header tweaks ---------- */
@@ -1986,6 +2054,58 @@ header .o_navlink_background .oi-search {
 }
 .od19-value h4 { font-size: 1.05rem; font-weight: 700; color: var(--od19-dark); margin: 0 0 8px; }
 .od19-value p { font-size: 0.9rem; color: var(--od19-gray); margin: 0; }
+
+/* About: vision & mission */
+.od19-vm-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+}
+.od19-vm-card {
+    background: #fff;
+    border: 1px solid #efe6e6;
+    border-left: 5px solid var(--od19-primary);
+    border-radius: 16px;
+    padding: 30px 28px;
+    height: 100%;
+    transition: transform 0.28s ease, box-shadow 0.28s ease;
+}
+.od19-vm-card:hover { transform: translateY(-6px); box-shadow: 0 18px 40px rgba(42, 26, 26, 0.12); }
+.od19-vm-card h3 {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--od19-dark);
+    margin: 0 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.od19-vm-card h3 i { color: var(--od19-primary); font-size: 1.3rem; }
+.od19-vm-card p { font-size: 1rem; color: #4a4141; line-height: 1.75; margin: 0; }
+.od19-vm-card.od19-vm-mission { border-left-color: var(--od19-secondary); }
+.od19-vm-card.od19-vm-mission h3 i { color: var(--od19-secondary); }
+
+/* FAQ accordion */
+.od19-faq-wrap { max-width: 860px; }
+.od19-faq .accordion-item {
+    border: 1px solid #efe6e6;
+    border-radius: 14px !important;
+    margin-bottom: 14px;
+    overflow: hidden;
+    background: #fff;
+}
+.od19-faq .accordion-button {
+    font-weight: 700;
+    color: var(--od19-dark);
+    background: #fff;
+    box-shadow: none;
+    padding: 20px 22px;
+    font-size: 1.02rem;
+}
+.od19-faq .accordion-button:not(.collapsed) { color: var(--od19-primary); background: #fbf3f3; }
+.od19-faq .accordion-button:focus { box-shadow: none; border-color: var(--od19-primary); }
+.od19-faq .accordion-body { color: #4a4141; line-height: 1.75; padding: 4px 22px 22px; }
+.od19-faq .accordion-body p { margin: 0; }
 
 .od19-timeline {
     position: relative;

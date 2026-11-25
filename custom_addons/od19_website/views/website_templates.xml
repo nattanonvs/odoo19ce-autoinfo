@@ -58,6 +58,8 @@
                                 <i class="fa fa-phone"/> +66 2 934 5410-6<br/>
                                 <i class="fa fa-fax"/> +66 2 934 5417<br/>
                                 <i class="fa fa-envelope"/> sales@auto-info.co.th<br/>
+                                <i class="fa fa-envelope"/> hr@auto-info.co.th<br/>
+                                <i class="fa fa-laptop"/> odoo@auto-info.com<br/>
                                 <i class="fa fa-clock-o"/> Mon&#8211;Fri 08:00&#8211;17:00
                             </p>
                         </div>
@@ -71,6 +73,10 @@
                         <span class="od19-footer-sep">·</span>
                         <a class="od19-footer-legal" href="/cookie-policy">Cookie Policy</a>
                         <span class="od19-footer-sep">·</span>
+                        <a class="od19-footer-portal" href="/my">
+                            <i class="fa fa-user"/> Customer Portal
+                        </a>
+                        <span class="od19-footer-sep">·</span>
                         <a class="od19-footer-staff" href="/employee-portal">
                             <i class="fa fa-lock"/> Employee Portal
                         </a>
@@ -83,14 +89,22 @@
     </template>
 
     <!-- ============================================================ -->
-    <!-- Staff shortcut: Employee Portal link in the navbar            -->
-    <!-- Shown only to signed-in users so the public navigation stays  -->
-    <!-- free of staff-only links (see website_menu.od19_configure_    -->
-    <!-- menus, which keeps /employee-portal out of the public menu).  -->
+    <!-- Portal shortcuts in the navbar:                               -->
+    <!--  - "Customer Portal" (/my) is shown to everyone so external   -->
+    <!--    customers can sign in and reach their portal home.         -->
+    <!--  - "Employee Portal" is shown only to signed-in staff so the   -->
+    <!--    public navigation stays free of staff-only links (see       -->
+    <!--    website_menu.od19_configure_menus, which keeps              -->
+    <!--    /employee-portal out of the public menu).                   -->
     <!-- ============================================================ -->
-    <template id="od19_nav_employee_portal" name="Auto-Info Navbar Employee Portal"
+    <template id="od19_nav_employee_portal" name="Auto-Info Navbar Portal Links"
               inherit_id="website.navbar_nav" priority="20">
         <xpath expr="//t[@t-out='0']" position="after">
+            <li class="nav-item od19-nav-customer">
+                <a class="nav-link" href="/my">
+                    <i class="fa fa-user me-1"/>Customer Portal
+                </a>
+            </li>
             <li class="nav-item od19-nav-portal" t-if="not request.env.user._is_public()">
                 <a class="nav-link" href="/employee-portal">
                     <i class="fa fa-lock me-1"/>Employee Portal

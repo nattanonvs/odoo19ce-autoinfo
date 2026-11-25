@@ -249,6 +249,13 @@
                                 <a href="/careers" class="btn btn-hero">View Openings <i class="fa fa-arrow-right"/></a>
                             </p>
                         </div>
+                        <div class="od19-cap-card od19-pc-reveal">
+                            <div class="od19-cap-icon"><i class="fa fa-laptop"/></div>
+                            <h4>Website &amp; Online System</h4>
+                            <p>Customer portal, Odoo system and website enquiries.</p>
+                            <p class="od19-channel-line"><i class="fa fa-envelope"/> <a href="mailto:odoo@auto-info.com">odoo@auto-info.com</a></p>
+                            <p class="od19-channel-line"><i class="fa fa-user"/> <a href="/my">Customer Portal</a></p>
+                        </div>
                     </div>
                 </div>
             </section>

@@ -56,6 +56,24 @@ class AutoInfoWebsite(http.Controller):
     """Controllers for the Auto-Info corporate website and employee portal."""
 
     # ------------------------------------------------------------------
+    # SEO / answer engines
+    # ------------------------------------------------------------------
+    @http.route(
+        ["/llms.txt"],
+        type="http",
+        auth="public",
+        website=True,
+        sitemap=False,
+    )
+    def od19_llms_txt(self, **kwargs):
+        """Serve the llms.txt site summary for AI / answer engines."""
+        body = request.env["website"].od19_llms_txt()
+        return request.make_response(
+            body,
+            headers=[("Content-Type", "text/plain; charset=utf-8")],
+        )
+
+    # ------------------------------------------------------------------
     # Employee portal
     # ------------------------------------------------------------------
     @http.route(

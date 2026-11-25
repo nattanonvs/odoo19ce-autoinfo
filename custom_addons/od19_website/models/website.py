@@ -35,12 +35,72 @@ OD19_ORG_ADDRESS = {
 
 # Appended to the Odoo-generated robots.txt (the User-agent / Allow / Sitemap
 # block is produced by the website.robots template itself).  Keep internal
-# tooling and the employee portal out of the index.
+# tooling and the employee portal out of the index, while explicitly inviting
+# the major search and answer-engine (AI) crawlers so the company is easy to
+# discover and easy for assistants to cite.
 OD19_DEFAULT_ROBOTS = """# Auto-Info — keep private areas out of the index
 Disallow: /web/
 Disallow: /my/
 Disallow: /employee-portal
 """
+
+# Extra robots.txt block that welcomes the major AI / answer-engine crawlers.
+# Appended after the Odoo-generated block by od19_setup_seo() so the public
+# content is reachable by GPTBot, ClaudeBot, PerplexityBot, Google-Extended,
+# CCBot, Baidu and Yandex while the private areas above stay disallowed.
+OD19_AI_CRAWLER_ROBOTS = """# --- AI / answer-engine crawlers are welcome on the public site ---
+User-agent: GPTBot
+Allow: /
+Disallow: /my/
+Disallow: /web/
+Disallow: /employee-portal
+
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /my/
+Disallow: /web/
+Disallow: /employee-portal
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /my/
+Disallow: /web/
+Disallow: /employee-portal
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /my/
+Disallow: /web/
+Disallow: /employee-portal
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+User-agent: YandexBot
+Allow: /
+"""
+
+# Marker used to detect whether the AI-crawler block is already present in a
+# website's robots.txt, so od19_setup_seo() can append it exactly once.
+OD19_AI_CRAWLER_MARKER = "AI / answer-engine crawlers"
 
 # Odoo ships the website record as "My Website", which then leaks into every
 # browser tab as "<page name> | My Website".  Brand it on install/upgrade.
@@ -245,6 +305,265 @@ OD19_ENQUIRY_TYPES = [
 ]
 
 
+# ---------------------------------------------------------------------------
+# Company story — vision, mission, values, growth path and service lines.
+#
+# Every line below is transcribed (and lightly condensed) from the company's
+# own published material on www.auto-info.co.th and its Facebook page.  No
+# figures, customers or claims are invented here; where a year is not known
+# the milestone is described as a growth phase instead of a fabricated date.
+# ---------------------------------------------------------------------------
+OD19_ORG_FOUNDED = "1997"
+OD19_ORG_SLOGAN = "Total Integrated Automation Solutions"
+
+OD19_VISION = (
+    "To be Southeast Asia's foremost provider of integrated automation solutions."
+)
+
+OD19_MISSION = (
+    "To be the automation specialist and one-stop integrated solutions provider "
+    "that continually exceeds our customers' increasing expectations. Our business "
+    "is to help customers achieve business excellence through the best automation "
+    "technology, reliability and service — building complete automation systems "
+    "while developing the potential of the people within our organisation."
+)
+
+# The six "Excellence" pillars the company is organised around.
+OD19_EXCELLENCE = [
+    {
+        "key": "customer",
+        "icon": "fa-handshake-o",
+        "title": "Customer Excellence",
+        "desc": "Anticipate and exceed what customers need, turning every project "
+                "into a long-term partnership.",
+    },
+    {
+        "key": "people",
+        "icon": "fa-users",
+        "title": "People Excellence",
+        "desc": "Develop our people's potential so skilled, motivated engineers "
+                "deliver their best work.",
+    },
+    {
+        "key": "strategic",
+        "icon": "fa-bullseye",
+        "title": "Strategic Excellence",
+        "desc": "Choose the right technology and the right partnerships to keep "
+                "customers a step ahead.",
+    },
+    {
+        "key": "process",
+        "icon": "fa-cogs",
+        "title": "Process & Systems Excellence",
+        "desc": "Standardised, documented and auditable processes from first survey "
+                "to final handover.",
+    },
+    {
+        "key": "innovation",
+        "icon": "fa-lightbulb-o",
+        "title": "Innovation Excellence",
+        "desc": "Continually adopt new automation, IIoT, analytics and energy-saving "
+                "technology.",
+    },
+    {
+        "key": "leadership",
+        "icon": "fa-trophy",
+        "title": "Leadership Excellence",
+        "desc": "Lead by example in quality, safety and integrity across the "
+                "automation industry.",
+    },
+]
+
+# Growth path.  The founding year (1997) and the practice areas are taken from
+# the company's own history; later milestones are described as phases rather
+# than invented dates.
+OD19_GROWTH_PATH = [
+    {
+        "year": "1997",
+        "title": "Founded in Bangkok",
+        "desc": "Established as an engineering and trading company delivering "
+                "automation technology and service to Thai industry.",
+    },
+    {
+        "year": "Growth",
+        "title": "Industrial, Building & Terminal practices",
+        "desc": "Expanded from industrial control into building management systems "
+                "and fuel-terminal automation as one integrated provider.",
+    },
+    {
+        "year": "Leadership",
+        "title": "Life-science & GMP / CSV focus",
+        "desc": "Became a leading Building Automation partner for Thailand's "
+                "life-science sector with GMP and CSV compliance.",
+    },
+    {
+        "year": "Today",
+        "title": "Total integrated automation",
+        "desc": "System design, project management, implementation, training and "
+                "long-term service contracts delivered under one roof.",
+    },
+    {
+        "year": "Ahead",
+        "title": "Southeast Asia's foremost provider",
+        "desc": "Growing towards our vision — being Southeast Asia's foremost "
+                "provider of integrated automation solutions.",
+    },
+]
+
+# The service lines offered across all three automation practices.
+OD19_SERVICES = [
+    {"key": "design", "icon": "fa-drafting-compass",
+     "title": "System Design & Engineering",
+     "desc": "Concept studies, detail design, drawings, bill of materials and "
+             "documentation prepared by in-house engineers."},
+    {"key": "pm", "icon": "fa-tasks",
+     "title": "Project Management",
+     "desc": "Single accountable partner coordinating scope, schedule, vendors "
+             "and handover from start to finish."},
+    {"key": "implementation", "icon": "fa-wrench",
+     "title": "Project Implementation",
+     "desc": "Turnkey installation, configuration, testing and commissioning with "
+             "documented, auditable records."},
+    {"key": "training", "icon": "fa-graduation-cap",
+     "title": "Training Programmes",
+     "desc": "Operator and maintenance training so your team can run and sustain "
+             "the system with confidence."},
+    {"key": "service", "icon": "fa-life-ring",
+     "title": "Service & Maintenance Contracts",
+     "desc": "Preventive maintenance, calibration, on-call support and spare "
+             "parts under clear service-level agreements."},
+    {"key": "supply", "icon": "fa-cubes",
+     "title": "Product Supply",
+     "desc": "Genuine automation hardware and instrumentation from world-class "
+             "brands we engineer with every day."},
+]
+
+# Industries served, drawn from the sectors in the project references and the
+# company's published scope.
+OD19_INDUSTRIES = [
+    {"key": "petrochemical", "icon": "fa-fire",
+     "title": "Petrochemical & Refining",
+     "desc": "Process control, SCADA centralisation and instrumentation for "
+             "refineries and petrochemical plants."},
+    {"key": "manufacturing", "icon": "fa-industry",
+     "title": "Manufacturing & Process Plants",
+     "desc": "Line automation, control-panel retrofit, drives and process "
+             "instrumentation for production facilities."},
+    {"key": "lifescience", "icon": "fa-flask",
+     "title": "Pharmaceutical & Life Sciences",
+     "desc": "GMP-ready HVAC, clean-room control and CSV validation for "
+             "regulated manufacturing."},
+    {"key": "healthcare", "icon": "fa-hospital-o",
+     "title": "Hospitals & Healthcare",
+     "desc": "Building management, environmental monitoring and energy control "
+             "for hospitals and clinics."},
+    {"key": "commercial", "icon": "fa-building",
+     "title": "Commercial & Office Buildings",
+     "desc": "BMS, HVAC control and energy management for offices, hotels and "
+             "mixed-use developments."},
+    {"key": "terminals", "icon": "fa-tint",
+     "title": "Fuel Terminals & Depots",
+     "desc": "Tank gauging, inventory, loading control and overfill prevention "
+             "for fuel terminals and depots."},
+]
+
+# Technology partners whose platforms our engineers deploy and support.
+OD19_PARTNERS = [
+    "Schneider Electric",
+    "Siemens",
+    "Emerson Rosemount",
+    "OPW",
+    "Honeywell",
+    "ABB",
+]
+
+# Frequently asked questions.  Answers are drawn only from facts the website
+# already publishes; used on /faq and emitted as FAQPage structured data so
+# search engines and AI assistants can quote them directly.
+OD19_FAQ = [
+    {
+        "q": "What does The Auto-Info Co., Ltd. do?",
+        "a": "The Auto-Info Co., Ltd. is a Bangkok-based automation system "
+             "integrator delivering total integrated automation solutions across "
+             "Industrial, Building and Terminal automation. We provide system "
+             "design, project management, implementation, training, service and "
+             "maintenance contracts, and product supply.",
+    },
+    {
+        "q": "Which industries does Auto-Info serve?",
+        "a": "We serve petrochemical and refining, manufacturing and process "
+             "plants, pharmaceutical and life-science facilities, hospitals and "
+             "healthcare, commercial and office buildings, and fuel terminals "
+             "and depots.",
+    },
+    {
+        "q": "Is Auto-Info ISO 9001 certified?",
+        "a": "Yes. Our quality management system is certified to ISO 9001:2015, "
+             "covering project delivery, engineering, service and procurement, "
+             "with annual surveillance audits.",
+    },
+    {
+        "q": "Does Auto-Info support GMP and CSV validation?",
+        "a": "Yes. Our building automation for life-science facilities is "
+             "designed, installed and documented to GMP requirements, and we "
+             "deliver computer system validation documentation aligned with "
+             "GAMP 5, including IQ/OQ/PQ protocols.",
+    },
+    {
+        "q": "Which automation platforms and brands does Auto-Info work with?",
+        "a": "We work with Schneider Electric (Modicon PLCs, Magelis HMI, Altivar "
+             "drives), Siemens (Desigo CC, Symaro sensors), Emerson Rosemount "
+             "(instrumentation, Micro Motion, tank gauging) and OPW (loading "
+             "controllers), among others.",
+    },
+    {
+        "q": "Can Auto-Info migrate a legacy PLC or SCADA system?",
+        "a": "Yes. System migration is one of our core Industrial Automation "
+             "services, typically executed during planned shutdowns with no "
+             "production loss, including centralised SCADA, historian and alarm "
+             "management.",
+    },
+    {
+        "q": "Does Auto-Info offer service and maintenance contracts?",
+        "a": "Yes. We provide preventive maintenance, calibration, on-call "
+             "support and genuine spare parts under service and maintenance "
+             "contracts with clear service-level agreements.",
+    },
+    {
+        "q": "Where is Auto-Info located?",
+        "a": "Our head office is at 1359 Soi Ladprao 94 (Panjamitr), Ladprao Rd., "
+             "Plubpla, Wangthonglang, Bangkok 10310, Thailand, with an "
+             "engineering centre at ZENTRO Port Lumlukka K8, Lam Luk Ka, "
+             "Pathumthani.",
+    },
+    {
+        "q": "How do I request a quotation from Auto-Info?",
+        "a": "Send your requirement through the contact form at /contactus, or "
+             "email sales@auto-info.co.th, and our team will route your enquiry "
+             "to the right specialist.",
+    },
+]
+
+# Departmental contact addresses shown across the site.  odoo@auto-info.com is
+# the address for website / Odoo system matters.
+OD19_CONTACT_EMAILS = {
+    "sales": "sales@auto-info.co.th",
+    "hr": "hr@auto-info.co.th",
+    "admin": "admin@auto-info.co.th",
+    "system": "odoo@auto-info.com",
+}
+
+# Default meta keywords.  English and Thai first, then a set of Chinese search
+# terms so visitors searching in Chinese can still find the company (the site
+# itself stays in English/Thai — we only make it discoverable in Chinese).
+OD19_SEO_KEYWORDS = (
+    "automation Thailand, industrial automation, building automation, terminal "
+    "automation, PLC, SCADA, BMS, HVAC, system integrator Bangkok, ISO 9001, "
+    "ระบบอัตโนมัติ, โซลูชันอัตโนมัติ, อุตสาหกรรม, อาคาร, ท่าเรือน้ำมัน, "
+    "自动化, 工业自动化, 楼宇自动化, 码头自动化, 泰国自动化, 系统集成"
+)
+
+
 class Website(models.Model):
     _inherit = "website"
 
@@ -272,6 +591,64 @@ class Website(models.Model):
     def od19_projects(self):
         """Return the project references (see OD19_PROJECT_REFERENCES)."""
         return OD19_PROJECT_REFERENCES
+
+    # ------------------------------------------------------------------
+    # Company story — accessors used by the About / Industries / FAQ pages
+    # ------------------------------------------------------------------
+    @api.model
+    def od19_vision(self):
+        """Return the company vision statement."""
+        return OD19_VISION
+
+    @api.model
+    def od19_mission(self):
+        """Return the company mission statement."""
+        return OD19_MISSION
+
+    @api.model
+    def od19_excellence(self):
+        """Return the six "Excellence" pillars (see OD19_EXCELLENCE)."""
+        return OD19_EXCELLENCE
+
+    @api.model
+    def od19_growth_path(self):
+        """Return the company growth path / milestones (see OD19_GROWTH_PATH)."""
+        return OD19_GROWTH_PATH
+
+    @api.model
+    def od19_services(self):
+        """Return the service lines (see OD19_SERVICES)."""
+        return OD19_SERVICES
+
+    @api.model
+    def od19_industries(self):
+        """Return the industries served (see OD19_INDUSTRIES)."""
+        return OD19_INDUSTRIES
+
+    @api.model
+    def od19_partners(self):
+        """Return the technology partners (see OD19_PARTNERS)."""
+        return OD19_PARTNERS
+
+    @api.model
+    def od19_faq(self):
+        """Return the FAQ entries (see OD19_FAQ)."""
+        return OD19_FAQ
+
+    @api.model
+    def od19_contact_emails(self):
+        """Return the departmental contact addresses (see OD19_CONTACT_EMAILS)."""
+        return OD19_CONTACT_EMAILS
+
+    @api.model
+    def od19_org_founded(self):
+        """Return the year the company was founded."""
+        return OD19_ORG_FOUNDED
+
+    @api.model
+    def od19_seo_keywords(self):
+        """Return the default meta keywords, including the Chinese terms."""
+        return OD19_SEO_KEYWORDS
 
     @api.model
     def od19_setup_website(self):
@@ -310,13 +687,49 @@ class Website(models.Model):
             "url": base_url,
             "logo": "%s/logo.png?company=%s" % (base_url, company.id),
             "description": OD19_ORG_DESCRIPTION,
+            "slogan": OD19_ORG_SLOGAN,
+            "foundingDate": OD19_ORG_FOUNDED,
             "address": dict(OD19_ORG_ADDRESS),
-            "contactPoint": [{
-                "@type": "ContactPoint",
-                "contactType": "sales",
-                "telephone": OD19_ORG_PHONE,
-                "email": OD19_ORG_EMAIL,
-            }],
+            "telephone": OD19_ORG_PHONE,
+            "email": OD19_ORG_EMAIL,
+            "areaServed": [
+                {"@type": "Country", "name": "Thailand"},
+                {"@type": "Place", "name": "Southeast Asia"},
+            ],
+            "knowsAbout": [
+                "Industrial automation",
+                "Building automation",
+                "Terminal automation",
+                "PLC and SCADA systems",
+                "Building management systems (BMS)",
+                "HVAC control",
+                "Tank gauging",
+                "Loading control",
+                "GMP and CSV validation",
+                "Energy management",
+            ],
+            "contactPoint": [
+                {
+                    "@type": "ContactPoint",
+                    "contactType": "sales",
+                    "telephone": OD19_ORG_PHONE,
+                    "email": OD19_CONTACT_EMAILS["sales"],
+                    "areaServed": "TH",
+                    "availableLanguage": ["en", "th"],
+                },
+                {
+                    "@type": "ContactPoint",
+                    "contactType": "customer support",
+                    "email": OD19_CONTACT_EMAILS["admin"],
+                    "areaServed": "TH",
+                },
+                {
+                    "@type": "ContactPoint",
+                    "contactType": "human resources",
+                    "email": OD19_CONTACT_EMAILS["hr"],
+                    "areaServed": "TH",
+                },
+            ],
         }
 
         same_as = [
@@ -351,6 +764,131 @@ class Website(models.Model):
         return json_scriptsafe.dumps(payload, indent=2)
 
     @api.model
+    def od19_faq_jsonld(self):
+        """Return the FAQ entries as FAQPage structured data (JSON string).
+
+        Emitted only on the FAQ page (see views/faq_page.xml).  This is the
+        highest-value markup for answer engines: it lets Google and AI
+        assistants read the question/answer pairs verbatim.
+        """
+        entries = [{
+            "@type": "Question",
+            "name": item["q"],
+            "acceptedAnswer": {"@type": "Answer", "text": item["a"]},
+        } for item in OD19_FAQ]
+        payload = {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": entries,
+        }
+        return json_scriptsafe.dumps(payload, indent=2)
+
+    @api.model
+    def od19_services_jsonld(self):
+        """Return the service lines + industries as ItemList markup (JSON string).
+
+        Helps search engines understand the breadth of what the company offers
+        and the sectors it serves.
+        """
+        base_url = self.env["website"].get_current_website().get_base_url()
+        items = []
+        position = 0
+        for svc in OD19_SERVICES:
+            position += 1
+            items.append({
+                "@type": "ListItem",
+                "position": position,
+                "item": {
+                    "@type": "Service",
+                    "name": svc["title"],
+                    "description": svc["desc"],
+                    "provider": {"@id": "%s#organization" % base_url},
+                    "areaServed": "TH",
+                },
+            })
+        payload = {
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            "name": "Auto-Info automation services",
+            "itemListElement": items,
+        }
+        return json_scriptsafe.dumps(payload, indent=2)
+
+    @api.model
+    def od19_llms_txt(self):
+        """Return an ``llms.txt`` summary of the site for AI / answer engines.
+
+        A compact, plain-text map of the company and its public pages
+        (https://llmstxt.org) so assistants such as ChatGPT, Claude and
+        Perplexity can understand and cite the site from a single file.
+        Every fact comes from the same constants that drive the website.
+        """
+        website = self.env["website"].get_current_website()
+        base_url = website.get_base_url().rstrip("/")
+        addr = OD19_ORG_ADDRESS
+        address_line = "%s, %s %s, Thailand" % (
+            addr["streetAddress"], addr["addressLocality"], addr["postalCode"],
+        )
+
+        lines = [
+            "# %s" % OD19_ORG_NAME,
+            "",
+            "> %s" % OD19_ORG_DESCRIPTION,
+            "",
+            "## Key facts",
+            "- Founded: %s, Bangkok, Thailand" % OD19_ORG_FOUNDED,
+            "- Slogan: %s" % OD19_ORG_SLOGAN,
+            "- Head office: %s" % address_line,
+            "- Phone: %s" % OD19_ORG_PHONE,
+            "- Email: %s" % OD19_ORG_EMAIL,
+            "- Vision: %s" % OD19_VISION,
+            "- Industries: %s" % ", ".join(i["title"] for i in OD19_INDUSTRIES),
+            "- Technology partners: %s" % ", ".join(OD19_PARTNERS),
+            "- Search terms (EN/TH/ZH): %s" % OD19_SEO_KEYWORDS,
+            "",
+            "## Services",
+        ]
+        lines += ["- %s: %s" % (s["title"], s["desc"]) for s in OD19_SERVICES]
+        lines += ["", "## Contact"]
+        lines += [
+            "- Sales: %s" % OD19_CONTACT_EMAILS["sales"],
+            "- Service & maintenance: %s" % OD19_CONTACT_EMAILS["admin"],
+            "- Careers / HR: %s" % OD19_CONTACT_EMAILS["hr"],
+            "- Website & Odoo system: %s" % OD19_CONTACT_EMAILS["system"],
+            "",
+            "## Key pages",
+        ]
+        pages = [
+            ("Home", "/"),
+            ("Industrial Automation", "/industrial-automation"),
+            ("Building Automation", "/building-automation"),
+            ("Terminal Automation", "/terminal-automation"),
+            ("Products", "/products"),
+            ("Industries", "/industries"),
+            ("About Us", "/about-us"),
+            ("Quality & Certifications", "/quality-certifications"),
+            ("Project References", "/portfolio"),
+            ("News & Events", "/blog"),
+            ("Careers", "/careers"),
+            ("FAQ", "/faq"),
+            ("Contact", "/contactus"),
+            ("Customer Portal", "/my"),
+        ]
+        lines += ["- [%s](%s%s)" % (title, base_url, path) for title, path in pages]
+        lines += ["", "## Frequently asked questions"]
+        for item in OD19_FAQ:
+            lines.append("- Q: %s" % item["q"])
+            lines.append("  A: %s" % item["a"])
+        lines += [
+            "",
+            "## Optional",
+            "- [Sitemap](%s/sitemap.xml)" % base_url,
+            "- [robots.txt](%s/robots.txt)" % base_url,
+            "",
+        ]
+        return "\n".join(lines)
+
+    @api.model
     def od19_setup_seo(self):
         """Propagate the company Google Analytics ID and seed robots.txt.
 
@@ -364,8 +902,15 @@ class Website(models.Model):
             vals = {}
             if key and website.google_analytics_key != key:
                 vals["google_analytics_key"] = key
-            if not (website.robots_txt or "").strip():
-                vals["robots_txt"] = OD19_DEFAULT_ROBOTS
+            robots = website.robots_txt or ""
+            if not robots.strip():
+                vals["robots_txt"] = OD19_DEFAULT_ROBOTS + "\n" + OD19_AI_CRAWLER_ROBOTS
+            elif (OD19_AI_CRAWLER_MARKER not in robots
+                    and robots.strip() == OD19_DEFAULT_ROBOTS.strip()):
+                # Top up a robots.txt we seeded ourselves on an earlier upgrade
+                # (i.e. it is still exactly OD19_DEFAULT_ROBOTS) without touching
+                # a value the administrator has customised.
+                vals["robots_txt"] = robots.rstrip() + "\n\n" + OD19_AI_CRAWLER_ROBOTS
             if vals:
                 website.sudo().write(vals)
                 _logger.info(
