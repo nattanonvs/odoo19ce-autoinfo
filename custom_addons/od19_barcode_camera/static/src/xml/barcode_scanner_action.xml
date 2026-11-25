@@ -21,13 +21,13 @@
 
             <div class="od19-barcode-scan-area">
                 <BarcodeVideoScanner
-                    t-if="state.isScanning && state.isSupported"
+                    t-if="state.isScanning &amp;&amp; state.isSupported"
                     facingMode="'environment'"
                     onResult.bind="onScannerResult"
                     onError.bind="onScannerError"
                     delayBetweenScan="1200"
                 />
-                <div t-elif="state.isScanning && !state.isSupported" class="od19-barcode-unsupported">
+                <div t-elif="state.isScanning &amp;&amp; !state.isSupported" class="od19-barcode-unsupported">
                     <i class="fa fa-camera fa-2x mb-2"/>
                     <div>อุปกรณ์/เบราว์เซอร์นี้ไม่รองรับกล้อง</div>
                     <div class="text-muted small">ต้องเปิดผ่าน https หรือ localhost และอนุญาตสิทธิ์กล้อง</div>
@@ -100,7 +100,7 @@
                     </div>
                     <div class="od19-barcode-card-actions">
                         <button
-                            t-if="result.res_model && result.res_id"
+                            t-if="result.res_model &amp;&amp; result.res_id"
                             type="button"
                             class="btn btn-sm btn-outline-secondary"
                             title="เปิดรายการ"
@@ -108,7 +108,7 @@
                         >
                             <i class="fa fa-external-link"/>
                         </button>
-                        <t t-if="state.pickingId && result.matched && (result.type === 'product' || result.type === 'lot')">
+                        <t t-if="state.pickingId &amp;&amp; result.matched &amp;&amp; (result.type === 'product' || result.type === 'lot')">
                             <div class="od19-barcode-qty input-group input-group-sm">
                                 <input
                                     type="number"
