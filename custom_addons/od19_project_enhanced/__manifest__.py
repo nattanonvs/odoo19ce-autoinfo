@@ -25,6 +25,11 @@
         "views/project_pnl_report_views.xml",
         "report/job_assignment_report.xml",
     ],
+    "assets": {
+        "web.assets_backend": [
+            "od19_project_enhanced/static/src/scss/od19_project_form.scss",
+        ],
+    },
     "installable": True,
     "license": "LGPL-3",
     "icon": "/od19_project_enhanced/static/description/icon.svg",

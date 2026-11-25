@@ -1,4 +1,4 @@
-from odoo import fields, models
+from odoo import api, fields, models
 
 
 class ProjectProject(models.Model):
@@ -39,6 +39,20 @@ class ProjectProject(models.Model):
         string="Document Requirements",
         tracking=True,
     )
+    od19_title = fields.Char(
+        string="Project Title",
+        compute="_compute_od19_title",
+        help="Read-only display heading combining the Job Number and the "
+             "project name, formatted as '(job_no) project name'.",
+    )
+
+    @api.depends("job_no", "name")
+    def _compute_od19_title(self):
+        for project in self:
+            if project.job_no:
+                project.od19_title = f"({project.job_no}) {project.name or ''}"
+            else:
+                project.od19_title = project.name or ""
 
     # _od19_get_pnl_values() lives in od19_project_analytic (the shared
     # project/analytic base) and is inherited here; see that module. Do not
