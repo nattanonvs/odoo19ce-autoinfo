@@ -46,6 +46,10 @@
         action stay declared for reference).
     -->
     <record id="menu_od19_my_expenses" model="ir.ui.menu">
+        <!-- ต้องมี name เพื่อให้ติดตั้งโมดูลจากศูนย์ได้ (เดิมอ้างเมนูที่ถูกลบไปแล้ว) -->
+        <field name="name">ใบเบิกของฉัน</field>
+        <field name="parent_id" ref="hr_expense.menu_hr_expense_root"/>
+        <field name="action" ref="action_od19_my_expenses"/>
         <field name="active" eval="False"/>
     </record>
 

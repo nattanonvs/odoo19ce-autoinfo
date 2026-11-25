@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import ast
 import base64
 
 from odoo import Command, fields
@@ -47,11 +48,34 @@ class TestExpenseClaim(AccountTestInvoicingCommon):
             # l10n_th_account_tax ที่บังคับเลข/วันที่ใบกำกับภาษีตอนโพสต์
             "supplier_taxes_id": [Command.clear()],
         })
-        cls.employee = cls.env["hr.employee"].create({"name": "Claim Employee"})
+        cls.employee_partner = cls.env["res.partner"].create({
+            "name": "Claim Employee Contact",
+        })
+        cls.employee = cls.env["hr.employee"].create({
+            "name": "Claim Employee",
+            "work_contact_id": cls.employee_partner.id,
+        })
         cls.analytic = cls.env["account.analytic.account"].create({
             "name": "Claim Analytic",
             "plan_id": cls.env.ref("analytic.analytic_plan_projects").id,
         })
+        # บัญชีสำหรับสายเงินทดรอง/เงินสดย่อย (P2)
+        cls.advance_account = cls.copy_account(
+            cls.company_data["default_account_receivable"],
+            {"name": "Claim Advance (Test)", "reconcile": True},
+        )
+        cls.expense_account = cls.copy_account(
+            cls.company_data["default_account_expense"],
+            {"name": "Claim Advance Expense (Test)"},
+        )
+        cls.advance_product = cls.env["product.product"].create({
+            "name": "Claim Advance Expense Product",
+            "type": "service",
+            "property_account_expense_id": cls.expense_account.id,
+            "supplier_taxes_id": [Command.clear()],
+        })
+        cls.bank_journal = cls.company_data["default_journal_bank"]
+        cls.cash_journal = cls.company_data["default_journal_cash"]
 
     def _make_claim(self, lines=None, with_attachment=True):
         lines = lines or [{"name": "Line A", "total_amount": 100.0}]
@@ -273,13 +297,14 @@ class TestExpenseClaim(AccountTestInvoicingCommon):
         self.assertTrue(all(l.state in ("posted", "paid") for l in claim.line_ids))
 
     # ---------------------------------------------------------------
-    # รอยต่อ: พนักงานยืนยันส่งบัญชี + บังคับแนบหลักฐาน
+    # รอยต่อ: พนักงานยืนยันส่งบัญชี + ส่งได้โดยไม่ต้องแนบหลักฐาน
     # ---------------------------------------------------------------
-    def test_submit_requires_attachment(self):
+    def test_submit_without_attachment(self):
+        """ส่งขออนุมัติได้แม้ไม่มีไฟล์แนบ (บังคับแนบถูกยกเลิกแล้ว)."""
         claim = self._make_claim(with_attachment=False)
-        with self.assertRaises(UserError):
-            claim.action_submit()
-        self.assertEqual(claim.state, "draft")
+        claim.action_submit()
+        self.assertEqual(claim.state, "submitted")
+        self.assertEqual(len(claim.review_ids), 3)
 
     def test_send_to_accounting_requires_approved(self):
         claim = self._make_claim()
@@ -287,6 +312,20 @@ class TestExpenseClaim(AccountTestInvoicingCommon):
         self.assertEqual(claim.state, "submitted")
         with self.assertRaises(UserError):
             claim.action_send_to_accounting()
+
+    # ---------------------------------------------------------------
+    # เอกสารเบิก: พิมพ์ได้ โดยแสดงผู้อนุมัติครบทั้ง 3 ชั้น
+    # ---------------------------------------------------------------
+    def test_print_expense_claim_document(self):
+        claim = self._make_claim([{"name": "A", "total_amount": 100.0}])
+        self._approve_claim(claim)
+        html, _ = self.env["ir.actions.report"]._render_qweb_html(
+            "od19_hr_expense_claim.od19_expense_claim_document", claim.ids)
+        text = html.decode("utf-8") if isinstance(html, bytes) else html
+        self.assertIn(claim.name, text)
+        self.assertIn("Approval Trail", text)
+        for review in claim.review_ids:
+            self.assertIn(review.done_by.name, text)
 
     # ---------------------------------------------------------------
     # K6: ใบเดียวห้ามผสม payment_mode
@@ -333,3 +372,425 @@ class TestExpenseClaim(AccountTestInvoicingCommon):
         visible = self.Claim.with_user(employee_user).search([])
         self.assertIn(own, visible)
         self.assertNotIn(foreign, visible)
+
+    # ---------------------------------------------------------------
+    # P2: เงินทดรอง (advance) — lifecycle ครบวงจร
+    # ---------------------------------------------------------------
+    def _make_advance(self, amount=10000.0, purpose="Site visit",
+                      claim_type="advance", claim_source="self_service", **kw):
+        vals = {
+            "employee_id": self.employee.id,
+            "company_id": self.env.company.id,
+            "claim_type": claim_type,
+            "claim_source": claim_source,
+            "payment_mode": "company_account",
+            "amount": amount,
+            "purpose": purpose,
+            "advance_account_id": self.advance_account.id,
+        }
+        vals.update(kw)
+        return self.Claim.create(vals)
+
+    def _approve_claim_tiers(self, claim, tiers=3):
+        claim.action_submit()
+        claim.with_user(self.supervisor).validate_tier()
+        claim.invalidate_recordset()
+        claim.with_user(self.accountant).validate_tier()
+        claim.invalidate_recordset()
+        if tiers >= 3:
+            claim.with_user(self.ceo).validate_tier()
+            claim.invalidate_recordset()
+        return claim
+
+    def _make_advance_expense(self, amount):
+        return self.env["hr.expense"].create({
+            "name": "Advance Clearing Expense",
+            "employee_id": self.employee.id,
+            "product_id": self.advance_product.id,
+            "total_amount": amount,
+            "payment_mode": "own_account",
+            "company_id": self.env.company.id,
+        })
+
+    def test_advance_requires_company_account(self):
+        with self.assertRaises(ValidationError):
+            self.Claim.create({
+                "employee_id": self.employee.id,
+                "company_id": self.env.company.id,
+                "claim_type": "advance",
+                "payment_mode": "own_account",
+                "amount": 100.0,
+                "purpose": "Test",
+                "advance_account_id": self.advance_account.id,
+            })
+
+    def test_advance_submit_requires_amount(self):
+        claim = self._make_advance(amount=0.0)
+        with self.assertRaises(UserError):
+            claim.action_submit()
+
+    def test_advance_full_lifecycle(self):
+        claim = self._make_advance(10000.0)
+        self._approve_claim_tiers(claim)
+        self.assertEqual(claim.state, "approved")
+        claim.action_pay()
+        claim.invalidate_recordset()
+        self.assertEqual(claim.state, "paid")
+        self.assertEqual(claim.cash_state, "issued")
+        self.assertTrue(claim.payment_id)
+        self.assertAlmostEqual(claim.remaining_amount, 10000.0)
+
+        expense = self._make_advance_expense(10000.0)
+        wizard = self.env["od19.expense.claim.clear"].create({
+            "claim_id": claim.id,
+            "clear_date": fields.Date.context_today(self.env.user),
+            "expense_ids": [Command.set([expense.id])],
+        })
+        wizard.action_clear()
+        claim.invalidate_recordset()
+        self.assertEqual(claim.state, "cleared")
+        self.assertEqual(claim.cash_state, "settled")
+        self.assertAlmostEqual(claim.remaining_amount, 0.0)
+        self.assertEqual(expense.od19_hr_advance_id, claim)
+        self.assertTrue(claim.clear_move_id)
+
+    def test_advance_partial_clear_sets_partially_used(self):
+        claim = self._make_advance(10000.0)
+        self._approve_claim_tiers(claim)
+        claim.action_pay()
+        claim.invalidate_recordset()
+        expense = self._make_advance_expense(4000.0)
+        wizard = self.env["od19.expense.claim.clear"].create({
+            "claim_id": claim.id,
+            "clear_date": fields.Date.context_today(self.env.user),
+            "expense_ids": [Command.set([expense.id])],
+        })
+        wizard.action_clear()
+        claim.invalidate_recordset()
+        self.assertEqual(claim.state, "paid")
+        self.assertEqual(claim.cash_state, "partially_used")
+        self.assertAlmostEqual(claim.remaining_amount, 6000.0)
+
+    def test_advance_clear_with_returned_cash(self):
+        claim = self._make_advance(10000.0)
+        self._approve_claim_tiers(claim)
+        claim.action_pay()
+        claim.invalidate_recordset()
+        expense = self._make_advance_expense(8000.0)
+        wizard = self.env["od19.expense.claim.clear"].create({
+            "claim_id": claim.id,
+            "clear_date": fields.Date.context_today(self.env.user),
+            "journal_id": self.bank_journal.id,
+            "expense_ids": [Command.set([expense.id])],
+            "returned_amount": 2000.0,
+        })
+        wizard.action_clear()
+        claim.invalidate_recordset()
+        self.assertEqual(claim.state, "cleared")
+        self.assertAlmostEqual(claim.remaining_amount, 0.0)
+
+    def test_advance_clear_exceeding_remaining_raises(self):
+        claim = self._make_advance(10000.0)
+        self._approve_claim_tiers(claim)
+        claim.action_pay()
+        claim.invalidate_recordset()
+        expense = self._make_advance_expense(15000.0)
+        wizard = self.env["od19.expense.claim.clear"].create({
+            "claim_id": claim.id,
+            "clear_date": fields.Date.context_today(self.env.user),
+            "expense_ids": [Command.set([expense.id])],
+        })
+        with self.assertRaises(UserError):
+            wizard.action_clear()
+
+    def test_advance_clear_requires_paid(self):
+        claim = self._make_advance(10000.0)
+        self._approve_claim_tiers(claim)
+        expense = self._make_advance_expense(10000.0)
+        wizard = self.env["od19.expense.claim.clear"].create({
+            "claim_id": claim.id,
+            "clear_date": fields.Date.context_today(self.env.user),
+            "expense_ids": [Command.set([expense.id])],
+        })
+        with self.assertRaises(UserError):
+            wizard.action_clear()
+
+    def test_advance_pay_requires_approved(self):
+        claim = self._make_advance(10000.0)
+        with self.assertRaises(UserError):
+            claim.action_pay()
+
+    def test_pay_rejected_for_reimbursement(self):
+        claim = self._make_claim()
+        self._approve_claim(claim)
+        with self.assertRaises(UserError):
+            claim.action_pay()
+
+    # ---------------------------------------------------------------
+    # P2: เงินสดย่อย (petty_cash) — อนุมัติเบา 2 ชั้น (ข้าม CEO)
+    # ---------------------------------------------------------------
+    def _make_petty_cash(self, amount=5000.0):
+        return self.Claim.create({
+            "employee_id": self.employee.id,
+            "company_id": self.env.company.id,
+            "claim_type": "petty_cash",
+            "claim_source": "on_behalf",
+            "submitted_for_id": self.employee.id,
+            "payment_mode": "company_account",
+            "amount": amount,
+            "cash_fund_id": self.cash_journal.id,
+            "advance_account_id": self.advance_account.id,
+            "line_ids": [
+                Command.create({
+                    "name": "Petty Cash Expense",
+                    "product_id": self.product.id,
+                    "total_amount": amount,
+                    "employee_id": self.employee.id,
+                    "payment_mode": "company_account",
+                    "company_id": self.env.company.id,
+                    "analytic_distribution": {str(self.analytic.id): 100.0},
+                })
+            ],
+        })
+
+    def test_petty_cash_requires_on_behalf(self):
+        with self.assertRaises(ValidationError):
+            self.Claim.create({
+                "employee_id": self.employee.id,
+                "company_id": self.env.company.id,
+                "claim_type": "petty_cash",
+                "claim_source": "self_service",
+                "amount": 100.0,
+                "cash_fund_id": self.cash_journal.id,
+            })
+
+    def test_petty_cash_submit_creates_two_reviews(self):
+        claim = self._make_petty_cash()
+        claim.action_submit()
+        self.assertEqual(claim.state, "submitted")
+        self.assertEqual(len(claim.review_ids), 2)
+
+    def test_petty_cash_approved_after_two_tiers(self):
+        claim = self._make_petty_cash()
+        self._approve_claim_tiers(claim, tiers=2)
+        self.assertEqual(claim.state, "approved")
+
+    # ---------------------------------------------------------------
+    # P4: ศูนย์งานฝ่ายบัญชี + เมนู (ซ่อนเมนูเดิม) — §10
+    # ---------------------------------------------------------------
+    def _action_domain(self, action):
+        return ast.literal_eval(action.domain or "[]")
+
+    def _action_context(self, action):
+        return ast.literal_eval(action.context or "{}")
+
+    def test_vendors_menu_keeps_legacy_employee_expenses(self):
+        """Employee Expenses (Vendors) คงไว้เป็นทางเข้า legacy + ติดป้าย (Legacy)."""
+        menu = self.env.ref(
+            "hr_expense.menu_hr_expense_account_employee_expenses")
+        self.assertIn("Legacy", menu.name)
+        self.assertEqual(
+            menu.action,
+            self.env.ref("hr_expense.action_hr_expense_account"),
+        )
+        self.assertEqual(
+            menu.parent_id,
+            self.env.ref("account.menu_finance_payables"),
+        )
+
+    def test_accounting_action_defaults_on_behalf(self):
+        """สร้างใบเบิกแทนพนักงาน: ปุ่มสร้างจากศูนย์งานฝ่ายบัญชี -> on_behalf."""
+        action = self.env.ref(
+            "od19_hr_expense_claim.action_od19_expense_claim_accounting")
+        ctx = self._action_context(action)
+        self.assertEqual(ctx.get("default_claim_source"), "on_behalf")
+        self.assertEqual(ctx.get("search_default_accounting_todo"), 1)
+
+    def test_advance_menu_filter_and_defaults(self):
+        action = self.env.ref(
+            "od19_hr_expense_claim.action_od19_expense_claim_advance")
+        self.assertEqual(action.res_model, "od19.expense.claim")
+        self.assertIn(("claim_type", "=", "advance"), self._action_domain(action))
+        self.assertEqual(
+            self._action_context(action).get("default_claim_type"), "advance")
+        menu = self.env.ref(
+            "od19_hr_expense_claim.menu_od19_expense_claim_advance")
+        self.assertEqual(menu.action, action)
+
+    def test_petty_cash_menu_filter_and_defaults(self):
+        action = self.env.ref(
+            "od19_hr_expense_claim.action_od19_expense_claim_petty_cash")
+        self.assertIn(
+            ("claim_type", "=", "petty_cash"), self._action_domain(action))
+        ctx = self._action_context(action)
+        self.assertEqual(ctx.get("default_claim_type"), "petty_cash")
+        self.assertEqual(ctx.get("default_claim_source"), "on_behalf")
+        menu = self.env.ref(
+            "od19_hr_expense_claim.menu_od19_expense_claim_petty_cash")
+        self.assertEqual(menu.action, action)
+
+    def test_accounting_menu_under_app_root(self):
+        """P4 (ข้อ 2): เมนู 'ศูนย์งานฝ่ายบัญชี' ใต้แอป Expenses ชี้ action บัญชี."""
+        action = self.env.ref(
+            "od19_hr_expense_claim.action_od19_expense_claim_accounting")
+        menu = self.env.ref(
+            "od19_hr_expense_claim.menu_od19_expense_claim_accounting")
+        self.assertEqual(menu.action, action)
+        self.assertEqual(
+            menu.parent_id, self.env.ref("hr_expense.menu_hr_expense_root"))
+        self.assertIn(
+            self.env.ref("account.group_account_manager"), menu.group_ids)
+
+    # ---------------------------------------------------------------
+    # P4: "รออนุมัติฝ่ายบัญชี" (tier ชั้นบัญชี = current) — ตัวกรองพร้อมใช้
+    # ---------------------------------------------------------------
+    def test_waiting_accounting_approval_flag(self):
+        claim = self._make_claim()
+        claim.action_submit()
+        # ค้างที่ชั้น 1 (หัวหน้าแผนก) -> ยังไม่ใช่รอฝ่ายบัญชี
+        self.assertFalse(claim.od19_waiting_accounting_approval)
+        claim.with_user(self.supervisor).validate_tier()
+        claim.invalidate_recordset()
+        # ค้างที่ชั้น 2 (ฝ่ายบัญชี)
+        self.assertTrue(claim.od19_waiting_accounting_approval)
+        claim.with_user(self.accountant).validate_tier()
+        claim.invalidate_recordset()
+        self.assertFalse(claim.od19_waiting_accounting_approval)
+
+    def test_waiting_accounting_approval_search(self):
+        claim = self._make_claim()
+        claim.action_submit()
+        claim.with_user(self.supervisor).validate_tier()
+        claim.invalidate_recordset()
+        found = self.Claim.search(
+            [("od19_waiting_accounting_approval", "=", True)])
+        self.assertIn(claim, found)
+        not_found = self.Claim.search(
+            [("od19_waiting_accounting_approval", "=", False)])
+        self.assertNotIn(claim, not_found)
+
+    # ---------------------------------------------------------------
+    # P4: ฟิลด์อ้างอิงเอกสารรายบรรทัด (§5.3) อยู่บน hr.expense
+    # ---------------------------------------------------------------
+    def test_supplier_doc_fields_on_expense(self):
+        fields = self.env["hr.expense"]._fields
+        for fname in ("od19_supplier_doc_number", "od19_supplier_doc_date",
+                      "od19_supplier_tax_id"):
+            self.assertIn(fname, fields)
+
+    # ---------------------------------------------------------------
+    # 4 แท็บตามประเภท + สรุปยอด + ยอดเบิกรวมสุทธิ (net_total)
+    # ---------------------------------------------------------------
+    def _base_line(self, name, total, **extra):
+        """บรรทัด hr.expense มาตรฐานของใบเบิก (ใช้ product ที่ไม่มีภาษี)."""
+        vals = {
+            "name": name,
+            "product_id": self.product.id,
+            "total_amount": total,
+            "employee_id": self.employee.id,
+            "payment_mode": "own_account",
+            "company_id": self.env.company.id,
+        }
+        vals.update(extra)
+        return Command.create(vals)
+
+    def _make_typed_claim(self):
+        """ใบเบิกที่มีบรรทัดครบทั้ง 4 ประเภท (ทั่วไป/เบี้ยเลี้ยง/ไมเลจ/ค่าผ่านทาง)."""
+        return self.Claim.create({
+            "employee_id": self.employee.id,
+            "company_id": self.env.company.id,
+            "line_ids": [
+                self._base_line("ค่าอุปกรณ์สำนักงาน", 500.0),
+                self._base_line(
+                    "เบี้ยเลี้ยงเดินทาง", 1200.0,
+                    od19_is_per_diem=True, od19_per_diem_days=2.0,
+                    od19_per_diem_reason="ปฏิบัติงานนอกพื้นที่",
+                ),
+                self._base_line(
+                    "ค่าเดินทางตามระยะทาง", 800.0,
+                    od19_is_mileage=True, od19_mileage_distance_km=200.0,
+                ),
+                self._base_line(
+                    "ค่าผ่านทาง", 0.0,
+                    od19_is_toll=True, od19_toll_receipt_count=3,
+                    od19_toll_unit_amount=60.0,
+                ),
+            ],
+        })
+
+    def test_typed_lines_split_into_own_tab(self):
+        """แต่ละ One2many ต่อประเภทแสดงเฉพาะบรรทัดประเภทของตัวเอง."""
+        claim = self._make_typed_claim()
+        self.assertEqual(len(claim.line_ids), 4)
+        for fname in ("general_line_ids", "per_diem_line_ids",
+                      "mileage_line_ids", "toll_line_ids"):
+            self.assertEqual(len(claim[fname]), 1)
+
+        general = claim.general_line_ids
+        per_diem = claim.per_diem_line_ids
+        mileage = claim.mileage_line_ids
+        toll = claim.toll_line_ids
+
+        self.assertFalse(general.od19_is_per_diem)
+        self.assertFalse(general.od19_is_mileage)
+        self.assertFalse(general.od19_is_toll)
+        self.assertTrue(per_diem.od19_is_per_diem)
+        self.assertTrue(mileage.od19_is_mileage)
+        self.assertTrue(toll.od19_is_toll)
+        # ไม่มีบรรทัดใดโผล่ซ้ำในแท็บอื่น
+        self.assertEqual(
+            len(general + per_diem + mileage + toll), len(claim.line_ids))
+
+    def test_breakdown_totals_and_net_total(self):
+        """ยอดแยกประเภท + ยอดเบิกรวมสุทธิ = ผลรวมทั้ง 4 ส่วน = total_amount."""
+        claim = self._make_typed_claim()
+        self.assertAlmostEqual(claim.general_total, 500.0)
+        self.assertAlmostEqual(claim.per_diem_total, 1200.0)
+        self.assertAlmostEqual(claim.mileage_total, 800.0)
+        self.assertAlmostEqual(claim.toll_total, 180.0)
+        self.assertAlmostEqual(claim.net_total, 2680.0)
+        self.assertAlmostEqual(claim.net_total, claim.total_amount)
+
+    def test_toll_line_net_amount_is_count_times_unit(self):
+        """ยอดสุทธิต่อแถวค่าผ่านทาง = จำนวนใบ × ค่าผ่านทางต่อใบ และ sync ยอดรวม."""
+        claim = self._make_typed_claim()
+        toll = claim.toll_line_ids
+        self.assertEqual(toll.od19_toll_receipt_count, 3)
+        self.assertAlmostEqual(toll.od19_toll_unit_amount, 60.0)
+        self.assertAlmostEqual(toll.od19_toll_net_amount, 180.0)
+        # create override sync quantity/total_amount ให้ตรงกับยอดสุทธิ
+        self.assertAlmostEqual(toll.quantity, 3.0)
+        self.assertAlmostEqual(toll.total_amount, 180.0)
+        self.assertTrue(toll.name)
+
+    def test_toll_line_recomputes_on_count_change(self):
+        """แก้จำนวนใบ/ค่าต่อใบ -> ยอดสุทธิและยอดรวมหัวใบอัปเดตตาม."""
+        claim = self._make_typed_claim()
+        toll = claim.toll_line_ids
+        toll.write({"od19_toll_receipt_count": 5})
+        claim.invalidate_recordset()
+        self.assertAlmostEqual(toll.od19_toll_net_amount, 300.0)
+        self.assertAlmostEqual(toll.total_amount, 300.0)
+        self.assertAlmostEqual(claim.toll_total, 300.0)
+        self.assertAlmostEqual(claim.net_total, 500.0 + 1200.0 + 800.0 + 300.0)
+
+    def test_line_type_priority_avoids_double_count(self):
+        """บรรทัดที่ติดหลายธง (toll+mileage) ถูกจัดเป็นค่าผ่านทางเท่านั้น."""
+        claim = self.Claim.create({
+            "employee_id": self.employee.id,
+            "company_id": self.env.company.id,
+            "line_ids": [
+                self._base_line(
+                    "ค่าผ่านทางพร้อมไมล์", 240.0,
+                    od19_is_mileage=True, od19_is_toll=True,
+                    od19_toll_receipt_count=4, od19_toll_unit_amount=60.0,
+                ),
+            ],
+        })
+        line = claim.line_ids
+        self.assertIn(line, claim.toll_line_ids)
+        self.assertNotIn(line, claim.mileage_line_ids)
+        self.assertAlmostEqual(claim.toll_total, 240.0)
+        self.assertAlmostEqual(claim.mileage_total, 0.0)
+        self.assertAlmostEqual(claim.net_total, 240.0)
+        self.assertAlmostEqual(claim.net_total, claim.total_amount)

@@ -3,7 +3,8 @@
 
 Covered: the most recently used vehicle is auto-filled on a new mileage
 expense, the vehicle type/plate snapshot is copied, the last odometer
-reading is offered as the trip's starting reading, creating or writing an
+reading is offered as the trip's starting reading (the employee's own last
+reading takes precedence over the vehicle book), creating or writing an
 expense refreshes the vehicle's last-used date and last odometer, and the
 record rule hides other employees' vehicles.
 """
@@ -104,6 +105,41 @@ class TestVehicleBook(TransactionCase):
             expense = form.save()
         # The employee's own figure is never overwritten by the suggestion.
         self.assertEqual(expense.od19_mileage_odometer_start, 100)
+
+    # ------------------------------------------------------------------
+    # Last odometer is remembered on the employee (employee-first)
+    # ------------------------------------------------------------------
+    def test_end_odometer_remembered_on_employee(self):
+        self.env["hr.expense"].create({
+            "name": "Mileage trip",
+            "employee_id": self.employee.id,
+            "product_id": self.product.id,
+            "payment_mode": "own_account",
+            "od19_is_mileage": True,
+            "od19_mileage_distance_km": 10.0,
+            "od19_mileage_odometer_start": 1000,
+            "od19_mileage_odometer_end": 2000,
+            "quantity": 10.0,
+            "total_amount": 50.0,
+        })
+        self.employee.invalidate_recordset()
+        # Remembered even though the trip has no vehicle in the book.
+        self.assertEqual(self.employee.od19_last_mileage_odometer, 2000)
+
+    def test_employee_memory_precedes_vehicle_book(self):
+        self.env["od19.employee.vehicle"].create({
+            "employee_id": self.employee.id,
+            "od19_plate_number": "ODO-5555",
+            "od19_last_used_date": fields.Date.today() + timedelta(days=3),
+            "od19_last_odometer": 55555,
+        })
+        self.employee.od19_last_mileage_odometer = 44444
+        with self._mileage_form() as form:
+            expense = form.save()
+        self.assertEqual(
+            expense.od19_mileage_vehicle_id.od19_plate_number, "ODO-5555")
+        # The employee's own number wins over the vehicle book suggestion.
+        self.assertEqual(expense.od19_mileage_odometer_start, 44444)
 
     def test_create_records_end_odometer_on_vehicle(self):
         self.env["hr.expense"].create({

@@ -83,7 +83,9 @@ class HrExpense(models.Model):
                     vals.setdefault(fname, value)
         expenses = super().create(vals_list)
         for expense in expenses:
-            if expense.od19_is_mileage and expense.od19_mileage_vehicle_id:
+            if not expense.od19_is_mileage:
+                continue
+            if expense.od19_mileage_vehicle_id:
                 vehicle = expense.od19_mileage_vehicle_id
                 vehicle.od19_last_used_date = (
                     expense.od19_mileage_date
@@ -92,6 +94,7 @@ class HrExpense(models.Model):
                 if expense.od19_mileage_odometer_end:
                     vehicle.od19_last_odometer = (
                         expense.od19_mileage_odometer_end)
+            expense._od19_remember_employee_odometer()
         return expenses
 
     def write(self, vals):
@@ -107,13 +110,16 @@ class HrExpense(models.Model):
             vals.update(self._od19_mileage_snapshot_vals(vehicle))
         result = super().write(vals)
         if ('od19_mileage_odometer_end' in vals
-                or 'od19_mileage_vehicle_id' in vals):
+                or 'od19_mileage_vehicle_id' in vals
+                or 'employee_id' in vals):
             for expense in self:
-                if (expense.od19_is_mileage
-                        and expense.od19_mileage_vehicle_id
+                if not (expense.od19_is_mileage
                         and expense.od19_mileage_odometer_end):
+                    continue
+                if expense.od19_mileage_vehicle_id:
                     expense.od19_mileage_vehicle_id.od19_last_odometer = (
                         expense.od19_mileage_odometer_end)
+                expense._od19_remember_employee_odometer()
         return result
 
     @api.onchange('employee_id')
@@ -344,6 +350,25 @@ class HrExpense(models.Model):
                 ))
 
     # ------------------------------------------------------------------
+    # Supplier document reference, per line (design §5.3, closes gap C4)
+    # ------------------------------------------------------------------
+    # Captures the vendor document behind the line so input VAT can be
+    # traced and audited later. All three are optional at submission time.
+    od19_supplier_doc_number = fields.Char(
+        string='เลขที่ใบกำกับ/ใบเสร็จผู้ขาย / Supplier Doc No',
+        copy=False,
+        help='Number printed on the supplier tax invoice or receipt.',
+    )
+    od19_supplier_doc_date = fields.Date(
+        string='วันที่เอกสารผู้ขาย / Supplier Doc Date',
+        help='Date shown on the supplier document.',
+    )
+    od19_supplier_tax_id = fields.Char(
+        string='เลขผู้เสียภาษีผู้ขาย / Supplier Tax ID',
+        help='Vendor tax ID, used to support a claimable input VAT.',
+    )
+
+    # ------------------------------------------------------------------
     # Per diem allowance - Section 42(3) Revenue Code
     # (เบี้ยเลี้ยง ม.42(3))
     # ------------------------------------------------------------------
@@ -409,6 +434,20 @@ class HrExpense(models.Model):
             expense.od19_per_diem_limit = limit
             expense.od19_per_diem_over_limit = expense.total_amount > limit
 
+    @api.onchange('od19_is_per_diem', 'od19_per_diem_days',
+                  'od19_per_diem_region')
+    def _onchange_od19_per_diem_amount(self):
+        """Offer the standard allowance (rate x days) as the claim amount.
+
+        The value is only a suggestion: the field stays editable so the
+        employee can claim below the standard limit or, with a reason,
+        above it.
+        """
+        if not self.od19_is_per_diem or not self.company_id:
+            return
+        rate = self.company_id._od19_per_diem_rate(self.od19_per_diem_region)
+        self.total_amount = rate * (self.od19_per_diem_days or 0.0)
+
     @api.constrains('od19_is_per_diem', 'od19_per_diem_over_limit',
                     'od19_per_diem_reason')
     def _check_od19_per_diem_over_limit_reason(self):
@@ -443,9 +482,9 @@ class HrExpense(models.Model):
         string='Start Odometer (km) / เลขไมล์เริ่มต้น',
         tracking=True,
         help='Odometer reading when the trip starts. Pre-filled from the '
-             'vehicle book (the last recorded reading) so the employee does '
-             'not have to remember it before leaving. The value stays '
-             'editable.',
+             "employee's last recorded reading (the vehicle book is used as "
+             'a fallback) so the employee does not have to remember it '
+             'before leaving. The value stays editable.',
     )
     od19_mileage_odometer_end = fields.Integer(
         string='End Odometer (km) / เลขไมล์สิ้นสุด',
@@ -511,27 +550,53 @@ class HrExpense(models.Model):
                 expense.od19_mileage_distance_km = end - start
         self._onchange_od19_mileage_amount()
 
-    def _od19_fill_start_odometer(self, vehicle):
-        """Offer the vehicle's last odometer as the trip's starting reading.
+    def _od19_fill_start_odometer(self, vehicle=None):
+        """Offer the last known odometer as the trip's starting reading.
 
-        This is a convenience suggestion only: the field remains editable and
-        nothing is enforced, it just saves the employee from having to
-        remember the number before leaving.
+        The employee's own last reading (``hr.employee``) takes precedence;
+        the vehicle book reading is only a fallback for employees who have no
+        saved number yet. This is a convenience suggestion only: the field
+        remains editable and nothing is enforced, it just saves the employee
+        from having to remember the number before leaving.
         """
-        if (not self.od19_mileage_odometer_start
-                and vehicle and vehicle.od19_last_odometer):
+        self.ensure_one()
+        if self.od19_mileage_odometer_start:
+            return
+        employee = self.employee_id
+        if employee and employee.sudo().od19_last_mileage_odometer:
+            self.od19_mileage_odometer_start = (
+                employee.sudo().od19_last_mileage_odometer)
+        elif vehicle and vehicle.od19_last_odometer:
             self.od19_mileage_odometer_start = vehicle.od19_last_odometer
+
+    def _od19_remember_employee_odometer(self):
+        """Remember the trip's end reading on the employee record.
+
+        Storing the last odometer on ``hr.employee`` lets the same number be
+        offered on the employee's next mileage line even when no vehicle is
+        booked in the vehicle book. ``sudo()`` is required because
+        ``hr.employee`` is not writable by plain employees (only
+        ``hr.group_hr_user`` has model access).
+        """
+        for expense in self:
+            if (expense.od19_is_mileage
+                    and expense.employee_id
+                    and expense.od19_mileage_odometer_end):
+                expense.employee_id.sudo().od19_last_mileage_odometer = (
+                    expense.od19_mileage_odometer_end)
 
     @api.onchange('od19_is_mileage', 'employee_id')
     def _onchange_od19_mileage_vehicle(self):
         for expense in self:
-            if (expense.od19_is_mileage
-                    and not expense.od19_mileage_vehicle_id
-                    and expense.employee_id):
-                last = self.env['od19.employee.vehicle'].search(
-                    [('employee_id', '=', expense.employee_id.id)], limit=1)
-                expense.od19_mileage_vehicle_id = last
-                expense._od19_fill_start_odometer(last)
+            if not expense.od19_is_mileage or not expense.employee_id:
+                continue
+            if not expense.od19_mileage_vehicle_id:
+                expense.od19_mileage_vehicle_id = self.env[
+                    'od19.employee.vehicle'].search(
+                        [('employee_id', '=', expense.employee_id.id)],
+                        limit=1)
+            expense._od19_fill_start_odometer(
+                expense.od19_mileage_vehicle_id)
 
     def _od19_mileage_snapshot_vals(self, vehicle):
         """Snapshot (vehicle type label, plate) copied from ``vehicle``.

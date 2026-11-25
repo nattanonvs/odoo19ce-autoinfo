@@ -8,12 +8,15 @@
             <list string="Expense Claims"
                   decoration-info="state == 'draft'"
                   decoration-warning="state in ('submitted', 'refused')"
-                  decoration-success="state in ('approved', 'sent', 'posted', 'paid')">
+                  decoration-success="state in ('approved', 'sent', 'posted', 'paid', 'cleared')">
                 <field name="name"/>
                 <field name="employee_id"/>
                 <field name="department_id" optional="show"/>
+                <field name="claim_type" widget="badge" optional="show"/>
                 <field name="date"/>
-                <field name="total_amount" sum="Total"/>
+                <field name="total_amount" sum="Total" optional="show"/>
+                <field name="remaining_amount" optional="hide"/>
+                <field name="cash_state" optional="hide"/>
                 <field name="payment_mode" optional="hide"/>
                 <field name="state" widget="badge"/>
                 <field name="currency_id" column_invisible="1"/>
@@ -39,12 +42,23 @@
                             class="btn-primary"
                             groups="account.group_account_manager"
                             invisible="state != 'sent'"/>
+                    <!-- จ่ายเงินทดรอง/เงินสดย่อยให้พนักงาน (approved -> paid) -->
+                    <button name="action_pay" type="object" string="จ่ายเงิน"
+                            class="btn-primary"
+                            invisible="claim_type not in ('advance', 'petty_cash') or state != 'approved'"/>
+                    <!-- เคลียร์เงินทดรอง/เงินสดย่อย (paid -> cleared) -->
+                    <button name="action_open_clear_wizard" type="object" string="เคลียร์/คืนเงิน"
+                            class="btn-primary"
+                            invisible="claim_type not in ('advance', 'petty_cash') or state != 'paid'"/>
                     <button name="action_refuse" type="object" string="Refuse"
                             invisible="state not in ('submitted', 'approved')"/>
                     <button name="action_reset" type="object" string="Reset to Draft"
                             invisible="state != 'refused'"/>
+                    <!-- เอกสารเบิกที่พิมพ์ได้ (มีรายการเบิก + ผู้อนุมัติครบ + ช่องลงนาม) -->
+                    <button name="%(action_report_od19_expense_claim)d" type="action"
+                            string="พิมพ์เอกสารเบิก" class="btn-secondary"/>
                     <field name="state" widget="statusbar"
-                           statusbar_visible="draft,submitted,approved,sent,posted,paid,refused"/>
+                           statusbar_visible="draft,submitted,approved,sent,posted,paid,cleared,refused"/>
                 </header>
                 <sheet>
                     <div class="oe_title">
@@ -55,34 +69,88 @@
                             <field name="employee_id"
                                    readonly="state != 'draft'"/>
                             <field name="department_id" readonly="1"/>
+                            <field name="claim_type" readonly="state != 'draft'"/>
+                            <field name="claim_source" readonly="state != 'draft'"/>
+                            <field name="submitted_for_id"
+                                   invisible="claim_source != 'on_behalf'"
+                                   readonly="state != 'draft'"/>
                             <field name="date" readonly="state != 'draft'"/>
                             <field name="payment_mode" widget="radio" readonly="state != 'draft'"/>
+                            <field name="purpose" invisible="claim_type != 'advance'"
+                                   readonly="state != 'draft'"/>
                         </group>
                         <group>
-                            <field name="total_amount"/>
+                            <field name="net_total" invisible="claim_type == 'advance'"/>
+                            <field name="amount" invisible="claim_type == 'reimbursement'"
+                                   readonly="state != 'draft'"/>
+                            <field name="advance_id" invisible="claim_type != 'reimbursement'"
+                                   readonly="state != 'draft'"/>
+                            <field name="cash_fund_id" invisible="claim_type != 'petty_cash'"
+                                   readonly="state != 'draft'"/>
+                            <field name="advance_account_id" invisible="claim_type == 'reimbursement'"
+                                   readonly="state != 'draft'"/>
+                            <field name="journal_id" invisible="claim_type == 'reimbursement'"
+                                   readonly="state != 'draft'"/>
+                            <field name="payment_method" invisible="claim_type == 'reimbursement'"/>
                             <field name="currency_id" groups="base.group_multi_currency"/>
                             <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <!-- สรุปยอดเบิกแยกตามประเภท (ให้สอดคล้องกับ 4 แท็บด้านล่าง) -->
+                    <group string="สรุปยอดเบิก / Breakdown"
+                           invisible="claim_type != 'reimbursement'">
+                        <group>
+                            <field name="general_total"/>
+                            <field name="per_diem_total"/>
+                        </group>
+                        <group>
+                            <field name="mileage_total"/>
+                            <field name="toll_total"/>
+                        </group>
+                    </group>
+                    <group string="Cash Tracking" invisible="claim_type == 'reimbursement'">
+                        <group>
+                            <field name="cash_state" widget="badge"/>
+                            <field name="cleared_amount"/>
+                            <field name="remaining_amount"/>
+                        </group>
+                        <group>
+                            <field name="payment_date" readonly="1"/>
+                            <field name="clear_date" readonly="1"/>
+                            <field name="payment_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
                             <field name="submit_date" readonly="1"/>
                             <field name="approval_date" readonly="1"/>
                             <field name="transfer_date" readonly="1"/>
                         </group>
                     </group>
                     <notebook>
-                        <page string="Expense Lines" name="lines">
-                            <field name="line_ids"
+                        <!-- แท็บ 1: รายการเบิกทั่วไป (ดึงชุดฟิลด์เดียวกับหน้าค่าใช้จ่ายอื่น) -->
+                        <page string="รายการเบิกทั่วไป" name="general_lines"
+                              invisible="claim_type != 'reimbursement'">
+                            <field name="general_line_ids"
                                    context="{'default_employee_id': employee_id,
                                              'default_payment_mode': payment_mode,
                                              'default_company_id': company_id}">
                                 <list editable="bottom">
+                                    <field name="date" optional="show"/>
                                     <field name="name"/>
                                     <field name="product_id"/>
                                     <field name="quantity"/>
                                     <field name="price_unit"/>
+                                    <field name="od19_document_type" optional="show"/>
                                     <field name="analytic_distribution"
                                            widget="analytic_distribution"
                                            string="Analytic Account"
                                            required="1"
                                            options="{'product_field': 'product_id', 'business_domain': 'expense'}"/>
+                                    <!-- §5.3 ฟิลด์อ้างอิงเอกสารรายบรรทัด (optional) -->
+                                    <field name="od19_supplier_doc_number" optional="hide"/>
+                                    <field name="od19_supplier_doc_date" optional="hide"/>
+                                    <field name="od19_supplier_tax_id" optional="hide"/>
                                     <field name="total_amount" sum="Total"/>
                                     <field name="payment_mode" column_invisible="1"/>
                                     <field name="employee_id" column_invisible="1"/>
@@ -91,7 +159,104 @@
                                 </list>
                             </field>
                         </page>
-                        <page string="Notes" name="notes">
+                        <!-- แท็บ 2: ค่าเบี้ยเลี้ยง ม.42(3) -->
+                        <page string="ค่าเบี้ยเลี้ยง" name="per_diem_lines"
+                              invisible="claim_type != 'reimbursement'">
+                            <field name="per_diem_line_ids"
+                                   context="{'default_employee_id': employee_id,
+                                             'default_payment_mode': payment_mode,
+                                             'default_company_id': company_id,
+                                             'default_od19_is_per_diem': True}">
+                                <list editable="bottom">
+                                    <field name="date" optional="show"/>
+                                    <field name="name"/>
+                                    <field name="product_id"/>
+                                    <field name="od19_per_diem_region"/>
+                                    <field name="od19_per_diem_days"/>
+                                    <field name="total_amount" sum="Total"/>
+                                    <field name="od19_per_diem_standard_rate" readonly="1" optional="hide"/>
+                                    <field name="od19_per_diem_limit" readonly="1" optional="show"/>
+                                    <field name="od19_per_diem_over_limit" readonly="1" optional="show"/>
+                                    <field name="od19_per_diem_reason" optional="hide"/>
+                                    <field name="analytic_distribution"
+                                           widget="analytic_distribution"
+                                           string="Analytic Account"
+                                           required="1"
+                                           options="{'product_field': 'product_id', 'business_domain': 'expense'}"/>
+                                    <field name="od19_is_per_diem" column_invisible="1"/>
+                                    <field name="payment_mode" column_invisible="1"/>
+                                    <field name="employee_id" column_invisible="1"/>
+                                    <field name="company_id" column_invisible="1"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        <!-- แท็บ 3: ค่าเดินทาง (ไมเลจ) -->
+                        <page string="ค่าเดินทาง (ไมเลจ)" name="mileage_lines"
+                              invisible="claim_type != 'reimbursement'">
+                            <field name="mileage_line_ids"
+                                   context="{'default_employee_id': employee_id,
+                                             'default_payment_mode': payment_mode,
+                                             'default_company_id': company_id,
+                                             'default_od19_is_mileage': True}">
+                                <list editable="bottom">
+                                    <field name="date" optional="show"/>
+                                    <field name="name"/>
+                                    <field name="product_id"/>
+                                    <field name="od19_mileage_origin"/>
+                                    <field name="od19_mileage_destination"/>
+                                    <field name="od19_mileage_odometer_start"/>
+                                    <field name="od19_mileage_odometer_end"/>
+                                    <field name="od19_mileage_distance_km"/>
+                                    <field name="od19_mileage_rate" readonly="1"/>
+                                    <field name="total_amount" sum="Total"/>
+                                    <field name="od19_mileage_date" optional="hide"/>
+                                    <field name="analytic_distribution"
+                                           widget="analytic_distribution"
+                                           string="Analytic Account"
+                                           required="1"
+                                           options="{'product_field': 'product_id', 'business_domain': 'expense'}"/>
+                                    <field name="od19_is_mileage" column_invisible="1"/>
+                                    <field name="payment_mode" column_invisible="1"/>
+                                    <field name="employee_id" column_invisible="1"/>
+                                    <field name="company_id" column_invisible="1"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        <!-- แท็บ 4: ค่าผ่านทาง — ระบุแต่ละช่วงตามใบเสร็จในมือ -->
+                        <page string="ค่าผ่านทาง" name="toll_lines"
+                              invisible="claim_type != 'reimbursement'">
+                            <field name="toll_line_ids"
+                                   context="{'default_employee_id': employee_id,
+                                             'default_payment_mode': payment_mode,
+                                             'default_company_id': company_id,
+                                             'default_od19_is_toll': True}">
+                                <list editable="bottom">
+                                    <field name="date" optional="show"/>
+                                    <field name="od19_toll_segment_from"/>
+                                    <field name="od19_toll_segment_to"/>
+                                    <field name="od19_toll_receipt_no"/>
+                                    <field name="od19_toll_receipt_count"/>
+                                    <field name="od19_toll_unit_amount"/>
+                                    <field name="od19_toll_net_amount" readonly="1" sum="Total"/>
+                                    <field name="name" optional="show"/>
+                                    <field name="product_id" optional="hide"/>
+                                    <field name="analytic_distribution"
+                                           widget="analytic_distribution"
+                                           string="Analytic Account"
+                                           required="1"
+                                           options="{'product_field': 'product_id', 'business_domain': 'expense'}"/>
+                                    <field name="od19_is_toll" column_invisible="1"/>
+                                    <field name="total_amount" column_invisible="1"/>
+                                    <field name="payment_mode" column_invisible="1"/>
+                                    <field name="employee_id" column_invisible="1"/>
+                                    <field name="company_id" column_invisible="1"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="หมายเหตุ" name="notes">
                             <field name="note" placeholder="Internal notes..."/>
                         </page>
                     </notebook>
@@ -139,16 +304,95 @@
                 <filter string="Approved" name="approved" domain="[('state', '=', 'approved')]"/>
                 <filter string="Sent to Accounting" name="sent" domain="[('state', '=', 'sent')]"/>
                 <filter string="Posted" name="posted" domain="[('state', '=', 'posted')]"/>
+                <filter string="Paid" name="paid" domain="[('state', '=', 'paid')]"/>
+                <filter string="Cleared" name="cleared" domain="[('state', '=', 'cleared')]"/>
                 <filter string="Refused" name="refused" domain="[('state', '=', 'refused')]"/>
+                <separator/>
+                <filter string="Reimbursement" name="type_reimbursement"
+                        domain="[('claim_type', '=', 'reimbursement')]"/>
+                <filter string="Cash Advance" name="type_advance"
+                        domain="[('claim_type', '=', 'advance')]"/>
+                <filter string="Petty Cash" name="type_petty_cash"
+                        domain="[('claim_type', '=', 'petty_cash')]"/>
+                <separator/>
+                <filter string="Outstanding Cash" name="outstanding_cash"
+                        domain="[('cash_state', 'in', ('issued', 'partially_used'))]"/>
                 <separator/>
                 <filter string="My Claims" name="my_claims"
                         domain="[('employee_id.user_id', '=', uid)]"/>
                 <group>
                     <filter string="Employee" name="group_employee" context="{'group_by': 'employee_id'}"/>
                     <filter string="Department" name="group_department" context="{'group_by': 'department_id'}"/>
+                    <filter string="Claim Type" name="group_claim_type" context="{'group_by': 'claim_type'}"/>
+                    <filter string="Cash State" name="group_cash_state" context="{'group_by': 'cash_state'}"/>
                     <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
                 </group>
             </search>
+        </field>
+    </record>
+
+    <!-- P4: ศูนย์งานฝ่ายบัญชี (§10.3) — search view เฉพาะงานฝ่ายบัญชี -->
+    <record id="view_od19_expense_claim_search_accounting" model="ir.ui.view">
+        <field name="name">od19.expense.claim.search.accounting</field>
+        <field name="model">od19.expense.claim</field>
+        <field name="arch" type="xml">
+            <search string="Search Expense Claims (Accounting)">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="submitted_for_id"/>
+                <filter string="งานฝ่ายบัญชีที่ต้องทำ" name="accounting_todo"
+                        domain="['|', ('state', 'in', ('approved', 'posted')),
+                                        ('cash_state', 'in', ('issued', 'partially_used'))]"/>
+                <filter string="รออนุมัติฝ่ายบัญชี" name="waiting_accounting"
+                        domain="[('od19_waiting_accounting_approval', '=', True)]"/>
+                <separator/>
+                <filter string="อนุมัติครบ รอลงบัญชี" name="acct_to_post"
+                        domain="[('state', '=', 'approved')]"/>
+                <filter string="รอจ่ายคืน" name="acct_to_pay"
+                        domain="[('state', '=', 'posted'), ('claim_type', '=', 'reimbursement')]"/>
+                <filter string="รอเคลียร์ทดรอง/เงินสดย่อย" name="acct_to_clear"
+                        domain="[('cash_state', 'in', ('issued', 'partially_used'))]"/>
+                <separator/>
+                <filter string="เงินสดย่อย" name="acct_petty_cash"
+                        domain="[('claim_type', '=', 'petty_cash')]"/>
+                <filter string="เงินทดรอง" name="acct_advance"
+                        domain="[('claim_type', '=', 'advance')]"/>
+                <filter string="ฝ่ายบัญชีทำแทน" name="acct_on_behalf"
+                        domain="[('claim_source', '=', 'on_behalf')]"/>
+                <separator/>
+                <group>
+                    <filter string="พนักงาน" name="acct_group_employee" context="{'group_by': 'employee_id'}"/>
+                    <filter string="แผนก" name="acct_group_department" context="{'group_by': 'department_id'}"/>
+                    <filter string="ประเภท" name="acct_group_claim_type" context="{'group_by': 'claim_type'}"/>
+                    <filter string="แหล่งที่มา" name="acct_group_claim_source" context="{'group_by': 'claim_source'}"/>
+                    <filter string="สถานะ" name="acct_group_state" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- P4: คอลัมน์ของศูนย์งานฝ่ายบัญชี (§10.3) -->
+    <record id="view_od19_expense_claim_list_accounting" model="ir.ui.view">
+        <field name="name">od19.expense.claim.list.accounting</field>
+        <field name="model">od19.expense.claim</field>
+        <field name="arch" type="xml">
+            <list string="Employee Expenses"
+                  decoration-info="state == 'draft'"
+                  decoration-warning="state in ('submitted', 'refused')"
+                  decoration-success="state in ('approved', 'sent', 'posted', 'paid', 'cleared')">
+                <field name="date"/>
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="submitted_for_id" optional="hide"/>
+                <field name="claim_type" widget="badge"/>
+                <field name="claim_source" optional="show"/>
+                <field name="total_amount" sum="Total"/>
+                <field name="validation_status" optional="show"/>
+                <field name="state" widget="badge"/>
+                <field name="cash_state" optional="show"/>
+                <field name="remaining_amount" optional="show"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
         </field>
     </record>
 
@@ -189,6 +433,101 @@
         groups="hr_expense.group_hr_expense_manager,account.group_account_manager"
     />
 
+    <!-- ================================================================
+         P4: เมนูเป้าหมาย (§10.1)
+         - ใบขอเงินทดรอง      : กรอง claim_type=advance (รวมจาก menu_od19_hr_advance)
+         - เงินสดย่อย (บัญชี)  : กรอง claim_type=petty_cash (ทางลัดไปศูนย์งานฝ่ายบัญชี)
+         - Employee Expenses   : ดัดแปลงเป็นศูนย์งานฝ่ายบัญชี (override ด้านล่าง)
+         ================================================================ -->
+    <record id="action_od19_expense_claim_advance" model="ir.actions.act_window">
+        <field name="name">ใบขอเงินทดรอง</field>
+        <field name="res_model">od19.expense.claim</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('claim_type', '=', 'advance')]</field>
+        <field name="context">{'search_default_type_advance': 1,
+                                'default_claim_type': 'advance',
+                                'default_payment_mode': 'company_account'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">ขอเงินทดรองใบแรก</p>
+            <p>ขอเงินทดรองล่วงหน้า อนุมัติที่หัวใบครั้งเดียว จ่ายเงิน แล้วเคลียร์ด้วยใบเบิกคืน</p>
+        </field>
+    </record>
+
+    <record id="action_od19_expense_claim_petty_cash" model="ir.actions.act_window">
+        <field name="name">เงินสดย่อย (ฝ่ายบัญชี)</field>
+        <field name="res_model">od19.expense.claim</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('claim_type', '=', 'petty_cash')]</field>
+        <field name="context">{'search_default_type_petty_cash': 1,
+                                'default_claim_type': 'petty_cash',
+                                'default_claim_source': 'on_behalf',
+                                'default_payment_mode': 'company_account'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">สร้างใบเงินสดย่อย</p>
+            <p>ฝ่ายบัญชีสร้างใบแทนพนักงาน จ่ายจากกองทุนเงินสดย่อย แล้วใช้/ปิดตามแนวคิดเงินค้างมือเดียวกับทดรอง</p>
+        </field>
+    </record>
+
+    <record id="action_od19_expense_claim_accounting" model="ir.actions.act_window">
+        <field name="name">Employee Expenses (Accounting)</field>
+        <field name="res_model">od19.expense.claim</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="view_od19_expense_claim_search_accounting"/>
+        <field name="view_id" ref="view_od19_expense_claim_list_accounting"/>
+        <field name="domain">[]</field>
+        <field name="context">{'search_default_accounting_todo': 1,
+                                'default_claim_source': 'on_behalf'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">ไม่มีงานฝ่ายบัญชีค้าง</p>
+            <p>ศูนย์งานฝ่ายบัญชี: สร้างใบเบิกแทนพนักงาน/เงินสดย่อย, บันทึกบัญชี, จ่ายคืน, เคลียร์ทดรอง</p>
+        </field>
+    </record>
+
+    <menuitem
+        id="menu_od19_expense_claim_advance"
+        name="ใบขอเงินทดรอง"
+        parent="hr_expense.menu_hr_expense_root"
+        action="action_od19_expense_claim_advance"
+        sequence="4"
+    />
+    <menuitem
+        id="menu_od19_expense_claim_petty_cash"
+        name="เงินสดย่อย (ฝ่ายบัญชี)"
+        parent="hr_expense.menu_hr_expense_root"
+        action="action_od19_expense_claim_petty_cash"
+        sequence="5"
+        groups="account.group_account_manager"
+    />
+
+    <!--
+        P4 (ข้อ 2) — ทางเข้าตรงชื่อสำหรับฝ่ายบัญชี: เพิ่มเมนู "ศูนย์งานฝ่ายบัญชี"
+        ใต้แอป Expenses เอง (ไม่ต้องไปงมหาใต้ Accounting ▸ Vendors) ชี้ action
+        เดียวกับเมนู vendor ด้านล่าง (action_od19_expense_claim_accounting)
+    -->
+    <menuitem
+        id="menu_od19_expense_claim_accounting"
+        name="ศูนย์งานฝ่ายบัญชี (Employee Expenses)"
+        parent="hr_expense.menu_hr_expense_root"
+        action="action_od19_expense_claim_accounting"
+        sequence="6"
+        groups="account.group_account_manager"
+    />
+
+    <!--
+        P4 (ปรับตามคำสั่ง) — เมนู "Employee Expenses" ใต้ Accounting ▸ Vendors
+        คงไว้เป็น *ทางเข้าแบบเดิม (legacy)* ชี้ action core hr.expense
+        (hr_expense.action_hr_expense_account, path "expenses-employee")
+        แล้วติดป้าย "(Legacy)" ให้ชัดว่าเป็นของเก่า
+        ส่วนศูนย์งานฝ่ายบัญชีของ claim ใหม่ย้ายไปอยู่ใต้แอป Expenses แล้ว
+        (menu_od19_expense_claim_accounting ด้านบน)
+    -->
+    <record id="hr_expense.menu_hr_expense_account_employee_expenses" model="ir.ui.menu">
+        <field name="name">Employee Expenses (Legacy)</field>
+        <field name="action" ref="hr_expense.action_hr_expense_account"/>
+        <field name="group_ids" eval="[(6, 0, [ref('hr_expense.group_hr_expense_user'),
+                                              ref('account.group_account_manager')])]"/>
+    </record>
+
     <!--
         App switcher / landing page fix.
         The "Expenses" app root (``hr_expense.menu_hr_expense_root``) has no
@@ -200,6 +539,12 @@
         always opens the correct page.
     -->
     <record id="hr_expense.menu_hr_expense_root" model="ir.ui.menu">
+        <!--
+            P4 (ข้อ 3) — ไทล์แอปใช้ชื่อกลาง (ไม่ผูกบทบาท employee/accounting)
+            บทบาทจริงกำกับที่ชื่อเมนูย่อยด้านบน: "ใบเบิกของฉัน" (พนักงาน) และ
+            "ศูนย์งานฝ่ายบัญชี (Employee Expenses)" (ฝ่ายบัญชี)
+        -->
+        <field name="name">ค่าใช้จ่าย</field>
         <field name="action" ref="action_od19_expense_claim_my"/>
     </record>
 

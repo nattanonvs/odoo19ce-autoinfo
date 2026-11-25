@@ -1,0 +1,14 @@
+# Thai translation for od19_hr_expense_claim
+msgid ""
+msgstr ""
+"Project-Id-Version: od19_hr_expense_claim\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: th\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#. module: od19_hr_expense_claim
+#: model:ir.ui.menu,name:hr_expense.menu_hr_expense_account_employee_expenses
+msgid "Employee Expenses (Legacy)"
+msgstr "รายจ่ายพนักงาน (Legacy)"

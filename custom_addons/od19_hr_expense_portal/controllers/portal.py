@@ -25,6 +25,7 @@ _logger = logging.getLogger(__name__)
 
 _MAP_PROVIDER_PARAM = 'od19_hr_expense_portal.map_provider'
 _MAP_API_KEY_PARAM = 'od19_hr_expense_portal.map_api_key'
+_ADVANCE_ACCOUNT_PARAM = 'od19_hr_expense_portal.advance_account_id'
 _ORS_GEOCODE_URL = 'https://api.openrouteservice.org/geocode/search'
 _ORS_DIRECTIONS_URL = 'https://api.openrouteservice.org/v2/directions/driving-car'
 _MAP_REQUEST_TIMEOUT = 10
@@ -298,3 +299,211 @@ class Od19HrExpensePortal(CustomerPortal):
         if claim.state == 'draft':
             claim.action_submit()
         return request.redirect('/my/expenses/%s' % expense_id)
+
+    @http.route(
+        '/my/expenses/<int:expense_id>/print', type='http', auth='user',
+        website=True,
+    )
+    def portal_my_expense_print(self, expense_id, **kw):
+        """Return the printable expense-claim document (PDF) for its owner.
+
+        The claim is fetched through ``_expense_check_access`` (owner-only),
+        then rendered in sudo so the portal user does not need back-office
+        access to the analytic accounts referenced by the report.
+        """
+        try:
+            claim = self._expense_check_access(expense_id)
+        except MissingError:
+            return request.not_found()
+        pdf_content, _report_type = request.env[
+            'ir.actions.report'
+        ].sudo()._render_qweb_pdf(
+            'od19_hr_expense_claim.od19_expense_claim_document', claim.ids)
+        return request.make_response(
+            pdf_content,
+            headers=[
+                ('Content-Type', 'application/pdf'),
+                ('Content-Disposition',
+                 'inline; filename="ExpenseClaim-%s.pdf"'
+                 % (claim.name or claim.id)),
+            ],
+        )
+
+    # ------------------------------------------------------------
+    # My Advances (P3 — employee-facing cash-advance requests)
+    # ------------------------------------------------------------
+    def _advance_domain(self):
+        """Restrict advances to the current user's own cash-advance claims."""
+        return [
+            ('employee_id.user_id', '=', request.env.user.id),
+            ('claim_type', '=', 'advance'),
+        ]
+
+    def _advance_check_access(self, advance_id):
+        """Return the advance if it belongs to the current user, else raise."""
+        advance = request.env['od19.expense.claim'].sudo().search(
+            self._advance_domain() + [('id', '=', advance_id)], limit=1)
+        if not advance:
+            raise MissingError(
+                _("The advance does not exist or you do not have access to it."))
+        return advance
+
+    def _od19_default_advance_account(self, employee):
+        """Resolve the employee-advance account used for portal requests.
+
+        The employee never picks an accounting account: an operator may set
+        ``od19_hr_expense_portal.advance_account_id`` (system parameter);
+        otherwise the employee contact's payable account is used.
+        """
+        param = request.env['ir.config_parameter'].sudo().get_param(
+            _ADVANCE_ACCOUNT_PARAM)
+        Account = request.env['account.account'].sudo()
+        if param:
+            try:
+                account = Account.browse(int(param)).exists()
+            except (TypeError, ValueError):
+                account = Account.browse()
+            if account:
+                return account
+        partner = employee.work_contact_id or employee.user_id.partner_id
+        return partner.property_account_payable_id
+
+    def _prepare_advance_form_values(self):
+        """Values needed to render the cash-advance request form."""
+        return {
+            'employee': request.env.user.employee_id,
+            'today': fields.Date.context_today(request.env.user),
+            'form': {},
+        }
+
+    @http.route(
+        ['/my/advances', '/my/advances/page/<int:page>'],
+        type='http', auth='user', website=True,
+    )
+    def portal_my_advances(self, page=1, **kw):
+        values = self._prepare_portal_layout_values()
+        Claim = request.env['od19.expense.claim'].sudo()
+        domain = self._advance_domain()
+
+        pager = portal_pager(
+            url='/my/advances',
+            url_args={},
+            total=Claim.search_count(domain),
+            page=page,
+            step=self._items_per_page,
+        )
+        advances = Claim.search(
+            domain, order='date desc, id desc',
+            limit=self._items_per_page, offset=pager['offset'],
+        )
+        values.update({
+            'advances': advances,
+            'page_name': 'advance',
+            'pager': pager,
+            'default_url': '/my/advances',
+        })
+        return request.render(
+            'od19_hr_expense_portal.portal_my_advances', values)
+
+    @http.route(
+        '/my/advances/new', type='http', auth='user', website=True,
+        methods=['GET'],
+    )
+    def portal_my_advance_new(self, **kw):
+        if not request.env.user.employee_id:
+            return request.redirect('/my')
+        values = self._prepare_portal_layout_values()
+        values.update(self._prepare_advance_form_values())
+        values['page_name'] = 'advance'
+        return request.render(
+            'od19_hr_expense_portal.portal_my_advance_new', values)
+
+    @http.route(
+        '/my/advances/new', type='http', auth='user', website=True,
+        methods=['POST'],
+    )
+    def portal_my_advance_new_post(self, **post):
+        if not request.env.user.employee_id:
+            return request.redirect('/my')
+        employee = request.env.user.employee_id
+
+        def _float(value):
+            try:
+                return float(value)
+            except (TypeError, ValueError):
+                return 0.0
+
+        vals = {
+            'advance_date': post.get('advance_date')
+            or fields.Date.context_today(request.env.user),
+            'amount': _float(post.get('amount')),
+            'purpose': (post.get('purpose') or '').strip(),
+            'submit_now': bool(post.get('submit_now')),
+        }
+        error = None
+        account = self._od19_default_advance_account(employee)
+        if not account:
+            error = _(
+                "ยังไม่ได้ตั้งค่าบัญชีเงินทดรอง/ลูกหนี้พนักงาน "
+                "กรุณาติดต่อฝ่ายบัญชี")
+        claim = None
+        if not error:
+            try:
+                claim = request.env['od19.expense.claim'].sudo().create({
+                    'employee_id': employee.id,
+                    'company_id': request.env.company.id,
+                    'claim_type': 'advance',
+                    'claim_source': 'self_service',
+                    'payment_mode': 'company_account',
+                    'date': vals['advance_date'],
+                    'amount': vals['amount'],
+                    'purpose': vals['purpose'],
+                    'advance_account_id': account.id,
+                })
+                if vals['submit_now']:
+                    claim.action_submit()
+            except (UserError, ValidationError) as exc:
+                _logger.info("Portal advance submission rejected: %s", exc)
+                error = exc.args[0] if exc.args else _(
+                    "Unable to create the advance request.")
+        if error:
+            values = self._prepare_portal_layout_values()
+            values.update(self._prepare_advance_form_values())
+            values.update({
+                'page_name': 'advance',
+                'error': error,
+                'form': vals,
+            })
+            return request.render(
+                'od19_hr_expense_portal.portal_my_advance_new', values)
+        return request.redirect('/my/advances/%s' % claim.id)
+
+    @http.route(
+        '/my/advances/<int:advance_id>', type='http', auth='user',
+        website=True,
+    )
+    def portal_my_advance_detail(self, advance_id, **kw):
+        try:
+            advance = self._advance_check_access(advance_id)
+        except MissingError:
+            return request.not_found()
+        values = self._prepare_portal_layout_values()
+        values.update({
+            'advance': advance,
+            'page_name': 'advance',
+        })
+        return request.render(
+            'od19_hr_expense_portal.portal_my_advance_detail', values)
+
+    @http.route(
+        '/my/advances/<int:advance_id>/submit', type='http', auth='user',
+        website=True, methods=['POST'],
+    )
+    def portal_my_advance_submit(self, advance_id, **post):
+        try:
+            advance = self._advance_check_access(advance_id)
+        except MissingError:
+            return request.not_found()
+        if advance.state == 'draft':
+            advance.action_submit()
+        return request.redirect('/my/advances/%s' % advance_id)
