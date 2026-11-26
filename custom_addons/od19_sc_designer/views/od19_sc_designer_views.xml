@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Designer — front-end for the five config-engine dimensions -->
+    <record id="action_od19_sc_designer" model="ir.actions.client">
+        <field name="name">Designer</field>
+        <field name="tag">od19_sc.designer</field>
+    </record>
+
+    <menuitem id="menu_od19_sc_designer"
+              name="Designer"
+              parent="od19_sc_core.menu_od19_sc_root"
+              action="action_od19_sc_designer"
+              groups="od19_sc_core.group_sc_designer"
+              sequence="5"/>
+</odoo>

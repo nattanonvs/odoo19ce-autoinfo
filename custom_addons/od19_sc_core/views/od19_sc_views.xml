@@ -1,0 +1,515 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ===================== Designed Template ===================== -->
+    <record id="view_od19_sc_template_list" model="ir.ui.view">
+        <field name="name">od19.sc.template.list</field>
+        <field name="model">od19.sc.template</field>
+        <field name="arch" type="xml">
+            <list string="Designed Templates">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="department"/>
+                <field name="header_title"/>
+                <field name="menu_node_count"/>
+                <field name="field_def_count"/>
+                <field name="design_token_count"/>
+                <field name="formula_count"/>
+                <field name="integration_count"/>
+                <field name="active" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_od19_sc_template_form" model="ir.ui.view">
+        <field name="name">od19.sc.template.form</field>
+        <field name="model">od19.sc.template</field>
+        <field name="arch" type="xml">
+            <form string="Designed Template">
+                <header>
+                    <button name="action_preview" type="object" string="Preview"
+                            class="btn-secondary"/>
+                    <button name="action_apply" type="object" string="Apply"
+                            class="btn-primary"/>
+                    <button name="action_rollback_last" type="object" string="Rollback Last"
+                            class="btn-secondary"
+                            confirm="ย้อนกลับไปใช้ revision ล่าสุด (ก่อน apply)?"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="เช่น Service Center Template 01"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="department"/>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                        </group>
+                        <group>
+                            <field name="header_title" placeholder="เช่น TA Service &amp; Equipment Workload Monitoring"/>
+                            <field name="header_subtitle"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Menu" name="menu">
+                            <field name="menu_node_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="parent_id"/>
+                                    <field name="menu_type"/>
+                                    <field name="target_model"/>
+                                    <field name="target_url" optional="hide"/>
+                                    <field name="client_tag" optional="hide"/>
+                                    <field name="group_ids" widget="many2many_tags" optional="hide"/>
+                                    <field name="active"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Fields" name="fields">
+                            <field name="field_def_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="mode"/>
+                                    <field name="target_model"/>
+                                    <field name="name"/>
+                                    <field name="field_description"/>
+                                    <field name="ttype"/>
+                                    <field name="required"/>
+                                    <field name="readonly"/>
+                                    <field name="active"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Design" name="design">
+                            <field name="design_token_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="key"/>
+                                    <field name="value"/>
+                                    <field name="active"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Formula" name="formula">
+                            <field name="formula_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="target_model"/>
+                                    <field name="target_field"/>
+                                    <field name="trigger"/>
+                                    <field name="active"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Integration" name="integration">
+                            <field name="integration_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="direction"/>
+                                    <field name="url"/>
+                                    <field name="method"/>
+                                    <field name="schedule"/>
+                                    <field name="active"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Revisions" name="revisions">
+                            <field name="revision_ids" readonly="1">
+                                <list>
+                                    <field name="id"/>
+                                    <field name="name"/>
+                                    <field name="user_id"/>
+                                    <field name="note"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                    <group string="Notes">
+                        <field name="note" nolabel="1" placeholder="คำอธิบายเทมเพลต/แผนก"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_od19_sc_template_search" model="ir.ui.view">
+        <field name="name">od19.sc.template.search</field>
+        <field name="model">od19.sc.template</field>
+        <field name="arch" type="xml">
+            <search string="Designed Templates">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="department"/>
+                <filter name="filter_active" string="Active" domain="[('active', '=', True)]"/>
+                <filter name="filter_inactive" string="Archived" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_od19_sc_template" model="ir.actions.act_window">
+        <field name="name">Designed Templates</field>
+        <field name="res_model">od19.sc.template</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                สร้าง Designed Template สำหรับแผนกของคุณ
+            </p>
+            <p>
+                เทมเพลตหนึ่งใบรวมการออกแบบ 5 มิติ — เมนู · ฟิลด์/Label · ดีไซน์ ·
+                การคำนวณ · การเชื่อมต่อ. กด <b>Preview</b> เพื่อดูภาพรวม แล้ว <b>Apply</b>
+                เพื่อสร้างของจริง (มี revision ให้ย้อนกลับได้เสมอ).
+            </p>
+        </field>
+    </record>
+
+    <!-- ===================== Menu Node ===================== -->
+    <record id="view_od19_sc_menu_node_list" model="ir.ui.view">
+        <field name="name">od19.sc.menu.node.list</field>
+        <field name="model">od19.sc.menu.node</field>
+        <field name="arch" type="xml">
+            <list string="Menu Nodes">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="template_id"/>
+                <field name="parent_id"/>
+                <field name="menu_type"/>
+                <field name="target_model"/>
+                <field name="ir_menu_id" optional="hide"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_od19_sc_menu_node_form" model="ir.ui.view">
+        <field name="name">od19.sc.menu.node.form</field>
+        <field name="model">od19.sc.menu.node</field>
+        <field name="arch" type="xml">
+            <form string="Menu Node">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="template_id"/>
+                            <field name="parent_id"/>
+                            <field name="sequence"/>
+                        </group>
+                        <group>
+                            <field name="menu_type"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Target">
+                            <field name="target_model"
+                                   invisible="menu_type != 'window'"/>
+                            <field name="view_mode"
+                                   invisible="menu_type != 'window'"/>
+                            <field name="target_url"
+                                   invisible="menu_type != 'url'"/>
+                            <field name="client_tag"
+                                   invisible="menu_type != 'client'"/>
+                        </group>
+                        <group string="Visibility">
+                            <field name="group_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    <group string="Materialized" groups="base.group_no_one">
+                        <field name="ir_menu_id"/>
+                        <field name="ir_action_id"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ===================== Field Definition ===================== -->
+    <record id="view_od19_sc_field_def_list" model="ir.ui.view">
+        <field name="name">od19.sc.field.def.list</field>
+        <field name="model">od19.sc.field.def</field>
+        <field name="arch" type="xml">
+            <list string="Field Definitions">
+                <field name="sequence" widget="handle"/>
+                <field name="target_model"/>
+                <field name="field_description"/>
+                <field name="name"/>
+                <field name="ttype"/>
+                <field name="mode"/>
+                <field name="required"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_od19_sc_field_def_form" model="ir.ui.view">
+        <field name="name">od19.sc.field.def.form</field>
+        <field name="model">od19.sc.field.def</field>
+        <field name="arch" type="xml">
+            <form string="Field Definition">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="target_model"/>
+                            <field name="mode"/>
+                            <field name="name"/>
+                            <field name="field_description"/>
+                            <field name="ttype"/>
+                            <field name="relation"
+                                   invisible="ttype not in ('many2one', 'many2many')"/>
+                        </group>
+                        <group>
+                            <field name="required"/>
+                            <field name="readonly"/>
+                            <field name="invisible"/>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="help"/>
+                    </group>
+                    <field name="selection_values"
+                           placeholder="หนึ่งบรรทัดต่อหนึ่งค่า: key|Label"
+                           invisible="ttype != 'selection'"/>
+                    <group string="Materialized" groups="base.group_no_one">
+                        <field name="ir_field_id"/>
+                        <field name="ir_view_id"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ===================== Design Token ===================== -->
+    <record id="view_od19_sc_design_token_list" model="ir.ui.view">
+        <field name="name">od19.sc.design.token.list</field>
+        <field name="model">od19.sc.design.token</field>
+        <field name="arch" type="xml">
+            <list string="Design Tokens">
+                <field name="sequence" widget="handle"/>
+                <field name="key"/>
+                <field name="value"/>
+                <field name="template_id"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_od19_sc_design_token_form" model="ir.ui.view">
+        <field name="name">od19.sc.design.token.form</field>
+        <field name="model">od19.sc.design.token</field>
+        <field name="arch" type="xml">
+            <form string="Design Token">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="key" placeholder="--sc-primary"/>
+                            <field name="value" placeholder="#7c5cff"/>
+                        </group>
+                        <group>
+                            <field name="template_id"/>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ===================== Formula ===================== -->
+    <record id="view_od19_sc_formula_list" model="ir.ui.view">
+        <field name="name">od19.sc.formula.list</field>
+        <field name="model">od19.sc.formula</field>
+        <field name="arch" type="xml">
+            <list string="Formulas">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="target_model"/>
+                <field name="target_field"/>
+                <field name="trigger"/>
+                <field name="template_id"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_od19_sc_formula_form" model="ir.ui.view">
+        <field name="name">od19.sc.formula.form</field>
+        <field name="model">od19.sc.formula</field>
+        <field name="arch" type="xml">
+            <form string="Formula">
+                <header>
+                    <button name="action_test" type="object" string="Test" class="btn-secondary"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="template_id"/>
+                            <field name="target_model"/>
+                            <field name="target_field"/>
+                            <field name="trigger"/>
+                        </group>
+                        <group>
+                            <field name="cron_interval_number"
+                                   invisible="trigger != 'cron'"/>
+                            <field name="cron_interval_type"
+                                   invisible="trigger != 'cron'"/>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                            <field name="last_result"/>
+                        </group>
+                    </group>
+                    <field name="expression"
+                           placeholder="เช่น record.quantity * record.price_unit"/>
+                    <group string="Materialized" groups="base.group_no_one">
+                        <field name="ir_action_id"/>
+                        <field name="ir_automation_id"/>
+                        <field name="ir_cron_id"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ===================== Integration Endpoint ===================== -->
+    <record id="view_od19_sc_integration_list" model="ir.ui.view">
+        <field name="name">od19.sc.integration.list</field>
+        <field name="model">od19.sc.integration.endpoint</field>
+        <field name="arch" type="xml">
+            <list string="Integration Endpoints">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="direction"/>
+                <field name="url"/>
+                <field name="method"/>
+                <field name="last_status"/>
+                <field name="last_run"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_od19_sc_integration_form" model="ir.ui.view">
+        <field name="name">od19.sc.integration.form</field>
+        <field name="model">od19.sc.integration.endpoint</field>
+        <field name="arch" type="xml">
+            <form string="Integration Endpoint">
+                <header>
+                    <button name="action_test_connection" type="object" string="Test Connection"
+                            class="btn-secondary"
+                            invisible="direction != 'outbound'"/>
+                    <button name="action_run_now" type="object" string="Run Now"
+                            class="btn-primary"
+                            invisible="direction != 'outbound'"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="template_id"/>
+                            <field name="direction"/>
+                            <field name="url"/>
+                            <field name="method" invisible="direction != 'outbound'"/>
+                        </group>
+                        <group>
+                            <field name="auth_token_param"
+                                   help="ชื่อ ir.config_parameter ที่เก็บ token (ไม่เก็บค่า token ที่นี่)"/>
+                            <field name="mapping_model"/>
+                            <field name="schedule" invisible="direction != 'outbound'"/>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Request" name="request" invisible="direction != 'outbound'">
+                            <group>
+                                <field name="headers" placeholder='{"X-Api-Key": "..."}'/>
+                                <field name="payload_template"
+                                       placeholder='{"hello": "world"} หรือนิพจน์ Python'/>
+                            </group>
+                        </page>
+                        <page string="Schedule" name="schedule" invisible="direction != 'outbound'">
+                            <group>
+                                <field name="cron_interval_number"/>
+                                <field name="cron_interval_type"/>
+                                <field name="ir_cron_id" groups="base.group_no_one"/>
+                            </group>
+                        </page>
+                        <page string="Last run" name="last">
+                            <group>
+                                <field name="last_status"/>
+                                <field name="last_run"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ===================== Revision ===================== -->
+    <record id="view_od19_sc_revision_list" model="ir.ui.view">
+        <field name="name">od19.sc.revision.list</field>
+        <field name="model">od19.sc.revision</field>
+        <field name="arch" type="xml">
+            <list string="Revisions">
+                <field name="id"/>
+                <field name="name"/>
+                <field name="template_id"/>
+                <field name="user_id"/>
+                <field name="note"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_od19_sc_revision_form" model="ir.ui.view">
+        <field name="name">od19.sc.revision.form</field>
+        <field name="model">od19.sc.revision</field>
+        <field name="arch" type="xml">
+            <form string="Revision">
+                <header>
+                    <button name="action_restore" type="object" string="Restore"
+                            class="btn-primary"
+                            confirm="ย้อนกลับเทมเพลตไปยัง revision นี้?"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="template_id"/>
+                            <field name="user_id"/>
+                            <field name="note"/>
+                        </group>
+                    </group>
+                    <field name="snapshot" readonly="1"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ===================== Actions ===================== -->
+    <record id="action_od19_sc_formula" model="ir.actions.act_window">
+        <field name="name">Formulas</field>
+        <field name="res_model">od19.sc.formula</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_od19_sc_integration" model="ir.actions.act_window">
+        <field name="name">Integrations</field>
+        <field name="res_model">od19.sc.integration.endpoint</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_od19_sc_revision" model="ir.actions.act_window">
+        <field name="name">Revisions</field>
+        <field name="res_model">od19.sc.revision</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

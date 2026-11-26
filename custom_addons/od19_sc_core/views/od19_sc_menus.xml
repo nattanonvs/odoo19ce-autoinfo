@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Root application menu — visible only to Service Center Designers -->
+    <menuitem id="menu_od19_sc_root"
+              name="Service Center"
+              web_icon="od19_sc_core,static/description/icon.svg"
+              groups="od19_sc_core.group_sc_designer"
+              sequence="95"/>
+
+    <menuitem id="menu_od19_sc_templates"
+              name="Designed Templates"
+              parent="menu_od19_sc_root"
+              action="action_od19_sc_template"
+              groups="od19_sc_core.group_sc_designer"
+              sequence="10"/>
+
+    <menuitem id="menu_od19_sc_formulas"
+              name="Formulas"
+              parent="menu_od19_sc_root"
+              action="action_od19_sc_formula"
+              groups="od19_sc_core.group_sc_designer"
+              sequence="20"/>
+
+    <menuitem id="menu_od19_sc_integrations"
+              name="Integrations"
+              parent="menu_od19_sc_root"
+              action="action_od19_sc_integration"
+              groups="od19_sc_core.group_sc_designer"
+              sequence="30"/>
+
+    <menuitem id="menu_od19_sc_revisions"
+              name="Revisions"
+              parent="menu_od19_sc_root"
+              action="action_od19_sc_revision"
+              groups="od19_sc_core.group_sc_designer"
+              sequence="40"/>
+</odoo>

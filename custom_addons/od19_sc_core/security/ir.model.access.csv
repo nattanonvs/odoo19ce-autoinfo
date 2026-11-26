@@ -1,0 +1,15 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_sc_template_user,od19.sc.template user,model_od19_sc_template,base.group_user,1,0,0,0
+access_sc_template_designer,od19.sc.template designer,model_od19_sc_template,group_sc_designer,1,1,1,1
+access_sc_menu_user,od19.sc.menu.node user,model_od19_sc_menu_node,base.group_user,1,0,0,0
+access_sc_menu_designer,od19.sc.menu.node designer,model_od19_sc_menu_node,group_sc_designer,1,1,1,1
+access_sc_field_user,od19.sc.field.def user,model_od19_sc_field_def,base.group_user,1,0,0,0
+access_sc_field_designer,od19.sc.field.def designer,model_od19_sc_field_def,group_sc_designer,1,1,1,1
+access_sc_token_user,od19.sc.design.token user,model_od19_sc_design_token,base.group_user,1,0,0,0
+access_sc_token_designer,od19.sc.design.token designer,model_od19_sc_design_token,group_sc_designer,1,1,1,1
+access_sc_formula_user,od19.sc.formula user,model_od19_sc_formula,base.group_user,1,0,0,0
+access_sc_formula_designer,od19.sc.formula designer,model_od19_sc_formula,group_sc_designer,1,1,1,1
+access_sc_integration_user,od19.sc.integration.endpoint user,model_od19_sc_integration_endpoint,base.group_user,1,0,0,0
+access_sc_integration_designer,od19.sc.integration.endpoint designer,model_od19_sc_integration_endpoint,group_sc_designer,1,1,1,1
+access_sc_revision_user,od19.sc.revision user,model_od19_sc_revision,base.group_user,1,0,0,0
+access_sc_revision_designer,od19.sc.revision designer,model_od19_sc_revision,group_sc_designer,1,1,1,1

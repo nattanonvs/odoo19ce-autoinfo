@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="module_category_od19_sc" model="ir.module.category">
+        <field name="name">AutoInfo Service Center</field>
+        <field name="sequence">95</field>
+    </record>
+
+    <record id="res_groups_privilege_sc" model="res.groups.privilege">
+        <field name="name">Service Center</field>
+        <field name="sequence">95</field>
+        <field name="category_id" ref="module_category_od19_sc"/>
+    </record>
+
+    <record id="group_sc_designer" model="res.groups">
+        <field name="name">Designer</field>
+        <field name="privilege_id" ref="res_groups_privilege_sc"/>
+        <field name="comment">ออกแบบเทมเพลต Service Center — เมนู / ฟิลด์ / ดีไซน์ / สูตร / การเชื่อมต่อ</field>
+    </record>
+</odoo>
