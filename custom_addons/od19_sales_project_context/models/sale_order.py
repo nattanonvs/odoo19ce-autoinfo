@@ -22,6 +22,14 @@ class SaleOrder(models.Model):
         string="Project Owner",
         tracking=True,
     )
+    od19_job_no = fields.Char(
+        string="Job Number",
+        related="od19_project_id.job_no",
+        readonly=True,
+        store=False,
+        help="Job number of the linked project. Non-stored but searchable, so "
+             "orders can be found directly by job number.",
+    )
 
     @api.onchange("od19_project_id")
     def _onchange_od19_project_id(self):

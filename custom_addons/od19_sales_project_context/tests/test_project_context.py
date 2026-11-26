@@ -229,3 +229,45 @@ class TestProjectContext(TransactionCase):
             .create({})
         )
         self.assertEqual(wizard.sale_order_id, order)
+
+    # ------------------------------------------------------------------
+    # Search: find orders by the linked project / job number
+    # ------------------------------------------------------------------
+
+    def test_search_view_targets_linked_project_and_job_no(self):
+        """The "Project" search card must filter the real link
+        (od19_project_id) instead of the billable project_id, which is empty
+        on every order in this deployment, and the job number must be exposed
+        as its own search field.
+        """
+        arch = self.env.ref("sale.view_sales_order_filter").get_combined_arch()
+        self.assertIn('name="od19_project_id"', arch)
+        self.assertIn('name="od19_job_no"', arch)
+        self.assertNotIn('name="project_id"', arch)
+
+    def test_order_found_by_project_job_number(self):
+        """Regression for the empty-list bug: filtering the "Project" card
+        with a job number must return the order, because the project is
+        searchable by job number (_rec_names_search).
+        """
+        project = self._create_project("Harbour Bridge", owner=self.owner)
+        order = self._create_sale_order(project=project)
+        self.assertIn(
+            order,
+            self.env["sale.order"].search(
+                [("od19_project_id", "ilike", project.job_no)]
+            ),
+        )
+
+    def test_order_found_by_job_no_field(self):
+        """The dedicated "Job Number" search field (od19_job_no, a searchable
+        non-stored related field) finds orders by job number.
+        """
+        project = self._create_project("Harbour Bridge", owner=self.owner)
+        order = self._create_sale_order(project=project)
+        self.assertIn(
+            order,
+            self.env["sale.order"].search(
+                [("od19_job_no", "ilike", project.job_no)]
+            ),
+        )

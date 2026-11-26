@@ -33,4 +33,23 @@
             </xpath>
         </field>
     </record>
+
+    <!-- The core "Project" search card (sale_project) targets the billable
+         project_id field, which is empty for every order in this deployment;
+         the real link is od19_project_id. Point the card at the real field so
+         searching by project (and, via _rec_names_search, by job number) works,
+         and expose the linked project's job number as its own search field. -->
+    <record id="view_sale_order_search_od19_project_context" model="ir.ui.view">
+        <field name="name">sale.order.search.od19.project.context</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search//field[@name='project_id']" position="replace">
+                <field name="od19_project_id"/>
+            </xpath>
+            <xpath expr="//search" position="inside">
+                <field name="od19_job_no"/>
+            </xpath>
+        </field>
+    </record>
 </odoo>

@@ -47,6 +47,13 @@ class ProjectProject(models.Model):
              "clickable link under the project name on the form.",
     )
 
+    @property
+    def _rec_names_search(self):
+        # Let projects be found by Job Number wherever Odoo searches a
+        # many2one by its display name (name_search, `ilike` on a relational
+        # field) - see `_search_display_name` in odoo/orm/models.py.
+        return ["name", "job_no"]
+
     _job_no_unique = models.Constraint(
         "unique(job_no)",
         "Job Number must be unique.",

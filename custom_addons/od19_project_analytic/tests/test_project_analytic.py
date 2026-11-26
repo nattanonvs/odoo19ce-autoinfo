@@ -126,3 +126,22 @@ class TestProjectAnalytic(TransactionCase):
         project.action_od19_create_analytic()
         self.assertTrue(project.account_id)
         self.assertEqual(project.account_id.code, "JOB-2026-044")
+
+    def test_project_searchable_by_job_no(self):
+        """Regression: the Sales search bar resolves a relational filter
+        (the "Project" card) through name_search, which reads the project
+        display name via _rec_names_search. The job number must be part of
+        that so a job number typed into the search bar finds the linked
+        order instead of returning an empty list.
+        """
+        project = self.env["project.project"].create(
+            {"name": "Harbour Bridge", "job_no": "JOB-SEARCH-001"}
+        )
+        matches = self.env["project.project"].name_search("JOB-SEARCH-001")
+        self.assertIn(project.id, [record_id for record_id, _label in matches])
+        self.assertIn(
+            project,
+            self.env["project.project"].search(
+                [("display_name", "ilike", "JOB-SEARCH-001")]
+            ),
+        )

@@ -4,6 +4,7 @@
     "version": "19.0.1.1.0",
     "depends": [
         "sale_management",
+        "sale_project",
         "mail",
         "od19_contacts_partner_roles",
         "od19_project_analytic",
