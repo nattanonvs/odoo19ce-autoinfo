@@ -7,6 +7,7 @@ roots = [
     r"C:\odoo-dev\od19_sc\custom_addons\od19_sc_core",
     r"C:\odoo-dev\od19_sc\custom_addons\od19_sc_designer",
     r"C:\odoo-dev\od19_sc\custom_addons\od19_sc_ta",
+    r"C:\odoo-dev\od19_sc\custom_addons\od19_sc_portal",
 ]
 errors = []
 for root in roots:
