@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ============================================================ -->
+        <!-- Template 01 (TA) — หัวเทมเพลต                                  -->
+        <!-- ============================================================ -->
+        <record id="template_ta_01" model="od19.sc.template">
+            <field name="name">TA Service &amp; Equipment Workload Monitoring</field>
+            <field name="code">TA-01</field>
+            <field name="department">TA</field>
+            <field name="header_title">TA Service &amp; Equipment Workload Monitoring</field>
+            <field name="header_subtitle">ศูนย์ติดตามภาระงานบริการลูกค้าและอุปกรณ์ (แผนก TA)</field>
+            <field name="sequence">10</field>
+            <field name="note">เทมเพลต 01 ของ AutoInfo Service Center (ASC) สำหรับแผนก TA — ติดตามภาระงานบริการลูกค้าและอุปกรณ์ โดยใช้โมเดลมาตรฐาน maintenance.equipment / maintenance.request / res.partner ปรับแต่งเพิ่มได้จากหน้าจอ Designer</field>
+        </record>
+
+        <!-- ============================================================ -->
+        <!-- ① เมนู — จำนวน / ชื่อ / กลุ่มหลัก–ย่อย                          -->
+        <!-- ============================================================ -->
+
+        <!-- กลุ่มหลัก -->
+        <record id="menu_ta_service" model="od19.sc.menu.node">
+            <field name="template_id" ref="template_ta_01"/>
+            <field name="name">TA Service</field>
+            <field name="sequence">10</field>
+            <field name="menu_type">group</field>
+        </record>
+        <record id="menu_workload" model="od19.sc.menu.node">
+            <field name="template_id" ref="template_ta_01"/>
+            <field name="name">Workload Monitoring</field>
+            <field name="sequence">20</field>
+            <field name="menu_type">group</field>
+        </record>
+        <record id="menu_designer" model="od19.sc.menu.node">
+            <field name="template_id" ref="template_ta_01"/>
+            <field name="name">Service Designer</field>
+            <field name="sequence">30</field>
+            <field name="menu_type">client</field>
+            <field name="client_tag">od19_sc.designer</field>
+            <field name="group_ids" eval="[(6, 0, [ref('od19_sc_core.group_sc_designer')])]"/>
+        </record>
+
+        <!-- กลุ่มย่อยของ TA Service -->
+        <record id="menu_ta_equipment" model="od19.sc.menu.node">
+            <field name="template_id" ref="template_ta_01"/>
+            <field name="parent_id" ref="menu_ta_service"/>
+            <field name="name">Equipment Register</field>
+            <field name="sequence">10</field>
+            <field name="menu_type">window</field>
+            <field name="target_model">maintenance.equipment</field>
+            <field name="view_mode">list,form</field>
+        </record>
+        <record id="menu_ta_requests" model="od19.sc.menu.node">
+            <field name="template_id" ref="template_ta_01"/>
+            <field name="parent_id" ref="menu_ta_service"/>
+            <field name="name">Service Requests</field>
+            <field name="sequence">20</field>
+            <field name="menu_type">window</field>
+            <field name="target_model">maintenance.request</field>
+            <field name="view_mode">list,kanban,form</field>
+        </record>
+        <record id="menu_ta_categories" model="od19.sc.menu.node">
+            <field name="template_id" ref="template_ta_01"/>
+            <field name="parent_id" ref="menu_ta_service"/>
+            <field name="name">Equipment Categories</field>
+            <field name="sequence">30</field>
+            <field name="menu_type">window</field>
+            <field name="target_model">maintenance.equipment.category</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <!-- กลุ่มย่อยของ Workload Monitoring -->
+        <record id="menu_wl_all" model="od19.sc.menu.node">
+            <field name="template_id" ref="template_ta_01"/>
+            <field name="parent_id" ref="menu_workload"/>
+            <field name="name">All Service Requests</field>
+            <field name="sequence">10</field>
+            <field name="menu_type">window</field>
+            <field name="target_model">maintenance.request</field>
+            <field name="view_mode">list,form</field>
+        </record>
+        <record id="menu_wl_customers" model="od19.sc.menu.node">
+            <field name="template_id" ref="template_ta_01"/>
+            <field name="parent_id" ref="menu_workload"/>
+            <field name="name">Customers</field>
+            <field name="sequence">20</field>
+            <field name="menu_type">window</field>
+            <field name="target_model">res.partner</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <!-- ============================================================ -->
+        <!-- ② ฟิลด์ / Label / ประเภทข้อมูล                                 -->
+        <!-- ============================================================ -->
+
+        <!-- ทรัพย์สิน (maintenance.equipment) -->
+        <record id="fld_equip_asset_code" model="od19.sc.field.def">
+            <field name="template_id" ref="template_ta_01"/>
+            <field name="mode">create</field>
+            <field name="target_model">maintenance.equipment</field>
+            <field name="name">x_ta_asset_code</field>
+            <field name="field_description">TA Asset Code</field>
+            <field name="ttype">char</field>
+            <field name="sequence">10</field>
+            <field name="help">รหัสทรัพย์สินตามทะเบียนของแผนก TA</field>
+        </record>
+        <record id="fld_equip_zone" model="od19.sc.field.def">
+            <field name="template_id" ref="template_ta_01"/>
+            <field name="mode">create</field>
+            <field name="target_model">maintenance.equipment</field>
+            <field name="name">x_ta_service_zone</field>
+            <field name="field_description">Service Zone</field>
+            <field name="ttype">selection</field>
+            <field name="sequence">20</field>
+            <field name="selection_values">north|North
+central|Central
+south|South
+east|East
+west|West</field>
+        </record>
+        <record id="fld_equip_criticality" model="od19.sc.field.def">
+            <field name="template_id" ref="template_ta_01"/>
+            <field name="mode">create</field>
+            <field name="target_model">maintenance.equipment</field>
+            <field name="name">x_ta_criticality</field>
+            <field name="field_description">Criticality</field>
+            <field name="ttype">selection</field>
+            <field name="sequence">30</field>
+            <field name="selection_values">low|Low
+medium|Medium
+high|High</field>
+        </record>
+
+        <!-- งานบริการ (maintenance.request) -->
+        <record id="fld_req_channel" model="od19.sc.field.def">
+            <field name="template_id" ref="template_ta_01"/>
+            <field name="mode">create</field>
+            <field name="target_model">maintenance.request</field>
+            <field name="name">x_ta_service_channel</field>
+            <field name="field_description">Service Channel</field>
+            <field name="ttype">selection</field>
+            <field name="sequence">10</field>
+            <field name="selection_values">phone|Phone
+email|Email
+onsite|On-site
+remote|Remote</field>
+        </record>
+        <record id="fld_req_sla" model="od19.sc.field.def">
+            <field name="template_id" ref="template_ta_01"/>
+            <field name="mode">create</field>
+            <field name="target_model">maintenance.request</field>
+            <field name="name">x_ta_sla_hours</field>
+            <field name="field_description">SLA (hours)</field>
+            <field name="ttype">float</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="fld_req_points" model="od19.sc.field.def">
+            <field name="template_id" ref="template_ta_01"/>
+            <field name="mode">create</field>
+            <field name="target_model">maintenance.request</field>
+            <field name="name">x_ta_workload_points</field>
+            <field name="field_description">Workload Points</field>
+            <field name="ttype">integer</field>
+            <field name="sequence">30</field>
+            <field name="readonly">True</field>
+            <field name="help">คะแนนภาระงาน — คำนวณโดยสูตร Workload Points</field>
+        </record>
+        <record id="fld_req_label" model="od19.sc.field.def">
+            <field name="template_id" ref="template_ta_01"/>
+            <field name="mode">create</field>
+            <field name="target_model">maintenance.request</field>
+            <field name="name">x_ta_service_label</field>
+            <field name="field_description">Service Label</field>
+            <field name="ttype">char</field>
+            <field name="sequence">40</field>
+            <field name="readonly">True</field>
+        </record>
+
+        <!-- เปลี่ยน Label ฟิลด์ฐาน (existing) -->
+        <record id="fld_req_priority_label" model="od19.sc.field.def">
+            <field name="template_id" ref="template_ta_01"/>
+            <field name="mode">existing</field>
+            <field name="target_model">maintenance.request</field>
+            <field name="name">priority</field>
+            <field name="field_description">Urgency Level</field>
+            <field name="ttype">selection</field>
+            <field name="sequence">50</field>
+        </record>
+
+        <!-- ============================================================ -->
+        <!-- ③ ดีไซน์ — Liquid Glass design tokens                          -->
+        <!-- ============================================================ -->
+        <record id="token_primary" model="od19.sc.design.token">
+            <field name="template_id" ref="template_ta_01"/>
+            <field name="key">--sc-primary</field>
+            <field name="value">#7c5cff</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="token_primary_soft" model="od19.sc.design.token">
+            <field name="template_id" ref="template_ta_01"/>
+            <field name="key">--sc-primary-soft</field>
+            <field name="value">rgba(124, 92, 255, 0.14)</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="token_accent" model="od19.sc.design.token">
+            <field name="template_id" ref="template_ta_01"/>
+            <field name="key">--sc-accent</field>
+            <field name="value">#22c1c3</field>
+            <field name="sequence">30</field>
+        </record>
+        <record id="token_surface" model="od19.sc.design.token">
+            <field name="template_id" ref="template_ta_01"/>
+            <field name="key">--sc-surface</field>
+            <field name="value">rgba(255, 255, 255, 0.72)</field>
+            <field name="sequence">40</field>
+        </record>
+        <record id="token_surface_strong" model="od19.sc.design.token">
+            <field name="template_id" ref="template_ta_01"/>
+            <field name="key">--sc-surface-strong</field>
+            <field name="value">#ffffff</field>
+            <field name="sequence">50</field>
+        </record>
+        <record id="token_radius" model="od19.sc.design.token">
+            <field name="template_id" ref="template_ta_01"/>
+            <field name="key">--sc-radius</field>
+            <field name="value">14px</field>
+            <field name="sequence">60</field>
+        </record>
+        <record id="token_shadow" model="od19.sc.design.token">
+            <field name="template_id" ref="template_ta_01"/>
+            <field name="key">--sc-shadow</field>
+            <field name="value">0 8px 30px rgba(31, 38, 135, 0.12)</field>
+            <field name="sequence">70</field>
+        </record>
+        <record id="token_font" model="od19.sc.design.token">
+            <field name="template_id" ref="template_ta_01"/>
+            <field name="key">--sc-font</field>
+            <field name="value">"Inter", "Segoe UI", sans-serif</field>
+            <field name="sequence">80</field>
+        </record>
+
+        <!-- ============================================================ -->
+        <!-- ④ การคำนวณ — สูตรภาระงาน (scheduled)                           -->
+        <!-- ============================================================ -->
+        <record id="formula_workload_points" model="od19.sc.formula">
+            <field name="template_id" ref="template_ta_01"/>
+            <field name="name">TA Workload Points</field>
+            <field name="target_model">maintenance.request</field>
+            <field name="target_field">x_ta_workload_points</field>
+            <field name="expression">int(record.priority or 0) + 1 + (int(record.duration / 8) if record.duration else 0)</field>
+            <field name="trigger">cron</field>
+            <field name="cron_interval_number">1</field>
+            <field name="cron_interval_type">days</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="formula_service_label" model="od19.sc.formula">
+            <field name="template_id" ref="template_ta_01"/>
+            <field name="name">TA Service Label</field>
+            <field name="target_model">maintenance.request</field>
+            <field name="target_field">x_ta_service_label</field>
+            <field name="expression">(record.name or "") + " - " + (record.stage_id.name or "New")</field>
+            <field name="trigger">cron</field>
+            <field name="cron_interval_number">1</field>
+            <field name="cron_interval_type">days</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <!-- ============================================================ -->
+        <!-- ⑤ การเชื่อมต่อภายนอก                                          -->
+        <!-- ============================================================ -->
+        <record id="ep_push_equipment" model="od19.sc.integration.endpoint">
+            <field name="template_id" ref="template_ta_01"/>
+            <field name="name">TA Legacy API — Equipment Snapshot</field>
+            <field name="direction">outbound</field>
+            <field name="url">https://example.invalid/ta/api/equipment-snapshot</field>
+            <field name="method">POST</field>
+            <field name="headers">{"X-Source": "ASC-TA-01"}</field>
+            <field name="payload_template">{"source": "ASC", "template": "TA-01", "sample": {"asset_code": "TA-0001", "zone": "central"}}</field>
+            <field name="auth_token_param">od19_sc_ta.legacy_api_token</field>
+            <field name="schedule" eval="False"/>
+            <field name="sequence">10</field>
+        </record>
+        <record id="ep_inbound_webhook" model="od19.sc.integration.endpoint">
+            <field name="template_id" ref="template_ta_01"/>
+            <field name="name">TA Inbound Webhook</field>
+            <field name="direction">inbound</field>
+            <field name="method">POST</field>
+            <field name="schedule" eval="False"/>
+            <field name="sequence">20</field>
+        </record>
+
+    </data>
+</odoo>
