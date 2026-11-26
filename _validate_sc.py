@@ -6,6 +6,7 @@ import xml.etree.ElementTree as ET
 roots = [
     r"C:\odoo-dev\od19_sc\custom_addons\od19_sc_core",
     r"C:\odoo-dev\od19_sc\custom_addons\od19_sc_designer",
+    r"C:\odoo-dev\od19_sc\custom_addons\od19_sc_ta",
 ]
 errors = []
 for root in roots:
