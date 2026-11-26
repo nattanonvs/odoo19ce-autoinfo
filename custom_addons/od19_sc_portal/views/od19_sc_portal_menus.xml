@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Portal configuration lives under the Service Center application menu
+         (the root menu and its group are defined by od19_sc_core). -->
+    <menuitem id="menu_od19_sc_portal_pages"
+              name="Portal Pages"
+              parent="od19_sc_core.menu_od19_sc_root"
+              action="action_od19_sc_portal_page"
+              groups="od19_sc_core.group_sc_designer"
+              sequence="50"/>
+
+    <menuitem id="menu_od19_sc_portal_kpis"
+              name="KPI Cards"
+              parent="od19_sc_core.menu_od19_sc_root"
+              action="action_od19_sc_portal_kpi"
+              groups="od19_sc_core.group_sc_designer"
+              sequence="60"/>
+</odoo>

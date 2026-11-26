@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Entry card on the portal home (/my) -->
+    <template id="portal_my_home_service_center" name="Portal My Home: Service Center"
+              inherit_id="portal.portal_my_home" priority="30">
+        <xpath expr="//div[@id='portal_common_category']" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="icon" t-value="'/od19_sc_portal/static/description/icon.svg'"/>
+                <t t-set="title">Service Center</t>
+                <t t-set="text">หน้ารายงานและบริการที่ออกแบบไว้สำหรับคุณ</t>
+                <t t-set="url" t-value="'/my/service-center'"/>
+                <t t-set="placeholder_count" t-value="'od19_sc_page_count'"/>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- Breadcrumb for the /my/service-center pages -->
+    <template id="portal_my_service_center_breadcrumb" name="Portal: Service Center breadcrumb"
+              inherit_id="portal.portal_breadcrumbs" priority="40">
+        <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+            <li t-if="page_name == 'service_center'"
+                t-attf-class="breadcrumb-item #{'active' if not page else ''}">
+                <a t-if="page" href="/my/service-center">Service Center</a>
+                <t t-else="">Service Center</t>
+            </li>
+            <li t-if="page" class="breadcrumb-item active">
+                <t t-out="page.name"/>
+            </li>
+        </xpath>
+    </template>
+
+    <!-- Index: the pages the current user may open -->
+    <template id="portal_my_service_center" name="Service Center">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Service Center</t>
+            </t>
+
+            <t t-if="not pages">
+                <p class="alert alert-warning">ยังไม่มีหน้าที่เผยแพร่ให้คุณในขณะนี้</p>
+            </t>
+            <t t-if="pages">
+                <div class="row g-3">
+                    <t t-foreach="pages" t-as="sc_page">
+                        <div class="col-md-6">
+                            <a t-attf-href="/my/service-center/#{sc_page.id}"
+                               class="card h-100 text-decoration-none shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title" t-out="sc_page.name"/>
+                                    <div t-if="sc_page.template_id.header_subtitle"
+                                         class="text-muted" t-out="sc_page.template_id.header_subtitle"/>
+                                    <div class="mt-2 small text-muted">
+                                        <t t-out="sc_page.kpi_count"/> การ์ดรายงาน
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </t>
+                </div>
+                <div class="mt-3">
+                    <t t-call="portal.pager"/>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <!-- Detail: one designed page with its KPI cards -->
+    <template id="portal_my_service_center_page" name="Service Center Page">
+        <t t-call="portal.portal_layout">
+            <div t-attf-style="--sc-primary:#{tokens.get('--sc-primary', '#4f46e5')};--sc-accent:#{tokens.get('--sc-accent', '#06b6d4')}">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h1 class="mb-1" t-out="template.header_title or page.name"/>
+                        <div t-if="template.header_subtitle" class="text-muted"
+                             t-out="template.header_subtitle"/>
+                    </div>
+                    <a class="btn btn-outline-secondary btn-sm" href="/my/service-center">
+                        <i class="fa fa-arrow-left me-1"/> กลับ
+                    </a>
+                </div>
+
+                <div t-if="page.intro" class="mb-4" t-out="page.intro"/>
+
+                <t t-if="not cards">
+                    <p class="alert alert-info">หน้านี้ยังไม่มีการ์ดรายงาน</p>
+                </t>
+                <div t-if="cards" class="row g-3">
+                    <t t-foreach="cards" t-as="card">
+                        <div class="col-6 col-md-3">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-body">
+                                    <div class="text-muted small mb-1" t-out="card.get('name')"/>
+                                    <div class="fs-3 fw-bold"
+                                         t-attf-style="color: var(--sc-primary)"
+                                         t-out="card.get('value_display')"/>
+                                    <div t-if="card.get('error')" class="text-danger small mt-1"
+                                         t-out="card.get('error')"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

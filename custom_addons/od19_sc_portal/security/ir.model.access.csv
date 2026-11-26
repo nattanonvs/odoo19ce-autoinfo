@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_sc_portal_page_user,od19.sc.portal.page user,model_od19_sc_portal_page,base.group_user,1,0,0,0
+access_sc_portal_page_designer,od19.sc.portal.page designer,model_od19_sc_portal_page,od19_sc_core.group_sc_designer,1,1,1,1
+access_sc_portal_kpi_user,od19.sc.portal.kpi user,model_od19_sc_portal_kpi,base.group_user,1,0,0,0
+access_sc_portal_kpi_designer,od19.sc.portal.kpi designer,model_od19_sc_portal_kpi,od19_sc_core.group_sc_designer,1,1,1,1

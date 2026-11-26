@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="ascp" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4f46e5"/>
+      <stop offset="1" stop-color="#06b6d4"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="56" height="56" rx="14" fill="url(#ascp)"/>
+  <g fill="#ffffff">
+    <rect x="16" y="18" width="14" height="10" rx="2" opacity="0.95"/>
+    <rect x="34" y="18" width="14" height="10" rx="2" opacity="0.75"/>
+    <rect x="16" y="32" width="14" height="10" rx="2" opacity="0.75"/>
+    <rect x="34" y="32" width="14" height="10" rx="2" opacity="0.95"/>
+  </g>
+  <rect x="16" y="47" width="32" height="4" rx="2" fill="#ffffff" opacity="0.85"/>
+</svg>
