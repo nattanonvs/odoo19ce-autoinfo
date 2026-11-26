@@ -13,16 +13,19 @@
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
         <record id="seq_prepayment_no" model="ir.sequence">
             <field name="name">Prepayments No</field>
             <field name="code">account.prepayment</field>
+            <field name="implementation">no_gap</field>
             <field name="prefix">PP%(range_y)s%(range_month)s-</field>
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
@@ -33,10 +36,12 @@
         <record id="seq_cheque_book" model="ir.sequence">
             <field name="name">Cheque book</field>
             <field name="code">account.cheque.book</field>
+            <field name="implementation">no_gap</field>
             <field name="prefix">CHQB/%(range_year)s/%(month)s/</field>
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
@@ -47,6 +52,7 @@
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
@@ -57,6 +63,7 @@
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
@@ -95,6 +102,7 @@
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
@@ -105,50 +113,60 @@
         <record id="seq_wht" model="ir.sequence">
             <field name="name">Withholding tax</field>
             <field name="code">account.wht</field>
+            <field name="implementation">no_gap</field>
             <field name="prefix">WHT/%(range_year)s/%(month)s/</field>
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
         <record id="seq_wht1" model="ir.sequence">
             <field name="name">WHT(1)</field>
             <field name="code">account.wht1</field>
+            <field name="implementation">no_gap</field>
             <field name="prefix">WHT1/%(range_year)s/%(month)s/</field>
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
         <record id="seq_wht2" model="ir.sequence">
             <field name="name">WHT(2)</field>
             <field name="code">account.wht2</field>
+            <field name="implementation">no_gap</field>
             <field name="prefix">WHT2/%(range_year)s/%(month)s/</field>
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
         <record id="seq_wht3" model="ir.sequence">
             <field name="name">WHT(3)</field>
             <field name="code">account.wht3</field>
+            <field name="implementation">no_gap</field>
             <field name="prefix">WHT3/%(range_year)s/%(month)s/</field>
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
         <record id="seq_wht53" model="ir.sequence">
             <field name="name">WHT(53)</field>
             <field name="code">account.wht53</field>
+            <field name="implementation">no_gap</field>
             <field name="prefix">WHT53/%(range_year)s/%(month)s/</field>
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
@@ -159,20 +177,24 @@
         <record id="seq_vat_purchase" model="ir.sequence">
             <field name="name">VAT Purchase</field>
             <field name="code">account.vat.purchase</field>
+            <field name="implementation">no_gap</field>
             <field name="prefix">VATP/%(range_year)s/%(month)s/</field>
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
         <record id="seq_vat_sale" model="ir.sequence">
             <field name="name">VAT Sale</field>
             <field name="code">account.vat.sale</field>
+            <field name="implementation">no_gap</field>
             <field name="prefix">VATS/%(range_year)s/%(month)s/</field>
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
@@ -207,10 +229,12 @@
         <record id="seq_bring_forward" model="ir.sequence">
             <field name="name">Bring Forward</field>
             <field name="code">account.bring.forward</field>
+            <field name="implementation">no_gap</field>
             <field name="prefix">BF/%(range_year)s/%(month)s/</field>
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
@@ -221,6 +245,7 @@
         <record id="seq_warranty_card" model="ir.sequence">
             <field name="name">Warranty Card No</field>
             <field name="code">account.warranty.card</field>
+            <field name="implementation">no_gap</field>
             <field name="prefix">WC/%(range_year)s/</field>
             <field name="padding">4</field>
             <field name="number_next">1</field>
@@ -239,6 +264,7 @@
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
@@ -249,6 +275,7 @@
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
@@ -259,56 +286,67 @@
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
         <record id="seq_voucher_advance" model="ir.sequence">
             <field name="name">Voucher Advance</field>
             <field name="code">account.voucher.advance</field>
+            <field name="implementation">no_gap</field>
             <field name="prefix">AD%(range_y)s%(range_month)s-</field>
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
         <record id="seq_voucher_advance_v" model="ir.sequence">
             <field name="name">Voucher Advance V</field>
             <field name="code">account.voucher.advance.v</field>
+            <field name="implementation">no_gap</field>
             <field name="prefix">ADV%(range_y)s%(range_month)s-</field>
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
         <record id="seq_voucher_bf" model="ir.sequence">
             <field name="name">Voucher Bring Forward</field>
             <field name="code">account.voucher.bf</field>
+            <field name="implementation">no_gap</field>
             <field name="prefix">BF%(range_y)s%(range_month)s-</field>
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
         <record id="seq_voucher_cash" model="ir.sequence">
             <field name="name">Voucher Cash</field>
             <field name="code">account.voucher.cash</field>
+            <field name="implementation">no_gap</field>
             <field name="prefix">CAV%(range_y)s%(range_month)s-</field>
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
         <record id="seq_voucher_cbtv" model="ir.sequence">
             <field name="name">Voucher Cash Basis Taxes</field>
             <field name="code">account.voucher.cbtv</field>
+            <field name="implementation">no_gap</field>
             <field name="prefix">CT%(range_y)s%(range_month)s-</field>
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
@@ -319,6 +357,7 @@
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
@@ -329,26 +368,31 @@
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
         <record id="seq_voucher_receipt" model="ir.sequence">
             <field name="name">Payment Receipt</field>
             <field name="code">account.voucher.receipt</field>
+            <field name="implementation">no_gap</field>
             <field name="prefix">RE%(range_y)s%(range_month)s-</field>
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
         <record id="seq_voucher_tax_invoice" model="ir.sequence">
             <field name="name">Payment Tax Invoice</field>
             <field name="code">account.voucher.tax.invoice</field>
+            <field name="implementation">no_gap</field>
             <field name="prefix">TI%(range_y)s%(range_month)s-</field>
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
@@ -359,6 +403,7 @@
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
@@ -369,6 +414,7 @@
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
@@ -379,6 +425,7 @@
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
@@ -389,6 +436,7 @@
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
@@ -400,6 +448,7 @@
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
@@ -410,6 +459,7 @@
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
@@ -420,6 +470,7 @@
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
@@ -430,6 +481,7 @@
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
@@ -440,6 +492,7 @@
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
@@ -450,46 +503,55 @@
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
         <record id="seq_scb_sa_140" model="ir.sequence">
             <field name="name">Voucher SCB S/A 140-2-13697-4</field>
             <field name="code">account.voucher.scb.sa.140</field>
+            <field name="implementation">no_gap</field>
             <field name="prefix">SBV74%(range_y)s%(range_month)s-</field>
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
         <record id="seq_uob_ca_797" model="ir.sequence">
             <field name="name">Voucher UOB C/A 797-3-63052-4</field>
             <field name="code">account.voucher.uob.ca.797</field>
+            <field name="implementation">no_gap</field>
             <field name="prefix">UBV24%(range_y)s%(range_month)s-</field>
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
         <record id="seq_uob_fa_797" model="ir.sequence">
             <field name="name">Voucher UOB F/A 797-0-03044-5</field>
             <field name="code">account.voucher.uob.fa.797</field>
+            <field name="implementation">no_gap</field>
             <field name="prefix">UBV45%(range_y)s%(range_month)s-</field>
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
         <record id="seq_uob_sa_797" model="ir.sequence">
             <field name="name">Voucher UOB S/A 797-163-731-9</field>
             <field name="code">account.voucher.uob.sa.797</field>
+            <field name="implementation">no_gap</field>
             <field name="prefix">UBV19%(range_y)s%(range_month)s-</field>
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
@@ -501,6 +563,7 @@
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
@@ -511,6 +574,7 @@
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
@@ -521,6 +585,7 @@
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
@@ -531,6 +596,7 @@
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
@@ -541,46 +607,55 @@
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
         <record id="seq_voucher_sales_journal" model="ir.sequence">
             <field name="name">Voucher Sales Journal</field>
             <field name="code">account.voucher.sales.journal</field>
+            <field name="implementation">no_gap</field>
             <field name="prefix">SAJ%(range_y)s%(range_month)s-</field>
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
         <record id="seq_voucher_vendor_bills" model="ir.sequence">
             <field name="name">Voucher Vendor Bills</field>
             <field name="code">account.voucher.vendor.bills</field>
+            <field name="implementation">no_gap</field>
             <field name="prefix">PVV%(range_y)s%(range_month)s</field>
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
         <record id="seq_voucher_vendor_payment" model="ir.sequence">
             <field name="name">Voucher Vendor Payment</field>
             <field name="code">account.voucher.vendor.payment</field>
+            <field name="implementation">no_gap</field>
             <field name="prefix">PV%(range_y)s%(range_month)s</field>
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
         <record id="seq_voucher_cheque" model="ir.sequence">
             <field name="name">Payment Voucher Cheque</field>
             <field name="code">account.voucher.cheque</field>
+            <field name="implementation">no_gap</field>
             <field name="prefix">PVC%(range_y)s%(range_month)s-</field>
             <field name="padding">4</field>
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
             <field name="company_id" eval="False"/>
         </record>
 
