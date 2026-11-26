@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Document body: `company`, `filters`, `period_label`, `period_rows`,
+         `dimension_tables` and `totals` come from the report model. -->
+    <template id="report_sales_stamp_report_document">
+        <t t-set="o" t-value="company"/>
+        <t t-call="web.external_layout">
+            <div class="page">
+                <h2 class="text-center">Sales Stamp Date Report</h2>
+
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <div><strong>Company:</strong> <span t-esc="company.name"/></div>
+                        <div>
+                            <strong>Period:</strong>
+                            <span t-esc="filters['date_from']"/>
+                            &#160;&#8594;&#160;
+                            <span t-esc="filters['date_to']"/>
+                        </div>
+                    </div>
+                    <div class="col-6 text-end">
+                        <div><strong>Grouping:</strong> <span t-esc="period_label"/></div>
+                        <div>
+                            <strong>Generated:</strong>
+                            <span t-esc="datetime.date.today()"/>
+                        </div>
+                    </div>
+                </div>
+
+                <h4>Summary by Period</h4>
+                <table class="table table-sm table-striped o_main_table">
+                    <thead>
+                        <tr>
+                            <th>Period</th>
+                            <th class="text-end">Orders</th>
+                            <th class="text-end">Untaxed</th>
+                            <th class="text-end">Total</th>
+                            <th class="text-end">Share %</th>
+                            <th class="text-end">YoY %</th>
+                            <th class="text-end">MoM %</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="period_rows" t-as="row">
+                            <td><span t-esc="row['label']"/></td>
+                            <td class="text-end"><span t-esc="row['orders']"/></td>
+                            <td class="text-end">
+                                <span t-esc="row['amount_untaxed']"
+                                      t-options='{"widget": "float", "precision": 2}'/>
+                            </td>
+                            <td class="text-end">
+                                <span t-esc="row['amount_total']"
+                                      t-options='{"widget": "float", "precision": 2}'/>
+                            </td>
+                            <td class="text-end">
+                                <span t-esc="row['share_pct']"
+                                      t-options='{"widget": "float", "precision": 2}'/>%
+                            </td>
+                            <td class="text-end">
+                                <t t-if="row['yoy_pct'] is None">&#8212;</t>
+                                <t t-else="">
+                                    <span t-esc="row['yoy_pct']"
+                                          t-options='{"widget": "float", "precision": 2}'/>%
+                                </t>
+                            </td>
+                            <td class="text-end">
+                                <t t-if="row['mom_pct'] is None">&#8212;</t>
+                                <t t-else="">
+                                    <span t-esc="row['mom_pct']"
+                                          t-options='{"widget": "float", "precision": 2}'/>%
+                                </t>
+                            </td>
+                        </tr>
+                        <tr class="fw-bold">
+                            <td>Total</td>
+                            <td class="text-end"><span t-esc="totals['orders']"/></td>
+                            <td class="text-end">
+                                <span t-esc="totals['amount_untaxed']"
+                                      t-options='{"widget": "float", "precision": 2}'/>
+                            </td>
+                            <td class="text-end">
+                                <span t-esc="totals['amount_total']"
+                                      t-options='{"widget": "float", "precision": 2}'/>
+                            </td>
+                            <td class="text-end">100.00%</td>
+                            <td class="text-end"/>
+                            <td class="text-end"/>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <t t-foreach="dimension_tables" t-as="table">
+                    <h4 t-esc="table['label']"/>
+                    <table class="table table-sm table-striped">
+                        <thead>
+                            <tr>
+                                <th t-esc="table['label']"/>
+                                <th class="text-end">Orders</th>
+                                <th class="text-end">Untaxed</th>
+                                <th class="text-end">Total</th>
+                                <th class="text-end">Share %</th>
+                                <th class="text-end">YoY %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="table['rows']" t-as="row">
+                                <td><span t-esc="row['label']"/></td>
+                                <td class="text-end"><span t-esc="row['orders']"/></td>
+                                <td class="text-end">
+                                    <span t-esc="row['amount_untaxed']"
+                                          t-options='{"widget": "float", "precision": 2}'/>
+                                </td>
+                                <td class="text-end">
+                                    <span t-esc="row['amount_total']"
+                                          t-options='{"widget": "float", "precision": 2}'/>
+                                </td>
+                                <td class="text-end">
+                                    <span t-esc="row['share_pct']"
+                                          t-options='{"widget": "float", "precision": 2}'/>%
+                                </td>
+                                <td class="text-end">
+                                    <t t-if="row['yoy_pct'] is None">&#8212;</t>
+                                    <t t-else="">
+                                        <span t-esc="row['yoy_pct']"
+                                              t-options='{"widget": "float", "precision": 2}'/>%
+                                    </t>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </t>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_sales_stamp_report">
+        <t t-call="web.html_container">
+            <t t-call="od19_sales_stamp_report.report_sales_stamp_report_document"/>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_od19_sales_stamp_report_wizard_form" model="ir.ui.view">
+        <field name="name">od19.sales.stamp.report.wizard.form</field>
+        <field name="model">od19.sales.stamp.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Sales Stamp Date Report">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                            <field name="period_type"/>
+                            <field name="company_id"/>
+                        </group>
+                        <group>
+                            <field name="sale_mode"/>
+                            <field name="top_n"/>
+                            <field name="department_ids" widget="many2many_tags"/>
+                            <field name="user_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field
+                            name="partner_ids"
+                            widget="many2many_tags"
+                            options="{'no_create': True}"
+                        />
+                    </group>
+                    <div class="alert alert-info" role="alert">
+                        Leave Departments, Salespersons and Customers blank to
+                        include every value of the current company. The report is
+                        built on the stamp date recorded when a quotation is
+                        confirmed.
+                    </div>
+                </sheet>
+                <footer>
+                    <button
+                        name="action_print_pdf"
+                        type="object"
+                        string="Print PDF"
+                        class="btn-primary"
+                    />
+                    <button
+                        name="action_export_xlsx"
+                        type="object"
+                        string="Export Excel"
+                        class="btn-secondary"
+                    />
+                    <button string="Cancel" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_od19_sales_stamp_report_wizard" model="ir.actions.act_window">
+        <field name="name">Sales Stamp Date Report</field>
+        <field name="res_model">od19.sales.stamp.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_od19_sales_stamp_report_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_od19_sales_stamp_report_wizard"
+              name="Stamp Date Report (PDF / Excel)"
+              parent="sale.menu_sale_report"
+              action="action_od19_sales_stamp_report_wizard"
+              groups="sales_team.group_sale_manager,account.group_account_manager"
+              sequence="61"/>
+
+</odoo>

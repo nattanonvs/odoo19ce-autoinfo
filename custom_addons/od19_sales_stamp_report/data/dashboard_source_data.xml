@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Expose the sales stamp date analysis view to the dashboard builder. -->
+    <record id="source_sales_stamp_report" model="od19.dashboard.source">
+        <field name="name">Sales Stamp Report</field>
+        <field name="model_name">od19.sales.stamp.report</field>
+        <field name="description">Confirmed sale orders grouped by stamp date, department, project and more.</field>
+        <field name="sequence">15</field>
+    </record>
+
+    <!-- Measures -->
+    <record id="source_sales_stamp_report_amount_untaxed" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_sales_stamp_report"/>
+        <field name="label">Untaxed Amount</field>
+        <field name="field_name">amount_untaxed</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_sales_stamp_report_amount_total" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_sales_stamp_report"/>
+        <field name="label">Total Amount</field>
+        <field name="field_name">amount_total</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_sales_stamp_report_order_count" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_sales_stamp_report"/>
+        <field name="label">Orders</field>
+        <field name="field_name">order_count</field>
+        <field name="kind">measure</field>
+        <field name="agg">sum</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <!-- Group by -->
+    <record id="source_sales_stamp_report_department" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_sales_stamp_report"/>
+        <field name="label">Department</field>
+        <field name="field_name">department_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_sales_stamp_report_partner" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_sales_stamp_report"/>
+        <field name="label">Customer</field>
+        <field name="field_name">partner_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="source_sales_stamp_report_user" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_sales_stamp_report"/>
+        <field name="label">Salesperson</field>
+        <field name="field_name">user_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="source_sales_stamp_report_team" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_sales_stamp_report"/>
+        <field name="label">Sales Team</field>
+        <field name="field_name">team_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="source_sales_stamp_report_sale_mode" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_sales_stamp_report"/>
+        <field name="label">Sale Mode</field>
+        <field name="field_name">sale_mode</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">50</field>
+    </record>
+    <record id="source_sales_stamp_report_project" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_sales_stamp_report"/>
+        <field name="label">Project</field>
+        <field name="field_name">project_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">60</field>
+    </record>
+    <record id="source_sales_stamp_report_project_owner" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_sales_stamp_report"/>
+        <field name="label">Project Owner</field>
+        <field name="field_name">project_owner_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">70</field>
+    </record>
+    <record id="source_sales_stamp_report_confirmed_by" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_sales_stamp_report"/>
+        <field name="label">Confirmed By</field>
+        <field name="field_name">confirmed_by_id</field>
+        <field name="kind">groupby</field>
+        <field name="sequence">80</field>
+    </record>
+
+    <!-- Date and trend buckets -->
+    <record id="source_sales_stamp_report_stamp_date" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_sales_stamp_report"/>
+        <field name="label">Stamp Date</field>
+        <field name="field_name">stamp_date</field>
+        <field name="kind">date</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="source_sales_stamp_report_month" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_sales_stamp_report"/>
+        <field name="label">Stamp Month</field>
+        <field name="field_name">stamp_date</field>
+        <field name="kind">groupby</field>
+        <field name="granularity">month</field>
+        <field name="sequence">90</field>
+    </record>
+    <record id="source_sales_stamp_report_quarter" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_sales_stamp_report"/>
+        <field name="label">Stamp Quarter</field>
+        <field name="field_name">stamp_date</field>
+        <field name="kind">groupby</field>
+        <field name="granularity">quarter</field>
+        <field name="sequence">91</field>
+    </record>
+    <record id="source_sales_stamp_report_year" model="od19.dashboard.source.field">
+        <field name="source_id" ref="source_sales_stamp_report"/>
+        <field name="label">Stamp Year</field>
+        <field name="field_name">stamp_date</field>
+        <field name="kind">groupby</field>
+        <field name="granularity">year</field>
+        <field name="sequence">92</field>
+    </record>
+
+</odoo>

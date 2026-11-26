@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_od19_sales_stamp_report_list" model="ir.ui.view">
+        <field name="name">od19.sales.stamp.report.list</field>
+        <field name="model">od19.sales.stamp.report</field>
+        <field name="arch" type="xml">
+            <list string="Sales Stamp Analysis" create="0" edit="0" delete="0">
+                <field name="stamp_date"/>
+                <field name="department_id" optional="show"/>
+                <field name="sale_mode" optional="show"/>
+                <field name="project_id" optional="show"/>
+                <field name="partner_id"/>
+                <field name="user_id" optional="show"/>
+                <field name="team_id" optional="hide"/>
+                <field name="confirmed_by_id" optional="hide"/>
+                <field name="order_count" sum="Orders"/>
+                <field name="amount_untaxed" sum="Untaxed Amount"/>
+                <field name="amount_total" sum="Total Amount"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_od19_sales_stamp_report_pivot" model="ir.ui.view">
+        <field name="name">od19.sales.stamp.report.pivot</field>
+        <field name="model">od19.sales.stamp.report</field>
+        <field name="arch" type="xml">
+            <pivot string="Sales Stamp Analysis">
+                <field name="department_id" type="row"/>
+                <field name="partner_id" type="row"/>
+                <field name="sale_mode" type="row"/>
+                <field name="project_id" type="row"/>
+                <field name="user_id" type="row"/>
+                <field name="stamp_date" type="col" interval="month"/>
+                <field name="order_count" type="measure"/>
+                <field name="amount_untaxed" type="measure"/>
+                <field name="amount_total" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_od19_sales_stamp_report_graph" model="ir.ui.view">
+        <field name="name">od19.sales.stamp.report.graph</field>
+        <field name="model">od19.sales.stamp.report</field>
+        <field name="arch" type="xml">
+            <graph string="Sales Stamp Analysis" type="bar" stacked="True">
+                <field name="department_id"/>
+                <field name="amount_untaxed" type="measure"/>
+                <field name="amount_total" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_od19_sales_stamp_report_search" model="ir.ui.view">
+        <field name="name">od19.sales.stamp.report.search</field>
+        <field name="model">od19.sales.stamp.report</field>
+        <field name="arch" type="xml">
+            <search string="Search Sales Stamp Analysis">
+                <field name="partner_id"/>
+                <field name="user_id"/>
+                <field name="department_id"/>
+                <field name="project_id"/>
+                <field name="team_id"/>
+                <field name="confirmed_by_id"/>
+                <field name="sale_mode"/>
+                <field name="stamp_date"/>
+                <filter name="filter_stamp_date" date="stamp_date"/>
+                <separator/>
+                <filter
+                    name="sale_mode_one_time"
+                    string="One-time"
+                    domain="[('sale_mode', '=', 'one_time')]"
+                />
+                <filter
+                    name="sale_mode_contract"
+                    string="Contract-based"
+                    domain="[('sale_mode', '=', 'contract')]"
+                />
+                <separator/>
+                <group>
+                    <filter
+                        name="group_by_department"
+                        string="Department"
+                        domain="[]"
+                        context="{'group_by': 'department_id'}"
+                    />
+                    <filter
+                        name="group_by_partner"
+                        string="Customer"
+                        domain="[]"
+                        context="{'group_by': 'partner_id'}"
+                    />
+                    <filter
+                        name="group_by_user"
+                        string="Salesperson"
+                        domain="[]"
+                        context="{'group_by': 'user_id'}"
+                    />
+                    <filter
+                        name="group_by_team"
+                        string="Sales Team"
+                        domain="[]"
+                        context="{'group_by': 'team_id'}"
+                    />
+                    <filter
+                        name="group_by_project"
+                        string="Project"
+                        domain="[]"
+                        context="{'group_by': 'project_id'}"
+                    />
+                    <filter
+                        name="group_by_sale_mode"
+                        string="Sale Mode"
+                        domain="[]"
+                        context="{'group_by': 'sale_mode'}"
+                    />
+                    <filter
+                        name="group_by_stamp_date_year"
+                        string="Stamp Date: Year"
+                        domain="[]"
+                        context="{'group_by': 'stamp_date:year'}"
+                    />
+                    <filter
+                        name="group_by_stamp_date_quarter"
+                        string="Stamp Date: Quarter"
+                        domain="[]"
+                        context="{'group_by': 'stamp_date:quarter'}"
+                    />
+                    <filter
+                        name="group_by_stamp_date_month"
+                        string="Stamp Date: Month"
+                        domain="[]"
+                        context="{'group_by': 'stamp_date:month'}"
+                    />
+                    <filter
+                        name="group_by_stamp_date_week"
+                        string="Stamp Date: Week"
+                        domain="[]"
+                        context="{'group_by': 'stamp_date:week'}"
+                    />
+                    <filter
+                        name="group_by_stamp_date_day"
+                        string="Stamp Date: Day"
+                        domain="[]"
+                        context="{'group_by': 'stamp_date:day'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_od19_sales_stamp_report" model="ir.actions.act_window">
+        <field name="name">Sales Stamp Date Analysis</field>
+        <field name="res_model">od19.sales.stamp.report</field>
+        <field name="view_mode">list,pivot,graph</field>
+        <field name="search_view_id" ref="view_od19_sales_stamp_report_search"/>
+        <field name="context">{'search_default_group_by_department': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No confirmed sale order with a stamp date yet.
+            </p>
+            <p>
+                This analysis is built on the stamp date captured when a
+                quotation is confirmed. Group by year, quarter, month,
+                department or any other dimension.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_od19_sales_stamp_report"
+              name="Stamp Date Analysis"
+              parent="sale.menu_sale_report"
+              action="action_od19_sales_stamp_report"
+              groups="sales_team.group_sale_manager,account.group_account_manager"
+              sequence="60"/>
+
+</odoo>
