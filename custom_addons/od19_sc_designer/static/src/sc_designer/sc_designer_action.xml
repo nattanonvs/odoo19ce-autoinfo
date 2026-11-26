@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="od19_sc_designer.ScAction">
+        <div class="o_sc_designer">
+
+            <div t-if="state.loading" class="o_sc_loading">Loading…</div>
+
+            <t t-if="!state.loading">
+
+                <div class="o_sc_toolbar">
+                    <select t-if="state.templates.length" class="o_input o_sc_template_select"
+                            t-on-change="onSelectTemplate">
+                        <t t-foreach="state.templates" t-as="tpl" t-key="tpl.id">
+                            <option t-att-value="tpl.id" t-att-selected="tpl.id === state.selectedId">
+                                <t t-esc="tpl.name"/>
+                                <t t-if="tpl.department"> · <t t-esc="tpl.department"/></t>
+                            </option>
+                        </t>
+                    </select>
+                    <span t-if="!state.templates.length" class="o_sc_muted">No templates yet — create the first one.</span>
+
+                    <button class="btn btn-secondary o_sc_btn"
+                            t-on-click="() => this.state.newTemplate.open = true">
+                        New Template
+                    </button>
+
+                    <div class="o_sc_spacer"/>
+
+                    <button class="btn btn-secondary o_sc_btn" t-on-click="previewTemplate"
+                            t-att-disabled="!state.selectedId">Preview</button>
+                    <button class="btn btn-primary o_sc_btn" t-on-click="applyTemplate"
+                            t-att-disabled="!state.selectedId">Apply</button>
+                    <button class="btn btn-warning o_sc_btn" t-on-click="rollbackTemplate"
+                            t-att-disabled="!state.selectedId">Rollback</button>
+                </div>
+
+                <t t-if="state.selectedId">
+
+                    <div class="o_sc_header">
+                        <div class="o_sc_header_grid">
+                            <label class="o_sc_field">
+                                <span>Template name</span>
+                                <input class="o_input" t-model="state.header.name"/>
+                            </label>
+                            <label class="o_sc_field">
+                                <span>Code</span>
+                                <input class="o_input" t-model="state.header.code"/>
+                            </label>
+                            <label class="o_sc_field">
+                                <span>Department</span>
+                                <input class="o_input" t-model="state.header.department"/>
+                            </label>
+                            <label class="o_sc_field o_sc_field_wide">
+                                <span>Design Header Name</span>
+                                <input class="o_input" t-model="state.header.header_title"/>
+                            </label>
+                            <label class="o_sc_field o_sc_field_wide">
+                                <span>Subtitle</span>
+                                <input class="o_input" t-model="state.header.header_subtitle"/>
+                            </label>
+                        </div>
+                        <button class="btn btn-secondary o_sc_btn" t-on-click="saveHeader">Save header</button>
+                    </div>
+
+                    <div class="o_sc_tabs">
+                        <button t-att-class="'o_sc_tab' + (state.activeTab === 'menu' ? ' active' : '')"
+                                t-on-click="() => this.setTab('menu')">Menu</button>
+                        <button t-att-class="'o_sc_tab' + (state.activeTab === 'field' ? ' active' : '')"
+                                t-on-click="() => this.setTab('field')">Field</button>
+                        <button t-att-class="'o_sc_tab' + (state.activeTab === 'theme' ? ' active' : '')"
+                                t-on-click="() => this.setTab('theme')">Theme</button>
+                        <button t-att-class="'o_sc_tab' + (state.activeTab === 'formula' ? ' active' : '')"
+                                t-on-click="() => this.setTab('formula')">Formula</button>
+                        <button t-att-class="'o_sc_tab' + (state.activeTab === 'integration' ? ' active' : '')"
+                                t-on-click="() => this.setTab('integration')">Integration</button>
+                    </div>
+
+                    <div class="o_sc_panel">
+                        <div class="o_sc_panel_head">
+                            <span t-esc="currentModel"/>
+                            <div class="o_sc_spacer"/>
+                            <button class="btn btn-link o_sc_btn" t-on-click="openNewRecord">+ Add</button>
+                        </div>
+
+                        <table class="o_sc_table">
+                            <thead t-if="state.activeTab === 'menu'">
+                                <tr>
+                                    <th>Name</th><th>Parent</th><th>Type</th>
+                                    <th>Target</th><th>Seq</th><th>Active</th><th/>
+                                </tr>
+                            </thead>
+                            <thead t-if="state.activeTab === 'field'">
+                                <tr>
+                                    <th>Model</th><th>Tech name</th><th>Label</th>
+                                    <th>Type</th><th>Seq</th><th>Active</th><th/>
+                                </tr>
+                            </thead>
+                            <thead t-if="state.activeTab === 'theme'">
+                                <tr>
+                                    <th>Token</th><th>Value</th><th>Seq</th><th>Active</th><th/>
+                                </tr>
+                            </thead>
+                            <thead t-if="state.activeTab === 'formula'">
+                                <tr>
+                                    <th>Name</th><th>Model</th><th>Field</th>
+                                    <th>Trigger</th><th>Seq</th><th>Active</th><th/>
+                                </tr>
+                            </thead>
+                            <thead t-if="state.activeTab === 'integration'">
+                                <tr>
+                                    <th>Name</th><th>Direction</th><th>URL</th>
+                                    <th>Method</th><th>Schedule</th><th>Active</th><th/>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr t-foreach="rows" t-as="row" t-key="row.id">
+                                    <t t-if="state.activeTab === 'menu'">
+                                        <td><t t-esc="row.name"/></td>
+                                        <td><t t-esc="row.parent_id ? row.parent_id[1] : ''"/></td>
+                                        <td><t t-esc="row.menu_type"/></td>
+                                        <td><t t-esc="row.target_model or row.target_url or row.client_tag or ''"/></td>
+                                        <td><t t-esc="row.sequence"/></td>
+                                        <td><t t-esc="row.active ? 'Yes' : 'No'"/></td>
+                                    </t>
+                                    <t t-if="state.activeTab === 'field'">
+                                        <td><t t-esc="row.target_model"/></td>
+                                        <td><t t-esc="row.name"/></td>
+                                        <td><t t-esc="row.field_description"/></td>
+                                        <td><t t-esc="row.ttype"/></td>
+                                        <td><t t-esc="row.sequence"/></td>
+                                        <td><t t-esc="row.active ? 'Yes' : 'No'"/></td>
+                                    </t>
+                                    <t t-if="state.activeTab === 'theme'">
+                                        <td><t t-esc="row['key']"/></td>
+                                        <td><t t-esc="row.value"/></td>
+                                        <td><t t-esc="row.sequence"/></td>
+                                        <td><t t-esc="row.active ? 'Yes' : 'No'"/></td>
+                                    </t>
+                                    <t t-if="state.activeTab === 'formula'">
+                                        <td><t t-esc="row.name"/></td>
+                                        <td><t t-esc="row.target_model"/></td>
+                                        <td><t t-esc="row.target_field"/></td>
+                                        <td><t t-esc="row.trigger"/></td>
+                                        <td><t t-esc="row.sequence"/></td>
+                                        <td><t t-esc="row.active ? 'Yes' : 'No'"/></td>
+                                    </t>
+                                    <t t-if="state.activeTab === 'integration'">
+                                        <td><t t-esc="row.name"/></td>
+                                        <td><t t-esc="row.direction"/></td>
+                                        <td><t t-esc="row.url"/></td>
+                                        <td><t t-esc="row.method"/></td>
+                                        <td><t t-esc="row.schedule ? 'Yes' : 'No'"/></td>
+                                        <td><t t-esc="row.active ? 'Yes' : 'No'"/></td>
+                                    </t>
+
+                                    <td class="o_sc_actions">
+                                        <button t-if="state.activeTab === 'formula'"
+                                                class="btn btn-link o_sc_btn"
+                                                t-on-click="(ev) => this.testFormula(row, ev)">Test</button>
+                                        <button t-if="state.activeTab === 'integration'"
+                                                class="btn btn-link o_sc_btn"
+                                                t-on-click="(ev) => this.testIntegration(row, ev)">Test</button>
+                                        <button class="btn btn-link o_sc_btn"
+                                                t-on-click="() => this.openEditRecord(row)">Edit</button>
+                                        <button class="btn btn-link o_sc_btn o_sc_danger"
+                                                t-on-click="() => this.deleteRecord(row)">Delete</button>
+                                    </td>
+                                </tr>
+                                <tr t-if="!rows.length">
+                                    <td class="o_sc_empty" t-att-colspan="state.activeTab === 'theme' ? 5 : 7">
+                                        No records yet.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+
+                <div t-if="!state.selectedId" class="o_sc_empty_state">
+                    <h3>AutoInfo Service Center</h3>
+                    <p>สร้าง Designed Template เพื่อเริ่มออกแบบเมนู · ฟิลด์ · ธีม · สูตร · การเชื่อมต่อ</p>
+                    <button class="btn btn-primary" t-on-click="() => this.state.newTemplate.open = true">
+                        New Template
+                    </button>
+                </div>
+            </t>
+
+            <!-- Record form dialog -->
+            <div t-if="state.form.open" class="o_sc_modal" t-on-click="closeForm">
+                <div class="o_sc_modal_body" t-on-click="(ev) => ev.stopPropagation()">
+                    <h4><t t-esc="state.form.recId ? 'Edit' : 'New'"/> · <t t-esc="state.form.tab"/></h4>
+
+                    <div class="o_sc_form">
+                        <!-- MENU -->
+                        <t t-if="state.form.tab === 'menu'">
+                            <label class="o_sc_field"><span>Name</span>
+                                <input class="o_input" t-model="state.form.vals.name"/></label>
+                            <label class="o_sc_field"><span>Parent menu</span>
+                                <select class="o_input" t-model="state.form.vals.parent_id">
+                                    <option value="">— none —</option>
+                                    <t t-foreach="state.data.menu" t-as="pn" t-key="pn.id">
+                                        <option t-att-value="pn.id" t-esc="pn.name"/>
+                                    </t>
+                                </select></label>
+                            <label class="o_sc_field"><span>Type</span>
+                                <select class="o_input" t-model="state.form.vals.menu_type">
+                                    <t t-foreach="state.meta.menu_types" t-as="o" t-key="o.value">
+                                        <option t-att-value="o.value" t-esc="o.label"/>
+                                    </t>
+                                </select></label>
+                            <label t-if="state.form.vals.menu_type === 'window'" class="o_sc_field"><span>Model</span>
+                                <input class="o_input" t-model="state.form.vals.target_model"/></label>
+                            <label t-if="state.form.vals.menu_type === 'window'" class="o_sc_field"><span>View mode</span>
+                                <input class="o_input" t-model="state.form.vals.view_mode"/></label>
+                            <label t-if="state.form.vals.menu_type === 'url'" class="o_sc_field"><span>URL</span>
+                                <input class="o_input" t-model="state.form.vals.target_url"/></label>
+                            <label t-if="state.form.vals.menu_type === 'client'" class="o_sc_field"><span>Client tag</span>
+                                <input class="o_input" t-model="state.form.vals.client_tag"/></label>
+                            <label class="o_sc_field"><span>Sequence</span>
+                                <input class="o_input" type="number" t-model.number="state.form.vals.sequence"/></label>
+                            <div class="o_sc_field o_sc_field_wide">
+                                <span>Visible to groups</span>
+                                <div class="o_sc_group_list">
+                                    <label t-foreach="state.groups" t-as="g" t-key="g.id" class="o_sc_check">
+                                        <input type="checkbox"
+                                               t-att-checked="(state.form.vals.group_ids || []).includes(g.id)"
+                                               t-on-change="() => this.toggleGroup(g.id)"/>
+                                        <span t-esc="g.name"/>
+                                    </label>
+                                </div>
+                            </div>
+                            <label class="o_sc_field o_sc_check">
+                                <input type="checkbox" t-model="state.form.vals.active"/><span>Active</span></label>
+                        </t>
+
+                        <!-- FIELD -->
+                        <t t-if="state.form.tab === 'field'">
+                            <label class="o_sc_field"><span>Mode</span>
+                                <select class="o_input" t-model="state.form.vals.mode">
+                                    <t t-foreach="state.meta.field_modes" t-as="o" t-key="o.value">
+                                        <option t-att-value="o.value" t-esc="o.label"/>
+                                    </t>
+                                </select></label>
+                            <label class="o_sc_field"><span>Target model</span>
+                                <input class="o_input" t-model="state.form.vals.target_model"
+                                       placeholder="เช่น maintenance.equipment"/></label>
+                            <label class="o_sc_field"><span>Technical name</span>
+                                <input class="o_input" t-model="state.form.vals.name"
+                                       placeholder="จะเติม x_ ให้อัตโนมัติ"/></label>
+                            <label class="o_sc_field"><span>Label</span>
+                                <input class="o_input" t-model="state.form.vals.field_description"/></label>
+                            <label t-if="state.form.vals.mode === 'create'" class="o_sc_field"><span>Field type</span>
+                                <select class="o_input" t-model="state.form.vals.ttype">
+                                    <t t-foreach="state.meta.field_types" t-as="o" t-key="o.value">
+                                        <option t-att-value="o.value" t-esc="o.label"/>
+                                    </t>
+                                </select></label>
+                            <label t-if="state.form.vals.ttype === 'selection'" class="o_sc_field o_sc_field_wide">
+                                <span>Selection values (key|Label ต่อบรรทัด)</span>
+                                <textarea class="o_input" rows="4" t-model="state.form.vals.selection_values"/></label>
+                            <label t-if="state.form.vals.ttype === 'many2one' || state.form.vals.ttype === 'many2many'"
+                                   class="o_sc_field"><span>Relation (comodel)</span>
+                                <input class="o_input" t-model="state.form.vals.relation"/></label>
+                            <label class="o_sc_field"><span>Tooltip</span>
+                                <input class="o_input" t-model="state.form.vals.help"/></label>
+                            <label class="o_sc_field"><span>Sequence</span>
+                                <input class="o_input" type="number" t-model.number="state.form.vals.sequence"/></label>
+                            <div class="o_sc_field o_sc_field_wide o_sc_checks">
+                                <label class="o_sc_check"><input type="checkbox" t-model="state.form.vals.required"/><span>Required</span></label>
+                                <label class="o_sc_check"><input type="checkbox" t-model="state.form.vals.readonly"/><span>Readonly</span></label>
+                                <label class="o_sc_check"><input type="checkbox" t-model="state.form.vals.invisible"/><span>Invisible</span></label>
+                                <label class="o_sc_check"><input type="checkbox" t-model="state.form.vals.active"/><span>Active</span></label>
+                            </div>
+                        </t>
+
+                        <!-- THEME -->
+                        <t t-if="state.form.tab === 'theme'">
+                            <label class="o_sc_field"><span>Token</span>
+                                <input class="o_input" t-model="state.form.vals.key" placeholder="--sc-primary"/></label>
+                            <label class="o_sc_field"><span>Value</span>
+                                <input class="o_input" t-model="state.form.vals.value" placeholder="#7c5cff"/></label>
+                            <label class="o_sc_field"><span>Sequence</span>
+                                <input class="o_input" type="number" t-model.number="state.form.vals.sequence"/></label>
+                            <label class="o_sc_field o_sc_check">
+                                <input type="checkbox" t-model="state.form.vals.active"/><span>Active</span></label>
+                        </t>
+
+                        <!-- FORMULA -->
+                        <t t-if="state.form.tab === 'formula'">
+                            <label class="o_sc_field"><span>Name</span>
+                                <input class="o_input" t-model="state.form.vals.name"/></label>
+                            <label class="o_sc_field"><span>Target model</span>
+                                <input class="o_input" t-model="state.form.vals.target_model"/></label>
+                            <label class="o_sc_field"><span>Target field</span>
+                                <input class="o_input" t-model="state.form.vals.target_field"/></label>
+                            <label class="o_sc_field"><span>Trigger</span>
+                                <select class="o_input" t-model="state.form.vals.trigger">
+                                    <t t-foreach="state.meta.formula_triggers" t-as="o" t-key="o.value">
+                                        <option t-att-value="o.value" t-esc="o.label"/>
+                                    </t>
+                                </select></label>
+                            <label class="o_sc_field o_sc_field_wide"><span>Expression</span>
+                                <textarea class="o_input" rows="5" t-model="state.form.vals.expression"
+                                          placeholder="record.x_total = record.x_qty * record.x_price"/></label>
+                            <label t-if="state.form.vals.trigger === 'cron'" class="o_sc_field"><span>Interval</span>
+                                <input class="o_input" type="number" t-model.number="state.form.vals.cron_interval_number"/></label>
+                            <label t-if="state.form.vals.trigger === 'cron'" class="o_sc_field"><span>Interval type</span>
+                                <select class="o_input" t-model="state.form.vals.cron_interval_type">
+                                    <t t-foreach="state.meta.interval_types" t-as="o" t-key="o.value">
+                                        <option t-att-value="o.value" t-esc="o.label"/>
+                                    </t>
+                                </select></label>
+                            <label class="o_sc_field"><span>Sequence</span>
+                                <input class="o_input" type="number" t-model.number="state.form.vals.sequence"/></label>
+                            <label class="o_sc_field o_sc_check">
+                                <input type="checkbox" t-model="state.form.vals.active"/><span>Active</span></label>
+                        </t>
+
+                        <!-- INTEGRATION -->
+                        <t t-if="state.form.tab === 'integration'">
+                            <label class="o_sc_field"><span>Name</span>
+                                <input class="o_input" t-model="state.form.vals.name"/></label>
+                            <label class="o_sc_field"><span>Direction</span>
+                                <select class="o_input" t-model="state.form.vals.direction">
+                                    <t t-foreach="state.meta.directions" t-as="o" t-key="o.value">
+                                        <option t-att-value="o.value" t-esc="o.label"/>
+                                    </t>
+                                </select></label>
+                            <label class="o_sc_field o_sc_field_wide"><span>URL</span>
+                                <input class="o_input" t-model="state.form.vals.url" placeholder="https://..."/></label>
+                            <label class="o_sc_field"><span>Method</span>
+                                <select class="o_input" t-model="state.form.vals.method">
+                                    <t t-foreach="state.meta.http_methods" t-as="o" t-key="o.value">
+                                        <option t-att-value="o.value" t-esc="o.label"/>
+                                    </t>
+                                </select></label>
+                            <label class="o_sc_field"><span>Token config key</span>
+                                <input class="o_input" t-model="state.form.vals.auth_token_param"/></label>
+                            <label class="o_sc_field o_sc_field_wide"><span>Headers (JSON)</span>
+                                <textarea class="o_input" rows="3" t-model="state.form.vals.headers"/></label>
+                            <label class="o_sc_field o_sc_field_wide"><span>Payload template (JSON หรือนิพจน์)</span>
+                                <textarea class="o_input" rows="4" t-model="state.form.vals.payload_template"/></label>
+                            <label class="o_sc_field"><span>Mapping model</span>
+                                <input class="o_input" t-model="state.form.vals.mapping_model"/></label>
+                            <label class="o_sc_field"><span>Sequence</span>
+                                <input class="o_input" type="number" t-model.number="state.form.vals.sequence"/></label>
+                            <div class="o_sc_field o_sc_field_wide o_sc_checks">
+                                <label class="o_sc_check"><input type="checkbox" t-model="state.form.vals.schedule"/><span>Run on schedule</span></label>
+                                <label class="o_sc_check"><input type="checkbox" t-model="state.form.vals.active"/><span>Active</span></label>
+                            </div>
+                            <label t-if="state.form.vals.schedule" class="o_sc_field"><span>Interval</span>
+                                <input class="o_input" type="number" t-model.number="state.form.vals.cron_interval_number"/></label>
+                            <label t-if="state.form.vals.schedule" class="o_sc_field"><span>Interval type</span>
+                                <select class="o_input" t-model="state.form.vals.cron_interval_type">
+                                    <t t-foreach="state.meta.interval_types" t-as="o" t-key="o.value">
+                                        <option t-att-value="o.value" t-esc="o.label"/>
+                                    </t>
+                                </select></label>
+                        </t>
+                    </div>
+
+                    <div class="o_sc_modal_footer">
+                        <button class="btn btn-secondary" t-on-click="closeForm">Cancel</button>
+                        <button class="btn btn-primary" t-on-click="saveForm">Save</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New template dialog -->
+            <div t-if="state.newTemplate.open" class="o_sc_modal"
+                 t-on-click="() => this.state.newTemplate.open = false">
+                <div class="o_sc_modal_body" t-on-click="(ev) => ev.stopPropagation()">
+                    <h4>New Designed Template</h4>
+                    <div class="o_sc_form">
+                        <label class="o_sc_field"><span>Name</span>
+                            <input class="o_input" t-model="state.newTemplate.name"/></label>
+                        <label class="o_sc_field"><span>Code</span>
+                            <input class="o_input" t-model="state.newTemplate.code" placeholder="TA-01"/></label>
+                        <label class="o_sc_field"><span>Department</span>
+                            <input class="o_input" t-model="state.newTemplate.department" placeholder="TA"/></label>
+                        <label class="o_sc_field o_sc_field_wide"><span>Design Header Name</span>
+                            <input class="o_input" t-model="state.newTemplate.header_title"/></label>
+                        <label class="o_sc_field o_sc_field_wide"><span>Subtitle</span>
+                            <input class="o_input" t-model="state.newTemplate.header_subtitle"/></label>
+                    </div>
+                    <div class="o_sc_modal_footer">
+                        <button class="btn btn-secondary"
+                                t-on-click="() => this.state.newTemplate.open = false">Cancel</button>
+                        <button class="btn btn-primary" t-on-click="createTemplate">Create</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </t>
+
+</templates>
