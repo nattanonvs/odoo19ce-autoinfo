@@ -24,29 +24,6 @@ class AccountPayment(models.Model):
         copy=False,
     )
 
-    # ------------------------------------------------------------------
-    # Collecting cheques (F9/R6): several cheques can make up one receipt
-    # ------------------------------------------------------------------
-    od19_cheque_collect_ids = fields.One2many(
-        comodel_name="od19.payment.cheque.collect",
-        inverse_name="payment_id",
-        string="เช็คที่รับชำระ / Collecting Cheques",
-        copy=True,
-    )
-    od19_cheque_collect_amount = fields.Monetary(
-        string="รวมเช็คที่รับ / Total Collecting Cheques",
-        currency_field="currency_id",
-        compute="_compute_od19_cheque_collect_amount",
-        store=True,
-    )
-
-    @api.depends("od19_cheque_collect_ids.amount")
-    def _compute_od19_cheque_collect_amount(self):
-        for payment in self:
-            payment.od19_cheque_collect_amount = sum(
-                payment.od19_cheque_collect_ids.mapped("amount")
-            )
-
     @api.depends(
         "payment_method_line_id",
         "journal_id",

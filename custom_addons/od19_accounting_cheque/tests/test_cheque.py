@@ -383,30 +383,3 @@ class TestCheque(TransactionCase):
         )
         self.assertEqual(received_line.amount_residual, 0.0)
 
-    # ------------------------------------------------------------------
-    # T5: several collecting cheques make up one receipt (F9/R6)
-    # ------------------------------------------------------------------
-    def test_collecting_cheques_total(self):
-        payment = self.env["account.payment"].create({
-            "payment_type": "inbound",
-            "partner_type": "customer",
-            "partner_id": self.customer.id,
-            "journal_id": self.bank_journal.id,
-            "amount": 350.0,
-            "od19_cheque_collect_ids": [
-                (0, 0, {
-                    "name": "CHQC01",
-                    "bank_id": self.bank.id,
-                    "amount": 100.0,
-                    "journal_id": self.bank_journal.id,
-                }),
-                (0, 0, {
-                    "name": "CHQC02",
-                    "bank_id": self.bank.id,
-                    "amount": 250.0,
-                    "journal_id": self.bank_journal.id,
-                }),
-            ],
-        })
-        self.assertEqual(len(payment.od19_cheque_collect_ids), 2)
-        self.assertEqual(payment.od19_cheque_collect_amount, 350.0)
