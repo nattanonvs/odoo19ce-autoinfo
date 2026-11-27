@@ -33,34 +33,49 @@
         </field>
     </record>
 
-    <!-- Title bar: Hero Panel (card + accent bar) wrapping an inline "job pill"
-         title. The Job Number renders as an editable monospace pill and the
-         Project Name as an editable dashed-underline field with a pencil hint. -->
+    <!-- Title bar (single owner): the Hero Panel (card + accent bar) replaces
+         the core oe_title entirely, wrapping an inline "job pill" title. The
+         Job Number renders as an editable monospace pill and the Project Name
+         as an editable dashed-underline field with a pencil hint.
+
+         od19_project_analytic no longer customises the title, so there is
+         exactly ONE layer of title override in the whole stack. -->
     <record id="view_project_project_form_title_inherit_od19_enhanced" model="ir.ui.view">
         <field name="name">project.project.form.title.od19.enhanced</field>
         <field name="model">project.project</field>
-        <field name="inherit_id" ref="od19_project_analytic.view_project_project_form_inherit_od19"/>
+        <field name="inherit_id" ref="project.edit_project"/>
         <field name="arch" type="xml">
-            <xpath expr="//h1[field[@name='job_no']]" position="replace">
-                <div class="od19-hero">
-                    <span class="od19-hero-accent" aria-hidden="true"/>
-                    <div class="od19-hero-inner">
-                        <h1 class="od19-inline-title">
-                            <field name="is_favorite" nolabel="1" widget="project_is_favorite" class="od19-fav" options="{'autosave': False}"/>
-                            <span class="od19-job-pill">
-                                <span class="od19-job-pill-hash">#</span>
-                                <field name="job_no" nolabel="1" class="od19-job-pill-input" placeholder="JOB-2026-001" required="1"/>
-                            </span>
-                            <span class="od19-name-wrap">
-                                <field name="name" nolabel="1" class="od19-name-input" placeholder="e.g. Project Name"/>
-                                <i class="fa fa-pencil od19-pencil" aria-hidden="true"/>
-                            </span>
-                        </h1>
-                        <p class="od19-hint">คลิกที่ป้าย # เพื่อแก้เลขงาน · คลิกชื่อเพื่อแก้ชื่อโปรเจกต์</p>
+            <xpath expr="//div[hasclass('oe_title')]" position="replace">
+                <div class="oe_title">
+                    <div class="od19-hero">
+                        <span class="od19-hero-accent" aria-hidden="true"/>
+                        <div class="od19-hero-inner">
+                            <h1 class="od19-inline-title">
+                                <field name="is_favorite" nolabel="1" widget="project_is_favorite" class="od19-fav" options="{'autosave': False}"/>
+                                <span class="od19-job-pill">
+                                    <span class="od19-job-pill-hash">#</span>
+                                    <field name="job_no" nolabel="1" class="od19-job-pill-input" placeholder="JOB-2026-001" required="1"/>
+                                </span>
+                                <span class="od19-name-wrap">
+                                    <field name="name" nolabel="1" class="od19-name-input" placeholder="e.g. Project Name"/>
+                                    <i class="fa fa-pencil od19-pencil" aria-hidden="true"/>
+                                </span>
+                            </h1>
+                            <p class="od19-hint">คลิกที่ป้าย # เพื่อแก้เลขงาน · คลิกชื่อเพื่อแก้ชื่อโปรเจกต์</p>
+                        </div>
+                    </div>
+                    <!-- No analytic yet: offer to create one right away. The
+                         analytic itself is shown once, through account_id in
+                         the Settings group "analytic". -->
+                    <div class="od19-analytic-line od19-analytic-missing mt-1" invisible="account_id">
+                        <span class="od19-analytic-warn">
+                            <i class="fa fa-exclamation-triangle me-1"/>ยังไม่มีเลข Analytic
+                        </span>
+                        <button name="action_od19_create_analytic" type="object"
+                                class="od19-chip-btn" string="+ สร้าง Analytic"/>
                     </div>
                 </div>
             </xpath>
-            <xpath expr="//h2[field[@name='name']]" position="replace"/>
         </field>
     </record>
 

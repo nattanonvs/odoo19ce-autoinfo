@@ -1,7 +1,7 @@
 {
     "name": "OD19 Project Enhanced",
     "author": "OD19",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "category": "Services/Project",
     "summary": "Extend project management with risk report, hierarchical project type, deadline notification, no backward stage change, job assignment fields, and department Many2one",
     "depends": [
