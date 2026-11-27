@@ -3,7 +3,7 @@
 
 วิธีใช้ (PowerShell):
     Get-Content -LiteralPath .\migration\seed\run.py -Raw |
-        .\venv19\Scripts\python.exe .\odoo-bin shell -c .\odoo.conf -d odoo19_pdev --no-http
+        .\venv19\Scripts\python.exe .\odoo-bin shell -c .\odoo.conf -d <odoo19_pdev|odoo19_puat|odoo19_hist> --no-http
 
 ตัวแปรสภาพแวดล้อมที่รองรับ:
     SEED_ONLY=s10_partners,s20_products   เลือกรันเฉพาะบาง section

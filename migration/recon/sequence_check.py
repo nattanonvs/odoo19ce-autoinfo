@@ -5,7 +5,7 @@ r"""Gate 6 — ตรวจความต่อเนื่องของเ�
 
     $env:PYTHONIOENCODING="utf-8"
     Get-Content migration\recon\sequence_check.py -Raw | `
-        & .\venv19\Scripts\python.exe -u .\odoo-bin shell -c odoo.conf -d odoo19_puat --no-http `
+        & .\venv19\Scripts\python.exe -u .\odoo-bin shell -c odoo.conf -d <odoo19_pdev|odoo19_puat|odoo19_hist> --no-http `
         *> migration\recon\sequence_check.log
 
 ตรวจ 2 เรื่อง (ตามแผน Phase 6):

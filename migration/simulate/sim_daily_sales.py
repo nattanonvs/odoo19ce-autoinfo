@@ -2,12 +2,12 @@
 r"""sim_daily_sales — จำลองข้อมูลขายรายวัน (ม.ค.–ส.ค. 2569) ใน Odoo 19
 
 เป้าหมาย
-    ทำให้ Odoo 19 (odoo19_puat) มียอดขายที่ "บันทึกลงบัญชี" (posted) ครบ
+    ทำให้ Odoo 19 (<odoo19_pdev|odoo19_puat|odoo19_hist>) มียอดขายที่ "บันทึกลงบัญชี" (posted) ครบ
     ในช่วง ม.ค.–ส.ค. 2569 โดยอ้างอิงตัวเลขรายได้รายวันจาก Odoo 15 (od15_stage)
 
 หลักการ
     * อ่าน od15_stage อย่างเดียว (legacy.py บังคับ read-only)
-    * เขียน odoo19_puat ผ่าน ORM เท่านั้น
+    * เขียน <odoo19_pdev|odoo19_puat|odoo19_hist> ผ่าน ORM เท่านั้น
     * 1 ใบแจ้งหนี้ (out_invoice) ต่อ 1 วันที่มีรายได้
         - บรรทัดแยกตามบัญชีรายได้ (map รหัส od15 -> od19 ด้วย
           migration/mapping/od15_code_to_od19_code.csv)
@@ -19,7 +19,7 @@ r"""sim_daily_sales — จำลองข้อมูลขายรายว�
     $env:OD15_PASSWORD = "odoo123"
     Get-Content -LiteralPath .\migration\simulate\sim_daily_sales.py -Raw |
         .\venv19\Scripts\python.exe .\odoo-bin shell -c .\odoo.conf `
-        -d odoo19_puat --no-http --db-filter=^odoo19_puat$
+        -d <odoo19_pdev|odoo19_puat|odoo19_hist> --no-http --db-filter=^<odoo19_pdev|odoo19_puat|odoo19_hist>$
 
 ตัวแปรสภาพแวดล้อม
     MIG_DRY_RUN=1        ไม่เขียนข้อมูล (preview เท่านั้น)

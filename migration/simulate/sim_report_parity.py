@@ -15,7 +15,7 @@ r"""sim_report_parity — ตรวจว่า "รายงาน" ของ o
 วิธีรัน (จาก root โปรเจกต์):
     Get-Content -LiteralPath .\migration\simulate\sim_report_parity.py -Raw |
         .\venv19\Scripts\python.exe -u .\odoo-bin shell -c .\odoo.conf `
-        -d odoo19_puat --no-http --db-filter=^odoo19_puat$
+        -d <odoo19_pdev|odoo19_puat|odoo19_hist> --no-http --db-filter=^<odoo19_pdev|odoo19_puat|odoo19_hist>$
 
 ตัวแปรสภาพแวดล้อม
     REP_D1 / REP_D2   ช่วงวันที่ (ค่าเริ่มต้น 2026-01-01 .. 2026-08-31)

@@ -3,7 +3,7 @@ r"""Recon — ตรวจกระทบยอด "ยอดยกมา" ข�
 
 รัน (จาก root ของโปรเจกต์):
     Get-Content migration\recon\run.py -Raw | & .\venv19\Scripts\python.exe -u `
-        .\odoo-bin shell -c odoo.conf -d odoo19_puat --no-http
+        .\odoo-bin shell -c odoo.conf -d <odoo19_pdev|odoo19_puat|odoo19_hist> --no-http
 
 ตรวจ 4 ด้านตามแผน (Phase 5 / Gate 5):
     Recon #1  Trial Balance เทียบทีละบัญชี (เน้นบัญชีงบดุล ต้องตรงทุกบัญชี)

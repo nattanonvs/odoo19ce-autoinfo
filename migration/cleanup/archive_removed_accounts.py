@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Archive บัญชี OD15 (รหัส 6 หลัก) ที่ "เอาออกได้" — COA Cleanup (odoo19_puat)
+"""Archive บัญชี OD15 (รหัส 6 หลัก) ที่ "เอาออกได้" — COA Cleanup (<odoo19_pdev|odoo19_puat|odoo19_hist>)
 
 ที่มา: ผลตรวจ "เอาออกได้ไหม" ของ 21 บัญชี
        → 13 ตัวไม่มี constraint (ลบได้)  -> สคริปต์นี้ (Archive)
@@ -15,12 +15,12 @@
 
     # 1) ดูผลที่จะเกิดขึ้น (ไม่เขียนจริง)
     Get-Content -Raw migration\\cleanup\\archive_removed_accounts.py |
-        venv19\\Scripts\\python.exe odoo-bin shell -c odoo.conf -d odoo19_puat --no-http
+        venv19\\Scripts\\python.exe odoo-bin shell -c odoo.conf -d <odoo19_pdev|odoo19_puat|odoo19_hist> --no-http
 
     # 2) เขียนจริง (ต้องยืนยัน)
     $env:OD19_ARCHIVE_CONFIRM = "1"
     Get-Content -Raw migration\\cleanup\\archive_removed_accounts.py |
-        venv19\\Scripts\\python.exe odoo-bin shell -c odoo.conf -d odoo19_puat --no-http
+        venv19\\Scripts\\python.exe odoo-bin shell -c odoo.conf -d <odoo19_pdev|odoo19_puat|odoo19_hist> --no-http
     Remove-Item Env:\\OD19_ARCHIVE_CONFIRM
 
 ตัวแปรสภาพแวดล้อม:

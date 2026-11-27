@@ -134,13 +134,24 @@ def _fetch_partners(ids=None):
     is_partner.append("p.id IN (SELECT DISTINCT partner_id FROM account_move_line "
                       "WHERE partner_id IS NOT NULL)")
 
+    # คู่ค้าที่ถูกอ้างถึงจริงในเอกสาร ต้องนำเข้าทุกสถานะ (รวม inactive) มิฉะนั้นเอกสาร
+    # ประวัติศาสตร์จะขาดคู่ค้า — กรณีที่พบบ่อยคือคู่ค้าถูก archive ภายหลังแต่ใบสั่งเก่ายังอ้างอยู่
+    referenced = [
+        # ทะเบียนย่อยภาษีหัก ณ ที่จ่าย (ระบบเดิมไม่ได้ตั้ง supplier_rank)
+        "p.id IN (SELECT partner_id FROM dtr_wht WHERE partner_id IS NOT NULL)",
+        # ใบสั่งขาย — คู่ค้าหลัก/ออกใบกำกับ/จัดส่ง
+        "p.id IN (SELECT partner_id FROM sale_order WHERE partner_id IS NOT NULL)",
+        "p.id IN (SELECT partner_invoice_id FROM sale_order WHERE partner_invoice_id IS NOT NULL)",
+        "p.id IN (SELECT partner_shipping_id FROM sale_order WHERE partner_shipping_id IS NOT NULL)",
+        # ใบสั่งซื้อ — คู่ค้าหลัก
+        "p.id IN (SELECT partner_id FROM purchase_order WHERE partner_id IS NOT NULL)",
+    ]
+
     sql = (
         select_sql +
-        "WHERE (p.active = true "
+        "WHERE ( (p.active = true "
         "  AND (" + " OR ".join(is_partner) + ")) "
-        # คู่ค้าที่ถูกอ้างถึงในทะเบียนย่อยภาษีหัก ณ ที่จ่าย (ระบบเดิมไม่ได้ตั้ง supplier_rank)
-        # ต้องนำเข้าทุกสถานะ (รวม inactive) มิฉะนั้นใบรับรองหัก ณ ที่จ่ายจะขาดผู้รับเงิน
-        "  OR p.id IN (SELECT partner_id FROM dtr_wht WHERE partner_id IS NOT NULL) "
+        "  OR " + " OR ".join(referenced) + " ) "
         "  AND " + not_company
     )
     return legacy.fetch_all(sql)

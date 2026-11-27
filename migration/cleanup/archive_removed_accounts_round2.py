@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Archive บัญชี OD15 (รหัส 6 หลัก) ชุดที่ 2 — placeholder เปล่า ไม่มีการอ้างอิง (odoo19_puat)
+"""Archive บัญชี OD15 (รหัส 6 หลัก) ชุดที่ 2 — placeholder เปล่า ไม่มีการอ้างอิง (<odoo19_pdev|odoo19_puat|odoo19_hist>)
 
 ที่มา: หลัง COA Cleanup ชุดแรก (archive_removed_accounts.py — 13 ตัว)
        และ remap 2 ชุด (remap_accounts.py 21 ตัว / remap_accounts_round2.py 8 ตัว)
@@ -32,12 +32,12 @@
 
     # 1) ดูผลที่จะเกิดขึ้น (ไม่เขียนจริง)
     Get-Content -Raw migration\\cleanup\\archive_removed_accounts_round2.py |
-        venv19\\Scripts\\python.exe odoo-bin shell -c odoo.conf -d odoo19_puat --no-http
+        venv19\\Scripts\\python.exe odoo-bin shell -c odoo.conf -d <odoo19_pdev|odoo19_puat|odoo19_hist> --no-http
 
     # 2) เขียนจริง (ต้องยืนยัน)
     $env:OD19_ARCHIVE_CONFIRM = "1"
     Get-Content -Raw migration\\cleanup\\archive_removed_accounts_round2.py |
-        venv19\\Scripts\\python.exe odoo-bin shell -c odoo.conf -d odoo19_puat --no-http
+        venv19\\Scripts\\python.exe odoo-bin shell -c odoo.conf -d <odoo19_pdev|odoo19_puat|odoo19_hist> --no-http
     Remove-Item Env:\\OD19_ARCHIVE_CONFIRM
 
 ตัวแปรสภาพแวดล้อม:

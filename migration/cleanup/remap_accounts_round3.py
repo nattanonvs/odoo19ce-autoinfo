@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""ย้ายการอ้างอิงบัญชีชุดที่ 3 (บัญชี 6 หลักชุดสุดท้าย + PP36 input VAT) — COA Cleanup (odoo19_puat)
+"""ย้ายการอ้างอิงบัญชีชุดที่ 3 (บัญชี 6 หลักชุดสุดท้าย + PP36 input VAT) — COA Cleanup (<odoo19_pdev|odoo19_puat|odoo19_hist>)
 
 ที่มา: หลัง Remap รอบ 1 (21 บัญชี) และรอบ 2 (8 บัญชี) + Archive 4 บัญชี placeholder
        บัญชี 6 หลักมาตรฐาน l10n_th ที่ยัง active เหลือ 7 ตัว — 999999 (Current Year
@@ -37,12 +37,12 @@
 
     # 1) ดูผลที่จะเกิดขึ้น (ไม่เขียนจริง)
     Get-Content -Raw migration\\cleanup\\remap_accounts_round3.py |
-        venv19\\Scripts\\python.exe odoo-bin shell -c odoo.conf -d odoo19_puat --no-http
+        venv19\\Scripts\\python.exe odoo-bin shell -c odoo.conf -d <odoo19_pdev|odoo19_puat|odoo19_hist> --no-http
 
     # 2) เขียนจริง (ต้องยืนยัน)
     $env:OD19_REMAP_CONFIRM = "1"
     Get-Content -Raw migration\\cleanup\\remap_accounts_round3.py |
-        venv19\\Scripts\\python.exe odoo-bin shell -c odoo.conf -d odoo19_puat --no-http
+        venv19\\Scripts\\python.exe odoo-bin shell -c odoo.conf -d <odoo19_pdev|odoo19_puat|odoo19_hist> --no-http
     Remove-Item Env:\\OD19_REMAP_CONFIRM
 
 ตัวแปรสภาพแวดล้อม:

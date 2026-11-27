@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-r"""รายงานความครอบคลุมการนำเข้า (Import Coverage) — Odoo 19 (odoo19_puat)
+r"""รายงานความครอบคลุมการนำเข้า (Import Coverage) — Odoo 19 (<odoo19_pdev|odoo19_puat|odoo19_hist>)
 
 นับจำนวนเรกคอร์ดที่นำเข้าจาก Odoo 15 (module='__import15__') แยกตามโมเดลปลายทาง
 เพื่อยืนยันว่า "นำเข้าข้อมูลครบทุกโมดูล" และรันซ้ำได้ (idempotent)
@@ -7,7 +7,7 @@ r"""รายงานความครอบคลุมการนำเข�
 วิธีรัน (จาก root ของโปรเจกต์ c:\odoo-dev\odoo19):
     $env:PYTHONIOENCODING="utf-8"
     Get-Content migration\recon\import_coverage.py -Raw |
-        & .\venv19\Scripts\python.exe -u .\odoo-bin shell -c odoo.conf -d odoo19_puat --no-http
+        & .\venv19\Scripts\python.exe -u .\odoo-bin shell -c odoo.conf -d <odoo19_pdev|odoo19_puat|odoo19_hist> --no-http
 """
 import os
 import sys
