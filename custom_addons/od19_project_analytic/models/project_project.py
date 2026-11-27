@@ -38,14 +38,6 @@ class ProjectProject(models.Model):
         string="Contractors",
         domain="[('od19_is_contractor', '=', True)]",
     )
-    od19_analytic_link_id = fields.Many2one(
-        "account.analytic.account",
-        string="Analytic Account",
-        related="account_id",
-        readonly=True,
-        help="Read-only copy of the project analytic account, rendered as a "
-             "clickable link under the project name on the form.",
-    )
 
     @property
     def _rec_names_search(self):

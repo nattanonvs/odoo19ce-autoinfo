@@ -5,33 +5,6 @@
         <field name="model">project.project</field>
         <field name="inherit_id" ref="project.edit_project"/>
         <field name="arch" type="xml">
-            <!-- Title bar: job_no is the prominent heading, project name hangs below it -->
-            <xpath expr="//div[hasclass('oe_title')]" position="replace">
-                <div class="oe_title">
-                    <h1 class="d-flex flex-row">
-                        <field name="is_favorite" nolabel="1" widget="project_is_favorite" class="me-2" options="{'autosave': False}"/>
-                        <field name="job_no" nolabel="1" class="o_text_overflow" placeholder="e.g. JOB-2026-001" required="1"/>
-                    </h1>
-                    <h2 class="d-flex flex-row mt-1">
-                        <field name="name" nolabel="1" widget="text" options="{'line_breaks': False}" class="o_text_overflow" placeholder="e.g. Project Name"/>
-                    </h2>
-                    <!-- Analytic reference under the project name (read-only link) -->
-                    <div class="od19-analytic-line mt-1" invisible="not od19_analytic_link_id">
-                        <span class="od19-analytic-label">
-                            <i class="fa fa-link me-1"/>บัญชีวิเคราะห์
-                        </span>
-                        <field name="od19_analytic_link_id" readonly="1" options="{'no_open': False}" nolabel="1" class="oe_inline"/>
-                    </div>
-                    <!-- Missing analytic: orange hint + dashed chip to create -->
-                    <div class="od19-analytic-line od19-analytic-missing mt-1" invisible="od19_analytic_link_id">
-                        <span class="od19-analytic-warn">
-                            <i class="fa fa-exclamation-triangle me-1"/>ยังไม่มีเลข Analytic
-                        </span>
-                        <button name="action_od19_create_analytic" type="object"
-                                class="od19-chip-btn" string="+ สร้าง Analytic"/>
-                    </div>
-                </div>
-            </xpath>
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="od19_department_id" options="{'no_create': True}"/>
                 <field name="project_owner_id" domain="[('od19_is_project_owner', '=', True)]"/>
