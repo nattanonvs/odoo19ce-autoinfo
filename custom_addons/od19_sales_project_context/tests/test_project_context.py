@@ -271,3 +271,24 @@ class TestProjectContext(TransactionCase):
                 [("od19_job_no", "ilike", project.job_no)]
             ),
         )
+
+    # ------------------------------------------------------------------
+    # Sale Projects menu: search by Job Number / Analytic Account
+    # ------------------------------------------------------------------
+
+    def test_sale_projects_search_exposes_job_no_and_analytic(self):
+        """The "Sale Projects" action must use a search view that exposes the
+        Job Number and the Analytic Account. The core project search only
+        offered the plain project name, so typing a value such as JB26
+        returned an empty list.
+        """
+        action = self.env.ref(
+            "od19_sales_project_context.action_od19_sales_project"
+        )
+        self.assertTrue(
+            action.search_view_id,
+            "The Sale Projects action must set an explicit search_view_id.",
+        )
+        arch = action.search_view_id.get_combined_arch()
+        self.assertIn('name="job_no"', arch)
+        self.assertIn('name="account_id"', arch)

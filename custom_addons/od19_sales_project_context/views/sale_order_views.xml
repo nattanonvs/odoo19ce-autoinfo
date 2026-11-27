@@ -31,6 +31,13 @@
                     </div>
                 </button>
             </xpath>
+            <!-- The billable core field project_id is empty on every order in
+                 this deployment; the real project link is od19_project_id
+                 (shown above as "Linked Project"). Hide the empty core field
+                 so the order carries a single, unambiguous project link. -->
+            <xpath expr="//field[@name='project_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
         </field>
     </record>
 
