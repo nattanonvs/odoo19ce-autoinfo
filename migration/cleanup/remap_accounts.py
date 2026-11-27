@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""ย้ายการอ้างอิงบัญชี OD15 (รหัส 6 หลัก) ไปยังบัญชี OD19 — COA Cleanup (odoo19_puat)
+"""ย้ายการอ้างอิงบัญชี OD15 (รหัส 6 หลัก) ไปยังบัญชี OD19 — COA Cleanup (<odoo19_pdev|odoo19_puat|odoo19_hist>)
 
 ที่มา: docs/od19_puat_account_mapping_20261105.xlsx (อนุมัติแล้ว 21/21 รายการ)
 
@@ -20,12 +20,12 @@
 
     # 1) ดูผลที่จะเกิดขึ้น (ไม่เขียนจริง)
     Get-Content -Raw migration\\cleanup\\remap_accounts.py |
-        venv19\\Scripts\\python.exe odoo-bin shell -c odoo.conf -d odoo19_puat --no-http
+        venv19\\Scripts\\python.exe odoo-bin shell -c odoo.conf -d <odoo19_pdev|odoo19_puat|odoo19_hist> --no-http
 
     # 2) เขียนจริง (ต้องยืนยัน)
     $env:OD19_REMAP_CONFIRM = "1"
     Get-Content -Raw migration\\cleanup\\remap_accounts.py |
-        venv19\\Scripts\\python.exe odoo-bin shell -c odoo.conf -d odoo19_puat --no-http
+        venv19\\Scripts\\python.exe odoo-bin shell -c odoo.conf -d <odoo19_pdev|odoo19_puat|odoo19_hist> --no-http
     Remove-Item Env:\\OD19_REMAP_CONFIRM
 
 ตัวแปรสภาพแวดล้อม:

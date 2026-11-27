@@ -21,7 +21,7 @@ r"""sim_replicate_gl15 — replicate รายการจริงของ Odo
 วิธีรัน (จาก root โปรเจกต์ c:\odoo-dev\odoo19):
     Get-Content -LiteralPath .\migration\simulate\sim_replicate_gl15.py -Raw |
         .\venv19\Scripts\python.exe .\odoo-bin shell -c .\odoo.conf `
-        -d odoo19_puat --no-http --db-filter=^odoo19_puat$
+        -d <odoo19_pdev|odoo19_puat|odoo19_hist> --no-http --db-filter=^<odoo19_pdev|odoo19_puat|odoo19_hist>$
 
 ตัวแปรสภาพแวดล้อม
     MIG_DRY_RUN=1     ทดสอบโดยไม่เขียนจริง (สร้างใน savepoint แล้ว rollback)
@@ -182,7 +182,10 @@ def product19(legacy_tmpl_id):
     pid = env['ir.model.data']._xmlid_to_res_id(xmlid, raise_if_not_found=False)  # noqa: F821
     if not pid:
         return None
-    return env['product.template'].browse(pid).product_variant_id  # noqa: F821
+    # ต้องปิด active_test เพราะสินค้าที่ถูก archive ในภายหลังแต่ถูกอ้างใน GL
+    # จะได้ product_variant_id = None ถ้าไม่ปิด (ทำให้เข้าใจผิดว่าหาไม่เจอ)
+    tmpl = env['product.template'].with_context(active_test=False).browse(pid)  # noqa: F821
+    return tmpl.product_variant_id
 
 
 def partner19(legacy_id):
@@ -295,6 +298,28 @@ def od15_lines(move_id):
 # --------------------------------------------------------------------------
 # สร้าง move ใน od19 (typed invoice / entry)
 # --------------------------------------------------------------------------
+def unique_vendor_ref(p, ref, name15):
+    """ทำให้ ref ของใบซื้อไม่ชนกับใบซื้ออื่นของคู่ค้ารายเดียวกัน
+
+    od19 มี unique index `account_move_od19_supplier_ref_uniq` บน
+    (company_id, commercial_partner_id, ref) เฉพาะ in_invoice/in_refund
+    แต่ od15 ยอมให้คู่ค้ารายเดียวกันมีใบซื้อที่ใช้เลขที่อ้างอิงซ้ำได้
+    -> เติมชื่อเอกสาร od15 ต่อท้ายเพื่อให้ไม่ชน (คงเลขเดิมให้ตรวจสอบได้)
+    """
+    if not ref:
+        return ref
+    cp = p.commercial_partner_id
+    clash = env['account.move'].search_count([  # noqa: F821
+        ('company_id', '=', env.company.id),  # noqa: F821
+        ('commercial_partner_id', '=', cp.id),
+        ('ref', '=', ref),
+        ('move_type', 'in', ('in_invoice', 'in_refund')),
+    ])
+    if clash:
+        return '%s [%s]' % (ref, name15)
+    return ref
+
+
 def build_invoice(rec, l15, warns):
     p = partner19(rec['partner_id'])
     if not p:
@@ -359,13 +384,19 @@ def build_invoice(rec, l15, warns):
 
     if not inv_lines:
         return 'no-invoice-lines'
+    ref = rec['ref'] or rec['name'] or False
+    if is_purchase and ref:
+        ref2 = unique_vendor_ref(p, ref, rec['name'])
+        if ref2 != ref:
+            warns.append('dup-ref:%s' % rec['name'])
+            ref = ref2
     hd = {
         'move_type': rec['move_type'],
         'partner_id': p.id,
         'journal_id': journal.id,
         'date': rec['date'],
         'invoice_date': rec['invoice_date'] or rec['date'],
-        'ref': rec['ref'] or rec['name'] or False,
+        'ref': ref,
         'invoice_line_ids': inv_lines,
     }
     move = env['account.move'].with_context(  # noqa: F821
@@ -435,10 +466,75 @@ def build_entry(rec, l15, warns):
     return move
 
 
+def _gl_net_by_acct(l15):
+    """ยอดคงเหลือ (เดบิต-เครดิต) ต่อรหัสบัญชี od19 ที่คาดหวังจากบรรทัด od15."""
+    exp = {}
+    for r in l15:
+        if r['display_type'] in ('line_section', 'line_note'):
+            continue
+        c19 = AMAP.get(r['code']) or ('?%s' % r['code'])
+        exp[c19] = round(exp.get(c19, 0.0)
+                         + float(r['debit'] or 0.0) - float(r['credit'] or 0.0), 2)
+    return exp
+
+
+def _move_matches_gl(move, l15, tol=0.05):
+    """typed invoice ที่สร้างมามียอดคงเหลือรายบัญชีตรง GL ของ od15 หรือไม่.
+
+    od15 บางใบมี price_subtotal เพี้ยน (เช่น AP2309-0008: GL 1,311,139.22
+    แต่ price_subtotal 37,522.98) ทำให้ typed invoice ที่ Odoo สร้างขึ้นมา
+    มียอดไม่ตรง GL จริง -> ต้องตรวจแล้วถอยไปคัดลอกบรรทัด 1:1 (entry)
+
+    คืนค่า (code, od15_net, od19_net) เมื่อยอดไม่ตรง หรือ None เมื่อตรงทุกบัญชี
+    """
+    exp = _gl_net_by_acct(l15)
+    got = {}
+    for ln in move.line_ids:
+        c19 = ln.account_id.code or '?'
+        got[c19] = round(got.get(c19, 0.0) + float(ln.balance or 0.0), 2)
+    for c in sorted(set(exp) | set(got)):
+        if abs(round(exp.get(c, 0.0), 2) - round(got.get(c, 0.0), 2)) >= tol:
+            return (c, exp.get(c, 0.0), got.get(c, 0.0))
+    return None
+
+
+class _FallbackInvoice(Exception):
+    """สั่ง rollback typed invoice ภายใน savepoint แล้วถอยไปสร้าง entry."""
+
+    def __init__(self, msg):
+        super(_FallbackInvoice, self).__init__(msg)
+        self.msg = msg
+
+
 def _create_move(rec, l15, warns):
     if rec['move_type'] == 'entry':
         return build_entry(rec, l15, warns)
-    return build_invoice(rec, l15, warns)
+    # ลองสร้างเป็น typed invoice ก่อน (ได้ AR/AP/ภาษี ตาม Odoo)
+    # ถ้าสร้าง/ลงบัญชีไม่ได้ หรือยอดคงเหลือไม่ตรง GL od15 -> ถอยไปคัดลอกบรรทัด 1:1
+    #   1) exception (เช่น od15 บรรทัดเพี้ยนจนยอดรวมติดลบ)
+    #   2) คืนสตริงความผิดพลาด เช่น 'no-invoice-lines' (od15 มีแต่บรรทัดภาษี/AR-AP)
+    #      -> ถ้าไม่ถอย ใบนั้นจะหายไปจาก GL ทั้งใบ
+    #   3) typed invoice สร้างได้แต่ยอดคงเหลือรายบัญชีไม่ตรง GL od15
+    #      (od15 price_subtotal เพี้ยน) -> ถ้าไม่ถอย GL จะขาด/เกินยอดทั้งใบ
+    try:
+        with env.cr.savepoint():  # noqa: F821
+            res = build_invoice(rec, l15, warns)
+            if isinstance(res, str):
+                raise _FallbackInvoice(res)
+            bad = _move_matches_gl(res, l15)
+            if bad:
+                warns.append('fallback-gl:%s(od15=%.2f,od19=%.2f)' % bad)
+                raise _FallbackInvoice('gl-mismatch:%s' % (bad[0],))
+    except _FallbackInvoice as fb:
+        ent = build_entry(rec, l15, warns)
+        if isinstance(ent, str):
+            return fb.msg  # entry ก็ทำไม่ได้ -> คงข้อผิดพลาดเดิมไว้ให้ตรวจ
+        warns.append('fallback-entry:%s' % fb.msg)
+        return ent
+    except Exception as exc:  # noqa: BLE001
+        warns.append('fallback-entry:%s' % str(exc).splitlines()[0][:60])
+        return build_entry(rec, l15, warns)
+    return res
 
 
 # --------------------------------------------------------------------------
@@ -593,11 +689,27 @@ def phase_replicate():
         if existing_id:
             m = env['account.move'].browse(existing_id)  # noqa: F821
             if m.state == 'posted':
-                stats.skipped += 1
-                processed += 1
-                continue
-            # มีอยู่แต่ยังเป็นฉบับร่าง -> ลบทิ้งแล้วสร้างใหม่ (การประกอบบรรทัดซับซ้อน)
-            m.unlink()
+                # self-heal: ใบที่ post แล้วแต่ยอดคงเหลือไม่ตรง GL od15
+                # (เช่น typed invoice ที่สร้างจาก price_subtotal เพี้ยน)
+                # -> ยกเลิกแล้วสร้างใหม่ (entry) เพื่อให้ GL ตรง
+                if m.move_type != 'entry':
+                    l15 = od15_lines(rec['id'])
+                    if l15 and _move_matches_gl(m, l15):
+                        common.log("self-heal: %s %s ยอดไม่ตรง GL -> สร้างใหม่"
+                                   % (m.move_type, m.name))
+                        m.button_draft()
+                        m.unlink()
+                    else:
+                        stats.skipped += 1
+                        processed += 1
+                        continue
+                else:
+                    stats.skipped += 1
+                    processed += 1
+                    continue
+            else:
+                # มีอยู่แต่ยังเป็นฉบับร่าง -> ลบทิ้งแล้วสร้างใหม่ (การประกอบบรรทัดซับซ้อน)
+                m.unlink()
         try:
             with env.cr.savepoint():  # noqa: F821
                 l15 = od15_lines(rec['id'])
@@ -684,6 +796,22 @@ def verify():
         v[1] += float(r['credit'] or 0.0)
 
     months = sorted(set(k[0] for k in list(exp) + list(got)))
+    # (ก) งบทดลอง — เทียบ 'ยอดคงเหลือ' (เดบิต-เครดิต) ต่อบัญชี/เดือน = ตัวชี้วัดหลัก
+    diff_accts = []
+    for k in sorted(set(exp) | set(got)):
+        e = exp.get(k, [0.0, 0.0])
+        g = got.get(k, [0.0, 0.0])
+        e_net = round(e[0] - e[1], 2)
+        g_net = round(g[0] - g[1], 2)
+        if abs(e_net - g_net) >= 0.05:
+            diff_accts.append((k[0], k[1], e_net, g_net))
+    common.log("  งบทดลอง (ยอดคงเหลือ): บัญชีที่ยอดไม่ตรง %d รายการ" % len(diff_accts))
+    for row in diff_accts[:40]:
+        common.log("    %s %-12s od15=%12.2f od19=%12.2f" % row)
+
+    # (ข) ยอดหมุนเวียนรวม (gross dr/cr) — ข้อมูลประกอบ
+    #     ต่างได้ตามธรรมชาติจากการแยกบรรทัดภาษี (od15 แยก VAT ส่วนลดเป็น 2 บรรทัด,
+    #     od19 รวมเป็นบรรทัดเดียว) ยอดคงเหลือยังตรง -> ไม่กระทบงบการเงิน/รายงานภาษี
     bad_total = 0
     for ym in months:
         e_dr = sum(v[0] for k, v in exp.items() if k[0] == ym)
@@ -692,23 +820,13 @@ def verify():
         g_cr = sum(v[1] for k, v in got.items() if k[0] == ym)
         d_dr = round(g_dr - e_dr, 2)
         d_cr = round(g_cr - e_cr, 2)
-        flag = '' if (abs(d_dr) < 0.05 and abs(d_cr) < 0.05) else '  <-- ต่าง'
+        flag = '' if (abs(d_dr) < 0.05 and abs(d_cr) < 0.05) else '  <-- ต่าง(หมุนเวียน)'
         if flag:
             bad_total += 1
         common.log("  %s | od15 dr=%14.2f cr=%14.2f | od19 dr=%14.2f cr=%14.2f | diff dr=%9.2f cr=%9.2f%s"
                    % (ym, e_dr, e_cr, g_dr, g_cr, d_dr, d_cr, flag))
-
-    diff_accts = []
-    for k in sorted(set(exp) | set(got)):
-        e = exp.get(k, [0.0, 0.0])
-        g = got.get(k, [0.0, 0.0])
-        if abs(round(g[0] - e[0], 2)) >= 0.05 or abs(round(g[1] - e[1], 2)) >= 0.05:
-            diff_accts.append((k[0], k[1], round(e[0] - e[1], 2), round(g[0] - g[1], 2)))
-    common.log("  บัญชีที่ยอดไม่ตรง (รายเดือน): %d รายการ" % len(diff_accts))
-    for row in diff_accts[:40]:
-        common.log("    %s %-12s od15=%12.2f od19=%12.2f" % row)
-    common.log("  สรุป: เดือนที่ยอดรวมต่าง %d/%d | บัญชีไม่ตรง %d"
-               % (bad_total, len(months), len(diff_accts)))
+    common.log("  สรุป: บัญชีที่ยอดคงเหลือไม่ตรง %d | เดือนที่ยอดหมุนเวียนต่าง %d/%d"
+               % (len(diff_accts), bad_total, len(months)))
 
 
 # --------------------------------------------------------------------------

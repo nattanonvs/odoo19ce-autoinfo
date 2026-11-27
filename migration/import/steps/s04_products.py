@@ -2,7 +2,8 @@
 """s04_products — สินค้า/บริการ หมวดหมู่ หน่วยนับ ภาษี และรายการราคา
 
 หลักการ:
-    * นำเข้าเฉพาะสินค้าที่ active=true จากระบบเดิม (สอดคล้องกับ s03_partners)
+    * นำเข้าสินค้าที่ active=true จากระบบเดิม (สอดคล้องกับ s03_partners)
+      รวมถึงสินค้าที่ถูก archive แต่ยังถูกอ้างถึงในบรรทัดใบสั่งขาย/ซื้อ (คงสถานะ active ตามเดิม)
     * หมวดหมู่/หน่วยนับ/ภาษี จับคู่ผ่านไฟล์ mapping CSV ใน migration/mapping
     * ทุก record ผูก External ID __import15__.product_template.<legacy_id>
       จึงรันซ้ำได้โดยไม่เกิดข้อมูลซ้ำ
@@ -25,7 +26,7 @@ _TAX_TYPE = {'sale': 'sale', 'purchase': 'purchase', 'payment': 'purchase'}
 # อ่านสินค้าจากระบบเดิม: ใช้ค่าจาก variant แรกของแต่ละ template
 # (OD15 เก็บ default_code/barcode/standard_price ไว้ที่ product_product)
 _PRODUCT_SQL = """
-SELECT pt.id AS tmpl_id, pt.name, pt.type, pt.categ_id, pt.uom_id,
+SELECT pt.id AS tmpl_id, pt.name, pt.type, pt.categ_id, pt.uom_id, pt.active,
        pt.list_price, pt.sale_ok, pt.purchase_ok,
        u.name AS uom_name,
        (SELECT pp.default_code FROM product_product pp
@@ -43,6 +44,16 @@ SELECT pt.id AS tmpl_id, pt.name, pt.type, pt.categ_id, pt.uom_id,
 FROM product_template pt
 LEFT JOIN uom_uom u ON u.id = pt.uom_id
 WHERE pt.active = true
+   -- สินค้าที่ถูก archive ภายหลังแต่ยังถูกอ้างในบรรทัดใบสั่งขาย/ซื้อ ต้องนำเข้าด้วย
+   -- (คงสถานะ active ตามระบบเดิม) มิฉะนั้นบรรทัดใบสั่งประวัติศาสตร์จะอ้างสินค้าไม่ได้
+   OR pt.id IN (SELECT DISTINCT pp2.product_tmpl_id
+                  FROM sale_order_line l JOIN product_product pp2 ON pp2.id = l.product_id)
+   OR pt.id IN (SELECT DISTINCT pp3.product_tmpl_id
+                  FROM purchase_order_line l2 JOIN product_product pp3 ON pp3.id = l2.product_id)
+   -- สินค้าที่ถูก archive ภายหลังแต่ยังถูกอ้างในบรรทัดใบกำกับ/ใบสำคัญ (GL) ต้องนำเข้าด้วย
+   -- มิฉะนั้นบรรทัดใบกำกับประวัติศาสตร์จะอ้างสินค้าไม่ได้ (ส่งผลต่อรายงานระดับสินค้า)
+   OR pt.id IN (SELECT DISTINCT pp4.product_tmpl_id
+                  FROM account_move_line l3 JOIN product_product pp4 ON pp4.id = l3.product_id)
 ORDER BY pt.id
 """
 
@@ -208,6 +219,7 @@ def _to_vals(row, uoms, cats, taxes, cust, supp, costs, has_storable):
     vals = {
         'name': (row.get('name') or '').strip() or ('Product %s' % row['tmpl_id']),
         'type': od19_type,
+        'active': bool(row.get('active', True)),
         'sale_ok': bool(row.get('sale_ok')),
         'purchase_ok': bool(row.get('purchase_ok')),
         'list_price': row.get('list_price') or 0.0,

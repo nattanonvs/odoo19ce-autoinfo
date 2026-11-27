@@ -13,12 +13,12 @@
 
     # 1) ดูรายการที่จะลบ (ไม่ลบจริง)
     $env:CLEAN_DRY_RUN = "1"
-    venv19\\Scripts\\python.exe odoo-bin shell -c odoo.conf -d odoo19_pdev --no-http < migration\\cleanup\\run.py
+    venv19\\Scripts\\python.exe odoo-bin shell -c odoo.conf -d <odoo19_pdev|odoo19_puat|odoo19_hist> --no-http < migration\\cleanup\\run.py
     Remove-Item Env:\\CLEAN_DRY_RUN
 
     # 2) ลบจริง (ต้องยืนยันด้วย CLEAN_CONFIRM=1)
     $env:CLEAN_CONFIRM = "1"
-    venv19\\Scripts\\python.exe odoo-bin shell -c odoo.conf -d odoo19_pdev --no-http < migration\\cleanup\\run.py
+    venv19\\Scripts\\python.exe odoo-bin shell -c odoo.conf -d <odoo19_pdev|odoo19_puat|odoo19_hist> --no-http < migration\\cleanup\\run.py
     Remove-Item Env:\\CLEAN_CONFIRM
 
 ตัวแปรสภาพแวดล้อม:

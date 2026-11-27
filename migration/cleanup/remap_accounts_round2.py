@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""ย้ายการอ้างอิงบัญชีชุดที่ 2 (8 บัญชีที่ลบไม่ได้) ไปยังบัญชี OD19 — COA Cleanup (odoo19_puat)
+"""ย้ายการอ้างอิงบัญชีชุดที่ 2 (8 บัญชีที่ลบไม่ได้) ไปยังบัญชี OD19 — COA Cleanup (<odoo19_pdev|odoo19_puat|odoo19_hist>)
 
 ที่มา: ผลตรวจ "เอาออกได้ไหม" ของ 21 บัญชี → 13 ตัวลบได้ / 8 ตัวติด constraint ต้อง remap
        + คำยืนยันปลายทางจากผู้ใช้ (2026-11-05)
@@ -29,12 +29,12 @@
 
     # 1) ดูผลที่จะเกิดขึ้น (ไม่เขียนจริง)
     Get-Content -Raw migration\\cleanup\\remap_accounts_round2.py |
-        venv19\\Scripts\\python.exe odoo-bin shell -c odoo.conf -d odoo19_puat --no-http
+        venv19\\Scripts\\python.exe odoo-bin shell -c odoo.conf -d <odoo19_pdev|odoo19_puat|odoo19_hist> --no-http
 
     # 2) เขียนจริง (ต้องยืนยัน)
     $env:OD19_REMAP_CONFIRM = "1"
     Get-Content -Raw migration\\cleanup\\remap_accounts_round2.py |
-        venv19\\Scripts\\python.exe odoo-bin shell -c odoo.conf -d odoo19_puat --no-http
+        venv19\\Scripts\\python.exe odoo-bin shell -c odoo.conf -d <odoo19_pdev|odoo19_puat|odoo19_hist> --no-http
     Remove-Item Env:\\OD19_REMAP_CONFIRM
 
 ตัวแปรสภาพแวดล้อม:

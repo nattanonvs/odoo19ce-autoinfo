@@ -2,8 +2,8 @@
 r"""เปรียบเทียบงบดุล (Balance Sheet) Odoo 19 เทียบ Odoo 15 แบบรายละเอียดรายบัญชี
 
 อ่านอย่างเดียว (read-only) ทั้งสองฐานข้อมูล:
-    * Odoo 15 : od15_stage   (psycopg2)
-    * Odoo 19 : odoo19_puat  (psycopg2)
+    * Odoo 15 : od15_stage                              (psycopg2)
+    * Odoo 19 : odoo19_pdev / odoo19_puat / odoo19_hist (psycopg2, วนอัตโนมัติ)
 
 เกณฑ์การตรวจสอบ (ตามที่ผู้ใช้กำหนด):
     ถ้าทั้งสองระบบให้ผลลัพธ์ "เหมือนกัน" ทุกรายบัญชี ณ วันเดียวที่เทียบได้
@@ -15,10 +15,11 @@ r"""เปรียบเทียบงบดุล (Balance Sheet) Odoo 19 เ
     จึงรายงานทั้งรายเดือนของ OD15 และการเทียบรายบัญชี ณ จุดตัดยอด
 
 รัน (จาก root โปรเจกต์):
-    .\venv19\Scripts\python.exe migration\recon\bs_compare.py
+    .\venv19\Scripts\python.exe migration\recon\bs_compare.py [--db odoo19_pdev odoo19_puat odoo19_hist]
 
-ผลลัพธ์: ไฟล์ Excel หลายชีต (ดู OUT_PATH ด้านล่าง)
+ผลลัพธ์: ไฟล์ Excel หลายชีต ต่อฐานข้อมูล OD19 (ดู out_path_for() ด้านล่าง)
 """
+import argparse
 import json
 import os
 import sys
@@ -35,7 +36,7 @@ from openpyxl.utils import get_column_letter
 # --------------------------------------------------------------------------
 CUTOFF = '2026-10-31'                       # วันตัดยอด (วันเดียวที่เทียบงบดุลได้)
 OD15_DB = 'od15_stage'
-OD19_DB = 'odoo19_puat'
+OD19_DBS = ['odoo19_pdev', 'odoo19_puat', 'odoo19_hist']   # ฐานข้อมูล OD19 เป้าหมาย (วนอัตโนมัติ)
 OD19_CODE_KEY = '1'                         # คีย์บริษัทใน code_store (jsonb)
 TOL = 0.01                                  # ค่าคลาดเคลื่อนที่ยอมรับได้
 
@@ -43,8 +44,12 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))   # ...\migra
 PROJ = os.path.dirname(ROOT)                                          # ...\odoo19
 CONF = os.path.join(PROJ, 'odoo.conf')
 CHART_FILE = os.path.join(ROOT, 'mapping', 'od15_chart_to_od19.csv')
-OUT_PATH = os.path.join(ROOT, 'recon',
-                        'bs_compare_od15_vs_od19_20261031_R03.xlsx')
+
+
+def out_path_for(db):
+    """path ของไฟล์ผลลัพธ์ Excel สำหรับฐานข้อมูล OD19 ที่ระบุ"""
+    return os.path.join(ROOT, 'recon',
+                        'bs_compare_od15_vs_od19_20261031_R03_%s.xlsx' % db)
 
 # เดือนที่รายงาน (ม.ค.–ต.ค. 2026) — ต.ค. คือเดือนของจุดตัดยอด
 MONTHS = [(2026, m) for m in range(1, 11)]
@@ -780,16 +785,34 @@ def build_billing(wb, by_state, months, open_top, open_sum, sales_last):
 
 # --------------------------------------------------------------------------
 def main():
+    parser = argparse.ArgumentParser(
+        description='เปรียบเทียบงบดุล Odoo 15 กับ Odoo 19 (อ่านอย่างเดียว)')
+    parser.add_argument(
+        '--db', nargs='+', default=OD19_DBS,
+        help='ฐานข้อมูล Odoo 19 ที่จะเทียบ (ค่าเริ่มต้น: %s)' % ' '.join(OD19_DBS))
+    args = parser.parse_args()
+
     cfg = read_conf()
     chart = load_chart()
     c15 = connect(OD15_DB, cfg)
-    c19 = connect(OD19_DB, cfg)
+    try:
+        rc = 0
+        for db in args.db:
+            print('==== compare OD15 vs OD19: %s ====' % db)
+            rc = _run_one_db(db, cfg, chart, c15) or rc
+    finally:
+        c15.close()
+    return rc
+
+
+def _run_one_db(db, cfg, chart, c15):
+    c19 = connect(db, cfg)
     try:
         # ---- ยอดรายบัญชี ณ จุดตัดยอด ----
         rows15 = od15_balances(c15, CUTOFF)
         rows19 = od19_balances(c19, CUTOFF)
     finally:
-        pass
+        c19.close()
 
     # จัดกลุ่ม OD15 (เฉพาะงบดุล) + classification
     bs15 = []
@@ -1003,11 +1026,12 @@ def main():
     build_billing(wb, bill_by_state, bill_months, bill_open_top, bill_open_sum,
                   sales_last)
     build_data_quality(wb, issues)
-    wb.save(OUT_PATH)
+    out_path = out_path_for(db)
+    wb.save(out_path)
 
     # ---- สรุปทางคอนโซล ----
     print('=' * 72)
-    print('BS Compare OD15 vs OD19 @ %s' % CUTOFF)
+    print('BS Compare OD15 vs OD19 @ %s (db: %s)' % (CUTOFF, db))
     print('=' * 72)
     print('ASSET        OD15=%18.2f  OD19=%18.2f  diff=%9.2f'
           % (rec['asset15'], rec['asset19'], rec['asset19'] - rec['asset15']))
@@ -1043,7 +1067,7 @@ def main():
              bill_open_sum.get('mn'), bill_open_sum.get('mx')))
     print('-' * 72)
     print('ผล: %s' % verdict)
-    print('ไฟล์: %s' % OUT_PATH)
+    print('ไฟล์: %s' % out_path)
     print('=' * 72)
     return 0 if n_bad == 0 else 1
 

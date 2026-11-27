@@ -28,6 +28,17 @@ MAPPING_DIR = os.path.join(
 # โหมดทดสอบ: เปิดเมื่อ MIG_DRY_RUN=1 (จะไม่เขียนข้อมูลจริง)
 DRY_RUN = os.environ.get('MIG_DRY_RUN', '') == '1'
 
+# context มาตรฐานของการนำเข้า: ปิดกลไก mail/thread ทั้งหมดระหว่าง migration
+# เหตุผล: การนำเข้า record จำนวนมาก (สินค้า/ใบสั่ง/ใบกำกับ) หากปล่อยให้ mail.thread
+# ทำงาน (สร้างผู้ติดตาม + mail.message + tracking) จะทำให้ช้ามากและได้ข้อมูล mail
+# ที่ไม่จำเป็น — ปิดเฉพาะกลไก mail ส่วนข้อมูลธุรกิจยังถูกต้องครบถ้วน
+MIG_CONTEXT = {
+    'tracking_disable': True,          # ข้าม mail.thread create/write ทั้งหมด
+    'mail_create_nolog': True,         # ไม่สร้างข้อความ "สร้างแล้ว"
+    'mail_notrack': True,              # ไม่ติดตามการเปลี่ยนแปลงฟิลด์
+    'mail_create_nosubscribe': True,   # ไม่ subscribe ผู้ใช้/ผู้ติดตาม
+}
+
 # ขั้นตอนปัจจุบัน (ใช้ประกอบข้อความ log)
 _STEP = ''
 _ENV = None
@@ -170,9 +181,10 @@ def upsert(model, legacy_id, vals, context=None):
 
     env = odoo_env()
     imd = env['ir.model.data']
-    Model = env[model]
+    ctx = dict(MIG_CONTEXT)
     if context:
-        Model = Model.with_context(**context)
+        ctx.update(context)
+    Model = env[model].with_context(**ctx)
 
     existing_id = imd._xmlid_to_res_id(xmlid, raise_if_not_found=False)
     if existing_id:

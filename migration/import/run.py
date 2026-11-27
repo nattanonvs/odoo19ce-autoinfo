@@ -3,12 +3,12 @@
 
 วิธีใช้งาน (รันจาก root ของโปรเจกต์ c:\\odoo-dev\\odoo19):
 
-    venv19\\Scripts\\python.exe odoo-bin shell -c odoo.conf -d odoo19_pdev --no-http < migration\\import\\run.py
+    venv19\\Scripts\\python.exe odoo-bin shell -c odoo.conf -d <odoo19_pdev|odoo19_puat|odoo19_hist> --no-http < migration\\import\\run.py
 
 โหมดทดสอบ (dry-run) — ไม่เขียนข้อมูลจริง แค่ log สิ่งที่จะเขียน:
 
     $env:MIG_DRY_RUN = "1"
-    venv19\\Scripts\\python.exe odoo-bin shell -c odoo.conf -d odoo19_pdev --no-http < migration\\import\\run.py
+    venv19\\Scripts\\python.exe odoo-bin shell -c odoo.conf -d <odoo19_pdev|odoo19_puat|odoo19_hist> --no-http < migration\\import\\run.py
     Remove-Item Env:\\MIG_DRY_RUN
 
 หมายเหตุเรื่องการส่งอาร์กิวเมนต์:
